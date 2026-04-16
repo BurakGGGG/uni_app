@@ -10,13 +10,13 @@ dependencies:
   flutter:
     sdk: flutter
 
-  # Firebase (Sprint 1'de kullanılacak)
-  # firebase_core: ^3.12.1
-  # firebase_auth: ^5.5.3
-  # cloud_firestore: ^5.6.7
-  # firebase_storage: ^12.4.5
-  # firebase_analytics: ^11.6.0
-  # firebase_messaging: ^15.2.10
+  # Firebase
+  firebase_core: ^3.12.1
+  firebase_auth: ^5.5.3
+  cloud_firestore: ^5.6.7
+  firebase_storage: ^12.4.5
+  firebase_analytics: ^11.6.0
+  firebase_messaging: ^15.2.10
 
   # State Management
   flutter_riverpod: ^2.6.1

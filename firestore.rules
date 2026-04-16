@@ -1,0 +1,89 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ─── Yardımcı Fonksiyonlar ──────────────────────────────────
+
+    // Kullanıcı giriş yapmış mı?
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Kullanıcı edu.tr doğrulanmış öğrenci mi?
+    function isVerifiedStudent() {
+      return isAuthenticated() &&
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isVerifiedStudent == true;
+    }
+
+    // Belgenin sahibi bu kullanıcı mı?
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // ─── Şehirler ───────────────────────────────────────────────
+    // Herkes okuyabilir, kimse yazamaz (admin panelden yönetilir)
+    match /cities/{cityId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // ─── Üniversiteler ──────────────────────────────────────────
+    // Herkes okuyabilir, kimse yazamaz (admin panelden yönetilir)
+    match /universities/{uniId} {
+      allow read: if true;
+      allow write: if false;
+
+      // Bölümler alt-koleksiyonu
+      match /departments/{deptId} {
+        allow read: if true;
+        allow write: if false;
+      }
+
+      // Mekanlar alt-koleksiyonu
+      match /places/{placeId} {
+        allow read: if true;
+        allow write: if false;
+      }
+    }
+
+    // ─── Yorumlar ───────────────────────────────────────────────
+    match /reviews/{reviewId} {
+      // Herkes okuyabilir
+      allow read: if true;
+
+      // Sadece doğrulanmış öğrenciler yorum yazabilir
+      allow create: if isVerifiedStudent() &&
+        request.resource.data.userId == request.auth.uid;
+
+      // Sadece kendi yorumunu düzenleyebilir
+      allow update: if isOwner(resource.data.userId) &&
+        request.resource.data.userId == resource.data.userId;
+
+      // Sadece kendi yorumunu silebilir
+      allow delete: if isOwner(resource.data.userId);
+    }
+
+    // ─── Kullanıcılar ───────────────────────────────────────────
+    match /users/{userId} {
+      // Herkes profil bilgilerini okuyabilir
+      allow read: if true;
+
+      // Sadece kendi profilini oluşturabilir
+      allow create: if isOwner(userId);
+
+      // Sadece kendi profilini güncelleyebilir
+      allow update: if isOwner(userId);
+
+      // Profil silme: sadece kendi hesabı
+      allow delete: if isOwner(userId);
+    }
+
+    // ─── Favoriler ──────────────────────────────────────────────
+    match /users/{userId}/favorites/{favId} {
+      allow read: if isOwner(userId);
+      allow write: if isOwner(userId);
+    }
+  }
+}

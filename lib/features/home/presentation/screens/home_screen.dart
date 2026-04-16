@@ -177,6 +177,7 @@ final List<Map<String, String>> _sampleCities = [
   {'name': 'İstanbul', 'emoji': '🌉', 'count': '52'},
   {'name': 'Ankara', 'emoji': '🏛️', 'count': '38'},
   {'name': 'İzmir', 'emoji': '🌊', 'count': '15'},
+  {'name': 'Sivas', 'emoji': '🏔️', 'count': '3'},
   {'name': 'Eskişehir', 'emoji': '🎓', 'count': '8'},
   {'name': 'Antalya', 'emoji': '☀️', 'count': '7'},
   {'name': 'Bursa', 'emoji': '🌿', 'count': '12'},
