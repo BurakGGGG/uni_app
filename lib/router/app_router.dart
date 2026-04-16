@@ -4,6 +4,9 @@ import '../features/home/presentation/screens/explore_screen.dart';
 import '../features/comparison/presentation/screens/comparison_screen.dart';
 import '../features/favorites/presentation/screens/favorites_screen.dart';
 import '../features/profile/presentation/screens/profile_screen.dart';
+import '../features/auth/presentation/screens/onboarding_screen.dart';
+import '../features/auth/presentation/screens/login_screen.dart';
+import '../features/auth/presentation/screens/register_screen.dart';
 import 'app_shell.dart';
 
 /// Uygulama route isimleri
@@ -28,6 +31,20 @@ final GoRouter appRouter = GoRouter(
   initialLocation: AppRoutes.home,
   debugLogDiagnostics: true,
   routes: [
+    // ─── Auth Routes ─────────────────────────────────────────────
+    GoRoute(
+      path: AppRoutes.onboarding,
+      builder: (context, state) => const OnboardingScreen(),
+    ),
+    GoRoute(
+      path: AppRoutes.login,
+      builder: (context, state) => const LoginScreen(),
+    ),
+    GoRoute(
+      path: AppRoutes.register,
+      builder: (context, state) => const RegisterScreen(),
+    ),
+
     // ─── Shell Route (Bottom Navigation) ─────────────────────────
     StatefulShellRoute.indexedStack(
       builder: (context, state, navigationShell) {

@@ -183,6 +183,7 @@ final List<Map<String, String>> _sampleCities = [
   {'name': 'Bursa', 'emoji': '🌿', 'count': '12'},
   {'name': 'Trabzon', 'emoji': '⛰️', 'count': '5'},
   {'name': 'Konya', 'emoji': '🕌', 'count': '9'},
+  {'name': 'Mersin', 'emoji': '🍊', 'count': '4'},
 ];
 
 final List<Map<String, String>> _sampleUniversities = [
