@@ -1,5 +1,7 @@
+import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import '../domain/user_model.dart';
 
@@ -173,6 +175,59 @@ class AuthRepository {
     if (user != null && !user.emailVerified) {
       await user.sendEmailVerification();
     }
+  }
+
+  // ─── Profil Güncelleme ─────────────────────────────────────────
+
+  Future<void> updateProfile({
+    required String uid,
+    String? displayName,
+    String? university,
+    String? universityId,
+    String? department,
+    int? grade,
+  }) async {
+    final updates = <String, dynamic>{};
+    if (displayName != null) updates['displayName'] = displayName;
+    if (university != null) updates['university'] = university;
+    if (universityId != null) updates['universityId'] = universityId;
+    if (department != null) updates['department'] = department;
+    if (grade != null) updates['grade'] = grade;
+
+    if (updates.isNotEmpty) {
+      await _firestore.collection('users').doc(uid).update(updates);
+
+      // Firebase Auth display name de güncelle
+      if (displayName != null) {
+        await _auth.currentUser?.updateDisplayName(displayName);
+      }
+    }
+  }
+
+  // ─── Profil Fotoğrafı Yükleme ─────────────────────────────────
+
+  Future<String> uploadProfilePhoto(String uid, File imageFile) async {
+    final ref = FirebaseStorage.instance
+        .ref()
+        .child('profile_photos')
+        .child('$uid.jpg');
+
+    // Fotoğrafı yükle
+    await ref.putFile(
+      imageFile,
+      SettableMetadata(contentType: 'image/jpeg'),
+    );
+
+    // URL al
+    final downloadUrl = await ref.getDownloadURL();
+
+    // Firestore ve Auth'da güncelle
+    await _firestore.collection('users').doc(uid).update({
+      'photoUrl': downloadUrl,
+    });
+    await _auth.currentUser?.updatePhotoURL(downloadUrl);
+
+    return downloadUrl;
   }
 
   // ─── Yardımcı: Kullanıcı Oluştur/Güncelle ────────────────────

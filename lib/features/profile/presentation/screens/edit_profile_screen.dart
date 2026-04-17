@@ -1,0 +1,424 @@
+import 'dart:io';
+import 'dart:ui';
+import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_text_styles.dart';
+import '../../../../core/widgets/widgets.dart';
+import '../../../auth/presentation/providers/auth_providers.dart';
+
+/// Profil düzenleme ekranı
+class EditProfileScreen extends ConsumerStatefulWidget {
+  const EditProfileScreen({super.key});
+
+  @override
+  ConsumerState<EditProfileScreen> createState() => _EditProfileScreenState();
+}
+
+class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
+  final _formKey = GlobalKey<FormState>();
+  final _nameController = TextEditingController();
+  final _imagePicker = ImagePicker();
+
+  String? _selectedUniversity;
+  String? _selectedDepartment;
+  int? _selectedGrade;
+  File? _selectedImage;
+  String? _currentPhotoUrl;
+  bool _isLoading = false;
+  bool _hasChanges = false;
+
+  // Geçici üniversite listesi (sonra Firestore'dan gelecek)
+  final _universities = [
+    'Boğaziçi Üniversitesi',
+    'İTÜ',
+    'İstanbul Üniversitesi',
+    'Marmara Üniversitesi',
+    'YTÜ',
+    'ODTÜ',
+    'Hacettepe Üniversitesi',
+    'Ankara Üniversitesi',
+    'Gazi Üniversitesi',
+    'Ege Üniversitesi',
+    'Dokuz Eylül Üniversitesi',
+    'Cumhuriyet Üniversitesi',
+    'Sivas Bilim ve Teknoloji Üniversitesi',
+    'Anadolu Üniversitesi',
+    'Akdeniz Üniversitesi',
+    'Uludağ Üniversitesi',
+    'KTÜ',
+    'Selçuk Üniversitesi',
+    'Mersin Üniversitesi',
+  ];
+
+  final _grades = [
+    {'value': 0, 'label': 'Hazırlık'},
+    {'value': 1, 'label': '1. Sınıf'},
+    {'value': 2, 'label': '2. Sınıf'},
+    {'value': 3, 'label': '3. Sınıf'},
+    {'value': 4, 'label': '4. Sınıf'},
+    {'value': 5, 'label': '5. Sınıf+'},
+    {'value': 6, 'label': 'Mezun'},
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadProfile();
+  }
+
+  void _loadProfile() {
+    final userAsync = ref.read(currentUserProvider);
+    userAsync.whenData((profile) {
+      if (profile != null) {
+        _nameController.text = profile.displayName;
+        _selectedUniversity = profile.university;
+        _selectedDepartment = profile.department;
+        _selectedGrade = profile.grade;
+        _currentPhotoUrl = profile.photoUrl;
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _pickImage(ImageSource source) async {
+    final picked = await _imagePicker.pickImage(
+      source: source,
+      maxWidth: 512,
+      maxHeight: 512,
+      imageQuality: 80,
+    );
+    if (picked != null) {
+      setState(() {
+        _selectedImage = File(picked.path);
+        _hasChanges = true;
+      });
+    }
+  }
+
+  void _showImagePicker() {
+    showModalBottomSheet(
+      context: context,
+      builder: (ctx) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.camera_alt_rounded, color: AppColors.primary),
+                title: const Text('Kamera'),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  _pickImage(ImageSource.camera);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.photo_library_rounded, color: AppColors.secondary),
+                title: const Text('Galeri'),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  _pickImage(ImageSource.gallery);
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _saveProfile() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() => _isLoading = true);
+
+    try {
+      final authRepo = ref.read(authRepositoryProvider);
+      final user = ref.read(authStateProvider).value;
+      if (user == null) return;
+
+      // Fotoğraf yükleme
+      if (_selectedImage != null) {
+        await authRepo.uploadProfilePhoto(user.uid, _selectedImage!);
+      }
+
+      // Profil bilgileri güncelle
+      await authRepo.updateProfile(
+        uid: user.uid,
+        displayName: _nameController.text.trim(),
+        university: _selectedUniversity,
+        department: _selectedDepartment,
+        grade: _selectedGrade,
+      );
+
+      // Provider'ı yenile
+      ref.invalidate(currentUserProvider);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Profil güncellendi!'),
+            backgroundColor: AppColors.success,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          ),
+        );
+        context.pop();
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Hata: $e'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      appBar: AppBar(
+        backgroundColor: AppColors.background,
+        title: Text('Profili Düzenle', style: AppTextStyles.titleLarge),
+        centerTitle: true,
+        leading: IconButton(
+          onPressed: () => context.pop(),
+          icon: const Icon(Icons.arrow_back_rounded),
+        ),
+      ),
+      body: Stack(
+        children: [
+          SingleChildScrollView(
+            padding: const EdgeInsets.all(24),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                children: [
+                  // ─── Profil Fotoğrafı ────────────────────────────
+                  GestureDetector(
+                    onTap: _showImagePicker,
+                    child: Stack(
+                      children: [
+                        Container(
+                          width: 110,
+                          height: 110,
+                          decoration: BoxDecoration(
+                            gradient: AppColors.primaryGradient,
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: AppColors.primary.withValues(alpha: 0.3),
+                                blurRadius: 20,
+                                offset: const Offset(0, 8),
+                              ),
+                            ],
+                          ),
+                          child: _buildAvatar(),
+                        ),
+                        Positioned(
+                          bottom: 0,
+                          right: 0,
+                          child: Container(
+                            width: 36,
+                            height: 36,
+                            decoration: BoxDecoration(
+                              color: AppColors.primary,
+                              shape: BoxShape.circle,
+                              border: Border.all(color: AppColors.background, width: 3),
+                            ),
+                            child: const Icon(
+                              Icons.camera_alt_rounded,
+                              color: Colors.white,
+                              size: 18,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ).animate().fadeIn(duration: 400.ms).scale(begin: const Offset(0.8, 0.8)),
+
+                  const SizedBox(height: 32),
+
+                  // ─── Ad Soyad ────────────────────────────────────
+                  TextFormField(
+                    controller: _nameController,
+                    textCapitalization: TextCapitalization.words,
+                    onChanged: (_) => setState(() => _hasChanges = true),
+                    decoration: const InputDecoration(
+                      labelText: 'Ad Soyad',
+                      prefixIcon: Icon(Icons.person_outlined),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return 'Ad Soyad gerekli';
+                      }
+                      return null;
+                    },
+                  ).animate().fadeIn(delay: 100.ms, duration: 400.ms),
+
+                  const SizedBox(height: 20),
+
+                  // ─── Üniversite Seçimi ────────────────────────────
+                  DropdownButtonFormField<String>(
+                    initialValue: _selectedUniversity,
+                    isExpanded: true,
+                    decoration: const InputDecoration(
+                      labelText: 'Üniversite',
+                      prefixIcon: Icon(Icons.school_outlined),
+                    ),
+                    items: _universities.map((uni) {
+                      return DropdownMenuItem(value: uni, child: Text(uni, overflow: TextOverflow.ellipsis));
+                    }).toList(),
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedUniversity = value;
+                        _hasChanges = true;
+                      });
+                    },
+                  ).animate().fadeIn(delay: 200.ms, duration: 400.ms),
+
+                  const SizedBox(height: 20),
+
+                  // ─── Bölüm ────────────────────────────────────────
+                  TextFormField(
+                    initialValue: _selectedDepartment,
+                    textCapitalization: TextCapitalization.words,
+                    decoration: const InputDecoration(
+                      labelText: 'Bölüm',
+                      prefixIcon: Icon(Icons.menu_book_outlined),
+                      hintText: 'Örn: Bilgisayar Mühendisliği',
+                    ),
+                    onChanged: (value) {
+                      _selectedDepartment = value;
+                      _hasChanges = true;
+                    },
+                  ).animate().fadeIn(delay: 300.ms, duration: 400.ms),
+
+                  const SizedBox(height: 20),
+
+                  // ─── Sınıf ────────────────────────────────────────
+                  DropdownButtonFormField<int>(
+                    initialValue: _selectedGrade,
+                    decoration: const InputDecoration(
+                      labelText: 'Sınıf',
+                      prefixIcon: Icon(Icons.grade_outlined),
+                    ),
+                    items: _grades.map((g) {
+                      return DropdownMenuItem(
+                        value: g['value'] as int,
+                        child: Text(g['label'] as String),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedGrade = value;
+                        _hasChanges = true;
+                      });
+                    },
+                  ).animate().fadeIn(delay: 400.ms, duration: 400.ms),
+
+                  const SizedBox(height: 36),
+
+                  // ─── Kaydet ───────────────────────────────────────
+                  GradientButton(
+                    text: 'Kaydet',
+                    icon: Icons.check_rounded,
+                    onPressed: (_hasChanges && !_isLoading) ? _saveProfile : null,
+                  ).animate().fadeIn(delay: 500.ms, duration: 400.ms),
+
+                  const SizedBox(height: 40),
+                ],
+              ),
+            ),
+          ),
+
+          // ─── Loading Overlay ──────────────────────────────────
+          if (_isLoading)
+            Positioned.fill(
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                child: Container(
+                  color: Colors.black.withValues(alpha: 0.3),
+                  child: Center(
+                    child: Container(
+                      padding: const EdgeInsets.all(32),
+                      decoration: BoxDecoration(
+                        color: AppColors.surface,
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: AppColors.cardShadow,
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          CircularProgressIndicator(
+                            strokeWidth: 3,
+                            valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
+                          ),
+                          const SizedBox(height: 20),
+                          Text('Kaydediliyor...', style: AppTextStyles.titleMedium),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAvatar() {
+    if (_selectedImage != null) {
+      return ClipOval(
+        child: Image.file(_selectedImage!, fit: BoxFit.cover, width: 110, height: 110),
+      );
+    }
+    if (_currentPhotoUrl != null) {
+      return ClipOval(
+        child: Image.network(
+          _currentPhotoUrl!,
+          fit: BoxFit.cover,
+          width: 110,
+          height: 110,
+          errorBuilder: (ctx, err, trace) => _buildInitials(),
+        ),
+      );
+    }
+    return _buildInitials();
+  }
+
+  Widget _buildInitials() {
+    final name = _nameController.text.trim();
+    String initials = '?';
+    if (name.isNotEmpty) {
+      final parts = name.split(' ');
+      if (parts.length >= 2) {
+        initials = '${parts.first[0]}${parts.last[0]}'.toUpperCase();
+      } else {
+        initials = name[0].toUpperCase();
+      }
+    }
+    return Center(
+      child: Text(
+        initials,
+        style: AppTextStyles.displaySmall.copyWith(color: Colors.white),
+      ),
+    );
+  }
+}

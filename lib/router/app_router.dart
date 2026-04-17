@@ -7,6 +7,7 @@ import '../features/profile/presentation/screens/profile_screen.dart';
 import '../features/auth/presentation/screens/onboarding_screen.dart';
 import '../features/auth/presentation/screens/login_screen.dart';
 import '../features/auth/presentation/screens/register_screen.dart';
+import '../features/profile/presentation/screens/edit_profile_screen.dart';
 import 'app_shell.dart';
 
 /// Uygulama route isimleri
@@ -24,6 +25,7 @@ class AppRoutes {
   static const String login = '/login';
   static const String register = '/register';
   static const String onboarding = '/onboarding';
+  static const String editProfile = '/edit-profile';
 }
 
 /// GoRouter konfigürasyonu
@@ -43,6 +45,10 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: AppRoutes.register,
       builder: (context, state) => const RegisterScreen(),
+    ),
+    GoRoute(
+      path: AppRoutes.editProfile,
+      builder: (context, state) => const EditProfileScreen(),
     ),
 
     // ─── Shell Route (Bottom Navigation) ─────────────────────────
