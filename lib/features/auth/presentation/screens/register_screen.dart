@@ -66,19 +66,28 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
             _passwordController.text,
           );
 
+      if (!mounted) return;
+
       final state = ref.read(authControllerProvider);
       if (state is AsyncError) {
         _showError(state.error.toString());
         setState(() => _isLoading = false);
-      } else if (mounted) {
+      } else {
         if (_isEduEmail) {
           setState(() => _isLoading = false);
           _showEduVerificationDialog();
         } else {
-          context.go('/profile');
+          setState(() => _isLoading = false);
+          final from = GoRouterState.of(context).uri.queryParameters['from'];
+          if (from != null && from.isNotEmpty) {
+            context.go(from);
+          } else {
+            context.go('/profile');
+          }
         }
       }
     } catch (e) {
+      if (!mounted) return;
       _showError(e.toString());
       setState(() => _isLoading = false);
     }
@@ -129,7 +138,12 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
           TextButton(
             onPressed: () {
               Navigator.pop(dialogContext);
-              context.go('/profile');
+              final from = GoRouterState.of(context).uri.queryParameters['from'];
+              if (from != null && from.isNotEmpty) {
+                context.go(from);
+              } else {
+                context.go('/profile');
+              }
             },
             child: const Text('Tamam'),
           ),
@@ -157,7 +171,17 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
                     // ─── Geri butonu ─────────────────────────────────
                     IconButton(
-                      onPressed: () => context.go('/login'),
+                      onPressed: () {
+                        if (context.canPop()) {
+                          context.pop();
+                        } else {
+                          final from = GoRouterState.of(context).uri.queryParameters['from'];
+                          final loginPath = from != null && from.isNotEmpty 
+                              ? '/login?from=${Uri.encodeComponent(from)}' 
+                              : '/login';
+                          context.go(loginPath);
+                        }
+                      },
                       icon: const Icon(Icons.arrow_back_rounded),
                       style: IconButton.styleFrom(
                         backgroundColor: AppColors.surface,
@@ -311,6 +335,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                         ),
                       ),
                       validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Şifre tekrarı gerekli';
+                        }
                         if (value != _passwordController.text) {
                           return 'Şifreler eşleşmiyor';
                         }
@@ -339,7 +366,13 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                             style: AppTextStyles.bodySmall,
                           ),
                           GestureDetector(
-                            onTap: () => context.go('/login'),
+                            onTap: () {
+                              final from = GoRouterState.of(context).uri.queryParameters['from'];
+                              final loginPath = from != null && from.isNotEmpty 
+                                  ? '/login?from=${Uri.encodeComponent(from)}' 
+                                  : '/login';
+                              context.go(loginPath);
+                            },
                             child: Text(
                               'Giriş Yap',
                               style: AppTextStyles.labelLarge.copyWith(

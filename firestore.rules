@@ -68,8 +68,12 @@ service cloud.firestore {
       // Sadece kendi profilini oluşturabilir
       allow create: if isOwner(userId);
 
-      // Sadece kendi profilini güncelleyebilir
-      allow update: if isOwner(userId);
+      // Sadece kendi profilini güncelleyebilir, isVerifiedStudent için token kontrolü zorunludur
+      allow update: if isOwner(userId) && (
+        !request.resource.data.diff(resource.data).affectedKeys().hasAny(['isVerifiedStudent']) ||
+        (request.resource.data.isVerifiedStudent == true && request.auth.token.email_verified == true && request.auth.token.email.matches('.*\\.edu\\.tr$')) ||
+        (request.resource.data.isVerifiedStudent == false)
+      );
 
       // Profil silme: sadece kendi hesabı
       allow delete: if isOwner(userId);

@@ -85,16 +85,16 @@ class SeedDataService {
 
     // 3. Bölümler (Her üniversiteye 10 bölüm eklenecek, Toplam 300 kayıt)
     final departmentTemplates = [
-      {'name': 'Tıp', 'faculty': 'Tıp Fakültesi', 'type': 'Lisans', 'language': 'Türkçe'},
-      {'name': 'Hukuk', 'faculty': 'Hukuk Fakültesi', 'type': 'Lisans', 'language': 'Türkçe'},
-      {'name': 'Diş Hekimliği', 'faculty': 'Diş Hekimliği Fakültesi', 'type': 'Lisans', 'language': 'Türkçe'},
-      {'name': 'Veterinerlik', 'faculty': 'Veteriner Fakültesi', 'type': 'Lisans', 'language': 'Türkçe'},
-      {'name': 'Bilgisayar Mühendisliği', 'faculty': 'Mühendislik Fakültesi', 'type': 'Lisans', 'language': 'İngilizce'},
-      {'name': 'Elektrik-Elektronik Mühendisliği', 'faculty': 'Mühendislik Fakültesi', 'type': 'Lisans', 'language': 'İngilizce'},
-      {'name': 'Yazılım Mühendisliği', 'faculty': 'Mühendislik Fakültesi', 'type': 'Lisans', 'language': 'Türkçe'},
-      {'name': 'Gastronomi ve Mutfak Sanatları', 'faculty': 'Turizm Fakültesi', 'type': 'Lisans', 'language': 'Türkçe'},
-      {'name': 'Bilgisayar Programcılığı', 'faculty': 'Meslek Yüksekokulu', 'type': 'Önlisans', 'language': 'Türkçe'},
-      {'name': 'İlk ve Acil Yardım (Paramedik)', 'faculty': 'Sağlık Hizmetleri MYO', 'type': 'Önlisans', 'language': 'Türkçe'},
+      {'name': 'Tıp', 'faculty': 'Tıp Fakültesi', 'type': 'Lisans', 'language': 'Türkçe', 'baseScore': 512.4, 'ranking': 15000, 'scoreType': 'SAY', 'duration': 6, 'quota': 120},
+      {'name': 'Hukuk', 'faculty': 'Hukuk Fakültesi', 'type': 'Lisans', 'language': 'Türkçe', 'baseScore': 430.5, 'ranking': 35000, 'scoreType': 'EA', 'duration': 4, 'quota': 150},
+      {'name': 'Diş Hekimliği', 'faculty': 'Diş Hekimliği Fakültesi', 'type': 'Lisans', 'language': 'Türkçe', 'baseScore': 475.2, 'ranking': 25000, 'scoreType': 'SAY', 'duration': 5, 'quota': 80},
+      {'name': 'Veterinerlik', 'faculty': 'Veteriner Fakültesi', 'type': 'Lisans', 'language': 'Türkçe', 'baseScore': 380.1, 'ranking': 120000, 'scoreType': 'SAY', 'duration': 5, 'quota': 90},
+      {'name': 'Bilgisayar Mühendisliği', 'faculty': 'Mühendislik Fakültesi', 'type': 'Lisans', 'language': 'İngilizce', 'baseScore': 490.8, 'ranking': 20000, 'scoreType': 'SAY', 'duration': 4, 'quota': 100},
+      {'name': 'Elektrik-Elektronik Mühendisliği', 'faculty': 'Mühendislik Fakültesi', 'type': 'Lisans', 'language': 'İngilizce', 'baseScore': 460.3, 'ranking': 45000, 'scoreType': 'SAY', 'duration': 4, 'quota': 90},
+      {'name': 'Yazılım Mühendisliği', 'faculty': 'Mühendislik Fakültesi', 'type': 'Lisans', 'language': 'Türkçe', 'baseScore': 455.0, 'ranking': 50000, 'scoreType': 'SAY', 'duration': 4, 'quota': 80},
+      {'name': 'Gastronomi ve Mutfak Sanatları', 'faculty': 'Turizm Fakültesi', 'type': 'Lisans', 'language': 'Türkçe', 'baseScore': 395.6, 'ranking': 80000, 'scoreType': 'SÖZ', 'duration': 4, 'quota': 60},
+      {'name': 'Bilgisayar Programcılığı', 'faculty': 'Meslek Yüksekokulu', 'type': 'Önlisans', 'language': 'Türkçe', 'baseScore': 320.4, 'ranking': 400000, 'scoreType': 'TYT', 'duration': 2, 'quota': 70},
+      {'name': 'İlk ve Acil Yardım (Paramedik)', 'faculty': 'Sağlık Hizmetleri MYO', 'type': 'Önlisans', 'language': 'Türkçe', 'baseScore': 345.8, 'ranking': 350000, 'scoreType': 'TYT', 'duration': 2, 'quota': 65},
     ];
 
     for (var uni in universities) {
@@ -104,7 +104,7 @@ class SeedDataService {
         // ID olarak uniId_departmentName formatında benzersiz bir ID oluşturuyoruz.
         // Boşlukları ve Türkçe karakterleri temizlemek daha iyi olabilir ama
         // Firestore ID olarak string kabul ettiği için basitçe _ ekliyoruz.
-        final slugName = deptTemplate['name']!.toLowerCase().replaceAll(' ', '_').replaceAll('ç', 'c').replaceAll('ş', 's').replaceAll('ı', 'i').replaceAll('ğ', 'g').replaceAll('ü', 'u').replaceAll('ö', 'o').replaceAll('(', '').replaceAll(')', '');
+        final slugName = deptTemplate['name'].toString().toLowerCase().replaceAll(' ', '_').replaceAll('ç', 'c').replaceAll('ş', 's').replaceAll('ı', 'i').replaceAll('ğ', 'g').replaceAll('ü', 'u').replaceAll('ö', 'o').replaceAll('(', '').replaceAll(')', '');
         final deptId = '${uniId}_$slugName';
 
         final ref = _firestore.collection('departments').doc(deptId);
@@ -116,6 +116,11 @@ class SeedDataService {
           'faculty': deptTemplate['faculty'],
           'type': deptTemplate['type'],
           'language': deptTemplate['language'],
+          'baseScore': deptTemplate['baseScore'],
+          'ranking': deptTemplate['ranking'],
+          'scoreType': deptTemplate['scoreType'],
+          'duration': deptTemplate['duration'],
+          'quota': deptTemplate['quota'],
         });
       }
     }

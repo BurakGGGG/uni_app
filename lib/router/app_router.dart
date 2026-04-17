@@ -41,13 +41,13 @@ class AppRoutes {
 /// GoRouter konfigürasyon provider'ı
 final routerProvider = Provider<GoRouter>((ref) {
   final prefs = ref.watch(sharedPreferencesProvider);
-  final hasCompletedOnboarding = prefs.getBool('onboarding_completed') ?? false;
 
   return GoRouter(
-    initialLocation: hasCompletedOnboarding ? AppRoutes.home : AppRoutes.onboarding,
+    initialLocation: (prefs.getBool('onboarding_completed') ?? false) ? AppRoutes.home : AppRoutes.onboarding,
     debugLogDiagnostics: true,
     refreshListenable: GoRouterRefreshStream(FirebaseAuth.instance.authStateChanges()),
     redirect: (context, state) {
+      final hasCompletedOnboarding = prefs.getBool('onboarding_completed') ?? false;
       final isLoggedIn = FirebaseAuth.instance.currentUser != null;
       final path = state.uri.path;
       final isGoingToAuth = path == AppRoutes.login || path == AppRoutes.register;
@@ -63,11 +63,17 @@ final routerProvider = Provider<GoRouter>((ref) {
       final isGoingToProtected = protectedRoutes.contains(path);
 
       if (isGoingToProtected && !isLoggedIn) {
-        return AppRoutes.login; // Kullanıcı giriş yapmamışsa login'e at
+        final encodedPath = Uri.encodeComponent(state.uri.toString());
+        return '${AppRoutes.login}?from=$encodedPath'; // Kullanıcı giriş yapmamışsa login'e at, geri döneceği yeri sakla
       }
 
       // 3. Giriş yapmış kullanıcı auth sayfalarına erişemez
       if (isLoggedIn && isGoingToAuth) {
+        // from parametresi varsa oraya yönlendir (korumalı rotadan gelmiş olabilir)
+        final from = state.uri.queryParameters['from'];
+        if (from != null && from.isNotEmpty) {
+          return from;
+        }
         return AppRoutes.home;
       }
 

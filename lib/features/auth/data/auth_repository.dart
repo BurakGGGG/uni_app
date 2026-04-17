@@ -80,6 +80,12 @@ class AuthRepository {
     } on FirebaseAuthException catch (e) {
       throw _handleAuthError(e);
     } catch (e) {
+      // Eğer profil veritabanına yazılamazsa, Auth tarafında oluşan hesabı sil ki 
+      // kullanıcı tekrar kayıt olmaya çalıştığında email-already-in-use hatası almasın.
+      try {
+        await _auth.currentUser?.delete();
+      } catch (_) {}
+      
       await signOut();
       throw 'Kayıt yapılamadı. Lütfen internet bağlantınızı kontrol edip tekrar deneyin.';
     }
@@ -142,15 +148,21 @@ class AuthRepository {
     final user = _auth.currentUser;
     if (user == null) return false;
 
-    // Firebase Auth email doğrulamasını yenile (token yenilenir)
+    // 1. Firebase Auth kullanıcı nesnesini sunucudan yenile
     await user.reload();
+    
+    // 2. Token'ı zorla yenile — emailVerified claim'i ancak böyle güncellenir
     final refreshedUser = _auth.currentUser;
+    if (refreshedUser == null) return false;
+    await refreshedUser.getIdToken(true);
 
-    if (refreshedUser != null &&
-        refreshedUser.emailVerified &&
+    if (refreshedUser.emailVerified &&
         refreshedUser.email != null &&
         refreshedUser.email!.toLowerCase().endsWith('.edu.tr')) {
-      // Artık veritabanını biz güncellemiyoruz, Security Rules token üzerinden güvenliği sağlıyor.
+      // Firestore'u güncelle ki UserModel.isVerifiedStudent senkronize olsun
+      await _firestore.collection('users').doc(refreshedUser.uid).update({
+        'isVerifiedStudent': true,
+      });
       return true;
     }
     return false;

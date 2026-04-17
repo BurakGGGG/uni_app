@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -133,20 +134,21 @@ class ProfileScreen extends ConsumerWidget {
                     title: 'Gizlilik Politikası',
                     onTap: () {},
                   ),
-                  _SettingsItem(
-                    icon: Icons.developer_mode_rounded,
-                    title: 'Onboarding\'i Sıfırla (Debug)',
-                    subtitle: 'Uygulamayı yeniden başlatmayı gerektirir',
-                    onTap: () async {
-                      final prefs = ref.read(sharedPreferencesProvider);
-                      await prefs.remove('onboarding_completed');
-                      if (context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Onboarding sıfırlandı. Uygulamayı yeniden başlatın.')),
-                        );
-                      }
-                    },
-                  ),
+                  if (kDebugMode)
+                    _SettingsItem(
+                      icon: Icons.developer_mode_rounded,
+                      title: 'Onboarding\'i Sıfırla (Debug)',
+                      subtitle: 'Uygulamayı yeniden başlatmayı gerektirir',
+                      onTap: () async {
+                        final prefs = ref.read(sharedPreferencesProvider);
+                        await prefs.remove('onboarding_completed');
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Onboarding sıfırlandı. Uygulamayı yeniden başlatın.')),
+                          );
+                        }
+                      },
+                    ),
                 ],
               ).animate().fadeIn(delay: 300.ms, duration: 400.ms),
 
@@ -267,7 +269,7 @@ class ProfileScreen extends ConsumerWidget {
     final email = profile?.email ?? firebaseUser.email ?? '';
     final photoUrl = profile?.photoUrl ?? firebaseUser.photoURL;
     final isEdu = email.toLowerCase().endsWith('.edu.tr');
-    final isVerified = isEdu && (firebaseUser.emailVerified == true);
+    final isVerified = isEdu && ((firebaseUser.emailVerified == true) || (profile?.isVerifiedStudent ?? false));
     final university = profile?.university;
     final department = profile?.department;
     final initials = profile?.initials ?? (displayName.isNotEmpty ? displayName[0] : '?');
@@ -395,8 +397,9 @@ class ProfileScreen extends ConsumerWidget {
                             backgroundColor: success ? AppColors.success : AppColors.warning,
                           ),
                         );
-                        // Eğer başarılı olduysa UI'ın anında güncellenmesi için authStateProvider'ı yenile
                         if (success) {
+                          // Firestore'daki güncel isVerifiedStudent değerini okutmak için her iki provider'ı yenile
+                          ref.invalidate(currentUserProvider);
                           ref.invalidate(authStateProvider);
                         }
                       }

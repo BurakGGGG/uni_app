@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -45,7 +46,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   void _onLoginSuccess() {
     if (!mounted) return;
-    context.go('/profile');
+    setState(() => _isLoading = false);
+    final from = GoRouterState.of(context).uri.queryParameters['from'];
+    if (from != null && from.isNotEmpty) {
+      context.go(from);
+    } else {
+      context.go('/profile');
+    }
   }
 
   Future<void> _loginWithEmail() async {
@@ -59,6 +66,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             _passwordController.text,
           );
 
+      if (!mounted) return;
+
       final state = ref.read(authControllerProvider);
       if (state is AsyncError) {
         _showError(state.error.toString());
@@ -67,6 +76,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         _onLoginSuccess();
       }
     } catch (e) {
+      if (!mounted) return;
       _showError(e.toString());
       setState(() => _isLoading = false);
     }
@@ -78,6 +88,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     try {
       await ref.read(authControllerProvider.notifier).signInWithGoogle();
 
+      if (!mounted) return;
+
       final state = ref.read(authControllerProvider);
       if (state is AsyncError) {
         _showError(state.error.toString());
@@ -86,6 +98,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         _onLoginSuccess();
       }
     } catch (e) {
+      if (!mounted) return;
       _showError(e.toString());
       setState(() => _isLoading = false);
     }
@@ -218,7 +231,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     // ─── Google ile giriş ────────────────────────────
                     _SocialLoginButton(
                       text: 'Google ile Giriş Yap',
-                      icon: Icons.g_mobiledata_rounded,
+                      svgPath: 'assets/icons/google_logo.svg',
                       onPressed: _isLoading ? null : _loginWithGoogle,
                     ).animate().fadeIn(delay: 300.ms, duration: 400.ms),
 
@@ -288,9 +301,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         if (value == null || value.isEmpty) {
                           return 'Şifre gerekli';
                         }
-                        if (value.length < 6) {
-                          return 'Şifre en az 6 karakter olmalı';
-                        }
                         return null;
                       },
                     ).animate().fadeIn(delay: 450.ms, duration: 400.ms),
@@ -332,7 +342,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             style: AppTextStyles.bodySmall,
                           ),
                           GestureDetector(
-                            onTap: () => context.go('/register'),
+                            onTap: () {
+                              final from = GoRouterState.of(context).uri.queryParameters['from'];
+                              final registerPath = from != null && from.isNotEmpty 
+                                  ? '/register?from=${Uri.encodeComponent(from)}' 
+                                  : '/register';
+                              context.go(registerPath);
+                            },
                             child: Text(
                               'Kayıt Ol',
                               style: AppTextStyles.labelLarge.copyWith(
@@ -420,12 +436,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 /// Sosyal giriş butonu
 class _SocialLoginButton extends StatelessWidget {
   final String text;
-  final IconData icon;
+  final String svgPath;
   final VoidCallback? onPressed;
 
   const _SocialLoginButton({
     required this.text,
-    required this.icon,
+    required this.svgPath,
     this.onPressed,
   });
 
@@ -445,7 +461,7 @@ class _SocialLoginButton extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, size: 28, color: AppColors.textPrimary),
+            SvgPicture.asset(svgPath, width: 24, height: 24),
             const SizedBox(width: 12),
             Text(
               text,

@@ -19,14 +19,38 @@ class AppShell extends ConsumerStatefulWidget {
   ConsumerState<AppShell> createState() => _AppShellState();
 }
 
-class _AppShellState extends ConsumerState<AppShell> {
+class _AppShellState extends ConsumerState<AppShell> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
-    // Uygulama açılışında edu.tr doğrulamasını kontrol et (token'ı yenile)
+    WidgetsBinding.instance.addObserver(this);
+    // Uygulama ilk açılışında edu.tr doğrulamasını kontrol et (token'ı yenile)
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(authRepositoryProvider).reloadAndCheckVerification();
+      _checkVerification();
     });
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      // Uygulama arka plandan geri döndüğünde tekrar kontrol et
+      _checkVerification();
+    }
+  }
+
+  Future<void> _checkVerification() async {
+    final success = await ref.read(authRepositoryProvider).reloadAndCheckVerification();
+    if (success && mounted) {
+      // Firestore'daki güncel isVerifiedStudent değerini okutmak için her iki provider'ı yenile
+      ref.invalidate(currentUserProvider);
+      ref.invalidate(authStateProvider);
+    }
   }
 
   @override
