@@ -1,4 +1,8 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:go_router/go_router.dart';
+import '../core/providers/shared_preferences_provider.dart';
+import 'go_router_refresh_stream.dart';
 import '../features/home/presentation/screens/home_screen.dart';
 import '../features/home/presentation/screens/explore_screen.dart';
 import '../features/comparison/presentation/screens/comparison_screen.dart';
@@ -34,11 +38,42 @@ class AppRoutes {
   static const String allCities = '/cities';
 }
 
-/// GoRouter konfigürasyonu
-final GoRouter appRouter = GoRouter(
-  initialLocation: AppRoutes.home,
-  debugLogDiagnostics: true,
-  routes: [
+/// GoRouter konfigürasyon provider'ı
+final routerProvider = Provider<GoRouter>((ref) {
+  final prefs = ref.watch(sharedPreferencesProvider);
+  final hasCompletedOnboarding = prefs.getBool('onboarding_completed') ?? false;
+
+  return GoRouter(
+    initialLocation: hasCompletedOnboarding ? AppRoutes.home : AppRoutes.onboarding,
+    debugLogDiagnostics: true,
+    refreshListenable: GoRouterRefreshStream(FirebaseAuth.instance.authStateChanges()),
+    redirect: (context, state) {
+      final isLoggedIn = FirebaseAuth.instance.currentUser != null;
+      final path = state.uri.path;
+      final isGoingToAuth = path == AppRoutes.login || path == AppRoutes.register;
+      final isGoingToOnboarding = path == AppRoutes.onboarding;
+
+      // 1. Onboarding bitmemişse
+      if (!hasCompletedOnboarding && !isGoingToOnboarding) {
+        return AppRoutes.onboarding;
+      }
+
+      // 2. Korumalı Rotalar (Sprint 3'te yorum rotaları buraya eklenecek)
+      final protectedRoutes = [AppRoutes.editProfile];
+      final isGoingToProtected = protectedRoutes.contains(path);
+
+      if (isGoingToProtected && !isLoggedIn) {
+        return AppRoutes.login; // Kullanıcı giriş yapmamışsa login'e at
+      }
+
+      // 3. Giriş yapmış kullanıcı auth sayfalarına erişemez
+      if (isLoggedIn && isGoingToAuth) {
+        return AppRoutes.home;
+      }
+
+      return null;
+    },
+    routes: [
     // ─── Auth Routes ─────────────────────────────────────────────
     GoRoute(
       path: AppRoutes.onboarding,
@@ -144,3 +179,4 @@ final GoRouter appRouter = GoRouter(
     ),
   ],
 );
+});

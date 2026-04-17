@@ -8,6 +8,8 @@ import '../../../../core/constants/app_constants.dart';
 import '../../../../core/widgets/widgets.dart';
 import '../../../auth/presentation/providers/auth_providers.dart';
 import '../../../auth/domain/user_model.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import '../../../../core/providers/shared_preferences_provider.dart';
 
 /// Profil ekranı — auth durumuna göre içerik gösterir
 class ProfileScreen extends ConsumerWidget {
@@ -131,6 +133,20 @@ class ProfileScreen extends ConsumerWidget {
                     title: 'Gizlilik Politikası',
                     onTap: () {},
                   ),
+                  _SettingsItem(
+                    icon: Icons.developer_mode_rounded,
+                    title: 'Onboarding\'i Sıfırla (Debug)',
+                    subtitle: 'Uygulamayı yeniden başlatmayı gerektirir',
+                    onTap: () async {
+                      final prefs = ref.read(sharedPreferencesProvider);
+                      await prefs.remove('onboarding_completed');
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Onboarding sıfırlandı. Uygulamayı yeniden başlatın.')),
+                        );
+                      }
+                    },
+                  ),
                 ],
               ).animate().fadeIn(delay: 300.ms, duration: 400.ms),
 
@@ -250,7 +266,8 @@ class ProfileScreen extends ConsumerWidget {
     final displayName = profile?.displayName ?? firebaseUser.displayName ?? 'Kullanıcı';
     final email = profile?.email ?? firebaseUser.email ?? '';
     final photoUrl = profile?.photoUrl ?? firebaseUser.photoURL;
-    final isVerified = profile?.isVerifiedStudent ?? false;
+    final isEdu = email.toLowerCase().endsWith('.edu.tr');
+    final isVerified = isEdu && (firebaseUser.emailVerified == true);
     final university = profile?.university;
     final department = profile?.department;
     final initials = profile?.initials ?? (displayName.isNotEmpty ? displayName[0] : '?');
@@ -276,12 +293,15 @@ class ProfileScreen extends ConsumerWidget {
                 ),
                 child: photoUrl != null
                     ? ClipOval(
-                        child: Image.network(
-                          photoUrl,
+                        child: CachedNetworkImage(
+                          imageUrl: photoUrl,
                           fit: BoxFit.cover,
                           width: 64,
                           height: 64,
-                          errorBuilder: (ctx, err, trace) => Center(
+                          placeholder: (context, url) => const Center(
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          ),
+                          errorWidget: (context, url, error) => Center(
                             child: Text(initials, style: AppTextStyles.titleLarge.copyWith(color: Colors.white)),
                           ),
                         ),
@@ -339,6 +359,54 @@ class ProfileScreen extends ConsumerWidget {
                       color: AppColors.success,
                       fontWeight: FontWeight.w600,
                     ),
+                  ),
+                ],
+              ),
+            )
+          else if (email.toLowerCase().endsWith('.edu.tr'))
+            Container(
+              margin: const EdgeInsets.only(top: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: BoxDecoration(
+                color: AppColors.warning.withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: AppColors.warning.withValues(alpha: 0.15)),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.pending_actions_rounded, color: AppColors.warning, size: 18),
+                  const SizedBox(width: 6),
+                  Expanded(
+                    child: Text(
+                      'Doğrulama Bekleniyor',
+                      style: AppTextStyles.labelMedium.copyWith(
+                        color: AppColors.warning,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () async {
+                      final success = await ref.read(authRepositoryProvider).reloadAndCheckVerification();
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(success ? 'Hesabınız doğrulandı!' : 'Henüz doğrulanmamış. Lütfen mailinize gelen linke tıklayın.'),
+                            backgroundColor: success ? AppColors.success : AppColors.warning,
+                          ),
+                        );
+                        // Eğer başarılı olduysa UI'ın anında güncellenmesi için authStateProvider'ı yenile
+                        if (success) {
+                          ref.invalidate(authStateProvider);
+                        }
+                      }
+                    },
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                      minimumSize: Size.zero,
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    ),
+                    child: Text('Yenile', style: AppTextStyles.labelMedium.copyWith(color: AppColors.primary, fontWeight: FontWeight.bold)),
                   ),
                 ],
               ),

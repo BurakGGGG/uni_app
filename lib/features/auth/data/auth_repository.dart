@@ -46,20 +46,9 @@ class AuthRepository {
     } on FirebaseAuthException catch (e) {
       throw _handleAuthError(e);
     } catch (e) {
-      // Firestore yazma hatası (service unavailable vb.)
-      // Auth başarılı olduysa kullanıcıyı yine döndür
-      final user = _auth.currentUser;
-      if (user != null) {
-        return UserModel(
-          uid: user.uid,
-          displayName: user.displayName ?? '',
-          email: user.email ?? '',
-          photoUrl: user.photoURL,
-          createdAt: DateTime.now(),
-          lastLoginAt: DateTime.now(),
-        );
-      }
-      throw 'Giriş yapıldı fakat profil kaydedilemedi. Lütfen tekrar deneyin.';
+      // Eğer profil kaydedilemezse auth'tan çık ki inconsistent state olmasın
+      await signOut();
+      throw 'Giriş yapılamadı. Lütfen internet bağlantınızı kontrol edip tekrar deneyin.';
     }
   }
 
@@ -91,7 +80,8 @@ class AuthRepository {
     } on FirebaseAuthException catch (e) {
       throw _handleAuthError(e);
     } catch (e) {
-      throw 'Kayıt başarılı fakat profil kaydedilemedi. Lütfen tekrar giriş yapın.';
+      await signOut();
+      throw 'Kayıt yapılamadı. Lütfen internet bağlantınızı kontrol edip tekrar deneyin.';
     }
   }
 
@@ -114,7 +104,8 @@ class AuthRepository {
     } on FirebaseAuthException catch (e) {
       throw _handleAuthError(e);
     } catch (e) {
-      throw 'Giriş başarılı fakat profil güncellenemedi. Lütfen tekrar deneyin.';
+      await signOut();
+      throw 'Giriş yapılamadı. Lütfen internet bağlantınızı kontrol edip tekrar deneyin.';
     }
   }
 
@@ -147,11 +138,11 @@ class AuthRepository {
 
   // ─── edu.tr Doğrulama Kontrolü ────────────────────────────────
 
-  Future<bool> checkAndUpdateVerification() async {
+  Future<bool> reloadAndCheckVerification() async {
     final user = _auth.currentUser;
     if (user == null) return false;
 
-    // Firebase Auth email doğrulamasını yenile
+    // Firebase Auth email doğrulamasını yenile (token yenilenir)
     await user.reload();
     final refreshedUser = _auth.currentUser;
 
@@ -159,10 +150,7 @@ class AuthRepository {
         refreshedUser.emailVerified &&
         refreshedUser.email != null &&
         refreshedUser.email!.toLowerCase().endsWith('.edu.tr')) {
-      // Firestore'da isVerifiedStudent güncelle
-      await _firestore.collection('users').doc(refreshedUser.uid).update({
-        'isVerifiedStudent': true,
-      });
+      // Artık veritabanını biz güncellemiyoruz, Security Rules token üzerinden güvenliği sağlıyor.
       return true;
     }
     return false;

@@ -3,8 +3,11 @@ import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import '../core/theme/app_colors.dart';
 
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../features/auth/presentation/providers/auth_providers.dart';
+
 /// Ana uygulama kabuğu — Bottom Navigation Bar ile 5 tab
-class AppShell extends StatelessWidget {
+class AppShell extends ConsumerStatefulWidget {
   final StatefulNavigationShell navigationShell;
 
   const AppShell({
@@ -13,13 +16,27 @@ class AppShell extends StatelessWidget {
   });
 
   @override
+  ConsumerState<AppShell> createState() => _AppShellState();
+}
+
+class _AppShellState extends ConsumerState<AppShell> {
+  @override
+  void initState() {
+    super.initState();
+    // Uygulama açılışında edu.tr doğrulamasını kontrol et (token'ı yenile)
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(authRepositoryProvider).reloadAndCheckVerification();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.dark.copyWith(
         statusBarColor: Colors.transparent,
       ),
       child: Scaffold(
-        body: navigationShell,
+        body: widget.navigationShell,
         bottomNavigationBar: Container(
           decoration: BoxDecoration(
             color: AppColors.surface,
@@ -29,11 +46,11 @@ class AppShell extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               child: NavigationBar(
-                selectedIndex: navigationShell.currentIndex,
+                selectedIndex: widget.navigationShell.currentIndex,
                 onDestinationSelected: (index) {
-                  navigationShell.goBranch(
+                  widget.navigationShell.goBranch(
                     index,
-                    initialLocation: index == navigationShell.currentIndex,
+                    initialLocation: index == widget.navigationShell.currentIndex,
                   );
                 },
                 backgroundColor: Colors.transparent,
