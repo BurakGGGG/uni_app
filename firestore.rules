@@ -34,18 +34,13 @@ service cloud.firestore {
     match /universities/{uniId} {
       allow read: if true;
       allow write: if false;
+    }
 
-      // Bölümler alt-koleksiyonu
-      match /departments/{deptId} {
-        allow read: if true;
-        allow write: if false;
-      }
-
-      // Mekanlar alt-koleksiyonu
-      match /places/{placeId} {
-        allow read: if true;
-        allow write: if false;
-      }
+    // ─── Bölümler ───────────────────────────────────────────────
+    // Herkes okuyabilir, kimse yazamaz (admin panelden yönetilir)
+    match /departments/{deptId} {
+      allow read: if true;
+      allow write: if false;
     }
 
     // ─── Yorumlar ───────────────────────────────────────────────

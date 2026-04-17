@@ -6,7 +6,6 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/widgets/widgets.dart';
-import '../../../../scripts/seed_data_service.dart';
 import '../../../auth/presentation/providers/auth_providers.dart';
 import '../../../auth/domain/user_model.dart';
 
@@ -131,30 +130,6 @@ class ProfileScreen extends ConsumerWidget {
                     icon: Icons.privacy_tip_outlined,
                     title: 'Gizlilik Politikası',
                     onTap: () {},
-                  ),
-                  _SettingsItem(
-                    icon: Icons.data_object_rounded,
-                    title: '[GELİŞTİRİCİ] Veritabanını Doldur',
-                    subtitle: 'Şehir, Üniversite ve Bölümleri yükler',
-                    onTap: () async {
-                      try {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Veri yükleniyor... Lütfen bekleyin.')),
-                        );
-                        await SeedDataService().uploadSeedData();
-                        if (context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Veri yükleme işlemi BAŞARILI! 🎉'), backgroundColor: Colors.green),
-                          );
-                        }
-                      } catch (e) {
-                        if (context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Hata: $e'), backgroundColor: Colors.red),
-                          );
-                        }
-                      }
-                    },
                   ),
                 ],
               ).animate().fadeIn(delay: 300.ms, duration: 400.ms),
