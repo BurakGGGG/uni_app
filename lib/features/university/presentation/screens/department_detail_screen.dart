@@ -1,0 +1,275 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_text_styles.dart';
+import '../../../../core/constants/app_constants.dart';
+import '../providers/university_providers.dart';
+
+class DepartmentDetailScreen extends ConsumerWidget {
+  final String departmentId;
+
+  const DepartmentDetailScreen({super.key, required this.departmentId});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final deptAsync = ref.watch(departmentDetailProvider(departmentId));
+
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      appBar: AppBar(
+        backgroundColor: AppColors.background,
+        leading: IconButton(
+          onPressed: () => context.pop(),
+          icon: const Icon(Icons.arrow_back_rounded),
+        ),
+        title: Text('Bölüm Detayı', style: AppTextStyles.titleLarge),
+        centerTitle: true,
+      ),
+      body: deptAsync.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (e, st) => Center(child: Text('Hata: $e')),
+        data: (dept) {
+          if (dept == null) {
+            return const Center(child: Text('Bölüm bulunamadı'));
+          }
+
+          // Üniversite bilgisini de çek
+          final uniAsync = ref.watch(universityDetailProvider(dept.universityId));
+
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // ─── Bölüm Başlığı ────────────────────────────────
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(24),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        AppColors.primary,
+                        AppColors.primary.withValues(alpha: 0.85),
+                        AppColors.secondary.withValues(alpha: 0.7),
+                      ],
+                    ),
+                    borderRadius: BorderRadius.circular(AppConstants.radiusXl),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        child: Icon(
+                          dept.type == 'Lisans' ? Icons.school_rounded : Icons.auto_stories_rounded,
+                          color: Colors.white,
+                          size: 28,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        dept.name,
+                        style: AppTextStyles.headlineMedium.copyWith(color: Colors.white),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        dept.faculty,
+                        style: AppTextStyles.bodyMedium.copyWith(
+                          color: Colors.white.withValues(alpha: 0.8),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      // Üniversite adı
+                      uniAsync.when(
+                        data: (uni) => GestureDetector(
+                          onTap: () => context.pop(),
+                          child: Row(
+                            children: [
+                              const Icon(Icons.location_city_rounded, color: Colors.white70, size: 16),
+                              const SizedBox(width: 6),
+                              Flexible(
+                                child: Text(
+                                  uni?.name ?? '',
+                                  style: AppTextStyles.labelLarge.copyWith(
+                                    color: Colors.white.withValues(alpha: 0.9),
+                                    decoration: TextDecoration.underline,
+                                    decorationColor: Colors.white54,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        loading: () => const SizedBox.shrink(),
+                        error: (_, __) => const SizedBox.shrink(),
+                      ),
+                    ],
+                  ),
+                ).animate().fadeIn(duration: 400.ms).scale(begin: const Offset(0.95, 0.95)),
+
+                const SizedBox(height: 24),
+
+                // ─── Bilgi Kartları ─────────────────────────────────
+                Row(
+                  children: [
+                    _InfoTile(
+                      icon: Icons.access_time_rounded,
+                      label: 'Süre',
+                      value: '${dept.duration} Yıl',
+                      color: AppColors.primary,
+                    ),
+                    const SizedBox(width: 12),
+                    _InfoTile(
+                      icon: Icons.translate_rounded,
+                      label: 'Dil',
+                      value: dept.language,
+                      color: AppColors.accent,
+                    ),
+                    const SizedBox(width: 12),
+                    _InfoTile(
+                      icon: Icons.category_rounded,
+                      label: 'Tür',
+                      value: dept.type,
+                      color: AppColors.secondary,
+                    ),
+                  ],
+                ).animate().fadeIn(delay: 200.ms, duration: 400.ms),
+
+                const SizedBox(height: 16),
+
+                // Taban puan kartı
+                if (dept.baseScore != null)
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: AppColors.surface,
+                      borderRadius: BorderRadius.circular(AppConstants.radiusLg),
+                      border: Border.all(color: AppColors.borderLight),
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 48,
+                          height: 48,
+                          decoration: BoxDecoration(
+                            color: AppColors.warning.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: const Icon(Icons.trending_up_rounded, color: AppColors.warning, size: 24),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('2025 Taban Puanı', style: AppTextStyles.labelMedium),
+                              const SizedBox(height: 2),
+                              Text(
+                                dept.baseScore!.toStringAsFixed(2),
+                                style: AppTextStyles.headlineMedium.copyWith(color: AppColors.primary),
+                              ),
+                            ],
+                          ),
+                        ),
+                        if (dept.scoreType != null)
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                            decoration: BoxDecoration(
+                              color: AppColors.primary.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              dept.scoreType!,
+                              style: AppTextStyles.labelMedium.copyWith(
+                                color: AppColors.primary,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ).animate().fadeIn(delay: 300.ms, duration: 400.ms),
+
+                const SizedBox(height: 24),
+
+                // ─── Yorumlar (Placeholder — Sprint 3) ─────────────
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(24),
+                  decoration: BoxDecoration(
+                    color: AppColors.surface,
+                    borderRadius: BorderRadius.circular(AppConstants.radiusLg),
+                    border: Border.all(color: AppColors.borderLight),
+                  ),
+                  child: Column(
+                    children: [
+                      Icon(Icons.rate_review_rounded, color: AppColors.textTertiary, size: 40),
+                      const SizedBox(height: 12),
+                      Text('Yorumlar Yakında!', style: AppTextStyles.titleMedium),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Bu bölüm hakkındaki öğrenci yorumları çok yakında burada olacak.',
+                        style: AppTextStyles.bodySmall,
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                ).animate().fadeIn(delay: 400.ms, duration: 400.ms),
+
+                const SizedBox(height: 40),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _InfoTile extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String value;
+  final Color color;
+
+  const _InfoTile({
+    required this.icon,
+    required this.label,
+    required this.value,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(AppConstants.radiusLg),
+          border: Border.all(color: AppColors.borderLight),
+        ),
+        child: Column(
+          children: [
+            Icon(icon, color: color, size: 22),
+            const SizedBox(height: 8),
+            Text(value, style: AppTextStyles.titleSmall),
+            const SizedBox(height: 2),
+            Text(label, style: AppTextStyles.labelSmall),
+          ],
+        ),
+      ),
+    );
+  }
+}

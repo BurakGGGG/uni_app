@@ -414,12 +414,12 @@ MVP'de monetizasyon yok, ama altyapıyı şimdiden hazırlıyoruz:
 - [ ] Firestore'a ilk veri yükleme (10 şehir + üniversiteler)
 
 ### Sprint 2: Üniversite & Bölüm (Hafta 4-5: 6-19 Mayıs)
-- [ ] Ana sayfa tasarımı ve implementasyonu
-- [ ] Şehir listesi ve üniversite listesi
-- [ ] Üniversite detay sayfası (bilgiler + tab yapısı)
-- [ ] Bölüm listesi ve detay sayfası
-- [ ] Arama ve filtreleme fonksiyonu
-- [ ] Taban puan gösterimi
+- [x] Ana sayfa tasarımı ve implementasyonu
+- [x] Şehir listesi ve üniversite listesi
+- [x] Üniversite detay sayfası (bilgiler + tab yapısı)
+- [x] Bölüm listesi ve detay sayfası
+- [x] Arama ve filtreleme fonksiyonu
+- [x] Taban puan gösterimi
 
 ### Sprint 3: Yorum Sistemi (Hafta 6-7: 20 Mayıs - 2 Haziran)
 - [ ] Yorum yazma ekranı (kategori puanlama + metin)

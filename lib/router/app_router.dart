@@ -8,6 +8,10 @@ import '../features/auth/presentation/screens/onboarding_screen.dart';
 import '../features/auth/presentation/screens/login_screen.dart';
 import '../features/auth/presentation/screens/register_screen.dart';
 import '../features/profile/presentation/screens/edit_profile_screen.dart';
+import '../features/university/presentation/screens/university_detail_screen.dart';
+import '../features/university/presentation/screens/department_detail_screen.dart';
+import '../features/university/presentation/screens/city_universities_screen.dart';
+import '../features/university/presentation/screens/all_cities_screen.dart';
 import 'app_shell.dart';
 
 /// Uygulama route isimleri
@@ -19,13 +23,15 @@ class AppRoutes {
   static const String compare = '/compare';
   static const String favorites = '/favorites';
   static const String profile = '/profile';
-  static const String universityDetail = '/university/:id';
-  static const String departmentDetail = '/university/:uniId/department/:deptId';
+  static const String universityDetail = '/university/:uniId';
   static const String placeDetail = '/university/:uniId/place/:placeId';
   static const String login = '/login';
   static const String register = '/register';
   static const String onboarding = '/onboarding';
   static const String editProfile = '/edit-profile';
+  static const String cityDetail = '/city/:cityId';
+  static const String departmentDetail = '/department/:deptId';
+  static const String allCities = '/cities';
 }
 
 /// GoRouter konfigürasyonu
@@ -49,6 +55,28 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: AppRoutes.editProfile,
       builder: (context, state) => const EditProfileScreen(),
+    ),
+    GoRoute(
+      path: '/university/:uniId',
+      builder: (context, state) => UniversityDetailScreen(
+        universityId: state.pathParameters['uniId']!,
+      ),
+    ),
+    GoRoute(
+      path: AppRoutes.departmentDetail,
+      builder: (context, state) => DepartmentDetailScreen(
+        departmentId: state.pathParameters['deptId']!,
+      ),
+    ),
+    GoRoute(
+      path: AppRoutes.cityDetail,
+      builder: (context, state) => CityUniversitiesScreen(
+        cityId: state.pathParameters['cityId']!,
+      ),
+    ),
+    GoRoute(
+      path: AppRoutes.allCities,
+      builder: (context, state) => const AllCitiesScreen(),
     ),
 
     // ─── Shell Route (Bottom Navigation) ─────────────────────────

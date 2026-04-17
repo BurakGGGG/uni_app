@@ -1,16 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/widgets/widgets.dart';
+import '../../../university/presentation/providers/university_providers.dart';
+import '../../../university/domain/models/city_model.dart';
+import '../../../university/domain/models/university_model.dart';
 
 /// Ana Sayfa ekranı
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final citiesAsync = ref.watch(citiesProvider);
+    final unisAsync = ref.watch(allUniversitiesProvider);
+
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
@@ -76,7 +84,11 @@ class HomeScreen extends StatelessWidget {
                 child: AppSearchBar(
                   readOnly: true,
                   onTap: () {
-                    // TODO: Keşfet sayfasına yönlendir
+                    // Keşfet sekmesine yönlendir (bottom nav index 1)
+                    final shell = context.findAncestorStateOfType<State>();
+                    if (shell != null) {
+                      context.go('/explore');
+                    }
                   },
                 ),
               ).animate().fadeIn(delay: 100.ms, duration: 400.ms).slideY(begin: 0.1, end: 0),
@@ -94,19 +106,32 @@ class HomeScreen extends StatelessWidget {
             SliverToBoxAdapter(
               child: Column(
                 children: [
-                  const SectionHeader(
+                  SectionHeader(
                     title: 'Popüler Üniversiteler',
                     actionText: 'Tümünü Gör',
-                    padding: EdgeInsets.fromLTRB(20, 20, 12, 4),
+                    padding: const EdgeInsets.fromLTRB(20, 20, 12, 4),
+                    onAction: () => context.go('/explore'),
                   ),
                   SizedBox(
                     height: 200,
-                    child: ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      itemCount: 5,
-                      itemBuilder: (context, index) {
-                        return _PopularUniCard(index: index);
+                    child: unisAsync.when(
+                      loading: () => const Center(child: CircularProgressIndicator()),
+                      error: (e, st) => Center(child: Text('Hata: $e')),
+                      data: (universities) {
+                        // İlk 8 üniversiteyi göster
+                        final popular = universities.take(8).toList();
+                        return ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          itemCount: popular.length,
+                          itemBuilder: (context, index) {
+                            return _PopularUniCard(
+                              university: popular[index],
+                              index: index,
+                              onTap: () => context.push('/university/${popular[index].id}'),
+                            );
+                          },
+                        );
                       },
                     ),
                   ),
@@ -118,22 +143,28 @@ class HomeScreen extends StatelessWidget {
             SliverToBoxAdapter(
               child: Column(
                 children: [
-                  const SectionHeader(
+                  SectionHeader(
                     title: 'Şehirler',
                     actionText: 'Tümünü Gör',
-                    padding: EdgeInsets.fromLTRB(20, 16, 12, 4),
+                    padding: const EdgeInsets.fromLTRB(20, 16, 12, 4),
+                    onAction: () => context.push('/cities'),
                   ),
                   SizedBox(
                     height: 110,
-                    child: ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      itemCount: _sampleCities.length,
-                      itemBuilder: (context, index) {
-                        return _CityChip(
-                          name: _sampleCities[index]['name']!,
-                          emoji: _sampleCities[index]['emoji']!,
-                          count: _sampleCities[index]['count']!,
+                    child: citiesAsync.when(
+                      loading: () => const Center(child: CircularProgressIndicator()),
+                      error: (e, st) => Center(child: Text('$e')),
+                      data: (cities) {
+                        return ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          itemCount: cities.length,
+                          itemBuilder: (context, index) {
+                            return _CityChip(
+                              city: cities[index],
+                              onTap: () => context.push('/city/${cities[index].id}'),
+                            );
+                          },
                         );
                       },
                     ),
@@ -172,27 +203,22 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
-// ─── Sample Data ──────────────────────────────────────────────────────
-final List<Map<String, String>> _sampleCities = [
-  {'name': 'İstanbul', 'emoji': '🌉', 'count': '52'},
-  {'name': 'Ankara', 'emoji': '🏛️', 'count': '38'},
-  {'name': 'İzmir', 'emoji': '🌊', 'count': '15'},
-  {'name': 'Sivas', 'emoji': '🏔️', 'count': '3'},
-  {'name': 'Eskişehir', 'emoji': '🎓', 'count': '8'},
-  {'name': 'Antalya', 'emoji': '☀️', 'count': '7'},
-  {'name': 'Bursa', 'emoji': '🌿', 'count': '12'},
-  {'name': 'Trabzon', 'emoji': '⛰️', 'count': '5'},
-  {'name': 'Konya', 'emoji': '🕌', 'count': '9'},
-  {'name': 'Mersin', 'emoji': '🍊', 'count': '4'},
-];
-
-final List<Map<String, String>> _sampleUniversities = [
-  {'name': 'ODTÜ', 'city': 'Ankara', 'rating': '4.7', 'reviews': '342'},
-  {'name': 'Boğaziçi', 'city': 'İstanbul', 'rating': '4.8', 'reviews': '412'},
-  {'name': 'İTÜ', 'city': 'İstanbul', 'rating': '4.5', 'reviews': '287'},
-  {'name': 'Hacettepe', 'city': 'Ankara', 'rating': '4.4', 'reviews': '198'},
-  {'name': 'Ege Üniversitesi', 'city': 'İzmir', 'rating': '4.3', 'reviews': '156'},
-];
+// ─── Şehir Emoji Mapping ──────────────────────────────────────────────
+String _cityEmoji(String cityName) {
+  const emojis = {
+    'İstanbul': '🌉',
+    'Ankara': '🏛️',
+    'İzmir': '🌊',
+    'Antalya': '☀️',
+    'Eskişehir': '🎓',
+    'Bursa': '🌿',
+    'Çanakkale': '⚓',
+    'Sivas': '🏔️',
+    'Trabzon': '⛰️',
+    'Mersin': '🍊',
+  };
+  return emojis[cityName] ?? '🏙️';
+}
 
 // ─── Widget Components ──────────────────────────────────────────────
 
@@ -278,20 +304,29 @@ class _HeroBanner extends StatelessWidget {
 }
 
 class _PopularUniCard extends StatelessWidget {
+  final UniversityModel university;
   final int index;
+  final VoidCallback onTap;
 
-  const _PopularUniCard({required this.index});
+  const _PopularUniCard({
+    required this.university,
+    required this.index,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final uni = _sampleUniversities[index];
     final colors = [
       AppColors.primary,
       AppColors.secondary,
       AppColors.accent,
       const Color(0xFF10B981),
       const Color(0xFFF59E0B),
+      const Color(0xFF8B5CF6),
+      const Color(0xFFEC4899),
+      const Color(0xFF14B8A6),
     ];
+    final color = colors[index % colors.length];
 
     return Container(
       width: 160,
@@ -306,7 +341,7 @@ class _PopularUniCard extends StatelessWidget {
         color: Colors.transparent,
         borderRadius: BorderRadius.circular(AppConstants.radiusLg),
         child: InkWell(
-          onTap: () {},
+          onTap: onTap,
           borderRadius: BorderRadius.circular(AppConstants.radiusLg),
           child: Padding(
             padding: const EdgeInsets.all(AppConstants.spacingLg),
@@ -318,49 +353,38 @@ class _PopularUniCard extends StatelessWidget {
                   width: 44,
                   height: 44,
                   decoration: BoxDecoration(
-                    color: colors[index].withValues(alpha: 0.12),
+                    color: color.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: Icon(
-                    Icons.school_rounded,
-                    color: colors[index],
-                    size: 24,
-                  ),
+                  child: Icon(Icons.school_rounded, color: color, size: 24),
                 ),
                 const Spacer(),
                 // Başlık
                 Text(
-                  uni['name']!,
+                  university.name,
                   style: AppTextStyles.titleMedium,
-                  maxLines: 1,
+                  maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 4),
-                Text(
-                  uni['city']!,
-                  style: AppTextStyles.bodySmall,
-                ),
-                const SizedBox(height: 8),
-                // Rating
+                // Tür rozeti
                 Row(
                   children: [
-                    const Icon(
-                      Icons.star_rounded,
-                      size: 14,
-                      color: AppColors.ratingStar,
-                    ),
-                    const SizedBox(width: 3),
-                    Text(
-                      uni['rating']!,
-                      style: AppTextStyles.labelMedium.copyWith(
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.textPrimary,
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: (university.type == 'Devlet' ? AppColors.stateUni : AppColors.foundationUni)
+                            .withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(4),
                       ),
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      '(${uni['reviews']})',
-                      style: AppTextStyles.labelSmall,
+                      child: Text(
+                        university.type,
+                        style: AppTextStyles.labelSmall.copyWith(
+                          color: university.type == 'Devlet' ? AppColors.stateUni : AppColors.foundationUni,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 9,
+                        ),
+                      ),
                     ),
                   ],
                 ),
@@ -374,15 +398,10 @@ class _PopularUniCard extends StatelessWidget {
 }
 
 class _CityChip extends StatelessWidget {
-  final String name;
-  final String emoji;
-  final String count;
+  final CityModel city;
+  final VoidCallback onTap;
 
-  const _CityChip({
-    required this.name,
-    required this.emoji,
-    required this.count,
-  });
+  const _CityChip({required this.city, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -399,21 +418,21 @@ class _CityChip extends StatelessWidget {
         color: Colors.transparent,
         borderRadius: BorderRadius.circular(AppConstants.radiusLg),
         child: InkWell(
-          onTap: () {},
+          onTap: onTap,
           borderRadius: BorderRadius.circular(AppConstants.radiusLg),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(emoji, style: const TextStyle(fontSize: 28)),
+              Text(_cityEmoji(city.name), style: const TextStyle(fontSize: 28)),
               const SizedBox(height: 6),
               Text(
-                name,
+                city.name,
                 style: AppTextStyles.titleSmall,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
               Text(
-                '$count üni',
+                '${city.appUniversityCount} üni',
                 style: AppTextStyles.labelSmall.copyWith(fontSize: 10),
               ),
             ],
@@ -488,10 +507,7 @@ class _RecentReviewCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      review['user']!,
-                      style: AppTextStyles.titleSmall,
-                    ),
+                    Text(review['user']!, style: AppTextStyles.titleSmall),
                     Text(
                       '${review['uni']} • ${review['dept']}',
                       style: AppTextStyles.labelSmall,
