@@ -10,6 +10,12 @@ class UniversityModel {
   final int establishedYear;
   final String website;
 
+  // ── Sprint 3 — Yorum Sistemi İçin Rating Alanları ──────────────
+  final double avgRating;
+  final int reviewCount;
+  /// Kategori bazlı ortalama puanlar (kampüs, eğitim, sosyal, ulaşım, yemek, yurt)
+  final Map<String, double> categoryRatings;
+
   UniversityModel({
     required this.id,
     required this.cityId,
@@ -21,6 +27,9 @@ class UniversityModel {
     required this.description,
     required this.establishedYear,
     required this.website,
+    this.avgRating = 0.0,
+    this.reviewCount = 0,
+    this.categoryRatings = const {},
   });
 
   factory UniversityModel.fromMap(Map<String, dynamic> map, String id) {
@@ -35,6 +44,13 @@ class UniversityModel {
       description: map['description'] ?? '',
       establishedYear: map['establishedYear'] ?? 0,
       website: map['website'] ?? '',
+      avgRating: (map['avgRating'] as num?)?.toDouble() ?? 0.0,
+      reviewCount: (map['reviewCount'] as num?)?.toInt() ?? 0,
+      categoryRatings: Map<String, double>.from(
+        (map['categoryRatings'] as Map<String, dynamic>?)?.map(
+          (key, value) => MapEntry(key, (value as num).toDouble()),
+        ) ?? {},
+      ),
     );
   }
 
@@ -49,6 +65,9 @@ class UniversityModel {
       'description': description,
       'establishedYear': establishedYear,
       'website': website,
+      'avgRating': avgRating,
+      'reviewCount': reviewCount,
+      'categoryRatings': categoryRatings,
     };
   }
 }

@@ -5,6 +5,7 @@ import '../core/theme/app_colors.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../features/auth/presentation/providers/auth_providers.dart';
+import '../features/university/presentation/providers/university_providers.dart';
 
 /// Ana uygulama kabuğu — Bottom Navigation Bar ile 5 tab
 class AppShell extends ConsumerStatefulWidget {
@@ -27,6 +28,9 @@ class _AppShellState extends ConsumerState<AppShell> with WidgetsBindingObserver
     // Uygulama ilk açılışında edu.tr doğrulamasını kontrol et (token'ı yenile)
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _checkVerification();
+      // Veriyi arka planda prefetch et — kullanıcı Keşfet'e gittiğinde hazır olur
+      ref.read(allUniversitiesProvider);
+      ref.read(citiesProvider);
     });
   }
 

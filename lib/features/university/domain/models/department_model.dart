@@ -9,6 +9,13 @@ class DepartmentModel {
   final int? ranking; // Sıralama
   final String? scoreType; // SAY, EA, SÖZ, DİL, TYT
   final int duration; // Yıl (2 veya 4+)
+  final int? quota; // Kontenjan
+
+  // ── Sprint 3 — Yorum Sistemi İçin Rating Alanları ──────────────
+  final double avgRating;
+  final int reviewCount;
+  /// Kategori bazlı ortalama puanlar (eğitim kalitesi, hoca, iş imkanı, staj, ders yükü)
+  final Map<String, double> categoryRatings;
 
   DepartmentModel({
     required this.id,
@@ -21,6 +28,10 @@ class DepartmentModel {
     this.ranking,
     this.scoreType,
     this.duration = 4,
+    this.quota,
+    this.avgRating = 0.0,
+    this.reviewCount = 0,
+    this.categoryRatings = const {},
   });
 
   factory DepartmentModel.fromMap(Map<String, dynamic> map, String id) {
@@ -35,6 +46,14 @@ class DepartmentModel {
       ranking: map['ranking'] as int?,
       scoreType: map['scoreType'] as String?,
       duration: map['duration'] ?? (map['type'] == 'Önlisans' ? 2 : 4),
+      quota: map['quota'] as int?,
+      avgRating: (map['avgRating'] as num?)?.toDouble() ?? 0.0,
+      reviewCount: (map['reviewCount'] as num?)?.toInt() ?? 0,
+      categoryRatings: Map<String, double>.from(
+        (map['categoryRatings'] as Map<String, dynamic>?)?.map(
+          (key, value) => MapEntry(key, (value as num).toDouble()),
+        ) ?? {},
+      ),
     );
   }
 
@@ -49,6 +68,10 @@ class DepartmentModel {
       'ranking': ranking,
       'scoreType': scoreType,
       'duration': duration,
+      'quota': quota,
+      'avgRating': avgRating,
+      'reviewCount': reviewCount,
+      'categoryRatings': categoryRatings,
     };
   }
 }

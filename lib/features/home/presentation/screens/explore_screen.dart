@@ -190,8 +190,9 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                       return UniCard(
                         title: uni.name,
                         subtitle: '${uni.type} • Kuruluş: ${uni.establishedYear}',
-                        rating: 0,
-                        reviewCount: 0,
+                        // TODO(sprint3): Bu değerler artık UniversityModel'den geliyor, yorum sistemi aktif olunca canlı güncellenecek
+                        rating: uni.avgRating,
+                        reviewCount: uni.reviewCount,
                         tags: [
                           if (uni.hasCampus) 'Kampüslü',
                           uni.type,

@@ -11,6 +11,7 @@ import '../../../auth/presentation/providers/auth_providers.dart';
 import '../../../auth/domain/user_model.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../../../core/providers/shared_preferences_provider.dart';
+import '../../../../scripts/seed_data_service.dart';
 
 /// Profil ekranı — auth durumuna göre içerik gösterir
 class ProfileScreen extends ConsumerWidget {
@@ -146,6 +147,35 @@ class ProfileScreen extends ConsumerWidget {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(content: Text('Onboarding sıfırlandı. Uygulamayı yeniden başlatın.')),
                           );
+                        }
+                      },
+                    ),
+                  if (kDebugMode)
+                    _SettingsItem(
+                      icon: Icons.cloud_upload_rounded,
+                      title: 'Seed Verisini Yükle (Debug)',
+                      subtitle: 'Firestore\'a örnek veri yazar',
+                      onTap: () async {
+                        final seedService = SeedDataService();
+                        try {
+                          await seedService.uploadSeedData();
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Seed verisi başarıyla yüklendi!'),
+                                backgroundColor: AppColors.success,
+                              ),
+                            );
+                          }
+                        } catch (e) {
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Hata: $e'),
+                                backgroundColor: AppColors.error,
+                              ),
+                            );
+                          }
                         }
                       },
                     ),

@@ -4,43 +4,50 @@ import '../../domain/models/city_model.dart';
 import '../../domain/models/university_model.dart';
 import '../../domain/models/department_model.dart';
 
-/// Repository provider
+/// Repository provider — singleton, in-memory cache'i korur
 final universityRepositoryProvider = Provider<UniversityRepository>((ref) {
   return UniversityRepository();
 });
 
-/// Tüm şehirler
+/// Tüm şehirler (keepAlive: navigasyon arası cache korunur)
 final citiesProvider = FutureProvider<List<CityModel>>((ref) async {
+  ref.keepAlive();
   return ref.read(universityRepositoryProvider).getCities();
 });
 
-/// Tüm üniversiteler
+/// Tüm üniversiteler (keepAlive: ana veri seti)
 final allUniversitiesProvider = FutureProvider<List<UniversityModel>>((ref) async {
+  ref.keepAlive();
   return ref.read(universityRepositoryProvider).getAllUniversities();
 });
 
-/// Şehre göre üniversiteler
+/// Şehre göre üniversiteler (cache'den filtreler)
 final universitiesByCityProvider = FutureProvider.family<List<UniversityModel>, String>((ref, cityId) async {
+  ref.keepAlive();
   return ref.read(universityRepositoryProvider).getUniversitiesByCity(cityId);
 });
 
-/// Tek üniversite detayı
+/// Tek üniversite detayı (cache'den bulur)
 final universityDetailProvider = FutureProvider.family<UniversityModel?, String>((ref, uniId) async {
+  ref.keepAlive();
   return ref.read(universityRepositoryProvider).getUniversity(uniId);
 });
 
-/// Tek şehir detayı
+/// Tek şehir detayı (cache'den bulur)
 final cityDetailProvider = FutureProvider.family<CityModel?, String>((ref, cityId) async {
+  ref.keepAlive();
   return ref.read(universityRepositoryProvider).getCity(cityId);
 });
 
-/// Üniversitenin bölümleri
+/// Üniversitenin bölümleri (cache'den)
 final departmentsByUniversityProvider = FutureProvider.family<List<DepartmentModel>, String>((ref, uniId) async {
+  ref.keepAlive();
   return ref.read(universityRepositoryProvider).getDepartmentsByUniversity(uniId);
 });
 
-/// Tek bölüm detayı
+/// Tek bölüm detayı (cache'den bulur)
 final departmentDetailProvider = FutureProvider.family<DepartmentModel?, String>((ref, deptId) async {
+  ref.keepAlive();
   return ref.read(universityRepositoryProvider).getDepartment(deptId);
 });
 

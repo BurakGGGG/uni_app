@@ -182,6 +182,7 @@ class HomeScreen extends ConsumerWidget {
               ).animate().fadeIn(delay: 500.ms, duration: 400.ms),
             ),
 
+            // TODO(sprint3): Replace with ReviewRepository.getRecentReviews()
             SliverList(
               delegate: SliverChildBuilderDelegate(
                 (context, index) {
