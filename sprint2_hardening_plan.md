@@ -116,15 +116,15 @@ Plan "Şehir, Tür (Devlet/Vakıf), Puan türü, Puan aralığı" diyor — şu 
 Plan Favori'yi Sprint 4'e koymuş ama yorum sayfalarında "favoriye ekle" butonu göstermek doğal olacak. Sprint 3 öncesi yapmak işini rahatlatır. Süre sıkışırsa atla.
 
 ### 2.4.1 Favori repository ve provider
-- [ ] `lib/features/favorites/data/favorites_repository.dart` — `addFavorite`, `removeFavorite`, `getFavorites(userId)`
-- [ ] Firestore path: `users/{uid}/favorites/{uniId}` (zaten `firestore.rules`'da yazılı)
-- [ ] `favoritesProvider` — StreamProvider, canlı güncellensin
-- [ ] UserModel'deki `favorites: [uniId1, ...]` alanını denormalize mı tutayım subcollection mı — **subcollection daha doğru**, UserModel'deki alanı kaldır veya sadece count tut
+- [x] `lib/features/favorites/data/favorites_repository.dart` — `addFavorite`, `removeFavorite`, `getFavorites(userId)`
+- [x] Firestore path: `users/{uid}/favorites/{uniId}` (zaten `firestore.rules`'da yazılı)
+- [x] `favoritesProvider` — StreamProvider, canlı güncellensin
+- [x] UserModel'deki `favorites: [uniId1, ...]` alanını denormalize mı tutayım subcollection mı — **subcollection daha doğru**, UserModel'deki alanı kaldır veya sadece count tut
 
 ### 2.4.2 Favori UI
-- [ ] `FavoritesScreen` — `favoritesProvider`'ı dinle, boşsa EmptyState, doluysa UniCard listesi
-- [ ] Üniversite detay sayfasının AppBar'ına kalp ikonu ekle (auth olmayan kullanıcıya dokununca login yönlendirmesi)
-- [ ] Home'daki popüler kartlara ufak kalp ikonu (opsiyonel)
+- [x] `FavoritesScreen` — `favoritesProvider`'ı dinle, boşsa EmptyState, doluysa UniCard listesi
+- [x] Üniversite detay sayfasının AppBar'ına kalp ikonu ekle (auth olmayan kullanıcıya dokununca login yönlendirmesi)
+- [x] Home'daki popüler kartlara ufak kalp ikonu (opsiyonel)
 
 ---
 
@@ -133,9 +133,9 @@ Plan Favori'yi Sprint 4'e koymuş ama yorum sayfalarında "favoriye ekle" butonu
 ### Google Sign-In 7.x breaking change uyarısı
 `pubspec.yaml`'da `^6.2.2` ama `.lock`'ta `6.3.0` — her an 7.x gelebilir ve `AuthRepository.signInWithGoogle` API'si değişti (artık `initialize()` + `authenticate()`).
 
-- [ ] `pubspec.yaml`'da `google_sign_in: 6.3.0` şeklinde sabitle (caret yerine kesin sürüm)
+- [x] `pubspec.yaml`'da `google_sign_in: 6.3.0` şeklinde sabitle (caret yerine kesin sürüm)
 - [ ] VEYA `7.x`'e geç ve `AuthRepository`'yi yeni API'ye taşı
-- [ ] `flutter pub outdated` çalıştır, büyük sürüm atlayanları gözden geçir
+- [x] `flutter pub outdated` çalıştır, büyük sürüm atlayanları gözden geçir
 
 ---
 

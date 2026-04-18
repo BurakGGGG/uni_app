@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
 import '../constants/app_constants.dart';
@@ -119,7 +120,7 @@ class UniCard extends StatelessWidget {
         color: AppColors.surfaceVariant,
         image: imageUrl != null
             ? DecorationImage(
-                image: NetworkImage(imageUrl!),
+                image: CachedNetworkImageProvider(imageUrl!),
                 fit: BoxFit.cover,
               )
             : null,

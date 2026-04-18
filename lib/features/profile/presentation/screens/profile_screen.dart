@@ -12,6 +12,7 @@ import '../../../auth/domain/user_model.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../../../core/providers/shared_preferences_provider.dart';
 import '../../../../scripts/seed_data_service.dart';
+import '../../../favorites/presentation/providers/favorites_providers.dart';
 
 /// Profil ekranı — auth durumuna göre içerik gösterir
 class ProfileScreen extends ConsumerWidget {
@@ -62,7 +63,7 @@ class ProfileScreen extends ConsumerWidget {
                 data: (user) {
                   if (user == null) return const SizedBox.shrink();
                   return currentUser.when(
-                    data: (profile) => _buildStats(profile),
+                    data: (profile) => _buildStats(context, ref, profile),
                     loading: () => const SizedBox.shrink(),
                     error: (e, st) => const SizedBox.shrink(),
                   );
@@ -451,7 +452,9 @@ class ProfileScreen extends ConsumerWidget {
 
   // ─── İstatistikler ────────────────────────────────────────────
 
-  Widget _buildStats(UserModel? profile) {
+  Widget _buildStats(BuildContext context, WidgetRef ref, UserModel? profile) {
+    final favoritesCount = ref.watch(favoritesProvider).value?.length ?? 0;
+
     return Row(
       children: [
         _StatCard(
@@ -464,7 +467,7 @@ class ProfileScreen extends ConsumerWidget {
         _StatCard(
           icon: Icons.favorite_rounded,
           label: 'Favori',
-          value: '${profile?.favorites.length ?? 0}',
+          value: '$favoritesCount',
           color: AppColors.error,
         ),
         const SizedBox(width: 12),

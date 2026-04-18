@@ -15,6 +15,7 @@ final authStateProvider = StreamProvider<User?>((ref) {
 
 /// Mevcut kullanıcı profili (Firestore'dan)
 final currentUserProvider = FutureProvider<UserModel?>((ref) async {
+  ref.keepAlive();
   final authState = ref.watch(authStateProvider);
   return authState.when(
     data: (user) {

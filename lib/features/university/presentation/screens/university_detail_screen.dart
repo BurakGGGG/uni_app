@@ -8,6 +8,8 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../providers/university_providers.dart';
 import '../../domain/models/department_model.dart';
+import '../../../auth/presentation/providers/auth_providers.dart';
+import '../../../favorites/presentation/providers/favorites_providers.dart';
 
 class UniversityDetailScreen extends ConsumerWidget {
   final String universityId;
@@ -40,6 +42,9 @@ class UniversityDetailScreen extends ConsumerWidget {
                   onPressed: () => context.pop(),
                   icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
                 ),
+                actions: [
+                  _FavoriteButton(universityId: universityId),
+                ],
                 flexibleSpace: FlexibleSpaceBar(
                   title: Text(
                     uni.name,
@@ -410,3 +415,67 @@ class _DepartmentCard extends StatelessWidget {
     );
   }
 }
+
+// ─── Favorite Button ──────────────────────────────────────────────
+
+class _FavoriteButton extends ConsumerWidget {
+  final String universityId;
+
+  const _FavoriteButton({required this.universityId});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final user = ref.watch(authStateProvider).value;
+    final favoritesAsync = ref.watch(favoritesProvider);
+
+    return favoritesAsync.when(
+      data: (favorites) {
+        final isFavorite = favorites.contains(universityId);
+
+        return IconButton(
+          onPressed: () {
+            if (user == null) {
+              // Giriş yapmamış kullanıcıyı uyar ve yönlendir
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: const Text('Favorilere eklemek için giriş yapmalısın.'),
+                  action: SnackBarAction(
+                    label: 'Giriş Yap',
+                    textColor: Colors.white,
+                    onPressed: () => context.push('/login'),
+                  ),
+                  behavior: SnackBarBehavior.floating,
+                ),
+              );
+              return;
+            }
+
+            // Favoriye ekle/çıkar
+            ref.read(favoritesControllerProvider.notifier).toggleFavorite(
+              user.uid,
+              universityId,
+              isFavorite,
+            );
+          },
+          icon: Icon(
+            isFavorite ? Icons.favorite_rounded : Icons.favorite_border_rounded,
+            color: isFavorite ? AppColors.error : Colors.white,
+          ),
+        );
+      },
+      loading: () => const IconButton(
+        onPressed: null,
+        icon: SizedBox(
+          width: 20,
+          height: 20,
+          child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white70),
+        ),
+      ),
+      error: (_, __) => const IconButton(
+        onPressed: null,
+        icon: Icon(Icons.favorite_border_rounded, color: Colors.white54),
+      ),
+    );
+  }
+}
+

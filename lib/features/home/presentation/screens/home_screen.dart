@@ -9,6 +9,7 @@ import '../../../../core/widgets/widgets.dart';
 import '../../../university/presentation/providers/university_providers.dart';
 import '../../../university/domain/models/city_model.dart';
 import '../../../university/domain/models/university_model.dart';
+import '../../../favorites/presentation/providers/favorites_providers.dart';
 
 /// Ana Sayfa ekranı
 class HomeScreen extends ConsumerWidget {
@@ -297,7 +298,7 @@ class _HeroBanner extends StatelessWidget {
   }
 }
 
-class _PopularUniCard extends StatelessWidget {
+class _PopularUniCard extends ConsumerWidget {
   final UniversityModel university;
   final int index;
   final VoidCallback onTap;
@@ -309,7 +310,9 @@ class _PopularUniCard extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final favoritesAsync = ref.watch(favoritesProvider);
+    final isFavorite = favoritesAsync.value?.contains(university.id) ?? false;
     final colors = [
       AppColors.primary,
       AppColors.secondary,
@@ -342,15 +345,22 @@ class _PopularUniCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // İkon
-                Container(
-                  width: 44,
-                  height: 44,
-                  decoration: BoxDecoration(
-                    color: color.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Icon(Icons.school_rounded, color: color, size: 24),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Container(
+                      width: 44,
+                      height: 44,
+                      decoration: BoxDecoration(
+                        color: color.withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Icon(Icons.school_rounded, color: color, size: 24),
+                    ),
+                    if (isFavorite)
+                      const Icon(Icons.favorite_rounded, color: AppColors.error, size: 18),
+                  ],
                 ),
                 const Spacer(),
                 // Başlık

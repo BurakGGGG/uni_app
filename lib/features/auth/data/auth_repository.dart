@@ -11,6 +11,11 @@ class AuthRepository {
   final FirebaseFirestore _firestore;
   final GoogleSignIn _googleSignIn;
 
+  // In-memory cache
+  UserModel? _cachedUser;
+  DateTime? _lastCacheTime;
+  static const _cacheTtl = Duration(minutes: 10);
+
   AuthRepository({
     FirebaseAuth? auth,
     FirebaseFirestore? firestore,
@@ -128,6 +133,8 @@ class AuthRepository {
   // ─── Çıkış Yap ───────────────────────────────────────────────
 
   Future<void> signOut() async {
+    _cachedUser = null;
+    _lastCacheTime = null;
     await Future.wait([
       _auth.signOut(),
       _googleSignIn.signOut(),
@@ -136,10 +143,26 @@ class AuthRepository {
 
   // ─── Kullanıcı Profili Çekme ──────────────────────────────────
 
-  Future<UserModel?> getUserProfile(String uid) async {
-    final doc = await _firestore.collection('users').doc(uid).get();
+  Future<UserModel?> getUserProfile(String uid, {bool forceRefresh = false}) async {
+    if (!forceRefresh && _cachedUser != null && _cachedUser!.uid == uid && _lastCacheTime != null) {
+      if (DateTime.now().difference(_lastCacheTime!) < _cacheTtl) {
+        return _cachedUser;
+      }
+    }
+
+    final doc = await _firestore.collection('users').doc(uid).get(
+      GetOptions(source: forceRefresh ? Source.serverAndCache : Source.serverAndCache),
+    );
     if (!doc.exists || doc.data() == null) return null;
-    return UserModel.fromMap(doc.data()!, uid);
+    
+    _cachedUser = UserModel.fromMap(doc.data()!, uid);
+    _lastCacheTime = DateTime.now();
+    return _cachedUser;
+  }
+
+  void clearCache() {
+    _cachedUser = null;
+    _lastCacheTime = null;
   }
 
   // ─── edu.tr Doğrulama Kontrolü ────────────────────────────────
@@ -163,6 +186,7 @@ class AuthRepository {
       await _firestore.collection('users').doc(refreshedUser.uid).update({
         'isVerifiedStudent': true,
       });
+      clearCache(); // Cache'i temizle ki güncel veriyi çeksin
       return true;
     }
     return false;
@@ -201,6 +225,7 @@ class AuthRepository {
       if (displayName != null) {
         await _auth.currentUser?.updateDisplayName(displayName);
       }
+      clearCache();
     }
   }
 
@@ -226,6 +251,7 @@ class AuthRepository {
       'photoUrl': downloadUrl,
     });
     await _auth.currentUser?.updatePhotoURL(downloadUrl);
+    clearCache();
 
     return downloadUrl;
   }

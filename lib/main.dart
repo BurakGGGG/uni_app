@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'core/theme/app_theme.dart';
 import 'core/constants/app_constants.dart';
@@ -11,8 +12,19 @@ import 'router/app_router.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Firebase başlat
-  await Firebase.initializeApp();
+  // Asenkron işlemleri paralel başlat (Cold Start optimizasyonu)
+  final results = await Future.wait([
+    Firebase.initializeApp(),
+    SharedPreferences.getInstance(),
+  ]);
+  
+  final prefs = results[1] as SharedPreferences;
+
+  // Firestore offline persistence'i maksimum önbellekleme için yapılandır
+  FirebaseFirestore.instance.settings = const Settings(
+    persistenceEnabled: true,
+    cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
+  );
 
   // Status bar stilini ayarla
   SystemChrome.setSystemUIOverlayStyle(
@@ -26,9 +38,6 @@ void main() async {
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
-
-  // SharedPreferences oku
-  final prefs = await SharedPreferences.getInstance();
 
   runApp(
     ProviderScope(

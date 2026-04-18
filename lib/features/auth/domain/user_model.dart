@@ -12,7 +12,6 @@ class UserModel {
   final String? department;
   final int? grade;
   final int reviewCount;
-  final List<String> favorites;
   final DateTime createdAt;
   final DateTime lastLoginAt;
 
@@ -27,7 +26,6 @@ class UserModel {
     this.department,
     this.grade,
     this.reviewCount = 0,
-    this.favorites = const [],
     required this.createdAt,
     required this.lastLoginAt,
   });
@@ -45,7 +43,6 @@ class UserModel {
       department: map['department'],
       grade: map['grade'],
       reviewCount: map['reviewCount'] ?? 0,
-      favorites: List<String>.from(map['favorites'] ?? []),
       createdAt: (map['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
       lastLoginAt:
           (map['lastLoginAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
@@ -64,7 +61,6 @@ class UserModel {
       'department': department,
       'grade': grade,
       'reviewCount': reviewCount,
-      'favorites': favorites,
       'createdAt': Timestamp.fromDate(createdAt),
       'lastLoginAt': Timestamp.fromDate(lastLoginAt),
     };
@@ -81,7 +77,6 @@ class UserModel {
     String? department,
     int? grade,
     int? reviewCount,
-    List<String>? favorites,
     DateTime? lastLoginAt,
   }) {
     return UserModel(
@@ -95,7 +90,6 @@ class UserModel {
       department: department ?? this.department,
       grade: grade ?? this.grade,
       reviewCount: reviewCount ?? this.reviewCount,
-      favorites: favorites ?? this.favorites,
       createdAt: createdAt,
       lastLoginAt: lastLoginAt ?? this.lastLoginAt,
     );
