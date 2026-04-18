@@ -10,6 +10,7 @@ import '../providers/university_providers.dart';
 import '../../domain/models/department_model.dart';
 import '../../../auth/presentation/providers/auth_providers.dart';
 import '../../../favorites/presentation/providers/favorites_providers.dart';
+import '../../../reviews/presentation/providers/review_providers.dart';
 
 class UniversityDetailScreen extends ConsumerWidget {
   final String universityId;
@@ -241,6 +242,41 @@ class UniversityDetailScreen extends ConsumerWidget {
                           ),
                         ),
                       ],
+                      const SizedBox(height: 32),
+                      
+                      // ─── Yorumlar Başlığı ve Butonu ────────────────
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
+                              children: [
+                                const Icon(Icons.rate_review_rounded, color: AppColors.primary, size: 22),
+                                const SizedBox(width: 8),
+                                Text('Yorumlar', style: AppTextStyles.headlineMedium),
+                              ],
+                            ),
+                            TextButton.icon(
+                              onPressed: () => context.push('/write-review/$universityId'),
+                              icon: const Icon(Icons.add_comment_rounded, size: 18),
+                              label: const Text('Değerlendir'),
+                              style: TextButton.styleFrom(
+                                foregroundColor: AppColors.primary,
+                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(AppConstants.radiusMd),
+                                  side: BorderSide(color: AppColors.primary.withValues(alpha: 0.2)),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      
+                      // ─── Yorum Listesi ─────────────────────────────
+                      _ReviewSection(universityId: universityId),
+                      
                       const SizedBox(height: 100),
                     ]),
                   );
@@ -479,3 +515,137 @@ class _FavoriteButton extends ConsumerWidget {
   }
 }
 
+// ─── Yorumlar Bölümü ──────────────────────────────────────────────
+
+class _ReviewSection extends ConsumerWidget {
+  final String universityId;
+
+  const _ReviewSection({required this.universityId});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final reviewsAsync = ref.watch(universityReviewsProvider(universityId));
+
+    return reviewsAsync.when(
+      loading: () => const Center(child: Padding(
+        padding: EdgeInsets.all(40),
+        child: CircularProgressIndicator(),
+      )),
+      error: (e, st) => Center(child: Text('Yorumlar yüklenemedi: $e')),
+      data: (reviews) {
+        if (reviews.isEmpty) {
+          return Padding(
+            padding: const EdgeInsets.all(40),
+            child: Center(
+              child: Column(
+                children: [
+                  Icon(Icons.speaker_notes_off_rounded, size: 48, color: AppColors.textTertiary.withValues(alpha: 0.5)),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Henüz yorum yapılmamış.\nİlk değerlendiren siz olun!',
+                    textAlign: TextAlign.center,
+                    style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+
+        return ListView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+          itemCount: reviews.length,
+          itemBuilder: (context, index) {
+            final review = reviews[index];
+            return Container(
+              margin: const EdgeInsets.only(bottom: 16),
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(AppConstants.radiusLg),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.03),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      CircleAvatar(
+                        radius: 20,
+                        backgroundColor: AppColors.primary.withValues(alpha: 0.1),
+                        backgroundImage: review.userPhotoUrl != null ? NetworkImage(review.userPhotoUrl!) : null,
+                        child: review.userPhotoUrl == null
+                            ? const Icon(Icons.person, color: AppColors.primary)
+                            : null,
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(review.userName, style: AppTextStyles.titleSmall),
+                            if (review.userUniversity != null)
+                              Text(review.userUniversity!, style: AppTextStyles.labelMedium.copyWith(color: AppColors.textTertiary)),
+                          ],
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: AppColors.warning.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.star_rounded, color: AppColors.warning, size: 14),
+                            const SizedBox(width: 4),
+                            Text(review.rating.toStringAsFixed(1), style: AppTextStyles.labelLarge.copyWith(color: AppColors.warning)),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Text(review.comment, style: AppTextStyles.bodyMedium),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Text(
+                        '${review.createdAt.day}.${review.createdAt.month}.${review.createdAt.year}',
+                        style: AppTextStyles.labelMedium.copyWith(color: AppColors.textTertiary),
+                      ),
+                      const Spacer(),
+                      InkWell(
+                        onTap: () {
+                          final user = ref.read(authStateProvider).value;
+                          if (user != null) {
+                            ref.read(reviewRepositoryProvider).likeReview(review.id, user.uid);
+                          }
+                        },
+                        child: Row(
+                          children: [
+                            const Icon(Icons.thumb_up_alt_outlined, size: 16, color: AppColors.textTertiary),
+                            const SizedBox(width: 4),
+                            Text('${review.likes}', style: AppTextStyles.labelMedium.copyWith(color: AppColors.textTertiary)),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ).animate().fadeIn(delay: (100 * index).ms, duration: 400.ms);
+          },
+        );
+      },
+    );
+  }
+}

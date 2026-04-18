@@ -14,41 +14,101 @@ class ReviewRepository {
 
   // TODO(sprint3): Yorum ekleme
   Future<void> addReview(ReviewModel review) async {
-    throw UnimplementedError('Sprint 3\'te implemente edilecek');
+    final docRef = _firestore.collection('reviews').doc();
+    await docRef.set(review.toMap());
+    
+    // Kullanıcının reviewCount alanını artır
+    await _firestore.collection('users').doc(review.userId).update({
+      'reviewCount': FieldValue.increment(1),
+    });
   }
 
   // TODO(sprint3): Yorum güncelleme
   Future<void> updateReview(ReviewModel review) async {
-    throw UnimplementedError('Sprint 3\'te implemente edilecek');
+    await _firestore.collection('reviews').doc(review.id).update({
+      ...review.toMap(),
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
   }
 
   // TODO(sprint3): Yorum silme
-  Future<void> deleteReview(String reviewId) async {
-    throw UnimplementedError('Sprint 3\'te implemente edilecek');
+  Future<void> deleteReview(String reviewId, String userId) async {
+    await _firestore.collection('reviews').doc(reviewId).delete();
+    
+    // Kullanıcının reviewCount alanını azalt
+    await _firestore.collection('users').doc(userId).update({
+      'reviewCount': FieldValue.increment(-1),
+    });
   }
 
   // TODO(sprint3): Üniversiteye ait yorumları getir
-  Stream<List<ReviewModel>> getUniversityReviews(String universityId) {
-    throw UnimplementedError('Sprint 3\'te implemente edilecek');
+  Stream<List<ReviewModel>> getUniversityReviews(String universityId, {int limit = 20}) {
+    return _reviewsRef
+        .where('targetId', isEqualTo: universityId)
+        .orderBy('createdAt', descending: true)
+        .limit(limit)
+        .snapshots()
+        .map((snapshot) => snapshot.docs
+            .map((doc) => ReviewModel.fromMap(doc.data(), doc.id))
+            .toList());
   }
 
   // TODO(sprint3): Bölüme ait yorumları getir
-  Stream<List<ReviewModel>> getDepartmentReviews(String departmentId) {
-    throw UnimplementedError('Sprint 3\'te implemente edilecek');
+  Stream<List<ReviewModel>> getDepartmentReviews(String departmentId, {int limit = 20}) {
+    return _reviewsRef
+        .where('targetId', isEqualTo: departmentId)
+        .orderBy('createdAt', descending: true)
+        .limit(limit)
+        .snapshots()
+        .map((snapshot) => snapshot.docs
+            .map((doc) => ReviewModel.fromMap(doc.data(), doc.id))
+            .toList());
   }
 
   // TODO(sprint3): Son yorumları getir (ana sayfa için)
   Stream<List<ReviewModel>> getRecentReviews({int limit = 10}) {
-    throw UnimplementedError('Sprint 3\'te implemente edilecek');
+    return _reviewsRef
+        .orderBy('createdAt', descending: true)
+        .limit(limit)
+        .snapshots()
+        .map((snapshot) => snapshot.docs
+            .map((doc) => ReviewModel.fromMap(doc.data(), doc.id))
+            .toList());
   }
 
   // TODO(sprint3): Kullanıcının yorumlarını getir
   Stream<List<ReviewModel>> getUserReviews(String userId) {
-    throw UnimplementedError('Sprint 3\'te implemente edilecek');
+    return _reviewsRef
+        .where('userId', isEqualTo: userId)
+        .orderBy('createdAt', descending: true)
+        .snapshots()
+        .map((snapshot) => snapshot.docs
+            .map((doc) => ReviewModel.fromMap(doc.data(), doc.id))
+            .toList());
   }
 
   // TODO(sprint3): Yorum beğenme
   Future<void> likeReview(String reviewId, String userId) async {
-    throw UnimplementedError('Sprint 3\'te implemente edilecek');
+    final likeRef = _firestore
+        .collection('reviews')
+        .doc(reviewId)
+        .collection('likes')
+        .doc(userId);
+
+    final doc = await likeRef.get();
+    
+    if (doc.exists) {
+      await likeRef.delete();
+      await _firestore.collection('reviews').doc(reviewId).update({
+        'likes': FieldValue.increment(-1),
+      });
+    } else {
+      await likeRef.set({
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+      await _firestore.collection('reviews').doc(reviewId).update({
+        'likes': FieldValue.increment(1),
+      });
+    }
   }
 }

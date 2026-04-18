@@ -54,9 +54,10 @@ service cloud.firestore {
       // Herkes okuyabilir
       allow read: if true;
 
-      // Sadece doğrulanmış öğrenciler yorum yazabilir
+      // Sadece doğrulanmış öğrenciler kendi üniversitelerine yorum yazabilir
       allow create: if isVerifiedStudent() &&
-        request.resource.data.userId == request.auth.uid;
+        request.resource.data.userId == request.auth.uid &&
+        request.resource.data.universityId == get(/databases/$(database)/documents/users/$(request.auth.uid)).data.universityId;
 
       // Sadece kendi yorumunu düzenleyebilir
       allow update: if isOwner(resource.data.userId) &&

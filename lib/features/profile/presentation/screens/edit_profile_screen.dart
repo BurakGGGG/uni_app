@@ -10,6 +10,8 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/widgets.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../../auth/presentation/providers/auth_providers.dart';
+import '../../../university/presentation/providers/university_providers.dart';
+import '../../../university/domain/models/university_model.dart';
 
 /// Profil düzenleme ekranı
 class EditProfileScreen extends ConsumerStatefulWidget {
@@ -25,6 +27,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   final _imagePicker = ImagePicker();
 
   String? _selectedUniversity;
+  String? _selectedUniversityId;
   String? _selectedDepartment;
   int? _selectedGrade;
   File? _selectedImage;
@@ -32,28 +35,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   bool _isLoading = false;
   bool _hasChanges = false;
 
-  // Geçici üniversite listesi (sonra Firestore'dan gelecek)
-  final _universities = [
-    'Boğaziçi Üniversitesi',
-    'İTÜ',
-    'İstanbul Üniversitesi',
-    'Marmara Üniversitesi',
-    'YTÜ',
-    'ODTÜ',
-    'Hacettepe Üniversitesi',
-    'Ankara Üniversitesi',
-    'Gazi Üniversitesi',
-    'Ege Üniversitesi',
-    'Dokuz Eylül Üniversitesi',
-    'Cumhuriyet Üniversitesi',
-    'Sivas Bilim ve Teknoloji Üniversitesi',
-    'Anadolu Üniversitesi',
-    'Akdeniz Üniversitesi',
-    'Uludağ Üniversitesi',
-    'KTÜ',
-    'Selçuk Üniversitesi',
-    'Mersin Üniversitesi',
-  ];
+  // Geçici üniversite listesi kaldırıldı, Firestore'dan dinamik alınacak
 
   final _grades = [
     {'value': 0, 'label': 'Hazırlık'},
@@ -77,6 +59,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       if (profile != null) {
         _nameController.text = profile.displayName;
         _selectedUniversity = profile.university;
+        _selectedUniversityId = profile.universityId;
         _selectedDepartment = profile.department;
         _selectedGrade = profile.grade;
         _currentPhotoUrl = profile.photoUrl;
@@ -157,6 +140,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
         uid: user.uid,
         displayName: _nameController.text.trim(),
         university: _selectedUniversity,
+        universityId: _selectedUniversityId,
         department: _selectedDepartment,
         grade: _selectedGrade,
       );
@@ -191,6 +175,8 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final universitiesAsync = ref.watch(allUniversitiesProvider);
+
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -275,22 +261,35 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                   const SizedBox(height: 20),
 
                   // ─── Üniversite Seçimi ────────────────────────────
-                  DropdownButtonFormField<String>(
-                    initialValue: _selectedUniversity,
-                    isExpanded: true,
-                    decoration: const InputDecoration(
-                      labelText: 'Üniversite',
-                      prefixIcon: Icon(Icons.school_outlined),
-                    ),
-                    items: _universities.map((uni) {
-                      return DropdownMenuItem(value: uni, child: Text(uni, overflow: TextOverflow.ellipsis));
-                    }).toList(),
-                    onChanged: (value) {
-                      setState(() {
-                        _selectedUniversity = value;
-                        _hasChanges = true;
-                      });
+                  universitiesAsync.when(
+                    data: (unis) {
+                      // Ensure selected university exists in the loaded list, otherwise set to null
+                      final selectedUniModel = unis.cast<UniversityModel?>().firstWhere(
+                        (u) => u?.id == _selectedUniversityId || u?.name == _selectedUniversity,
+                        orElse: () => null,
+                      );
+
+                      return DropdownButtonFormField<UniversityModel>(
+                        initialValue: selectedUniModel,
+                        isExpanded: true,
+                        decoration: const InputDecoration(
+                          labelText: 'Üniversite',
+                          prefixIcon: Icon(Icons.school_outlined),
+                        ),
+                        items: unis.map((uni) {
+                          return DropdownMenuItem(value: uni, child: Text(uni.name, overflow: TextOverflow.ellipsis));
+                        }).toList(),
+                        onChanged: (uni) {
+                          setState(() {
+                            _selectedUniversity = uni?.name;
+                            _selectedUniversityId = uni?.id;
+                            _hasChanges = true;
+                          });
+                        },
+                      );
                     },
+                    loading: () => const Center(child: CircularProgressIndicator()),
+                    error: (e, st) => Text('Üniversiteler yüklenemedi: $e'),
                   ).animate().fadeIn(delay: 200.ms, duration: 400.ms),
 
                   const SizedBox(height: 20),
@@ -305,8 +304,10 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                       hintText: 'Örn: Bilgisayar Mühendisliği',
                     ),
                     onChanged: (value) {
-                      _selectedDepartment = value;
-                      _hasChanges = true;
+                      setState(() {
+                        _selectedDepartment = value;
+                        _hasChanges = true;
+                      });
                     },
                   ).animate().fadeIn(delay: 300.ms, duration: 400.ms),
 

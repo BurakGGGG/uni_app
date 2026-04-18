@@ -17,6 +17,7 @@ import '../features/university/presentation/screens/department_detail_screen.dar
 import '../features/home/presentation/screens/search_screen.dart';
 import '../features/university/presentation/screens/city_universities_screen.dart';
 import '../features/university/presentation/screens/all_cities_screen.dart';
+import '../features/reviews/presentation/screens/write_review_screen.dart';
 import 'app_shell.dart';
 
 /// Uygulama route isimleri
@@ -37,6 +38,7 @@ class AppRoutes {
   static const String cityDetail = '/city/:cityId';
   static const String departmentDetail = '/department/:deptId';
   static const String allCities = '/cities';
+  static const String writeReview = '/write-review/:uniId';
 }
 
 /// GoRouter konfigürasyon provider'ı
@@ -61,7 +63,7 @@ final routerProvider = Provider<GoRouter>((ref) {
 
       // 2. Korumalı Rotalar (Sprint 3'te yorum rotaları buraya eklenecek)
       final protectedRoutes = [AppRoutes.editProfile];
-      final isGoingToProtected = protectedRoutes.contains(path);
+      final isGoingToProtected = protectedRoutes.contains(path) || path.startsWith('/write-review');
 
       if (isGoingToProtected && !isLoggedIn) {
         final encodedPath = Uri.encodeComponent(state.uri.toString());
@@ -107,6 +109,12 @@ final routerProvider = Provider<GoRouter>((ref) {
     GoRoute(
       path: '/university/:uniId',
       builder: (context, state) => UniversityDetailScreen(
+        universityId: state.pathParameters['uniId']!,
+      ),
+    ),
+    GoRoute(
+      path: AppRoutes.writeReview,
+      builder: (context, state) => WriteReviewScreen(
         universityId: state.pathParameters['uniId']!,
       ),
     ),

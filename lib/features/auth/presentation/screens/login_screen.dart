@@ -51,7 +51,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     if (from != null && from.isNotEmpty) {
       context.go(from);
     } else {
-      context.go('/profile');
+      context.go('/');
     }
   }
 

@@ -49,7 +49,7 @@ class ReviewModel {
     this.isApproved = true,
     required this.createdAt,
     required this.updatedAt,
-  });
+  }) : assert(rating >= 1.0 && rating <= 5.0, 'Rating must be between 1.0 and 5.0');
 
   factory ReviewModel.fromMap(Map<String, dynamic> map, String id) {
     return ReviewModel(

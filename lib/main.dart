@@ -9,12 +9,14 @@ import 'core/constants/app_constants.dart';
 import 'core/providers/shared_preferences_provider.dart';
 import 'router/app_router.dart';
 
+import 'firebase_options.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Asenkron işlemleri paralel başlat (Cold Start optimizasyonu)
   final results = await Future.wait([
-    Firebase.initializeApp(),
+    Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform),
     SharedPreferences.getInstance(),
   ]);
   

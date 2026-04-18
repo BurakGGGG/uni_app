@@ -96,63 +96,53 @@ class FavoritesScreen extends ConsumerWidget {
               itemCount: favoriteUnis.length,
               itemBuilder: (context, index) {
                 final uni = favoriteUnis[index];
-                return Stack(
-                  children: [
-                    UniCard(
-                      title: uni.name,
-                      subtitle: '${uni.type} • Kuruluş: ${uni.establishedYear}',
-                      rating: uni.avgRating,
-                      reviewCount: uni.reviewCount,
-                      tags: [
-                        if (uni.hasCampus) 'Kampüslü',
-                        uni.type,
-                      ],
-                      onTap: () => context.push('/university/${uni.id}'),
-                      badge: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                        decoration: BoxDecoration(
-                          color: (uni.type == 'Devlet' ? AppColors.stateUni : AppColors.foundationUni)
-                              .withValues(alpha: 0.12),
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: Text(
-                          uni.type,
-                          style: AppTextStyles.labelSmall.copyWith(
-                            color: uni.type == 'Devlet' ? AppColors.stateUni : AppColors.foundationUni,
-                            fontWeight: FontWeight.w600,
-                            fontSize: 10,
-                          ),
-                        ),
-                      ),
-                    ).animate().fadeIn(
-                      delay: Duration(milliseconds: 50 * index.clamp(0, 10)),
-                      duration: 300.ms,
-                    ),
-                    
-                    // Kaldır Butonu (Sağ üst köşe)
-                    Positioned(
-                      top: 12,
-                      right: 12,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: AppColors.surface,
-                          shape: BoxShape.circle,
-                          boxShadow: AppColors.softShadow,
-                        ),
-                        child: IconButton(
-                          icon: const Icon(Icons.favorite_rounded, color: AppColors.error, size: 20),
-                          padding: const EdgeInsets.all(8),
-                          constraints: const BoxConstraints(),
-                          onPressed: () {
-                            final user = ref.read(authStateProvider).value;
-                            if (user != null) {
-                              ref.read(favoritesControllerProvider.notifier).toggleFavorite(user.uid, uni.id, true);
-                            }
-                          },
-                        ),
-                      ),
-                    ),
+                return UniCard(
+                  title: uni.name,
+                  subtitle: '${uni.type} • Kuruluş: ${uni.establishedYear}',
+                  rating: uni.avgRating,
+                  reviewCount: uni.reviewCount,
+                  tags: [
+                    if (uni.hasCampus) 'Kampüslü',
+                    uni.type,
                   ],
+                  onTap: () => context.push('/university/${uni.id}'),
+                  badge: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: (uni.type == 'Devlet' ? AppColors.stateUni : AppColors.foundationUni)
+                          .withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Text(
+                      uni.type,
+                      style: AppTextStyles.labelSmall.copyWith(
+                        color: uni.type == 'Devlet' ? AppColors.stateUni : AppColors.foundationUni,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 10,
+                      ),
+                    ),
+                  ),
+                  trailing: Container(
+                    decoration: BoxDecoration(
+                      color: AppColors.surface,
+                      shape: BoxShape.circle,
+                      boxShadow: AppColors.softShadow,
+                    ),
+                    child: IconButton(
+                      icon: const Icon(Icons.favorite_rounded, color: AppColors.error, size: 20),
+                      padding: const EdgeInsets.all(8),
+                      constraints: const BoxConstraints(),
+                      onPressed: () {
+                        final user = ref.read(authStateProvider).value;
+                        if (user != null) {
+                          ref.read(favoritesControllerProvider.notifier).toggleFavorite(user.uid, uni.id, true);
+                        }
+                      },
+                    ),
+                  ),
+                ).animate().fadeIn(
+                  delay: Duration(milliseconds: 50 * index.clamp(0, 10)),
+                  duration: 300.ms,
                 );
               },
             );

@@ -10,6 +10,8 @@ import '../../../university/presentation/providers/university_providers.dart';
 import '../../../university/domain/models/city_model.dart';
 import '../../../university/domain/models/university_model.dart';
 import '../../../favorites/presentation/providers/favorites_providers.dart';
+import '../../../reviews/presentation/providers/review_providers.dart';
+import '../../../reviews/domain/models/review_model.dart';
 
 /// Ana Sayfa ekranı
 class HomeScreen extends ConsumerWidget {
@@ -176,17 +178,41 @@ class HomeScreen extends ConsumerWidget {
               ).animate().fadeIn(delay: 500.ms, duration: 400.ms),
             ),
 
-            // TODO(sprint3): Replace with ReviewRepository.getRecentReviews()
-            SliverList(
-              delegate: SliverChildBuilderDelegate(
-                (context, index) {
-                  return _RecentReviewCard(index: index)
-                      .animate()
-                      .fadeIn(delay: Duration(milliseconds: 550 + index * 80), duration: 400.ms)
-                      .slideX(begin: 0.05, end: 0);
-                },
-                childCount: 3,
+            ref.watch(recentReviewsProvider).when(
+              loading: () => const SliverToBoxAdapter(
+                child: Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(20),
+                    child: CircularProgressIndicator(),
+                  ),
+                ),
               ),
+              error: (e, st) => SliverToBoxAdapter(
+                child: Center(child: Text('Yorumlar yüklenemedi: $e')),
+              ),
+              data: (reviews) {
+                if (reviews.isEmpty) {
+                  return const SliverToBoxAdapter(
+                    child: Padding(
+                      padding: EdgeInsets.all(40),
+                      child: Center(child: Text('Henüz değerlendirme yapılmamış')),
+                    ),
+                  );
+                }
+
+                return SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                    (context, index) {
+                      final review = reviews[index];
+                      return _RecentReviewCard(review: review)
+                          .animate()
+                          .fadeIn(delay: Duration(milliseconds: 550 + index * 80), duration: 400.ms)
+                          .slideX(begin: 0.05, end: 0);
+                    },
+                    childCount: reviews.length,
+                  ),
+                );
+              },
             ),
 
             // Bottom padding
@@ -448,41 +474,12 @@ class _CityChip extends StatelessWidget {
 }
 
 class _RecentReviewCard extends StatelessWidget {
-  final int index;
+  final ReviewModel review;
 
-  const _RecentReviewCard({required this.index});
+  const _RecentReviewCard({required this.review});
 
   @override
   Widget build(BuildContext context) {
-    final reviews = [
-      {
-        'user': 'Ayşe K.',
-        'uni': 'ODTÜ',
-        'dept': 'Bilgisayar Müh.',
-        'rating': '4.5',
-        'comment': 'Kampüs hayatı harika, kütüphane 7/24 açık. Sosyal aktiviteler çok zengin.',
-        'time': '2 saat önce',
-      },
-      {
-        'user': 'Mehmet Y.',
-        'uni': 'Boğaziçi',
-        'dept': 'İşletme',
-        'rating': '4.8',
-        'comment': 'Hocalar çok ilgili. İstanbul\'da olmanın avantajlarını sonuna kadar yaşıyorsunuz.',
-        'time': '5 saat önce',
-      },
-      {
-        'user': 'Zeynep A.',
-        'uni': 'İTÜ',
-        'dept': 'Mimarlık',
-        'rating': '4.2',
-        'comment': 'Atölye imkanları çok iyi. Maçka kampüsünün konumu mükemmel.',
-        'time': '1 gün önce',
-      },
-    ];
-
-    final review = reviews[index];
-
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
       padding: const EdgeInsets.all(AppConstants.spacingLg),
@@ -501,21 +498,25 @@ class _RecentReviewCard extends StatelessWidget {
               CircleAvatar(
                 radius: 18,
                 backgroundColor: AppColors.primary.withValues(alpha: 0.12),
-                child: Text(
-                  review['user']![0],
-                  style: AppTextStyles.titleSmall.copyWith(color: AppColors.primary),
-                ),
+                backgroundImage: review.userPhotoUrl != null ? NetworkImage(review.userPhotoUrl!) : null,
+                child: review.userPhotoUrl == null
+                    ? Text(
+                        review.userName.isNotEmpty ? review.userName[0].toUpperCase() : '?',
+                        style: AppTextStyles.titleSmall.copyWith(color: AppColors.primary),
+                      )
+                    : null,
               ),
               const SizedBox(width: 10),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(review['user']!, style: AppTextStyles.titleSmall),
-                    Text(
-                      '${review['uni']} • ${review['dept']}',
-                      style: AppTextStyles.labelSmall,
-                    ),
+                    Text(review.userName, style: AppTextStyles.titleSmall),
+                    if (review.userUniversity != null)
+                      Text(
+                        review.userUniversity!,
+                        style: AppTextStyles.labelSmall,
+                      ),
                   ],
                 ),
               ),
@@ -523,7 +524,7 @@ class _RecentReviewCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: AppColors.ratingColor(double.parse(review['rating']!))
+                  color: AppColors.ratingColor(review.rating)
                       .withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(6),
                 ),
@@ -533,13 +534,13 @@ class _RecentReviewCard extends StatelessWidget {
                     Icon(
                       Icons.star_rounded,
                       size: 13,
-                      color: AppColors.ratingColor(double.parse(review['rating']!)),
+                      color: AppColors.ratingColor(review.rating),
                     ),
                     const SizedBox(width: 3),
                     Text(
-                      review['rating']!,
+                      review.rating.toStringAsFixed(1),
                       style: AppTextStyles.labelMedium.copyWith(
-                        color: AppColors.ratingColor(double.parse(review['rating']!)),
+                        color: AppColors.ratingColor(review.rating),
                         fontWeight: FontWeight.w700,
                         fontSize: 11,
                       ),
@@ -552,7 +553,7 @@ class _RecentReviewCard extends StatelessWidget {
           const SizedBox(height: 10),
           // Yorum metni
           Text(
-            review['comment']!,
+            review.comment,
             style: AppTextStyles.bodySmall.copyWith(
               color: AppColors.textPrimary,
               height: 1.5,
@@ -563,7 +564,7 @@ class _RecentReviewCard extends StatelessWidget {
           const SizedBox(height: 8),
           // Zaman
           Text(
-            review['time']!,
+            '${review.createdAt.day}.${review.createdAt.month}.${review.createdAt.year}',
             style: AppTextStyles.labelSmall.copyWith(fontSize: 10),
           ),
         ],
@@ -571,3 +572,4 @@ class _RecentReviewCard extends StatelessWidget {
     );
   }
 }
+
