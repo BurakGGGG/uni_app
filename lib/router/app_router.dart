@@ -14,6 +14,7 @@ import '../features/auth/presentation/screens/register_screen.dart';
 import '../features/profile/presentation/screens/edit_profile_screen.dart';
 import '../features/university/presentation/screens/university_detail_screen.dart';
 import '../features/university/presentation/screens/department_detail_screen.dart';
+import '../features/home/presentation/screens/search_screen.dart';
 import '../features/university/presentation/screens/city_universities_screen.dart';
 import '../features/university/presentation/screens/all_cities_screen.dart';
 import 'app_shell.dart';
@@ -80,7 +81,13 @@ final routerProvider = Provider<GoRouter>((ref) {
       return null;
     },
     routes: [
-    // ─── Auth Routes ─────────────────────────────────────────────
+    // ─── Arama ───────────────────────────────────────────────────
+    GoRoute(
+      path: '/search',
+      builder: (context, state) => const SearchScreen(),
+    ),
+
+    // ─── Auth & Profile Routes ───────────────────────────────────
     GoRoute(
       path: AppRoutes.onboarding,
       builder: (context, state) => const OnboardingScreen(),

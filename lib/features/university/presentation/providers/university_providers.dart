@@ -21,6 +21,23 @@ final allUniversitiesProvider = FutureProvider<List<UniversityModel>>((ref) asyn
   return ref.read(universityRepositoryProvider).getAllUniversities();
 });
 
+/// Popüler üniversiteler (yorum sayısına göre, yoksa eskiliğe göre)
+final popularUniversitiesProvider = FutureProvider<List<UniversityModel>>((ref) async {
+  ref.keepAlive();
+  final allUnis = await ref.read(allUniversitiesProvider.future);
+  final popular = List<UniversityModel>.from(allUnis);
+  
+  // Önce yoruma göre çoktan aza, eşitse yıla göre eskiden yeniye sırala
+  popular.sort((a, b) {
+    if (a.reviewCount != b.reviewCount) {
+      return b.reviewCount.compareTo(a.reviewCount);
+    }
+    return a.establishedYear.compareTo(b.establishedYear);
+  });
+  
+  return popular.take(8).toList();
+});
+
 /// Şehre göre üniversiteler (cache'den filtreler)
 final universitiesByCityProvider = FutureProvider.family<List<UniversityModel>, String>((ref, cityId) async {
   ref.keepAlive();

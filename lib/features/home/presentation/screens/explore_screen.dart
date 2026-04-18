@@ -7,8 +7,8 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/widgets.dart';
 import '../../../university/presentation/providers/university_providers.dart';
 import '../../../university/domain/models/university_model.dart';
+import '../providers/explore_filter_provider.dart';
 
-/// Keşfet ekranı — arama ve filtreleme
 class ExploreScreen extends ConsumerStatefulWidget {
   const ExploreScreen({super.key});
 
@@ -17,39 +17,39 @@ class ExploreScreen extends ConsumerStatefulWidget {
 }
 
 class _ExploreScreenState extends ConsumerState<ExploreScreen> {
-  String _selectedFilter = 'Tümü';
-  String _searchQuery = '';
-  final _filters = ['Tümü', 'Devlet', 'Vakıf'];
-  final _searchController = TextEditingController();
 
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
-  }
-
-  List<UniversityModel> _applyFilters(List<UniversityModel> universities) {
+  List<UniversityModel> _applyFilters(List<UniversityModel> universities, ExploreFilterState filters) {
     var filtered = universities;
 
-    // Arama filtresi
-    if (_searchQuery.isNotEmpty) {
-      final lowerQuery = _searchQuery.toLowerCase();
-      filtered = filtered.where((uni) =>
-        uni.name.toLowerCase().contains(lowerQuery)
-      ).toList();
+    // Şehir filtresi
+    if (filters.selectedCities.isNotEmpty) {
+      filtered = filtered.where((uni) => filters.selectedCities.contains(uni.cityId)).toList();
     }
 
     // Tür filtresi
-    if (_selectedFilter != 'Tümü') {
-      filtered = filtered.where((uni) => uni.type == _selectedFilter).toList();
+    if (filters.selectedTypes.isNotEmpty) {
+      filtered = filtered.where((uni) => filters.selectedTypes.contains(uni.type)).toList();
     }
 
     return filtered;
   }
 
+  void _showFilterBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: AppColors.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) => const _FilterBottomSheet(),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final allUnisAsync = ref.watch(allUniversitiesProvider);
+    final filters = ref.watch(exploreFilterProvider);
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -74,85 +74,75 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
             // ─── Arama ──────────────────────────────────────────
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
-              child: TextField(
-                controller: _searchController,
-                onChanged: (value) {
-                  setState(() => _searchQuery = value);
-                },
-                decoration: InputDecoration(
-                  hintText: 'Üniversite ara...',
-                  hintStyle: AppTextStyles.bodyMedium.copyWith(color: AppColors.textTertiary),
-                  prefixIcon: const Icon(Icons.search_rounded, color: AppColors.textTertiary),
-                  suffixIcon: _searchQuery.isNotEmpty
-                    ? IconButton(
-                        onPressed: () {
-                          _searchController.clear();
-                          setState(() => _searchQuery = '');
-                        },
-                        icon: const Icon(Icons.clear_rounded, size: 20),
-                      )
-                    : null,
-                  filled: true,
-                  fillColor: AppColors.surface,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
-                    borderSide: BorderSide(color: AppColors.borderLight),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
-                    borderSide: BorderSide(color: AppColors.borderLight),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
-                    borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                ),
+              child: AppSearchBar(
+                readOnly: true,
+                onTap: () => context.push('/search'),
               ),
             ),
 
-            // ─── Filtreler ──────────────────────────────────────
-            SizedBox(
-              height: 44,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                itemCount: _filters.length,
-                itemBuilder: (context, index) {
-                  final filter = _filters[index];
-                  final isSelected = filter == _selectedFilter;
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 4),
-                    child: FilterChip(
-                      label: Text(filter),
-                      selected: isSelected,
-                      onSelected: (selected) {
-                        setState(() => _selectedFilter = filter);
-                      },
-                      backgroundColor: AppColors.surface,
-                      selectedColor: AppColors.primary.withValues(alpha: 0.12),
-                      labelStyle: AppTextStyles.labelMedium.copyWith(
-                        color: isSelected ? AppColors.primary : AppColors.textSecondary,
-                        fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+            // ─── Filtreler (Hızlı Seçim) ────────────────────────
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Row(
+                children: [
+                  // Filtrele Butonu
+                  Badge(
+                    isLabelVisible: filters.activeFilterCount > 0,
+                    label: Text(filters.activeFilterCount.toString()),
+                    backgroundColor: AppColors.primary,
+                    offset: const Offset(4, -4),
+                    child: IconButton(
+                      onPressed: () => _showFilterBottomSheet(context),
+                      icon: const Icon(Icons.tune_rounded),
+                      style: IconButton.styleFrom(
+                        backgroundColor: filters.activeFilterCount > 0 
+                            ? AppColors.primary.withValues(alpha: 0.12)
+                            : AppColors.surfaceVariant,
+                        foregroundColor: filters.activeFilterCount > 0 
+                            ? AppColors.primary
+                            : AppColors.textSecondary,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          side: BorderSide(
+                            color: filters.activeFilterCount > 0 
+                                ? AppColors.primary.withValues(alpha: 0.3)
+                                : AppColors.borderLight,
+                          ),
+                        ),
                       ),
-                      side: BorderSide(
-                        color: isSelected ? AppColors.primary.withValues(alpha: 0.3) : AppColors.borderLight,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      showCheckmark: false,
-                      padding: const EdgeInsets.symmetric(horizontal: 8),
                     ),
-                  );
-                },
+                  ),
+                  const SizedBox(width: 8),
+                  
+                  // Hızlı Tür Filtreleri (Devlet / Vakıf)
+                  Expanded(
+                    child: SizedBox(
+                      height: 44,
+                      child: ListView(
+                        scrollDirection: Axis.horizontal,
+                        children: [
+                          _QuickFilterChip(
+                            label: 'Devlet',
+                            isSelected: filters.selectedTypes.contains('Devlet'),
+                            onSelected: (_) => ref.read(exploreFilterProvider.notifier).toggleType('Devlet'),
+                          ),
+                          _QuickFilterChip(
+                            label: 'Vakıf',
+                            isSelected: filters.selectedTypes.contains('Vakıf'),
+                            onSelected: (_) => ref.read(exploreFilterProvider.notifier).toggleType('Vakıf'),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
 
             // ─── Sonuç Sayısı ────────────────────────────────────
             allUnisAsync.when(
               data: (unis) {
-                final filtered = _applyFilters(unis);
+                final filtered = _applyFilters(unis, filters);
                 return Padding(
                   padding: const EdgeInsets.fromLTRB(20, 12, 20, 4),
                   child: Text(
@@ -172,18 +162,18 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                 loading: () => const Center(child: CircularProgressIndicator()),
                 error: (e, st) => Center(child: Text('Hata: $e')),
                 data: (universities) {
-                  final filtered = _applyFilters(universities);
+                  final filtered = _applyFilters(universities, filters);
 
                   if (filtered.isEmpty) {
                     return const EmptyStateWidget(
                       icon: Icons.search_off_rounded,
                       title: 'Sonuç bulunamadı',
-                      description: 'Farklı bir arama terimi veya filtre deneyin.',
+                      description: 'Farklı bir filtre kombinasyonu deneyin.',
                     );
                   }
 
                   return ListView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
                     itemCount: filtered.length,
                     itemBuilder: (context, index) {
                       final uni = filtered[index];
@@ -219,12 +209,210 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                           ),
                         ),
                       ).animate().fadeIn(
-                        delay: Duration(milliseconds: 50 * index),
+                        delay: Duration(milliseconds: 50 * index.clamp(0, 10)),
                         duration: 300.ms,
                       );
                     },
                   );
                 },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _QuickFilterChip extends StatelessWidget {
+  final String label;
+  final bool isSelected;
+  final ValueChanged<bool> onSelected;
+
+  const _QuickFilterChip({
+    required this.label,
+    required this.isSelected,
+    required this.onSelected,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(right: 8),
+      child: FilterChip(
+        label: Text(label),
+        selected: isSelected,
+        onSelected: onSelected,
+        backgroundColor: AppColors.surface,
+        selectedColor: AppColors.primary.withValues(alpha: 0.12),
+        labelStyle: AppTextStyles.labelMedium.copyWith(
+          color: isSelected ? AppColors.primary : AppColors.textSecondary,
+          fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+        ),
+        side: BorderSide(
+          color: isSelected ? AppColors.primary.withValues(alpha: 0.3) : AppColors.borderLight,
+        ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        showCheckmark: false,
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+      ),
+    );
+  }
+}
+
+// ─── Filter Bottom Sheet ──────────────────────────────────────────
+
+class _FilterBottomSheet extends ConsumerWidget {
+  const _FilterBottomSheet();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final filters = ref.watch(exploreFilterProvider);
+    final citiesAsync = ref.watch(citiesProvider);
+
+    return DraggableScrollableSheet(
+      initialChildSize: 0.7,
+      minChildSize: 0.5,
+      maxChildSize: 0.9,
+      expand: false,
+      builder: (context, scrollController) {
+        return Column(
+          children: [
+            // Handle bar
+            Container(
+              margin: const EdgeInsets.only(top: 8, bottom: 16),
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: AppColors.borderLight,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            
+            // Header
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('Filtreler', style: AppTextStyles.titleLarge),
+                  TextButton(
+                    onPressed: () => ref.read(exploreFilterProvider.notifier).clearFilters(),
+                    child: Text(
+                      'Temizle', 
+                      style: AppTextStyles.labelLarge.copyWith(color: AppColors.primary),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Divider(color: AppColors.borderLight),
+
+            // Content
+            Expanded(
+              child: ListView(
+                controller: scrollController,
+                padding: const EdgeInsets.all(20),
+                children: [
+                  // Tür Filtresi
+                  Text('Üniversite Türü', style: AppTextStyles.titleMedium),
+                  const SizedBox(height: 12),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      _FilterOption(
+                        label: 'Devlet',
+                        isSelected: filters.selectedTypes.contains('Devlet'),
+                        onTap: () => ref.read(exploreFilterProvider.notifier).toggleType('Devlet'),
+                      ),
+                      _FilterOption(
+                        label: 'Vakıf',
+                        isSelected: filters.selectedTypes.contains('Vakıf'),
+                        onTap: () => ref.read(exploreFilterProvider.notifier).toggleType('Vakıf'),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 32),
+
+                  // Şehir Filtresi
+                  Text('Şehirler', style: AppTextStyles.titleMedium),
+                  const SizedBox(height: 12),
+                  citiesAsync.when(
+                    loading: () => const Center(child: CircularProgressIndicator()),
+                    error: (e, st) => Text('Hata: $e'),
+                    data: (cities) {
+                      return Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: cities.map((city) {
+                          return _FilterOption(
+                            label: city.name,
+                            isSelected: filters.selectedCities.contains(city.id),
+                            onTap: () => ref.read(exploreFilterProvider.notifier).toggleCity(city.id),
+                          );
+                        }).toList(),
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
+
+            // Footer
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: GradientButton(
+                text: 'Sonuçları Göster',
+                onPressed: () => context.pop(),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _FilterOption extends StatelessWidget {
+  final String label;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  const _FilterOption({
+    required this.label,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(20),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        decoration: BoxDecoration(
+          color: isSelected ? AppColors.primary.withValues(alpha: 0.12) : AppColors.surface,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isSelected ? AppColors.primary : AppColors.borderLight,
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (isSelected) ...[
+              const Icon(Icons.check_rounded, size: 16, color: AppColors.primary),
+              const SizedBox(width: 6),
+            ],
+            Text(
+              label,
+              style: AppTextStyles.labelMedium.copyWith(
+                color: isSelected ? AppColors.primary : AppColors.textPrimary,
+                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
               ),
             ),
           ],

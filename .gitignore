@@ -47,3 +47,4 @@ app.*.map.json
 # Firebase config (contains API keys)
 **/google-services.json
 **/GoogleService-Info.plist
+analysis_report.txt

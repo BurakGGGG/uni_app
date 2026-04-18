@@ -1,1 +1,0 @@
-[info] Use the null-aware marker '?' rather than a null check via an 'if' (/home/burak/uni_app/lib/core/widgets/uni_card.dart:74:27)

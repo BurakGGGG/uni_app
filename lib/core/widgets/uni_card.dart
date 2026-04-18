@@ -71,8 +71,7 @@ class UniCard extends StatelessWidget {
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
-                          // ignore: use_null_aware_elements
-                          if (badge != null) badge!,
+                          ?badge,
                         ],
                       ),
                       // Alt başlık

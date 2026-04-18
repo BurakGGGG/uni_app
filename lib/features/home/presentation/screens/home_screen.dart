@@ -17,7 +17,6 @@ class HomeScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final citiesAsync = ref.watch(citiesProvider);
-    final unisAsync = ref.watch(allUniversitiesProvider);
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -84,11 +83,7 @@ class HomeScreen extends ConsumerWidget {
                 child: AppSearchBar(
                   readOnly: true,
                   onTap: () {
-                    // Keşfet sekmesine yönlendir (bottom nav index 1)
-                    final shell = context.findAncestorStateOfType<State>();
-                    if (shell != null) {
-                      context.go('/explore');
-                    }
+                    context.push('/search');
                   },
                 ),
               ).animate().fadeIn(delay: 100.ms, duration: 400.ms).slideY(begin: 0.1, end: 0),
@@ -114,12 +109,10 @@ class HomeScreen extends ConsumerWidget {
                   ),
                   SizedBox(
                     height: 200,
-                    child: unisAsync.when(
+                    child: ref.watch(popularUniversitiesProvider).when(
                       loading: () => const Center(child: CircularProgressIndicator()),
                       error: (e, st) => Center(child: Text('Hata: $e')),
-                      data: (universities) {
-                        // İlk 8 üniversiteyi göster
-                        final popular = universities.take(8).toList();
+                      data: (popular) {
                         return ListView.builder(
                           scrollDirection: Axis.horizontal,
                           padding: const EdgeInsets.symmetric(horizontal: 16),

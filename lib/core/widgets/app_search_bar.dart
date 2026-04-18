@@ -12,6 +12,8 @@ class AppSearchBar extends StatelessWidget {
   final TextEditingController? controller;
   final Widget? leading;
   final Widget? trailing;
+  final bool autofocus;
+  final FocusNode? focusNode;
 
   const AppSearchBar({
     super.key,
@@ -22,6 +24,8 @@ class AppSearchBar extends StatelessWidget {
     this.controller,
     this.leading,
     this.trailing,
+    this.autofocus = false,
+    this.focusNode,
   });
 
   @override
@@ -60,6 +64,8 @@ class AppSearchBar extends StatelessWidget {
                     : TextField(
                         controller: controller,
                         onChanged: onChanged,
+                        autofocus: autofocus,
+                        focusNode: focusNode,
                         style: AppTextStyles.bodyMedium,
                         decoration: InputDecoration(
                           hintText: hintText,
