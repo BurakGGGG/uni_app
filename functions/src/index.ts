@@ -4,6 +4,10 @@ import * as admin from 'firebase-admin';
 admin.initializeApp();
 const db = admin.firestore();
 
+/**
+ * Yorum oluşturulduğunda, güncellendiğinde veya silindiğinde
+ * ilgili üniversitenin avgRating, reviewCount ve categoryRatings alanlarını günceller.
+ */
 export const aggregateUniversityRatings = functions.firestore.onDocumentWritten(
   'reviews/{reviewId}',
   async (event) => {
@@ -33,8 +37,8 @@ export const aggregateUniversityRatings = functions.firestore.onDocumentWritten(
 
       reviewsSnapshot.forEach((doc) => {
         const data = doc.data();
-        if (typeof data.overallRating === 'number') {
-          totalRating += data.overallRating;
+        if (typeof data.rating === 'number') {
+          totalRating += data.rating;
           reviewCount++;
 
           // Kategori puanlarını topla
@@ -70,3 +74,6 @@ export const aggregateUniversityRatings = functions.firestore.onDocumentWritten(
     }
   }
 );
+
+// Moderation Cloud Function — yeni yorum küfür filtresi
+export { moderateNewReview } from './moderation';

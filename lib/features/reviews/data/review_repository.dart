@@ -45,6 +45,7 @@ class ReviewRepository {
   Stream<List<ReviewModel>> getUniversityReviews(String universityId, {int limit = 20}) {
     return _reviewsRef
         .where('targetId', isEqualTo: universityId)
+        .where('isApproved', isEqualTo: true)
         .orderBy('createdAt', descending: true)
         .limit(limit)
         .snapshots()
@@ -57,6 +58,7 @@ class ReviewRepository {
   Stream<List<ReviewModel>> getDepartmentReviews(String departmentId, {int limit = 20}) {
     return _reviewsRef
         .where('targetId', isEqualTo: departmentId)
+        .where('isApproved', isEqualTo: true)
         .orderBy('createdAt', descending: true)
         .limit(limit)
         .snapshots()
@@ -68,6 +70,7 @@ class ReviewRepository {
   // TODO(sprint3): Son yorumları getir (ana sayfa için)
   Stream<List<ReviewModel>> getRecentReviews({int limit = 10}) {
     return _reviewsRef
+        .where('isApproved', isEqualTo: true)
         .orderBy('createdAt', descending: true)
         .limit(limit)
         .snapshots()
