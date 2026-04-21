@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:timeago/timeago.dart' as timeago;
 import 'core/theme/app_theme.dart';
 import 'core/constants/app_constants.dart';
 import 'core/providers/shared_preferences_provider.dart';
@@ -13,6 +14,10 @@ import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Timeago Türkçe lokalizasyonu (Sprint 3 — Kişi B)
+  timeago.setLocaleMessages('tr', timeago.TrMessages());
+  timeago.setDefaultLocale('tr');
 
   // Asenkron işlemleri paralel başlat (Cold Start optimizasyonu)
   final results = await Future.wait([

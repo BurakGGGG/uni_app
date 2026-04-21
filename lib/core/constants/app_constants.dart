@@ -97,4 +97,41 @@ class AppConstants {
     '₺₺': 'Orta',
     '₺₺₺': 'Pahalı',
   };
+
+  // ─── Review Preset: Artılar & Eksiler ──────────────────────────
+  static const List<String> commonUniPros = [
+    'Geniş kampüs',
+    'Kaliteli hocalar',
+    'Aktif sosyal hayat',
+    'İyi kütüphane',
+    'Güvenli ortam',
+    'Güçlü mezun ağı',
+    'Modern tesisler',
+    'Bol öğrenci indirimi',
+  ];
+
+  static const List<String> commonUniCons = [
+    'Ulaşım zor',
+    'Yemekhane pahalı',
+    'Az sosyal aktivite',
+    'Kalabalık sınıflar',
+    'Yetersiz yurt',
+    'Bürokratik işlemler',
+    'Eski binalar',
+  ];
+
+  static const List<String> commonDeptPros = [
+    'Deneyimli akademisyenler',
+    'Güncel müfredat',
+    'İyi staj imkanları',
+    'Güçlü mezun kariyeri',
+    'Araştırma fırsatları',
+  ];
+
+  static const List<String> commonDeptCons = [
+    'Ağır ders yükü',
+    'Uygulamalı ders az',
+    'Zor sınavlar',
+    'Az seçmeli ders',
+  ];
 }

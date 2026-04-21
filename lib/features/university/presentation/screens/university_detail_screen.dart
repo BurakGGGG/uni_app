@@ -11,6 +11,7 @@ import '../../domain/models/department_model.dart';
 import '../../../auth/presentation/providers/auth_providers.dart';
 import '../../../favorites/presentation/providers/favorites_providers.dart';
 import '../../../reviews/presentation/providers/review_providers.dart';
+import '../../../reviews/presentation/widgets/review_card.dart';
 
 class UniversityDetailScreen extends ConsumerWidget {
   final String universityId;
@@ -555,93 +556,23 @@ class _ReviewSection extends ConsumerWidget {
         return ListView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
           itemCount: reviews.length,
           itemBuilder: (context, index) {
             final review = reviews[index];
-            return Container(
-              margin: const EdgeInsets.only(bottom: 16),
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(AppConstants.radiusLg),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.03),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      CircleAvatar(
-                        radius: 20,
-                        backgroundColor: AppColors.primary.withValues(alpha: 0.1),
-                        backgroundImage: review.userPhotoUrl != null ? NetworkImage(review.userPhotoUrl!) : null,
-                        child: review.userPhotoUrl == null
-                            ? const Icon(Icons.person, color: AppColors.primary)
-                            : null,
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(review.userName, style: AppTextStyles.titleSmall),
-                            if (review.userUniversity != null)
-                              Text(review.userUniversity!, style: AppTextStyles.labelMedium.copyWith(color: AppColors.textTertiary)),
-                          ],
-                        ),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: AppColors.warning.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Row(
-                          children: [
-                            const Icon(Icons.star_rounded, color: AppColors.warning, size: 14),
-                            const SizedBox(width: 4),
-                            Text(review.rating.toStringAsFixed(1), style: AppTextStyles.labelLarge.copyWith(color: AppColors.warning)),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  Text(review.comment, style: AppTextStyles.bodyMedium),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      Text(
-                        '${review.createdAt.day}.${review.createdAt.month}.${review.createdAt.year}',
-                        style: AppTextStyles.labelMedium.copyWith(color: AppColors.textTertiary),
-                      ),
-                      const Spacer(),
-                      InkWell(
-                        onTap: () {
-                          final user = ref.read(authStateProvider).value;
-                          if (user != null) {
-                            ref.read(reviewRepositoryProvider).likeReview(review.id, user.uid);
-                          }
-                        },
-                        child: Row(
-                          children: [
-                            const Icon(Icons.thumb_up_alt_outlined, size: 16, color: AppColors.textTertiary),
-                            const SizedBox(width: 4),
-                            Text('${review.likes}', style: AppTextStyles.labelMedium.copyWith(color: AppColors.textTertiary)),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+            final currentUserId = ref.watch(authStateProvider).value?.uid;
+            final isOwner = currentUserId != null && currentUserId == review.userId;
+
+            return ReviewCard(
+              review: review,
+              showActions: isOwner,
+              showReportMenu: !isOwner,
+              onEdited: isOwner ? () {
+                // TODO(A3): Edit screen'e navigate
+              } : null,
+              onDeleted: isOwner ? () {
+                // TODO(A4): Delete confirmation
+              } : null,
             ).animate().fadeIn(delay: (100 * index).ms, duration: 400.ms);
           },
         );
