@@ -1,3 +1,5 @@
+import 'dart:io';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -10,6 +12,8 @@ import '../../../auth/presentation/providers/auth_providers.dart';
 import '../../domain/models/review_model.dart';
 import '../providers/review_providers.dart';
 import '../widgets/review_form_sections/category_ratings_section.dart';
+import '../widgets/review_form_sections/pros_cons_section.dart';
+import '../widgets/review_form_sections/photo_upload_section.dart';
 
 class WriteReviewScreen extends ConsumerStatefulWidget {
   final String universityId;
@@ -26,6 +30,9 @@ class _WriteReviewScreenState extends ConsumerState<WriteReviewScreen> {
 
   double _overallRating = 0;
   final Map<String, double> _categoryRatings = {};
+  final List<String> _selectedPros = [];
+  final List<String> _selectedCons = [];
+  final List<File> _localPhotos = [];
 
   bool _isAnonymous = false;
   bool _isLoading = false;
@@ -45,6 +52,20 @@ class _WriteReviewScreenState extends ConsumerState<WriteReviewScreen> {
     return _overallRating > 0 &&
         allCategoriesFilled &&
         _commentController.text.trim().length >= 20;
+  }
+
+  /// Fotoğrafları Firebase Storage'a yükle
+  Future<List<String>> _uploadReviewPhotos(List<File> photos, String userId) async {
+    final urls = <String>[];
+    for (final photo in photos) {
+      final imageId = DateTime.now().millisecondsSinceEpoch.toString();
+      final ref = FirebaseStorage.instance
+          .ref()
+          .child('review_images/$userId/$imageId.jpg');
+      await ref.putFile(photo, SettableMetadata(contentType: 'image/jpeg'));
+      urls.add(await ref.getDownloadURL());
+    }
+    return urls;
   }
 
   Future<void> _submitReview() async {
@@ -81,6 +102,13 @@ class _WriteReviewScreenState extends ConsumerState<WriteReviewScreen> {
       final currentUserData = ref.read(currentUserProvider).value;
       if (currentUserData == null) throw Exception('Kullanıcı profili bulunamadı');
 
+      // 1. Önce fotoğrafları yükle
+      List<String> imageUrls = [];
+      if (_localPhotos.isNotEmpty) {
+        imageUrls = await _uploadReviewPhotos(_localPhotos, user.uid);
+      }
+
+      // 2. Sonra review document'i oluştur
       final review = ReviewModel(
         id: '', // Firestore auto-generates
         type: ReviewType.university,
@@ -93,6 +121,9 @@ class _WriteReviewScreenState extends ConsumerState<WriteReviewScreen> {
         rating: _overallRating,
         categoryRatings: Map<String, double>.from(_categoryRatings),
         comment: _commentController.text.trim(),
+        pros: List<String>.from(_selectedPros),
+        cons: List<String>.from(_selectedCons),
+        imageUrls: imageUrls,
         isAnonymous: _isAnonymous,
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
@@ -157,23 +188,92 @@ class _WriteReviewScreenState extends ConsumerState<WriteReviewScreen> {
               const Divider(),
               const SizedBox(height: 24),
 
+              // ─── Artılar (Pros) ──────────────────────────────
+              ProsConsSection(
+                presetItems: AppConstants.commonUniPros,
+                selectedItems: _selectedPros,
+                title: 'Artılar',
+                icon: Icons.thumb_up_alt_rounded,
+                color: AppColors.success,
+                onToggle: (item) {
+                  setState(() {
+                    if (_selectedPros.contains(item)) {
+                      _selectedPros.remove(item);
+                    } else {
+                      _selectedPros.add(item);
+                    }
+                  });
+                },
+                onAddCustom: (item) {
+                  if (item.isNotEmpty && !_selectedPros.contains(item)) {
+                    setState(() => _selectedPros.add(item));
+                  }
+                },
+              ).animate().fadeIn(delay: 150.ms, duration: 400.ms),
+
+              const SizedBox(height: 24),
+
+              // ─── Eksiler (Cons) ──────────────────────────────
+              ProsConsSection(
+                presetItems: AppConstants.commonUniCons,
+                selectedItems: _selectedCons,
+                title: 'Eksiler',
+                icon: Icons.thumb_down_alt_rounded,
+                color: AppColors.error,
+                onToggle: (item) {
+                  setState(() {
+                    if (_selectedCons.contains(item)) {
+                      _selectedCons.remove(item);
+                    } else {
+                      _selectedCons.add(item);
+                    }
+                  });
+                },
+                onAddCustom: (item) {
+                  if (item.isNotEmpty && !_selectedCons.contains(item)) {
+                    setState(() => _selectedCons.add(item));
+                  }
+                },
+              ).animate().fadeIn(delay: 200.ms, duration: 400.ms),
+
+              const SizedBox(height: 32),
+              const Divider(),
+              const SizedBox(height: 24),
+
               // ─── Yorum Metni ─────────────────────────────────
               _buildCommentField()
                   .animate()
-                  .fadeIn(delay: 200.ms, duration: 400.ms),
+                  .fadeIn(delay: 250.ms, duration: 400.ms),
+
+              const SizedBox(height: 32),
+              const Divider(),
+              const SizedBox(height: 24),
+
+              // ─── Fotoğraflar ─────────────────────────────────
+              PhotoUploadSection(
+                localPhotos: _localPhotos,
+                onAdd: (file) => setState(() => _localPhotos.add(file)),
+                onRemove: (index, isLocal) {
+                  if (isLocal) {
+                    setState(() => _localPhotos.removeAt(index));
+                  }
+                },
+              ).animate().fadeIn(delay: 300.ms, duration: 400.ms),
 
               const SizedBox(height: 24),
 
               // ─── Anonim Switch ───────────────────────────────
               _buildAnonymousSwitch()
                   .animate()
-                  .fadeIn(delay: 300.ms, duration: 400.ms),
+                  .fadeIn(delay: 350.ms, duration: 400.ms),
 
               const SizedBox(height: 32),
 
               // ─── Gönder Butonu ───────────────────────────────
               GradientButton(
-                text: 'Değerlendirmeyi Gönder',
+                text: _isLoading && _localPhotos.isNotEmpty
+                    ? 'Fotoğraflar yükleniyor...'
+                    : 'Değerlendirmeyi Gönder',
                 onPressed: _isFormValid ? _submitReview : null,
                 isLoading: _isLoading,
               ).animate().fadeIn(delay: 400.ms, duration: 400.ms),
@@ -220,7 +320,6 @@ class _WriteReviewScreenState extends ConsumerState<WriteReviewScreen> {
               ),
             );
           }),
-          // Rating metni
         ),
         if (_overallRating > 0)
           Padding(
