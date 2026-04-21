@@ -6,6 +6,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../domain/models/review_model.dart';
+import 'review_actions_menu.dart';
 
 /// Sprint 3 — Kişi B (Task B1)
 /// Tüm yorum gösterimlerinde kullanılacak ortak ReviewCard widget'ı.
@@ -142,66 +143,14 @@ class ReviewCard extends ConsumerWidget {
           ),
         ),
 
-        // 3 nokta menü (placeholder — ileride ReviewActionsMenu ile değiştirilecek)
+        // 3 nokta menü — ReviewActionsMenu widget'ı
         if (showActions || showReportMenu)
-          PopupMenuButton<String>(
-            icon: Icon(
-              Icons.more_vert,
-              size: 18,
-              color: AppColors.textTertiary,
-            ),
-            padding: EdgeInsets.zero,
-            constraints: const BoxConstraints(),
-            onSelected: (value) {
-              switch (value) {
-                case 'edit':
-                  onEdited?.call();
-                  break;
-                case 'delete':
-                  onDeleted?.call();
-                  break;
-                case 'report':
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Şikayet sistemi yakında')),
-                  );
-                  break;
-              }
-            },
-            itemBuilder: (context) => [
-              if (showActions)
-                const PopupMenuItem(
-                  value: 'edit',
-                  child: Row(
-                    children: [
-                      Icon(Icons.edit_rounded, size: 18),
-                      SizedBox(width: 8),
-                      Text('Düzenle'),
-                    ],
-                  ),
-                ),
-              if (showActions)
-                PopupMenuItem(
-                  value: 'delete',
-                  child: Row(
-                    children: [
-                      Icon(Icons.delete_rounded, size: 18, color: AppColors.error),
-                      const SizedBox(width: 8),
-                      Text('Sil', style: TextStyle(color: AppColors.error)),
-                    ],
-                  ),
-                ),
-              if (showReportMenu && !showActions)
-                const PopupMenuItem(
-                  value: 'report',
-                  child: Row(
-                    children: [
-                      Icon(Icons.flag_rounded, size: 18),
-                      SizedBox(width: 8),
-                      Text('Şikayet Et'),
-                    ],
-                  ),
-                ),
-            ],
+          ReviewActionsMenu(
+            review: review,
+            showOwnerActions: showActions,
+            showReportAction: showReportMenu && !showActions,
+            onEdit: onEdited,
+            onDelete: onDeleted,
           ),
       ],
     );
