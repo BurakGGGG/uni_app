@@ -129,7 +129,7 @@ class _WriteReviewScreenState extends ConsumerState<WriteReviewScreen> {
       final user = ref.read(authStateProvider).value;
       if (user == null) throw Exception('Giriş yapılmamış');
 
-      final currentUserData = ref.read(currentUserProvider).value;
+      final currentUserData = await ref.read(currentUserProvider.future);
       if (currentUserData == null) throw Exception('Kullanıcı profili bulunamadı');
 
       // 1. Önce fotoğrafları yükle
