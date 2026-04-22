@@ -36,6 +36,9 @@ class _WriteReviewScreenState extends ConsumerState<WriteReviewScreen> {
 
   bool _isAnonymous = false;
   bool _isLoading = false;
+  String _loadingMessage = '';
+  bool _submitted = false; // Validation hatalarını göstermek için
+  bool _showSuccess = false; // Başarı animasyonu
 
   @override
   void dispose() {
@@ -54,24 +57,45 @@ class _WriteReviewScreenState extends ConsumerState<WriteReviewScreen> {
         _commentController.text.trim().length >= 20;
   }
 
-  /// Fotoğrafları Firebase Storage'a yükle
+  /// Eksik alan sayısı (validation feedback için)
+  List<String> get _validationErrors {
+    final errors = <String>[];
+    if (_overallRating == 0) errors.add('Genel puan');
+    final categories = AppConstants.uniRatingCategories;
+    final missing = categories.where((c) => (_categoryRatings[c] ?? 0) == 0).toList();
+    if (missing.isNotEmpty) errors.add('${missing.length} kategori puanı');
+    if (_commentController.text.trim().length < 20) errors.add('Yorum (min. 20 karakter)');
+    return errors;
+  }
+
+  /// Fotoğrafları Firebase Storage'a yükle (progress mesajı ile)
   Future<List<String>> _uploadReviewPhotos(List<File> photos, String userId) async {
     final urls = <String>[];
-    for (final photo in photos) {
+    for (int i = 0; i < photos.length; i++) {
+      setState(() {
+        _loadingMessage = 'Fotoğraflar yükleniyor... ${i + 1}/${photos.length}';
+      });
       final imageId = DateTime.now().millisecondsSinceEpoch.toString();
       final ref = FirebaseStorage.instance
           .ref()
           .child('review_images/$userId/$imageId.jpg');
-      await ref.putFile(photo, SettableMetadata(contentType: 'image/jpeg'));
+      await ref.putFile(photos[i], SettableMetadata(contentType: 'image/jpeg'));
       urls.add(await ref.getDownloadURL());
     }
     return urls;
   }
 
   Future<void> _submitReview() async {
+    setState(() => _submitted = true);
+
     if (_overallRating == 0) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Lütfen genel bir puan verin')),
+        SnackBar(
+          content: const Text('Lütfen genel bir puan verin'),
+          backgroundColor: AppColors.error,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        ),
       );
       return;
     }
@@ -88,12 +112,18 @@ class _WriteReviewScreenState extends ConsumerState<WriteReviewScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Şu kategorilere puan verin: ${missingCategories.join(", ")}'),
+          backgroundColor: AppColors.error,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         ),
       );
       return;
     }
 
-    setState(() => _isLoading = true);
+    setState(() {
+      _isLoading = true;
+      _loadingMessage = 'Değerlendirme gönderiliyor...';
+    });
 
     try {
       final user = ref.read(authStateProvider).value;
@@ -107,6 +137,8 @@ class _WriteReviewScreenState extends ConsumerState<WriteReviewScreen> {
       if (_localPhotos.isNotEmpty) {
         imageUrls = await _uploadReviewPhotos(_localPhotos, user.uid);
       }
+
+      setState(() => _loadingMessage = 'Yorum kaydediliyor...');
 
       // 2. Sonra review document'i oluştur
       final review = ReviewModel(
@@ -132,19 +164,29 @@ class _WriteReviewScreenState extends ConsumerState<WriteReviewScreen> {
       await ref.read(reviewRepositoryProvider).addReview(review);
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Değerlendirmeniz başarıyla eklendi!')),
-        );
-        context.pop();
+        // Başarı animasyonu göster
+        setState(() {
+          _isLoading = false;
+          _showSuccess = true;
+        });
+
+        // 1.5 saniye sonra geri dön
+        await Future.delayed(const Duration(milliseconds: 1500));
+        if (mounted) context.pop();
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Hata: $e')),
+          SnackBar(
+            content: Text('Hata: $e'),
+            backgroundColor: AppColors.error,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          ),
         );
       }
     } finally {
-      if (mounted) {
+      if (mounted && !_showSuccess) {
         setState(() => _isLoading = false);
       }
     }
@@ -152,6 +194,33 @@ class _WriteReviewScreenState extends ConsumerState<WriteReviewScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Başarı animasyonu overlay
+    if (_showSuccess) {
+      return Scaffold(
+        backgroundColor: AppColors.background,
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.check_circle_rounded, size: 80, color: AppColors.success)
+                  .animate()
+                  .scale(begin: const Offset(0, 0), end: const Offset(1, 1), duration: 400.ms, curve: Curves.elasticOut),
+              const SizedBox(height: 24),
+              Text('Değerlendirmeniz Gönderildi!', style: AppTextStyles.titleLarge)
+                  .animate()
+                  .fadeIn(delay: 200.ms, duration: 400.ms)
+                  .slideY(begin: 0.3, end: 0),
+              const SizedBox(height: 8),
+              Text(
+                'Yorumunuz moderasyon sonrası yayınlanacaktır.',
+                style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary),
+              ).animate().fadeIn(delay: 400.ms, duration: 400.ms),
+            ],
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -159,180 +228,305 @@ class _WriteReviewScreenState extends ConsumerState<WriteReviewScreen> {
         backgroundColor: AppColors.background,
         elevation: 0,
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+      body: Stack(
+        children: [
+          SingleChildScrollView(
+            padding: const EdgeInsets.all(24),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // ─── Genel Puan ──────────────────────────────────
+                  _buildOverallRating()
+                      .animate()
+                      .fadeIn(duration: 400.ms),
+
+                  const SizedBox(height: 32),
+                  const Divider(),
+                  const SizedBox(height: 24),
+
+                  // ─── Kategori Puanları ───────────────────────────
+                  CategoryRatingsSection(
+                    type: ReviewType.university,
+                    ratings: _categoryRatings,
+                    onChanged: (category, rating) {
+                      setState(() => _categoryRatings[category] = rating);
+                    },
+                  ).animate().fadeIn(delay: 100.ms, duration: 400.ms),
+
+                  const SizedBox(height: 32),
+                  const Divider(),
+                  const SizedBox(height: 24),
+
+                  // ─── Artılar (Pros) ──────────────────────────────
+                  ProsConsSection(
+                    presetItems: AppConstants.commonUniPros,
+                    selectedItems: _selectedPros,
+                    title: 'Artılar',
+                    icon: Icons.thumb_up_alt_rounded,
+                    color: AppColors.success,
+                    onToggle: (item) {
+                      setState(() {
+                        if (_selectedPros.contains(item)) {
+                          _selectedPros.remove(item);
+                        } else {
+                          _selectedPros.add(item);
+                        }
+                      });
+                    },
+                    onAddCustom: (item) {
+                      if (item.isNotEmpty && !_selectedPros.contains(item)) {
+                        setState(() => _selectedPros.add(item));
+                      }
+                    },
+                  ).animate().fadeIn(delay: 150.ms, duration: 400.ms),
+
+                  const SizedBox(height: 24),
+
+                  // ─── Eksiler (Cons) ──────────────────────────────
+                  ProsConsSection(
+                    presetItems: AppConstants.commonUniCons,
+                    selectedItems: _selectedCons,
+                    title: 'Eksiler',
+                    icon: Icons.thumb_down_alt_rounded,
+                    color: AppColors.error,
+                    onToggle: (item) {
+                      setState(() {
+                        if (_selectedCons.contains(item)) {
+                          _selectedCons.remove(item);
+                        } else {
+                          _selectedCons.add(item);
+                        }
+                      });
+                    },
+                    onAddCustom: (item) {
+                      if (item.isNotEmpty && !_selectedCons.contains(item)) {
+                        setState(() => _selectedCons.add(item));
+                      }
+                    },
+                  ).animate().fadeIn(delay: 200.ms, duration: 400.ms),
+
+                  const SizedBox(height: 32),
+                  const Divider(),
+                  const SizedBox(height: 24),
+
+                  // ─── Yorum Metni ─────────────────────────────────
+                  _buildCommentField()
+                      .animate()
+                      .fadeIn(delay: 250.ms, duration: 400.ms),
+
+                  const SizedBox(height: 32),
+                  const Divider(),
+                  const SizedBox(height: 24),
+
+                  // ─── Fotoğraflar ─────────────────────────────────
+                  PhotoUploadSection(
+                    localPhotos: _localPhotos,
+                    onAdd: (file) => setState(() => _localPhotos.add(file)),
+                    onRemove: (index, isLocal) {
+                      if (isLocal) {
+                        setState(() => _localPhotos.removeAt(index));
+                      }
+                    },
+                  ).animate().fadeIn(delay: 300.ms, duration: 400.ms),
+
+                  const SizedBox(height: 24),
+
+                  // ─── Anonim Switch ───────────────────────────────
+                  _buildAnonymousSwitch()
+                      .animate()
+                      .fadeIn(delay: 350.ms, duration: 400.ms),
+
+                  const SizedBox(height: 16),
+
+                  // ─── Validation Hataları ─────────────────────────
+                  if (_submitted && !_isFormValid)
+                    _buildValidationErrors()
+                        .animate()
+                        .fadeIn(duration: 300.ms)
+                        .shakeX(hz: 3, amount: 2, duration: 400.ms),
+
+                  const SizedBox(height: 16),
+
+                  // ─── Gönder Butonu ───────────────────────────────
+                  GradientButton(
+                    text: 'Değerlendirmeyi Gönder',
+                    onPressed: _submitReview,
+                    isLoading: _isLoading,
+                  ).animate().fadeIn(delay: 400.ms, duration: 400.ms),
+
+                  const SizedBox(height: 40),
+                ],
+              ),
+            ),
+          ),
+
+          // ─── Loading Overlay ─────────────────────────────────
+          if (_isLoading)
+            _buildLoadingOverlay(),
+        ],
+      ),
+    );
+  }
+
+  /// Validation hata listesi
+  Widget _buildValidationErrors() {
+    final errors = _validationErrors;
+    if (errors.isEmpty) return const SizedBox.shrink();
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.error.withAlpha(20),
+        borderRadius: BorderRadius.circular(AppConstants.radiusMd),
+        border: Border.all(color: AppColors.error.withAlpha(80)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
             children: [
-              // ─── Genel Puan ──────────────────────────────────
-              _buildOverallRating()
-                  .animate()
-                  .fadeIn(duration: 400.ms),
-
-              const SizedBox(height: 32),
-              const Divider(),
-              const SizedBox(height: 24),
-
-              // ─── Kategori Puanları ───────────────────────────
-              CategoryRatingsSection(
-                type: ReviewType.university,
-                ratings: _categoryRatings,
-                onChanged: (category, rating) {
-                  setState(() => _categoryRatings[category] = rating);
-                },
-              ).animate().fadeIn(delay: 100.ms, duration: 400.ms),
-
-              const SizedBox(height: 32),
-              const Divider(),
-              const SizedBox(height: 24),
-
-              // ─── Artılar (Pros) ──────────────────────────────
-              ProsConsSection(
-                presetItems: AppConstants.commonUniPros,
-                selectedItems: _selectedPros,
-                title: 'Artılar',
-                icon: Icons.thumb_up_alt_rounded,
-                color: AppColors.success,
-                onToggle: (item) {
-                  setState(() {
-                    if (_selectedPros.contains(item)) {
-                      _selectedPros.remove(item);
-                    } else {
-                      _selectedPros.add(item);
-                    }
-                  });
-                },
-                onAddCustom: (item) {
-                  if (item.isNotEmpty && !_selectedPros.contains(item)) {
-                    setState(() => _selectedPros.add(item));
-                  }
-                },
-              ).animate().fadeIn(delay: 150.ms, duration: 400.ms),
-
-              const SizedBox(height: 24),
-
-              // ─── Eksiler (Cons) ──────────────────────────────
-              ProsConsSection(
-                presetItems: AppConstants.commonUniCons,
-                selectedItems: _selectedCons,
-                title: 'Eksiler',
-                icon: Icons.thumb_down_alt_rounded,
-                color: AppColors.error,
-                onToggle: (item) {
-                  setState(() {
-                    if (_selectedCons.contains(item)) {
-                      _selectedCons.remove(item);
-                    } else {
-                      _selectedCons.add(item);
-                    }
-                  });
-                },
-                onAddCustom: (item) {
-                  if (item.isNotEmpty && !_selectedCons.contains(item)) {
-                    setState(() => _selectedCons.add(item));
-                  }
-                },
-              ).animate().fadeIn(delay: 200.ms, duration: 400.ms),
-
-              const SizedBox(height: 32),
-              const Divider(),
-              const SizedBox(height: 24),
-
-              // ─── Yorum Metni ─────────────────────────────────
-              _buildCommentField()
-                  .animate()
-                  .fadeIn(delay: 250.ms, duration: 400.ms),
-
-              const SizedBox(height: 32),
-              const Divider(),
-              const SizedBox(height: 24),
-
-              // ─── Fotoğraflar ─────────────────────────────────
-              PhotoUploadSection(
-                localPhotos: _localPhotos,
-                onAdd: (file) => setState(() => _localPhotos.add(file)),
-                onRemove: (index, isLocal) {
-                  if (isLocal) {
-                    setState(() => _localPhotos.removeAt(index));
-                  }
-                },
-              ).animate().fadeIn(delay: 300.ms, duration: 400.ms),
-
-              const SizedBox(height: 24),
-
-              // ─── Anonim Switch ───────────────────────────────
-              _buildAnonymousSwitch()
-                  .animate()
-                  .fadeIn(delay: 350.ms, duration: 400.ms),
-
-              const SizedBox(height: 32),
-
-              // ─── Gönder Butonu ───────────────────────────────
-              GradientButton(
-                text: _isLoading && _localPhotos.isNotEmpty
-                    ? 'Fotoğraflar yükleniyor...'
-                    : 'Değerlendirmeyi Gönder',
-                onPressed: _isFormValid ? _submitReview : null,
-                isLoading: _isLoading,
-              ).animate().fadeIn(delay: 400.ms, duration: 400.ms),
-
-              const SizedBox(height: 40),
+              Icon(Icons.warning_amber_rounded, size: 18, color: AppColors.error),
+              const SizedBox(width: 8),
+              Text(
+                'Eksik alanlar:',
+                style: AppTextStyles.bodyMedium.copyWith(
+                  color: AppColors.error,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
             ],
           ),
-        ),
+          const SizedBox(height: 8),
+          ...errors.map((e) => Padding(
+                padding: const EdgeInsets.only(left: 26, bottom: 4),
+                child: Row(
+                  children: [
+                    Icon(Icons.circle, size: 6, color: AppColors.error.withAlpha(160)),
+                    const SizedBox(width: 8),
+                    Text(e, style: AppTextStyles.bodySmall.copyWith(color: AppColors.error)),
+                  ],
+                ),
+              )),
+        ],
+      ),
+    );
+  }
+
+  /// Loading overlay — foto upload progress gösterir
+  Widget _buildLoadingOverlay() {
+    return Container(
+      color: Colors.black.withAlpha(100),
+      child: Center(
+        child: Container(
+          margin: const EdgeInsets.symmetric(horizontal: 48),
+          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 28),
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.circular(AppConstants.radiusXl),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withAlpha(30),
+                blurRadius: 20,
+                offset: const Offset(0, 8),
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const CircularProgressIndicator(),
+              const SizedBox(height: 20),
+              Text(
+                _loadingMessage,
+                textAlign: TextAlign.center,
+                style: AppTextStyles.bodyMedium.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Lütfen bekleyin...',
+                style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary),
+              ),
+            ],
+          ),
+        ).animate().fadeIn(duration: 300.ms).scale(begin: const Offset(0.9, 0.9)),
       ),
     );
   }
 
   /// Genel değerlendirme yıldızları
   Widget _buildOverallRating() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Icon(Icons.star_rounded, size: 24, color: AppColors.warning),
-            const SizedBox(width: 8),
-            Text('Genel Değerlendirme', style: AppTextStyles.titleMedium),
-          ],
-        ),
-        const SizedBox(height: 4),
-        Text(
-          'Bu üniversiteyi genel olarak nasıl değerlendirirsiniz?',
-          style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary),
-        ),
-        const SizedBox(height: 12),
-        Row(
-          children: List.generate(5, (index) {
-            final starIndex = index + 1;
-            final isFilled = starIndex <= _overallRating;
-            return GestureDetector(
-              onTap: () => setState(() => _overallRating = starIndex.toDouble()),
-              child: Padding(
-                padding: const EdgeInsets.only(right: 4),
-                child: Icon(
-                  isFilled ? Icons.star_rounded : Icons.star_border_rounded,
-                  color: isFilled ? AppColors.warning : AppColors.textTertiary,
-                  size: 40,
+    final hasError = _submitted && _overallRating == 0;
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(AppConstants.radiusMd),
+        border: hasError ? Border.all(color: AppColors.error, width: 1.5) : null,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.star_rounded, size: 24, color: AppColors.warning),
+              const SizedBox(width: 8),
+              Text('Genel Değerlendirme', style: AppTextStyles.titleMedium),
+              if (hasError) ...[
+                const Spacer(),
+                Icon(Icons.error_outline, size: 18, color: AppColors.error),
+              ],
+            ],
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'Bu üniversiteyi genel olarak nasıl değerlendirirsiniz?',
+            style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary),
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: List.generate(5, (index) {
+              final starIndex = index + 1;
+              final isFilled = starIndex <= _overallRating;
+              return GestureDetector(
+                onTap: () => setState(() {
+                  _overallRating = starIndex.toDouble();
+                }),
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 4),
+                  child: Icon(
+                    isFilled ? Icons.star_rounded : Icons.star_border_rounded,
+                    color: isFilled ? AppColors.warning : (hasError ? AppColors.error.withAlpha(100) : AppColors.textTertiary),
+                    size: 40,
+                  ),
+                ),
+              );
+            }),
+          ),
+          if (_overallRating > 0)
+            Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: Text(
+                _getRatingLabel(_overallRating),
+                style: AppTextStyles.bodyMedium.copyWith(
+                  color: AppColors.primary,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
-            );
-          }),
-        ),
-        if (_overallRating > 0)
-          Padding(
-            padding: const EdgeInsets.only(top: 8),
-            child: Text(
-              _getRatingLabel(_overallRating),
-              style: AppTextStyles.bodyMedium.copyWith(
-                color: AppColors.primary,
-                fontWeight: FontWeight.w600,
+            ),
+          if (hasError)
+            Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: Text(
+                'Lütfen bir puan seçin',
+                style: AppTextStyles.bodySmall.copyWith(color: AppColors.error),
               ),
             ),
-          ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -377,35 +571,66 @@ class _WriteReviewScreenState extends ConsumerState<WriteReviewScreen> {
     );
   }
 
-  /// Anonim paylaşım switch'i
+  /// Anonim paylaşım switch'i + info banner
   Widget _buildAnonymousSwitch() {
-    return Container(
-      decoration: BoxDecoration(
-        color: _isAnonymous
-            ? AppColors.primary.withAlpha(25)
-            : AppColors.surface,
-        borderRadius: BorderRadius.circular(AppConstants.radiusMd),
-        border: Border.all(
-          color: _isAnonymous ? AppColors.primary.withAlpha(80) : AppColors.borderLight,
+    return Column(
+      children: [
+        Container(
+          decoration: BoxDecoration(
+            color: _isAnonymous
+                ? AppColors.primary.withAlpha(25)
+                : AppColors.surface,
+            borderRadius: BorderRadius.circular(AppConstants.radiusMd),
+            border: Border.all(
+              color: _isAnonymous ? AppColors.primary.withAlpha(80) : AppColors.borderLight,
+            ),
+          ),
+          child: SwitchListTile(
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+            title: Text('Anonim olarak paylaş', style: AppTextStyles.bodyLarge),
+            subtitle: Text(
+              _isAnonymous
+                  ? 'Adınız ve fotoğrafınız gizlenecek'
+                  : 'Adınız ve fotoğrafınız görünür olacak',
+              style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary),
+            ),
+            secondary: Icon(
+              _isAnonymous ? Icons.visibility_off_rounded : Icons.visibility_rounded,
+              color: _isAnonymous ? AppColors.primary : AppColors.textTertiary,
+            ),
+            value: _isAnonymous,
+            onChanged: (val) => setState(() => _isAnonymous = val),
+            activeThumbColor: AppColors.primary,
+          ),
         ),
-      ),
-      child: SwitchListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-        title: Text('Anonim olarak paylaş', style: AppTextStyles.bodyLarge),
-        subtitle: Text(
-          _isAnonymous
-              ? 'Adınız ve fotoğrafınız gizlenecek'
-              : 'Adınız ve fotoğrafınız görünür olacak',
-          style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary),
-        ),
-        secondary: Icon(
-          _isAnonymous ? Icons.visibility_off_rounded : Icons.visibility_rounded,
-          color: _isAnonymous ? AppColors.primary : AppColors.textTertiary,
-        ),
-        value: _isAnonymous,
-        onChanged: (val) => setState(() => _isAnonymous = val),
-        activeThumbColor: AppColors.primary,
-      ),
+        // Anonim mod bilgi metni
+        if (_isAnonymous)
+          Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: AppColors.info.withAlpha(20),
+                borderRadius: BorderRadius.circular(AppConstants.radiusSm),
+                border: Border.all(color: AppColors.info.withAlpha(60)),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(Icons.info_outline_rounded, size: 16, color: AppColors.info),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'Anonim modda hesap bilgileriniz (ad, fotoğraf, üniversite) diğer kullanıcılardan gizlenir. Yorumunuz "Anonim Öğrenci" olarak görünür.',
+                      style: AppTextStyles.bodySmall.copyWith(color: AppColors.info),
+                    ),
+                  ),
+                ],
+              ),
+            ).animate().fadeIn(duration: 300.ms).slideY(begin: -0.2, end: 0),
+          ),
+      ],
     );
   }
 
