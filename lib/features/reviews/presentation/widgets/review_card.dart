@@ -56,7 +56,7 @@ class ReviewCard extends ConsumerWidget {
                 const SizedBox(height: 10),
                 _buildProsConsChips(),
               ],
-              if (!compact && review.imageUrls.isNotEmpty) ...[
+              if (review.imageUrls.isNotEmpty) ...[
                 const SizedBox(height: 10),
                 _buildPhotoGrid(context),
               ],
@@ -100,7 +100,9 @@ class ReviewCard extends ConsumerWidget {
             children: [
               Text(
                 displayName,
-                style: compact ? AppTextStyles.titleSmall : AppTextStyles.titleSmall,
+                style: compact
+                    ? AppTextStyles.titleSmall
+                    : AppTextStyles.titleSmall,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -160,17 +162,6 @@ class ReviewCard extends ConsumerWidget {
   // ─── Yorum metni (compact: kısa, normal: expandable) ─────────────
 
   Widget _buildComment() {
-    if (compact) {
-      return Text(
-        review.comment,
-        maxLines: 2,
-        overflow: TextOverflow.ellipsis,
-        style: AppTextStyles.bodySmall.copyWith(
-          color: AppColors.textPrimary,
-          height: 1.5,
-        ),
-      );
-    }
     return _CommentExpandable(text: review.comment);
   }
 
@@ -184,11 +175,15 @@ class ReviewCard extends ConsumerWidget {
           Wrap(
             spacing: 6,
             runSpacing: 6,
-            children: review.pros.map((pro) => _buildChip(
-              text: pro,
-              color: AppColors.success,
-              icon: Icons.add_circle_outline_rounded,
-            )).toList(),
+            children: review.pros
+                .map(
+                  (pro) => _buildChip(
+                    text: pro,
+                    color: AppColors.success,
+                    icon: Icons.add_circle_outline_rounded,
+                  ),
+                )
+                .toList(),
           ),
         if (review.pros.isNotEmpty && review.cons.isNotEmpty)
           const SizedBox(height: 6),
@@ -196,11 +191,15 @@ class ReviewCard extends ConsumerWidget {
           Wrap(
             spacing: 6,
             runSpacing: 6,
-            children: review.cons.map((con) => _buildChip(
-              text: con,
-              color: AppColors.error,
-              icon: Icons.remove_circle_outline_rounded,
-            )).toList(),
+            children: review.cons
+                .map(
+                  (con) => _buildChip(
+                    text: con,
+                    color: AppColors.error,
+                    icon: Icons.remove_circle_outline_rounded,
+                  ),
+                )
+                .toList(),
           ),
       ],
     );
@@ -271,7 +270,10 @@ class ReviewCard extends ConsumerWidget {
                   width: 80,
                   height: 80,
                   color: AppColors.surfaceVariant,
-                  child: const Icon(Icons.broken_image, color: AppColors.textTertiary),
+                  child: const Icon(
+                    Icons.broken_image,
+                    color: AppColors.textTertiary,
+                  ),
                 ),
               ),
             ),
@@ -287,7 +289,11 @@ class ReviewCard extends ConsumerWidget {
     return Row(
       children: [
         // Tarih (timeago ile)
-        Icon(Icons.access_time_rounded, size: 13, color: AppColors.textTertiary),
+        Icon(
+          Icons.access_time_rounded,
+          size: 13,
+          color: AppColors.textTertiary,
+        ),
         const SizedBox(width: 4),
         Text(
           timeago.format(review.createdAt, locale: 'tr'),
