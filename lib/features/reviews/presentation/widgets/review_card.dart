@@ -7,6 +7,7 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../domain/models/review_model.dart';
 import 'review_actions_menu.dart';
+import 'like_button.dart';
 
 /// Sprint 3 — Kişi B (Task B1)
 /// Tüm yorum gösterimlerinde kullanılacak ortak ReviewCard widget'ı.
@@ -296,33 +297,8 @@ class ReviewCard extends ConsumerWidget {
           ),
         ),
         const Spacer(),
-        // Like butonu (placeholder — B3'te LikeButton widget'ı ile değiştirilecek)
-        InkWell(
-          onTap: () {
-            // TODO(B3): LikeButton widget'ı ile değiştirilecek
-          },
-          borderRadius: BorderRadius.circular(20),
-          child: Padding(
-            padding: const EdgeInsets.all(6),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  Icons.thumb_up_outlined,
-                  size: 16,
-                  color: AppColors.textTertiary,
-                ),
-                const SizedBox(width: 4),
-                Text(
-                  '${review.likes}',
-                  style: AppTextStyles.labelMedium.copyWith(
-                    color: AppColors.textTertiary,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
+        // Like butonu — LikeButton widget'ı (optimistic UI)
+        LikeButton(review: review),
       ],
     );
   }
