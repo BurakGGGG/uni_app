@@ -11,7 +11,7 @@ import '../../../university/domain/models/city_model.dart';
 import '../../../university/domain/models/university_model.dart';
 import '../../../favorites/presentation/providers/favorites_providers.dart';
 import '../../../reviews/presentation/providers/review_providers.dart';
-import '../../../reviews/domain/models/review_model.dart';
+import '../../../reviews/presentation/widgets/review_card.dart';
 
 /// Ana Sayfa ekranı
 class HomeScreen extends ConsumerWidget {
@@ -204,7 +204,13 @@ class HomeScreen extends ConsumerWidget {
                   delegate: SliverChildBuilderDelegate(
                     (context, index) {
                       final review = reviews[index];
-                      return _RecentReviewCard(review: review)
+                      return ReviewCard(
+                        review: review,
+                        compact: true,
+                        showReportMenu: false,
+                        showActions: false,
+                        onTap: () => context.push('/university/${review.targetId}'),
+                      )
                           .animate()
                           .fadeIn(delay: Duration(milliseconds: 550 + index * 80), duration: 400.ms)
                           .slideX(begin: 0.05, end: 0);
@@ -472,104 +478,3 @@ class _CityChip extends StatelessWidget {
     );
   }
 }
-
-class _RecentReviewCard extends StatelessWidget {
-  final ReviewModel review;
-
-  const _RecentReviewCard({required this.review});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
-      padding: const EdgeInsets.all(AppConstants.spacingLg),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(AppConstants.radiusLg),
-        border: Border.all(color: AppColors.borderLight),
-        boxShadow: AppColors.softShadow,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Kullanıcı bilgisi
-          Row(
-            children: [
-              CircleAvatar(
-                radius: 18,
-                backgroundColor: AppColors.primary.withValues(alpha: 0.12),
-                backgroundImage: review.userPhotoUrl != null ? NetworkImage(review.userPhotoUrl!) : null,
-                child: review.userPhotoUrl == null
-                    ? Text(
-                        review.userName.isNotEmpty ? review.userName[0].toUpperCase() : '?',
-                        style: AppTextStyles.titleSmall.copyWith(color: AppColors.primary),
-                      )
-                    : null,
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(review.userName, style: AppTextStyles.titleSmall),
-                    if (review.userUniversity != null)
-                      Text(
-                        review.userUniversity!,
-                        style: AppTextStyles.labelSmall,
-                      ),
-                  ],
-                ),
-              ),
-              // Rating
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: AppColors.ratingColor(review.rating)
-                      .withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      Icons.star_rounded,
-                      size: 13,
-                      color: AppColors.ratingColor(review.rating),
-                    ),
-                    const SizedBox(width: 3),
-                    Text(
-                      review.rating.toStringAsFixed(1),
-                      style: AppTextStyles.labelMedium.copyWith(
-                        color: AppColors.ratingColor(review.rating),
-                        fontWeight: FontWeight.w700,
-                        fontSize: 11,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          // Yorum metni
-          Text(
-            review.comment,
-            style: AppTextStyles.bodySmall.copyWith(
-              color: AppColors.textPrimary,
-              height: 1.5,
-            ),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-          ),
-          const SizedBox(height: 8),
-          // Zaman
-          Text(
-            '${review.createdAt.day}.${review.createdAt.month}.${review.createdAt.year}',
-            style: AppTextStyles.labelSmall.copyWith(fontSize: 10),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
