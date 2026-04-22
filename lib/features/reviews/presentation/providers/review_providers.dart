@@ -1,4 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import '../../../auth/presentation/providers/auth_providers.dart';
 import '../../data/review_repository.dart';
 import '../../domain/models/review_model.dart';
 
@@ -24,3 +26,59 @@ final recentReviewsProvider = StreamProvider<List<ReviewModel>>((ref) {
   final repository = ref.watch(reviewRepositoryProvider);
   return repository.getRecentReviews(limit: 5);
 });
+
+// ─── Sprint 3 — Kişi B: Like Sistemi Provider'ları ─────────────────
+
+/// Kullanıcının beğendiği yorumların ID'lerini dinleyen sağlayıcı
+/// Firestore path: reviews/{reviewId}/likes/{userId}
+final userLikedReviewsProvider = StreamProvider<Set<String>>((ref) {
+  final user = ref.watch(authStateProvider).value;
+  if (user == null) return Stream.value({});
+
+  return FirebaseFirestore.instance
+      .collectionGroup('likes')
+      .where(FieldPath.documentId, isEqualTo: user.uid)
+      .snapshots()
+      .map((snap) {
+    // Her like doc'u parent: reviews/{reviewId}/likes/{userId}
+    return snap.docs
+        .map((d) => d.reference.parent.parent!.id)
+        .toSet();
+  });
+});
+
+/// Optimistic like controller — anında UI güncellemesi, hata olursa rollback
+class LikeController extends StateNotifier<Map<String, bool>> {
+  LikeController(this._repo) : super({});
+  final ReviewRepository _repo;
+
+  Future<void> toggleLike({
+    required String reviewId,
+    required String userId,
+    required bool currentlyLiked,
+  }) async {
+    // Optimistic update — UI anında değişir
+    state = {...state, reviewId: !currentlyLiked};
+
+    try {
+      await _repo.likeReview(reviewId, userId);
+    } catch (e) {
+      // Hata olursa geri al
+      state = {...state}..remove(reviewId);
+      rethrow;
+    }
+
+    // Server stream güncellediğinde pending'i temizle
+    Future.delayed(const Duration(milliseconds: 500), () {
+      if (mounted) {
+        state = {...state}..remove(reviewId);
+      }
+    });
+  }
+}
+
+final likeControllerProvider =
+    StateNotifierProvider<LikeController, Map<String, bool>>((ref) {
+  return LikeController(ref.read(reviewRepositoryProvider));
+});
+
