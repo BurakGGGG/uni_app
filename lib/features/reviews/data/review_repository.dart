@@ -12,6 +12,12 @@ class ReviewRepository {
   CollectionReference<Map<String, dynamic>> get _reviewsRef =>
       _firestore.collection('reviews');
 
+  Future<ReviewModel?> getReview(String reviewId) async {
+    final doc = await _firestore.collection('reviews').doc(reviewId).get();
+    if (!doc.exists || doc.data() == null) return null;
+    return ReviewModel.fromMap(doc.data()!, doc.id);
+  }
+
   // TODO(sprint3): Yorum ekleme
   Future<void> addReview(ReviewModel review) async {
     final docRef = _firestore.collection('reviews').doc();

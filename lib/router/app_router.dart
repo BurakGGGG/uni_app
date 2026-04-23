@@ -1,6 +1,8 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:go_router/go_router.dart';
+import '../features/reviews/presentation/providers/review_providers.dart';
 import '../core/providers/shared_preferences_provider.dart';
 import 'go_router_refresh_stream.dart';
 import '../features/home/presentation/screens/home_screen.dart';
@@ -64,7 +66,7 @@ final routerProvider = Provider<GoRouter>((ref) {
 
       // 2. Korumalı Rotalar (Sprint 3'te yorum rotaları buraya eklenecek)
       final protectedRoutes = [AppRoutes.editProfile];
-      final isGoingToProtected = protectedRoutes.contains(path) || path.startsWith('/write-review');
+      final isGoingToProtected = protectedRoutes.contains(path) || path.startsWith('/write-review') || path.startsWith('/edit-review');
 
       if (isGoingToProtected && !isLoggedIn) {
         final encodedPath = Uri.encodeComponent(state.uri.toString());
@@ -127,6 +129,32 @@ final routerProvider = Provider<GoRouter>((ref) {
           type: type,
           targetId: targetId,
           universityId: universityId,
+        );
+      },
+    ),
+    GoRoute(
+      path: '/edit-review/:reviewId',
+      builder: (context, state) {
+        final reviewId = state.pathParameters['reviewId']!;
+        return Consumer(
+          builder: (context, ref, _) {
+            final reviewAsync = ref.watch(reviewDetailProvider(reviewId));
+            return reviewAsync.when(
+              data: (r) {
+                if (r == null) {
+                  return const Scaffold(body: Center(child: Text('Yorum bulunamadı')));
+                }
+                return WriteReviewScreen(
+                  targetId: r.targetId,
+                  type: r.type,
+                  universityId: r.universityId,
+                  initialReview: r,
+                );
+              },
+              loading: () => const Scaffold(body: Center(child: CircularProgressIndicator())),
+              error: (e, _) => Scaffold(body: Center(child: Text('Hata: $e'))),
+            );
+          },
         );
       },
     ),
