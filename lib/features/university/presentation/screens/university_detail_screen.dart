@@ -259,7 +259,7 @@ class UniversityDetailScreen extends ConsumerWidget {
                               ],
                             ),
                             TextButton.icon(
-                              onPressed: () => context.push('/write-review/$universityId'),
+                              onPressed: () => context.push('/write-review/university/$universityId'),
                               icon: const Icon(Icons.add_comment_rounded, size: 18),
                               label: const Text('Değerlendir'),
                               style: TextButton.styleFrom(
