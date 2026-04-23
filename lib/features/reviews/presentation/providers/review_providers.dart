@@ -9,6 +9,11 @@ final reviewRepositoryProvider = Provider<ReviewRepository>((ref) {
   return ReviewRepository();
 });
 
+/// Bir yoruma ait detayı getiren sağlayıcı
+final reviewDetailProvider = FutureProvider.family<ReviewModel?, String>((ref, id) {
+  return ref.read(reviewRepositoryProvider).getReview(id);
+});
+
 /// Bir üniversiteye ait yorumları dinleyen sağlayıcı
 final universityReviewsProvider = StreamProvider.family<List<ReviewModel>, String>((ref, universityId) {
   final repository = ref.watch(reviewRepositoryProvider);
