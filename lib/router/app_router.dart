@@ -18,6 +18,7 @@ import '../features/home/presentation/screens/search_screen.dart';
 import '../features/university/presentation/screens/city_universities_screen.dart';
 import '../features/university/presentation/screens/all_cities_screen.dart';
 import '../features/reviews/presentation/screens/write_review_screen.dart';
+import '../features/reviews/domain/models/review_model.dart';
 import 'app_shell.dart';
 
 /// Uygulama route isimleri
@@ -38,7 +39,7 @@ class AppRoutes {
   static const String cityDetail = '/city/:cityId';
   static const String departmentDetail = '/department/:deptId';
   static const String allCities = '/cities';
-  static const String writeReview = '/write-review/:uniId';
+  static const String writeReview = '/write-review/:type/:targetId';
 }
 
 /// GoRouter konfigürasyon provider'ı
@@ -113,10 +114,21 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
     ),
     GoRoute(
-      path: AppRoutes.writeReview,
-      builder: (context, state) => WriteReviewScreen(
-        universityId: state.pathParameters['uniId']!,
-      ),
+      path: '/write-review/:type/:targetId',
+      builder: (context, state) {
+        final typeStr = state.pathParameters['type']!;
+        final targetId = state.pathParameters['targetId']!;
+        final type = typeStr == 'department'
+            ? ReviewType.department
+            : ReviewType.university;
+        // Department ise universityId'yi query parametreden al
+        final universityId = state.uri.queryParameters['uni'] ?? targetId;
+        return WriteReviewScreen(
+          type: type,
+          targetId: targetId,
+          universityId: universityId,
+        );
+      },
     ),
     GoRoute(
       path: AppRoutes.departmentDetail,
