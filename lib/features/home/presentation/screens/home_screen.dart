@@ -192,10 +192,23 @@ class HomeScreen extends ConsumerWidget {
               ),
               data: (reviews) {
                 if (reviews.isEmpty) {
-                  return const SliverToBoxAdapter(
-                    child: Padding(
-                      padding: EdgeInsets.all(40),
-                      child: Center(child: Text('Henüz değerlendirme yapılmamış')),
+                  return SliverToBoxAdapter(
+                    child: Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(40),
+                        child: Column(
+                          children: [
+                            Icon(Icons.rate_review_outlined, size: 48, color: AppColors.textTertiary),
+                            const SizedBox(height: 12),
+                            Text('Henüz yorum yok', style: AppTextStyles.titleMedium),
+                            Text(
+                              'İlk yorumu yazan siz olun!',
+                              style: AppTextStyles.bodySmall,
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
                   );
                 }
