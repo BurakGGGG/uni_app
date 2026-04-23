@@ -19,12 +19,14 @@ class WriteReviewScreen extends ConsumerStatefulWidget {
   final String targetId;
   final ReviewType type;
   final String universityId;
+  final ReviewModel? initialReview;
 
   const WriteReviewScreen({
     super.key,
     required this.targetId,
     required this.type,
     required this.universityId,
+    this.initialReview,
   });
 
   @override
@@ -40,12 +42,28 @@ class _WriteReviewScreenState extends ConsumerState<WriteReviewScreen> {
   final List<String> _selectedPros = [];
   final List<String> _selectedCons = [];
   final List<File> _localPhotos = [];
+  final List<String> _existingPhotoUrls = [];
 
   bool _isAnonymous = false;
   bool _isLoading = false;
   String _loadingMessage = '';
   bool _submitted = false; // Validation hatalarını göstermek için
   bool _showSuccess = false; // Başarı animasyonu
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.initialReview != null) {
+      final r = widget.initialReview!;
+      _overallRating = r.rating;
+      _categoryRatings.addAll(r.categoryRatings);
+      _selectedPros.addAll(r.pros);
+      _selectedCons.addAll(r.cons);
+      _commentController.text = r.comment;
+      _isAnonymous = r.isAnonymous;
+      _existingPhotoUrls.addAll(r.imageUrls);
+    }
+  }
 
   @override
   void dispose() {
@@ -157,17 +175,18 @@ class _WriteReviewScreenState extends ConsumerState<WriteReviewScreen> {
       final currentUserData = await ref.read(currentUserProvider.future);
       if (currentUserData == null) throw Exception('Kullanıcı profili bulunamadı');
 
-      // 1. Önce fotoğrafları yükle
-      List<String> imageUrls = [];
+      // 1. Önce yeni fotoğrafları yükle
+      List<String> imageUrls = List.from(_existingPhotoUrls);
       if (_localPhotos.isNotEmpty) {
-        imageUrls = await _uploadReviewPhotos(_localPhotos, user.uid);
+        final newUrls = await _uploadReviewPhotos(_localPhotos, user.uid);
+        imageUrls.addAll(newUrls);
       }
 
       setState(() => _loadingMessage = 'Yorum kaydediliyor...');
 
       // 2. Sonra review document'i oluştur
       final review = ReviewModel(
-        id: '', // Firestore auto-generates
+        id: widget.initialReview?.id ?? '', // Firestore auto-generates if empty
         type: widget.type,
         targetId: widget.targetId,
         universityId: widget.universityId,
@@ -182,11 +201,16 @@ class _WriteReviewScreenState extends ConsumerState<WriteReviewScreen> {
         cons: List<String>.from(_selectedCons),
         imageUrls: imageUrls,
         isAnonymous: _isAnonymous,
-        createdAt: DateTime.now(),
+        createdAt: widget.initialReview?.createdAt ?? DateTime.now(),
         updatedAt: DateTime.now(),
       );
 
-      await ref.read(reviewRepositoryProvider).addReview(review);
+      if (widget.initialReview != null) {
+        await ref.read(reviewRepositoryProvider).updateReview(review);
+        ref.invalidate(reviewDetailProvider(review.id)); // Cache'i temizle
+      } else {
+        await ref.read(reviewRepositoryProvider).addReview(review);
+      }
 
       if (mounted) {
         // Başarı animasyonu göster
@@ -249,7 +273,7 @@ class _WriteReviewScreenState extends ConsumerState<WriteReviewScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: Text('Değerlendir', style: AppTextStyles.titleLarge),
+        title: Text(widget.initialReview != null ? 'Düzenle' : 'Değerlendir', style: AppTextStyles.titleLarge),
         backgroundColor: AppColors.background,
         elevation: 0,
       ),
@@ -348,20 +372,27 @@ class _WriteReviewScreenState extends ConsumerState<WriteReviewScreen> {
                   // ─── Fotoğraflar ─────────────────────────────────
                   PhotoUploadSection(
                     localPhotos: _localPhotos,
+                    uploadedUrls: _existingPhotoUrls,
                     onAdd: (file) => setState(() => _localPhotos.add(file)),
                     onRemove: (index, isLocal) {
-                      if (isLocal) {
-                        setState(() => _localPhotos.removeAt(index));
-                      }
+                      setState(() {
+                        if (isLocal) {
+                          _localPhotos.removeAt(index);
+                        } else {
+                          _existingPhotoUrls.removeAt(index);
+                        }
+                      });
                     },
                   ).animate().fadeIn(delay: 300.ms, duration: 400.ms),
 
-                  const SizedBox(height: 24),
+                  if (widget.initialReview == null) ...[
+                    const SizedBox(height: 24),
 
-                  // ─── Anonim Switch ───────────────────────────────
-                  _buildAnonymousSwitch()
-                      .animate()
-                      .fadeIn(delay: 350.ms, duration: 400.ms),
+                    // ─── Anonim Switch ───────────────────────────────
+                    _buildAnonymousSwitch()
+                        .animate()
+                        .fadeIn(delay: 350.ms, duration: 400.ms),
+                  ],
 
                   const SizedBox(height: 16),
 
