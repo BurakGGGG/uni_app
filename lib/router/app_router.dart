@@ -20,6 +20,7 @@ import '../features/home/presentation/screens/search_screen.dart';
 import '../features/university/presentation/screens/city_universities_screen.dart';
 import '../features/university/presentation/screens/all_cities_screen.dart';
 import '../features/reviews/presentation/screens/write_review_screen.dart';
+import '../features/reviews/presentation/screens/my_reviews_screen.dart';
 import '../features/reviews/domain/models/review_model.dart';
 import 'app_shell.dart';
 
@@ -65,7 +66,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       }
 
       // 2. Korumalı Rotalar (Sprint 3'te yorum rotaları buraya eklenecek)
-      final protectedRoutes = [AppRoutes.editProfile];
+      final protectedRoutes = [AppRoutes.editProfile, '/my-reviews'];
       final isGoingToProtected = protectedRoutes.contains(path) || path.startsWith('/write-review') || path.startsWith('/edit-review');
 
       if (isGoingToProtected && !isLoggedIn) {
@@ -157,6 +158,10 @@ final routerProvider = Provider<GoRouter>((ref) {
           },
         );
       },
+    ),
+    GoRoute(
+      path: '/my-reviews',
+      builder: (context, state) => const MyReviewsScreen(),
     ),
     GoRoute(
       path: AppRoutes.departmentDetail,
