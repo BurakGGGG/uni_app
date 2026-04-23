@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import '../domain/models/review_model.dart';
 
 /// Yorum repository — Sprint 3'te doldurulacak
@@ -37,14 +38,23 @@ class ReviewRepository {
     });
   }
 
-  // TODO(sprint3): Yorum silme
-  Future<void> deleteReview(String reviewId, String userId) async {
+  Future<void> deleteReview(String reviewId, String userId, List<String> photoUrls) async {
+    // 1. Firestore'dan sil
     await _firestore.collection('reviews').doc(reviewId).delete();
     
-    // Kullanıcının reviewCount alanını azalt
+    // 2. reviewCount azalt
     await _firestore.collection('users').doc(userId).update({
       'reviewCount': FieldValue.increment(-1),
     });
+
+    // 3. Fotoğrafları sil (best effort)
+    for (final url in photoUrls) {
+      try {
+        await FirebaseStorage.instance.refFromURL(url).delete();
+      } catch (e) {
+        print('Photo delete failed: $e');
+      }
+    }
   }
 
   // Üniversiteye ait yorumları getir (sort destekli)
