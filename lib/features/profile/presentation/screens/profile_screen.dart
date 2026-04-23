@@ -462,6 +462,7 @@ class ProfileScreen extends ConsumerWidget {
           label: 'Yorum',
           value: '${profile?.reviewCount ?? 0}',
           color: AppColors.primary,
+          onTap: () => context.push('/my-reviews'),
         ),
         const SizedBox(width: 12),
         _StatCard(
@@ -489,31 +490,40 @@ class _StatCard extends StatelessWidget {
   final String label;
   final String value;
   final Color color;
+  final VoidCallback? onTap;
 
   const _StatCard({
     required this.icon,
     required this.label,
     required this.value,
     required this.color,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     return Expanded(
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        decoration: BoxDecoration(
-          color: AppColors.surface,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
           borderRadius: BorderRadius.circular(AppConstants.radiusLg),
-          border: Border.all(color: AppColors.borderLight),
-        ),
-        child: Column(
-          children: [
-            Icon(icon, color: color, size: 24),
-            const SizedBox(height: 6),
-            Text(value, style: AppTextStyles.titleLarge),
-            Text(label, style: AppTextStyles.labelSmall),
-          ],
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            decoration: BoxDecoration(
+              color: AppColors.surface,
+              borderRadius: BorderRadius.circular(AppConstants.radiusLg),
+              border: Border.all(color: AppColors.borderLight),
+            ),
+            child: Column(
+              children: [
+                Icon(icon, color: color, size: 24),
+                const SizedBox(height: 6),
+                Text(value, style: AppTextStyles.titleLarge),
+                Text(label, style: AppTextStyles.labelSmall),
+              ],
+            ),
+          ),
         ),
       ),
     );
