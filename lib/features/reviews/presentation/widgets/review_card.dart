@@ -52,11 +52,11 @@ class ReviewCard extends ConsumerWidget {
               _buildHeader(context),
               const SizedBox(height: 12),
               _buildComment(),
-              if (review.pros.isNotEmpty || review.cons.isNotEmpty) ...[
+              if (!compact && (review.pros.isNotEmpty || review.cons.isNotEmpty)) ...[
                 const SizedBox(height: 10),
                 _buildProsConsChips(),
               ],
-              if (review.imageUrls.isNotEmpty) ...[
+              if (!compact && review.imageUrls.isNotEmpty) ...[
                 const SizedBox(height: 10),
                 _buildPhotoGrid(context),
               ],
@@ -162,6 +162,14 @@ class ReviewCard extends ConsumerWidget {
   // ─── Yorum metni (compact: kısa, normal: expandable) ─────────────
 
   Widget _buildComment() {
+    if (compact) {
+      return Text(
+        review.comment, 
+        maxLines: 2, 
+        overflow: TextOverflow.ellipsis,
+        style: AppTextStyles.bodySmall,
+      );
+    }
     return _CommentExpandable(text: review.comment);
   }
 
