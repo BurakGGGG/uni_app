@@ -126,3 +126,27 @@ final sortedReviewsProvider =
     }
   },
 );
+
+final userReviewsProvider = StreamProvider.family<List<ReviewModel>, String>((ref, userId) {
+  return ref.read(reviewRepositoryProvider).getUserReviews(userId);
+});
+
+class ReviewActionController extends StateNotifier<AsyncValue<void>> {
+  ReviewActionController(this._repo) : super(const AsyncValue.data(null));
+  final ReviewRepository _repo;
+
+  Future<void> deleteReview(ReviewModel review) async {
+    state = const AsyncValue.loading();
+    try {
+      await _repo.deleteReview(review.id, review.userId, review.imageUrls);
+      state = const AsyncValue.data(null);
+    } catch (e, st) {
+      state = AsyncValue.error(e, st);
+    }
+  }
+}
+
+final reviewActionControllerProvider = 
+  StateNotifierProvider<ReviewActionController, AsyncValue<void>>((ref) {
+    return ReviewActionController(ref.read(reviewRepositoryProvider));
+  });
