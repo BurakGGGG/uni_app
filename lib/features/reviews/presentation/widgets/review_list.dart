@@ -56,8 +56,14 @@ class ReviewList extends ConsumerWidget {
                       ? () => context.push('/edit-review/${review.id}')
                       : null,
                   onDeleted: isOwner
-                      ? () {
-                          // TODO(A4 — Gün 7): Delete flow
+                      ? () async {
+                          await ref.read(reviewActionControllerProvider.notifier).deleteReview(review);
+                          ref.invalidate(currentUserProvider);
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Yorumunuz silindi')),
+                            );
+                          }
                         }
                       : null,
                 );
