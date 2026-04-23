@@ -16,9 +16,16 @@ import '../widgets/review_form_sections/pros_cons_section.dart';
 import '../widgets/review_form_sections/photo_upload_section.dart';
 
 class WriteReviewScreen extends ConsumerStatefulWidget {
+  final String targetId;
+  final ReviewType type;
   final String universityId;
 
-  const WriteReviewScreen({super.key, required this.universityId});
+  const WriteReviewScreen({
+    super.key,
+    required this.targetId,
+    required this.type,
+    required this.universityId,
+  });
 
   @override
   ConsumerState<WriteReviewScreen> createState() => _WriteReviewScreenState();
@@ -46,10 +53,30 @@ class _WriteReviewScreenState extends ConsumerState<WriteReviewScreen> {
     super.dispose();
   }
 
+  /// Type'a göre kategori listesi
+  List<String> get _categories {
+    return widget.type == ReviewType.university
+        ? AppConstants.uniRatingCategories
+        : AppConstants.deptRatingCategories;
+  }
+
+  /// Type'a göre preset pros
+  List<String> get _presetPros {
+    return widget.type == ReviewType.university
+        ? AppConstants.commonUniPros
+        : AppConstants.commonDeptPros;
+  }
+
+  /// Type'a göre preset cons
+  List<String> get _presetCons {
+    return widget.type == ReviewType.university
+        ? AppConstants.commonUniCons
+        : AppConstants.commonDeptCons;
+  }
+
   /// Tüm zorunlu alanlar dolu mu kontrol et
   bool get _isFormValid {
-    final categories = AppConstants.uniRatingCategories;
-    final allCategoriesFilled = categories.every(
+    final allCategoriesFilled = _categories.every(
       (c) => (_categoryRatings[c] ?? 0) > 0,
     );
     return _overallRating > 0 &&
@@ -61,8 +88,7 @@ class _WriteReviewScreenState extends ConsumerState<WriteReviewScreen> {
   List<String> get _validationErrors {
     final errors = <String>[];
     if (_overallRating == 0) errors.add('Genel puan');
-    final categories = AppConstants.uniRatingCategories;
-    final missing = categories.where((c) => (_categoryRatings[c] ?? 0) == 0).toList();
+    final missing = _categories.where((c) => (_categoryRatings[c] ?? 0) == 0).toList();
     if (missing.isNotEmpty) errors.add('${missing.length} kategori puanı');
     if (_commentController.text.trim().length < 20) errors.add('Yorum (min. 20 karakter)');
     return errors;
@@ -103,8 +129,7 @@ class _WriteReviewScreenState extends ConsumerState<WriteReviewScreen> {
     if (!_formKey.currentState!.validate()) return;
 
     // Kategori kontrolü
-    final categories = AppConstants.uniRatingCategories;
-    final missingCategories = categories.where(
+    final missingCategories = _categories.where(
       (c) => (_categoryRatings[c] ?? 0) == 0,
     ).toList();
 
@@ -143,8 +168,8 @@ class _WriteReviewScreenState extends ConsumerState<WriteReviewScreen> {
       // 2. Sonra review document'i oluştur
       final review = ReviewModel(
         id: '', // Firestore auto-generates
-        type: ReviewType.university,
-        targetId: widget.universityId,
+        type: widget.type,
+        targetId: widget.targetId,
         universityId: widget.universityId,
         userId: user.uid,
         userName: _isAnonymous ? 'Anonim Öğrenci' : currentUserData.displayName,
@@ -248,7 +273,7 @@ class _WriteReviewScreenState extends ConsumerState<WriteReviewScreen> {
 
                   // ─── Kategori Puanları ───────────────────────────
                   CategoryRatingsSection(
-                    type: ReviewType.university,
+                    type: widget.type,
                     ratings: _categoryRatings,
                     onChanged: (category, rating) {
                       setState(() => _categoryRatings[category] = rating);
@@ -261,7 +286,7 @@ class _WriteReviewScreenState extends ConsumerState<WriteReviewScreen> {
 
                   // ─── Artılar (Pros) ──────────────────────────────
                   ProsConsSection(
-                    presetItems: AppConstants.commonUniPros,
+                    presetItems: _presetPros,
                     selectedItems: _selectedPros,
                     title: 'Artılar',
                     icon: Icons.thumb_up_alt_rounded,
@@ -286,7 +311,7 @@ class _WriteReviewScreenState extends ConsumerState<WriteReviewScreen> {
 
                   // ─── Eksiler (Cons) ──────────────────────────────
                   ProsConsSection(
-                    presetItems: AppConstants.commonUniCons,
+                    presetItems: _presetCons,
                     selectedItems: _selectedCons,
                     title: 'Eksiler',
                     icon: Icons.thumb_down_alt_rounded,
