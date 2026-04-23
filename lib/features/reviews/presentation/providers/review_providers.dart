@@ -32,6 +32,12 @@ final recentReviewsProvider = StreamProvider<List<ReviewModel>>((ref) {
   return repository.getRecentReviews(limit: 5);
 });
 
+/// Kullanıcının kendi yaptığı yorumları dinleyen sağlayıcı
+final userReviewsProvider = StreamProvider.family<List<ReviewModel>, String>((ref, userId) {
+  final repository = ref.watch(reviewRepositoryProvider);
+  return repository.getUserReviews(userId);
+});
+
 // ─── Sprint 3 — Kişi B: Like Sistemi Provider'ları ─────────────────
 
 /// Kullanıcının beğendiği yorumların ID'lerini dinleyen sağlayıcı
