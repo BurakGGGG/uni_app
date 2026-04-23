@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../auth/presentation/providers/auth_providers.dart';
 import '../../domain/models/review_model.dart';
 import '../providers/review_providers.dart';
 import 'review_card.dart';
@@ -35,11 +37,31 @@ class ReviewList extends ConsumerWidget {
         reviewsAsync.when(
           data: (reviews) {
             if (reviews.isEmpty) return _buildEmptyState();
+            
+            final currentUserId = ref.watch(authStateProvider).value?.uid;
+
             return ListView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               itemCount: reviews.length,
-              itemBuilder: (_, i) => ReviewCard(review: reviews[i]),
+              itemBuilder: (context, i) {
+                final review = reviews[i];
+                final isOwner = currentUserId != null && currentUserId == review.userId;
+
+                return ReviewCard(
+                  review: review,
+                  showActions: isOwner,
+                  showReportMenu: !isOwner,
+                  onEdited: isOwner
+                      ? () => context.push('/edit-review/${review.id}')
+                      : null,
+                  onDeleted: isOwner
+                      ? () {
+                          // TODO(A4 — Gün 7): Delete flow
+                        }
+                      : null,
+                );
+              },
             );
           },
           loading: () => const Padding(
