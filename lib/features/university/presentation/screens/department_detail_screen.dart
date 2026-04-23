@@ -6,9 +6,9 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../providers/university_providers.dart';
-import '../../../reviews/presentation/providers/review_providers.dart';
-import '../../../reviews/presentation/widgets/review_card.dart';
-import '../../../auth/presentation/providers/auth_providers.dart';
+import '../../../reviews/presentation/widgets/review_list.dart';
+import '../../../reviews/domain/models/review_model.dart';
+import '../../../reviews/presentation/widgets/category_ratings_chart.dart';
 
 class DepartmentDetailScreen extends ConsumerWidget {
   final String departmentId;
@@ -206,6 +206,14 @@ class DepartmentDetailScreen extends ConsumerWidget {
 
                 const SizedBox(height: 24),
 
+                // ─── Kategori Puanları ──────────────────────────────
+                CategoryRatingsChart(
+                  ratings: dept.categoryRatings,
+                  reviewCount: dept.reviewCount,
+                ),
+
+                const SizedBox(height: 24),
+
                 // ─── Yorumlar Başlığı + Değerlendir Butonu ─────────
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -238,9 +246,9 @@ class DepartmentDetailScreen extends ConsumerWidget {
                 const SizedBox(height: 12),
 
                 // ─── Yorum Listesi ───────────────────────────────
-                _DepartmentReviewSection(
-                  departmentId: departmentId,
-                  universityId: dept.universityId,
+                ReviewList(
+                  targetId: departmentId,
+                  type: ReviewType.department,
                 ),
 
                 const SizedBox(height: 40),
@@ -290,89 +298,4 @@ class _InfoTile extends StatelessWidget {
   }
 }
 
-// ─── Bölüm Yorumları Bölümü ──────────────────────────────────────
 
-class _DepartmentReviewSection extends ConsumerWidget {
-  final String departmentId;
-  final String universityId;
-
-  const _DepartmentReviewSection({
-    required this.departmentId,
-    required this.universityId,
-  });
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final reviewsAsync = ref.watch(departmentReviewsProvider(departmentId));
-
-    return reviewsAsync.when(
-      loading: () => const Center(
-        child: Padding(
-          padding: EdgeInsets.all(40),
-          child: CircularProgressIndicator(),
-        ),
-      ),
-      error: (e, st) => Center(child: Text('Yorumlar yüklenemedi: $e')),
-      data: (reviews) {
-        if (reviews.isEmpty) {
-          return Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(32),
-            decoration: BoxDecoration(
-              color: AppColors.surface,
-              borderRadius: BorderRadius.circular(AppConstants.radiusLg),
-              border: Border.all(color: AppColors.borderLight),
-            ),
-            child: Column(
-              children: [
-                Icon(
-                  Icons.speaker_notes_off_rounded,
-                  size: 48,
-                  color: AppColors.textTertiary.withValues(alpha: 0.5),
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  'Bu bölüm için henüz yorum yapılmamış.\nİlk değerlendiren siz olun!',
-                  textAlign: TextAlign.center,
-                  style: AppTextStyles.bodyMedium.copyWith(
-                    color: AppColors.textSecondary,
-                  ),
-                ),
-              ],
-            ),
-          );
-        }
-
-        final currentUserId = ref.watch(authStateProvider).value?.uid;
-
-        return ListView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
-          itemCount: reviews.length,
-          itemBuilder: (context, index) {
-            final review = reviews[index];
-            final isOwner =
-                currentUserId != null && currentUserId == review.userId;
-
-            return ReviewCard(
-              review: review,
-              showActions: isOwner,
-              showReportMenu: !isOwner,
-              onEdited: isOwner
-                  ? () {
-                      // TODO(A3 — Gün 6): Edit flow
-                    }
-                  : null,
-              onDeleted: isOwner
-                  ? () {
-                      // TODO(A4 — Gün 7): Delete flow
-                    }
-                  : null,
-            );
-          },
-        );
-      },
-    );
-  }
-}

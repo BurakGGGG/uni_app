@@ -12,6 +12,7 @@ import '../../../auth/presentation/providers/auth_providers.dart';
 import '../../../favorites/presentation/providers/favorites_providers.dart';
 import '../../../reviews/presentation/widgets/review_list.dart';
 import '../../../reviews/domain/models/review_model.dart';
+import '../../../reviews/presentation/widgets/category_ratings_chart.dart';
 
 class UniversityDetailScreen extends ConsumerWidget {
   final String universityId;
@@ -223,6 +224,16 @@ class UniversityDetailScreen extends ConsumerWidget {
 
                   return SliverList(
                     delegate: SliverChildListDelegate([
+                      // ─── Kategori Puanları ─────────────────────────
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                        child: CategoryRatingsChart(
+                          ratings: uni.categoryRatings,
+                          reviewCount: uni.reviewCount,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      
                       if (lisans.isNotEmpty) ...[
                         _SectionTitle(title: 'Lisans (${lisans.length})'),
                         ...lisans.asMap().entries.map((entry) =>
