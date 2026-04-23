@@ -6,9 +6,9 @@ import '../../domain/models/review_model.dart';
 import '../providers/review_providers.dart';
 import 'review_card.dart';
 
-/// Sprint 3 — Kişi B (Task B2 İskeleti)
+/// Sprint 3 — Kişi B (Task B2)
 /// Üniversite ve bölüm detay sayfalarında kullanılacak yorum listesi.
-/// Şimdilik mevcut getUniversityReviews stream'ini kullanır, sort eklenmedi.
+/// Sort bar ile "En Yeni" / "En Beğenilen" sıralama destekler.
 class ReviewList extends ConsumerWidget {
   final String targetId;
   final ReviewType type;
@@ -23,16 +23,15 @@ class ReviewList extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Şimdilik sadece mevcut provider'ları kullan (sort Gün 5'te eklenecek)
-    final reviewsAsync = type == ReviewType.university
-        ? ref.watch(universityReviewsProvider(targetId))
-        : ref.watch(departmentReviewsProvider(targetId));
+    final sort = ref.watch(reviewSortProvider);
+    final reviewsAsync = ref.watch(sortedReviewsProvider(
+      SortedReviewsParams(targetId: targetId, type: type),
+    ));
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // TODO(B2-Gün5): Sort bar eklenecek (En Yeni / En Beğenilen)
-
+        if (showSortOptions) _buildSortBar(ref, sort),
         reviewsAsync.when(
           data: (reviews) {
             if (reviews.isEmpty) return _buildEmptyState();
@@ -49,10 +48,80 @@ class ReviewList extends ConsumerWidget {
           ),
           error: (e, _) => Padding(
             padding: const EdgeInsets.all(20),
-            child: Center(child: Text('Yorumlar yüklenemedi: $e')),
+            child: Center(
+              child: Text(
+                'Yorumlar yüklenemedi: $e',
+                style: AppTextStyles.bodySmall.copyWith(color: AppColors.error),
+              ),
+            ),
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildSortBar(WidgetRef ref, ReviewSort current) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Row(
+        children: [
+          Text(
+            'Sırala:',
+            style: AppTextStyles.labelMedium.copyWith(
+              color: AppColors.textSecondary,
+            ),
+          ),
+          const SizedBox(width: 8),
+          ChoiceChip(
+            label: const Text('En Yeni'),
+            selected: current == ReviewSort.newest,
+            onSelected: (v) {
+              if (v) {
+                ref.read(reviewSortProvider.notifier).state = ReviewSort.newest;
+              }
+            },
+            selectedColor: AppColors.primary.withValues(alpha: 0.15),
+            labelStyle: AppTextStyles.labelSmall.copyWith(
+              color: current == ReviewSort.newest
+                  ? AppColors.primary
+                  : AppColors.textSecondary,
+              fontWeight: current == ReviewSort.newest
+                  ? FontWeight.w600
+                  : FontWeight.w400,
+            ),
+            side: BorderSide(
+              color: current == ReviewSort.newest
+                  ? AppColors.primary.withValues(alpha: 0.3)
+                  : AppColors.borderLight,
+            ),
+          ),
+          const SizedBox(width: 8),
+          ChoiceChip(
+            label: const Text('En Beğenilen'),
+            selected: current == ReviewSort.mostLiked,
+            onSelected: (v) {
+              if (v) {
+                ref.read(reviewSortProvider.notifier).state =
+                    ReviewSort.mostLiked;
+              }
+            },
+            selectedColor: AppColors.primary.withValues(alpha: 0.15),
+            labelStyle: AppTextStyles.labelSmall.copyWith(
+              color: current == ReviewSort.mostLiked
+                  ? AppColors.primary
+                  : AppColors.textSecondary,
+              fontWeight: current == ReviewSort.mostLiked
+                  ? FontWeight.w600
+                  : FontWeight.w400,
+            ),
+            side: BorderSide(
+              color: current == ReviewSort.mostLiked
+                  ? AppColors.primary.withValues(alpha: 0.3)
+                  : AppColors.borderLight,
+            ),
+          ),
+        ],
+      ),
     );
   }
 

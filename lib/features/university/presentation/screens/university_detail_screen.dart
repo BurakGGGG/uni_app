@@ -10,8 +10,8 @@ import '../providers/university_providers.dart';
 import '../../domain/models/department_model.dart';
 import '../../../auth/presentation/providers/auth_providers.dart';
 import '../../../favorites/presentation/providers/favorites_providers.dart';
-import '../../../reviews/presentation/providers/review_providers.dart';
-import '../../../reviews/presentation/widgets/review_card.dart';
+import '../../../reviews/presentation/widgets/review_list.dart';
+import '../../../reviews/domain/models/review_model.dart';
 
 class UniversityDetailScreen extends ConsumerWidget {
   final String universityId;
@@ -275,8 +275,11 @@ class UniversityDetailScreen extends ConsumerWidget {
                         ),
                       ),
                       
-                      // ─── Yorum Listesi ─────────────────────────────
-                      _ReviewSection(universityId: universityId),
+                      // ─── Yorum Listesi (ReviewList widget) ─────────
+                      ReviewList(
+                        targetId: universityId,
+                        type: ReviewType.university,
+                      ),
                       
                       const SizedBox(height: 100),
                     ]),
@@ -516,67 +519,3 @@ class _FavoriteButton extends ConsumerWidget {
   }
 }
 
-// ─── Yorumlar Bölümü ──────────────────────────────────────────────
-
-class _ReviewSection extends ConsumerWidget {
-  final String universityId;
-
-  const _ReviewSection({required this.universityId});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final reviewsAsync = ref.watch(universityReviewsProvider(universityId));
-
-    return reviewsAsync.when(
-      loading: () => const Center(child: Padding(
-        padding: EdgeInsets.all(40),
-        child: CircularProgressIndicator(),
-      )),
-      error: (e, st) => Center(child: Text('Yorumlar yüklenemedi: $e')),
-      data: (reviews) {
-        if (reviews.isEmpty) {
-          return Padding(
-            padding: const EdgeInsets.all(40),
-            child: Center(
-              child: Column(
-                children: [
-                  Icon(Icons.speaker_notes_off_rounded, size: 48, color: AppColors.textTertiary.withValues(alpha: 0.5)),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Henüz yorum yapılmamış.\nİlk değerlendiren siz olun!',
-                    textAlign: TextAlign.center,
-                    style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary),
-                  ),
-                ],
-              ),
-            ),
-          );
-        }
-
-        return ListView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
-          itemCount: reviews.length,
-          itemBuilder: (context, index) {
-            final review = reviews[index];
-            final currentUserId = ref.watch(authStateProvider).value?.uid;
-            final isOwner = currentUserId != null && currentUserId == review.userId;
-
-            return ReviewCard(
-              review: review,
-              showActions: isOwner,
-              showReportMenu: !isOwner,
-              onEdited: isOwner ? () {
-                // TODO(A3): Edit screen'e navigate
-              } : null,
-              onDeleted: isOwner ? () {
-                // TODO(A4): Delete confirmation
-              } : null,
-            ).animate().fadeIn(delay: (100 * index).ms, duration: 400.ms);
-          },
-        );
-      },
-    );
-  }
-}

@@ -82,3 +82,42 @@ final likeControllerProvider =
   return LikeController(ref.read(reviewRepositoryProvider));
 });
 
+// ─── Sprint 3 — Kişi B: Sort/Filter Provider'ları ──────────────────
+
+/// Yorum sıralama seçenekleri
+enum ReviewSort { newest, mostLiked }
+
+/// Mevcut sıralama tercihi
+final reviewSortProvider = StateProvider<ReviewSort>((_) => ReviewSort.newest);
+
+/// Sorted reviews için parametre sınıfı (targetId + type)
+class SortedReviewsParams {
+  final String targetId;
+  final ReviewType type;
+  const SortedReviewsParams({required this.targetId, required this.type});
+
+  @override
+  bool operator ==(Object other) =>
+      other is SortedReviewsParams &&
+      other.targetId == targetId &&
+      other.type == type;
+
+  @override
+  int get hashCode => Object.hash(targetId, type);
+}
+
+/// Sıralama tercihine göre yorumları dinleyen sağlayıcı
+final sortedReviewsProvider =
+    StreamProvider.family<List<ReviewModel>, SortedReviewsParams>(
+  (ref, params) {
+    final sort = ref.watch(reviewSortProvider);
+    final repo = ref.read(reviewRepositoryProvider);
+    final orderBy = sort == ReviewSort.newest ? 'createdAt' : 'likes';
+
+    if (params.type == ReviewType.university) {
+      return repo.getUniversityReviews(params.targetId, orderBy: orderBy);
+    } else {
+      return repo.getDepartmentReviews(params.targetId, orderBy: orderBy);
+    }
+  },
+);
