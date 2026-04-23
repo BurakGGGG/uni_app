@@ -133,10 +133,6 @@ final sortedReviewsProvider =
   },
 );
 
-final userReviewsProvider = StreamProvider.family<List<ReviewModel>, String>((ref, userId) {
-  return ref.read(reviewRepositoryProvider).getUserReviews(userId);
-});
-
 class ReviewActionController extends StateNotifier<AsyncValue<void>> {
   ReviewActionController(this._repo) : super(const AsyncValue.data(null));
   final ReviewRepository _repo;
