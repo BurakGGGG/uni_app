@@ -41,12 +41,12 @@ class ReviewRepository {
     });
   }
 
-  // TODO(sprint3): Üniversiteye ait yorumları getir
-  Stream<List<ReviewModel>> getUniversityReviews(String universityId, {int limit = 20}) {
+  // Üniversiteye ait yorumları getir (sort destekli)
+  Stream<List<ReviewModel>> getUniversityReviews(String universityId, {int limit = 20, String orderBy = 'createdAt'}) {
     return _reviewsRef
         .where('targetId', isEqualTo: universityId)
         .where('isApproved', isEqualTo: true)
-        .orderBy('createdAt', descending: true)
+        .orderBy(orderBy, descending: true)
         .limit(limit)
         .snapshots()
         .map((snapshot) => snapshot.docs
@@ -54,12 +54,12 @@ class ReviewRepository {
             .toList());
   }
 
-  // TODO(sprint3): Bölüme ait yorumları getir
-  Stream<List<ReviewModel>> getDepartmentReviews(String departmentId, {int limit = 20}) {
+  // Bölüme ait yorumları getir (sort destekli)
+  Stream<List<ReviewModel>> getDepartmentReviews(String departmentId, {int limit = 20, String orderBy = 'createdAt'}) {
     return _reviewsRef
         .where('targetId', isEqualTo: departmentId)
         .where('isApproved', isEqualTo: true)
-        .orderBy('createdAt', descending: true)
+        .orderBy(orderBy, descending: true)
         .limit(limit)
         .snapshots()
         .map((snapshot) => snapshot.docs
