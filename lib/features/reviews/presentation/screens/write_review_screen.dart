@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../../core/utils/snackbar_helper.dart';
 import '../../../../core/widgets/widgets.dart';
 import '../../../auth/presentation/providers/auth_providers.dart';
 import '../../domain/models/review_model.dart';
@@ -164,14 +165,7 @@ class _WriteReviewScreenState extends ConsumerState<WriteReviewScreen> {
     setState(() => _submitted = true);
 
     if (_overallRating == 0) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('Lütfen genel bir puan verin'),
-          backgroundColor: AppColors.error,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        ),
-      );
+      showAppSnackBar(context, message: 'Lütfen genel bir puan verin', isError: true);
       return;
     }
 
@@ -183,14 +177,7 @@ class _WriteReviewScreenState extends ConsumerState<WriteReviewScreen> {
     ).toList();
 
     if (missingCategories.isNotEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Şu kategorilere puan verin: ${missingCategories.join(", ")}'),
-          backgroundColor: AppColors.error,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        ),
-      );
+      showAppSnackBar(context, message: 'Şu kategorilere puan verin: ${missingCategories.join(", ")}', isError: true);
       return;
     }
 
@@ -256,14 +243,7 @@ class _WriteReviewScreenState extends ConsumerState<WriteReviewScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Hata: $e'),
-            backgroundColor: AppColors.error,
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          ),
-        );
+        showAppSnackBar(context, message: 'Bir hata oluştu: $e', isError: true);
       }
     } finally {
       if (mounted && !_showSuccess) {
@@ -301,17 +281,19 @@ class _WriteReviewScreenState extends ConsumerState<WriteReviewScreen> {
       );
     }
 
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: AppBar(
-        title: Text(widget.initialReview != null ? 'Düzenle' : 'Değerlendir', style: AppTextStyles.titleLarge),
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).unfocus(),
+      child: Scaffold(
         backgroundColor: AppColors.background,
-        elevation: 0,
-      ),
-      body: Stack(
-        children: [
-          SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
+        appBar: AppBar(
+          title: Text(widget.initialReview != null ? 'Düzenle' : 'Değerlendir', style: AppTextStyles.titleLarge),
+          backgroundColor: AppColors.background,
+          elevation: 0,
+        ),
+        body: Stack(
+          children: [
+            SingleChildScrollView(
+              padding: const EdgeInsets.all(24),
             child: Form(
               key: _formKey,
               child: Column(
@@ -460,6 +442,7 @@ class _WriteReviewScreenState extends ConsumerState<WriteReviewScreen> {
           if (_isLoading)
             _buildLoadingOverlay(),
         ],
+      ),
       ),
     );
   }
