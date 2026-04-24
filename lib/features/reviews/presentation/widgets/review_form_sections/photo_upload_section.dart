@@ -38,15 +38,49 @@ class _PhotoUploadSectionState extends State<PhotoUploadSection> {
   Future<void> _pickImage(ImageSource source) async {
     if (!_canAddMore) return;
 
-    final picked = await _picker.pickImage(
-      source: source,
-      maxWidth: 1080,
-      maxHeight: 1080,
-      imageQuality: 75,
-    );
+    if (source == ImageSource.gallery) {
+      // Çoklu seçim
+      final picked = await _picker.pickMultiImage(
+        maxWidth: 1080,
+        maxHeight: 1080,
+        imageQuality: 75,
+      );
 
-    if (picked != null) {
-      widget.onAdd(File(picked.path));
+      if (picked.isEmpty) return;
+
+      // Kalan slotu hesapla ve sınırla
+      final remainingSlots = PhotoUploadSection.maxPhotos - _totalPhotos;
+      final toAdd = picked.take(remainingSlots).toList();
+
+      for (final file in toAdd) {
+        widget.onAdd(File(file.path));
+      }
+
+      // Eğer daha fazla foto seçtiyse uyar
+      if (picked.length > remainingSlots && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'En fazla ${PhotoUploadSection.maxPhotos} fotoğraf yüklenebilir. '
+              '${toAdd.length} tanesi eklendi.',
+            ),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          ),
+        );
+      }
+    } else {
+      // Kamera — tek foto
+      final picked = await _picker.pickImage(
+        source: ImageSource.camera,
+        maxWidth: 1080,
+        maxHeight: 1080,
+        imageQuality: 75,
+      );
+
+      if (picked != null) {
+        widget.onAdd(File(picked.path));
+      }
     }
   }
 
