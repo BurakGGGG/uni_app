@@ -519,7 +519,7 @@ class _FavoriteButton extends ConsumerWidget {
           child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white70),
         ),
       ),
-      error: (_, __) => const IconButton(
+      error: (_, st) => const IconButton(
         onPressed: null,
         icon: Icon(Icons.favorite_border_rounded, color: Colors.white54),
       ),

@@ -114,7 +114,7 @@ class DepartmentDetailScreen extends ConsumerWidget {
                           ),
                         ),
                         loading: () => const SizedBox.shrink(),
-                        error: (_, __) => const SizedBox.shrink(),
+                        error: (_, st) => const SizedBox.shrink(),
                       ),
                     ],
                   ),
