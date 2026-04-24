@@ -12,6 +12,7 @@ import '../../../university/domain/models/university_model.dart';
 import '../../../favorites/presentation/providers/favorites_providers.dart';
 import '../../../reviews/presentation/providers/review_providers.dart';
 import '../../../reviews/presentation/widgets/review_card.dart';
+import '../../../reviews/domain/models/review_model.dart';
 
 /// Ana Sayfa ekranı
 class HomeScreen extends ConsumerWidget {
@@ -222,7 +223,13 @@ class HomeScreen extends ConsumerWidget {
                         compact: true,
                         showReportMenu: false,
                         showActions: false,
-                        onTap: () => context.push('/university/${review.targetId}'),
+                        onTap: () {
+                          if (review.type == ReviewType.department) {
+                            context.push('/department/${review.targetId}');
+                          } else {
+                            context.push('/university/${review.targetId}');
+                          }
+                        },
                       );
                     },
                     childCount: reviews.length,
