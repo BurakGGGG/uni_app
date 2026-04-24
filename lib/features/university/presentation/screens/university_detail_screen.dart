@@ -269,18 +269,57 @@ class UniversityDetailScreen extends ConsumerWidget {
                                 Text('Yorumlar', style: AppTextStyles.headlineMedium),
                               ],
                             ),
-                            TextButton.icon(
-                              onPressed: () => context.push('/write-review/university/$universityId'),
-                              icon: const Icon(Icons.add_comment_rounded, size: 18),
-                              label: const Text('Değerlendir'),
-                              style: TextButton.styleFrom(
-                                foregroundColor: AppColors.primary,
-                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(AppConstants.radiusMd),
-                                  side: BorderSide(color: AppColors.primary.withValues(alpha: 0.2)),
-                                ),
-                              ),
+                            Consumer(
+                              builder: (context, ref, _) {
+                                final currentUserAsync = ref.watch(currentUserProvider);
+                                return currentUserAsync.when(
+                                  data: (profile) {
+                                    final canReview = profile != null &&
+                                        profile.universityId == universityId &&
+                                        profile.isVerifiedStudent;
+
+                                    if (!canReview) {
+                                      return TextButton.icon(
+                                        onPressed: () => _showReviewInfoSheet(
+                                          context,
+                                          profile: profile,
+                                          isOwnUniversity: profile?.universityId == universityId,
+                                        ),
+                                        icon: const Icon(Icons.add_comment_rounded, size: 18),
+                                        label: const Text('Değerlendir'),
+                                        style: TextButton.styleFrom(
+                                          foregroundColor: AppColors.textTertiary,
+                                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(AppConstants.radiusMd),
+                                            side: BorderSide(color: AppColors.borderLight),
+                                          ),
+                                        ),
+                                      );
+                                    }
+
+                                    return TextButton.icon(
+                                      onPressed: () => context.push('/write-review/university/$universityId'),
+                                      icon: const Icon(Icons.add_comment_rounded, size: 18),
+                                      label: const Text('Değerlendir'),
+                                      style: TextButton.styleFrom(
+                                        foregroundColor: AppColors.primary,
+                                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(AppConstants.radiusMd),
+                                          side: BorderSide(color: AppColors.primary.withValues(alpha: 0.2)),
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                  loading: () => const SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(strokeWidth: 2),
+                                  ),
+                                  error: (_, __) => const SizedBox.shrink(),
+                                );
+                              },
                             ),
                           ],
                         ),
@@ -525,5 +564,118 @@ class _FavoriteButton extends ConsumerWidget {
       ),
     );
   }
+}
+
+// ─── Değerlendir Bilgi Bottom Sheet ──────────────────────────────────
+void _showReviewInfoSheet(
+  BuildContext context, {
+  required dynamic profile,
+  required bool isOwnUniversity,
+}) {
+  final IconData icon;
+  final Color iconColor;
+  final String title;
+  final String description;
+  final String? buttonText;
+  final VoidCallback? onButtonPressed;
+
+  if (profile == null) {
+    icon = Icons.login_rounded;
+    iconColor = AppColors.primary;
+    title = 'Giriş Yapın';
+    description = 'Yorum yazabilmek için önce hesabınıza giriş yapmanız gerekiyor.';
+    buttonText = 'Giriş Yap';
+    onButtonPressed = () {
+      Navigator.pop(context);
+      GoRouter.of(context).push('/login');
+    };
+  } else if (!(profile.isVerifiedStudent as bool)) {
+    icon = Icons.verified_user_rounded;
+    iconColor = AppColors.warning;
+    title = 'Doğrulama Gerekli';
+    description = 'Yorum yazabilmek için edu.tr uzantılı e-posta adresinizle doğrulama yapmanız gerekiyor.';
+    buttonText = null;
+    onButtonPressed = null;
+  } else if (!isOwnUniversity) {
+    icon = Icons.school_rounded;
+    iconColor = AppColors.info;
+    title = 'Farklı Üniversite';
+    description = 'Sadece kendi üniversitene yorum yapabilirsin. Bu üniversite senin kayıtlı olduğun üniversite değil.';
+    buttonText = null;
+    onButtonPressed = null;
+  } else {
+    // Bu duruma normalde düşmemeli ama güvenlik için
+    icon = Icons.info_outline_rounded;
+    iconColor = AppColors.textTertiary;
+    title = 'Yorum Yazılamıyor';
+    description = 'Şu anda bu üniversiteye yorum yazma yetkiniz bulunmuyor.';
+    buttonText = null;
+    onButtonPressed = null;
+  }
+
+  showModalBottomSheet(
+    context: context,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+    ),
+    builder: (ctx) => SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: AppColors.textTertiary.withAlpha(80),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(height: 24),
+            Container(
+              width: 64,
+              height: 64,
+              decoration: BoxDecoration(
+                color: iconColor.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, color: iconColor, size: 32),
+            ),
+            const SizedBox(height: 16),
+            Text(title, style: AppTextStyles.titleLarge),
+            const SizedBox(height: 8),
+            Text(
+              description,
+              textAlign: TextAlign.center,
+              style: AppTextStyles.bodyMedium.copyWith(
+                color: AppColors.textSecondary,
+                height: 1.5,
+              ),
+            ),
+            if (buttonText != null) ...[
+              const SizedBox(height: 20),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: onButtonPressed,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(AppConstants.radiusMd),
+                    ),
+                  ),
+                  child: Text(buttonText),
+                ),
+              ),
+            ],
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
+    ),
+  );
 }
 
