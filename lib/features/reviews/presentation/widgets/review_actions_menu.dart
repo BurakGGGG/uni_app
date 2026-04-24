@@ -3,10 +3,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/constants/app_constants.dart';
+import '../../../auth/presentation/providers/auth_providers.dart';
+import '../providers/review_providers.dart';
 import '../../domain/models/review_model.dart';
+import 'report_dialog.dart';
 
-/// Sprint 3 — Kişi B (Task B1 Finalize)
-/// ReviewCard içinde kullanılan 3-nokta menü widget'ı.
+/// Sprint 3 — Kişi B (Task B1 Finalize + Task A5)
+/// ReviewCard içinde kullanılan bottom sheet menü widget'ı.
 /// Sahip aksiyonları (düzenle/sil) ve şikayet seçeneği sunar.
 class ReviewActionsMenu extends ConsumerWidget {
   final ReviewModel review;
@@ -27,7 +30,7 @@ class ReviewActionsMenu extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return GestureDetector(
-      onTap: () => _showBottomSheet(context),
+      onTap: () => _showBottomSheet(context, ref),
       child: Container(
         padding: const EdgeInsets.all(6),
         decoration: BoxDecoration(
@@ -43,7 +46,7 @@ class ReviewActionsMenu extends ConsumerWidget {
     );
   }
 
-  void _showBottomSheet(BuildContext context) {
+  void _showBottomSheet(BuildContext context, WidgetRef ref) {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -131,11 +134,7 @@ class ReviewActionsMenu extends ConsumerWidget {
                   iconBgColor: AppColors.warning.withValues(alpha: 0.1),
                   onTap: () {
                     Navigator.pop(ctx);
-                    if (context.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Şikayet sistemi yakında')),
-                      );
-                    }
+                    _handleReport(context, ref);
                   },
                 ),
 
@@ -221,6 +220,50 @@ class ReviewActionsMenu extends ConsumerWidget {
         ],
       ),
     );
+  }
+
+  /// Şikayet akışı: giriş kontrolü → mükerrer kontrolü → dialog aç
+  Future<void> _handleReport(BuildContext context, WidgetRef ref) async {
+    final user = ref.read(authStateProvider).value;
+    if (user == null) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Şikayet etmek için giriş yapın'),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+      return;
+    }
+
+    try {
+      final alreadyReported = await ref
+          .read(reportRepositoryProvider)
+          .hasAlreadyReported(review.id, user.uid);
+
+      if (alreadyReported) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Bu yorumu zaten şikayet ettiniz'),
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
+        return;
+      }
+    } catch (_) {
+      // Firestore permission hatası olursa mükerrer kontrolünü atla,
+      // docId sabit olduğu için set() üzerine yazar — veri kaybı olmaz.
+    }
+
+    if (context.mounted) {
+      showDialog(
+        context: context,
+        builder: (_) => ReportDialog(review: review),
+      );
+    }
   }
 }
 
