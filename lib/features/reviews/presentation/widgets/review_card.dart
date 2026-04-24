@@ -8,6 +8,7 @@ import '../../../../core/constants/app_constants.dart';
 import '../../domain/models/review_model.dart';
 import 'review_actions_menu.dart';
 import 'like_button.dart';
+import '../screens/photo_gallery_screen.dart';
 
 /// Sprint 3 — Kişi B (Task B1)
 /// Tüm yorum gösterimlerinde kullanılacak ortak ReviewCard widget'ı.
@@ -261,7 +262,15 @@ class ReviewCard extends ConsumerWidget {
           final url = review.imageUrls[index];
           return GestureDetector(
             onTap: () {
-              // TODO(B4): PhotoGalleryScreen'e navigate et
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => PhotoGalleryScreen(
+                    imageUrls: review.imageUrls,
+                    initialIndex: index,
+                  ),
+                ),
+              );
             },
             child: ClipRRect(
               borderRadius: BorderRadius.circular(AppConstants.radiusSm),
