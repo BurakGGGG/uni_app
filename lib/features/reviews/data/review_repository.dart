@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import '../domain/models/review_model.dart';
@@ -52,7 +53,7 @@ class ReviewRepository {
       try {
         await FirebaseStorage.instance.refFromURL(url).delete();
       } catch (e) {
-        print('Photo delete failed: $e');
+        debugPrint('Photo delete failed: $e');
       }
     }
   }
