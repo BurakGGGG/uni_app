@@ -460,9 +460,6 @@ class _DepartmentCard extends StatelessWidget {
           ),
         ),
       ),
-    ).animate().fadeIn(
-      delay: Duration(milliseconds: 50 * index),
-      duration: 300.ms,
     );
   }
 }

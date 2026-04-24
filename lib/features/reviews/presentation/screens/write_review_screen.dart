@@ -49,6 +49,7 @@ class _WriteReviewScreenState extends ConsumerState<WriteReviewScreen> {
   String _loadingMessage = '';
   bool _submitted = false; // Validation hatalarını göstermek için
   bool _showSuccess = false; // Başarı animasyonu
+  double _uploadProgress = 0; // Fotoğraf upload ilerleme (0.0 - 1.0)
 
   @override
   void initState() {
@@ -97,9 +98,19 @@ class _WriteReviewScreenState extends ConsumerState<WriteReviewScreen> {
     final allCategoriesFilled = _categories.every(
       (c) => (_categoryRatings[c] ?? 0) > 0,
     );
+    final commentLen = _commentController.text.trim().length;
     return _overallRating > 0 &&
         allCategoriesFilled &&
-        _commentController.text.trim().length >= 20;
+        commentLen >= 20 &&
+        commentLen <= 500;
+  }
+
+  /// Submit butonu tooltip mesajı
+  String get _submitTooltip {
+    if (_isFormValid) return '';
+    final errors = _validationErrors;
+    if (errors.isEmpty) return '';
+    return errors.join(' • ');
   }
 
   /// Eksik alan sayısı (validation feedback için)
@@ -108,24 +119,44 @@ class _WriteReviewScreenState extends ConsumerState<WriteReviewScreen> {
     if (_overallRating == 0) errors.add('Genel puan');
     final missing = _categories.where((c) => (_categoryRatings[c] ?? 0) == 0).toList();
     if (missing.isNotEmpty) errors.add('${missing.length} kategori puanı');
-    if (_commentController.text.trim().length < 20) errors.add('Yorum (min. 20 karakter)');
+    final commentLen = _commentController.text.trim().length;
+    if (commentLen < 20) errors.add('Yorum (min. 20 karakter)');
+    if (commentLen > 500) errors.add('Yorum (max. 500 karakter)');
     return errors;
   }
 
-  /// Fotoğrafları Firebase Storage'a yükle (progress mesajı ile)
+  /// Fotoğrafları Firebase Storage'a yükle (progress göstergesi ile)
   Future<List<String>> _uploadReviewPhotos(List<File> photos, String userId) async {
     final urls = <String>[];
     for (int i = 0; i < photos.length; i++) {
       setState(() {
-        _loadingMessage = 'Fotoğraflar yükleniyor... ${i + 1}/${photos.length}';
+        _loadingMessage = 'Fotoğraf yükleniyor... ${i + 1}/${photos.length}';
+        _uploadProgress = i / photos.length;
       });
       final imageId = DateTime.now().millisecondsSinceEpoch.toString();
-      final ref = FirebaseStorage.instance
+      final storageRef = FirebaseStorage.instance
           .ref()
           .child('review_images/$userId/$imageId.jpg');
-      await ref.putFile(photos[i], SettableMetadata(contentType: 'image/jpeg'));
-      urls.add(await ref.getDownloadURL());
+
+      // Upload task ile gerçek progress takibi
+      final uploadTask = storageRef.putFile(
+        photos[i],
+        SettableMetadata(contentType: 'image/jpeg'),
+      );
+
+      uploadTask.snapshotEvents.listen((event) {
+        if (mounted) {
+          final fileProgress = event.bytesTransferred / event.totalBytes;
+          setState(() {
+            _uploadProgress = (i + fileProgress) / photos.length;
+          });
+        }
+      });
+
+      await uploadTask;
+      urls.add(await storageRef.getDownloadURL());
     }
+    setState(() => _uploadProgress = 1.0);
     return urls;
   }
 
@@ -406,10 +437,17 @@ class _WriteReviewScreenState extends ConsumerState<WriteReviewScreen> {
                   const SizedBox(height: 16),
 
                   // ─── Gönder Butonu ───────────────────────────────
-                  GradientButton(
-                    text: 'Değerlendirmeyi Gönder',
-                    onPressed: _submitReview,
-                    isLoading: _isLoading,
+                  Tooltip(
+                    message: _submitted && !_isFormValid
+                        ? _submitTooltip
+                        : '',
+                    child: GradientButton(
+                      text: widget.initialReview != null
+                          ? 'Değişiklikleri Kaydet'
+                          : 'Değerlendirmeyi Gönder',
+                      onPressed: _submitReview,
+                      isLoading: _isLoading,
+                    ),
                   ).animate().fadeIn(delay: 400.ms, duration: 400.ms),
 
                   const SizedBox(height: 40),
@@ -502,6 +540,23 @@ class _WriteReviewScreenState extends ConsumerState<WriteReviewScreen> {
                   fontWeight: FontWeight.w600,
                 ),
               ),
+              if (_uploadProgress > 0 && _uploadProgress < 1.0) ...[
+                const SizedBox(height: 12),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(4),
+                  child: LinearProgressIndicator(
+                    value: _uploadProgress,
+                    backgroundColor: AppColors.borderLight,
+                    valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
+                    minHeight: 6,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  '${(_uploadProgress * 100).toInt()}%',
+                  style: AppTextStyles.labelSmall.copyWith(color: AppColors.primary),
+                ),
+              ],
               const SizedBox(height: 8),
               Text(
                 'Lütfen bekleyin...',
