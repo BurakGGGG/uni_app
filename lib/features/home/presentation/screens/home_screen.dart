@@ -223,10 +223,7 @@ class HomeScreen extends ConsumerWidget {
                         showReportMenu: false,
                         showActions: false,
                         onTap: () => context.push('/university/${review.targetId}'),
-                      )
-                          .animate()
-                          .fadeIn(delay: Duration(milliseconds: 550 + index * 80), duration: 400.ms)
-                          .slideX(begin: 0.05, end: 0);
+                      );
                     },
                     childCount: reviews.length,
                   ),

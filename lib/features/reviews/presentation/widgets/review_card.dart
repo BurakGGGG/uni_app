@@ -147,7 +147,8 @@ class ReviewCard extends ConsumerWidget {
         ),
 
         // 3 nokta menü — ReviewActionsMenu widget'ı
-        if (showActions || showReportMenu)
+        if (showActions || showReportMenu) ...[
+          const SizedBox(width: 8),
           ReviewActionsMenu(
             review: review,
             showOwnerActions: showActions,
@@ -155,6 +156,7 @@ class ReviewCard extends ConsumerWidget {
             onEdit: onEdited,
             onDelete: onDeleted,
           ),
+        ],
       ],
     );
   }
