@@ -263,11 +263,12 @@ class _HeroBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 160,
+      constraints: const BoxConstraints(minHeight: 140),
       decoration: BoxDecoration(
         gradient: AppColors.heroGradient,
         borderRadius: BorderRadius.circular(AppConstants.radiusXl),
       ),
+      clipBehavior: Clip.hardEdge,
       child: Stack(
         children: [
           // Dekoratif daireler
@@ -297,7 +298,7 @@ class _HeroBanner extends StatelessWidget {
           ),
           // İçerik
           Padding(
-            padding: const EdgeInsets.all(AppConstants.spacingXxl),
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.center,
