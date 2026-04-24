@@ -257,7 +257,7 @@ class ReviewCard extends ConsumerWidget {
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         itemCount: review.imageUrls.length,
-        separatorBuilder: (_, _a) => const SizedBox(width: 8),
+        separatorBuilder: (_, index) => const SizedBox(width: 8),
         itemBuilder: (context, index) {
           final url = review.imageUrls[index];
           return GestureDetector(
@@ -279,13 +279,13 @@ class ReviewCard extends ConsumerWidget {
                 width: 80,
                 height: 80,
                 fit: BoxFit.cover,
-                placeholder: (_, _a) => Container(
+                placeholder: (_, url) => Container(
                   width: 80,
                   height: 80,
                   color: AppColors.surfaceVariant,
                   child: const Icon(Icons.image, color: AppColors.textTertiary),
                 ),
-                errorWidget: (_, _a, _b) => Container(
+                errorWidget: (_, err, stack) => Container(
                   width: 80,
                   height: 80,
                   color: AppColors.surfaceVariant,

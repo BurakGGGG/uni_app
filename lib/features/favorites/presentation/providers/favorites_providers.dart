@@ -16,7 +16,7 @@ final favoritesProvider = StreamProvider<List<String>>((ref) {
       return ref.read(favoritesRepositoryProvider).getUserFavoritesStream(user.uid);
     },
     loading: () => Stream.value([]),
-    error: (_, __) => Stream.value([]),
+    error: (_, st) => Stream.value([]),
   );
 });
 
