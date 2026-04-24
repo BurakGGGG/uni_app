@@ -2,11 +2,17 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../../auth/presentation/providers/auth_providers.dart';
 import '../../data/review_repository.dart';
+import '../../data/report_repository.dart';
 import '../../domain/models/review_model.dart';
 
 /// ReviewRepository sağlayıcısı
 final reviewRepositoryProvider = Provider<ReviewRepository>((ref) {
   return ReviewRepository();
+});
+
+/// ReportRepository sağlayıcısı
+final reportRepositoryProvider = Provider<ReportRepository>((_) {
+  return ReportRepository();
 });
 
 /// Bir yoruma ait detayı getiren sağlayıcı
