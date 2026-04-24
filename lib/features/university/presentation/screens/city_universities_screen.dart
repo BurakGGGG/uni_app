@@ -124,9 +124,6 @@ class CityUniversitiesScreen extends ConsumerWidget {
                             ),
                           ),
                         ),
-                      ).animate().fadeIn(
-                        delay: Duration(milliseconds: 80 * index),
-                        duration: 300.ms,
                       );
                     },
                     childCount: universities.length,
