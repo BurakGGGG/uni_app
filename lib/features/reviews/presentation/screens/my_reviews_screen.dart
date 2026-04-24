@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../../core/utils/snackbar_helper.dart';
 import '../../../auth/presentation/providers/auth_providers.dart';
 import '../providers/review_providers.dart';
 import '../widgets/review_card.dart';
@@ -42,9 +43,7 @@ class MyReviewsScreen extends ConsumerWidget {
                   await ref.read(reviewActionControllerProvider.notifier).deleteReview(r);
                   ref.invalidate(currentUserProvider);
                   if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Yorumunuz silindi')),
-                    );
+                    showAppSnackBar(context, message: 'Yorumunuz başarıyla silindi', isSuccess: true);
                   }
                 },
               );
