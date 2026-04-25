@@ -14,7 +14,7 @@ class AuthRepository {
   // In-memory cache
   UserModel? _cachedUser;
   DateTime? _lastCacheTime;
-  static const _cacheTtl = Duration(minutes: 10);
+  static const _cacheTtl = Duration(minutes: 2);
 
   AuthRepository({
     FirebaseAuth? auth,
