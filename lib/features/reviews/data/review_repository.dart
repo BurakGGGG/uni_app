@@ -35,6 +35,7 @@ class ReviewRepository {
   Future<void> updateReview(ReviewModel review) async {
     await _firestore.collection('reviews').doc(review.id).update({
       ...review.toMap(),
+      'createdAt': FieldValue.serverTimestamp(),
       'updatedAt': FieldValue.serverTimestamp(),
     });
   }
