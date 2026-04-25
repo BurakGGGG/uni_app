@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter_animate/flutter_animate.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -38,7 +38,7 @@ class ProfileScreen extends ConsumerWidget {
                   Text('Hesabım', style: AppTextStyles.headlineLarge),
                   const Spacer(),
                 ],
-              ).animate().fadeIn(duration: 400.ms),
+              ),
 
               const SizedBox(height: 24),
 
@@ -101,7 +101,7 @@ class ProfileScreen extends ConsumerWidget {
                           onTap: () {},
                         ),
                     ],
-                  ).animate().fadeIn(delay: 200.ms, duration: 400.ms);
+                  );
                 },
                 loading: () => const SizedBox.shrink(),
                 error: (e, st) => const SizedBox.shrink(),
@@ -181,7 +181,7 @@ class ProfileScreen extends ConsumerWidget {
                       },
                     ),
                 ],
-              ).animate().fadeIn(delay: 300.ms, duration: 400.ms),
+              ),
 
               const SizedBox(height: 16),
 
@@ -222,7 +222,7 @@ class ProfileScreen extends ConsumerWidget {
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppConstants.radiusMd)),
                       ),
                     ),
-                  ).animate().fadeIn(delay: 400.ms, duration: 400.ms);
+                  );
                 },
                 loading: () => const SizedBox.shrink(),
                 error: (e, st) => const SizedBox.shrink(),
@@ -290,7 +290,7 @@ class ProfileScreen extends ConsumerWidget {
           ),
         ],
       ),
-    ).animate().fadeIn(duration: 400.ms).slideY(begin: 0.1);
+    );
   }
 
   // ─── Kullanıcı Kartı ──────────────────────────────────────────
@@ -449,7 +449,7 @@ class ProfileScreen extends ConsumerWidget {
             ),
         ],
       ),
-    ).animate().fadeIn(duration: 400.ms).slideY(begin: 0.1);
+    );
   }
 
   // ─── İstatistikler ────────────────────────────────────────────
@@ -481,7 +481,7 @@ class ProfileScreen extends ConsumerWidget {
           color: AppColors.warning,
         ),
       ],
-    ).animate().fadeIn(delay: 100.ms, duration: 400.ms);
+    );
   }
 }
 
