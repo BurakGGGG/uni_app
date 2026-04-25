@@ -114,5 +114,12 @@ service cloud.firestore {
       allow read: if isOwner(userId);
       allow write: if isOwner(userId);
     }
+
+    // ─── Beğenilen Yorumlar (denormalize) ────────────────────────
+    match /users/{userId}/likedReviews/{reviewId} {
+      allow read: if isOwner(userId);
+      allow create, delete: if isOwner(userId);
+      allow update: if false;
+    }
   }
 }
