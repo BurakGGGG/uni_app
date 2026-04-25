@@ -13,6 +13,18 @@ import '../screens/photo_gallery_screen.dart';
 /// Sprint 3 — Kişi B (Task B1)
 /// Tüm yorum gösterimlerinde kullanılacak ortak ReviewCard widget'ı.
 class ReviewCard extends ConsumerWidget {
+  // Static decorations — class load time'da bir kez oluşturulur
+  static const _cardBorderRadius = BorderRadius.all(Radius.circular(AppConstants.radiusLg));
+  static const _cardBorder = Border.fromBorderSide(
+    BorderSide(color: AppColors.borderLight),
+  );
+  static const BoxDecoration _cardDecoration = BoxDecoration(
+    color: AppColors.surface,
+    borderRadius: _cardBorderRadius,
+    border: _cardBorder,
+    boxShadow: AppColors.softShadow,
+  );
+
   final ReviewModel review;
   final bool showActions;
   final bool showReportMenu;
@@ -34,39 +46,36 @@ class ReviewCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(AppConstants.radiusLg),
-        border: Border.all(color: AppColors.borderLight),
-        boxShadow: AppColors.softShadow,
-      ),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(AppConstants.radiusLg),
-        child: Padding(
-          padding: const EdgeInsets.all(AppConstants.spacingLg),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Onay bekliyor banner'ı (sadece sahibine ve onaylanmamışsa)
-              if (!review.isApproved && showActions) _buildPendingApprovalBanner(),
-              if (!review.isApproved && showActions) const SizedBox(height: 12),
-              _buildHeader(context),
-              const SizedBox(height: 12),
-              _buildComment(),
-              if (!compact && (review.pros.isNotEmpty || review.cons.isNotEmpty)) ...[
+    return RepaintBoundary(
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: _cardDecoration,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: _cardBorderRadius,
+          child: Padding(
+            padding: const EdgeInsets.all(AppConstants.spacingLg),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Onay bekliyor banner'ı (sadece sahibine ve onaylanmamışsa)
+                if (!review.isApproved && showActions) _buildPendingApprovalBanner(),
+                if (!review.isApproved && showActions) const SizedBox(height: 12),
+                _buildHeader(context),
+                const SizedBox(height: 12),
+                _buildComment(),
+                if (!compact && (review.pros.isNotEmpty || review.cons.isNotEmpty)) ...[
+                  const SizedBox(height: 10),
+                  _buildProsConsChips(),
+                ],
+                if (!compact && review.imageUrls.isNotEmpty) ...[
+                  const SizedBox(height: 10),
+                  _buildPhotoGrid(context),
+                ],
                 const SizedBox(height: 10),
-                _buildProsConsChips(),
+                _buildFooter(context, ref),
               ],
-              if (!compact && review.imageUrls.isNotEmpty) ...[
-                const SizedBox(height: 10),
-                _buildPhotoGrid(context),
-              ],
-              const SizedBox(height: 10),
-              _buildFooter(context, ref),
-            ],
+            ),
           ),
         ),
       ),
@@ -86,7 +95,9 @@ class ReviewCard extends ConsumerWidget {
         CircleAvatar(
           radius: compact ? 16 : 20,
           backgroundColor: AppColors.primary.withValues(alpha: 0.1),
-          backgroundImage: photoUrl != null ? NetworkImage(photoUrl) : null,
+          backgroundImage: photoUrl != null
+              ? CachedNetworkImageProvider(photoUrl, maxWidth: 80, maxHeight: 80)
+              : null,
           child: photoUrl == null
               ? Icon(
                   review.isAnonymous ? Icons.person_off_rounded : Icons.person,

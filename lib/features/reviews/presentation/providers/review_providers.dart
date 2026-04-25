@@ -22,18 +22,21 @@ final reviewDetailProvider = FutureProvider.family<ReviewModel?, String>((ref, i
 
 /// Bir üniversiteye ait yorumları dinleyen sağlayıcı
 final universityReviewsProvider = StreamProvider.family<List<ReviewModel>, String>((ref, universityId) {
+  ref.keepAlive();
   final repository = ref.watch(reviewRepositoryProvider);
   return repository.getUniversityReviews(universityId);
 });
 
 /// Bir bölüme ait yorumları dinleyen sağlayıcı
 final departmentReviewsProvider = StreamProvider.family<List<ReviewModel>, String>((ref, departmentId) {
+  ref.keepAlive();
   final repository = ref.watch(reviewRepositoryProvider);
   return repository.getDepartmentReviews(departmentId);
 });
 
 /// Ana sayfada gösterilecek son yorumları dinleyen sağlayıcı
 final recentReviewsProvider = StreamProvider<List<ReviewModel>>((ref) {
+  ref.keepAlive();
   final repository = ref.watch(reviewRepositoryProvider);
   return repository.getRecentReviews(limit: 5);
 });
@@ -152,6 +155,7 @@ class SortedReviewsParams {
 final sortedReviewsProvider =
     StreamProvider.family<List<ReviewModel>, SortedReviewsParams>(
   (ref, params) {
+    ref.keepAlive();
     final sort = ref.watch(reviewSortProvider);
     final repo = ref.read(reviewRepositoryProvider);
     final orderBy = sort == ReviewSort.newest ? 'createdAt' : 'likes';
@@ -257,6 +261,7 @@ final allReviewsFilterProvider =
 
 /// Filtreli tüm yorumlar stream'i
 final allFilteredReviewsProvider = StreamProvider<List<ReviewModel>>((ref) {
+  ref.keepAlive();
   final filter = ref.watch(allReviewsFilterProvider);
   final repo = ref.read(reviewRepositoryProvider);
   return repo.getAllReviews(

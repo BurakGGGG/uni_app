@@ -95,32 +95,32 @@ class AppColors {
   );
 
   // ─── Shadows ──────────────────────────────────────────────────────
-  static List<BoxShadow> get cardShadow => [
-        BoxShadow(
-          color: const Color(0xFF6C63FF).withValues(alpha: 0.08),
-          blurRadius: 24,
-          offset: const Offset(0, 8),
-          spreadRadius: 0,
-        ),
-      ];
+  static const List<BoxShadow> cardShadow = [
+    BoxShadow(
+      color: Color(0x146C63FF), // primary alpha ~8%
+      blurRadius: 24,
+      offset: Offset(0, 8),
+      spreadRadius: 0,
+    ),
+  ];
 
-  static List<BoxShadow> get softShadow => [
-        BoxShadow(
-          color: Colors.black.withValues(alpha: 0.04),
-          blurRadius: 12,
-          offset: const Offset(0, 4),
-          spreadRadius: 0,
-        ),
-      ];
+  static const List<BoxShadow> softShadow = [
+    BoxShadow(
+      color: Color(0x0A000000), // black ~4%
+      blurRadius: 12,
+      offset: Offset(0, 4),
+      spreadRadius: 0,
+    ),
+  ];
 
-  static List<BoxShadow> get bottomNavShadow => [
-        BoxShadow(
-          color: Colors.black.withValues(alpha: 0.06),
-          blurRadius: 20,
-          offset: const Offset(0, -4),
-          spreadRadius: 0,
-        ),
-      ];
+  static const List<BoxShadow> bottomNavShadow = [
+    BoxShadow(
+      color: Color(0x0F000000), // black ~6%
+      blurRadius: 20,
+      offset: Offset(0, -4),
+      spreadRadius: 0,
+    ),
+  ];
 
   /// Rating değerine göre renk döndürür (1-5 arası)
   static Color ratingColor(double rating) {
