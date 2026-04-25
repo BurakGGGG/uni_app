@@ -237,6 +237,9 @@ class _WriteReviewScreenState extends ConsumerState<WriteReviewScreen> {
           _showSuccess = true;
         });
 
+        // Profile cache'i temizle — reviewCount anında güncellenir
+        invalidateUserProfileAfterReviewChange(ref);
+
         // 1.5 saniye sonra geri dön
         await Future.delayed(const Duration(milliseconds: 1500));
         if (mounted) context.pop();

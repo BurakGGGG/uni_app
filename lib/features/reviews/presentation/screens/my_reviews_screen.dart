@@ -26,32 +26,73 @@ class MyReviewsScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(title: const Text('Yorumlarım')),
-      body: reviewsAsync.when(
-        data: (reviews) {
-          if (reviews.isEmpty) return _buildEmptyState(context);
-          return ListView.builder(
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            itemCount: reviews.length,
-            itemBuilder: (_, i) {
-              final r = reviews[i];
-              return ReviewCard(
-                review: r,
-                showActions: true,
-                showReportMenu: false,
-                onEdited: () => context.push('/edit-review/${r.id}'),
-                onDeleted: () async {
-                  await ref.read(reviewActionControllerProvider.notifier).deleteReview(r);
-                  ref.invalidate(currentUserProvider);
-                  if (context.mounted) {
-                    showAppSnackBar(context, message: 'Yorumunuz başarıyla silindi', isSuccess: true);
-                  }
-                },
-              );
-            },
-          );
+      body: RefreshIndicator(
+        onRefresh: () async {
+          invalidateUserProfileAfterReviewChange(ref);
+          await Future.delayed(const Duration(milliseconds: 500));
         },
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text('Hata: $e')),
+        child: reviewsAsync.when(
+          data: (reviews) {
+            if (reviews.isEmpty) return _buildEmptyState(context);
+
+            final pendingCount = reviews.where((r) => !r.isApproved).length;
+
+            return Column(
+              children: [
+                if (pendingCount > 0)
+                  Container(
+                    margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: AppColors.warning.withValues(alpha: 0.08),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: AppColors.warning.withValues(alpha: 0.2)),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.info_outline_rounded, color: AppColors.warning, size: 20),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            '$pendingCount yorumun moderasyon nedeniyle yayınlanmadı. '
+                            'Aşağıda işaretlendi.',
+                            style: AppTextStyles.bodySmall.copyWith(
+                              color: AppColors.warning,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                Expanded(
+                  child: ListView.builder(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    itemCount: reviews.length,
+                    itemBuilder: (_, i) {
+                      final r = reviews[i];
+                      return ReviewCard(
+                        review: r,
+                        showActions: true,
+                        showReportMenu: false,
+                        onEdited: () => context.push('/edit-review/${r.id}'),
+                        onDeleted: () async {
+                          await ref.read(reviewActionControllerProvider.notifier).deleteReview(r);
+                          invalidateUserProfileAfterReviewChange(ref);
+                          if (context.mounted) {
+                            showAppSnackBar(context, message: 'Yorumunuz başarıyla silindi', isSuccess: true);
+                          }
+                        },
+                      );
+                    },
+                  ),
+                ),
+              ],
+            );
+          },
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (e, _) => Center(child: Text('Hata: $e')),
+        ),
       ),
     );
   }

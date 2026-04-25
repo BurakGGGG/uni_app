@@ -159,6 +159,12 @@ final reviewActionControllerProvider =
     return ReviewActionController(ref.read(reviewRepositoryProvider));
   });
 
+/// Yorum ekleme/silme sonrası kullanıcı profili cache'ini temizler ve provider'ı invalidate eder.
+/// Bu sayede reviewCount UI'da anında güncellenir.
+void invalidateUserProfileAfterReviewChange(WidgetRef ref) {
+  ref.read(authRepositoryProvider).clearCache();
+  ref.invalidate(currentUserProvider);
+}
 // ─── Sprint 3 Fix — Bug 3: Tüm Yorumlar Filtre State ───────────────
 
 class AllReviewsFilterState {
