@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -18,7 +17,19 @@ class ExploreScreen extends ConsumerStatefulWidget {
 
 class _ExploreScreenState extends ConsumerState<ExploreScreen> {
 
+  // Filter memoization
+  List<UniversityModel>? _cachedFilteredList;
+  ExploreFilterState? _lastFilter;
+  List<UniversityModel>? _lastInput;
+
   List<UniversityModel> _applyFilters(List<UniversityModel> universities, ExploreFilterState filters) {
+    // Memo check — aynı input ve filter ise yeniden hesaplama
+    if (_cachedFilteredList != null &&
+        _lastFilter == filters &&
+        identical(_lastInput, universities)) {
+      return _cachedFilteredList!;
+    }
+
     var filtered = universities;
 
     // Şehir filtresi
@@ -31,6 +42,9 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
       filtered = filtered.where((uni) => filters.selectedTypes.contains(uni.type)).toList();
     }
 
+    _cachedFilteredList = filtered;
+    _lastFilter = filters;
+    _lastInput = universities;
     return filtered;
   }
 
@@ -152,7 +166,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                 );
               },
               loading: () => const SizedBox.shrink(),
-              error: (_, __) => const SizedBox.shrink(),
+              error: (_, st) => const SizedBox.shrink(),
             ),
 
             // ─── Üniversite Listesi ─────────────────────────────
@@ -208,9 +222,6 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                             ),
                           ),
                         ),
-                      ).animate().fadeIn(
-                        delay: Duration(milliseconds: 50 * index.clamp(0, 10)),
-                        duration: 300.ms,
                       );
                     },
                   );

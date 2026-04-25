@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -129,9 +128,6 @@ class _CityListTile extends StatelessWidget {
           ),
         ),
       ),
-    ).animate().fadeIn(
-      delay: Duration(milliseconds: 60 * index),
-      duration: 300.ms,
     );
   }
 }

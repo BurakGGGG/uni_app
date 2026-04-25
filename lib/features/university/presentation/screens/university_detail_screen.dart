@@ -10,7 +10,9 @@ import '../providers/university_providers.dart';
 import '../../domain/models/department_model.dart';
 import '../../../auth/presentation/providers/auth_providers.dart';
 import '../../../favorites/presentation/providers/favorites_providers.dart';
-import '../../../reviews/presentation/providers/review_providers.dart';
+import '../../../reviews/presentation/widgets/review_list.dart';
+import '../../../reviews/domain/models/review_model.dart';
+import '../../../reviews/presentation/widgets/category_ratings_chart.dart';
 
 class UniversityDetailScreen extends ConsumerWidget {
   final String universityId;
@@ -222,6 +224,16 @@ class UniversityDetailScreen extends ConsumerWidget {
 
                   return SliverList(
                     delegate: SliverChildListDelegate([
+                      // ─── Kategori Puanları ─────────────────────────
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                        child: CategoryRatingsChart(
+                          ratings: uni.categoryRatings,
+                          reviewCount: uni.reviewCount,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      
                       if (lisans.isNotEmpty) ...[
                         _SectionTitle(title: 'Lisans (${lisans.length})'),
                         ...lisans.asMap().entries.map((entry) =>
@@ -257,25 +269,67 @@ class UniversityDetailScreen extends ConsumerWidget {
                                 Text('Yorumlar', style: AppTextStyles.headlineMedium),
                               ],
                             ),
-                            TextButton.icon(
-                              onPressed: () => context.push('/write-review/$universityId'),
-                              icon: const Icon(Icons.add_comment_rounded, size: 18),
-                              label: const Text('Değerlendir'),
-                              style: TextButton.styleFrom(
-                                foregroundColor: AppColors.primary,
-                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(AppConstants.radiusMd),
-                                  side: BorderSide(color: AppColors.primary.withValues(alpha: 0.2)),
-                                ),
-                              ),
+                            Consumer(
+                              builder: (context, ref, _) {
+                                final currentUserAsync = ref.watch(currentUserProvider);
+                                return currentUserAsync.when(
+                                  data: (profile) {
+                                    final canReview = profile != null &&
+                                        profile.universityId == universityId &&
+                                        profile.isVerifiedStudent;
+
+                                    if (!canReview) {
+                                      return TextButton.icon(
+                                        onPressed: () => _showReviewInfoSheet(
+                                          context,
+                                          profile: profile,
+                                          isOwnUniversity: profile?.universityId == universityId,
+                                        ),
+                                        icon: const Icon(Icons.add_comment_rounded, size: 18),
+                                        label: const Text('Değerlendir'),
+                                        style: TextButton.styleFrom(
+                                          foregroundColor: AppColors.textTertiary,
+                                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(AppConstants.radiusMd),
+                                            side: BorderSide(color: AppColors.borderLight),
+                                          ),
+                                        ),
+                                      );
+                                    }
+
+                                    return TextButton.icon(
+                                      onPressed: () => context.push('/write-review/university/$universityId'),
+                                      icon: const Icon(Icons.add_comment_rounded, size: 18),
+                                      label: const Text('Değerlendir'),
+                                      style: TextButton.styleFrom(
+                                        foregroundColor: AppColors.primary,
+                                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(AppConstants.radiusMd),
+                                          side: BorderSide(color: AppColors.primary.withValues(alpha: 0.2)),
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                  loading: () => const SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(strokeWidth: 2),
+                                  ),
+                                  error: (_, __) => const SizedBox.shrink(),
+                                );
+                              },
                             ),
                           ],
                         ),
                       ),
                       
-                      // ─── Yorum Listesi ─────────────────────────────
-                      _ReviewSection(universityId: universityId),
+                      // ─── Yorum Listesi (ReviewList widget) ─────────
+                      ReviewList(
+                        targetId: universityId,
+                        type: ReviewType.university,
+                      ),
                       
                       const SizedBox(height: 100),
                     ]),
@@ -445,9 +499,6 @@ class _DepartmentCard extends StatelessWidget {
           ),
         ),
       ),
-    ).animate().fadeIn(
-      delay: Duration(milliseconds: 50 * index),
-      duration: 300.ms,
     );
   }
 }
@@ -507,7 +558,7 @@ class _FavoriteButton extends ConsumerWidget {
           child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white70),
         ),
       ),
-      error: (_, __) => const IconButton(
+      error: (_, st) => const IconButton(
         onPressed: null,
         icon: Icon(Icons.favorite_border_rounded, color: Colors.white54),
       ),
@@ -515,137 +566,116 @@ class _FavoriteButton extends ConsumerWidget {
   }
 }
 
-// ─── Yorumlar Bölümü ──────────────────────────────────────────────
+// ─── Değerlendir Bilgi Bottom Sheet ──────────────────────────────────
+void _showReviewInfoSheet(
+  BuildContext context, {
+  required dynamic profile,
+  required bool isOwnUniversity,
+}) {
+  final IconData icon;
+  final Color iconColor;
+  final String title;
+  final String description;
+  final String? buttonText;
+  final VoidCallback? onButtonPressed;
 
-class _ReviewSection extends ConsumerWidget {
-  final String universityId;
+  if (profile == null) {
+    icon = Icons.login_rounded;
+    iconColor = AppColors.primary;
+    title = 'Giriş Yapın';
+    description = 'Yorum yazabilmek için önce hesabınıza giriş yapmanız gerekiyor.';
+    buttonText = 'Giriş Yap';
+    onButtonPressed = () {
+      Navigator.pop(context);
+      GoRouter.of(context).push('/login');
+    };
+  } else if (!(profile.isVerifiedStudent as bool)) {
+    icon = Icons.verified_user_rounded;
+    iconColor = AppColors.warning;
+    title = 'Doğrulama Gerekli';
+    description = 'Yorum yazabilmek için edu.tr uzantılı e-posta adresinizle doğrulama yapmanız gerekiyor.';
+    buttonText = null;
+    onButtonPressed = null;
+  } else if (!isOwnUniversity) {
+    icon = Icons.school_rounded;
+    iconColor = AppColors.info;
+    title = 'Farklı Üniversite';
+    description = 'Sadece kendi üniversitene yorum yapabilirsin. Bu üniversite senin kayıtlı olduğun üniversite değil.';
+    buttonText = null;
+    onButtonPressed = null;
+  } else {
+    // Bu duruma normalde düşmemeli ama güvenlik için
+    icon = Icons.info_outline_rounded;
+    iconColor = AppColors.textTertiary;
+    title = 'Yorum Yazılamıyor';
+    description = 'Şu anda bu üniversiteye yorum yazma yetkiniz bulunmuyor.';
+    buttonText = null;
+    onButtonPressed = null;
+  }
 
-  const _ReviewSection({required this.universityId});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final reviewsAsync = ref.watch(universityReviewsProvider(universityId));
-
-    return reviewsAsync.when(
-      loading: () => const Center(child: Padding(
-        padding: EdgeInsets.all(40),
-        child: CircularProgressIndicator(),
-      )),
-      error: (e, st) => Center(child: Text('Yorumlar yüklenemedi: $e')),
-      data: (reviews) {
-        if (reviews.isEmpty) {
-          return Padding(
-            padding: const EdgeInsets.all(40),
-            child: Center(
-              child: Column(
-                children: [
-                  Icon(Icons.speaker_notes_off_rounded, size: 48, color: AppColors.textTertiary.withValues(alpha: 0.5)),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Henüz yorum yapılmamış.\nİlk değerlendiren siz olun!',
-                    textAlign: TextAlign.center,
-                    style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary),
-                  ),
-                ],
+  showModalBottomSheet(
+    context: context,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+    ),
+    builder: (ctx) => SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: AppColors.textTertiary.withAlpha(80),
+                borderRadius: BorderRadius.circular(2),
               ),
             ),
-          );
-        }
-
-        return ListView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-          itemCount: reviews.length,
-          itemBuilder: (context, index) {
-            final review = reviews[index];
-            return Container(
-              margin: const EdgeInsets.only(bottom: 16),
-              padding: const EdgeInsets.all(16),
+            const SizedBox(height: 24),
+            Container(
+              width: 64,
+              height: 64,
               decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(AppConstants.radiusLg),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.03),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
+                color: iconColor.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      CircleAvatar(
-                        radius: 20,
-                        backgroundColor: AppColors.primary.withValues(alpha: 0.1),
-                        backgroundImage: review.userPhotoUrl != null ? NetworkImage(review.userPhotoUrl!) : null,
-                        child: review.userPhotoUrl == null
-                            ? const Icon(Icons.person, color: AppColors.primary)
-                            : null,
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(review.userName, style: AppTextStyles.titleSmall),
-                            if (review.userUniversity != null)
-                              Text(review.userUniversity!, style: AppTextStyles.labelMedium.copyWith(color: AppColors.textTertiary)),
-                          ],
-                        ),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: AppColors.warning.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Row(
-                          children: [
-                            const Icon(Icons.star_rounded, color: AppColors.warning, size: 14),
-                            const SizedBox(width: 4),
-                            Text(review.rating.toStringAsFixed(1), style: AppTextStyles.labelLarge.copyWith(color: AppColors.warning)),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  Text(review.comment, style: AppTextStyles.bodyMedium),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      Text(
-                        '${review.createdAt.day}.${review.createdAt.month}.${review.createdAt.year}',
-                        style: AppTextStyles.labelMedium.copyWith(color: AppColors.textTertiary),
-                      ),
-                      const Spacer(),
-                      InkWell(
-                        onTap: () {
-                          final user = ref.read(authStateProvider).value;
-                          if (user != null) {
-                            ref.read(reviewRepositoryProvider).likeReview(review.id, user.uid);
-                          }
-                        },
-                        child: Row(
-                          children: [
-                            const Icon(Icons.thumb_up_alt_outlined, size: 16, color: AppColors.textTertiary),
-                            const SizedBox(width: 4),
-                            Text('${review.likes}', style: AppTextStyles.labelMedium.copyWith(color: AppColors.textTertiary)),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+              child: Icon(icon, color: iconColor, size: 32),
+            ),
+            const SizedBox(height: 16),
+            Text(title, style: AppTextStyles.titleLarge),
+            const SizedBox(height: 8),
+            Text(
+              description,
+              textAlign: TextAlign.center,
+              style: AppTextStyles.bodyMedium.copyWith(
+                color: AppColors.textSecondary,
+                height: 1.5,
               ),
-            ).animate().fadeIn(delay: (100 * index).ms, duration: 400.ms);
-          },
-        );
-      },
-    );
-  }
+            ),
+            if (buttonText != null) ...[
+              const SizedBox(height: 20),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: onButtonPressed,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(AppConstants.radiusMd),
+                    ),
+                  ),
+                  child: Text(buttonText),
+                ),
+              ),
+            ],
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
+    ),
+  );
 }
+

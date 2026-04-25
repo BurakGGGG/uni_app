@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -11,6 +11,7 @@ import '../../../university/domain/models/city_model.dart';
 import '../../../university/domain/models/university_model.dart';
 import '../../../favorites/presentation/providers/favorites_providers.dart';
 import '../../../reviews/presentation/providers/review_providers.dart';
+import '../../../reviews/presentation/widgets/review_card.dart';
 import '../../../reviews/domain/models/review_model.dart';
 
 /// Ana Sayfa ekranı
@@ -76,7 +77,7 @@ class HomeScreen extends ConsumerWidget {
                     ),
                   ],
                 ),
-              ).animate().fadeIn(duration: 400.ms).slideY(begin: -0.1, end: 0),
+              ),
             ),
 
             // ─── Arama Çubuğu ──────────────────────────────────────
@@ -89,15 +90,15 @@ class HomeScreen extends ConsumerWidget {
                     context.push('/search');
                   },
                 ),
-              ).animate().fadeIn(delay: 100.ms, duration: 400.ms).slideY(begin: 0.1, end: 0),
+              ),
             ),
 
             // ─── Hero Banner ────────────────────────────────────────
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                child: _HeroBanner(),
-              ).animate().fadeIn(delay: 200.ms, duration: 500.ms).scale(begin: const Offset(0.95, 0.95)),
+                child: const _HeroBanner(),
+              ),
             ),
 
             // ─── Popüler Üniversiteler ──────────────────────────────
@@ -118,13 +119,17 @@ class HomeScreen extends ConsumerWidget {
                       data: (popular) {
                         return ListView.builder(
                           scrollDirection: Axis.horizontal,
+                          physics: const ClampingScrollPhysics(),
+                          cacheExtent: 200,
                           padding: const EdgeInsets.symmetric(horizontal: 16),
                           itemCount: popular.length,
                           itemBuilder: (context, index) {
-                            return _PopularUniCard(
-                              university: popular[index],
-                              index: index,
-                              onTap: () => context.push('/university/${popular[index].id}'),
+                            return RepaintBoundary(
+                              child: _PopularUniCard(
+                                university: popular[index],
+                                index: index,
+                                onTap: () => context.push('/university/${popular[index].id}'),
+                              ),
                             );
                           },
                         );
@@ -132,7 +137,7 @@ class HomeScreen extends ConsumerWidget {
                     ),
                   ),
                 ],
-              ).animate().fadeIn(delay: 300.ms, duration: 400.ms),
+              ),
             ),
 
             // ─── Şehirler ──────────────────────────────────────────
@@ -166,16 +171,17 @@ class HomeScreen extends ConsumerWidget {
                     ),
                   ),
                 ],
-              ).animate().fadeIn(delay: 400.ms, duration: 400.ms),
+              ),
             ),
 
             // ─── Son Yorumlar ───────────────────────────────────────
             SliverToBoxAdapter(
-              child: const SectionHeader(
+              child: SectionHeader(
                 title: 'Son Yorumlar',
                 actionText: 'Tümünü Gör',
-                padding: EdgeInsets.fromLTRB(20, 16, 12, 4),
-              ).animate().fadeIn(delay: 500.ms, duration: 400.ms),
+                padding: const EdgeInsets.fromLTRB(20, 16, 12, 4),
+                onAction: () => context.push('/all-reviews'),
+              ),
             ),
 
             ref.watch(recentReviewsProvider).when(
@@ -192,10 +198,23 @@ class HomeScreen extends ConsumerWidget {
               ),
               data: (reviews) {
                 if (reviews.isEmpty) {
-                  return const SliverToBoxAdapter(
-                    child: Padding(
-                      padding: EdgeInsets.all(40),
-                      child: Center(child: Text('Henüz değerlendirme yapılmamış')),
+                  return SliverToBoxAdapter(
+                    child: Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(40),
+                        child: Column(
+                          children: [
+                            Icon(Icons.rate_review_outlined, size: 48, color: AppColors.textTertiary),
+                            const SizedBox(height: 12),
+                            Text('Henüz yorum yok', style: AppTextStyles.titleMedium),
+                            Text(
+                              'İlk yorumu yazan siz olun!',
+                              style: AppTextStyles.bodySmall,
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
                   );
                 }
@@ -204,10 +223,19 @@ class HomeScreen extends ConsumerWidget {
                   delegate: SliverChildBuilderDelegate(
                     (context, index) {
                       final review = reviews[index];
-                      return _RecentReviewCard(review: review)
-                          .animate()
-                          .fadeIn(delay: Duration(milliseconds: 550 + index * 80), duration: 400.ms)
-                          .slideX(begin: 0.05, end: 0);
+                      return ReviewCard(
+                        review: review,
+                        compact: true,
+                        showReportMenu: false,
+                        showActions: false,
+                        onTap: () {
+                          if (review.type == ReviewType.department) {
+                            context.push('/department/${review.targetId}');
+                          } else {
+                            context.push('/university/${review.targetId}');
+                          }
+                        },
+                      );
                     },
                     childCount: reviews.length,
                   ),
@@ -244,14 +272,17 @@ String _cityEmoji(String cityName) {
 // ─── Widget Components ──────────────────────────────────────────────
 
 class _HeroBanner extends StatelessWidget {
+  const _HeroBanner();
+
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 160,
+      constraints: const BoxConstraints(minHeight: 140),
       decoration: BoxDecoration(
         gradient: AppColors.heroGradient,
         borderRadius: BorderRadius.circular(AppConstants.radiusXl),
       ),
+      clipBehavior: Clip.hardEdge,
       child: Stack(
         children: [
           // Dekoratif daireler
@@ -281,7 +312,7 @@ class _HeroBanner extends StatelessWidget {
           ),
           // İçerik
           Padding(
-            padding: const EdgeInsets.all(AppConstants.spacingXxl),
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.center,
@@ -472,104 +503,3 @@ class _CityChip extends StatelessWidget {
     );
   }
 }
-
-class _RecentReviewCard extends StatelessWidget {
-  final ReviewModel review;
-
-  const _RecentReviewCard({required this.review});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
-      padding: const EdgeInsets.all(AppConstants.spacingLg),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(AppConstants.radiusLg),
-        border: Border.all(color: AppColors.borderLight),
-        boxShadow: AppColors.softShadow,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Kullanıcı bilgisi
-          Row(
-            children: [
-              CircleAvatar(
-                radius: 18,
-                backgroundColor: AppColors.primary.withValues(alpha: 0.12),
-                backgroundImage: review.userPhotoUrl != null ? NetworkImage(review.userPhotoUrl!) : null,
-                child: review.userPhotoUrl == null
-                    ? Text(
-                        review.userName.isNotEmpty ? review.userName[0].toUpperCase() : '?',
-                        style: AppTextStyles.titleSmall.copyWith(color: AppColors.primary),
-                      )
-                    : null,
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(review.userName, style: AppTextStyles.titleSmall),
-                    if (review.userUniversity != null)
-                      Text(
-                        review.userUniversity!,
-                        style: AppTextStyles.labelSmall,
-                      ),
-                  ],
-                ),
-              ),
-              // Rating
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: AppColors.ratingColor(review.rating)
-                      .withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      Icons.star_rounded,
-                      size: 13,
-                      color: AppColors.ratingColor(review.rating),
-                    ),
-                    const SizedBox(width: 3),
-                    Text(
-                      review.rating.toStringAsFixed(1),
-                      style: AppTextStyles.labelMedium.copyWith(
-                        color: AppColors.ratingColor(review.rating),
-                        fontWeight: FontWeight.w700,
-                        fontSize: 11,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          // Yorum metni
-          Text(
-            review.comment,
-            style: AppTextStyles.bodySmall.copyWith(
-              color: AppColors.textPrimary,
-              height: 1.5,
-            ),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-          ),
-          const SizedBox(height: 8),
-          // Zaman
-          Text(
-            '${review.createdAt.day}.${review.createdAt.month}.${review.createdAt.year}',
-            style: AppTextStyles.labelSmall.copyWith(fontSize: 10),
-          ),
-        ],
-      ),
-    );
-  }
-}
-

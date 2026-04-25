@@ -126,9 +126,6 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                                   ),
                                 ),
                               ),
-                            ).animate().fadeIn(
-                              delay: Duration(milliseconds: 50 * index.clamp(0, 10)),
-                              duration: 300.ms,
                             );
                           },
                         );

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -62,7 +62,7 @@ class FavoritesScreen extends ConsumerWidget {
             ),
           ),
         ],
-      ).animate().fadeIn(),
+      ),
     );
   }
 
@@ -81,7 +81,7 @@ class FavoritesScreen extends ConsumerWidget {
               title: 'Henüz favorin yok',
               description: 'İlgilendiğin üniversiteleri favorilerine ekleyerek buradan kolayca takip edebilirsin.',
             ),
-          ).animate().fadeIn();
+          );
         }
 
         return allUnisAsync.when(
@@ -140,9 +140,6 @@ class FavoritesScreen extends ConsumerWidget {
                       },
                     ),
                   ),
-                ).animate().fadeIn(
-                  delay: Duration(milliseconds: 50 * index.clamp(0, 10)),
-                  duration: 300.ms,
                 );
               },
             );

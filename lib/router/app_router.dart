@@ -1,6 +1,9 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:go_router/go_router.dart';
+import '../features/reviews/presentation/providers/review_providers.dart';
+import '../features/reviews/presentation/screens/all_reviews_screen.dart';
 import '../core/providers/shared_preferences_provider.dart';
 import 'go_router_refresh_stream.dart';
 import '../features/home/presentation/screens/home_screen.dart';
@@ -18,6 +21,8 @@ import '../features/home/presentation/screens/search_screen.dart';
 import '../features/university/presentation/screens/city_universities_screen.dart';
 import '../features/university/presentation/screens/all_cities_screen.dart';
 import '../features/reviews/presentation/screens/write_review_screen.dart';
+import '../features/reviews/presentation/screens/my_reviews_screen.dart';
+import '../features/reviews/domain/models/review_model.dart';
 import 'app_shell.dart';
 
 /// Uygulama route isimleri
@@ -38,7 +43,8 @@ class AppRoutes {
   static const String cityDetail = '/city/:cityId';
   static const String departmentDetail = '/department/:deptId';
   static const String allCities = '/cities';
-  static const String writeReview = '/write-review/:uniId';
+  static const String writeReview = '/write-review/:type/:targetId';
+  static const String allReviews = '/all-reviews';
 }
 
 /// GoRouter konfigürasyon provider'ı
@@ -62,8 +68,8 @@ final routerProvider = Provider<GoRouter>((ref) {
       }
 
       // 2. Korumalı Rotalar (Sprint 3'te yorum rotaları buraya eklenecek)
-      final protectedRoutes = [AppRoutes.editProfile];
-      final isGoingToProtected = protectedRoutes.contains(path) || path.startsWith('/write-review');
+      final protectedRoutes = [AppRoutes.editProfile, '/my-reviews'];
+      final isGoingToProtected = protectedRoutes.contains(path) || path.startsWith('/write-review') || path.startsWith('/edit-review');
 
       if (isGoingToProtected && !isLoggedIn) {
         final encodedPath = Uri.encodeComponent(state.uri.toString());
@@ -82,11 +88,49 @@ final routerProvider = Provider<GoRouter>((ref) {
 
       return null;
     },
+    errorBuilder: (context, state) => Scaffold(
+      appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_rounded),
+          onPressed: () => context.go('/'),
+        ),
+      ),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.error_outline_rounded, size: 64, color: Colors.redAccent),
+              const SizedBox(height: 16),
+              const Text('Sayfa bulunamadı', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
+              const Text(
+                'Aradığınız içerik taşınmış veya silinmiş olabilir.',
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 24),
+              FilledButton.icon(
+                onPressed: () => context.go('/'),
+                icon: const Icon(Icons.home_rounded),
+                label: const Text('Ana Sayfaya Dön'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    ),
     routes: [
     // ─── Arama ───────────────────────────────────────────────────
     GoRoute(
       path: '/search',
       builder: (context, state) => const SearchScreen(),
+    ),
+
+    // ─── Tüm Yorumlar ────────────────────────────────────────────
+    GoRoute(
+      path: AppRoutes.allReviews,
+      builder: (context, state) => const AllReviewsScreen(),
     ),
 
     // ─── Auth & Profile Routes ───────────────────────────────────
@@ -113,10 +157,51 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
     ),
     GoRoute(
-      path: AppRoutes.writeReview,
-      builder: (context, state) => WriteReviewScreen(
-        universityId: state.pathParameters['uniId']!,
-      ),
+      path: '/write-review/:type/:targetId',
+      builder: (context, state) {
+        final typeStr = state.pathParameters['type']!;
+        final targetId = state.pathParameters['targetId']!;
+        final type = typeStr == 'department'
+            ? ReviewType.department
+            : ReviewType.university;
+        // Department ise universityId'yi query parametreden al
+        final universityId = state.uri.queryParameters['uni'] ?? targetId;
+        return WriteReviewScreen(
+          type: type,
+          targetId: targetId,
+          universityId: universityId,
+        );
+      },
+    ),
+    GoRoute(
+      path: '/edit-review/:reviewId',
+      builder: (context, state) {
+        final reviewId = state.pathParameters['reviewId']!;
+        return Consumer(
+          builder: (context, ref, _) {
+            final reviewAsync = ref.watch(reviewDetailProvider(reviewId));
+            return reviewAsync.when(
+              data: (r) {
+                if (r == null) {
+                  return const Scaffold(body: Center(child: Text('Yorum bulunamadı')));
+                }
+                return WriteReviewScreen(
+                  targetId: r.targetId,
+                  type: r.type,
+                  universityId: r.universityId,
+                  initialReview: r,
+                );
+              },
+              loading: () => const Scaffold(body: Center(child: CircularProgressIndicator())),
+              error: (e, _) => Scaffold(body: Center(child: Text('Hata: $e'))),
+            );
+          },
+        );
+      },
+    ),
+    GoRoute(
+      path: '/my-reviews',
+      builder: (context, state) => const MyReviewsScreen(),
     ),
     GoRoute(
       path: AppRoutes.departmentDetail,

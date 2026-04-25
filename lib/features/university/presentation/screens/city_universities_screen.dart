@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -37,7 +36,7 @@ class CityUniversitiesScreen extends ConsumerWidget {
                   style: AppTextStyles.titleMedium.copyWith(color: Colors.white),
                 ),
                 loading: () => const SizedBox.shrink(),
-                error: (_, __) => const SizedBox.shrink(),
+                error: (_, st) => const SizedBox.shrink(),
               ),
               background: Container(
                 decoration: BoxDecoration(
@@ -63,7 +62,7 @@ class CityUniversitiesScreen extends ConsumerWidget {
                           style: AppTextStyles.bodyMedium.copyWith(color: Colors.white70),
                         ),
                         loading: () => const SizedBox.shrink(),
-                        error: (_, __) => const SizedBox.shrink(),
+                        error: (_, st) => const SizedBox.shrink(),
                       ),
                     ],
                   ),
@@ -124,9 +123,6 @@ class CityUniversitiesScreen extends ConsumerWidget {
                             ),
                           ),
                         ),
-                      ).animate().fadeIn(
-                        delay: Duration(milliseconds: 80 * index),
-                        duration: 300.ms,
                       );
                     },
                     childCount: universities.length,

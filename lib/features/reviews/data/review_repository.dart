@@ -1,4 +1,6 @@
+import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import '../domain/models/review_model.dart';
 
 /// Yorum repository — Sprint 3'te doldurulacak
@@ -11,6 +13,12 @@ class ReviewRepository {
   // ignore: unused_element
   CollectionReference<Map<String, dynamic>> get _reviewsRef =>
       _firestore.collection('reviews');
+
+  Future<ReviewModel?> getReview(String reviewId) async {
+    final doc = await _firestore.collection('reviews').doc(reviewId).get();
+    if (!doc.exists || doc.data() == null) return null;
+    return ReviewModel.fromMap(doc.data()!, doc.id);
+  }
 
   // TODO(sprint3): Yorum ekleme
   Future<void> addReview(ReviewModel review) async {
@@ -27,25 +35,36 @@ class ReviewRepository {
   Future<void> updateReview(ReviewModel review) async {
     await _firestore.collection('reviews').doc(review.id).update({
       ...review.toMap(),
+      'createdAt': FieldValue.serverTimestamp(),
       'updatedAt': FieldValue.serverTimestamp(),
     });
   }
 
-  // TODO(sprint3): Yorum silme
-  Future<void> deleteReview(String reviewId, String userId) async {
+  Future<void> deleteReview(String reviewId, String userId, List<String> photoUrls) async {
+    // 1. Firestore'dan sil
     await _firestore.collection('reviews').doc(reviewId).delete();
     
-    // Kullanıcının reviewCount alanını azalt
+    // 2. reviewCount azalt
     await _firestore.collection('users').doc(userId).update({
       'reviewCount': FieldValue.increment(-1),
     });
+
+    // 3. Fotoğrafları sil (best effort)
+    for (final url in photoUrls) {
+      try {
+        await FirebaseStorage.instance.refFromURL(url).delete();
+      } catch (e) {
+        debugPrint('Photo delete failed: $e');
+      }
+    }
   }
 
-  // TODO(sprint3): Üniversiteye ait yorumları getir
-  Stream<List<ReviewModel>> getUniversityReviews(String universityId, {int limit = 20}) {
+  // Üniversiteye ait yorumları getir (sort destekli)
+  Stream<List<ReviewModel>> getUniversityReviews(String universityId, {int limit = 20, String orderBy = 'createdAt'}) {
     return _reviewsRef
         .where('targetId', isEqualTo: universityId)
-        .orderBy('createdAt', descending: true)
+        .where('isApproved', isEqualTo: true)
+        .orderBy(orderBy, descending: true)
         .limit(limit)
         .snapshots()
         .map((snapshot) => snapshot.docs
@@ -53,11 +72,12 @@ class ReviewRepository {
             .toList());
   }
 
-  // TODO(sprint3): Bölüme ait yorumları getir
-  Stream<List<ReviewModel>> getDepartmentReviews(String departmentId, {int limit = 20}) {
+  // Bölüme ait yorumları getir (sort destekli)
+  Stream<List<ReviewModel>> getDepartmentReviews(String departmentId, {int limit = 20, String orderBy = 'createdAt'}) {
     return _reviewsRef
         .where('targetId', isEqualTo: departmentId)
-        .orderBy('createdAt', descending: true)
+        .where('isApproved', isEqualTo: true)
+        .orderBy(orderBy, descending: true)
         .limit(limit)
         .snapshots()
         .map((snapshot) => snapshot.docs
@@ -68,6 +88,7 @@ class ReviewRepository {
   // TODO(sprint3): Son yorumları getir (ana sayfa için)
   Stream<List<ReviewModel>> getRecentReviews({int limit = 10}) {
     return _reviewsRef
+        .where('isApproved', isEqualTo: true)
         .orderBy('createdAt', descending: true)
         .limit(limit)
         .snapshots()
@@ -87,28 +108,63 @@ class ReviewRepository {
             .toList());
   }
 
-  // TODO(sprint3): Yorum beğenme
   Future<void> likeReview(String reviewId, String userId) async {
-    final likeRef = _firestore
-        .collection('reviews')
-        .doc(reviewId)
-        .collection('likes')
-        .doc(userId);
+    // İki referans: review altındaki like + user altındaki likedReview
+    final reviewLikeRef = _firestore
+        .collection('reviews').doc(reviewId)
+        .collection('likes').doc(userId);
 
-    final doc = await likeRef.get();
-    
+    final userLikedRef = _firestore
+        .collection('users').doc(userId)
+        .collection('likedReviews').doc(reviewId);
+
+    // Atomik batch
+    final batch = _firestore.batch();
+
+    final doc = await reviewLikeRef.get();
+
     if (doc.exists) {
-      await likeRef.delete();
-      await _firestore.collection('reviews').doc(reviewId).update({
+      // Unlike
+      batch.delete(reviewLikeRef);
+      batch.delete(userLikedRef);
+      batch.update(_firestore.collection('reviews').doc(reviewId), {
         'likes': FieldValue.increment(-1),
       });
     } else {
-      await likeRef.set({
-        'createdAt': FieldValue.serverTimestamp(),
-      });
-      await _firestore.collection('reviews').doc(reviewId).update({
+      // Like
+      final ts = FieldValue.serverTimestamp();
+      batch.set(reviewLikeRef, {'createdAt': ts});
+      batch.set(userLikedRef, {'createdAt': ts, 'reviewId': reviewId});
+      batch.update(_firestore.collection('reviews').doc(reviewId), {
         'likes': FieldValue.increment(1),
       });
     }
+
+    await batch.commit();
+  }
+
+  /// Tüm yorumları filtrele ve stream olarak döndür.
+  Stream<List<ReviewModel>> getAllReviews({
+    String? universityId,
+    ReviewType? reviewType,
+    int limit = 50,
+    String orderBy = 'createdAt',
+  }) {
+    Query<Map<String, dynamic>> query = _reviewsRef
+        .where('isApproved', isEqualTo: true);
+
+    if (reviewType != null) {
+      query = query.where('type', isEqualTo: reviewType.name);
+    }
+
+    if (universityId != null) {
+      query = query.where('universityId', isEqualTo: universityId);
+    }
+
+    query = query.orderBy(orderBy, descending: true).limit(limit);
+
+    return query.snapshots().map((snapshot) => snapshot.docs
+        .map((doc) => ReviewModel.fromMap(doc.data(), doc.id))
+        .toList());
   }
 }

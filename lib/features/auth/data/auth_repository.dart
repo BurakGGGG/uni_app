@@ -14,7 +14,7 @@ class AuthRepository {
   // In-memory cache
   UserModel? _cachedUser;
   DateTime? _lastCacheTime;
-  static const _cacheTtl = Duration(minutes: 10);
+  static const _cacheTtl = Duration(minutes: 2);
 
   AuthRepository({
     FirebaseAuth? auth,
@@ -150,9 +150,7 @@ class AuthRepository {
       }
     }
 
-    final doc = await _firestore.collection('users').doc(uid).get(
-      GetOptions(source: forceRefresh ? Source.serverAndCache : Source.serverAndCache),
-    );
+    final doc = await _firestore.collection('users').doc(uid).get();
     if (!doc.exists || doc.data() == null) return null;
     
     _cachedUser = UserModel.fromMap(doc.data()!, uid);

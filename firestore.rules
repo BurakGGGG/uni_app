@@ -51,20 +51,43 @@ service cloud.firestore {
 
     // ─── Yorumlar ───────────────────────────────────────────────
     match /reviews/{reviewId} {
-      // Herkes okuyabilir
-      allow read: if true;
+      // Onaylı yorumlar herkese açık, onaysız yorumu sadece sahibi görebilir
+      allow read: if resource.data.isApproved == true
+        || (request.auth != null && request.auth.uid == resource.data.userId);
 
       // Sadece doğrulanmış öğrenciler kendi üniversitelerine yorum yazabilir
       allow create: if isVerifiedStudent() &&
         request.resource.data.userId == request.auth.uid &&
         request.resource.data.universityId == get(/databases/$(database)/documents/users/$(request.auth.uid)).data.universityId;
 
-      // Sadece kendi yorumunu düzenleyebilir
-      allow update: if isOwner(resource.data.userId) &&
-        request.resource.data.userId == resource.data.userId;
+      // Yorum sahibi: tüm alanları düzenleyebilir (userId dışında)
+      // Başkaları: sadece 'likes' sayacını değiştirebilir (beğenme/beğenmeme için)
+      allow update: if isAuthenticated() && (
+        // Yorum sahibi: userId aynı kalmalı
+        (isOwner(resource.data.userId) &&
+         request.resource.data.userId == resource.data.userId) ||
+        // Başkaları: sadece likes alanını değiştirebilir, diğer her şey sabit
+        (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likes']))
+      );
 
       // Sadece kendi yorumunu silebilir
       allow delete: if isOwner(resource.data.userId);
+    }
+
+    // ─── Likes Subcollection ──────────────────────────────────
+    // Her kullanıcı kendi like kaydını oluşturabilir/silebilir
+    match /reviews/{reviewId}/likes/{userId} {
+      allow read: if true;
+      allow create, delete: if isAuthenticated() && request.auth.uid == userId;
+      allow update: if false;
+    }
+
+    // ─── Raporlar / Şikayetler ───────────────────────────────────
+    match /reports/{reportId} {
+      allow read: if false;
+      allow create: if isAuthenticated()
+        && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if false;
     }
 
     // ─── Kullanıcılar ───────────────────────────────────────────
@@ -90,6 +113,13 @@ service cloud.firestore {
     match /users/{userId}/favorites/{favId} {
       allow read: if isOwner(userId);
       allow write: if isOwner(userId);
+    }
+
+    // ─── Beğenilen Yorumlar (denormalize) ────────────────────────
+    match /users/{userId}/likedReviews/{reviewId} {
+      allow read: if isOwner(userId);
+      allow create, delete: if isOwner(userId);
+      allow update: if false;
     }
   }
 }
