@@ -113,6 +113,7 @@ class AllReviewsScreen extends ConsumerWidget {
                 }
                 return ListView.builder(
                   padding: const EdgeInsets.only(top: 4, bottom: 100),
+                  cacheExtent: 1000,
                   itemCount: reviews.length,
                   itemBuilder: (context, i) {
                     final review = reviews[i];

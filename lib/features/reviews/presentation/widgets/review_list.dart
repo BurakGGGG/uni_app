@@ -44,6 +44,7 @@ class ReviewList extends ConsumerWidget {
             return ListView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
+              cacheExtent: 1000,
               itemCount: reviews.length,
               itemBuilder: (context, i) {
                 final review = reviews[i];
