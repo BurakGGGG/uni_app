@@ -50,6 +50,9 @@ class ReviewCard extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Onay bekliyor banner'ı (sadece sahibine ve onaylanmamışsa)
+              if (!review.isApproved && showActions) _buildPendingApprovalBanner(),
+              if (!review.isApproved && showActions) const SizedBox(height: 12),
               _buildHeader(context),
               const SizedBox(height: 12),
               _buildComment(),
@@ -325,6 +328,49 @@ class ReviewCard extends ConsumerWidget {
         // Like butonu — LikeButton widget'ı (optimistic UI)
         LikeButton(review: review),
       ],
+    );
+  }
+
+  // ─── Onay Bekliyor Banner'ı ──────────────────────────────────────────
+
+  Widget _buildPendingApprovalBanner() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppColors.warning.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(AppConstants.radiusSm),
+        border: Border.all(color: AppColors.warning.withValues(alpha: 0.3)),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.pending_actions_rounded, color: AppColors.warning, size: 20),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Yayınlanmadı',
+                  style: AppTextStyles.labelLarge.copyWith(
+                    color: AppColors.warning,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  'Yorumun moderasyon aşamasında. '
+                  'Uygunsuz içerik tespit edildiyse düzenleyerek tekrar gönderebilirsin.',
+                  style: AppTextStyles.bodySmall.copyWith(
+                    color: AppColors.warning,
+                    height: 1.4,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
