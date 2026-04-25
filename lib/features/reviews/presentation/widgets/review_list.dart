@@ -59,7 +59,7 @@ class ReviewList extends ConsumerWidget {
                   onDeleted: isOwner
                       ? () async {
                           await ref.read(reviewActionControllerProvider.notifier).deleteReview(review);
-                          ref.invalidate(currentUserProvider);
+                          invalidateUserProfileAfterReviewChange(ref);
                           if (context.mounted) {
                             showAppSnackBar(context, message: 'Yorumunuz başarıyla silindi', isSuccess: true);
                           }
