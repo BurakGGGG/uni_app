@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:flutter_animate/flutter_animate.dart';
+import 'dart:async';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/widgets.dart';
@@ -16,6 +16,7 @@ class SearchScreen extends ConsumerStatefulWidget {
 
 class _SearchScreenState extends ConsumerState<SearchScreen> {
   final TextEditingController _searchController = TextEditingController();
+  Timer? _debounce;
 
   @override
   void initState() {
@@ -28,6 +29,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
 
   @override
   void dispose() {
+    _debounce?.cancel();
     _searchController.dispose();
     super.dispose();
   }
@@ -60,7 +62,10 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                       autofocus: true,
                       hintText: 'Üniversite ara...',
                       onChanged: (value) {
-                        ref.read(searchQueryProvider.notifier).state = value;
+                        if (_debounce?.isActive ?? false) _debounce!.cancel();
+                        _debounce = Timer(const Duration(milliseconds: 300), () {
+                          ref.read(searchQueryProvider.notifier).state = value;
+                        });
                       },
                       trailing: query.isNotEmpty
                           ? IconButton(
@@ -92,11 +97,12 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                             icon: Icons.search_off_rounded,
                             title: 'Sonuç bulunamadı',
                             description: '"$query" aramasına uygun üniversite yok.',
-                          ).animate().fadeIn();
+                          );
                         }
 
                         return ListView.builder(
                           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          cacheExtent: 1000,
                           itemCount: results.length,
                           itemBuilder: (context, index) {
                             final uni = results[index];
@@ -160,7 +166,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
             style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textTertiary),
           ),
         ],
-      ).animate().fadeIn(),
+      ),
     );
   }
 }
