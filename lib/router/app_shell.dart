@@ -28,9 +28,12 @@ class _AppShellState extends ConsumerState<AppShell> with WidgetsBindingObserver
     // Uygulama ilk açılışında edu.tr doğrulamasını kontrol et (token'ı yenile)
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _checkVerification();
-      // Veriyi arka planda prefetch et — kullanıcı Keşfet'e gittiğinde hazır olur
-      ref.read(allUniversitiesProvider);
-      ref.read(citiesProvider);
+      // Veriyi home render'dan sonra prefetch et — 2sn gecikme ile CPU/network yükü azalır
+      Future.delayed(const Duration(seconds: 2), () {
+        if (!mounted) return;
+        ref.read(allUniversitiesProvider);
+        ref.read(citiesProvider);
+      });
     });
   }
 

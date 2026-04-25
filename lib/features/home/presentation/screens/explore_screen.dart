@@ -17,7 +17,19 @@ class ExploreScreen extends ConsumerStatefulWidget {
 
 class _ExploreScreenState extends ConsumerState<ExploreScreen> {
 
+  // Filter memoization
+  List<UniversityModel>? _cachedFilteredList;
+  ExploreFilterState? _lastFilter;
+  List<UniversityModel>? _lastInput;
+
   List<UniversityModel> _applyFilters(List<UniversityModel> universities, ExploreFilterState filters) {
+    // Memo check — aynı input ve filter ise yeniden hesaplama
+    if (_cachedFilteredList != null &&
+        _lastFilter == filters &&
+        identical(_lastInput, universities)) {
+      return _cachedFilteredList!;
+    }
+
     var filtered = universities;
 
     // Şehir filtresi
@@ -30,6 +42,9 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
       filtered = filtered.where((uni) => filters.selectedTypes.contains(uni.type)).toList();
     }
 
+    _cachedFilteredList = filtered;
+    _lastFilter = filters;
+    _lastInput = universities;
     return filtered;
   }
 

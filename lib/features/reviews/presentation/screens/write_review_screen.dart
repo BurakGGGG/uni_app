@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
@@ -52,6 +53,9 @@ class _WriteReviewScreenState extends ConsumerState<WriteReviewScreen> {
   bool _showSuccess = false; // Başarı animasyonu
   double _uploadProgress = 0; // Fotoğraf upload ilerleme (0.0 - 1.0)
 
+  // Upload listener subscription — dispose'da cancel edilir
+  StreamSubscription<TaskSnapshot>? _uploadSubscription;
+
   @override
   void initState() {
     super.initState();
@@ -69,30 +73,25 @@ class _WriteReviewScreenState extends ConsumerState<WriteReviewScreen> {
 
   @override
   void dispose() {
+    _uploadSubscription?.cancel();
     _commentController.dispose();
     super.dispose();
   }
 
-  /// Type'a göre kategori listesi
-  List<String> get _categories {
-    return widget.type == ReviewType.university
-        ? AppConstants.uniRatingCategories
-        : AppConstants.deptRatingCategories;
-  }
+  /// Type'a göre kategori listesi (cached)
+  late final List<String> _categories = widget.type == ReviewType.university
+      ? AppConstants.uniRatingCategories
+      : AppConstants.deptRatingCategories;
 
-  /// Type'a göre preset pros
-  List<String> get _presetPros {
-    return widget.type == ReviewType.university
-        ? AppConstants.commonUniPros
-        : AppConstants.commonDeptPros;
-  }
+  /// Type'a göre preset pros (cached)
+  late final List<String> _presetPros = widget.type == ReviewType.university
+      ? AppConstants.commonUniPros
+      : AppConstants.commonDeptPros;
 
-  /// Type'a göre preset cons
-  List<String> get _presetCons {
-    return widget.type == ReviewType.university
-        ? AppConstants.commonUniCons
-        : AppConstants.commonDeptCons;
-  }
+  /// Type'a göre preset cons (cached)
+  late final List<String> _presetCons = widget.type == ReviewType.university
+      ? AppConstants.commonUniCons
+      : AppConstants.commonDeptCons;
 
   /// Tüm zorunlu alanlar dolu mu kontrol et
   bool get _isFormValid {
@@ -145,7 +144,8 @@ class _WriteReviewScreenState extends ConsumerState<WriteReviewScreen> {
         SettableMetadata(contentType: 'image/jpeg'),
       );
 
-      uploadTask.snapshotEvents.listen((event) {
+      _uploadSubscription?.cancel();
+      _uploadSubscription = uploadTask.snapshotEvents.listen((event) {
         if (mounted) {
           final fileProgress = event.bytesTransferred / event.totalBytes;
           setState(() {
@@ -155,6 +155,8 @@ class _WriteReviewScreenState extends ConsumerState<WriteReviewScreen> {
       });
 
       await uploadTask;
+      await _uploadSubscription?.cancel();
+      _uploadSubscription = null;
       urls.add(await storageRef.getDownloadURL());
     }
     setState(() => _uploadProgress = 1.0);

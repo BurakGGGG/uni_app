@@ -331,6 +331,8 @@ class ProfileScreen extends ConsumerWidget {
                           fit: BoxFit.cover,
                           width: 64,
                           height: 64,
+                          memCacheWidth: 128,
+                          memCacheHeight: 128,
                           placeholder: (context, url) => const Center(
                             child: CircularProgressIndicator(strokeWidth: 2),
                           ),

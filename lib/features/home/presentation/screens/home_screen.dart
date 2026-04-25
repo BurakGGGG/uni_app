@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -77,7 +77,7 @@ class HomeScreen extends ConsumerWidget {
                     ),
                   ],
                 ),
-              ).animate().fadeIn(duration: 400.ms).slideY(begin: -0.1, end: 0),
+              ),
             ),
 
             // ─── Arama Çubuğu ──────────────────────────────────────
@@ -90,7 +90,7 @@ class HomeScreen extends ConsumerWidget {
                     context.push('/search');
                   },
                 ),
-              ).animate().fadeIn(delay: 100.ms, duration: 400.ms).slideY(begin: 0.1, end: 0),
+              ),
             ),
 
             // ─── Hero Banner ────────────────────────────────────────
@@ -98,7 +98,7 @@ class HomeScreen extends ConsumerWidget {
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
                 child: _HeroBanner(),
-              ).animate().fadeIn(delay: 200.ms, duration: 500.ms).scale(begin: const Offset(0.95, 0.95)),
+              ),
             ),
 
             // ─── Popüler Üniversiteler ──────────────────────────────
@@ -133,7 +133,7 @@ class HomeScreen extends ConsumerWidget {
                     ),
                   ),
                 ],
-              ).animate().fadeIn(delay: 300.ms, duration: 400.ms),
+              ),
             ),
 
             // ─── Şehirler ──────────────────────────────────────────
@@ -167,7 +167,7 @@ class HomeScreen extends ConsumerWidget {
                     ),
                   ),
                 ],
-              ).animate().fadeIn(delay: 400.ms, duration: 400.ms),
+              ),
             ),
 
             // ─── Son Yorumlar ───────────────────────────────────────
@@ -177,7 +177,7 @@ class HomeScreen extends ConsumerWidget {
                 actionText: 'Tümünü Gör',
                 padding: const EdgeInsets.fromLTRB(20, 16, 12, 4),
                 onAction: () => context.push('/all-reviews'),
-              ).animate().fadeIn(delay: 500.ms, duration: 400.ms),
+              ),
             ),
 
             ref.watch(recentReviewsProvider).when(
