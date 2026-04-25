@@ -6,9 +6,9 @@ import '../../../auth/presentation/providers/auth_providers.dart';
 import '../../domain/models/review_model.dart';
 import '../providers/review_providers.dart';
 
-/// Sprint 3 — Kişi B (Task B3)
-/// Optimistic like butonu — tıklayınca anında UI güncellenir,
-/// Firestore'a yazılır, hata olursa geri alınır.
+/// Sprint 3 — Like butonu
+/// Optimistic UI: pending varsa pending göster, yoksa server'ı göster.
+/// .select() ile sadece kendi review'ı değişince rebuild olur.
 class LikeButton extends ConsumerWidget {
   final ReviewModel review;
   const LikeButton({super.key, required this.review});
@@ -16,10 +16,21 @@ class LikeButton extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(authStateProvider).value;
-    final likedIds = ref.watch(userLikedReviewsProvider).value ?? {};
-    final pending = ref.watch(likeControllerProvider)[review.id];
 
-    final isLiked = pending ?? likedIds.contains(review.id);
+    // Server'dan gelen gerçek durum — .select ile sadece bu review için rebuild
+    final isLikedFromServer = ref.watch(
+      userLikedReviewsProvider.select(
+        (async) => async.value?.contains(review.id) ?? false,
+      ),
+    );
+
+    // Pending varsa onun "desired" durumunu göster
+    final pendingDesired = ref.watch(
+      likeControllerProvider.select((m) => m[review.id]?.desiredLiked),
+    );
+
+    // Pending varsa pending göster, yoksa server'ı göster
+    final isLiked = pendingDesired ?? isLikedFromServer;
 
     return InkWell(
       onTap: user == null
