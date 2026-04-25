@@ -237,7 +237,7 @@ class _SortChip extends StatelessWidget {
   }
 }
 
-// ─── Filtre Bottom Sheet (İskelet — Gün 3'te doldurulacak) ──────
+// ─── Filtre Bottom Sheet ─────────────────────────────────────────────
 
 class _FilterBottomSheet extends ConsumerWidget {
   const _FilterBottomSheet();
@@ -245,93 +245,229 @@ class _FilterBottomSheet extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final filter = ref.watch(allReviewsFilterProvider);
+    final universitiesAsync = ref.watch(allUniversitiesProvider);
 
-    return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
+    return DraggableScrollableSheet(
+      initialChildSize: 0.75,
+      minChildSize: 0.5,
+      maxChildSize: 0.95,
+      expand: false,
+      builder: (context, scrollController) {
+        return Column(
           children: [
             // Handle bar
-            Center(
-              child: Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: AppColors.textTertiary.withValues(alpha: 0.3),
-                  borderRadius: BorderRadius.circular(2),
-                ),
+            Container(
+              margin: const EdgeInsets.only(top: 8, bottom: 8),
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: AppColors.borderLight,
+                borderRadius: BorderRadius.circular(2),
               ),
             ),
-            const SizedBox(height: 20),
+            // Header
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('Filtreler', style: AppTextStyles.titleLarge),
+                  if (filter.hasFilters)
+                    TextButton(
+                      onPressed: () => ref
+                          .read(allReviewsFilterProvider.notifier)
+                          .clearAll(),
+                      child: Text(
+                        'Temizle',
+                        style: AppTextStyles.labelLarge
+                            .copyWith(color: AppColors.primary),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+            const Divider(color: AppColors.borderLight, height: 1),
+            Expanded(
+              child: ListView(
+                controller: scrollController,
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                children: [
+                  // Tip Filtresi
+                  Text('Yorum Tipi', style: AppTextStyles.titleMedium),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      _TypeOption(
+                        icon: Icons.school_rounded,
+                        label: 'Üniversite',
+                        isSelected: filter.reviewType == ReviewType.university,
+                        onTap: () {
+                          final current = filter.reviewType;
+                          ref.read(allReviewsFilterProvider.notifier).setReviewType(
+                                current == ReviewType.university
+                                    ? null
+                                    : ReviewType.university,
+                              );
+                        },
+                      ),
+                      const SizedBox(width: 10),
+                      _TypeOption(
+                        icon: Icons.menu_book_rounded,
+                        label: 'Bölüm',
+                        isSelected: filter.reviewType == ReviewType.department,
+                        onTap: () {
+                          final current = filter.reviewType;
+                          ref.read(allReviewsFilterProvider.notifier).setReviewType(
+                                current == ReviewType.department
+                                    ? null
+                                    : ReviewType.department,
+                              );
+                        },
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
 
-            // Başlık
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text('Filtreler', style: AppTextStyles.titleLarge),
-                if (filter.hasFilters)
-                  TextButton(
-                    onPressed: () {
-                      ref.read(allReviewsFilterProvider.notifier).clearAll();
-                      Navigator.pop(context);
+                  // Sıralama
+                  Text('Sıralama', style: AppTextStyles.titleMedium),
+                  const SizedBox(height: 12),
+                  Wrap(
+                    spacing: 8,
+                    children: [
+                      ChoiceChip(
+                        label: const Text('En Yeni'),
+                        selected: filter.sort == ReviewSort.newest,
+                        onSelected: (v) {
+                          if (v) {
+                            ref.read(allReviewsFilterProvider.notifier)
+                                .setSort(ReviewSort.newest);
+                          }
+                        },
+                      ),
+                      ChoiceChip(
+                        label: const Text('En Beğenilen'),
+                        selected: filter.sort == ReviewSort.mostLiked,
+                        onSelected: (v) {
+                          if (v) {
+                            ref.read(allReviewsFilterProvider.notifier)
+                                .setSort(ReviewSort.mostLiked);
+                          }
+                        },
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+
+                  // Üniversite Filtresi
+                  Text('Üniversite', style: AppTextStyles.titleMedium),
+                  const SizedBox(height: 12),
+                  universitiesAsync.when(
+                    data: (universities) {
+                      return Column(
+                        children: [
+                          ...universities.map(
+                            (uni) => RadioListTile<String?>(
+                              value: uni.id,
+                              groupValue: filter.universityId,
+                              onChanged: (val) => ref
+                                  .read(allReviewsFilterProvider.notifier)
+                                  .setUniversity(val),
+                              title: Text(
+                                uni.name,
+                                style: AppTextStyles.bodyMedium,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              subtitle: Text(
+                                '${uni.type} • ${uni.reviewCount} yorum',
+                                style: AppTextStyles.labelSmall,
+                              ),
+                              dense: true,
+                              activeColor: AppColors.primary,
+                              contentPadding: EdgeInsets.zero,
+                            ),
+                          ),
+                        ],
+                      );
                     },
-                    child: const Text('Temizle'),
+                    loading: () => const Padding(
+                      padding: EdgeInsets.all(20),
+                      child: Center(child: CircularProgressIndicator()),
+                    ),
+                    error: (e, _) =>
+                        Text('Üniversiteler yüklenemedi', style: AppTextStyles.bodySmall),
                   ),
-              ],
+                ],
+              ),
             ),
-            const SizedBox(height: 16),
-
-            // Yorum Tipi filtresi
-            Text('Yorum Tipi', style: AppTextStyles.titleSmall),
-            const SizedBox(height: 8),
-            Wrap(
-              spacing: 8,
-              children: [
-                ChoiceChip(
-                  label: const Text('Hepsi'),
-                  selected: filter.reviewType == null,
-                  onSelected: (_) {
-                    ref.read(allReviewsFilterProvider.notifier).setReviewType(null);
-                  },
+            // Footer
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: SafeArea(
+                top: false,
+                child: GradientButton(
+                  text: 'Sonuçları Göster',
+                  onPressed: () => Navigator.pop(context),
                 ),
-                ChoiceChip(
-                  label: const Text('Üniversite'),
-                  selected: filter.reviewType == ReviewType.university,
-                  onSelected: (_) {
-                    ref.read(allReviewsFilterProvider.notifier)
-                        .setReviewType(ReviewType.university);
-                  },
-                ),
-                ChoiceChip(
-                  label: const Text('Bölüm'),
-                  selected: filter.reviewType == ReviewType.department,
-                  onSelected: (_) {
-                    ref.read(allReviewsFilterProvider.notifier)
-                        .setReviewType(ReviewType.department);
-                  },
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-
-            // Uygula butonu
-            SizedBox(
-              width: double.infinity,
-              child: FilledButton(
-                onPressed: () => Navigator.pop(context),
-                style: FilledButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                child: const Text('Uygula'),
               ),
             ),
           ],
+        );
+      },
+    );
+  }
+}
+
+// ─── Tip Seçim Kartı ─────────────────────────────────────────────────
+
+class _TypeOption extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  const _TypeOption({
+    required this.icon,
+    required this.label,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
+          decoration: BoxDecoration(
+            color: isSelected
+                ? AppColors.primary.withValues(alpha: 0.1)
+                : AppColors.surface,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: isSelected ? AppColors.primary : AppColors.borderLight,
+              width: isSelected ? 1.5 : 1,
+            ),
+          ),
+          child: Column(
+            children: [
+              Icon(
+                icon,
+                color: isSelected ? AppColors.primary : AppColors.textSecondary,
+                size: 22,
+              ),
+              const SizedBox(height: 6),
+              Text(
+                label,
+                style: AppTextStyles.labelLarge.copyWith(
+                  color: isSelected ? AppColors.primary : AppColors.textPrimary,
+                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
