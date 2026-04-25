@@ -282,6 +282,8 @@ class ReviewCard extends ConsumerWidget {
                 width: 80,
                 height: 80,
                 fit: BoxFit.cover,
+                memCacheWidth: 160,
+                memCacheHeight: 160,
                 placeholder: (_, url) => Container(
                   width: 80,
                   height: 80,

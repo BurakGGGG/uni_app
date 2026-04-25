@@ -112,26 +112,49 @@ class UniCard extends StatelessWidget {
   }
 
   Widget _buildImage() {
+    if (imageUrl != null) {
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(AppConstants.radiusMd),
+        child: CachedNetworkImage(
+          imageUrl: imageUrl!,
+          width: 64,
+          height: 64,
+          fit: BoxFit.cover,
+          memCacheWidth: 128,
+          memCacheHeight: 128,
+          placeholder: (_, __) => Container(
+            width: 64,
+            height: 64,
+            color: AppColors.surfaceVariant,
+          ),
+          errorWidget: (_, __, ___) => Container(
+            width: 64,
+            height: 64,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(AppConstants.radiusMd),
+              color: AppColors.surfaceVariant,
+            ),
+            child: const Icon(
+              Icons.school_rounded,
+              color: AppColors.textTertiary,
+              size: 28,
+            ),
+          ),
+        ),
+      );
+    }
     return Container(
       width: 64,
       height: 64,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(AppConstants.radiusMd),
         color: AppColors.surfaceVariant,
-        image: imageUrl != null
-            ? DecorationImage(
-                image: CachedNetworkImageProvider(imageUrl!),
-                fit: BoxFit.cover,
-              )
-            : null,
       ),
-      child: imageUrl == null
-          ? const Icon(
-              Icons.school_rounded,
-              color: AppColors.textTertiary,
-              size: 28,
-            )
-          : null,
+      child: const Icon(
+        Icons.school_rounded,
+        color: AppColors.textTertiary,
+        size: 28,
+      ),
     );
   }
 
