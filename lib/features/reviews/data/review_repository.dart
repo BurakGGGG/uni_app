@@ -132,4 +132,29 @@ class ReviewRepository {
       });
     }
   }
+
+  /// Tüm yorumları filtrele ve stream olarak döndür.
+  Stream<List<ReviewModel>> getAllReviews({
+    String? universityId,
+    ReviewType? reviewType,
+    int limit = 50,
+    String orderBy = 'createdAt',
+  }) {
+    Query<Map<String, dynamic>> query = _reviewsRef
+        .where('isApproved', isEqualTo: true);
+
+    if (reviewType != null) {
+      query = query.where('type', isEqualTo: reviewType.name);
+    }
+
+    if (universityId != null) {
+      query = query.where('universityId', isEqualTo: universityId);
+    }
+
+    query = query.orderBy(orderBy, descending: true).limit(limit);
+
+    return query.snapshots().map((snapshot) => snapshot.docs
+        .map((doc) => ReviewModel.fromMap(doc.data(), doc.id))
+        .toList());
+  }
 }

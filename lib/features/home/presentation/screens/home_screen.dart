@@ -172,10 +172,11 @@ class HomeScreen extends ConsumerWidget {
 
             // ─── Son Yorumlar ───────────────────────────────────────
             SliverToBoxAdapter(
-              child: const SectionHeader(
+              child: SectionHeader(
                 title: 'Son Yorumlar',
                 actionText: 'Tümünü Gör',
-                padding: EdgeInsets.fromLTRB(20, 16, 12, 4),
+                padding: const EdgeInsets.fromLTRB(20, 16, 12, 4),
+                onAction: () => context.push('/all-reviews'),
               ).animate().fadeIn(delay: 500.ms, duration: 400.ms),
             ),
 
