@@ -390,6 +390,8 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
           fit: BoxFit.cover,
           width: 110,
           height: 110,
+          memCacheWidth: 220,
+          memCacheHeight: 220,
           placeholder: (context, url) => const Center(
             child: CircularProgressIndicator(strokeWidth: 2),
           ),
