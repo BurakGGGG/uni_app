@@ -97,7 +97,7 @@ class HomeScreen extends ConsumerWidget {
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                child: _HeroBanner(),
+                child: const _HeroBanner(),
               ),
             ),
 
@@ -119,13 +119,17 @@ class HomeScreen extends ConsumerWidget {
                       data: (popular) {
                         return ListView.builder(
                           scrollDirection: Axis.horizontal,
+                          physics: const ClampingScrollPhysics(),
+                          cacheExtent: 200,
                           padding: const EdgeInsets.symmetric(horizontal: 16),
                           itemCount: popular.length,
                           itemBuilder: (context, index) {
-                            return _PopularUniCard(
-                              university: popular[index],
-                              index: index,
-                              onTap: () => context.push('/university/${popular[index].id}'),
+                            return RepaintBoundary(
+                              child: _PopularUniCard(
+                                university: popular[index],
+                                index: index,
+                                onTap: () => context.push('/university/${popular[index].id}'),
+                              ),
                             );
                           },
                         );
@@ -268,6 +272,8 @@ String _cityEmoji(String cityName) {
 // ─── Widget Components ──────────────────────────────────────────────
 
 class _HeroBanner extends StatelessWidget {
+  const _HeroBanner();
+
   @override
   Widget build(BuildContext context) {
     return Container(
