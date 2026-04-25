@@ -158,3 +158,80 @@ final reviewActionControllerProvider =
   StateNotifierProvider<ReviewActionController, AsyncValue<void>>((ref) {
     return ReviewActionController(ref.read(reviewRepositoryProvider));
   });
+
+// ─── Sprint 3 Fix — Bug 3: Tüm Yorumlar Filtre State ───────────────
+
+class AllReviewsFilterState {
+  final String? universityId;
+  final ReviewType? reviewType;
+  final ReviewSort sort;
+
+  const AllReviewsFilterState({
+    this.universityId,
+    this.reviewType,
+    this.sort = ReviewSort.newest,
+  });
+
+  AllReviewsFilterState copyWith({
+    String? universityId,
+    bool clearUniversityId = false,
+    ReviewType? reviewType,
+    bool clearReviewType = false,
+    ReviewSort? sort,
+  }) {
+    return AllReviewsFilterState(
+      universityId: clearUniversityId ? null : (universityId ?? this.universityId),
+      reviewType: clearReviewType ? null : (reviewType ?? this.reviewType),
+      sort: sort ?? this.sort,
+    );
+  }
+
+  int get activeFilterCount =>
+      (universityId != null ? 1 : 0) + (reviewType != null ? 1 : 0);
+
+  bool get hasFilters => universityId != null || reviewType != null;
+}
+
+class AllReviewsFilterNotifier extends Notifier<AllReviewsFilterState> {
+  @override
+  AllReviewsFilterState build() => const AllReviewsFilterState();
+
+  void setUniversity(String? id) {
+    state = state.copyWith(
+      universityId: id,
+      clearUniversityId: id == null,
+    );
+  }
+
+  void setReviewType(ReviewType? type) {
+    state = state.copyWith(
+      reviewType: type,
+      clearReviewType: type == null,
+    );
+  }
+
+  void setSort(ReviewSort sort) {
+    state = state.copyWith(sort: sort);
+  }
+
+  void clearAll() {
+    state = const AllReviewsFilterState();
+  }
+}
+
+final allReviewsFilterProvider =
+    NotifierProvider<AllReviewsFilterNotifier, AllReviewsFilterState>(
+  AllReviewsFilterNotifier.new,
+);
+
+/// Filtreli tüm yorumlar stream'i
+final allFilteredReviewsProvider = StreamProvider<List<ReviewModel>>((ref) {
+  final filter = ref.watch(allReviewsFilterProvider);
+  final repo = ref.read(reviewRepositoryProvider);
+  return repo.getAllReviews(
+    universityId: filter.universityId,
+    reviewType: filter.reviewType,
+    orderBy: filter.sort == ReviewSort.newest ? 'createdAt' : 'likes',
+    limit: 50,
+  );
+});
