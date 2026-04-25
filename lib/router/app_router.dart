@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:go_router/go_router.dart';
 import '../features/reviews/presentation/providers/review_providers.dart';
+import '../features/reviews/presentation/screens/all_reviews_screen.dart';
 import '../core/providers/shared_preferences_provider.dart';
 import 'go_router_refresh_stream.dart';
 import '../features/home/presentation/screens/home_screen.dart';
@@ -43,6 +44,7 @@ class AppRoutes {
   static const String departmentDetail = '/department/:deptId';
   static const String allCities = '/cities';
   static const String writeReview = '/write-review/:type/:targetId';
+  static const String allReviews = '/all-reviews';
 }
 
 /// GoRouter konfigürasyon provider'ı
@@ -123,6 +125,12 @@ final routerProvider = Provider<GoRouter>((ref) {
     GoRoute(
       path: '/search',
       builder: (context, state) => const SearchScreen(),
+    ),
+
+    // ─── Tüm Yorumlar ────────────────────────────────────────────
+    GoRoute(
+      path: AppRoutes.allReviews,
+      builder: (context, state) => const AllReviewsScreen(),
     ),
 
     // ─── Auth & Profile Routes ───────────────────────────────────
