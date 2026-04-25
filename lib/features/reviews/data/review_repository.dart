@@ -108,29 +108,64 @@ class ReviewRepository {
             .toList());
   }
 
-  // TODO(sprint3): Yorum beğenme
   Future<void> likeReview(String reviewId, String userId) async {
-    final likeRef = _firestore
-        .collection('reviews')
-        .doc(reviewId)
-        .collection('likes')
-        .doc(userId);
+    // İki referans: review altındaki like + user altındaki likedReview
+    final reviewLikeRef = _firestore
+        .collection('reviews').doc(reviewId)
+        .collection('likes').doc(userId);
 
-    final doc = await likeRef.get();
-    
+    final userLikedRef = _firestore
+        .collection('users').doc(userId)
+        .collection('likedReviews').doc(reviewId);
+
+    // Atomik batch
+    final batch = _firestore.batch();
+
+    final doc = await reviewLikeRef.get();
+
     if (doc.exists) {
-      await likeRef.delete();
-      await _firestore.collection('reviews').doc(reviewId).update({
+      // Unlike
+      batch.delete(reviewLikeRef);
+      batch.delete(userLikedRef);
+      batch.update(_firestore.collection('reviews').doc(reviewId), {
         'likes': FieldValue.increment(-1),
       });
     } else {
-      await likeRef.set({
-        'createdAt': FieldValue.serverTimestamp(),
-      });
-      await _firestore.collection('reviews').doc(reviewId).update({
+      // Like
+      final ts = FieldValue.serverTimestamp();
+      batch.set(reviewLikeRef, {'createdAt': ts});
+      batch.set(userLikedRef, {'createdAt': ts, 'reviewId': reviewId});
+      batch.update(_firestore.collection('reviews').doc(reviewId), {
         'likes': FieldValue.increment(1),
       });
     }
+
+    await batch.commit();
+  }
+
+  /// Tüm yorumları filtrele ve stream olarak döndür.
+  Stream<List<ReviewModel>> getAllReviews({
+    String? universityId,
+    ReviewType? reviewType,
+    int limit = 50,
+    String orderBy = 'createdAt',
+  }) {
+    Query<Map<String, dynamic>> query = _reviewsRef
+        .where('isApproved', isEqualTo: true);
+
+    if (reviewType != null) {
+      query = query.where('type', isEqualTo: reviewType.name);
+    }
+
+    if (universityId != null) {
+      query = query.where('universityId', isEqualTo: universityId);
+    }
+
+    query = query.orderBy(orderBy, descending: true).limit(limit);
+
+    return query.snapshots().map((snapshot) => snapshot.docs
+        .map((doc) => ReviewModel.fromMap(doc.data(), doc.id))
+        .toList());
   }
 
   /// Tüm yorumları filtrele ve stream olarak döndür.

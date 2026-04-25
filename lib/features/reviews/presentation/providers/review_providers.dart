@@ -47,25 +47,30 @@ final userReviewsProvider = StreamProvider.family<List<ReviewModel>, String>((re
 // ─── Sprint 3 — Kişi B: Like Sistemi Provider'ları ─────────────────
 
 /// Kullanıcının beğendiği yorumların ID'lerini dinleyen sağlayıcı
-/// Firestore path: reviews/{reviewId}/likes/{userId}
+/// Firestore path: users/{userId}/likedReviews/{reviewId}
 final userLikedReviewsProvider = StreamProvider<Set<String>>((ref) {
+  ref.keepAlive(); // Tab değişiminde stream kapanmasın
+
   final user = ref.watch(authStateProvider).value;
   if (user == null) return Stream.value({});
 
+  // Denormalize: tek user'ın subcollection'ı — collectionGroup'tan çok daha hızlı
   return FirebaseFirestore.instance
-      .collectionGroup('likes')
-      .where(FieldPath.documentId, isEqualTo: user.uid)
+      .collection('users')
+      .doc(user.uid)
+      .collection('likedReviews')
       .snapshots()
-      .map((snap) {
-    // Her like doc'u parent: reviews/{reviewId}/likes/{userId}
-    return snap.docs
-        .map((d) => d.reference.parent.parent!.id)
-        .toSet();
-  });
+      .map((snap) => snap.docs.map((d) => d.id).toSet());
 });
 
-/// Optimistic like controller — anında UI güncellemesi, hata olursa rollback
-class LikeController extends StateNotifier<Map<String, bool>> {
+/// Pending like durumu — desired final state'i saklar
+class _PendingLike {
+  final bool desiredLiked;
+  _PendingLike({required this.desiredLiked});
+}
+
+/// Optimistic like controller — reconcile pattern ile flicker yok
+class LikeController extends StateNotifier<Map<String, _PendingLike>> {
   LikeController(this._repo) : super({});
   final ReviewRepository _repo;
 
@@ -74,29 +79,49 @@ class LikeController extends StateNotifier<Map<String, bool>> {
     required String userId,
     required bool currentlyLiked,
   }) async {
-    // Optimistic update — UI anında değişir
-    state = {...state, reviewId: !currentlyLiked};
+    // Zaten pending varsa, tıklamayı yoksay (debounce)
+    if (state.containsKey(reviewId)) return;
+
+    // Pending state ekle — desired final state'i sakla
+    state = {...state, reviewId: _PendingLike(desiredLiked: !currentlyLiked)};
 
     try {
       await _repo.likeReview(reviewId, userId);
     } catch (e) {
-      // Hata olursa geri al
-      state = {...state}..remove(reviewId);
+      // Hata: pending'i kaldır, kullanıcı eski state'e döner
+      state = Map.from(state)..remove(reviewId);
       rethrow;
     }
+  }
 
-    // Server stream güncellediğinde pending'i temizle
-    Future.delayed(const Duration(milliseconds: 500), () {
-      if (mounted) {
-        state = {...state}..remove(reviewId);
-      }
-    });
+  /// Server stream'den gelen güncel durumu pending state ile karşılaştır.
+  /// Eğer pending desired ile eşleşiyorsa, pending'i temizle.
+  void reconcile(Set<String> serverLikedIds) {
+    if (state.isEmpty) return;
+
+    final newState = <String, _PendingLike>{};
+    for (final entry in state.entries) {
+      final actuallyLiked = serverLikedIds.contains(entry.key);
+      // Server reality matches desired? → pending bitti
+      if (actuallyLiked == entry.value.desiredLiked) continue;
+      newState[entry.key] = entry.value;
+    }
+    if (newState.length != state.length) {
+      state = newState;
+    }
   }
 }
 
 final likeControllerProvider =
-    StateNotifierProvider<LikeController, Map<String, bool>>((ref) {
-  return LikeController(ref.read(reviewRepositoryProvider));
+    StateNotifierProvider<LikeController, Map<String, _PendingLike>>((ref) {
+  final controller = LikeController(ref.read(reviewRepositoryProvider));
+
+  // Server stream her güncellendiğinde reconcile et
+  ref.listen<AsyncValue<Set<String>>>(userLikedReviewsProvider, (prev, next) {
+    next.whenData((ids) => controller.reconcile(ids));
+  });
+
+  return controller;
 });
 
 // ─── Sprint 3 — Kişi B: Sort/Filter Provider'ları ──────────────────
