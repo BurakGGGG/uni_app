@@ -150,9 +150,7 @@ class AuthRepository {
       }
     }
 
-    final doc = await _firestore.collection('users').doc(uid).get(
-      GetOptions(source: forceRefresh ? Source.serverAndCache : Source.serverAndCache),
-    );
+    final doc = await _firestore.collection('users').doc(uid).get();
     if (!doc.exists || doc.data() == null) return null;
     
     _cachedUser = UserModel.fromMap(doc.data()!, uid);
