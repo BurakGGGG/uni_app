@@ -49,8 +49,10 @@ class _ReportDialogState extends ConsumerState<ReportDialog> {
             ...ReportReason.values.map((reason) => RadioListTile<ReportReason>(
               title: Text(reason.label, style: AppTextStyles.bodyMedium),
               value: reason,
+              // ignore: deprecated_member_use
               groupValue: _selectedReason,
               activeColor: AppColors.primary,
+              // ignore: deprecated_member_use
               onChanged: (v) => setState(() => _selectedReason = v),
               dense: true,
               contentPadding: EdgeInsets.zero,
