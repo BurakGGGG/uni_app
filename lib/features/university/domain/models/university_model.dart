@@ -35,6 +35,7 @@ class UniversityModel {
   final String name;
   final String type; // "Devlet" veya "Vakıf"
   final bool hasCampus; // Kampüslü mü?
+  final CampusLayout campusLayout; // Sprint 4: kampüs yerleşim tipi
   final String logoUrl;
   final String photoUrl;
   final String description;
@@ -54,6 +55,7 @@ class UniversityModel {
     required this.name,
     required this.type,
     required this.hasCampus,
+    this.campusLayout = CampusLayout.campus,
     required this.logoUrl,
     required this.photoUrl,
     required this.description,
@@ -72,6 +74,7 @@ class UniversityModel {
       name: map['name'] ?? '',
       type: map['type'] ?? '',
       hasCampus: map['hasCampus'] ?? true,
+      campusLayout: CampusLayout.fromString(map['campusLayout']),
       logoUrl: map['logoUrl'] ?? '',
       photoUrl: map['photoUrl'] ?? '',
       description: map['description'] ?? '',
@@ -94,6 +97,7 @@ class UniversityModel {
       'name': name,
       'type': type,
       'hasCampus': hasCampus,
+      'campusLayout': campusLayout.name,
       'logoUrl': logoUrl,
       'photoUrl': photoUrl,
       'description': description,
@@ -106,3 +110,4 @@ class UniversityModel {
     };
   }
 }
+
