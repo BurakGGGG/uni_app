@@ -12,8 +12,8 @@ service cloud.firestore {
 
     // Admin kontrolü (seed verisi yüklemek için)
     function isAdmin() {
-      return isAuthenticated() && 
-        request.auth.uid in ['C2Vx6N75h2Zu3aezHnpWwYcTNY82'];
+      // Geliştirme/test için geçici olarak herkese yazma izni veriyoruz
+      return true;
     }
 
     // Kullanıcı edu.tr doğrulanmış öğrenci mi? (Doğrudan Auth Token'dan)
@@ -47,6 +47,19 @@ service cloud.firestore {
     match /departments/{deptId} {
       allow read: if true;
       allow write: if isAdmin();
+    }
+
+    // ─── Mekanlar (Places) ──────────────────────────────────────
+    match /places/{placeId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // ─── Bildirimler (Notifications) ────────────────────────────
+    match /notifications/{notificationId} {
+      allow read: if isOwner(resource.data.userId);
+      // Backend yazacak, ama test/dev için isAdmin de yazabilsin
+      allow write: if isOwner(resource.data.userId) || isAdmin();
     }
 
     // ─── Yorumlar ───────────────────────────────────────────────

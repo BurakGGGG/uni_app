@@ -47,6 +47,7 @@ class UniversityModel {
   final int reviewCount;
   /// Kategori bazlı ortalama puanlar (kampüs, eğitim, sosyal, ulaşım, yemek, yurt)
   final Map<String, double> categoryRatings;
+  final CampusLayout campusLayout;
 
   UniversityModel({
     required this.id,
@@ -63,6 +64,7 @@ class UniversityModel {
     this.avgRating = 0.0,
     this.reviewCount = 0,
     this.categoryRatings = const {},
+    this.campusLayout = CampusLayout.campus,
   });
 
   factory UniversityModel.fromMap(Map<String, dynamic> map, String id) {
@@ -85,6 +87,7 @@ class UniversityModel {
           (key, value) => MapEntry(key, (value as num).toDouble()),
         ) ?? {},
       ),
+      campusLayout: CampusLayout.fromString(map['campusLayout']),
     );
   }
 
@@ -103,6 +106,7 @@ class UniversityModel {
       'avgRating': avgRating,
       'reviewCount': reviewCount,
       'categoryRatings': categoryRatings,
+      'campusLayout': campusLayout.name,
     };
   }
 }

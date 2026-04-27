@@ -55,4 +55,13 @@ gerekli_dosyalar/
 # Geçici referans dosyaları
 gerekli_dosyalar/
 
+
 /data/raw/
+
+# IDE / Editor
+.vscode/
+.attach_pid*
+
+# .gitignore'a ekle
+/data/raw/
+
