@@ -58,3 +58,6 @@ gerekli_dosyalar/
 # IDE / Editor
 .vscode/
 .attach_pid*
+
+# .gitignore'a ekle
+/data/raw/
