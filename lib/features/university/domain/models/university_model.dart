@@ -1,3 +1,34 @@
+import 'package:flutter/material.dart';
+
+enum CampusLayout {
+  campus, block, distributed;
+
+  String get label {
+    switch (this) {
+      case CampusLayout.campus: return 'Kampüslü';
+      case CampusLayout.block: return 'Blok Yerleşke';
+      case CampusLayout.distributed: return 'Dağınık Kampüs';
+    }
+  }
+
+  IconData get icon {
+    switch (this) {
+      case CampusLayout.campus: return Icons.location_city_rounded;
+      case CampusLayout.block: return Icons.apartment_rounded;
+      case CampusLayout.distributed: return Icons.scatter_plot_rounded;
+    }
+  }
+
+  static CampusLayout fromString(String? value) {
+    switch (value) {
+      case 'campus': return CampusLayout.campus;
+      case 'block': return CampusLayout.block;
+      case 'distributed': return CampusLayout.distributed;
+      default: return CampusLayout.campus;
+    }
+  }
+}
+
 class UniversityModel {
   final String id;
   final String cityId; // Şehrin plaka kodu veya ID'si
@@ -15,6 +46,7 @@ class UniversityModel {
   final int reviewCount;
   /// Kategori bazlı ortalama puanlar (kampüs, eğitim, sosyal, ulaşım, yemek, yurt)
   final Map<String, double> categoryRatings;
+  final CampusLayout campusLayout;
 
   UniversityModel({
     required this.id,
@@ -30,6 +62,7 @@ class UniversityModel {
     this.avgRating = 0.0,
     this.reviewCount = 0,
     this.categoryRatings = const {},
+    this.campusLayout = CampusLayout.campus,
   });
 
   factory UniversityModel.fromMap(Map<String, dynamic> map, String id) {
@@ -51,6 +84,7 @@ class UniversityModel {
           (key, value) => MapEntry(key, (value as num).toDouble()),
         ) ?? {},
       ),
+      campusLayout: CampusLayout.fromString(map['campusLayout']),
     );
   }
 
@@ -68,6 +102,7 @@ class UniversityModel {
       'avgRating': avgRating,
       'reviewCount': reviewCount,
       'categoryRatings': categoryRatings,
+      'campusLayout': campusLayout.name,
     };
   }
 }
