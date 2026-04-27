@@ -63,6 +63,15 @@ class PlaceModel {
   final String? priceRange;
   final String? openHours;
   final List<String> amenities;
+
+  // Yurt-spesifik
+  final String? dormType;
+  final String? dormGenderType;
+
+  // External rating
+  final double? externalRating;
+  final String? externalRatingSource;
+
   
   // Yurt-spesifik
   final String? dormType;
@@ -71,16 +80,23 @@ class PlaceModel {
   // External rating
   final double? externalRating;
   final String? externalRatingSource;
-  
+
   // Aggregation
   final double avgRating;
   final int reviewCount;
   final Map<String, double> categoryRatings;
+
+
+  // Monetization
+  final bool isPromoted;
+  final int promotionPriority;
+
+
   
   // Monetization
   final bool isPromoted;
   final int promotionPriority;
-  
+
   final DateTime createdAt;
   final DateTime updatedAt;
 
