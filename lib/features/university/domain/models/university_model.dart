@@ -1,9 +1,41 @@
+import 'package:flutter/material.dart';
+
+enum CampusLayout {
+  campus, block, distributed;
+
+  String get label {
+    switch (this) {
+      case CampusLayout.campus: return 'Kampüslü';
+      case CampusLayout.block: return 'Blok Yerleşke';
+      case CampusLayout.distributed: return 'Dağınık Kampüs';
+    }
+  }
+
+  IconData get icon {
+    switch (this) {
+      case CampusLayout.campus: return Icons.location_city_rounded;
+      case CampusLayout.block: return Icons.apartment_rounded;
+      case CampusLayout.distributed: return Icons.scatter_plot_rounded;
+    }
+  }
+
+  static CampusLayout fromString(String? value) {
+    switch (value) {
+      case 'campus': return CampusLayout.campus;
+      case 'block': return CampusLayout.block;
+      case 'distributed': return CampusLayout.distributed;
+      default: return CampusLayout.campus;
+    }
+  }
+}
+
 class UniversityModel {
   final String id;
   final String cityId; // Şehrin plaka kodu veya ID'si
   final String name;
   final String type; // "Devlet" veya "Vakıf"
   final bool hasCampus; // Kampüslü mü?
+  final CampusLayout campusLayout; // Sprint 4: kampüs yerleşim tipi
   final String logoUrl;
   final String photoUrl;
   final String description;
@@ -22,6 +54,7 @@ class UniversityModel {
     required this.name,
     required this.type,
     required this.hasCampus,
+    this.campusLayout = CampusLayout.campus,
     required this.logoUrl,
     required this.photoUrl,
     required this.description,
@@ -39,6 +72,7 @@ class UniversityModel {
       name: map['name'] ?? '',
       type: map['type'] ?? '',
       hasCampus: map['hasCampus'] ?? true,
+      campusLayout: CampusLayout.fromString(map['campusLayout']),
       logoUrl: map['logoUrl'] ?? '',
       photoUrl: map['photoUrl'] ?? '',
       description: map['description'] ?? '',
@@ -60,6 +94,7 @@ class UniversityModel {
       'name': name,
       'type': type,
       'hasCampus': hasCampus,
+      'campusLayout': campusLayout.name,
       'logoUrl': logoUrl,
       'photoUrl': photoUrl,
       'description': description,
@@ -71,3 +106,4 @@ class UniversityModel {
     };
   }
 }
+

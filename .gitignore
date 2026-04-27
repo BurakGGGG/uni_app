@@ -55,6 +55,4 @@ gerekli_dosyalar/
 # Geçici referans dosyaları
 gerekli_dosyalar/
 
-# IDE / Editor
-.vscode/
-.attach_pid*
+/data/raw/

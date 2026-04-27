@@ -129,8 +129,8 @@ class UniversityDetailScreen extends ConsumerWidget {
                           ),
                           const SizedBox(width: 8),
                           _Badge(
-                            text: uni.hasCampus ? 'Kampüslü' : 'Kampüssüz',
-                            color: uni.hasCampus ? AppColors.success : AppColors.warning,
+                            text: uni.campusLayout.label,
+                            color: AppColors.info,
                           ),
                           const Spacer(),
                           Text(
