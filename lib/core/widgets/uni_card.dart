@@ -122,12 +122,12 @@ class UniCard extends StatelessWidget {
           fit: BoxFit.cover,
           memCacheWidth: 128,
           memCacheHeight: 128,
-          placeholder: (_, __) => Container(
+          placeholder: (context, url) => Container(
             width: 64,
             height: 64,
             color: AppColors.surfaceVariant,
           ),
-          errorWidget: (_, __, ___) => Container(
+          errorWidget: (context, url, error) => Container(
             width: 64,
             height: 64,
             decoration: BoxDecoration(
