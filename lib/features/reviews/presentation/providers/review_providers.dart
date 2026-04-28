@@ -162,11 +162,22 @@ final sortedReviewsProvider =
 
     if (params.type == ReviewType.university) {
       return repo.getUniversityReviews(params.targetId, orderBy: orderBy);
+    } else if (params.type == ReviewType.place) {
+      return repo.getPlaceReviews(params.targetId, orderBy: orderBy);
     } else {
       return repo.getDepartmentReviews(params.targetId, orderBy: orderBy);
     }
   },
 );
+
+// ─── Sprint 4 — Place Yorumları Provider ────────────────────────────
+
+/// Bir mekana ait yorumları dinleyen sağlayıcı
+final placeReviewsProvider = StreamProvider.family<List<ReviewModel>, String>((ref, placeId) {
+  ref.keepAlive();
+  final repository = ref.watch(reviewRepositoryProvider);
+  return repository.getPlaceReviews(placeId);
+});
 
 class ReviewActionController extends StateNotifier<AsyncValue<void>> {
   ReviewActionController(this._repo) : super(const AsyncValue.data(null));
