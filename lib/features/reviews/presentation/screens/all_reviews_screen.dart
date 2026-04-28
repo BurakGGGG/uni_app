@@ -369,7 +369,9 @@ class _FilterBottomSheet extends ConsumerWidget {
                           ...universities.map(
                             (uni) => RadioListTile<String?>(
                               value: uni.id,
+                              // ignore: deprecated_member_use
                               groupValue: filter.universityId,
+                              // ignore: deprecated_member_use
                               onChanged: (val) => ref
                                   .read(allReviewsFilterProvider.notifier)
                                   .setUniversity(val),

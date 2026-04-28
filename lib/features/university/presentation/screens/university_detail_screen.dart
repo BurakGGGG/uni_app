@@ -338,7 +338,7 @@ class UniversityDetailScreen extends ConsumerWidget {
                                     height: 20,
                                     child: CircularProgressIndicator(strokeWidth: 2),
                                   ),
-                                  error: (_, __) => const SizedBox.shrink(),
+                                  error: (err, stack) => const SizedBox.shrink(),
                                 );
                               },
                             ),

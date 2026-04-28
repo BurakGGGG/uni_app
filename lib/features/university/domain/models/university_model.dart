@@ -63,7 +63,6 @@ class UniversityModel {
     this.reviewCount = 0,
     this.categoryRatings = const {},
   });
-
   factory UniversityModel.fromMap(Map<String, dynamic> map, String id) {
     return UniversityModel(
       id: id,
@@ -86,7 +85,6 @@ class UniversityModel {
       ),
     );
   }
-
   Map<String, dynamic> toMap() {
     return {
       'cityId': cityId,
@@ -105,4 +103,3 @@ class UniversityModel {
     };
   }
 }
-
