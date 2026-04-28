@@ -5,6 +5,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/utils/snackbar_helper.dart';
 import '../../../auth/presentation/providers/auth_providers.dart';
+import '../../domain/models/review_model.dart';
 import '../providers/review_providers.dart';
 import '../widgets/review_card.dart';
 
@@ -75,7 +76,21 @@ class MyReviewsScreen extends ConsumerWidget {
                         review: r,
                         showActions: true,
                         showReportMenu: false,
+                        showTargetInfo: true, // YENİ
                         onEdited: () => context.push('/edit-review/${r.id}'),
+                        onTap: () {
+                          switch (r.type) {
+                            case ReviewType.department:
+                              context.push('/department/${r.targetId}');
+                              break;
+                            case ReviewType.place:
+                              context.push('/place/${r.targetId}');
+                              break;
+                            case ReviewType.university:
+                              context.push('/university/${r.targetId}');
+                              break;
+                          }
+                        },
                         onDeleted: () async {
                           await ref.read(reviewActionControllerProvider.notifier).deleteReview(r);
                           invalidateUserProfileAfterReviewChange(ref);
