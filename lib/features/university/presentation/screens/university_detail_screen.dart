@@ -13,6 +13,7 @@ import '../../../favorites/presentation/providers/favorites_providers.dart';
 import '../../../reviews/presentation/widgets/review_list.dart';
 import '../../../reviews/domain/models/review_model.dart';
 import '../../../reviews/presentation/widgets/category_ratings_chart.dart';
+import '../../../places/presentation/widgets/place_list.dart';
 
 class UniversityDetailScreen extends ConsumerWidget {
   final String universityId;
@@ -255,7 +256,27 @@ class UniversityDetailScreen extends ConsumerWidget {
                         ),
                       ],
                       const SizedBox(height: 32),
-                      
+
+                      // ─── Mekanlar ────────────────────────────────────────
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.place_rounded, color: AppColors.primary, size: 22),
+                            const SizedBox(width: 8),
+                            Text('Mekanlar', style: AppTextStyles.headlineMedium),
+                          ],
+                        ),
+                      ),
+
+                      PlaceList(
+                        universityId: universityId,
+                        showTypeFilter: true,
+                        shrinkWrap: true,
+                      ),
+
+                      const SizedBox(height: 24),
+
                       // ─── Yorumlar Başlığı ve Butonu ────────────────
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
