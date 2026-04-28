@@ -170,10 +170,12 @@ final routerProvider = Provider<GoRouter>((ref) {
       builder: (context, state) {
         final typeStr = state.pathParameters['type']!;
         final targetId = state.pathParameters['targetId']!;
-        final type = typeStr == 'department'
-            ? ReviewType.department
-            : ReviewType.university;
+        final type = ReviewType.values.firstWhere(
+          (t) => t.name == typeStr,
+          orElse: () => ReviewType.university,
+        );
         // Department ise universityId'yi query parametreden al
+        // Place ise universityId query param'dan gelir
         final universityId = state.uri.queryParameters['uni'] ?? targetId;
         return WriteReviewScreen(
           type: type,
