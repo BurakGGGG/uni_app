@@ -5,32 +5,23 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../university/presentation/providers/university_providers.dart';
+import '../providers/comparison_providers.dart';
 
 class ComparisonUniPicker extends ConsumerWidget {
-  final String? uniIdA;
-  final String? uniIdB;
-  final ValueChanged<String> onSelectA;
-  final ValueChanged<String> onSelectB;
-
-  const ComparisonUniPicker({
-    super.key,
-    required this.uniIdA,
-    required this.uniIdB,
-    required this.onSelectA,
-    required this.onSelectB,
-  });
+  const ComparisonUniPicker({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final selection = ref.watch(comparisonSelectionProvider);
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Row(
         children: [
           Expanded(child: _UniSlot(
-            uniId: uniIdA,
+            uniId: selection.uniIdA,
             label: 'A',
             color: AppColors.primary,
-            onTap: () => _showPicker(context, ref, isA: true),
+            onTap: () => _showPicker(context, ref, selection, isA: true),
           )),
           const SizedBox(width: 12),
           Container(
@@ -48,17 +39,22 @@ class ComparisonUniPicker extends ConsumerWidget {
           ),
           const SizedBox(width: 12),
           Expanded(child: _UniSlot(
-            uniId: uniIdB,
+            uniId: selection.uniIdB,
             label: 'B',
             color: AppColors.secondary,
-            onTap: () => _showPicker(context, ref, isA: false),
+            onTap: () => _showPicker(context, ref, selection, isA: false),
           )),
         ],
       ),
     );
   }
 
-  void _showPicker(BuildContext context, WidgetRef ref, {required bool isA}) {
+  void _showPicker(
+    BuildContext context,
+    WidgetRef ref,
+    ComparisonSelection selection, {
+    required bool isA,
+  }) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -100,7 +96,7 @@ class ComparisonUniPicker extends ConsumerWidget {
                       itemCount: unis.length,
                       itemBuilder: (_, i) {
                         final uni = unis[i];
-                        final otherId = isA ? uniIdB : uniIdA;
+                        final otherId = isA ? selection.uniIdB : selection.uniIdA;
                         final disabled = uni.id == otherId;
                         return ListTile(
                           enabled: !disabled,
@@ -117,7 +113,8 @@ class ComparisonUniPicker extends ConsumerWidget {
                           trailing: disabled ? const Icon(Icons.block, size: 16) : null,
                           onTap: () {
                             Navigator.pop(context);
-                            isA ? onSelectA(uni.id) : onSelectB(uni.id);
+                            final notifier = ref.read(comparisonSelectionProvider.notifier);
+                            isA ? notifier.selectA(uni.id) : notifier.selectB(uni.id);
                           },
                         );
                       },
