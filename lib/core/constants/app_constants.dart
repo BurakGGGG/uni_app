@@ -136,27 +136,57 @@ class AppConstants {
   ];
 
   // ─── Sprint 4 — Place Yorumu İçin Artılar & Eksiler ─────────────
+  // Genel (fallback)
   static const List<String> placePros = [
-    // Genel pozitif
     'Sessiz', 'Geniş', 'Hızlı Wi-Fi', 'Bol Priz', 'Temiz', 'Güvenli',
     'Açık 7/24', 'Manzaralı', 'Ferah Atmosfer', 'Uygun Fiyat',
-    // Cafe-spesifik
-    'Lezzetli Kahve', 'Geniş Menü', 'Çalışmaya Uygun', 'Grup Çalışması İçin İdeal',
-    // Yurt-spesifik
-    'Kampüse Yakın', 'Modern Tesis', 'Sıcak Yemek', 'Çamaşırhane',
-    // Kütüphane-spesifik
-    'Sessiz Çalışma Salonu', 'Grup Odası', 'Geniş Koleksiyon',
+    'Kampüse Yakın', 'Çalışmaya Uygun',
   ];
 
   static const List<String> placeCons = [
-    // Genel negatif
-    'Kalabalık', 'Pahalı', 'Yavaş Servis', 'Gürültülü', 'Soğuk',
+    'Kalabalık', 'Pahalı', 'Gürültülü', 'Soğuk',
     'Az Priz', 'Yetersiz Wi-Fi', 'Kötü Konum', 'Az Yer',
-    // Cafe-spesifik
-    'Bekleme Süresi Uzun', 'Sınırlı Menü',
-    // Yurt-spesifik
-    'Eski Tesis', 'Sınırlı Kontenjan', 'Yemekler Vasat',
-    // Kütüphane-spesifik
+  ];
+
+  // ─── Kafe Artılar & Eksiler ───────────────────────────────────────
+  static const List<String> cafePros = [
+    'Lezzetli Kahve', 'Geniş Menü', 'Çalışmaya Uygun', 'Uygun Fiyat',
+    'Hızlı Wi-Fi', 'Bol Priz', 'Sessiz', 'Ferah Atmosfer',
+    'Grup Çalışması İçin İdeal', 'Manzaralı', 'Geniş Alan',
+    'Güler Yüzlü Personel', 'Temiz', 'Kampüse Yakın',
+  ];
+
+  static const List<String> cafeCons = [
+    'Pahalı', 'Kalabalık', 'Yavaş Servis', 'Bekleme Süresi Uzun',
+    'Sınırlı Menü', 'Gürültülü', 'Az Priz', 'Yetersiz Wi-Fi',
+    'Küçük Alan', 'Soğuk', 'Kötü Konum',
+  ];
+
+  // ─── Yurt Artılar & Eksiler ───────────────────────────────────────
+  static const List<String> dormPros = [
+    'Kampüse Yakın', 'Modern Tesis', 'Sıcak Yemek', 'Çamaşırhane',
+    'Temiz', 'Güvenli', 'Hızlı Wi-Fi', 'Uygun Fiyat',
+    'Sessiz', 'Otopark', 'Spor Salonu', 'Çalışma Odası',
+    'Sosyal Alan', '7/24 Sıcak Su',
+  ];
+
+  static const List<String> dormCons = [
+    'Eski Tesis', 'Sınırlı Kontenjan', 'Yemekler Vasat', 'Kalabalık',
+    'Gürültülü', 'Yetersiz Wi-Fi', 'Küçük Odalar', 'Temizlik Sorunu',
+    'Kampüse Uzak', 'Ulaşım Sorunu', 'Sıcak Su Sorunu', 'Böcek Problemi',
+  ];
+
+  // ─── Kütüphane Artılar & Eksiler ──────────────────────────────────
+  static const List<String> libraryPros = [
+    'Sessiz Çalışma Salonu', 'Grup Odası', 'Geniş Koleksiyon',
+    'Bol Priz', 'Hızlı Wi-Fi', 'Ferah Atmosfer', 'Temiz',
+    'Geniş Alan', 'Açık 7/24', 'Klimalı', 'Kampüse Yakın',
+    'Çalışmaya Uygun', 'Bilgisayar Salonu',
+  ];
+
+  static const List<String> libraryCons = [
     'Yer Bulmak Zor', 'Sessizlik İhlal Ediliyor', 'Kısıtlı Saatler',
+    'Kalabalık', 'Yetersiz Wi-Fi', 'Az Priz', 'Soğuk',
+    'Eski Kitaplar', 'Küçük Alan', 'Sınırlı Oturma',
   ];
 }

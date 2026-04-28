@@ -177,10 +177,12 @@ final routerProvider = Provider<GoRouter>((ref) {
         // Department ise universityId'yi query parametreden al
         // Place ise universityId query param'dan gelir
         final universityId = state.uri.queryParameters['uni'] ?? targetId;
+        final placeSubType = state.uri.queryParameters['pt'];
         return WriteReviewScreen(
           type: type,
           targetId: targetId,
           universityId: universityId,
+          placeSubType: placeSubType,
         );
       },
     ),

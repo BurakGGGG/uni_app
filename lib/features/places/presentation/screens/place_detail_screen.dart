@@ -275,7 +275,7 @@ class _PlaceDetailScreenState extends ConsumerState<PlaceDetailScreen> {
                   return;
                 }
                 context.push(
-                  '/write-review/place/${place.id}?uni=${place.universityId}');
+                  '/write-review/place/${place.id}?uni=${place.universityId}&pt=${place.type.firestoreValue}');
               },
               icon: const Icon(Icons.rate_review_rounded, size: 18),
               label: const Text('Yorum Yaz'),
