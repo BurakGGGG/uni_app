@@ -262,7 +262,7 @@ class _PlaceDetailScreenState extends ConsumerState<PlaceDetailScreen> {
           Expanded(
             child: ElevatedButton.icon(
               onPressed: () => context.push(
-                '/write-review?type=place&placeId=${place.id}'),
+                '/write-review/place/${place.id}?uni=${place.universityId}'),
               icon: const Icon(Icons.rate_review_rounded, size: 18),
               label: const Text('Yorum Yaz'),
               style: ElevatedButton.styleFrom(
@@ -280,8 +280,14 @@ class _PlaceDetailScreenState extends ConsumerState<PlaceDetailScreen> {
   Future<void> _openMap(PlaceModel place) async {
     final query = Uri.encodeComponent('${place.name} ${place.address}');
     final url = Uri.parse('https://www.google.com/maps/search/$query');
-    if (await canLaunchUrl(url)) {
+    try {
       await launchUrl(url, mode: LaunchMode.externalApplication);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Harita uygulaması açılamadı')),
+        );
+      }
     }
   }
 
