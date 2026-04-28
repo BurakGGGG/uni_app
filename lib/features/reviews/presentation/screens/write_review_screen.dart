@@ -79,19 +79,25 @@ class _WriteReviewScreenState extends ConsumerState<WriteReviewScreen> {
   }
 
   /// Type'a göre kategori listesi (cached)
-  late final List<String> _categories = widget.type == ReviewType.university
-      ? AppConstants.uniRatingCategories
-      : AppConstants.deptRatingCategories;
+  late final List<String> _categories = switch (widget.type) {
+    ReviewType.university => AppConstants.uniRatingCategories,
+    ReviewType.department => AppConstants.deptRatingCategories,
+    ReviewType.place => AppConstants.placeRatingCategories,
+  };
 
   /// Type'a göre preset pros (cached)
-  late final List<String> _presetPros = widget.type == ReviewType.university
-      ? AppConstants.commonUniPros
-      : AppConstants.commonDeptPros;
+  late final List<String> _presetPros = switch (widget.type) {
+    ReviewType.university => AppConstants.commonUniPros,
+    ReviewType.department => AppConstants.commonDeptPros,
+    ReviewType.place => AppConstants.placePros,
+  };
 
   /// Type'a göre preset cons (cached)
-  late final List<String> _presetCons = widget.type == ReviewType.university
-      ? AppConstants.commonUniCons
-      : AppConstants.commonDeptCons;
+  late final List<String> _presetCons = switch (widget.type) {
+    ReviewType.university => AppConstants.commonUniCons,
+    ReviewType.department => AppConstants.commonDeptCons,
+    ReviewType.place => AppConstants.placeCons,
+  };
 
   /// Tüm zorunlu alanlar dolu mu kontrol et
   bool get _isFormValid {
@@ -99,9 +105,10 @@ class _WriteReviewScreenState extends ConsumerState<WriteReviewScreen> {
       (c) => (_categoryRatings[c] ?? 0) > 0,
     );
     final commentLen = _commentController.text.trim().length;
+    final minLen = widget.type == ReviewType.place ? 20 : 20;
     return _overallRating > 0 &&
         allCategoriesFilled &&
-        commentLen >= 20 &&
+        commentLen >= minLen &&
         commentLen <= 500;
   }
 
@@ -291,7 +298,16 @@ class _WriteReviewScreenState extends ConsumerState<WriteReviewScreen> {
       child: Scaffold(
         backgroundColor: AppColors.background,
         appBar: AppBar(
-          title: Text(widget.initialReview != null ? 'Düzenle' : 'Değerlendir', style: AppTextStyles.titleLarge),
+          title: Text(
+            widget.initialReview != null
+                ? 'Düzenle'
+                : switch (widget.type) {
+                    ReviewType.university => 'Üniversite Değerlendir',
+                    ReviewType.department => 'Bölüm Değerlendir',
+                    ReviewType.place => 'Mekan Değerlendir',
+                  },
+            style: AppTextStyles.titleLarge,
+          ),
           backgroundColor: AppColors.background,
           elevation: 0,
         ),
@@ -582,7 +598,11 @@ class _WriteReviewScreenState extends ConsumerState<WriteReviewScreen> {
           ),
           const SizedBox(height: 4),
           Text(
-            'Bu üniversiteyi genel olarak nasıl değerlendirirsiniz?',
+            switch (widget.type) {
+              ReviewType.university => 'Bu üniversiteyi genel olarak nasıl değerlendirirsiniz?',
+              ReviewType.department => 'Bu bölümü genel olarak nasıl değerlendirirsiniz?',
+              ReviewType.place => 'Bu mekanı genel olarak nasıl değerlendirirsiniz?',
+            },
             style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary),
           ),
           const SizedBox(height: 12),
