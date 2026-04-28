@@ -22,9 +22,11 @@ class CategoryRatingsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final categories = type == ReviewType.university
-        ? AppConstants.uniRatingCategories
-        : AppConstants.deptRatingCategories;
+    final categories = switch (type) {
+      ReviewType.university => AppConstants.uniRatingCategories,
+      ReviewType.department => AppConstants.deptRatingCategories,
+      ReviewType.place => AppConstants.placeRatingCategories,
+    };
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
