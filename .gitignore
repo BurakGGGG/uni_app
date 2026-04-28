@@ -61,3 +61,7 @@ gerekli_dosyalar/
 
 # .gitignore'a ekle
 /data/raw/
+
+# Cloud Functions build artifacts
+functions/lib/
+functions/node_modules/

@@ -77,3 +77,6 @@ export const aggregateUniversityRatings = functions.firestore.onDocumentWritten(
 
 // Moderation Cloud Function — yeni yorum küfür filtresi
 export { moderateNewReview } from './moderation';
+
+// Sprint 4 — Place yorumları aggregation
+export { aggregatePlaceRatings } from './places/aggregate_place_ratings';
