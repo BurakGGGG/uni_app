@@ -1,43 +1,353 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_text_styles.dart';
+import '../../../../core/constants/app_constants.dart';
+import '../../../../core/widgets/widgets.dart';
+import '../../../reviews/domain/models/review_model.dart';
+import '../../../reviews/presentation/providers/review_providers.dart';
+import '../../../reviews/presentation/widgets/review_card.dart';
+import '../../domain/models/place_model.dart';
 import '../providers/place_providers.dart';
+import '../widgets/place_type_chip.dart';
+import '../widgets/dorm_info_card.dart';
+import '../widgets/place_amenities_grid.dart';
 
-/// Sprint 4 — Placeholder mekan detay ekranı.
-/// Gün 3'te tam olarak doldurulacak.
-class PlaceDetailScreen extends ConsumerWidget {
+class PlaceDetailScreen extends ConsumerStatefulWidget {
   final String placeId;
   const PlaceDetailScreen({super.key, required this.placeId});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final placeAsync = ref.watch(placeDetailProvider(placeId));
+  ConsumerState<PlaceDetailScreen> createState() => _PlaceDetailScreenState();
+}
+
+class _PlaceDetailScreenState extends ConsumerState<PlaceDetailScreen> {
+  @override
+  Widget build(BuildContext context) {
+    final placeAsync = ref.watch(placeWatchProvider(widget.placeId));
+
     return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          onPressed: () => context.pop(),
-          icon: const Icon(Icons.arrow_back_rounded),
-        ),
-        title: const Text('Mekan Detayı'),
-      ),
+      backgroundColor: AppColors.background,
       body: placeAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => Center(child: Text('Hata: $e')),
-        data: (place) => Center(
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(place?.name ?? 'Bulunamadı',
-                    style: Theme.of(context).textTheme.titleLarge),
-                const SizedBox(height: 8),
-                const Text('Detay ekranı yarın yapılacak'),
-              ],
-            ),
+        data: (place) {
+          if (place == null) {
+            return Center(
+              child: EmptyStateWidget(
+                icon: Icons.error_outline,
+                title: 'Mekan bulunamadı',
+                description: 'Bu mekan silinmiş olabilir.',
+              ),
+            );
+          }
+          return _buildContent(place);
+        },
+      ),
+    );
+  }
+
+  Widget _buildContent(PlaceModel place) {
+    return CustomScrollView(
+      slivers: [
+        _buildAppBar(place),
+        SliverToBoxAdapter(child: _buildHeader(place)),
+        if (place.type == PlaceType.dorm) ...[
+          const SliverToBoxAdapter(child: SizedBox(height: 16)),
+          SliverToBoxAdapter(child: DormInfoCard(place: place)),
+        ],
+        SliverToBoxAdapter(child: _buildInfoSection(place)),
+        if (place.amenities.isNotEmpty)
+          SliverToBoxAdapter(child: _buildAmenitiesSection(place)),
+        SliverToBoxAdapter(child: _buildActionsBar(place)),
+        SliverToBoxAdapter(child: _buildReviewsHeader(place)),
+        _buildReviewsList(place),
+        const SliverToBoxAdapter(child: SizedBox(height: 80)),
+      ],
+    );
+  }
+
+  Widget _buildAppBar(PlaceModel place) {
+    return SliverAppBar(
+      expandedHeight: place.imageUrls.isNotEmpty ? 240 : 0,
+      pinned: true,
+      backgroundColor: AppColors.surface,
+      foregroundColor: AppColors.textPrimary,
+      leading: IconButton(
+        onPressed: () => context.pop(),
+        icon: Container(
+          padding: const EdgeInsets.all(6),
+          decoration: const BoxDecoration(
+            color: Colors.white70, shape: BoxShape.circle,
           ),
+          child: const Icon(Icons.arrow_back_rounded, size: 20),
         ),
       ),
+      flexibleSpace: place.imageUrls.isNotEmpty
+        ? FlexibleSpaceBar(
+            background: PageView.builder(
+              itemCount: place.imageUrls.length,
+              itemBuilder: (_, i) => CachedNetworkImage(
+                imageUrl: place.imageUrls[i],
+                fit: BoxFit.cover,
+                placeholder: (_, url) => Container(color: AppColors.surfaceVariant),
+                errorWidget: (_, url, error) => Container(
+                  color: AppColors.primary.withValues(alpha: 0.12),
+                  child: Icon(place.type.icon, size: 80, color: AppColors.primary),
+                ),
+              ),
+            ),
+          )
+        : null,
+      title: place.imageUrls.isEmpty
+        ? Text(place.name, style: AppTextStyles.titleMedium)
+        : null,
+    );
+  }
+
+  Widget _buildHeader(PlaceModel place) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              PlaceTypeChip(type: place.type),
+              if (place.priceRange != null) ...[
+                const SizedBox(width: 8),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: AppColors.success.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(place.priceRange!,
+                    style: AppTextStyles.labelMedium.copyWith(
+                      color: AppColors.success, fontWeight: FontWeight.w700)),
+                ),
+              ],
+            ],
+          ),
+          const SizedBox(height: 12),
+          Text(place.name, style: AppTextStyles.headlineLarge),
+          if (place.address.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Icon(Icons.location_on_outlined, size: 16, color: AppColors.textSecondary),
+                const SizedBox(width: 6),
+                Expanded(child: Text(place.address,
+                  style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary))),
+              ],
+            ),
+          ],
+          const SizedBox(height: 12),
+          _buildRatingRow(place),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRatingRow(PlaceModel place) {
+    return Row(
+      children: [
+        if (place.avgRating > 0) ...[
+          Icon(Icons.star_rounded, size: 18, color: AppColors.ratingStar),
+          const SizedBox(width: 4),
+          Text(place.avgRating.toStringAsFixed(1),
+            style: AppTextStyles.titleMedium.copyWith(fontWeight: FontWeight.w700)),
+          const SizedBox(width: 4),
+          Text('(${place.reviewCount} yorum)',
+            style: AppTextStyles.labelMedium.copyWith(color: AppColors.textSecondary)),
+        ] else
+          Text('Henüz değerlendirilmedi',
+            style: AppTextStyles.labelMedium.copyWith(
+              color: AppColors.textTertiary, fontStyle: FontStyle.italic)),
+        if (place.externalRating != null) ...[
+          const SizedBox(width: 12),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            decoration: BoxDecoration(
+              color: const Color(0xFFE8F5E9),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Row(mainAxisSize: MainAxisSize.min, children: [
+              Text('Google ', style: AppTextStyles.labelSmall.copyWith(
+                color: const Color(0xFF1B5E20), fontWeight: FontWeight.w700)),
+              Icon(Icons.star_rounded, size: 12, color: const Color(0xFF1B5E20)),
+              const SizedBox(width: 2),
+              Text(place.externalRating!.toStringAsFixed(1),
+                style: AppTextStyles.labelSmall.copyWith(
+                  color: const Color(0xFF1B5E20), fontWeight: FontWeight.w700)),
+            ]),
+          ),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildInfoSection(PlaceModel place) {
+    if (place.description.isEmpty && place.openHours == null) {
+      return const SizedBox.shrink();
+    }
+    return Container(
+      margin: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+      padding: const EdgeInsets.all(AppConstants.spacingLg),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(AppConstants.radiusLg),
+        border: Border.all(color: AppColors.borderLight),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (place.description.isNotEmpty) ...[
+            Text('Hakkında', style: AppTextStyles.titleSmall),
+            const SizedBox(height: 8),
+            Text(place.description,
+              style: AppTextStyles.bodyMedium.copyWith(height: 1.5)),
+          ],
+          if (place.openHours != null) ...[
+            if (place.description.isNotEmpty) const SizedBox(height: 12),
+            Row(children: [
+              Icon(Icons.schedule_rounded, size: 16, color: AppColors.primary),
+              const SizedBox(width: 8),
+              Text('Açılış Saatleri: ',
+                style: AppTextStyles.labelMedium.copyWith(color: AppColors.textSecondary)),
+              Text(place.openHours!,
+                style: AppTextStyles.labelMedium.copyWith(fontWeight: FontWeight.w600)),
+            ]),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAmenitiesSection(PlaceModel place) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Özellikler', style: AppTextStyles.titleSmall),
+          const SizedBox(height: 12),
+          PlaceAmenitiesGrid(amenities: place.amenities),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildActionsBar(PlaceModel place) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+      child: Row(
+        children: [
+          Expanded(
+            child: OutlinedButton.icon(
+              onPressed: () => _openMap(place),
+              icon: const Icon(Icons.map_rounded, size: 18),
+              label: const Text('Haritada Aç'),
+              style: OutlinedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                foregroundColor: AppColors.primary,
+                side: BorderSide(color: AppColors.primary.withValues(alpha: 0.5)),
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: ElevatedButton.icon(
+              onPressed: () => context.push(
+                '/write-review?type=place&placeId=${place.id}'),
+              icon: const Icon(Icons.rate_review_rounded, size: 18),
+              label: const Text('Yorum Yaz'),
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                backgroundColor: AppColors.primary,
+                foregroundColor: Colors.white,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _openMap(PlaceModel place) async {
+    final query = Uri.encodeComponent('${place.name} ${place.address}');
+    final url = Uri.parse('https://www.google.com/maps/search/$query');
+    if (await canLaunchUrl(url)) {
+      await launchUrl(url, mode: LaunchMode.externalApplication);
+    }
+  }
+
+  Widget _buildReviewsHeader(PlaceModel place) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 28, 20, 8),
+      child: Row(
+        children: [
+          Text('Yorumlar', style: AppTextStyles.headlineMedium),
+          const Spacer(),
+          PopupMenuButton<ReviewSort>(
+            initialValue: ref.watch(reviewSortProvider),
+            onSelected: (s) =>
+                ref.read(reviewSortProvider.notifier).state = s,
+            itemBuilder: (_) => const [
+              PopupMenuItem(value: ReviewSort.newest, child: Text('En yeni')),
+              PopupMenuItem(value: ReviewSort.mostLiked, child: Text('En beğenilen')),
+            ],
+            child: Row(children: [
+              Icon(Icons.sort_rounded, size: 16, color: AppColors.textSecondary),
+              const SizedBox(width: 4),
+              Text(
+                ref.watch(reviewSortProvider) == ReviewSort.newest
+                    ? 'En yeni'
+                    : 'En beğenilen',
+                style: AppTextStyles.labelMedium,
+              ),
+            ]),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildReviewsList(PlaceModel place) {
+    final reviewsAsync = ref.watch(sortedReviewsProvider(
+      SortedReviewsParams(targetId: place.id, type: ReviewType.place),
+    ));
+    return reviewsAsync.when(
+      loading: () => const SliverToBoxAdapter(child: ShimmerList(itemCount: 2)),
+      error: (e, _) => SliverToBoxAdapter(
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Text('Yorumlar yüklenemedi: $e'),
+        ),
+      ),
+      data: (reviews) {
+        if (reviews.isEmpty) {
+          return SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.all(40),
+              child: EmptyStateWidget(
+                icon: Icons.rate_review_outlined,
+                title: 'Henüz yorum yok',
+                description: 'İlk yorum yapan siz olun!',
+              ),
+            ),
+          );
+        }
+        return SliverList(
+          delegate: SliverChildBuilderDelegate(
+            (_, i) => ReviewCard(review: reviews[i]),
+            childCount: reviews.length,
+          ),
+        );
+      },
     );
   }
 }
