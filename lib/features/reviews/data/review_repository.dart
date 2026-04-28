@@ -108,6 +108,31 @@ class ReviewRepository {
             .toList());
   }
 
+  // Sprint 4 — Mekana ait yorumları getir (sort destekli)
+  Stream<List<ReviewModel>> getPlaceReviews(String placeId, {int limit = 20, String orderBy = 'createdAt'}) {
+    return _reviewsRef
+        .where('targetId', isEqualTo: placeId)
+        .where('type', isEqualTo: 'place')
+        .where('isApproved', isEqualTo: true)
+        .orderBy(orderBy, descending: true)
+        .limit(limit)
+        .snapshots()
+        .map((snapshot) => snapshot.docs
+            .map((doc) => ReviewModel.fromMap(doc.data(), doc.id))
+            .toList());
+  }
+
+  // Sprint 4 — Mekana ait onaylı yorum sayısı
+  Future<int> getPlaceReviewCount(String placeId) async {
+    final snap = await _reviewsRef
+        .where('targetId', isEqualTo: placeId)
+        .where('type', isEqualTo: 'place')
+        .where('isApproved', isEqualTo: true)
+        .count()
+        .get();
+    return snap.count ?? 0;
+  }
+
   Future<void> likeReview(String reviewId, String userId) async {
     // İki referans: review altındaki like + user altındaki likedReview
     final reviewLikeRef = _firestore

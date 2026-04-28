@@ -134,4 +134,29 @@ class AppConstants {
     'Zor sınavlar',
     'Az seçmeli ders',
   ];
+
+  // ─── Sprint 4 — Place Yorumu İçin Artılar & Eksiler ─────────────
+  static const List<String> placePros = [
+    // Genel pozitif
+    'Sessiz', 'Geniş', 'Hızlı Wi-Fi', 'Bol Priz', 'Temiz', 'Güvenli',
+    'Açık 7/24', 'Manzaralı', 'Ferah Atmosfer', 'Uygun Fiyat',
+    // Cafe-spesifik
+    'Lezzetli Kahve', 'Geniş Menü', 'Çalışmaya Uygun', 'Grup Çalışması İçin İdeal',
+    // Yurt-spesifik
+    'Kampüse Yakın', 'Modern Tesis', 'Sıcak Yemek', 'Çamaşırhane',
+    // Kütüphane-spesifik
+    'Sessiz Çalışma Salonu', 'Grup Odası', 'Geniş Koleksiyon',
+  ];
+
+  static const List<String> placeCons = [
+    // Genel negatif
+    'Kalabalık', 'Pahalı', 'Yavaş Servis', 'Gürültülü', 'Soğuk',
+    'Az Priz', 'Yetersiz Wi-Fi', 'Kötü Konum', 'Az Yer',
+    // Cafe-spesifik
+    'Bekleme Süresi Uzun', 'Sınırlı Menü',
+    // Yurt-spesifik
+    'Eski Tesis', 'Sınırlı Kontenjan', 'Yemekler Vasat',
+    // Kütüphane-spesifik
+    'Yer Bulmak Zor', 'Sessizlik İhlal Ediliyor', 'Kısıtlı Saatler',
+  ];
 }
