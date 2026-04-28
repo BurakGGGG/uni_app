@@ -15,6 +15,8 @@ import '../providers/place_providers.dart';
 import '../widgets/place_type_chip.dart';
 import '../widgets/dorm_info_card.dart';
 import '../widgets/place_amenities_grid.dart';
+import '../widgets/place_detail_skeleton.dart';
+import '../../../auth/presentation/providers/auth_providers.dart';
 
 class PlaceDetailScreen extends ConsumerStatefulWidget {
   final String placeId;
@@ -32,7 +34,7 @@ class _PlaceDetailScreenState extends ConsumerState<PlaceDetailScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       body: placeAsync.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => const PlaceDetailSkeleton(),
         error: (e, _) => Center(child: Text('Hata: $e')),
         data: (place) {
           if (place == null) {
@@ -261,8 +263,20 @@ class _PlaceDetailScreenState extends ConsumerState<PlaceDetailScreen> {
           const SizedBox(width: 12),
           Expanded(
             child: ElevatedButton.icon(
-              onPressed: () => context.push(
-                '/write-review/place/${place.id}?uni=${place.universityId}'),
+              onPressed: () {
+                final user = ref.read(authStateProvider).value;
+                if (user == null) {
+                  _showLoginPromptDialog(context);
+                  return;
+                }
+                final userModel = ref.read(currentUserProvider).valueOrNull;
+                if (userModel != null && !userModel.isVerifiedStudent) {
+                  _showVerificationRequiredDialog(context);
+                  return;
+                }
+                context.push(
+                  '/write-review/place/${place.id}?uni=${place.universityId}');
+              },
               icon: const Icon(Icons.rate_review_rounded, size: 18),
               label: const Text('Yorum Yaz'),
               style: ElevatedButton.styleFrom(
@@ -280,15 +294,49 @@ class _PlaceDetailScreenState extends ConsumerState<PlaceDetailScreen> {
   Future<void> _openMap(PlaceModel place) async {
     final query = Uri.encodeComponent('${place.name} ${place.address}');
     final url = Uri.parse('https://www.google.com/maps/search/$query');
-    try {
+    if (await canLaunchUrl(url)) {
       await launchUrl(url, mode: LaunchMode.externalApplication);
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Harita uygulaması açılamadı')),
-        );
-      }
     }
+  }
+
+  void _showLoginPromptDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Yorum yapmak için giriş yapın'),
+        content: const Text('Mekanlara yorum yazmak için giriş yapmanız gerekiyor.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Vazgeç'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              context.push('/login');
+            },
+            child: const Text('Giriş Yap'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showVerificationRequiredDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Doğrulama gerekli'),
+        content: const Text(
+          'Yorum yazabilmek için .edu.tr e-posta adresinizi doğrulamanız gerekiyor.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Tamam'),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildReviewsHeader(PlaceModel place) {

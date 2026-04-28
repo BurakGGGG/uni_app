@@ -52,18 +52,16 @@ class _PlaceListState extends ConsumerState<PlaceList> {
           children: [
             if (widget.showTypeFilter) _buildFilterBar(places),
             if (filtered.isEmpty)
-              Padding(
-                padding: const EdgeInsets.all(40),
-                child: EmptyStateWidget(
-                  icon: Icons.place_outlined,
-                  title: _selectedType != null
-                      ? '${_selectedType!.label} bulunamadı'
-                      : 'Henüz mekan eklenmedi',
-                  description: _selectedType != null
-                      ? 'Bu üniversite için bu kategoride mekan yok.'
-                      : 'İlk değerlendiren siz olun!',
-                ),
-              )
+              _selectedType != null
+                ? Padding(
+                    padding: const EdgeInsets.all(40),
+                    child: EmptyStateWidget(
+                      icon: Icons.place_outlined,
+                      title: '${_selectedType!.label} bulunamadı',
+                      description: 'Bu üniversite için bu kategoride mekan yok.',
+                    ),
+                  )
+                : const _PlacesEmptyState()
             else
               ListView.builder(
                 shrinkWrap: widget.shrinkWrap,
@@ -125,6 +123,42 @@ class _PlaceListState extends ConsumerState<PlaceList> {
         ),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         showCheckmark: false,
+      ),
+    );
+  }
+}
+
+class _PlacesEmptyState extends StatelessWidget {
+  const _PlacesEmptyState();
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(40),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: AppColors.primary.withValues(alpha: 0.08),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(Icons.place_outlined, size: 48, color: AppColors.primary),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'Bu üniversite için mekan ekleniyor',
+            style: AppTextStyles.titleMedium,
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Çok yakında bu üniversitenin kafeleri, yurtları ve kütüphaneleri burada listelenecek.',
+            style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary),
+            textAlign: TextAlign.center,
+          ),
+        ],
       ),
     );
   }

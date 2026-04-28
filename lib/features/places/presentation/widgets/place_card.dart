@@ -7,7 +7,7 @@ import '../../../../core/constants/app_constants.dart';
 import '../../domain/models/place_model.dart';
 import 'place_type_chip.dart';
 
-class PlaceCard extends ConsumerWidget {
+class PlaceCard extends ConsumerStatefulWidget {
   final PlaceModel place;
   final bool compact;
   final VoidCallback? onTap;
@@ -24,33 +24,70 @@ class PlaceCard extends ConsumerWidget {
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<PlaceCard> createState() => _PlaceCardState();
+}
+
+class _PlaceCardState extends ConsumerState<PlaceCard>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<double> _scale;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 100),
+      lowerBound: 0.0,
+      upperBound: 0.04,
+    );
+    _scale = Tween<double>(begin: 1.0, end: 0.96).animate(_controller);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  PlaceModel get place => widget.place;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTapDown: (_) => _controller.forward(),
+      onTapUp: (_) {
+        _controller.reverse();
+        widget.onTap?.call();
+      },
+      onTapCancel: () => _controller.reverse(),
+      child: AnimatedBuilder(
+        animation: _scale,
+        builder: (_, child) => Transform.scale(scale: _scale.value, child: child),
+        child: _buildCard(),
+      ),
+    );
+  }
+
+  Widget _buildCard() {
     return Container(
-      margin: margin ?? const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      margin: widget.margin ?? const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(AppConstants.radiusLg),
         border: Border.all(color: AppColors.borderLight),
         boxShadow: AppColors.softShadow,
       ),
-      child: Material(
-        color: Colors.transparent,
-        borderRadius: BorderRadius.circular(AppConstants.radiusLg),
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(AppConstants.radiusLg),
-          child: Padding(
-            padding: const EdgeInsets.all(AppConstants.spacingLg),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildImage(),
-                const SizedBox(width: AppConstants.spacingMd),
-                Expanded(child: _buildInfo()),
-                if (place.priceRange != null) _buildPriceBadge(),
-              ],
-            ),
-          ),
+      child: Padding(
+        padding: const EdgeInsets.all(AppConstants.spacingLg),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildImage(),
+            const SizedBox(width: AppConstants.spacingMd),
+            Expanded(child: _buildInfo()),
+            if (place.priceRange != null) _buildPriceBadge(),
+          ],
         ),
       ),
     );
@@ -150,7 +187,6 @@ class PlaceCard extends ConsumerWidget {
   }
 
   Widget _buildRatings() {
-    // ÜniSeç içinden rating
     if (place.avgRating > 0) {
       return Row(
         children: [
@@ -174,11 +210,9 @@ class PlaceCard extends ConsumerWidget {
         ],
       );
     }
-    // Sadece Google rating varsa
     if (place.externalRating != null) {
       return _buildExternalRatingBadge();
     }
-    // Hiçbiri yoksa
     return Text(
       'Henüz değerlendirilmedi',
       style: AppTextStyles.labelSmall.copyWith(
