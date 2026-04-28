@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:go_router/go_router.dart';
 import '../features/reviews/presentation/providers/review_providers.dart';
 import '../features/reviews/presentation/screens/all_reviews_screen.dart';
+import '../features/places/presentation/screens/place_detail_screen.dart';
 import '../core/providers/shared_preferences_provider.dart';
 import 'go_router_refresh_stream.dart';
 import '../features/home/presentation/screens/home_screen.dart';
@@ -131,6 +132,14 @@ final routerProvider = Provider<GoRouter>((ref) {
     GoRoute(
       path: AppRoutes.allReviews,
       builder: (context, state) => const AllReviewsScreen(),
+    ),
+
+    // ─── Mekan Detayı ─────────────────────────────────────────
+    GoRoute(
+      path: '/place/:placeId',
+      builder: (context, state) => PlaceDetailScreen(
+        placeId: state.pathParameters['placeId']!,
+      ),
     ),
 
     // ─── Auth & Profile Routes ───────────────────────────────────
