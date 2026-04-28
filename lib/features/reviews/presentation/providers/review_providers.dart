@@ -165,6 +165,7 @@ final sortedReviewsProvider =
     } else if (params.type == ReviewType.place) {
       return repo.getPlaceReviews(params.targetId, orderBy: orderBy);
     } else {
+      // department ve place aynı targetId bazlı sorguyu kullanır
       return repo.getDepartmentReviews(params.targetId, orderBy: orderBy);
     }
   },
