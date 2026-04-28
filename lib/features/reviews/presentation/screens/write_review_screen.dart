@@ -13,6 +13,7 @@ import '../../../../core/widgets/widgets.dart';
 import '../../../auth/presentation/providers/auth_providers.dart';
 import '../../domain/models/review_model.dart';
 import '../providers/review_providers.dart';
+import '../../../places/presentation/providers/place_providers.dart';
 import '../widgets/review_form_sections/category_ratings_section.dart';
 import '../widgets/review_form_sections/pros_cons_section.dart';
 import '../widgets/review_form_sections/photo_upload_section.dart';
@@ -21,6 +22,7 @@ class WriteReviewScreen extends ConsumerStatefulWidget {
   final String targetId;
   final ReviewType type;
   final String universityId;
+  final String? placeSubType; // 'cafe', 'dorm', 'library', etc.
   final ReviewModel? initialReview;
 
   const WriteReviewScreen({
@@ -28,6 +30,7 @@ class WriteReviewScreen extends ConsumerStatefulWidget {
     required this.targetId,
     required this.type,
     required this.universityId,
+    this.placeSubType,
     this.initialReview,
   });
 
@@ -89,14 +92,30 @@ class _WriteReviewScreenState extends ConsumerState<WriteReviewScreen> {
   late final List<String> _presetPros = switch (widget.type) {
     ReviewType.university => AppConstants.commonUniPros,
     ReviewType.department => AppConstants.commonDeptPros,
-    ReviewType.place => AppConstants.placePros,
+    ReviewType.place => _placeProsForSubType,
   };
 
   /// Type'a göre preset cons (cached)
   late final List<String> _presetCons = switch (widget.type) {
     ReviewType.university => AppConstants.commonUniCons,
     ReviewType.department => AppConstants.commonDeptCons,
-    ReviewType.place => AppConstants.placeCons,
+    ReviewType.place => _placeConsForSubType,
+  };
+
+  /// Place alt tipine göre pros listesi
+  List<String> get _placeProsForSubType => switch (widget.placeSubType) {
+    'cafe' => AppConstants.cafePros,
+    'dorm' => AppConstants.dormPros,
+    'library' => AppConstants.libraryPros,
+    _ => AppConstants.placePros,
+  };
+
+  /// Place alt tipine göre cons listesi
+  List<String> get _placeConsForSubType => switch (widget.placeSubType) {
+    'cafe' => AppConstants.cafeCons,
+    'dorm' => AppConstants.dormCons,
+    'library' => AppConstants.libraryCons,
+    _ => AppConstants.placeCons,
   };
 
   /// Tüm zorunlu alanlar dolu mu kontrol et
@@ -248,6 +267,12 @@ class _WriteReviewScreenState extends ConsumerState<WriteReviewScreen> {
 
         // Profile cache'i temizle — reviewCount anında güncellenir
         invalidateUserProfileAfterReviewChange(ref);
+
+        // Place cache'i temizle — üni sayfasında güncel rating göster
+        if (widget.type == ReviewType.place) {
+          ref.read(placeRepositoryProvider).clearCache();
+          ref.invalidate(placesByUniversityProvider(widget.universityId));
+        }
 
         // 1.5 saniye sonra geri dön
         await Future.delayed(const Duration(milliseconds: 1500));
