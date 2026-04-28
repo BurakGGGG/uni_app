@@ -61,7 +61,7 @@ export const aggregatePlaceRatings = onDocumentWritten(
 
     for (const doc of reviewsSnap.docs) {
       const data = doc.data();
-      totalOverall += data.overallRating ?? 0;
+      totalOverall += data.rating ?? 0;
 
       const catRatings = (data.categoryRatings as Record<string, number>) || {};
       for (const [cat, rating] of Object.entries(catRatings)) {
