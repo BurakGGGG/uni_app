@@ -5,6 +5,8 @@ import 'package:cached_network_image/cached_network_image.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/constants/app_constants.dart';
+import '../../../places/presentation/providers/place_providers.dart';
+import '../../../university/presentation/providers/university_providers.dart';
 import '../../domain/models/review_model.dart';
 import 'review_actions_menu.dart';
 import 'like_button.dart';
@@ -28,6 +30,7 @@ class ReviewCard extends ConsumerWidget {
   final ReviewModel review;
   final bool showActions;
   final bool showReportMenu;
+  final bool showTargetInfo;
   final VoidCallback? onTap;
   final bool compact;
   final VoidCallback? onDeleted;
@@ -38,6 +41,7 @@ class ReviewCard extends ConsumerWidget {
     required this.review,
     this.showActions = false,
     this.showReportMenu = true,
+    this.showTargetInfo = false,
     this.onTap,
     this.compact = false,
     this.onDeleted,
@@ -58,6 +62,10 @@ class ReviewCard extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // YENİ — Hedef bilgisi (ana sayfa, tüm yorumlar, yorumlarım için)
+                if (showTargetInfo) _buildTargetHeader(ref),
+                if (showTargetInfo) const SizedBox(height: 10),
+
                 // Onay bekliyor banner'ı (sadece sahibine ve onaylanmamışsa)
                 if (!review.isApproved && showActions) _buildPendingApprovalBanner(),
                 if (!review.isApproved && showActions) const SizedBox(height: 12),
@@ -80,6 +88,86 @@ class ReviewCard extends ConsumerWidget {
         ),
       ),
     );
+  }
+
+  // ─── YENİ — Hedef Header (üni/bölüm/mekan adı) ─────────────────
+  Widget _buildTargetHeader(WidgetRef ref) {
+    switch (review.type) {
+      case ReviewType.university:
+        final uniAsync = ref.watch(universityDetailProvider(review.targetId));
+        return _TargetChip(
+          icon: Icons.school_rounded,
+          label: uniAsync.when(
+            data: (u) => u?.name ?? 'Üniversite',
+            loading: () => 'Yükleniyor...',
+            error: (err, stack) => 'Üniversite',
+          ),
+          subtitle: 'Üniversite Yorumu',
+          color: AppColors.primary,
+        );
+
+      case ReviewType.department:
+        final deptAsync = ref.watch(departmentDetailProvider(review.targetId));
+        final uniAsync = ref.watch(universityDetailProvider(review.universityId));
+        return _TargetChip(
+          icon: Icons.menu_book_rounded,
+          label: deptAsync.when(
+            data: (d) => d?.name ?? 'Bölüm',
+            loading: () => 'Yükleniyor...',
+            error: (err, stack) => 'Bölüm',
+          ),
+          subtitle: uniAsync.when(
+            data: (u) => '${u?.name ?? ""} • Bölüm Yorumu',
+            loading: () => 'Bölüm Yorumu',
+            error: (err, stack) => 'Bölüm Yorumu',
+          ),
+          color: AppColors.accent,
+        );
+
+      case ReviewType.place:
+        final placeAsync = ref.watch(placeDetailProvider(review.targetId));
+        final uniAsync = ref.watch(universityDetailProvider(review.universityId));
+        return placeAsync.when(
+          data: (place) {
+            return _TargetChip(
+              icon: place?.type.icon ?? Icons.place_rounded,
+              label: place?.name ?? 'Mekan',
+              subtitle: uniAsync.when(
+                data: (u) => '${place?.type.label ?? "Mekan"} • ${u?.name ?? ""}',
+                loading: () => place?.type.label ?? 'Mekan Yorumu',
+                error: (err, stack) => 'Mekan Yorumu',
+              ),
+              color: _placeColor(place?.type),
+            );
+          },
+          loading: () => _TargetChip(
+            icon: Icons.place_rounded,
+            label: 'Yükleniyor...',
+            subtitle: 'Mekan Yorumu',
+            color: AppColors.textTertiary,
+          ),
+          error: (err, stack) => _TargetChip(
+            icon: Icons.place_rounded,
+            label: 'Mekan',
+            subtitle: 'Mekan Yorumu',
+            color: AppColors.textTertiary,
+          ),
+        );
+    }
+  }
+
+  Color _placeColor(dynamic placeType) {
+    if (placeType == null) return AppColors.textSecondary;
+    switch (placeType.toString()) {
+      case 'PlaceType.cafe':
+        return const Color(0xFFE65100);
+      case 'PlaceType.dorm':
+        return const Color(0xFF0D47A1);
+      case 'PlaceType.library':
+        return const Color(0xFF6A1B9A);
+      default:
+        return AppColors.textSecondary;
+    }
   }
 
   // ─── Header: avatar + isim + üni + rating + menu ──────────────────
@@ -382,6 +470,72 @@ class ReviewCard extends ConsumerWidget {
               ],
             ),
           ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─── YENİ — Hedef Chip Widget'ı ──────────────────────────────────
+class _TargetChip extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String subtitle;
+  final Color color;
+
+  const _TargetChip({
+    required this.icon,
+    required this.label,
+    required this.subtitle,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(AppConstants.radiusSm),
+        border: Border.all(color: color.withValues(alpha: 0.18)),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: Icon(icon, size: 14, color: color),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: AppTextStyles.titleSmall.copyWith(
+                    color: color,
+                    fontWeight: FontWeight.w700,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                Text(
+                  subtitle,
+                  style: AppTextStyles.labelSmall.copyWith(
+                    color: color.withValues(alpha: 0.8),
+                    fontSize: 10,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ),
+          Icon(Icons.chevron_right_rounded, size: 18, color: color.withValues(alpha: 0.6)),
         ],
       ),
     );

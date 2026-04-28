@@ -8,6 +8,7 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../providers/university_providers.dart';
 import '../../domain/models/department_model.dart';
+import '../../domain/models/university_model.dart';
 import '../../../auth/presentation/providers/auth_providers.dart';
 import '../../../favorites/presentation/providers/favorites_providers.dart';
 import '../../../reviews/presentation/widgets/review_list.dart';
@@ -35,333 +36,216 @@ class UniversityDetailScreen extends ConsumerWidget {
             return const Center(child: Text('Üniversite bulunamadı'));
           }
 
-          return CustomScrollView(
-            slivers: [
-              // ─── Header ─────────────────────────────────────────
-              SliverAppBar(
-                expandedHeight: 200,
-                pinned: true,
-                backgroundColor: AppColors.primary,
-                leading: IconButton(
-                  onPressed: () => context.pop(),
-                  icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
+          final deptCount = deptsAsync.value?.length ?? 0;
+
+          return DefaultTabController(
+            length: 3,
+            child: NestedScrollView(
+              headerSliverBuilder: (context, innerBoxIsScrolled) => [
+                _buildSliverAppBar(context, uni),
+                SliverToBoxAdapter(child: _buildCompactInfoCard(context, ref, uni)),
+                SliverPersistentHeader(
+                  pinned: true,
+                  delegate: _SliverTabBarDelegate(
+                    TabBar(
+                      labelColor: AppColors.primary,
+                      unselectedLabelColor: AppColors.textTertiary,
+                      indicatorColor: AppColors.primary,
+                      indicatorWeight: 3,
+                      labelStyle: AppTextStyles.titleSmall.copyWith(fontWeight: FontWeight.w700),
+                      unselectedLabelStyle: AppTextStyles.titleSmall,
+                      tabs: [
+                        Tab(text: 'Bölümler${deptCount > 0 ? " ($deptCount)" : ""}'),
+                        const Tab(text: 'Mekanlar'),
+                        Tab(text: 'Yorumlar${uni.reviewCount > 0 ? " (${uni.reviewCount})" : ""}'),
+                      ],
+                    ),
+                  ),
                 ),
-                actions: [
-                  _FavoriteButton(universityId: universityId),
+              ],
+              body: TabBarView(
+                children: [
+                  _DepartmentsTab(deptsAsync: deptsAsync),
+                  _PlacesTab(universityId: universityId),
+                  _ReviewsTab(universityId: universityId, uni: uni),
                 ],
-                flexibleSpace: FlexibleSpaceBar(
-                  title: Text(
-                    uni.name,
-                    style: AppTextStyles.titleMedium.copyWith(color: Colors.white),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  background: Container(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          AppColors.primary,
-                          AppColors.primary.withValues(alpha: 0.8),
-                          AppColors.secondary,
-                        ],
-                      ),
-                    ),
-                    child: Stack(
-                      children: [
-                        // Dekoratif daireler
-                        Positioned(
-                          right: -30,
-                          top: -30,
-                          child: Container(
-                            width: 150,
-                            height: 150,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Colors.white.withValues(alpha: 0.08),
-                            ),
-                          ),
-                        ),
-                        Positioned(
-                          left: -20,
-                          bottom: -20,
-                          child: Container(
-                            width: 100,
-                            height: 100,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Colors.white.withValues(alpha: 0.06),
-                            ),
-                          ),
-                        ),
-                        // İkon
-                        Center(
-                          child: Container(
-                            width: 72,
-                            height: 72,
-                            margin: const EdgeInsets.only(bottom: 20),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.15),
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: const Icon(Icons.school_rounded, color: Colors.white, size: 36),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
               ),
-
-              // ─── Bilgi Kartları ──────────────────────────────────
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Tür & Kampüs rozetleri
-                      Row(
-                        children: [
-                          _Badge(
-                            text: uni.type,
-                            color: uni.type == 'Devlet' ? AppColors.stateUni : AppColors.foundationUni,
-                          ),
-                          const SizedBox(width: 8),
-                          _Badge(
-                            text: uni.campusLayout.label,
-                            color: AppColors.info,
-                          ),
-                          const Spacer(),
-                          Text(
-                            'Kuruluş: ${uni.establishedYear}',
-                            style: AppTextStyles.labelMedium.copyWith(color: AppColors.textTertiary),
-                          ),
-                        ],
-                      ).animate().fadeIn(duration: 300.ms),
-
-                      const SizedBox(height: 16),
-
-                      // Açıklama
-                      Text(
-                        uni.description,
-                        style: AppTextStyles.bodyMedium.copyWith(
-                          color: AppColors.textSecondary,
-                          height: 1.5,
-                        ),
-                      ).animate().fadeIn(delay: 100.ms, duration: 300.ms),
-
-                      const SizedBox(height: 16),
-
-                      // Web sitesi butonu
-                      if (uni.website.isNotEmpty)
-                        GestureDetector(
-                          onTap: () => _launchUrl('https://${uni.website}'),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                            decoration: BoxDecoration(
-                              color: AppColors.primary.withValues(alpha: 0.08),
-                              borderRadius: BorderRadius.circular(AppConstants.radiusMd),
-                              border: Border.all(color: AppColors.primary.withValues(alpha: 0.15)),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const Icon(Icons.language_rounded, color: AppColors.primary, size: 18),
-                                const SizedBox(width: 8),
-                                Text(
-                                  uni.website,
-                                  style: AppTextStyles.labelLarge.copyWith(color: AppColors.primary),
-                                ),
-                                const SizedBox(width: 4),
-                                const Icon(Icons.open_in_new_rounded, color: AppColors.primary, size: 14),
-                              ],
-                            ),
-                          ),
-                        ).animate().fadeIn(delay: 200.ms, duration: 300.ms),
-
-                      const SizedBox(height: 24),
-
-                      // ─── Bölümler Başlığı ────────────────────────
-                      Row(
-                        children: [
-                          const Icon(Icons.menu_book_rounded, color: AppColors.primary, size: 22),
-                          const SizedBox(width: 8),
-                          Text('Bölümler', style: AppTextStyles.headlineMedium),
-                        ],
-                      ).animate().fadeIn(delay: 300.ms, duration: 300.ms),
-
-                      const SizedBox(height: 12),
-                    ],
-                  ),
-                ),
-              ),
-
-              // ─── Bölüm Listesi ──────────────────────────────────
-              deptsAsync.when(
-                loading: () => const SliverToBoxAdapter(
-                  child: Center(child: Padding(
-                    padding: EdgeInsets.all(40),
-                    child: CircularProgressIndicator(),
-                  )),
-                ),
-                error: (e, st) => SliverToBoxAdapter(
-                  child: Center(child: Text('Bölümler yüklenemedi: $e')),
-                ),
-                data: (departments) {
-                  if (departments.isEmpty) {
-                    return const SliverToBoxAdapter(
-                      child: Center(child: Padding(
-                        padding: EdgeInsets.all(40),
-                        child: Text('Henüz bölüm eklenmemiş'),
-                      )),
-                    );
-                  }
-
-                  // Lisans ve Önlisans ayır
-                  final lisans = departments.where((d) => d.type == 'Lisans').toList();
-                  final onlisans = departments.where((d) => d.type == 'Önlisans').toList();
-
-                  return SliverList(
-                    delegate: SliverChildListDelegate([
-                      // ─── Kategori Puanları ─────────────────────────
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                        child: CategoryRatingsChart(
-                          ratings: uni.categoryRatings,
-                          reviewCount: uni.reviewCount,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      
-                      if (lisans.isNotEmpty) ...[
-                        _SectionTitle(title: 'Lisans (${lisans.length})'),
-                        ...lisans.asMap().entries.map((entry) =>
-                          _DepartmentCard(
-                            department: entry.value,
-                            index: entry.key,
-                            onTap: () => context.push('/department/${entry.value.id}'),
-                          ),
-                        ),
-                      ],
-                      if (onlisans.isNotEmpty) ...[
-                        _SectionTitle(title: 'Önlisans (${onlisans.length})'),
-                        ...onlisans.asMap().entries.map((entry) =>
-                          _DepartmentCard(
-                            department: entry.value,
-                            index: entry.key + lisans.length,
-                            onTap: () => context.push('/department/${entry.value.id}'),
-                          ),
-                        ),
-                      ],
-                      const SizedBox(height: 32),
-
-                      // ─── Mekanlar ────────────────────────────────────────
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                        child: Row(
-                          children: [
-                            const Icon(Icons.place_rounded, color: AppColors.primary, size: 22),
-                            const SizedBox(width: 8),
-                            Text('Mekanlar', style: AppTextStyles.headlineMedium),
-                          ],
-                        ),
-                      ),
-
-                      PlaceList(
-                        universityId: universityId,
-                        showTypeFilter: true,
-                        shrinkWrap: true,
-                      ),
-
-                      const SizedBox(height: 24),
-
-                      // ─── Yorumlar Başlığı ve Butonu ────────────────
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Row(
-                              children: [
-                                const Icon(Icons.rate_review_rounded, color: AppColors.primary, size: 22),
-                                const SizedBox(width: 8),
-                                Text('Yorumlar', style: AppTextStyles.headlineMedium),
-                              ],
-                            ),
-                            Consumer(
-                              builder: (context, ref, _) {
-                                final currentUserAsync = ref.watch(currentUserProvider);
-                                return currentUserAsync.when(
-                                  data: (profile) {
-                                    final canReview = profile != null &&
-                                        profile.universityId == universityId &&
-                                        profile.isVerifiedStudent;
-
-                                    if (!canReview) {
-                                      return TextButton.icon(
-                                        onPressed: () => _showReviewInfoSheet(
-                                          context,
-                                          profile: profile,
-                                          isOwnUniversity: profile?.universityId == universityId,
-                                        ),
-                                        icon: const Icon(Icons.add_comment_rounded, size: 18),
-                                        label: const Text('Değerlendir'),
-                                        style: TextButton.styleFrom(
-                                          foregroundColor: AppColors.textTertiary,
-                                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(AppConstants.radiusMd),
-                                            side: BorderSide(color: AppColors.borderLight),
-                                          ),
-                                        ),
-                                      );
-                                    }
-
-                                    return TextButton.icon(
-                                      onPressed: () => context.push('/write-review/university/$universityId'),
-                                      icon: const Icon(Icons.add_comment_rounded, size: 18),
-                                      label: const Text('Değerlendir'),
-                                      style: TextButton.styleFrom(
-                                        foregroundColor: AppColors.primary,
-                                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(AppConstants.radiusMd),
-                                          side: BorderSide(color: AppColors.primary.withValues(alpha: 0.2)),
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                  loading: () => const SizedBox(
-                                    width: 20,
-                                    height: 20,
-                                    child: CircularProgressIndicator(strokeWidth: 2),
-                                  ),
-                                  error: (err, stack) => const SizedBox.shrink(),
-                                );
-                              },
-                            ),
-                          ],
-                        ),
-                      ),
-                      
-                      // ─── Yorum Listesi (ReviewList widget) ─────────
-                      ReviewList(
-                        targetId: universityId,
-                        type: ReviewType.university,
-                      ),
-                      
-                      const SizedBox(height: 100),
-                    ]),
-                  );
-                },
-              ),
-            ],
+            ),
           );
         },
       ),
     );
+  }
+
+  // ─── Compact SliverAppBar ─────────────────────────────────────
+  Widget _buildSliverAppBar(BuildContext context, UniversityModel uni) {
+    return SliverAppBar(
+      expandedHeight: 160,
+      pinned: true,
+      backgroundColor: AppColors.primary,
+      leading: IconButton(
+        onPressed: () => context.pop(),
+        icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
+      ),
+      actions: [_FavoriteButton(universityId: universityId)],
+      flexibleSpace: FlexibleSpaceBar(
+        title: Text(
+          uni.name,
+          style: AppTextStyles.titleSmall.copyWith(color: Colors.white),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+        titlePadding: const EdgeInsetsDirectional.only(start: 56, bottom: 14, end: 56),
+        background: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                AppColors.primary,
+                AppColors.primary.withValues(alpha: 0.85),
+                AppColors.secondary,
+              ],
+            ),
+          ),
+          child: Stack(
+            children: [
+              Positioned(
+                right: -30,
+                top: -30,
+                child: Container(
+                  width: 130,
+                  height: 130,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white.withValues(alpha: 0.08),
+                  ),
+                ),
+              ),
+              Center(
+                child: Container(
+                  width: 64,
+                  height: 64,
+                  margin: const EdgeInsets.only(bottom: 28),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.18),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: const Icon(Icons.school_rounded, color: Colors.white, size: 30),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ─── Compact Info Card ────────────────────────────────────────
+  Widget _buildCompactInfoCard(BuildContext context, WidgetRef ref, UniversityModel uni) {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+      padding: const EdgeInsets.all(AppConstants.spacingLg),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(AppConstants.radiusLg),
+        border: Border.all(color: AppColors.borderLight),
+        boxShadow: AppColors.softShadow,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Rozetler ve rating yan yana
+          Row(
+            children: [
+              _Badge(
+                text: uni.type,
+                color: uni.type == 'Devlet' ? AppColors.stateUni : AppColors.foundationUni,
+              ),
+              const SizedBox(width: 6),
+              _Badge(
+                text: uni.campusLayout.label,
+                color: AppColors.info,
+                icon: uni.campusLayout.icon,
+              ),
+              const Spacer(),
+              if (uni.reviewCount > 0)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: AppColors.ratingColor(uni.avgRating).withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.star_rounded, size: 14,
+                        color: AppColors.ratingColor(uni.avgRating)),
+                      const SizedBox(width: 3),
+                      Text(uni.avgRating.toStringAsFixed(1),
+                        style: AppTextStyles.labelLarge.copyWith(
+                          color: AppColors.ratingColor(uni.avgRating),
+                          fontWeight: FontWeight.w700,
+                        )),
+                      const SizedBox(width: 4),
+                      Text('(${uni.reviewCount})',
+                        style: AppTextStyles.labelSmall.copyWith(
+                          color: AppColors.ratingColor(uni.avgRating))),
+                    ],
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(height: 12),
+
+          // Açıklama (max 2 satır)
+          if (uni.description.isNotEmpty)
+            Text(
+              uni.description,
+              style: AppTextStyles.bodySmall.copyWith(
+                color: AppColors.textSecondary,
+                height: 1.5,
+              ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+
+          const SizedBox(height: 12),
+
+          // Meta info (kuruluş + website)
+          Row(
+            children: [
+              Icon(Icons.calendar_today_rounded, size: 13, color: AppColors.textTertiary),
+              const SizedBox(width: 4),
+              Text('Kuruluş ${uni.establishedYear}',
+                style: AppTextStyles.labelSmall.copyWith(color: AppColors.textTertiary)),
+              const SizedBox(width: 12),
+              if (uni.website.isNotEmpty)
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () => _launchUrl('https://${uni.website}'),
+                    child: Row(
+                      children: [
+                        Icon(Icons.language_rounded, size: 13, color: AppColors.primary),
+                        const SizedBox(width: 4),
+                        Flexible(
+                          child: Text(uni.website,
+                            style: AppTextStyles.labelSmall.copyWith(
+                              color: AppColors.primary,
+                              decoration: TextDecoration.underline,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ],
+      ),
+    ).animate().fadeIn(duration: 300.ms).slideY(begin: -0.1, end: 0);
   }
 
   Future<void> _launchUrl(String url) async {
@@ -372,58 +256,243 @@ class UniversityDetailScreen extends ConsumerWidget {
   }
 }
 
-// ─── Badge Widget ─────────────────────────────────────────────────
+// ─── Sticky TabBar Delegate ───────────────────────────────────────
+class _SliverTabBarDelegate extends SliverPersistentHeaderDelegate {
+  final TabBar tabBar;
 
-class _Badge extends StatelessWidget {
-  final String text;
-  final Color color;
+  _SliverTabBarDelegate(this.tabBar);
 
-  const _Badge({required this.text, required this.color});
+  @override
+  double get minExtent => tabBar.preferredSize.height;
+
+  @override
+  double get maxExtent => tabBar.preferredSize.height;
+
+  @override
+  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
+    return Container(
+      color: AppColors.background,
+      child: Material(
+        color: AppColors.background,
+        elevation: overlapsContent ? 2 : 0,
+        child: tabBar,
+      ),
+    );
+  }
+
+  @override
+  bool shouldRebuild(_SliverTabBarDelegate oldDelegate) {
+    return tabBar != oldDelegate.tabBar;
+  }
+}
+
+// ─── Bölümler Tab ─────────────────────────────────────────────────
+class _DepartmentsTab extends StatelessWidget {
+  final AsyncValue<List<DepartmentModel>> deptsAsync;
+
+  const _DepartmentsTab({required this.deptsAsync});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: color.withValues(alpha: 0.2)),
-      ),
-      child: Text(
-        text,
-        style: AppTextStyles.labelSmall.copyWith(
-          color: color,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
+    return deptsAsync.when(
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (e, st) => Center(child: Text('Bölümler yüklenemedi: $e')),
+      data: (departments) {
+        if (departments.isEmpty) {
+          return const Center(
+            child: Padding(
+              padding: EdgeInsets.all(40),
+              child: Text('Henüz bölüm eklenmemiş'),
+            ),
+          );
+        }
+
+        final lisans = departments.where((d) => d.type == 'Lisans').toList();
+        final onlisans = departments.where((d) => d.type == 'Önlisans').toList();
+
+        return ListView(
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          children: [
+            if (lisans.isNotEmpty) ...[
+              _SectionTitle(title: 'Lisans (${lisans.length})'),
+              ...lisans.asMap().entries.map((e) => _DepartmentCard(
+                department: e.value,
+                index: e.key,
+                onTap: () => context.push('/department/${e.value.id}'),
+              )),
+            ],
+            if (onlisans.isNotEmpty) ...[
+              _SectionTitle(title: 'Önlisans (${onlisans.length})'),
+              ...onlisans.asMap().entries.map((e) => _DepartmentCard(
+                department: e.value,
+                index: e.key + lisans.length,
+                onTap: () => context.push('/department/${e.value.id}'),
+              )),
+            ],
+            const SizedBox(height: 80),
+          ],
+        );
+      },
     );
   }
 }
 
-// ─── Section Title ────────────────────────────────────────────────
+// ─── Mekanlar Tab ─────────────────────────────────────────────────
+class _PlacesTab extends StatelessWidget {
+  final String universityId;
 
+  const _PlacesTab({required this.universityId});
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      padding: const EdgeInsets.only(top: 12, bottom: 80),
+      children: [
+        PlaceList(
+          universityId: universityId,
+          showTypeFilter: true,
+          shrinkWrap: true,
+        ),
+      ],
+    );
+  }
+}
+
+// ─── Yorumlar Tab ─────────────────────────────────────────────────
+class _ReviewsTab extends ConsumerWidget {
+  final String universityId;
+  final UniversityModel uni;
+
+  const _ReviewsTab({required this.universityId, required this.uni});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return ListView(
+      padding: const EdgeInsets.only(bottom: 80),
+      children: [
+        // Kategori puanları özeti
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+          child: CategoryRatingsChart(
+            ratings: uni.categoryRatings,
+            reviewCount: uni.reviewCount,
+          ),
+        ),
+
+        // Değerlendir butonu
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Consumer(
+            builder: (context, ref, _) {
+              final currentUserAsync = ref.watch(currentUserProvider);
+              return currentUserAsync.when(
+                data: (profile) {
+                  final canReview = profile != null &&
+                      profile.universityId == universityId &&
+                      profile.isVerifiedStudent;
+
+                  return SizedBox(
+                    width: double.infinity,
+                    child: canReview
+                      ? ElevatedButton.icon(
+                          onPressed: () => context.push('/write-review/university/$universityId'),
+                          icon: const Icon(Icons.add_comment_rounded, size: 18),
+                          label: const Text('Bu Üniversiteyi Değerlendir'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.primary,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(AppConstants.radiusMd),
+                            ),
+                          ),
+                        )
+                      : OutlinedButton.icon(
+                          onPressed: () => _showReviewInfoSheet(
+                            context,
+                            profile: profile,
+                            isOwnUniversity: profile?.universityId == universityId,
+                          ),
+                          icon: const Icon(Icons.info_outline_rounded, size: 18),
+                          label: const Text('Neden değerlendiremiyorum?'),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: AppColors.textSecondary,
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            side: BorderSide(color: AppColors.borderLight),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(AppConstants.radiusMd),
+                            ),
+                          ),
+                        ),
+                  );
+                },
+                loading: () => const SizedBox(height: 48),
+                error: (err, stack) => const SizedBox.shrink(),
+              );
+            },
+          ),
+        ),
+
+        // Yorum listesi
+        ReviewList(
+          targetId: universityId,
+          type: ReviewType.university,
+        ),
+      ],
+    );
+  }
+}
+
+// ─── Section Title (mevcut) ───────────────────────────────────────
 class _SectionTitle extends StatelessWidget {
   final String title;
-
   const _SectionTitle({required this.title});
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 8, 20, 4),
-      child: Text(
-        title,
-        style: AppTextStyles.labelMedium.copyWith(
-          color: AppColors.textTertiary,
-          fontWeight: FontWeight.w600,
-        ),
+      padding: const EdgeInsets.fromLTRB(20, 12, 20, 4),
+      child: Text(title, style: AppTextStyles.labelMedium.copyWith(
+        color: AppColors.textTertiary, fontWeight: FontWeight.w600,
+      )),
+    );
+  }
+}
+
+// ─── Badge (icon parametresi eklendi) ─────────────────────────────
+class _Badge extends StatelessWidget {
+  final String text;
+  final Color color;
+  final IconData? icon;
+
+  const _Badge({required this.text, required this.color, this.icon});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: color.withValues(alpha: 0.2)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (icon != null) ...[
+            Icon(icon, size: 11, color: color),
+            const SizedBox(width: 4),
+          ],
+          Text(text, style: AppTextStyles.labelSmall.copyWith(
+            color: color, fontWeight: FontWeight.w600, fontSize: 10,
+          )),
+        ],
       ),
     );
   }
 }
 
-// ─── Department Card ──────────────────────────────────────────────
-
+// ─── Department Card (mevcut, aynı kalıyor) ──────────────────────
 class _DepartmentCard extends StatelessWidget {
   final DepartmentModel department;
   final int index;
@@ -438,7 +507,7 @@ class _DepartmentCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(AppConstants.radiusMd),
@@ -452,71 +521,46 @@ class _DepartmentCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(AppConstants.radiusMd),
           child: Padding(
             padding: const EdgeInsets.all(14),
-            child: Row(
-              children: [
-                // İkon
+            child: Row(children: [
+              Container(
+                width: 40, height: 40,
+                decoration: BoxDecoration(
+                  color: (department.type == 'Lisans' ? AppColors.primary : AppColors.accent)
+                      .withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(
+                  department.type == 'Lisans' ? Icons.school_rounded : Icons.auto_stories_rounded,
+                  color: department.type == 'Lisans' ? AppColors.primary : AppColors.accent,
+                  size: 20,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(department.name, style: AppTextStyles.titleSmall,
+                    maxLines: 1, overflow: TextOverflow.ellipsis),
+                  const SizedBox(height: 2),
+                  Text('${department.faculty} • ${department.language}',
+                    style: AppTextStyles.labelSmall,
+                    maxLines: 1, overflow: TextOverflow.ellipsis),
+                ],
+              )),
+              if (department.baseScore != null)
                 Container(
-                  width: 40,
-                  height: 40,
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: (department.type == 'Lisans'
-                            ? AppColors.primary
-                            : AppColors.accent)
-                        .withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(10),
+                    color: AppColors.primary.withValues(alpha: 0.08),
+                    borderRadius: BorderRadius.circular(6),
                   ),
-                  child: Icon(
-                    department.type == 'Lisans'
-                        ? Icons.school_rounded
-                        : Icons.auto_stories_rounded,
-                    color: department.type == 'Lisans'
-                        ? AppColors.primary
-                        : AppColors.accent,
-                    size: 20,
-                  ),
+                  child: Text(department.baseScore!.toStringAsFixed(1),
+                    style: AppTextStyles.labelMedium.copyWith(
+                      color: AppColors.primary, fontWeight: FontWeight.w700)),
                 ),
-                const SizedBox(width: 12),
-                // Bilgi
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        department.name,
-                        style: AppTextStyles.titleSmall,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        '${department.faculty} • ${department.language}',
-                        style: AppTextStyles.labelSmall,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                  ),
-                ),
-                // Taban puan
-                if (department.baseScore != null)
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: AppColors.primary.withValues(alpha: 0.08),
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: Text(
-                      department.baseScore!.toStringAsFixed(1),
-                      style: AppTextStyles.labelMedium.copyWith(
-                        color: AppColors.primary,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ),
-                const SizedBox(width: 4),
-                const Icon(Icons.chevron_right_rounded, color: AppColors.textTertiary, size: 20),
-              ],
-            ),
+              const SizedBox(width: 4),
+              const Icon(Icons.chevron_right_rounded, color: AppColors.textTertiary, size: 20),
+            ]),
           ),
         ),
       ),
@@ -524,8 +568,7 @@ class _DepartmentCard extends StatelessWidget {
   }
 }
 
-// ─── Favorite Button ──────────────────────────────────────────────
-
+// ─── Favorite Button (mevcut, aynı kalıyor) ──────────────────────
 class _FavoriteButton extends ConsumerWidget {
   final String universityId;
 
@@ -539,11 +582,9 @@ class _FavoriteButton extends ConsumerWidget {
     return favoritesAsync.when(
       data: (favorites) {
         final isFavorite = favorites.contains(universityId);
-
         return IconButton(
           onPressed: () {
             if (user == null) {
-              // Giriş yapmamış kullanıcıyı uyar ve yönlendir
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: const Text('Favorilere eklemek için giriş yapmalısın.'),
@@ -557,13 +598,8 @@ class _FavoriteButton extends ConsumerWidget {
               );
               return;
             }
-
-            // Favoriye ekle/çıkar
             ref.read(favoritesControllerProvider.notifier).toggleFavorite(
-              user.uid,
-              universityId,
-              isFavorite,
-            );
+              user.uid, universityId, isFavorite);
           },
           icon: Icon(
             isFavorite ? Icons.favorite_rounded : Icons.favorite_border_rounded,
@@ -573,13 +609,10 @@ class _FavoriteButton extends ConsumerWidget {
       },
       loading: () => const IconButton(
         onPressed: null,
-        icon: SizedBox(
-          width: 20,
-          height: 20,
-          child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white70),
-        ),
+        icon: SizedBox(width: 20, height: 20,
+          child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white70)),
       ),
-      error: (_, st) => const IconButton(
+      error: (err, stack) => const IconButton(
         onPressed: null,
         icon: Icon(Icons.favorite_border_rounded, color: Colors.white54),
       ),
@@ -699,4 +732,3 @@ void _showReviewInfoSheet(
     ),
   );
 }
-

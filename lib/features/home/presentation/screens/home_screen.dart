@@ -228,11 +228,18 @@ class HomeScreen extends ConsumerWidget {
                         compact: true,
                         showReportMenu: false,
                         showActions: false,
+                        showTargetInfo: true, // YENİ
                         onTap: () {
-                          if (review.type == ReviewType.department) {
-                            context.push('/department/${review.targetId}');
-                          } else {
-                            context.push('/university/${review.targetId}');
+                          switch (review.type) {
+                            case ReviewType.department:
+                              context.push('/department/${review.targetId}');
+                              break;
+                            case ReviewType.place:
+                              context.push('/place/${review.targetId}');
+                              break;
+                            case ReviewType.university:
+                              context.push('/university/${review.targetId}');
+                              break;
                           }
                         },
                       );
