@@ -15,6 +15,8 @@ import '../../../reviews/presentation/widgets/review_list.dart';
 import '../../../reviews/domain/models/review_model.dart';
 import '../../../reviews/presentation/widgets/category_ratings_chart.dart';
 import '../../../places/presentation/widgets/place_list.dart';
+import '../../../places/presentation/screens/place_filter_sheet.dart';
+import '../../../places/presentation/providers/place_filter_provider.dart';
 
 class UniversityDetailScreen extends ConsumerWidget {
   final String universityId;
@@ -337,17 +339,44 @@ class _DepartmentsTab extends StatelessWidget {
   }
 }
 
-// ─── Mekanlar Tab ─────────────────────────────────────────────────
-class _PlacesTab extends StatelessWidget {
+// ─── Mekanlar Tab ───────────────────────────────────────────────────────
+class _PlacesTab extends ConsumerWidget {
   final String universityId;
 
   const _PlacesTab({required this.universityId});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final filter = ref.watch(placeFilterProvider(universityId));
     return ListView(
       padding: const EdgeInsets.only(top: 12, bottom: 80),
       children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+          child: Row(
+            children: [
+              const Spacer(),
+              IconButton(
+                icon: Stack(children: [
+                  const Icon(Icons.tune_rounded),
+                  if (filter.filterCount > 0)
+                    Positioned(
+                      right: 0, top: 0,
+                      child: Container(
+                        width: 8, height: 8,
+                        decoration: const BoxDecoration(
+                          color: AppColors.primary,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                    ),
+                ]),
+                onPressed: () =>
+                    PlaceFilterSheet.show(context, universityId),
+              ),
+            ],
+          ),
+        ),
         PlaceList(
           universityId: universityId,
           showTypeFilter: true,
