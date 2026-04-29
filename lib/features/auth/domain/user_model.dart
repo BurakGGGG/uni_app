@@ -12,6 +12,8 @@ class UserModel {
   final String? department;
   final int? grade;
   final int reviewCount;
+  final List<String> fcmTokens;
+  final NotificationPreferences notificationPrefs;
   final DateTime createdAt;
   final DateTime lastLoginAt;
 
@@ -26,6 +28,8 @@ class UserModel {
     this.department,
     this.grade,
     this.reviewCount = 0,
+    this.fcmTokens = const [],
+    this.notificationPrefs = const NotificationPreferences(),
     required this.createdAt,
     required this.lastLoginAt,
   });
@@ -43,6 +47,10 @@ class UserModel {
       department: map['department'],
       grade: map['grade'],
       reviewCount: map['reviewCount'] ?? 0,
+      fcmTokens: List<String>.from(map['fcmTokens'] ?? []),
+      notificationPrefs: NotificationPreferences.fromMap(
+        map['notificationPrefs'] as Map<String, dynamic>?,
+      ),
       createdAt: (map['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
       lastLoginAt:
           (map['lastLoginAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
@@ -61,6 +69,8 @@ class UserModel {
       'department': department,
       'grade': grade,
       'reviewCount': reviewCount,
+      'fcmTokens': fcmTokens,
+      'notificationPrefs': notificationPrefs.toMap(),
       'createdAt': Timestamp.fromDate(createdAt),
       'lastLoginAt': Timestamp.fromDate(lastLoginAt),
     };
@@ -77,6 +87,8 @@ class UserModel {
     String? department,
     int? grade,
     int? reviewCount,
+    List<String>? fcmTokens,
+    NotificationPreferences? notificationPrefs,
     DateTime? lastLoginAt,
   }) {
     return UserModel(
@@ -90,6 +102,8 @@ class UserModel {
       department: department ?? this.department,
       grade: grade ?? this.grade,
       reviewCount: reviewCount ?? this.reviewCount,
+      fcmTokens: fcmTokens ?? this.fcmTokens,
+      notificationPrefs: notificationPrefs ?? this.notificationPrefs,
       createdAt: createdAt,
       lastLoginAt: lastLoginAt ?? this.lastLoginAt,
     );
@@ -109,6 +123,34 @@ class UserModel {
 
   @override
   String toString() => 'UserModel(uid: $uid, displayName: $displayName, email: $email)';
+}
+
+/// Bildirim tercihleri
+class NotificationPreferences {
+  final bool reviewLikedEnabled;
+  final bool reviewModeratedEnabled;
+  final bool favoriteNewReviewEnabled;
+
+  const NotificationPreferences({
+    this.reviewLikedEnabled = true,
+    this.reviewModeratedEnabled = true,
+    this.favoriteNewReviewEnabled = true,
+  });
+
+  factory NotificationPreferences.fromMap(Map<String, dynamic>? map) {
+    if (map == null) return const NotificationPreferences();
+    return NotificationPreferences(
+      reviewLikedEnabled: map['reviewLikedEnabled'] ?? true,
+      reviewModeratedEnabled: map['reviewModeratedEnabled'] ?? true,
+      favoriteNewReviewEnabled: map['favoriteNewReviewEnabled'] ?? true,
+    );
+  }
+
+  Map<String, dynamic> toMap() => {
+    'reviewLikedEnabled': reviewLikedEnabled,
+    'reviewModeratedEnabled': reviewModeratedEnabled,
+    'favoriteNewReviewEnabled': favoriteNewReviewEnabled,
+  };
 }
 
 /// Auth durumu
