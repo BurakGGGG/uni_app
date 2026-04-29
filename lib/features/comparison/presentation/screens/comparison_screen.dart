@@ -6,6 +6,10 @@ import '../../../../core/widgets/widgets.dart';
 import '../../domain/models/comparison_result.dart';
 import '../providers/comparison_providers.dart';
 import '../widgets/comparison_uni_picker.dart';
+import '../widgets/comparison_header.dart';
+import '../widgets/comparison_category_row.dart';
+import '../widgets/comparison_stats_table.dart';
+import '../widgets/comparison_share_card.dart';
 
 class ComparisonScreen extends ConsumerWidget {
   const ComparisonScreen({super.key});
@@ -23,7 +27,31 @@ class ComparisonScreen extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Karşılaştır', style: AppTextStyles.displaySmall),
+              Row(
+                children: [
+                  Expanded(
+                    child: Text('Karşılaştır', style: AppTextStyles.displaySmall),
+                  ),
+                  if (selection.bothSelected) ...[
+                    IconButton(
+                      icon: const Icon(Icons.swap_horiz_rounded),
+                      tooltip: 'Yer Değiştir',
+                      onPressed: () =>
+                          ref.read(comparisonSelectionProvider.notifier).swap(),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.ios_share_rounded),
+                      tooltip: 'Paylaş',
+                      onPressed: () async {
+                        final result = resultAsync.valueOrNull;
+                        if (result != null) {
+                          await ComparisonShareCard.shareCard(context, result);
+                        }
+                      },
+                    ),
+                  ],
+                ],
+              ),
               const SizedBox(height: 4),
               Text(
                 'Üniversiteleri yan yana kıyasla',
@@ -45,7 +73,7 @@ class ComparisonScreen extends ConsumerWidget {
     ComparisonSelection selection,
     AsyncValue<ComparisonResult?> resultAsync,
   ) {
-    if (selection.uniIdA == null || selection.uniIdB == null) {
+    if (!selection.bothSelected) {
       return const _EmptyState();
     }
 
@@ -73,7 +101,8 @@ class _EmptyState extends StatelessWidget {
       child: EmptyStateWidget(
         icon: Icons.compare_arrows_rounded,
         title: 'İki üniversite seç',
-        description: 'Yukarıdan iki üniversite seçince karşılaştırma sonuçları burada gözükür.',
+        description:
+            'Yukarıdan iki üniversite seçince karşılaştırma sonuçları burada gözükür.',
       ),
     );
   }
@@ -88,194 +117,36 @@ class _ResultView extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Genel', style: AppTextStyles.titleLarge),
-        const SizedBox(height: 12),
-        _GeneralComparison(result: result),
+        ComparisonHeader(result: result),
         const SizedBox(height: 24),
-        Text('Kategoriler', style: AppTextStyles.titleLarge),
-        const SizedBox(height: 12),
-        _CategoryBars(result: result),
+        _SectionTitle('Kategori Puanları'),
+        ...result.categoryComparisons.values.map(
+          (c) => ComparisonCategoryRow(
+            comparison: c,
+            uniAId: result.uniA.id,
+            uniBId: result.uniB.id,
+          ),
+        ),
+        const SizedBox(height: 24),
+        _SectionTitle('Genel İstatistikler'),
+        ComparisonStatsTable(result: result),
+        const SizedBox(height: 80),
       ],
     );
   }
 }
 
-class _GeneralComparison extends StatelessWidget {
-  final ComparisonResult result;
-  const _GeneralComparison({required this.result});
-
-  @override
-  Widget build(BuildContext context) {
-    // ComparisonResult model'in alanlarına göre satır satır göster:
-    // ortalama puan, yorum sayısı, kuruluş yılı, tür (Devlet/Vakıf), yerleşke (campusLayout)
-    // Her satırda iki uni'nin değeri yan yana, kazanan vurgulu (yeşil tik / fark yüzdesi)
-    return Column(
-      children: [
-        _ComparisonRow(
-          label: 'Ortalama Puan',
-          valueA: result.uniA.avgRating.toStringAsFixed(1),
-          valueB: result.uniB.avgRating.toStringAsFixed(1),
-          winnerIsA: result.uniA.avgRating > result.uniB.avgRating,
-          winnerIsB: result.uniB.avgRating > result.uniA.avgRating,
-        ),
-        _ComparisonRow(
-          label: 'Yorum Sayısı',
-          valueA: '${result.uniA.reviewCount}',
-          valueB: '${result.uniB.reviewCount}',
-          winnerIsA: result.uniA.reviewCount > result.uniB.reviewCount,
-          winnerIsB: result.uniB.reviewCount > result.uniA.reviewCount,
-        ),
-        // ... diğer satırlar (foundedYear, type, campusLayout)
-      ],
-    );
-  }
-}
-
-class _ComparisonRow extends StatelessWidget {
-  final String label;
-  final String valueA;
-  final String valueB;
-  final bool winnerIsA;
-  final bool winnerIsB;
-
-  const _ComparisonRow({
-    required this.label,
-    required this.valueA,
-    required this.valueB,
-    required this.winnerIsA,
-    required this.winnerIsB,
-  });
+class _SectionTitle extends StatelessWidget {
+  final String title;
+  const _SectionTitle(this.title);
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Row(
-        children: [
-          Expanded(
-            child: Text(
-              valueA,
-              textAlign: TextAlign.right,
-              style: TextStyle(
-                fontWeight: winnerIsA ? FontWeight.w700 : FontWeight.w400,
-                color: winnerIsA ? AppColors.success : AppColors.textPrimary,
-              ),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Center(
-              child: Text(label, style: AppTextStyles.bodySmall),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              valueB,
-              style: TextStyle(
-                fontWeight: winnerIsB ? FontWeight.w700 : FontWeight.w400,
-                color: winnerIsB ? AppColors.success : AppColors.textPrimary,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _CategoryBars extends StatelessWidget {
-  final ComparisonResult result;
-  const _CategoryBars({required this.result});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: result.categoryComparisons.values.map((cat) {
-        return _CategoryBarRow(category: cat);
-      }).toList(),
-    );
-  }
-}
-
-class _CategoryBarRow extends StatelessWidget {
-  final CategoryComparison category;
-  const _CategoryBarRow({required this.category});
-
-  @override
-  Widget build(BuildContext context) {
-    final maxRating = 5.0;
-    final ratioA = (category.valueA / maxRating).clamp(0.0, 1.0);
-    final ratioB = (category.valueB / maxRating).clamp(0.0, 1.0);
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(category.categoryName, style: AppTextStyles.bodyMedium),
-          const SizedBox(height: 4),
-          Row(
-            children: [
-              Expanded(
-                child: _Bar(
-                  ratio: ratioA,
-                  value: category.valueA,
-                  isWinner: category.valueA > category.valueB,
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: _Bar(
-                  ratio: ratioB,
-                  value: category.valueB,
-                  isWinner: category.valueB > category.valueA,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _Bar extends StatelessWidget {
-  final double ratio;
-  final double value;
-  final bool isWinner;
-  const _Bar({required this.ratio, required this.value, required this.isWinner});
-
-  @override
-  Widget build(BuildContext context) {
-    return Stack(
-      alignment: Alignment.centerLeft,
-      children: [
-        Container(
-          height: 24,
-          decoration: BoxDecoration(
-            color: AppColors.borderLight,
-            borderRadius: BorderRadius.circular(8),
-          ),
-        ),
-        FractionallySizedBox(
-          widthFactor: ratio,
-          child: Container(
-            height: 24,
-            decoration: BoxDecoration(
-              color: isWinner ? AppColors.success : AppColors.primary,
-              borderRadius: BorderRadius.circular(8),
-            ),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(left: 8),
-          child: Text(
-            value.toStringAsFixed(1),
-            style: const TextStyle(fontWeight: FontWeight.w600, color: Colors.white),
-          ),
-        ),
-      ],
+      padding: const EdgeInsets.fromLTRB(0, 16, 0, 8),
+      child: Text(title,
+          style:
+              AppTextStyles.titleMedium.copyWith(fontWeight: FontWeight.w700)),
     );
   }
 }
