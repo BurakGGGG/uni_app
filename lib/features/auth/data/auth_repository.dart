@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import '../domain/user_model.dart';
+import '../../notifications/data/fcm_service.dart';
 
 /// Auth işlemlerini yöneten repository
 class AuthRepository {
@@ -47,7 +48,12 @@ class AuthRepository {
       final user = userCredential.user;
       if (user == null) return null;
 
-      return await _createOrUpdateUser(user);
+      final userModel = await _createOrUpdateUser(user);
+
+      // FCM token kaydet
+      await FCMService().registerToken();
+
+      return userModel;
     } on FirebaseAuthException catch (e) {
       throw _handleAuthError(e);
     } catch (e) {
@@ -111,7 +117,12 @@ class AuthRepository {
       final user = userCredential.user;
       if (user == null) return null;
 
-      return await _createOrUpdateUser(user);
+      final userModel = await _createOrUpdateUser(user);
+
+      // FCM token kaydet
+      await FCMService().registerToken();
+
+      return userModel;
     } on FirebaseAuthException catch (e) {
       throw _handleAuthError(e);
     } catch (e) {
@@ -133,6 +144,13 @@ class AuthRepository {
   // ─── Çıkış Yap ───────────────────────────────────────────────
 
   Future<void> signOut() async {
+    // FCM token sil
+    try {
+      await FCMService().unregisterToken();
+    } catch (_) {
+      // Token silme başarısız olsa bile çıkışı engelleme
+    }
+
     _cachedUser = null;
     _lastCacheTime = null;
     await Future.wait([
