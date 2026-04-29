@@ -184,7 +184,7 @@ class _UniSlot extends ConsumerWidget {
         ),
         child: uniAsync.when(
           loading: () => const Center(child: CircularProgressIndicator(strokeWidth: 2)),
-          error: (_, __) => const Icon(Icons.error_outline),
+          error: (err, stack) => const Icon(Icons.error_outline),
           data: (uni) {
             if (uni == null) return const SizedBox();
             return Column(
@@ -197,7 +197,7 @@ class _UniSlot extends ConsumerWidget {
                     ? ClipOval(child: CachedNetworkImage(
                         imageUrl: uni.logoUrl,
                         width: 48, height: 48, fit: BoxFit.cover,
-                        errorWidget: (_, __, ___) => Text(
+                        errorWidget: (ctx, url, err) => Text(
                           uni.name[0],
                           style: TextStyle(color: color, fontWeight: FontWeight.w700),
                         ),

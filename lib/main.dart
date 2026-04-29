@@ -9,6 +9,7 @@ import 'core/theme/app_theme.dart';
 import 'core/constants/app_constants.dart';
 import 'core/providers/shared_preferences_provider.dart';
 import 'router/app_router.dart';
+import 'features/notifications/data/fcm_service.dart';
 
 import 'firebase_options.dart';
 
@@ -32,6 +33,10 @@ void main() async {
     persistenceEnabled: true,
     cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
   );
+
+  // FCM init
+  final fcm = FCMService();
+  await fcm.init();
 
   // Status bar stilini ayarla
   SystemChrome.setSystemUIOverlayStyle(
@@ -57,11 +62,31 @@ void main() async {
 }
 
 /// ÜniSeç ana uygulama widget'ı
-class UniSecApp extends ConsumerWidget {
+class UniSecApp extends ConsumerStatefulWidget {
   const UniSecApp({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<UniSecApp> createState() => _UniSecAppState();
+}
+
+class _UniSecAppState extends ConsumerState<UniSecApp> {
+  @override
+  void initState() {
+    super.initState();
+
+    // Notification tap → router push
+    FCMService().onNotificationTap = (data) {
+      final route = data['route'] as String?;
+      if (route != null && route.isNotEmpty) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          ref.read(routerProvider).push(route);
+        });
+      }
+    };
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final router = ref.watch(routerProvider);
 
     return MaterialApp.router(
