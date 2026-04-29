@@ -13,6 +13,7 @@ import '../../../favorites/presentation/providers/favorites_providers.dart';
 import '../../../reviews/presentation/providers/review_providers.dart';
 import '../../../reviews/presentation/widgets/review_card.dart';
 import '../../../reviews/domain/models/review_model.dart';
+import '../../../notifications/presentation/widgets/notification_bell.dart';
 
 /// Ana Sayfa ekranı
 class HomeScreen extends ConsumerWidget {
@@ -64,14 +65,7 @@ class HomeScreen extends ConsumerWidget {
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(color: AppColors.borderLight),
                           ),
-                          child: IconButton(
-                            onPressed: () {},
-                            icon: const Icon(
-                              Icons.notifications_outlined,
-                              color: AppColors.textSecondary,
-                              size: 22,
-                            ),
-                          ),
+                          child: const NotificationBell(),
                         ),
                       ],
                     ),
