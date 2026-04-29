@@ -6,14 +6,11 @@ final notificationRepositoryProvider = Provider<NotificationRepository>((ref) {
   return NotificationRepository();
 });
 
-/// Kullanıcının tüm bildirimleri (stream)
-final myNotificationsProvider =
-    StreamProvider<List<AppNotification>>((ref) {
+final myNotificationsProvider = StreamProvider<List<AppNotification>>((ref) {
   ref.keepAlive();
   return ref.watch(notificationRepositoryProvider).watchMyNotifications();
 });
 
-/// Okunmamış bildirim sayısı (stream)
 final unreadNotificationCountProvider = StreamProvider<int>((ref) {
   ref.keepAlive();
   return ref.watch(notificationRepositoryProvider).watchUnreadCount();

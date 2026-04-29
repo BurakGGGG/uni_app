@@ -80,3 +80,8 @@ export { moderateNewReview } from './moderation';
 
 // Sprint 4 — Place yorumları aggregation
 export { aggregatePlaceRatings } from './places/aggregate_place_ratings';
+
+// Sprint 4 — Bildirimler
+export { onReviewLiked } from './notifications/on_review_liked';
+export { onReviewModerated } from './notifications/on_review_moderated';
+export { onNewReviewForFavorite } from './notifications/on_new_review_for_favorite';
