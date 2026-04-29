@@ -10,6 +10,7 @@ import 'go_router_refresh_stream.dart';
 import '../features/home/presentation/screens/home_screen.dart';
 import '../features/home/presentation/screens/explore_screen.dart';
 import '../features/comparison/presentation/screens/comparison_screen.dart';
+import '../features/notifications/presentation/screens/notification_center_screen.dart';
 import '../features/favorites/presentation/screens/favorites_screen.dart';
 import '../features/profile/presentation/screens/profile_screen.dart';
 import '../features/auth/presentation/screens/onboarding_screen.dart';
@@ -126,6 +127,12 @@ final routerProvider = Provider<GoRouter>((ref) {
     GoRoute(
       path: '/search',
       builder: (context, state) => const SearchScreen(),
+    ),
+
+    // ─── Bildirimler ──────────────────────────────────────────────
+    GoRoute(
+      path: '/notifications',
+      builder: (context, state) => const NotificationCenterScreen(),
     ),
 
     // ─── Tüm Yorumlar ────────────────────────────────────────────
