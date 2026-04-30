@@ -80,7 +80,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
           setState(() => _isLoading = false);
           final from = GoRouterState.of(context).uri.queryParameters['from'];
           if (from != null && from.isNotEmpty) {
-            context.go(from);
+            context.go(Uri.decodeComponent(from));
           } else {
             context.go('/profile');
           }
@@ -140,7 +140,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
               Navigator.pop(dialogContext);
               final from = GoRouterState.of(context).uri.queryParameters['from'];
               if (from != null && from.isNotEmpty) {
-                context.go(from);
+                context.go(Uri.decodeComponent(from));
               } else {
                 context.go('/profile');
               }
@@ -304,8 +304,14 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) return 'Şifre gerekli';
-                        if (value.length < 6) {
-                          return 'Şifre en az 6 karakter olmalı';
+                        if (value.length < 8) {
+                          return 'Şifre en az 8 karakter olmalı';
+                        }
+                        if (!RegExp(r'[A-Z]').hasMatch(value)) {
+                          return 'Şifre en az bir büyük harf içermeli';
+                        }
+                        if (!RegExp(r'[0-9]').hasMatch(value)) {
+                          return 'Şifre en az bir rakam içermeli';
                         }
                         return null;
                       },
