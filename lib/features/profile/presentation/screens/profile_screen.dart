@@ -210,6 +210,7 @@ class ProfileScreen extends ConsumerWidget {
                         );
                         if (confirmed == true) {
                           await ref.read(authControllerProvider.notifier).signOut();
+                          if (context.mounted) context.go('/login');
                         }
                       },
                       icon: const Icon(Icons.logout_rounded, color: AppColors.error),

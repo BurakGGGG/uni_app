@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../auth/presentation/providers/auth_providers.dart';
 import '../providers/notification_providers.dart';
 
 class NotificationBell extends ConsumerWidget {
@@ -15,7 +16,23 @@ class NotificationBell extends ConsumerWidget {
     return GestureDetector(
       onLongPress: () => _showQuickActions(context, ref),
       child: IconButton(
-        onPressed: () => context.push('/notifications'),
+        onPressed: () {
+          final user = ref.read(authStateProvider).value;
+          if (user == null) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: const Text('Bildirimleri görmek için giriş yapın'),
+                action: SnackBarAction(
+                  label: 'Giriş Yap',
+                  onPressed: () => context.push('/login?from=/notifications'),
+                ),
+                behavior: SnackBarBehavior.floating,
+              ),
+            );
+            return;
+          }
+          context.push('/notifications');
+        },
         icon: Stack(
           clipBehavior: Clip.none,
           children: [
