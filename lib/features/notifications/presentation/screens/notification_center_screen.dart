@@ -20,7 +20,7 @@ class NotificationCenterScreen extends ConsumerWidget {
         actions: [
           unreadAsync.when(
             loading: () => const SizedBox(),
-            error: (_, __) => const SizedBox(),
+            error: (error, stackTrace) => const SizedBox(),
             data: (unread) {
               if (unread == 0) return const SizedBox();
               return TextButton.icon(
@@ -38,7 +38,7 @@ class NotificationCenterScreen extends ConsumerWidget {
       ),
       body: notifsAsync.when(
         loading: () => const ShimmerList(itemCount: 5),
-        error: (e, _) => ErrorStateWidget(message: '$e'),
+        error: (e, stackTrace) => ErrorStateWidget(message: '$e'),
         data: (notifs) {
           if (notifs.isEmpty) {
             return const Padding(
@@ -56,13 +56,13 @@ class NotificationCenterScreen extends ConsumerWidget {
           return ListView.separated(
             padding: const EdgeInsets.symmetric(vertical: 8),
             itemCount: notifs.length,
-            separatorBuilder: (_, __) => const Divider(
+            separatorBuilder: (context, index) => const Divider(
               height: 1,
               thickness: 1,
               color: AppColors.borderLight,
               indent: 56,
             ),
-            itemBuilder: (_, i) =>
+            itemBuilder: (context, i) =>
                 NotificationTile(notification: notifs[i]),
           );
         },
