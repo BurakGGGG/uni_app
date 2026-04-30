@@ -3,67 +3,65 @@ import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
 import '../constants/app_constants.dart';
 
-/// Boş durum widget'ı — liste boşken gösterilir
 class EmptyStateWidget extends StatelessWidget {
-  final IconData icon;
+  final IconData? icon;
+  final Widget? illustration;
   final String title;
   final String? description;
   final String? actionText;
   final VoidCallback? onAction;
+  final Widget? action;
 
   const EmptyStateWidget({
     super.key,
-    required this.icon,
+    this.icon,
+    this.illustration,
     required this.title,
     this.description,
     this.actionText,
     this.onAction,
+    this.action,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(AppConstants.spacingXxxl),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
+    return Padding(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          if (illustration != null) 
+            illustration!
+          else if (icon != null)
             Container(
-              width: 80,
-              height: 80,
+              padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: AppColors.primary.withValues(alpha: 0.08),
+                color: AppColors.primary.withValues(alpha: 0.06),
                 shape: BoxShape.circle,
               ),
-              child: Icon(
-                icon,
-                size: 36,
-                color: AppColors.primary,
-              ),
+              child: Icon(icon, size: 56, color: AppColors.primary.withValues(alpha: 0.7)),
             ),
-            const SizedBox(height: AppConstants.spacingXl),
+          const SizedBox(height: 20),
+          Text(title, style: AppTextStyles.titleLarge, textAlign: TextAlign.center),
+          if (description != null) ...[
+            const SizedBox(height: 8),
             Text(
-              title,
-              style: AppTextStyles.headlineSmall,
+              description!,
+              style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary),
               textAlign: TextAlign.center,
             ),
-            if (description != null) ...[
-              const SizedBox(height: AppConstants.spacingSm),
-              Text(
-                description!,
-                style: AppTextStyles.emptyState,
-                textAlign: TextAlign.center,
-              ),
-            ],
-            if (actionText != null && onAction != null) ...[
-              const SizedBox(height: AppConstants.spacingXl),
-              ElevatedButton(
-                onPressed: onAction,
-                child: Text(actionText!),
-              ),
-            ],
           ],
-        ),
+          if (action != null) ...[
+            const SizedBox(height: 20),
+            action!,
+          ] else if (actionText != null && onAction != null) ...[
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: onAction,
+              child: Text(actionText!),
+            ),
+          ],
+        ],
       ),
     );
   }
