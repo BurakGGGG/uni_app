@@ -23,13 +23,11 @@ class DepartmentDetailScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: AppColors.background,
         leading: IconButton(
           onPressed: () => context.pop(),
           icon: const Icon(Icons.arrow_back_rounded),
         ),
-        title: Text('Bölüm Detayı', style: AppTextStyles.titleLarge),
-        centerTitle: true,
+        title: const Text('Bölüm Detayı'),
       ),
       body: deptAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
@@ -94,7 +92,7 @@ class DepartmentDetailScreen extends ConsumerWidget {
                       // Üniversite adı
                       uniAsync.when(
                         data: (uni) => GestureDetector(
-                          onTap: () => context.pop(),
+                          onTap: () => context.push('/university/${dept.universityId}'),
                           child: Row(
                             children: [
                               const Icon(Icons.location_city_rounded, color: Colors.white70, size: 16),

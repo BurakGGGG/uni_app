@@ -47,6 +47,9 @@ class UniversityModel {
   final int reviewCount;
   /// Kategori bazlı ortalama puanlar (kampüs, eğitim, sosyal, ulaşım, yemek, yurt)
   final Map<String, double> categoryRatings;
+
+  /// Kısaltma ve alternatif isimler (ODTÜ, İTÜ vb.) — arama için
+  final List<String> aliases;
   UniversityModel({
     required this.id,
     required this.cityId,
@@ -62,6 +65,7 @@ class UniversityModel {
     this.avgRating = 0.0,
     this.reviewCount = 0,
     this.categoryRatings = const {},
+    this.aliases = const [],
   });
   factory UniversityModel.fromMap(Map<String, dynamic> map, String id) {
     return UniversityModel(
@@ -83,6 +87,7 @@ class UniversityModel {
           (key, value) => MapEntry(key, (value as num).toDouble()),
         ) ?? {},
       ),
+      aliases: List<String>.from(map['aliases'] ?? []),
     );
   }
   Map<String, dynamic> toMap() {
@@ -100,6 +105,7 @@ class UniversityModel {
       'avgRating': avgRating,
       'reviewCount': reviewCount,
       'categoryRatings': categoryRatings,
+      'aliases': aliases,
     };
   }
 }
