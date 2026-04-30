@@ -70,5 +70,16 @@ class PlaceRepository {
     });
   }
 
+  Stream<List<PlaceModel>> watchPlacesByUniversity(String uniId) {
+    return _placesRef
+        .where('universityId', isEqualTo: uniId)
+        .orderBy('promotionPriority', descending: true)
+        .orderBy('avgRating', descending: true)
+        .snapshots()
+        .map((snap) => snap.docs
+            .map((doc) => PlaceModel.fromMap(doc.data(), doc.id))
+            .toList());
+  }
+
   // TODO(sprint5): Şehir bazlı (cross-uni) mekan listesi
 }

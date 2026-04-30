@@ -215,8 +215,18 @@ class _WriteReviewScreenState extends ConsumerState<WriteReviewScreen> {
     });
 
     try {
-      final user = ref.read(authStateProvider).value;
-      if (user == null) throw Exception('Giriş yapılmamış');
+      final authAsync = ref.read(authStateProvider);
+      if (authAsync.isLoading) {
+        showAppSnackBar(context, message: 'Hesap bilgileri yükleniyor, lütfen bekleyin', isError: true);
+        setState(() => _isLoading = false);
+        return;
+      }
+      final user = authAsync.value;
+      if (user == null) {
+        showAppSnackBar(context, message: 'Lütfen giriş yapın', isError: true);
+        setState(() => _isLoading = false);
+        return;
+      }
 
       final currentUserData = await ref.read(currentUserProvider.future);
       if (currentUserData == null) throw Exception('Kullanıcı profili bulunamadı');
@@ -331,10 +341,7 @@ class _WriteReviewScreenState extends ConsumerState<WriteReviewScreen> {
                     ReviewType.department => 'Bölüm Değerlendir',
                     ReviewType.place => 'Mekan Değerlendir',
                   },
-            style: AppTextStyles.titleLarge,
           ),
-          backgroundColor: AppColors.background,
-          elevation: 0,
         ),
         body: Stack(
           children: [

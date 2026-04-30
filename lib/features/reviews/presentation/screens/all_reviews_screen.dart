@@ -23,9 +23,7 @@ class AllReviewsScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: Text('Tüm Yorumlar', style: AppTextStyles.titleLarge),
-        backgroundColor: AppColors.background,
-        elevation: 0,
+        title: const Text('Tüm Yorumlar'),
         actions: [
           Badge(
             isLabelVisible: filter.activeFilterCount > 0,

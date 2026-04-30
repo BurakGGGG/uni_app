@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../../../core/utils/turkish_compare.dart';
 import '../domain/models/city_model.dart';
 import '../domain/models/university_model.dart';
 import '../domain/models/department_model.dart';
@@ -32,11 +33,11 @@ class UniversityRepository {
 
     final snapshot = await _firestore
         .collection('cities')
-        .orderBy('name')
         .get(const GetOptions(source: Source.serverAndCache));
     _citiesCache = snapshot.docs
         .map((doc) => CityModel.fromMap(doc.data(), doc.id))
         .toList();
+    _citiesCache!.sort((a, b) => turkishCompare(a.name, b.name));
     _lastFetchTime = DateTime.now();
     return _citiesCache!;
   }
@@ -60,11 +61,11 @@ class UniversityRepository {
 
     final snapshot = await _firestore
         .collection('universities')
-        .orderBy('name')
         .get(const GetOptions(source: Source.serverAndCache));
     _universitiesCache = snapshot.docs
         .map((doc) => UniversityModel.fromMap(doc.data(), doc.id))
         .toList();
+    _universitiesCache!.sort((a, b) => turkishCompare(a.name, b.name));
     _lastFetchTime = DateTime.now();
     return _universitiesCache!;
   }
@@ -73,7 +74,7 @@ class UniversityRepository {
     // Önce full cache'den filtrele
     if (_universitiesCache != null && _isCacheValid) {
       final filtered = _universitiesCache!.where((u) => u.cityId == cityId).toList();
-      filtered.sort((a, b) => a.name.compareTo(b.name));
+      filtered.sort((a, b) => turkishCompare(a.name, b.name));
       return filtered;
     }
 
@@ -84,7 +85,7 @@ class UniversityRepository {
     final list = snapshot.docs
         .map((doc) => UniversityModel.fromMap(doc.data(), doc.id))
         .toList();
-    list.sort((a, b) => a.name.compareTo(b.name));
+    list.sort((a, b) => turkishCompare(a.name, b.name));
     return list;
   }
 
@@ -166,10 +167,23 @@ class UniversityRepository {
     if (query.trim().isEmpty) return [];
     
     final allUnis = await getAllUniversities();
-    final lowerQuery = query.toLowerCase();
+    final lowerQuery = query.toLowerCase().trim();
+    final normalizedQuery = turkishNormalize(lowerQuery);
     
     return allUnis.where((uni) {
-      return uni.name.toLowerCase().contains(lowerQuery);
+      // 1. İsim eşleşmesi
+      if (uni.name.toLowerCase().contains(lowerQuery)) return true;
+      // 2. Normalize eşleşme (odtu → odtü)
+      if (turkishNormalize(uni.name).contains(normalizedQuery)) return true;
+      // 3. Alias eşleşmesi (kısaltmalar)
+      if (uni.aliases.any((a) {
+        final la = a.toLowerCase();
+        return la.contains(lowerQuery) ||
+               turkishNormalize(la).contains(normalizedQuery);
+      })) {
+        return true;
+      }
+      return false;
     }).toList();
   }
 }

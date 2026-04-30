@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../../core/constants/app_constants.dart';
 import '../../../../core/widgets/widgets.dart';
 import '../../../university/presentation/providers/university_providers.dart';
 import '../providers/favorites_providers.dart';
@@ -20,10 +21,7 @@ class FavoritesScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: Text('Favoriler', style: AppTextStyles.titleLarge),
-        backgroundColor: AppColors.background,
-        elevation: 0,
-        centerTitle: false,
+        title: const Text('Favoriler'),
       ),
       body: user == null ? _buildUnauthenticatedState(context) : _buildFavoritesList(context, ref),
     );
@@ -96,48 +94,74 @@ class FavoritesScreen extends ConsumerWidget {
               itemCount: favoriteUnis.length,
               itemBuilder: (context, index) {
                 final uni = favoriteUnis[index];
-                return UniCard(
-                  title: uni.name,
-                  subtitle: '${uni.type} • Kuruluş: ${uni.establishedYear}',
-                  rating: uni.avgRating,
-                  reviewCount: uni.reviewCount,
-                  tags: [
-                    if (uni.hasCampus) 'Kampüslü',
-                    uni.type,
-                  ],
-                  onTap: () => context.push('/university/${uni.id}'),
-                  badge: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                    decoration: BoxDecoration(
-                      color: (uni.type == 'Devlet' ? AppColors.stateUni : AppColors.foundationUni)
-                          .withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: Text(
-                      uni.type,
-                      style: AppTextStyles.labelSmall.copyWith(
-                        color: uni.type == 'Devlet' ? AppColors.stateUni : AppColors.foundationUni,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 10,
+                return Dismissible(
+                  key: ValueKey('fav_${uni.id}'),
+                  direction: DismissDirection.endToStart,
+                  confirmDismiss: (direction) async {
+                    return await showDialog<bool>(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        title: const Text('Favorilerden Çıkar?'),
+                        content: Text('${uni.name}\nfavorilerinden çıkarılacak. Emin misin?'),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context, false),
+                            child: const Text('İptal'),
+                          ),
+                          FilledButton(
+                            onPressed: () => Navigator.pop(context, true),
+                            style: FilledButton.styleFrom(backgroundColor: AppColors.error),
+                            child: const Text('Çıkar'),
+                          ),
+                        ],
                       ),
-                    ),
-                  ),
-                  trailing: Container(
+                    );
+                  },
+                  onDismissed: (_) {
+                    final user = ref.read(authStateProvider).value;
+                    if (user != null) {
+                      ref.read(favoritesControllerProvider.notifier)
+                         .toggleFavorite(user.uid, uni.id, true);
+                    }
+                  },
+                  background: Container(
+                    margin: const EdgeInsets.symmetric(vertical: 8),
                     decoration: BoxDecoration(
-                      color: AppColors.surface,
-                      shape: BoxShape.circle,
-                      boxShadow: AppColors.softShadow,
+                      color: AppColors.error,
+                      borderRadius: BorderRadius.circular(AppConstants.radiusLg),
                     ),
-                    child: IconButton(
-                      icon: const Icon(Icons.favorite_rounded, color: AppColors.error, size: 20),
-                      padding: const EdgeInsets.all(8),
-                      constraints: const BoxConstraints(),
-                      onPressed: () {
-                        final user = ref.read(authStateProvider).value;
-                        if (user != null) {
-                          ref.read(favoritesControllerProvider.notifier).toggleFavorite(user.uid, uni.id, true);
-                        }
-                      },
+                    alignment: Alignment.centerRight,
+                    padding: const EdgeInsets.only(right: 24),
+                    child: const Icon(Icons.delete_outline_rounded, color: Colors.white, size: 28),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: UniCard(
+                      title: uni.name,
+                      subtitle: '${uni.type} • Kuruluş: ${uni.establishedYear}',
+                      rating: uni.avgRating,
+                      reviewCount: uni.reviewCount,
+                      tags: [
+                        if (uni.hasCampus) 'Kampüslü',
+                        uni.type,
+                      ],
+                      onTap: () => context.push('/university/${uni.id}'),
+                      badge: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: (uni.type == 'Devlet' ? AppColors.stateUni : AppColors.foundationUni)
+                              .withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Text(
+                          uni.type,
+                          style: AppTextStyles.labelSmall.copyWith(
+                            color: uni.type == 'Devlet' ? AppColors.stateUni : AppColors.foundationUni,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 10,
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                 );

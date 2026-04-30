@@ -7,9 +7,9 @@ final placeRepositoryProvider = Provider<PlaceRepository>((ref) {
 });
 
 final placesByUniversityProvider = 
-    FutureProvider.family<List<PlaceModel>, String>((ref, uniId) async {
+    StreamProvider.family<List<PlaceModel>, String>((ref, uniId) {
   ref.keepAlive();
-  return ref.read(placeRepositoryProvider).getPlacesByUniversity(uniId);
+  return ref.read(placeRepositoryProvider).watchPlacesByUniversity(uniId);
 });
 
 final placeDetailProvider = 

@@ -16,13 +16,28 @@ class NotificationSettingsScreen extends ConsumerStatefulWidget {
 }
 
 class _NotificationSettingsScreenState
-    extends ConsumerState<NotificationSettingsScreen> {
+    extends ConsumerState<NotificationSettingsScreen>
+    with WidgetsBindingObserver {
   bool _systemPermissionGranted = false;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _checkSystemPermission();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _checkSystemPermission();
+    }
   }
 
   Future<void> _checkSystemPermission() async {
