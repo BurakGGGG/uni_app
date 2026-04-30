@@ -11,6 +11,7 @@ import '../features/home/presentation/screens/home_screen.dart';
 import '../features/home/presentation/screens/explore_screen.dart';
 import '../features/comparison/presentation/screens/comparison_screen.dart';
 import '../features/notifications/presentation/screens/notification_center_screen.dart';
+import '../features/notifications/presentation/screens/notification_settings_screen.dart';
 import '../features/favorites/presentation/screens/favorites_screen.dart';
 import '../features/profile/presentation/screens/profile_screen.dart';
 import '../features/auth/presentation/screens/onboarding_screen.dart';
@@ -133,6 +134,10 @@ final routerProvider = Provider<GoRouter>((ref) {
     GoRoute(
       path: '/notifications',
       builder: (context, state) => const NotificationCenterScreen(),
+    ),
+    GoRoute(
+      path: '/notification-settings',
+      builder: (context, state) => const NotificationSettingsScreen(),
     ),
 
     // ─── Tüm Yorumlar ────────────────────────────────────────────
