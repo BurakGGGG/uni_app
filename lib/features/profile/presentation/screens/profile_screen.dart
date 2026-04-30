@@ -91,7 +91,7 @@ class ProfileScreen extends ConsumerWidget {
                         icon: Icons.notifications_outlined,
                         title: 'Bildirimler',
                         subtitle: 'Yorum, favori bildirimleri',
-                        onTap: () {},
+                        onTap: () => context.push('/notification-settings'),
                       ),
                       if (!user.providerData.any((p) => p.providerId == 'google.com'))
                         _SettingsItem(
