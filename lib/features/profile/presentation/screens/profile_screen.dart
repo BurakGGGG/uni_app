@@ -368,6 +368,18 @@ class ProfileScreen extends ConsumerWidget {
                         style: AppTextStyles.labelSmall.copyWith(color: AppColors.textTertiary),
                       ),
                     ],
+                    if (profile?.bio != null && profile!.bio!.isNotEmpty) ...[
+                      const SizedBox(height: 8),
+                      Text(
+                        profile.bio!,
+                        style: AppTextStyles.bodySmall.copyWith(
+                          color: AppColors.textSecondary,
+                          fontStyle: FontStyle.italic,
+                        ),
+                        maxLines: 3,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
                   ],
                 ),
               ),

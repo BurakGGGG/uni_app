@@ -52,7 +52,6 @@ class _NotificationSettingsScreenState
     final prefsAsync = ref.watch(notificationPreferencesProvider);
 
     return Scaffold(
-      backgroundColor: AppColors.background,
       appBar: AppBar(title: const Text('Bildirim Ayarları')),
       body: prefsAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),

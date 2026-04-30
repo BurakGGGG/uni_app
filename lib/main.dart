@@ -34,10 +34,6 @@ void main() async {
     cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
   );
 
-  // FCM init
-  final fcm = FCMService();
-  await fcm.init();
-
   // Status bar stilini ayarla
   SystemChrome.setSystemUIOverlayStyle(
     SystemUiOverlayStyle.dark.copyWith(
@@ -74,15 +70,19 @@ class _UniSecAppState extends ConsumerState<UniSecApp> {
   void initState() {
     super.initState();
 
-    // Notification tap → router push
-    FCMService().onNotificationTap = (data) {
-      final route = data['route'] as String?;
-      if (route != null && route.isNotEmpty) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          ref.read(routerProvider).push(route);
-        });
-      }
-    };
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await FCMService().init();
+      
+      // Notification tap → router push
+      FCMService().onNotificationTap = (data) {
+        final route = data['route'] as String?;
+        if (route != null && route.isNotEmpty) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            ref.read(routerProvider).push(route);
+          });
+        }
+      };
+    });
   }
 
   @override
