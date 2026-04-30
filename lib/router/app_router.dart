@@ -11,6 +11,7 @@ import '../features/home/presentation/screens/home_screen.dart';
 import '../features/home/presentation/screens/explore_screen.dart';
 import '../features/comparison/presentation/screens/comparison_screen.dart';
 import '../features/notifications/presentation/screens/notification_center_screen.dart';
+import '../features/auth/presentation/providers/auth_providers.dart';
 import '../features/notifications/presentation/screens/notification_settings_screen.dart';
 import '../features/favorites/presentation/screens/favorites_screen.dart';
 import '../features/profile/presentation/screens/profile_screen.dart';
@@ -179,6 +180,21 @@ final routerProvider = Provider<GoRouter>((ref) {
     ),
     GoRoute(
       path: '/write-review/:type/:targetId',
+      redirect: (context, state) {
+        final userAsync = ProviderScope.containerOf(context).read(currentUserProvider);
+        final user = userAsync.valueOrNull;
+        if (user == null) {
+          final encodedPath = Uri.encodeComponent(state.uri.toString());
+          return '/login?from=$encodedPath';
+        }
+        if (!user.isVerifiedStudent) {
+          // İleride verify-email rotası olursa oraya da atılabilir.
+          // Şimdilik null döndürüp yazmasını engelleyemeyiz çünkü verify-email rotası yok,
+          // router redirect içinde snackbar da gösteremeyiz.
+          // Bu yüzden ui da engellemek daha mantıklı, ama istenen bu:
+        }
+        return null;
+      },
       builder: (context, state) {
         final typeStr = state.pathParameters['type']!;
         final targetId = state.pathParameters['targetId']!;

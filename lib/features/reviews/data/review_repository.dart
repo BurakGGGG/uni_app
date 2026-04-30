@@ -20,7 +20,6 @@ class ReviewRepository {
     return ReviewModel.fromMap(doc.data()!, doc.id);
   }
 
-  // TODO(sprint3): Yorum ekleme
   Future<void> addReview(ReviewModel review) async {
     final docRef = _firestore.collection('reviews').doc();
     await docRef.set(review.toMap());
@@ -31,7 +30,6 @@ class ReviewRepository {
     });
   }
 
-  // TODO(sprint3): Yorum güncelleme
   Future<void> updateReview(ReviewModel review) async {
     await _firestore.collection('reviews').doc(review.id).update({
       ...review.toMap(),
@@ -85,7 +83,6 @@ class ReviewRepository {
             .toList());
   }
 
-  // TODO(sprint3): Son yorumları getir (ana sayfa için)
   Stream<List<ReviewModel>> getRecentReviews({int limit = 10}) {
     return _reviewsRef
         .where('isApproved', isEqualTo: true)
@@ -97,7 +94,6 @@ class ReviewRepository {
             .toList());
   }
 
-  // TODO(sprint3): Kullanıcının yorumlarını getir
   Stream<List<ReviewModel>> getUserReviews(String userId) {
     return _reviewsRef
         .where('userId', isEqualTo: userId)

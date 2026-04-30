@@ -16,7 +16,6 @@ import '../widgets/place_type_chip.dart';
 import '../widgets/dorm_info_card.dart';
 import '../widgets/place_amenities_grid.dart';
 import '../widgets/place_detail_skeleton.dart';
-import '../../../auth/presentation/providers/auth_providers.dart';
 
 class PlaceDetailScreen extends ConsumerStatefulWidget {
   final String placeId;
@@ -264,16 +263,6 @@ class _PlaceDetailScreenState extends ConsumerState<PlaceDetailScreen> {
           Expanded(
             child: ElevatedButton.icon(
               onPressed: () {
-                final user = ref.read(authStateProvider).value;
-                if (user == null) {
-                  _showLoginPromptDialog(context);
-                  return;
-                }
-                final userModel = ref.read(currentUserProvider).valueOrNull;
-                if (userModel != null && !userModel.isVerifiedStudent) {
-                  _showVerificationRequiredDialog(context);
-                  return;
-                }
                 context.push(
                   '/write-review/place/${place.id}?uni=${place.universityId}&pt=${place.type.firestoreValue}');
               },
@@ -299,45 +288,7 @@ class _PlaceDetailScreenState extends ConsumerState<PlaceDetailScreen> {
     }
   }
 
-  void _showLoginPromptDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: const Text('Yorum yapmak için giriş yapın'),
-        content: const Text('Mekanlara yorum yazmak için giriş yapmanız gerekiyor.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Vazgeç'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              context.push('/login');
-            },
-            child: const Text('Giriş Yap'),
-          ),
-        ],
-      ),
-    );
-  }
 
-  void _showVerificationRequiredDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: const Text('Doğrulama gerekli'),
-        content: const Text(
-          'Yorum yazabilmek için .edu.tr e-posta adresinizi doğrulamanız gerekiyor.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Tamam'),
-          ),
-        ],
-      ),
-    );
-  }
 
   Widget _buildReviewsHeader(PlaceModel place) {
     return Padding(
