@@ -10,6 +10,7 @@ import '../../../../core/widgets/widgets.dart';
 import '../../../reviews/domain/models/review_model.dart';
 import '../../../reviews/presentation/providers/review_providers.dart';
 import '../../../reviews/presentation/widgets/review_card.dart';
+import '../../../reviews/presentation/screens/photo_gallery_screen.dart';
 import '../../domain/models/place_model.dart';
 import '../providers/place_providers.dart';
 import '../widgets/place_type_chip.dart';
@@ -26,6 +27,8 @@ class PlaceDetailScreen extends ConsumerStatefulWidget {
 }
 
 class _PlaceDetailScreenState extends ConsumerState<PlaceDetailScreen> {
+  int _currentImageIndex = 0;
+
   @override
   Widget build(BuildContext context) {
     final placeAsync = ref.watch(placeWatchProvider(widget.placeId));
@@ -71,9 +74,11 @@ class _PlaceDetailScreenState extends ConsumerState<PlaceDetailScreen> {
     );
   }
 
+  // ─── P1-1 FIX: Foto galerisi + dot indicator + tap-to-fullscreen ─────
   Widget _buildAppBar(PlaceModel place) {
+    final hasImages = place.imageUrls.isNotEmpty;
     return SliverAppBar(
-      expandedHeight: place.imageUrls.isNotEmpty ? 240 : 0,
+      expandedHeight: hasImages ? 240 : 0,
       pinned: true,
       backgroundColor: AppColors.surface,
       foregroundColor: AppColors.textPrimary,
@@ -87,23 +92,90 @@ class _PlaceDetailScreenState extends ConsumerState<PlaceDetailScreen> {
           child: const Icon(Icons.arrow_back_rounded, size: 20),
         ),
       ),
-      flexibleSpace: place.imageUrls.isNotEmpty
+      flexibleSpace: hasImages
         ? FlexibleSpaceBar(
-            background: PageView.builder(
-              itemCount: place.imageUrls.length,
-              itemBuilder: (_, i) => CachedNetworkImage(
-                imageUrl: place.imageUrls[i],
-                fit: BoxFit.cover,
-                placeholder: (_, url) => Container(color: AppColors.surfaceVariant),
-                errorWidget: (_, url, error) => Container(
-                  color: AppColors.primary.withValues(alpha: 0.12),
-                  child: Icon(place.type.icon, size: 80, color: AppColors.primary),
+            background: Stack(
+              fit: StackFit.expand,
+              children: [
+                PageView.builder(
+                  itemCount: place.imageUrls.length,
+                  onPageChanged: (i) =>
+                      setState(() => _currentImageIndex = i),
+                  itemBuilder: (_, i) => GestureDetector(
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => PhotoGalleryScreen(
+                          imageUrls: place.imageUrls,
+                          initialIndex: i,
+                        ),
+                      ),
+                    ),
+                    child: CachedNetworkImage(
+                      imageUrl: place.imageUrls[i],
+                      fit: BoxFit.cover,
+                      placeholder: (_, url) =>
+                          Container(color: AppColors.surfaceVariant),
+                      errorWidget: (_, url, error) => Container(
+                        color: AppColors.primary.withValues(alpha: 0.12),
+                        child: Icon(place.type.icon,
+                            size: 80, color: AppColors.primary),
+                      ),
+                    ),
+                  ),
                 ),
-              ),
+                // Dot indicator (2+ foto varsa)
+                if (place.imageUrls.length > 1)
+                  Positioned(
+                    bottom: 12,
+                    left: 0,
+                    right: 0,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: List.generate(
+                        place.imageUrls.length,
+                        (i) => AnimatedContainer(
+                          duration: const Duration(milliseconds: 250),
+                          width: i == _currentImageIndex ? 20 : 8,
+                          height: 8,
+                          margin: const EdgeInsets.symmetric(horizontal: 3),
+                          decoration: BoxDecoration(
+                            color: i == _currentImageIndex
+                                ? Colors.white
+                                : Colors.white54,
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                // Foto sayacı
+                if (place.imageUrls.length > 1)
+                  Positioned(
+                    top: 48,
+                    right: 16,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.black54,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        '${_currentImageIndex + 1}/${place.imageUrls.length}',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
             ),
           )
         : null,
-      title: place.imageUrls.isEmpty
+      title: !hasImages
         ? Text(place.name, style: AppTextStyles.titleMedium)
         : null,
     );
@@ -191,8 +263,15 @@ class _PlaceDetailScreenState extends ConsumerState<PlaceDetailScreen> {
     );
   }
 
+  // ─── P1-2 / P1-5 FIX: Type'a göre koşullu info section ──────────
   Widget _buildInfoSection(PlaceModel place) {
-    if (place.description.isEmpty && place.openHours == null) {
+    // Yurt için openHours gösterme — DormInfoCard zaten üstte
+    final showOpenHours = place.type != PlaceType.dorm && place.openHours != null;
+    final openHoursLabel = place.type == PlaceType.library
+        ? 'Çalışma Saatleri'
+        : 'Açılış Saatleri';
+
+    if (place.description.isEmpty && !showOpenHours) {
       return const SizedBox.shrink();
     }
     return Container(
@@ -212,15 +291,17 @@ class _PlaceDetailScreenState extends ConsumerState<PlaceDetailScreen> {
             Text(place.description,
               style: AppTextStyles.bodyMedium.copyWith(height: 1.5)),
           ],
-          if (place.openHours != null) ...[
+          if (showOpenHours) ...[
             if (place.description.isNotEmpty) const SizedBox(height: 12),
             Row(children: [
               Icon(Icons.schedule_rounded, size: 16, color: AppColors.primary),
               const SizedBox(width: 8),
-              Text('Açılış Saatleri: ',
+              Text('$openHoursLabel: ',
                 style: AppTextStyles.labelMedium.copyWith(color: AppColors.textSecondary)),
-              Text(place.openHours!,
-                style: AppTextStyles.labelMedium.copyWith(fontWeight: FontWeight.w600)),
+              Expanded(
+                child: Text(place.openHours!,
+                  style: AppTextStyles.labelMedium.copyWith(fontWeight: FontWeight.w600)),
+              ),
             ]),
           ],
         ],
@@ -280,15 +361,41 @@ class _PlaceDetailScreenState extends ConsumerState<PlaceDetailScreen> {
     );
   }
 
+  // ─── P1-4 FIX: Fallback chain — mapUrl → GeoPoint → text search ──
   Future<void> _openMap(PlaceModel place) async {
-    final query = Uri.encodeComponent('${place.name} ${place.address}');
-    final url = Uri.parse('https://www.google.com/maps/search/$query');
+    Uri url;
+
+    // 1. Explicit mapUrl varsa onu kullan
+    if (place.mapUrl != null && place.mapUrl!.isNotEmpty) {
+      url = Uri.parse(place.mapUrl!);
+    }
+    // 2. GeoPoint varsa lat/lng ile aç
+    else if (place.location != null) {
+      final lat = place.location!.latitude;
+      final lng = place.location!.longitude;
+      url = Uri.parse(
+          'https://www.google.com/maps/search/?api=1&query=$lat,$lng');
+    }
+    // 3. Son çare: name + address text search
+    else {
+      final query = Uri.encodeComponent('${place.name} ${place.address}');
+      url = Uri.parse(
+          'https://www.google.com/maps/search/?api=1&query=$query');
+    }
+
     if (await canLaunchUrl(url)) {
       await launchUrl(url, mode: LaunchMode.externalApplication);
+    } else {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Harita açılamadı'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
     }
   }
-
-
 
   Widget _buildReviewsHeader(PlaceModel place) {
     return Padding(
