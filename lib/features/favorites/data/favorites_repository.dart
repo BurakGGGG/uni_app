@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../../notifications/data/fcm_service.dart';
 
 /// Favori işlemlerini yöneten repository
 class FavoritesRepository {
@@ -27,6 +28,16 @@ class FavoritesRepository {
         .set({
       'addedAt': FieldValue.serverTimestamp(),
     });
+
+    // YENİ — Topic subscribe
+    await FCMService().subscribeToTopic('uni_$universityId');
+    
+    // YENİ — Eğer kullanıcı `favoriteNewReviewEnabled: false` ise unsubscribe
+    final user = await _firestore.collection('users').doc(uid).get();
+    final prefs = (user.data()?['notificationPrefs'] as Map?) ?? {};
+    if (prefs['favoriteNewReviewEnabled'] == false) {
+      await FCMService().unsubscribeFromTopic('uni_$universityId');
+    }
   }
 
   /// Üniversiteyi favorilerden çıkar
@@ -37,6 +48,9 @@ class FavoritesRepository {
         .collection('favorites')
         .doc(universityId)
         .delete();
+
+    // YENİ — Topic unsubscribe
+    await FCMService().unsubscribeFromTopic('uni_$universityId');
   }
 
   /// Belirli bir üniversitenin favorilerde olup olmadığını bir kerelik kontrol et
