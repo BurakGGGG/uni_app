@@ -86,3 +86,4 @@ export { onReviewLiked } from './notifications/on_review_liked';
 export { onReviewModerated } from './notifications/on_review_moderated';
 export { onNewReviewForFavorite } from './notifications/on_new_review_for_favorite';
 export { cleanupExpiredNotifications } from './notifications/cleanup_expired';
+export { cleanupStaleTokens } from './notifications/cleanup_stale_tokens';
