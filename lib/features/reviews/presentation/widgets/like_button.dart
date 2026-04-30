@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import 'package:go_router/go_router.dart';
 import '../../../auth/presentation/providers/auth_providers.dart';
 import '../../domain/models/review_model.dart';
 import '../providers/review_providers.dart';
@@ -33,15 +34,26 @@ class LikeButton extends ConsumerWidget {
     final isLiked = pendingDesired ?? isLikedFromServer;
 
     return InkWell(
-      onTap: user == null
-          ? null
-          : () {
-              ref.read(likeControllerProvider.notifier).toggleLike(
-                    reviewId: review.id,
-                    userId: user.uid,
-                    currentlyLiked: isLiked,
-                  );
-            },
+      onTap: () {
+        if (user == null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text('Beğenmek için giriş yapın'),
+              action: SnackBarAction(
+                label: 'Giriş Yap',
+                onPressed: () => context.push('/login'),
+              ),
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+          return;
+        }
+        ref.read(likeControllerProvider.notifier).toggleLike(
+              reviewId: review.id,
+              userId: user.uid,
+              currentlyLiked: isLiked,
+            );
+      },
       borderRadius: BorderRadius.circular(20),
       child: Padding(
         padding: const EdgeInsets.all(6),

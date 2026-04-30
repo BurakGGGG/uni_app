@@ -6,66 +6,54 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/widgets.dart';
 import '../../domain/models/place_model.dart';
 import '../providers/place_providers.dart';
+import '../providers/place_filter_provider.dart';
 import 'place_card.dart';
 
-class PlaceList extends ConsumerStatefulWidget {
+class PlaceList extends ConsumerWidget {
   final String universityId;
-  final PlaceType? initialFilterType;
   final bool showTypeFilter;
   final bool shrinkWrap;
 
   const PlaceList({
     super.key,
     required this.universityId,
-    this.initialFilterType,
     this.showTypeFilter = true,
     this.shrinkWrap = true,
   });
 
   @override
-  ConsumerState<PlaceList> createState() => _PlaceListState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    // filteredPlacesProvider kullan — tek source of truth
+    final filteredAsync = ref.watch(filteredPlacesProvider(universityId));
+    final allAsync = ref.watch(placesByUniversityProvider(universityId));
+    final filter = ref.watch(placeFilterProvider(universityId));
 
-class _PlaceListState extends ConsumerState<PlaceList> {
-  PlaceType? _selectedType;
-
-  @override
-  void initState() {
-    super.initState();
-    _selectedType = widget.initialFilterType;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final placesAsync = ref.watch(placesByUniversityProvider(widget.universityId));
-
-    return placesAsync.when(
+    return filteredAsync.when(
       loading: () => const ShimmerList(itemCount: 3),
       error: (e, _) => ErrorStateWidget(message: '$e'),
-      data: (places) {
-        final filtered = _selectedType == null
-            ? places
-            : places.where((p) => p.type == _selectedType).toList();
+      data: (filtered) {
+        final allPlaces = allAsync.valueOrNull ?? [];
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (widget.showTypeFilter) _buildFilterBar(places),
+            if (showTypeFilter) _buildFilterBar(ref, allPlaces, filter),
             if (filtered.isEmpty)
-              _selectedType != null
+              !filter.isEmpty
                 ? Padding(
                     padding: const EdgeInsets.all(40),
                     child: EmptyStateWidget(
-                      icon: Icons.place_outlined,
-                      title: '${_selectedType!.label} bulunamadı',
-                      description: 'Bu üniversite için bu kategoride mekan yok.',
+                      icon: Icons.filter_alt_off_rounded,
+                      title: 'Eşleşen mekan yok',
+                      description:
+                          '${filter.filterCount} filtreyle eşleşen mekan bulunamadı. Filtreleri gevşetmeyi deneyin.',
                     ),
                   )
                 : const _PlacesEmptyState()
             else
               ListView.builder(
-                shrinkWrap: widget.shrinkWrap,
-                physics: widget.shrinkWrap
+                shrinkWrap: shrinkWrap,
+                physics: shrinkWrap
                     ? const NeverScrollableScrollPhysics()
                     : null,
                 padding: const EdgeInsets.symmetric(vertical: 8),
@@ -84,7 +72,8 @@ class _PlaceListState extends ConsumerState<PlaceList> {
     );
   }
 
-  Widget _buildFilterBar(List<PlaceModel> all) {
+  Widget _buildFilterBar(
+      WidgetRef ref, List<PlaceModel> all, PlaceFilterState filter) {
     final types = all.map((p) => p.type).toSet().toList();
     if (types.length < 2) return const SizedBox.shrink();
 
@@ -94,24 +83,55 @@ class _PlaceListState extends ConsumerState<PlaceList> {
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
         children: [
-          _buildFilterChip(null, 'Tümü', all.length),
+          _buildFilterChip(ref, null, 'Tümü', all.length, filter),
           ...types.map((t) {
             final count = all.where((p) => p.type == t).length;
-            return _buildFilterChip(t, t.label, count);
+            return _buildFilterChip(ref, t, t.label, count, filter);
           }),
         ],
       ),
     );
   }
 
-  Widget _buildFilterChip(PlaceType? type, String label, int count) {
-    final selected = _selectedType == type;
+  Widget _buildFilterChip(
+    WidgetRef ref,
+    PlaceType? type,
+    String label,
+    int count,
+    PlaceFilterState filter,
+  ) {
+    // null = Tümü seçili ise type filter boş demektir
+    final selected = type == null
+        ? filter.selectedTypes.isEmpty
+        : filter.selectedTypes.contains(type);
+
     return Padding(
       padding: const EdgeInsets.only(right: 8),
       child: FilterChip(
         label: Text('$label ($count)'),
         selected: selected,
-        onSelected: (_) => setState(() => _selectedType = type),
+        onSelected: (_) {
+          final notifier =
+              ref.read(placeFilterProvider(universityId).notifier);
+          if (type == null) {
+            // "Tümü" tıklandı → type filtresini sıfırla
+            notifier.reset();
+          } else {
+            // Sadece tek bir type seçimi: önceki set'i temizle, yeni type'ı set et
+            // veya zaten seçili ise kaldır (tekrar tıklayınca Tümü'ye dön)
+            if (filter.selectedTypes.contains(type) &&
+                filter.selectedTypes.length == 1) {
+              // Zaten tek seçiliydi, kaldır → Tümü
+              notifier.toggleType(type);
+            } else {
+              // Yeni seçim: önce mevcut type'ları temizle
+              for (final t in filter.selectedTypes.toList()) {
+                notifier.toggleType(t);
+              }
+              notifier.toggleType(type);
+            }
+          }
+        },
         backgroundColor: AppColors.surface,
         selectedColor: AppColors.primary.withValues(alpha: 0.12),
         labelStyle: AppTextStyles.labelMedium.copyWith(
@@ -119,7 +139,9 @@ class _PlaceListState extends ConsumerState<PlaceList> {
           fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
         ),
         side: BorderSide(
-          color: selected ? AppColors.primary.withValues(alpha: 0.3) : AppColors.borderLight,
+          color: selected
+              ? AppColors.primary.withValues(alpha: 0.3)
+              : AppColors.borderLight,
         ),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         showCheckmark: false,
@@ -144,18 +166,20 @@ class _PlacesEmptyState extends StatelessWidget {
               color: AppColors.primary.withValues(alpha: 0.08),
               shape: BoxShape.circle,
             ),
-            child: Icon(Icons.place_outlined, size: 48, color: AppColors.primary),
+            child: Icon(Icons.place_outlined,
+                size: 48, color: AppColors.primary),
           ),
           const SizedBox(height: 16),
           Text(
-            'Bu üniversite için mekan ekleniyor',
+            'Mekan verisi toplanıyor',
             style: AppTextStyles.titleMedium,
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 8),
           Text(
-            'Çok yakında bu üniversitenin kafeleri, yurtları ve kütüphaneleri burada listelenecek.',
-            style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary),
+            'Bu üniversitenin mekan verileri henüz eklenmedi. Bölümler ve Yorumlar sekmelerini inceleyebilirsin.',
+            style: AppTextStyles.bodySmall
+                .copyWith(color: AppColors.textSecondary),
             textAlign: TextAlign.center,
           ),
         ],

@@ -49,7 +49,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     setState(() => _isLoading = false);
     final from = GoRouterState.of(context).uri.queryParameters['from'];
     if (from != null && from.isNotEmpty) {
-      context.go(from);
+      final decodedFrom = Uri.decodeComponent(from);
+      context.go(decodedFrom);
     } else {
       context.go('/');
     }

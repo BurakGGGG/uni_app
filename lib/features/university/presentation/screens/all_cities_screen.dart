@@ -34,13 +34,11 @@ class AllCitiesScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: AppColors.background,
         leading: IconButton(
           onPressed: () => context.pop(),
           icon: const Icon(Icons.arrow_back_rounded),
         ),
-        title: Text('Şehirler', style: AppTextStyles.titleLarge),
-        centerTitle: true,
+        title: const Text('Şehirler'),
       ),
       body: citiesAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),

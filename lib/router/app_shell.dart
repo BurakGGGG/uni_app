@@ -66,7 +66,14 @@ class _AppShellState extends ConsumerState<AppShell> with WidgetsBindingObserver
       value: SystemUiOverlayStyle.dark.copyWith(
         statusBarColor: Colors.transparent,
       ),
-      child: Scaffold(
+      child: PopScope(
+        canPop: widget.navigationShell.currentIndex == 0,
+        onPopInvokedWithResult: (didPop, result) {
+          if (didPop) return;
+          // Home değilse Home'a dön
+          widget.navigationShell.goBranch(0);
+        },
+        child: Scaffold(
         body: widget.navigationShell,
         bottomNavigationBar: Container(
           decoration: BoxDecoration(
@@ -121,6 +128,7 @@ class _AppShellState extends ConsumerState<AppShell> with WidgetsBindingObserver
               ),
             ),
           ),
+        ),
         ),
       ),
     );

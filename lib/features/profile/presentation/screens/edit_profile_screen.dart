@@ -171,9 +171,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       child: Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: AppColors.background,
-        title: Text('Profili Düzenle', style: AppTextStyles.titleLarge),
-        centerTitle: true,
+        title: const Text('Profili Düzenle'),
         leading: IconButton(
           onPressed: () => context.pop(),
           icon: const Icon(Icons.arrow_back_rounded),
