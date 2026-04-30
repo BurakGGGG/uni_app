@@ -99,7 +99,6 @@ class CityUniversitiesScreen extends ConsumerWidget {
                       return UniCard(
                         title: uni.name,
                         subtitle: '${uni.type} • Kuruluş: ${uni.establishedYear}',
-                        // TODO(sprint3): Bu değerler artık UniversityModel'den geliyor, yorum sistemi aktif olunca canlı güncellenecek
                         rating: uni.avgRating,
                         reviewCount: uni.reviewCount,
                         tags: [
