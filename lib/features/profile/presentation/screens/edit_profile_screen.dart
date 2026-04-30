@@ -31,6 +31,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   String? _selectedUniversityId;
   String? _selectedDepartment;
   int? _selectedGrade;
+  String? _bio;
   File? _selectedImage;
   String? _currentPhotoUrl;
   bool _isLoading = false;
@@ -63,6 +64,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
         _selectedUniversityId = profile.universityId;
         _selectedDepartment = profile.department;
         _selectedGrade = profile.grade;
+        _bio = profile.bio;
         _currentPhotoUrl = profile.photoUrl;
       }
     });
@@ -144,6 +146,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
         universityId: _selectedUniversityId,
         department: _selectedDepartment,
         grade: _selectedGrade,
+        bio: _bio,
       );
 
       // Provider'ı yenile
@@ -169,13 +172,8 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
-      backgroundColor: AppColors.background,
       appBar: AppBar(
         title: const Text('Profili Düzenle'),
-        leading: IconButton(
-          onPressed: () => context.pop(),
-          icon: const Icon(Icons.arrow_back_rounded),
-        ),
       ),
       body: Stack(
         children: [
@@ -299,6 +297,31 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                       });
                     },
                   ).animate().fadeIn(delay: 300.ms, duration: 400.ms),
+
+                  const SizedBox(height: 20),
+
+                  // ─── Hakkımda (Bio) ──────────────────────────────
+                  TextFormField(
+                    initialValue: _bio,
+                    textCapitalization: TextCapitalization.sentences,
+                    maxLines: 3,
+                    maxLength: 150,
+                    decoration: const InputDecoration(
+                      labelText: 'Hakkımda (Opsiyonel)',
+                      alignLabelWithHint: true,
+                      prefixIcon: Padding(
+                        padding: EdgeInsets.only(bottom: 40),
+                        child: Icon(Icons.info_outline_rounded),
+                      ),
+                      hintText: 'Kendinden kısaca bahset...',
+                    ),
+                    onChanged: (value) {
+                      setState(() {
+                        _bio = value.trim().isEmpty ? null : value.trim();
+                        _hasChanges = true;
+                      });
+                    },
+                  ).animate().fadeIn(delay: 350.ms, duration: 400.ms),
 
                   const SizedBox(height: 20),
 

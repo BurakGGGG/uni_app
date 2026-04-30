@@ -86,10 +86,17 @@ class _AppShellState extends ConsumerState<AppShell> with WidgetsBindingObserver
               child: NavigationBar(
                 selectedIndex: widget.navigationShell.currentIndex,
                 onDestinationSelected: (index) {
-                  widget.navigationShell.goBranch(
-                    index,
-                    initialLocation: index == widget.navigationShell.currentIndex,
-                  );
+                  if (index == widget.navigationShell.currentIndex) {
+                    final ctrl = PrimaryScrollController.of(context);
+                    if (ctrl.hasClients) {
+                      ctrl.animateTo(0, duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
+                    }
+                  } else {
+                    widget.navigationShell.goBranch(
+                      index,
+                      initialLocation: false,
+                    );
+                  }
                 },
                 backgroundColor: Colors.transparent,
                 surfaceTintColor: Colors.transparent,

@@ -21,7 +21,6 @@ class AllReviewsScreen extends ConsumerWidget {
     final reviewsAsync = ref.watch(allFilteredReviewsProvider);
 
     return Scaffold(
-      backgroundColor: AppColors.background,
       appBar: AppBar(
         title: const Text('Tüm Yorumlar'),
         actions: [

@@ -11,6 +11,7 @@ class UserModel {
   final String? universityId;
   final String? department;
   final int? grade;
+  final String? bio;
   final int reviewCount;
   final List<String> fcmTokens;
   final NotificationPreferences notificationPrefs;
@@ -27,6 +28,7 @@ class UserModel {
     this.universityId,
     this.department,
     this.grade,
+    this.bio,
     this.reviewCount = 0,
     this.fcmTokens = const [],
     this.notificationPrefs = const NotificationPreferences(),
@@ -46,6 +48,7 @@ class UserModel {
       universityId: map['universityId'],
       department: map['department'],
       grade: map['grade'],
+      bio: map['bio'],
       reviewCount: map['reviewCount'] ?? 0,
       fcmTokens: List<String>.from(map['fcmTokens'] ?? []),
       notificationPrefs: NotificationPreferences.fromMap(
@@ -68,6 +71,7 @@ class UserModel {
       'universityId': universityId,
       'department': department,
       'grade': grade,
+      'bio': bio,
       'reviewCount': reviewCount,
       'fcmTokens': fcmTokens,
       'notificationPrefs': notificationPrefs.toMap(),
@@ -86,6 +90,7 @@ class UserModel {
     String? universityId,
     String? department,
     int? grade,
+    String? bio,
     int? reviewCount,
     List<String>? fcmTokens,
     NotificationPreferences? notificationPrefs,
@@ -101,6 +106,7 @@ class UserModel {
       universityId: universityId ?? this.universityId,
       department: department ?? this.department,
       grade: grade ?? this.grade,
+      bio: bio ?? this.bio,
       reviewCount: reviewCount ?? this.reviewCount,
       fcmTokens: fcmTokens ?? this.fcmTokens,
       notificationPrefs: notificationPrefs ?? this.notificationPrefs,

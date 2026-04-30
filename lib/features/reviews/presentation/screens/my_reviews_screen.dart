@@ -9,6 +9,8 @@ import '../../domain/models/review_model.dart';
 import '../providers/review_providers.dart';
 import '../widgets/review_card.dart';
 
+final _myReviewFilterProvider = StateProvider.autoDispose<ReviewType?>((ref) => null);
+
 class MyReviewsScreen extends ConsumerWidget {
   const MyReviewsScreen({super.key});
 
@@ -35,6 +37,11 @@ class MyReviewsScreen extends ConsumerWidget {
         child: reviewsAsync.when(
           data: (reviews) {
             if (reviews.isEmpty) return _buildEmptyState(context);
+
+            final filterType = ref.watch(_myReviewFilterProvider);
+            final filteredReviews = filterType == null 
+                ? reviews 
+                : reviews.where((r) => r.type == filterType).toList();
 
             final pendingCount = reviews.where((r) => !r.isApproved).length;
 
@@ -66,12 +73,31 @@ class MyReviewsScreen extends ConsumerWidget {
                       ],
                     ),
                   ),
+                const SizedBox(height: 12),
+                SizedBox(
+                  height: 40,
+                  child: ListView(
+                    scrollDirection: Axis.horizontal,
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    children: [
+                      _buildFilterChip(ref, null, 'Tümü', filterType),
+                      const SizedBox(width: 8),
+                      _buildFilterChip(ref, ReviewType.university, 'Üniversiteler', filterType),
+                      const SizedBox(width: 8),
+                      _buildFilterChip(ref, ReviewType.department, 'Bölümler', filterType),
+                      const SizedBox(width: 8),
+                      _buildFilterChip(ref, ReviewType.place, 'Mekanlar', filterType),
+                    ],
+                  ),
+                ),
                 Expanded(
-                  child: ListView.builder(
+                  child: filteredReviews.isEmpty 
+                    ? const Center(child: Text('Bu kategoriye ait yorumunuz bulunmuyor.'))
+                    : ListView.builder(
                     padding: const EdgeInsets.symmetric(vertical: 16),
-                    itemCount: reviews.length,
+                    itemCount: filteredReviews.length,
                     itemBuilder: (_, i) {
-                      final r = reviews[i];
+                      final r = filteredReviews[i];
                       return ReviewCard(
                         review: r,
                         showActions: true,
@@ -157,6 +183,30 @@ class MyReviewsScreen extends ConsumerWidget {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildFilterChip(WidgetRef ref, ReviewType? type, String label, ReviewType? currentFilter) {
+    final selected = type == currentFilter;
+    return FilterChip(
+      label: Text(label),
+      selected: selected,
+      onSelected: (_) {
+        ref.read(_myReviewFilterProvider.notifier).state = type;
+      },
+      backgroundColor: AppColors.surface,
+      selectedColor: AppColors.primary.withValues(alpha: 0.12),
+      labelStyle: AppTextStyles.labelMedium.copyWith(
+        color: selected ? AppColors.primary : AppColors.textSecondary,
+        fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
+      ),
+      side: BorderSide(
+        color: selected
+            ? AppColors.primary.withValues(alpha: 0.3)
+            : AppColors.borderLight,
+      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      showCheckmark: false,
     );
   }
 }

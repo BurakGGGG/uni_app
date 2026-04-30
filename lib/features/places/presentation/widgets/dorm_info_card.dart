@@ -69,6 +69,28 @@ class DormInfoCard extends StatelessWidget {
               ),
             ],
           ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: _InfoTile(
+                  icon: Icons.meeting_room_rounded,
+                  label: 'Oda Tipi',
+                  value: 'Bilinmiyor', // TODO: Add to PlaceModel
+                  color: AppColors.textSecondary,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _InfoTile(
+                  icon: Icons.access_time_rounded,
+                  label: 'Giriş-Çıkış',
+                  value: isKyk ? '06:00 - 23:00' : 'Esnek',
+                  color: AppColors.textSecondary,
+                ),
+              ),
+            ],
+          ),
         ],
       ),
     );

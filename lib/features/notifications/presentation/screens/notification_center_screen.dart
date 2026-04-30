@@ -11,28 +11,44 @@ class NotificationCenterScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final notifsAsync = ref.watch(myNotificationsProvider);
-    final unreadAsync = ref.watch(unreadNotificationCountProvider);
 
     return Scaffold(
-      backgroundColor: AppColors.background,
       appBar: AppBar(
         title: const Text('Bildirimler'),
         actions: [
-          unreadAsync.when(
-            loading: () => const SizedBox(),
-            error: (error, stackTrace) => const SizedBox(),
-            data: (unread) {
-              if (unread == 0) return const SizedBox();
-              return TextButton.icon(
-                onPressed: () async {
-                  await ref
-                      .read(notificationRepositoryProvider)
-                      .markAllAsRead();
-                },
-                icon: const Icon(Icons.done_all_rounded, size: 18),
-                label: const Text('Tümünü oku'),
-              );
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.more_vert_rounded),
+            tooltip: 'Seçenekler',
+            onSelected: (val) async {
+              if (val == 'mark_all') {
+                await ref.read(notificationRepositoryProvider).markAllAsRead();
+              } else if (val == 'delete_all') {
+                final confirm = await showDialog<bool>(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: const Text('Tümünü Sil'),
+                    content: const Text('Tüm bildirimleri silmek istediğinize emin misiniz?'),
+                    actions: [
+                      TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('İptal')),
+                      FilledButton(onPressed: () => Navigator.pop(context, true), child: const Text('Sil')),
+                    ],
+                  ),
+                );
+                if (confirm == true) {
+                  await ref.read(notificationRepositoryProvider).deleteAllNotifications();
+                }
+              }
             },
+            itemBuilder: (context) => [
+              const PopupMenuItem(
+                value: 'mark_all',
+                child: Row(children: [Icon(Icons.done_all_rounded, size: 20), SizedBox(width: 8), Text('Tümünü oku')]),
+              ),
+              const PopupMenuItem(
+                value: 'delete_all',
+                child: Row(children: [Icon(Icons.delete_sweep_rounded, size: 20, color: AppColors.error), SizedBox(width: 8), Text('Tümünü sil', style: TextStyle(color: AppColors.error))]),
+              ),
+            ],
           ),
         ],
       ),

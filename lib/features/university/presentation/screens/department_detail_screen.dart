@@ -21,12 +21,7 @@ class DepartmentDetailScreen extends ConsumerWidget {
     final deptAsync = ref.watch(departmentDetailProvider(departmentId));
 
     return Scaffold(
-      backgroundColor: AppColors.background,
       appBar: AppBar(
-        leading: IconButton(
-          onPressed: () => context.pop(),
-          icon: const Icon(Icons.arrow_back_rounded),
-        ),
         title: const Text('Bölüm Detayı'),
       ),
       body: deptAsync.when(

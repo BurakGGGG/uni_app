@@ -32,12 +32,7 @@ class AllCitiesScreen extends ConsumerWidget {
     final citiesAsync = ref.watch(citiesProvider);
 
     return Scaffold(
-      backgroundColor: AppColors.background,
       appBar: AppBar(
-        leading: IconButton(
-          onPressed: () => context.pop(),
-          icon: const Icon(Icons.arrow_back_rounded),
-        ),
         title: const Text('Şehirler'),
       ),
       body: citiesAsync.when(

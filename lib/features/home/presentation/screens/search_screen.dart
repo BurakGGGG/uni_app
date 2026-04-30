@@ -40,7 +40,6 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     final query = ref.watch(searchQueryProvider);
 
     return Scaffold(
-      backgroundColor: AppColors.background,
       body: SafeArea(
         child: Column(
           children: [
@@ -86,57 +85,55 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
 
             // ─── Sonuçlar ────────────────────────────────────────
             Expanded(
-              child: query.trim().isEmpty
-                  ? _buildEmptySearchState()
-                  : searchResultsAsync.when(
-                      loading: () => const Center(child: CircularProgressIndicator()),
-                      error: (e, st) => Center(child: Text('Hata: $e')),
-                      data: (results) {
-                        if (results.isEmpty) {
-                          return EmptyStateWidget(
-                            icon: Icons.search_off_rounded,
-                            title: 'Sonuç bulunamadı',
-                            description: '"$query" aramasına uygun üniversite yok.',
-                          );
-                        }
+              child: searchResultsAsync.when(
+                loading: () => const Center(child: CircularProgressIndicator()),
+                error: (e, st) => Center(child: Text('Hata: $e')),
+                data: (results) {
+                  if (results.isEmpty) {
+                    return EmptyStateWidget(
+                      icon: Icons.search_off_rounded,
+                      title: 'Sonuç bulunamadı',
+                      description: '"$query" aramasına uygun üniversite yok.',
+                    );
+                  }
 
-                        return ListView.builder(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                          cacheExtent: 1000,
-                          itemCount: results.length,
-                          itemBuilder: (context, index) {
-                            final uni = results[index];
-                            return UniCard(
-                              title: uni.name,
-                              subtitle: '${uni.type} • Kuruluş: ${uni.establishedYear}',
-                              rating: uni.avgRating,
-                              reviewCount: uni.reviewCount,
-                              tags: [
-                                if (uni.hasCampus) 'Kampüslü',
-                                uni.type,
-                              ],
-                              onTap: () => context.push('/university/${uni.id}'),
-                              badge: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                                decoration: BoxDecoration(
-                                  color: (uni.type == 'Devlet' ? AppColors.stateUni : AppColors.foundationUni)
-                                      .withValues(alpha: 0.12),
-                                  borderRadius: BorderRadius.circular(6),
-                                ),
-                                child: Text(
-                                  uni.type,
-                                  style: AppTextStyles.labelSmall.copyWith(
-                                    color: uni.type == 'Devlet' ? AppColors.stateUni : AppColors.foundationUni,
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 10,
-                                  ),
-                                ),
-                              ),
-                            );
-                          },
-                        );
-                      },
-                    ),
+                  return ListView.builder(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    cacheExtent: 1000,
+                    itemCount: results.length,
+                    itemBuilder: (context, index) {
+                      final uni = results[index];
+                      return UniCard(
+                        title: uni.name,
+                        subtitle: '${uni.type} • Kuruluş: ${uni.establishedYear}',
+                        rating: uni.avgRating,
+                        reviewCount: uni.reviewCount,
+                        tags: [
+                          if (uni.hasCampus) 'Kampüslü',
+                          uni.type,
+                        ],
+                        onTap: () => context.push('/university/${uni.id}'),
+                        badge: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                          decoration: BoxDecoration(
+                            color: (uni.type == 'Devlet' ? AppColors.stateUni : AppColors.foundationUni)
+                                .withValues(alpha: 0.12),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Text(
+                            uni.type,
+                            style: AppTextStyles.labelSmall.copyWith(
+                              color: uni.type == 'Devlet' ? AppColors.stateUni : AppColors.foundationUni,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 10,
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
             ),
           ],
         ),
@@ -144,29 +141,5 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     );
   }
 
-  Widget _buildEmptySearchState() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.search_rounded,
-            size: 64,
-            color: AppColors.textTertiary.withValues(alpha: 0.5),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            'Üniversite Ara',
-            style: AppTextStyles.titleMedium.copyWith(color: AppColors.textSecondary),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'İstediğiniz üniversiteyi bulmak için \naramaya başlayın.',
-            textAlign: TextAlign.center,
-            style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textTertiary),
-          ),
-        ],
-      ),
-    );
-  }
+
 }
