@@ -8,6 +8,8 @@ import '../../domain/models/place_model.dart';
 import 'place_type_chip.dart';
 
 class PlaceCard extends ConsumerStatefulWidget {
+  static const double _kImageSize = 72;
+
   final PlaceModel place;
   final bool compact;
   final VoidCallback? onTap;
@@ -96,7 +98,7 @@ class _PlaceCardState extends ConsumerState<PlaceCard>
   Widget _buildImage() {
     if (place.imageUrls.isEmpty) {
       return Container(
-        width: 72, height: 72,
+        width: PlaceCard._kImageSize, height: PlaceCard._kImageSize,
         decoration: BoxDecoration(
           color: _typeColor().withValues(alpha: 0.12),
           borderRadius: BorderRadius.circular(AppConstants.radiusMd),
@@ -108,13 +110,14 @@ class _PlaceCardState extends ConsumerState<PlaceCard>
       borderRadius: BorderRadius.circular(AppConstants.radiusMd),
       child: CachedNetworkImage(
         imageUrl: place.imageUrls.first,
-        width: 72, height: 72, fit: BoxFit.cover,
-        memCacheWidth: 144, memCacheHeight: 144,
+        width: PlaceCard._kImageSize, height: PlaceCard._kImageSize, fit: BoxFit.cover,
+        memCacheWidth: (PlaceCard._kImageSize * 2).toInt(),
+        memCacheHeight: (PlaceCard._kImageSize * 2).toInt(),
         placeholder: (_, url) => Container(
-          width: 72, height: 72, color: AppColors.surfaceVariant,
+          width: PlaceCard._kImageSize, height: PlaceCard._kImageSize, color: AppColors.surfaceVariant,
         ),
         errorWidget: (_, url, error) => Container(
-          width: 72, height: 72,
+          width: PlaceCard._kImageSize, height: PlaceCard._kImageSize,
           decoration: BoxDecoration(
             color: _typeColor().withValues(alpha: 0.12),
             borderRadius: BorderRadius.circular(AppConstants.radiusMd),
