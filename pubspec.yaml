@@ -53,6 +53,7 @@ dependencies:
   # Icons
   cupertino_icons: ^1.0.8
   flutter_animate: ^4.5.2
+  flutter_native_splash: ^2.4.1
 
 dev_dependencies:
   flutter_test:
@@ -62,6 +63,7 @@ dev_dependencies:
   flutter_lints: ^6.0.0
   custom_lint: ^0.7.5
   riverpod_lint: ^2.6.3
+  flutter_launcher_icons: ^0.14.4
 
 flutter:
   uses-material-design: true
@@ -69,5 +71,29 @@ flutter:
   assets:
     - assets/images/
     - assets/icons/
+    - assets/splash/
     - assets/animations/
     - assets/data/places_seed.json
+
+flutter_native_splash:
+  color: "#1A1A2E"
+  image: assets/splash/unisec_mark.png
+  color_dark: "#1A1A2E"
+  image_dark: assets/splash/unisec_mark.png
+  android_12:
+    color: "#1A1A2E"
+    image: assets/splash/unisec_mark_android12.png
+    icon_background_color: "#1A1A2E"
+    color_dark: "#1A1A2E"
+    image_dark: assets/splash/unisec_mark_android12.png
+    icon_background_color_dark: "#1A1A2E"
+  fullscreen: true
+  android: true
+  ios: true
+  web: false
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/icons/unisec-icon-ink-1024.png"
+  min_sdk_android: 21
