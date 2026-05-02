@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/constants/app_constants.dart';
@@ -48,11 +49,34 @@ class HomeScreen extends ConsumerWidget {
                               ),
                             ),
                             const SizedBox(height: 4),
-                            Text(
-                              AppConstants.appName,
-                              style: AppTextStyles.displaySmall.copyWith(
-                                color: AppColors.primary,
-                              ),
+                            Row(
+                              children: [
+                                Text(
+                                  'Üni',
+                                  style: AppTextStyles.displaySmall.copyWith(
+                                    color: AppColors.primary,
+                                    fontFamily: 'SpaceGrotesk',
+                                    fontWeight: FontWeight.w800,
+                                    letterSpacing: -1.2,
+                                  ),
+                                ),
+                                const SizedBox(width: 2),
+                                SvgPicture.asset(
+                                  'assets/icons/compare_icon.svg',
+                                  width: 20,
+                                  height: 20,
+                                ),
+                                const SizedBox(width: 1),
+                                Text(
+                                  'eç',
+                                  style: AppTextStyles.displaySmall.copyWith(
+                                    color: AppColors.primary,
+                                    fontFamily: 'SpaceGrotesk',
+                                    fontWeight: FontWeight.w800,
+                                    letterSpacing: -1.2,
+                                  ),
+                                ),
+                              ],
                             ),
                           ],
                         ),

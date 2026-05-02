@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../core/theme/app_colors.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -123,28 +124,36 @@ class _AppShellState extends ConsumerState<AppShell> with WidgetsBindingObserver
                 indicatorColor: AppColors.primary.withValues(alpha: 0.12),
                 labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
                 animationDuration: const Duration(milliseconds: 400),
-                destinations: const [
-                  NavigationDestination(
+                destinations: [
+                  const NavigationDestination(
                     icon: Icon(Icons.home_outlined),
                     selectedIcon: Icon(Icons.home_rounded, color: AppColors.primary),
                     label: 'Ana Sayfa',
                   ),
-                  NavigationDestination(
+                  const NavigationDestination(
                     icon: Icon(Icons.explore_outlined),
                     selectedIcon: Icon(Icons.explore_rounded, color: AppColors.primary),
                     label: 'Keşfet',
                   ),
                   NavigationDestination(
-                    icon: Icon(Icons.compare_arrows_outlined),
-                    selectedIcon: Icon(Icons.compare_arrows_rounded, color: AppColors.primary),
+                    icon: SvgPicture.asset(
+                      'assets/icons/compare_icon_outline.svg',
+                      width: 24,
+                      height: 24,
+                    ),
+                    selectedIcon: SvgPicture.asset(
+                      'assets/icons/compare_icon.svg',
+                      width: 24,
+                      height: 24,
+                    ),
                     label: 'Karşılaştır',
                   ),
-                  NavigationDestination(
+                  const NavigationDestination(
                     icon: Icon(Icons.favorite_outline_rounded),
                     selectedIcon: Icon(Icons.favorite_rounded, color: AppColors.primary),
                     label: 'Favoriler',
                   ),
-                  NavigationDestination(
+                  const NavigationDestination(
                     icon: Icon(Icons.person_outline_rounded),
                     selectedIcon: Icon(Icons.person_rounded, color: AppColors.primary),
                     label: 'Profil',

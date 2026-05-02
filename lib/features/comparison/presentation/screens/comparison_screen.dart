@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/widgets.dart';
@@ -112,7 +113,18 @@ class _EmptyState extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 32),
       child: EmptyStateWidget(
-        icon: Icons.compare_arrows_rounded,
+        illustration: Container(
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: AppColors.primary.withValues(alpha: 0.06),
+            shape: BoxShape.circle,
+          ),
+          child: SvgPicture.asset(
+            'assets/icons/compare_icon.svg',
+            width: 56,
+            height: 56,
+          ),
+        ),
         title: 'İki üniversite seç',
         description:
             'Yukarıdan iki üniversite seçince karşılaştırma sonuçları burada gözükür.',
