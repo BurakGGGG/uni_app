@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/place_repository.dart';
 import '../../domain/models/place_model.dart';
@@ -12,14 +13,24 @@ final placesByUniversityProvider =
   return ref.read(placeRepositoryProvider).watchPlacesByUniversity(uniId);
 });
 
+/// Place detail — keepAlive + 5 dakika sonra otomatik dispose
 final placeDetailProvider = 
     FutureProvider.family<PlaceModel?, String>((ref, placeId) async {
-  ref.keepAlive();
+  // keepAlive başlat, 5 dk sonra dispose et
+  final link = ref.keepAlive();
+  final timer = Timer(const Duration(minutes: 5), link.close);
+  ref.onDispose(() => timer.cancel());
+
   return ref.read(placeRepositoryProvider).getPlace(placeId);
 });
 
+/// Place watch — keepAlive + 5 dakika sonra otomatik dispose
 final placeWatchProvider = 
     StreamProvider.family<PlaceModel?, String>((ref, placeId) {
-  ref.keepAlive();
+  // keepAlive başlat, 5 dk sonra dispose et
+  final link = ref.keepAlive();
+  final timer = Timer(const Duration(minutes: 5), link.close);
+  ref.onDispose(() => timer.cancel());
+
   return ref.read(placeRepositoryProvider).watchPlace(placeId);
 });

@@ -11,12 +11,12 @@ import '../../domain/models/department_model.dart';
 import '../../domain/models/university_model.dart';
 import '../../../auth/presentation/providers/auth_providers.dart';
 import '../../../favorites/presentation/providers/favorites_providers.dart';
-import '../../../reviews/presentation/widgets/review_list.dart';
-import '../../../reviews/domain/models/review_model.dart';
 import '../../../reviews/presentation/widgets/category_ratings_chart.dart';
-import '../../../places/presentation/widgets/place_list.dart';
-import '../../../places/presentation/screens/place_filter_sheet.dart';
-import '../../../places/presentation/providers/place_filter_provider.dart';
+import '../../../reviews/presentation/providers/review_providers.dart';
+import '../../../reviews/presentation/widgets/review_card.dart';
+import '../../../places/presentation/providers/place_providers.dart';
+import '../../../places/domain/models/place_model.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class UniversityDetailScreen extends ConsumerWidget {
   final String universityId;
@@ -38,40 +38,29 @@ class UniversityDetailScreen extends ConsumerWidget {
             return const Center(child: Text('Üniversite bulunamadı'));
           }
 
-          final deptCount = deptsAsync.value?.length ?? 0;
-
-          return DefaultTabController(
-            length: 3,
-            child: NestedScrollView(
-              headerSliverBuilder: (context, innerBoxIsScrolled) => [
+          return RefreshIndicator(
+            onRefresh: () async {
+              ref.invalidate(universityDetailProvider(universityId));
+              ref.invalidate(departmentsByUniversityProvider(universityId));
+              ref.invalidate(placesByUniversityProvider(universityId));
+              ref.invalidate(universityReviewsProvider(universityId));
+            },
+            child: CustomScrollView(
+              slivers: [
                 _buildSliverAppBar(context, uni),
-                SliverToBoxAdapter(child: _buildCompactInfoCard(context, ref, uni)),
-                SliverPersistentHeader(
-                  pinned: true,
-                  delegate: _SliverTabBarDelegate(
-                    TabBar(
-                      labelColor: AppColors.primary,
-                      unselectedLabelColor: AppColors.textTertiary,
-                      indicatorColor: AppColors.primary,
-                      indicatorWeight: 3,
-                      labelStyle: AppTextStyles.titleSmall.copyWith(fontWeight: FontWeight.w700),
-                      unselectedLabelStyle: AppTextStyles.titleSmall,
-                      tabs: [
-                        Tab(text: 'Bölümler${deptCount > 0 ? " ($deptCount)" : ""}'),
-                        const Tab(text: 'Mekanlar'),
-                        Tab(text: 'Yorumlar${uni.reviewCount > 0 ? " (${uni.reviewCount})" : ""}'),
-                      ],
-                    ),
+                SliverToBoxAdapter(
+                  child: Column(
+                    children: [
+                      RepaintBoundary(child: _buildCompactInfoCard(context, ref, uni)),
+                      RepaintBoundary(child: _buildRatingsPreview(context, uni)),
+                      RepaintBoundary(child: _buildDepartmentsPreview(context, deptsAsync)),
+                      RepaintBoundary(child: _buildPlacesPreview(context, ref)),
+                      RepaintBoundary(child: _buildReviewsPreview(context, ref, uni)),
+                      const SizedBox(height: 32),
+                    ],
                   ),
                 ),
               ],
-              body: TabBarView(
-                children: [
-                  _DepartmentsTab(deptsAsync: deptsAsync),
-                  _PlacesTab(universityId: universityId),
-                  _ReviewsTab(universityId: universityId, uni: uni),
-                ],
-              ),
             ),
           );
         },
@@ -157,7 +146,6 @@ class UniversityDetailScreen extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Rozetler ve rating yan yana
           Row(
             children: [
               _Badge(
@@ -199,8 +187,6 @@ class UniversityDetailScreen extends ConsumerWidget {
             ],
           ),
           const SizedBox(height: 12),
-
-          // Açıklama (max 2 satır)
           if (uni.description.isNotEmpty)
             Text(
               uni.description,
@@ -211,10 +197,7 @@ class UniversityDetailScreen extends ConsumerWidget {
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
-
           const SizedBox(height: 12),
-
-          // Meta info (kuruluş + website)
           Row(
             children: [
               Icon(Icons.calendar_today_rounded, size: 13, color: AppColors.textTertiary),
@@ -250,6 +233,186 @@ class UniversityDetailScreen extends ConsumerWidget {
     ).animate().fadeIn(duration: 300.ms).slideY(begin: -0.1, end: 0);
   }
 
+  // ─── Genel Puanlar Önizleme ──────────────────────────────────
+  Widget _buildRatingsPreview(BuildContext context, UniversityModel uni) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+      child: Column(
+        children: [
+          CategoryRatingsChart(
+            ratings: uni.categoryRatings,
+            reviewCount: uni.reviewCount,
+          ),
+          if (uni.reviewCount > 0) ...[
+            const SizedBox(height: 4),
+            _SeeAllButton(
+              label: 'Tüm yorumları gör',
+              onTap: () => context.push('/university/$universityId/reviews'),
+            ),
+          ],
+        ],
+      ),
+    ).animate().fadeIn(delay: 100.ms, duration: 300.ms).slideY(begin: 0.05, end: 0);
+  }
+
+  // ─── Bölümler Önizleme ───────────────────────────────────────
+  Widget _buildDepartmentsPreview(
+      BuildContext context, AsyncValue<List<DepartmentModel>> deptsAsync) {
+    return deptsAsync.when(
+      loading: () => const SizedBox.shrink(),
+      error: (_, _) => const SizedBox.shrink(),
+      data: (departments) {
+        if (departments.isEmpty) {
+          return _PreviewSection(
+            icon: Icons.school_rounded,
+            title: 'Bölümler',
+            count: 0,
+            child: _MiniEmptyState(
+              icon: Icons.school_outlined,
+              message: 'Henüz bölüm bilgisi eklenmemiş',
+            ),
+          ).animate().fadeIn(delay: 200.ms, duration: 300.ms).slideY(begin: 0.05, end: 0);
+        }
+
+        final preview = departments.take(3).toList();
+
+        return _PreviewSection(
+          icon: Icons.school_rounded,
+          title: 'Bölümler',
+          count: departments.length,
+          child: Column(
+            children: [
+              ...preview.map((dept) => _DepartmentPreviewTile(
+                department: dept,
+                onTap: () => context.push('/department/${dept.id}'),
+              )),
+              const SizedBox(height: 8),
+              _SeeAllButton(
+                label: 'Tüm ${departments.length} bölümü gör',
+                onTap: () => context.push('/university/$universityId/departments'),
+              ),
+            ],
+          ),
+        ).animate().fadeIn(delay: 200.ms, duration: 300.ms).slideY(begin: 0.05, end: 0);
+      },
+    );
+  }
+
+  // ─── Mekanlar Önizleme ───────────────────────────────────────
+  Widget _buildPlacesPreview(BuildContext context, WidgetRef ref) {
+    final placesAsync = ref.watch(placesByUniversityProvider(universityId));
+
+    return placesAsync.when(
+      loading: () => const SizedBox.shrink(),
+      error: (_, _) => const SizedBox.shrink(),
+      data: (places) {
+        if (places.isEmpty) {
+          return _PreviewSection(
+            icon: Icons.place_rounded,
+            title: 'Mekanlar',
+            count: 0,
+            child: _MiniEmptyState(
+              icon: Icons.place_outlined,
+              message: 'Henüz mekan eklenmemiş',
+            ),
+          ).animate().fadeIn(delay: 300.ms, duration: 300.ms).slideY(begin: 0.05, end: 0);
+        }
+
+        final preview = places.take(4).toList();
+
+        return _PreviewSection(
+          icon: Icons.place_rounded,
+          title: 'Mekanlar',
+          count: places.length,
+          child: Column(
+            children: [
+              GridView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                padding: const EdgeInsets.only(bottom: 8),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  mainAxisSpacing: 8,
+                  crossAxisSpacing: 8,
+                  childAspectRatio: 1.4,
+                ),
+                itemCount: preview.length,
+                itemBuilder: (_, i) => _PlacePreviewCard(
+                  place: preview[i],
+                  onTap: () => context.push(
+                      '/university/$universityId/place/${preview[i].id}'),
+                ),
+              ),
+              _SeeAllButton(
+                label: 'Tüm ${places.length} mekanı gör',
+                onTap: () => context.push('/university/$universityId/places'),
+              ),
+            ],
+          ),
+        ).animate().fadeIn(delay: 300.ms, duration: 300.ms).slideY(begin: 0.05, end: 0);
+      },
+    );
+  }
+
+  // ─── Yorumlar Önizleme ───────────────────────────────────────
+  Widget _buildReviewsPreview(
+      BuildContext context, WidgetRef ref, UniversityModel uni) {
+    final reviewsAsync =
+        ref.watch(universityReviewsProvider(universityId));
+
+    return reviewsAsync.when(
+      loading: () => const SizedBox.shrink(),
+      error: (_, _) => const SizedBox.shrink(),
+      data: (reviews) {
+        if (reviews.isEmpty) {
+          return _PreviewSection(
+            icon: Icons.rate_review_rounded,
+            title: 'Yorumlar',
+            count: 0,
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Center(
+                child: Column(
+                  children: [
+                    Icon(Icons.rate_review_outlined,
+                        size: 36,
+                        color: AppColors.textTertiary.withValues(alpha: 0.4)),
+                    const SizedBox(height: 8),
+                    Text('Henüz yorum yapılmamış',
+                        style: AppTextStyles.bodySmall
+                            .copyWith(color: AppColors.textTertiary)),
+                  ],
+                ),
+              ),
+            ),
+          ).animate().fadeIn(delay: 400.ms, duration: 300.ms).slideY(begin: 0.05, end: 0);
+        }
+
+        final preview = reviews.take(3).toList();
+
+        return _PreviewSection(
+          icon: Icons.rate_review_rounded,
+          title: 'Yorumlar',
+          count: reviews.length,
+          child: Column(
+            children: [
+              ...preview.map((review) => ReviewCard(
+                review: review,
+                showActions: false,
+                showReportMenu: false,
+              )),
+              const SizedBox(height: 8),
+              _SeeAllButton(
+                label: 'Tüm ${reviews.length} yorumu gör',
+                onTap: () => context.push('/university/$universityId/reviews'),
+              ),
+            ],
+          ),
+        ).animate().fadeIn(delay: 400.ms, duration: 300.ms).slideY(begin: 0.05, end: 0);
+      },
+    );
+  }
+
   Future<void> _launchUrl(String url) async {
     final uri = Uri.parse(url);
     if (await canLaunchUrl(uri)) {
@@ -258,237 +421,319 @@ class UniversityDetailScreen extends ConsumerWidget {
   }
 }
 
-// ─── Sticky TabBar Delegate ───────────────────────────────────────
-class _SliverTabBarDelegate extends SliverPersistentHeaderDelegate {
-  final TabBar tabBar;
+// ═══════════════════════════════════════════════════════════════════
+// Yardımcı Widget'lar
+// ═══════════════════════════════════════════════════════════════════
 
-  _SliverTabBarDelegate(this.tabBar);
+// ─── Preview Section Container ──────────────────────────────────
+class _PreviewSection extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final int count;
+  final Widget child;
 
-  @override
-  double get minExtent => tabBar.preferredSize.height;
-
-  @override
-  double get maxExtent => tabBar.preferredSize.height;
-
-  @override
-  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
-    return Container(
-      color: AppColors.background,
-      child: Material(
-        color: AppColors.background,
-        elevation: overlapsContent ? 2 : 0,
-        child: tabBar,
-      ),
-    );
-  }
-
-  @override
-  bool shouldRebuild(_SliverTabBarDelegate oldDelegate) {
-    return tabBar != oldDelegate.tabBar;
-  }
-}
-
-// ─── Bölümler Tab ─────────────────────────────────────────────────
-class _DepartmentsTab extends StatelessWidget {
-  final AsyncValue<List<DepartmentModel>> deptsAsync;
-
-  const _DepartmentsTab({required this.deptsAsync});
+  const _PreviewSection({
+    required this.icon,
+    required this.title,
+    required this.count,
+    required this.child,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return deptsAsync.when(
-      loading: () => const Center(child: CircularProgressIndicator()),
-      error: (e, st) => Center(child: Text('Bölümler yüklenemedi: $e')),
-      data: (departments) {
-        if (departments.isEmpty) {
-          return const Center(
-            child: Padding(
-              padding: EdgeInsets.all(40),
-              child: Text('Henüz bölüm eklenmemiş'),
-            ),
-          );
-        }
-
-        final lisans = departments.where((d) => d.type == 'Lisans').toList();
-        final onlisans = departments.where((d) => d.type == 'Önlisans').toList();
-
-        return ListView(
-          padding: const EdgeInsets.symmetric(vertical: 12),
-          children: [
-            if (lisans.isNotEmpty) ...[
-              _SectionTitle(title: 'Lisans (${lisans.length})'),
-              ...lisans.asMap().entries.map((e) => _DepartmentCard(
-                department: e.value,
-                index: e.key,
-                onTap: () => context.push('/department/${e.value.id}'),
-              )),
-            ],
-            if (onlisans.isNotEmpty) ...[
-              _SectionTitle(title: 'Önlisans (${onlisans.length})'),
-              ...onlisans.asMap().entries.map((e) => _DepartmentCard(
-                department: e.value,
-                index: e.key + lisans.length,
-                onTap: () => context.push('/department/${e.value.id}'),
-              )),
-            ],
-            const SizedBox(height: 80),
-          ],
-        );
-      },
-    );
-  }
-}
-
-// ─── Mekanlar Tab ───────────────────────────────────────────────────────
-class _PlacesTab extends ConsumerWidget {
-  final String universityId;
-
-  const _PlacesTab({required this.universityId});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final filter = ref.watch(placeFilterProvider(universityId));
-    return ListView(
-      padding: const EdgeInsets.only(top: 12, bottom: 80),
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
-          child: Row(
+    return Container(
+      margin: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+      padding: const EdgeInsets.all(AppConstants.spacingLg),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(AppConstants.radiusLg),
+        border: Border.all(color: AppColors.borderLight),
+        boxShadow: AppColors.softShadow,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Section header
+          Row(
             children: [
+              Icon(icon, color: AppColors.primary, size: 20),
+              const SizedBox(width: 8),
+              Text(title, style: AppTextStyles.titleMedium),
               const Spacer(),
-              IconButton(
-                icon: Stack(children: [
-                  const Icon(Icons.tune_rounded),
-                  if (filter.filterCount > 0)
-                    Positioned(
-                      right: 0, top: 0,
-                      child: Container(
-                        width: 8, height: 8,
-                        decoration: const BoxDecoration(
-                          color: AppColors.primary,
-                          shape: BoxShape.circle,
-                        ),
-                      ),
+              if (count > 0)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: AppColors.primary.withValues(alpha: 0.08),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Text(
+                    '$count',
+                    style: AppTextStyles.labelSmall.copyWith(
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.w700,
                     ),
-                ]),
-                onPressed: () =>
-                    PlaceFilterSheet.show(context, universityId),
-              ),
+                  ),
+                ),
             ],
           ),
-        ),
-        PlaceList(
-          universityId: universityId,
-          showTypeFilter: true,
-          shrinkWrap: true,
-        ),
-      ],
+          const SizedBox(height: 12),
+          child,
+        ],
+      ),
     );
   }
 }
 
-// ─── Yorumlar Tab ─────────────────────────────────────────────────
-class _ReviewsTab extends ConsumerWidget {
-  final String universityId;
-  final UniversityModel uni;
+// ─── Mini Empty State ───────────────────────────────────────────
+class _MiniEmptyState extends StatelessWidget {
+  final IconData icon;
+  final String message;
 
-  const _ReviewsTab({required this.universityId, required this.uni});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return ListView(
-      padding: const EdgeInsets.only(bottom: 80),
-      children: [
-        // Kategori puanları özeti
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-          child: CategoryRatingsChart(
-            ratings: uni.categoryRatings,
-            reviewCount: uni.reviewCount,
-          ),
-        ),
-
-        // Değerlendir butonu
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          child: Consumer(
-            builder: (context, ref, _) {
-              final currentUserAsync = ref.watch(currentUserProvider);
-              return currentUserAsync.when(
-                data: (profile) {
-                  final canReview = profile != null &&
-                      profile.universityId == universityId &&
-                      profile.isVerifiedStudent;
-
-                  return SizedBox(
-                    width: double.infinity,
-                    child: canReview
-                      ? ElevatedButton.icon(
-                          onPressed: () => context.push('/write-review/university/$universityId'),
-                          icon: const Icon(Icons.add_comment_rounded, size: 18),
-                          label: const Text('Bu Üniversiteyi Değerlendir'),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.primary,
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(vertical: 14),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(AppConstants.radiusMd),
-                            ),
-                          ),
-                        )
-                      : OutlinedButton.icon(
-                          onPressed: () => _showReviewInfoSheet(
-                            context,
-                            profile: profile,
-                            isOwnUniversity: profile?.universityId == universityId,
-                          ),
-                          icon: const Icon(Icons.info_outline_rounded, size: 18),
-                          label: const Text('Neden değerlendiremiyorum?'),
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: AppColors.textSecondary,
-                            padding: const EdgeInsets.symmetric(vertical: 14),
-                            side: BorderSide(color: AppColors.borderLight),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(AppConstants.radiusMd),
-                            ),
-                          ),
-                        ),
-                  );
-                },
-                loading: () => const SizedBox(height: 48),
-                error: (err, stack) => const SizedBox.shrink(),
-              );
-            },
-          ),
-        ),
-
-        // Yorum listesi
-        ReviewList(
-          targetId: universityId,
-          type: ReviewType.university,
-        ),
-      ],
-    );
-  }
-}
-
-// ─── Section Title (mevcut) ───────────────────────────────────────
-class _SectionTitle extends StatelessWidget {
-  final String title;
-  const _SectionTitle({required this.title});
+  const _MiniEmptyState({required this.icon, required this.message});
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 12, 20, 4),
-      child: Text(title, style: AppTextStyles.labelMedium.copyWith(
-        color: AppColors.textTertiary, fontWeight: FontWeight.w600,
-      )),
+      padding: const EdgeInsets.symmetric(vertical: 16),
+      child: Center(
+        child: Column(
+          children: [
+            Icon(icon, size: 32, color: AppColors.textTertiary.withValues(alpha: 0.4)),
+            const SizedBox(height: 8),
+            Text(
+              message,
+              style: AppTextStyles.bodySmall.copyWith(color: AppColors.textTertiary),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
 
-// ─── Badge (icon parametresi eklendi) ─────────────────────────────
+// ─── "Tümünü Gör" Butonu ────────────────────────────────────────
+class _SeeAllButton extends StatelessWidget {
+  final String label;
+  final VoidCallback onTap;
+
+  const _SeeAllButton({required this.label, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      child: TextButton(
+        onPressed: onTap,
+        style: TextButton.styleFrom(
+          foregroundColor: AppColors.primary,
+          padding: const EdgeInsets.symmetric(vertical: 10),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(label, style: AppTextStyles.labelMedium.copyWith(
+              color: AppColors.primary, fontWeight: FontWeight.w600)),
+            const SizedBox(width: 4),
+            const Icon(Icons.arrow_forward_rounded, size: 16),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Bölüm Önizleme Tile ───────────────────────────────────────
+class _DepartmentPreviewTile extends StatelessWidget {
+  final DepartmentModel department;
+  final VoidCallback onTap;
+
+  const _DepartmentPreviewTile({
+    required this.department,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(AppConstants.radiusMd),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+          child: Row(
+            children: [
+              Container(
+                width: 36, height: 36,
+                decoration: BoxDecoration(
+                  color: (department.type == 'Lisans'
+                          ? AppColors.primary
+                          : AppColors.accent)
+                      .withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(
+                  department.type == 'Lisans'
+                      ? Icons.school_rounded
+                      : Icons.auto_stories_rounded,
+                  color: department.type == 'Lisans'
+                      ? AppColors.primary
+                      : AppColors.accent,
+                  size: 18,
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(department.name,
+                        style: AppTextStyles.titleSmall,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis),
+                    Text(department.faculty,
+                        style: AppTextStyles.labelSmall
+                            .copyWith(color: AppColors.textTertiary),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis),
+                  ],
+                ),
+              ),
+              if (department.baseScore != null)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: AppColors.primary.withValues(alpha: 0.08),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Text(
+                    department.baseScore!.toStringAsFixed(1),
+                    style: AppTextStyles.labelSmall.copyWith(
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              const SizedBox(width: 4),
+              const Icon(Icons.chevron_right_rounded,
+                  color: AppColors.textTertiary, size: 18),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Mekan Önizleme Grid Kartı ──────────────────────────────────
+class _PlacePreviewCard extends StatelessWidget {
+  final PlaceModel place;
+  final VoidCallback onTap;
+
+  const _PlacePreviewCard({required this.place, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(AppConstants.radiusMd),
+        child: Container(
+          decoration: BoxDecoration(
+            color: AppColors.background,
+            borderRadius: BorderRadius.circular(AppConstants.radiusMd),
+            border: Border.all(color: AppColors.borderLight),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Foto thumbnail
+              Expanded(
+                child: ClipRRect(
+                  borderRadius: const BorderRadius.vertical(
+                      top: Radius.circular(AppConstants.radiusMd)),
+                  child: place.imageUrls.isNotEmpty
+                      ? CachedNetworkImage(
+                          imageUrl: place.imageUrls.first,
+                          width: double.infinity,
+                          fit: BoxFit.cover,
+                          memCacheWidth: 300,
+                          placeholder: (_, _) => Container(
+                            color: _typeColor(place.type).withValues(alpha: 0.08),
+                            child: Icon(place.type.icon,
+                                color: _typeColor(place.type), size: 28),
+                          ),
+                          errorWidget: (_, _, _) => Container(
+                            color: _typeColor(place.type).withValues(alpha: 0.08),
+                            child: Center(
+                              child: Icon(place.type.icon,
+                                  color: _typeColor(place.type), size: 28),
+                            ),
+                          ),
+                        )
+                      : Container(
+                          color: _typeColor(place.type).withValues(alpha: 0.08),
+                          child: Center(
+                            child: Icon(place.type.icon,
+                                color: _typeColor(place.type), size: 28),
+                          ),
+                        ),
+                ),
+              ),
+              // İsim + rating
+              Padding(
+                padding: const EdgeInsets.fromLTRB(8, 6, 8, 6),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(place.name,
+                        style: AppTextStyles.labelMedium
+                            .copyWith(fontWeight: FontWeight.w600),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis),
+                    if (place.avgRating > 0)
+                      Row(
+                        children: [
+                          const Icon(Icons.star_rounded,
+                              size: 12, color: AppColors.ratingStar),
+                          const SizedBox(width: 2),
+                          Text(
+                            place.avgRating.toStringAsFixed(1),
+                            style: AppTextStyles.labelSmall.copyWith(
+                                fontWeight: FontWeight.w600),
+                          ),
+                        ],
+                      ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Color _typeColor(PlaceType type) {
+    switch (type) {
+      case PlaceType.cafe:
+        return const Color(0xFFE65100);
+      case PlaceType.dorm:
+        return const Color(0xFF0D47A1);
+      case PlaceType.library:
+        return const Color(0xFF6A1B9A);
+      case PlaceType.studyArea:
+        return AppColors.success;
+      case PlaceType.sports:
+        return AppColors.warning;
+    }
+  }
+}
+
+// ─── Badge ──────────────────────────────────────────────────────
 class _Badge extends StatelessWidget {
   final String text;
   final Color color;
@@ -521,83 +766,7 @@ class _Badge extends StatelessWidget {
   }
 }
 
-// ─── Department Card (mevcut, aynı kalıyor) ──────────────────────
-class _DepartmentCard extends StatelessWidget {
-  final DepartmentModel department;
-  final int index;
-  final VoidCallback onTap;
-
-  const _DepartmentCard({
-    required this.department,
-    required this.index,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(AppConstants.radiusMd),
-        border: Border.all(color: AppColors.borderLight),
-      ),
-      child: Material(
-        color: Colors.transparent,
-        borderRadius: BorderRadius.circular(AppConstants.radiusMd),
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(AppConstants.radiusMd),
-          child: Padding(
-            padding: const EdgeInsets.all(14),
-            child: Row(children: [
-              Container(
-                width: 40, height: 40,
-                decoration: BoxDecoration(
-                  color: (department.type == 'Lisans' ? AppColors.primary : AppColors.accent)
-                      .withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Icon(
-                  department.type == 'Lisans' ? Icons.school_rounded : Icons.auto_stories_rounded,
-                  color: department.type == 'Lisans' ? AppColors.primary : AppColors.accent,
-                  size: 20,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(department.name, style: AppTextStyles.titleSmall,
-                    maxLines: 1, overflow: TextOverflow.ellipsis),
-                  const SizedBox(height: 2),
-                  Text('${department.faculty} • ${department.language}',
-                    style: AppTextStyles.labelSmall,
-                    maxLines: 1, overflow: TextOverflow.ellipsis),
-                ],
-              )),
-              if (department.baseScore != null)
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: AppColors.primary.withValues(alpha: 0.08),
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  child: Text(department.baseScore!.toStringAsFixed(1),
-                    style: AppTextStyles.labelMedium.copyWith(
-                      color: AppColors.primary, fontWeight: FontWeight.w700)),
-                ),
-              const SizedBox(width: 4),
-              const Icon(Icons.chevron_right_rounded, color: AppColors.textTertiary, size: 20),
-            ]),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// ─── Favorite Button (mevcut, aynı kalıyor) ──────────────────────
+// ─── Favorite Button ────────────────────────────────────────────
 class _FavoriteButton extends ConsumerWidget {
   final String universityId;
 
@@ -647,117 +816,4 @@ class _FavoriteButton extends ConsumerWidget {
       ),
     );
   }
-}
-
-// ─── Değerlendir Bilgi Bottom Sheet ──────────────────────────────────
-void _showReviewInfoSheet(
-  BuildContext context, {
-  required dynamic profile,
-  required bool isOwnUniversity,
-}) {
-  final IconData icon;
-  final Color iconColor;
-  final String title;
-  final String description;
-  final String? buttonText;
-  final VoidCallback? onButtonPressed;
-
-  if (profile == null) {
-    icon = Icons.login_rounded;
-    iconColor = AppColors.primary;
-    title = 'Giriş Yapın';
-    description = 'Yorum yazabilmek için önce hesabınıza giriş yapmanız gerekiyor.';
-    buttonText = 'Giriş Yap';
-    onButtonPressed = () {
-      Navigator.pop(context);
-      GoRouter.of(context).push('/login');
-    };
-  } else if (!(profile.isVerifiedStudent as bool)) {
-    icon = Icons.verified_user_rounded;
-    iconColor = AppColors.warning;
-    title = 'Doğrulama Gerekli';
-    description = 'Yorum yazabilmek için edu.tr uzantılı e-posta adresinizle doğrulama yapmanız gerekiyor.';
-    buttonText = null;
-    onButtonPressed = null;
-  } else if (!isOwnUniversity) {
-    icon = Icons.school_rounded;
-    iconColor = AppColors.info;
-    title = 'Farklı Üniversite';
-    description = 'Sadece kendi üniversitene yorum yapabilirsin. Bu üniversite senin kayıtlı olduğun üniversite değil.';
-    buttonText = null;
-    onButtonPressed = null;
-  } else {
-    // Bu duruma normalde düşmemeli ama güvenlik için
-    icon = Icons.info_outline_rounded;
-    iconColor = AppColors.textTertiary;
-    title = 'Yorum Yazılamıyor';
-    description = 'Şu anda bu üniversiteye yorum yazma yetkiniz bulunmuyor.';
-    buttonText = null;
-    onButtonPressed = null;
-  }
-
-  showModalBottomSheet(
-    context: context,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-    ),
-    builder: (ctx) => SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: AppColors.textTertiary.withAlpha(80),
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-            const SizedBox(height: 24),
-            Container(
-              width: 64,
-              height: 64,
-              decoration: BoxDecoration(
-                color: iconColor.withValues(alpha: 0.1),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(icon, color: iconColor, size: 32),
-            ),
-            const SizedBox(height: 16),
-            Text(title, style: AppTextStyles.titleLarge),
-            const SizedBox(height: 8),
-            Text(
-              description,
-              textAlign: TextAlign.center,
-              style: AppTextStyles.bodyMedium.copyWith(
-                color: AppColors.textSecondary,
-                height: 1.5,
-              ),
-            ),
-            if (buttonText != null) ...[
-              const SizedBox(height: 20),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: onButtonPressed,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(AppConstants.radiusMd),
-                    ),
-                  ),
-                  child: Text(buttonText),
-                ),
-              ),
-            ],
-            const SizedBox(height: 8),
-          ],
-        ),
-      ),
-    ),
-  );
 }
