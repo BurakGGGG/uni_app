@@ -102,7 +102,7 @@ class _FavoritesScreenState extends ConsumerState<FavoritesScreen> {
 
             return Column(
               children: [
-                // ─── Üst bar: sayı + tümünü temizle ─────────────
+                // ─── Üst bar: sayı + tümünü kaldır ─────────────
                 _buildTopBar(context, ref, favoriteUnis.length),
                 // ─── Liste ──────────────────────────────────────
                 Expanded(
@@ -170,7 +170,7 @@ class _FavoritesScreenState extends ConsumerState<FavoritesScreen> {
                         size: 16, color: AppColors.error),
                     const SizedBox(width: 4),
                     Text(
-                      'Tümünü temizle',
+                      'Tümünü kaldır',
                       style: AppTextStyles.labelSmall.copyWith(
                         color: AppColors.error,
                       ),
@@ -408,10 +408,10 @@ class _FavoriteUniCardState extends State<_FavoriteUniCard>
                   ),
                 ),
               ),
-              // ─── Kalp butonu (sağ üst) ─────────────────────
+              // ─── Kalp butonu (sağ alt) ─────────────────────
               Positioned(
-                top: 8,
-                right: 8,
+                bottom: 12,
+                right: 22,
                 child: Material(
                   color: Colors.transparent,
                   child: InkWell(
@@ -420,11 +420,11 @@ class _FavoriteUniCardState extends State<_FavoriteUniCard>
                     child: Container(
                       padding: const EdgeInsets.all(6),
                       decoration: BoxDecoration(
-                        color: AppColors.error.withValues(alpha: 0.08),
+                        color: AppColors.error.withValues(alpha: 0.15),
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(
-                        Icons.favorite_rounded,
+                        Icons.heart_broken_rounded,
                         color: AppColors.error,
                         size: 20,
                       ),
