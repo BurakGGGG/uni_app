@@ -40,7 +40,21 @@ class ComparisonResult {
   
   /// Tek satırlık özet (ekran başlığı için)
   String get summaryText {
-    if (overallWinnerId == null) return 'İki üniversite çok yakın';
+    final aHasReviews = uniA.reviewCount > 0;
+    final bHasReviews = uniB.reviewCount > 0;
+
+    if (!aHasReviews && !bHasReviews) {
+      return 'Henüz yorum bulunmuyor — tarafsız karşılaştırma için yorum bekleniyor';
+    }
+    if (!aHasReviews) {
+      return '${uniA.name} için henüz yorum yok';
+    }
+    if (!bHasReviews) {
+      return '${uniB.name} için henüz yorum yok';
+    }
+    if (overallWinnerId == null) {
+      return 'İki üniversite genel puanlarda çok yakın';
+    }
     final winner = overallWinnerId == uniA.id ? uniA.name : uniB.name;
     return '$winner genel olarak öne çıkıyor';
   }
@@ -77,7 +91,18 @@ class ComparisonStats {
   final bool sameType;              // İkisi de Devlet veya Vakıf
   final bool sameCity;
   final bool sameCampusLayout;
-  
+  // ── Yeni metrikler (D6) ──
+  final int totalDepartmentsA;
+  final int totalDepartmentsB;
+  final double avgBaseScoreA;
+  final double avgBaseScoreB;
+  final Map<String, int> placeBreakdownA;
+  final Map<String, int> placeBreakdownB;
+  final int undergradCountA;
+  final int undergradCountB;
+  final int associateCountA;
+  final int associateCountB;
+
   const ComparisonStats({
     required this.reviewCountDelta,
     required this.placeCountDelta,
@@ -85,5 +110,15 @@ class ComparisonStats {
     required this.sameType,
     required this.sameCity,
     required this.sameCampusLayout,
+    this.totalDepartmentsA = 0,
+    this.totalDepartmentsB = 0,
+    this.avgBaseScoreA = 0,
+    this.avgBaseScoreB = 0,
+    this.placeBreakdownA = const {},
+    this.placeBreakdownB = const {},
+    this.undergradCountA = 0,
+    this.undergradCountB = 0,
+    this.associateCountA = 0,
+    this.associateCountB = 0,
   });
 }
