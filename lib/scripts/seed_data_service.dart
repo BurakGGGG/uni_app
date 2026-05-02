@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
@@ -18,6 +19,16 @@ class SeedDataService {
   }
 
   Future<void> uploadSeedData() async {
+    // ── 0. Güvenlik Kontrolü ─────────────────────────────────────
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      throw Exception('Yetkisiz erişim: Lütfen giriş yapın.');
+    }
+    final token = await user.getIdTokenResult();
+    if (token.claims?['admin'] != true) {
+      throw Exception('Yetkisiz erişim: Sadece adminler seed datası yükleyebilir.');
+    }
+
     // Firestore batch max 500 yazma destekler, bu yüzden
     // şehirler + üniversiteler ayrı, bölümler ayrı batch'te yazılacak.
 
