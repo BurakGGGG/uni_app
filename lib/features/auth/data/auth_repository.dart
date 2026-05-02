@@ -181,6 +181,22 @@ class AuthRepository {
     _lastCacheTime = null;
   }
 
+  // ─── Public Profil (başka kullanıcının profili) ─────────────────
+
+  /// Başka bir kullanıcının herkese açık profil bilgilerini getirir.
+  /// Email ve fcmTokens gibi özel alanları maskeleyerek döner.
+  Future<UserModel?> getPublicProfile(String uid) async {
+    final doc = await _firestore.collection('users').doc(uid).get();
+    if (!doc.exists || doc.data() == null) return null;
+
+    final data = Map<String, dynamic>.from(doc.data()!);
+    // Özel alanları maskele
+    data['email'] = '';
+    data['fcmTokens'] = <String>[];
+
+    return UserModel.fromMap(data, uid);
+  }
+
   // ─── edu.tr Doğrulama Kontrolü ────────────────────────────────
 
   Future<bool> reloadAndCheckVerification() async {
