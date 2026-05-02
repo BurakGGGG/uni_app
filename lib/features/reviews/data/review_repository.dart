@@ -70,6 +70,19 @@ class ReviewRepository {
             .toList());
   }
 
+  // Tüm yorumları (Bölüm, Mekan, Üniversite karışık) universityId'ye göre getir
+  Stream<List<ReviewModel>> getAllReviewsForUniversity(String universityId, {int limit = 50, String orderBy = 'createdAt'}) {
+    return _reviewsRef
+        .where('universityId', isEqualTo: universityId)
+        .where('isApproved', isEqualTo: true)
+        .orderBy(orderBy, descending: true)
+        .limit(limit)
+        .snapshots()
+        .map((snapshot) => snapshot.docs
+            .map((doc) => ReviewModel.fromMap(doc.data(), doc.id))
+            .toList());
+  }
+
   // Bölüme ait yorumları getir (sort destekli)
   Stream<List<ReviewModel>> getDepartmentReviews(String departmentId, {int limit = 20, String orderBy = 'createdAt'}) {
     return _reviewsRef
