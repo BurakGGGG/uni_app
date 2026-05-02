@@ -37,6 +37,30 @@ class ComparisonStatsTable extends StatelessWidget {
         valueA: result.placeCountA.toString(),
         valueB: result.placeCountB.toString(),
       ),
+      _StatRow(
+        label: 'Ort. Taban Puanı',
+        valueA: result.stats.avgBaseScoreA > 0
+            ? result.stats.avgBaseScoreA.toStringAsFixed(1)
+            : '-',
+        valueB: result.stats.avgBaseScoreB > 0
+            ? result.stats.avgBaseScoreB.toStringAsFixed(1)
+            : '-',
+      ),
+      _StatRow(
+        label: 'Toplam Bölüm',
+        valueA: result.stats.totalDepartmentsA.toString(),
+        valueB: result.stats.totalDepartmentsB.toString(),
+      ),
+      _StatRow(
+        label: 'Lisans',
+        valueA: result.stats.undergradCountA.toString(),
+        valueB: result.stats.undergradCountB.toString(),
+      ),
+      _StatRow(
+        label: 'Önlisans',
+        valueA: result.stats.associateCountA.toString(),
+        valueB: result.stats.associateCountB.toString(),
+      ),
     ];
 
     return Container(
