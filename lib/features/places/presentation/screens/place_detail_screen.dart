@@ -2,7 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:url_launcher/url_launcher.dart';
+import '../../../../core/utils/map_launcher.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/constants/app_constants.dart';
@@ -361,39 +361,30 @@ class _PlaceDetailScreenState extends ConsumerState<PlaceDetailScreen> {
     );
   }
 
-  // ─── P1-4 FIX: Fallback chain — mapUrl → GeoPoint → text search ──
+  // ─── P1-4 FIX: MapLauncher ile platform-aware fallback zinciri ──
   Future<void> _openMap(PlaceModel place) async {
-    Uri url;
+    final ok = await MapLauncher.open(
+      mapUrl: place.mapUrl,
+      location: place.location,
+      name: place.name,
+      address: place.address,
+    );
 
-    // 1. Explicit mapUrl varsa onu kullan
-    if (place.mapUrl != null && place.mapUrl!.isNotEmpty) {
-      url = Uri.parse(place.mapUrl!);
-    }
-    // 2. GeoPoint varsa lat/lng ile aç
-    else if (place.location != null) {
-      final lat = place.location!.latitude;
-      final lng = place.location!.longitude;
-      url = Uri.parse(
-          'https://www.google.com/maps/search/?api=1&query=$lat,$lng');
-    }
-    // 3. Son çare: name + address text search
-    else {
-      final query = Uri.encodeComponent('${place.name} ${place.address}');
-      url = Uri.parse(
-          'https://www.google.com/maps/search/?api=1&query=$query');
-    }
-
-    if (await canLaunchUrl(url)) {
-      await launchUrl(url, mode: LaunchMode.externalApplication);
-    } else {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Harita açılamadı'),
-            backgroundColor: AppColors.error,
+    if (!ok && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text(
+            'Harita uygulaması bulunamadı. Lütfen Google Maps yükleyin.',
           ),
-        );
-      }
+          backgroundColor: AppColors.error,
+          behavior: SnackBarBehavior.floating,
+          action: SnackBarAction(
+            label: 'Yükle',
+            textColor: Colors.white,
+            onPressed: () => MapLauncher.openPlayStoreMaps(),
+          ),
+        ),
+      );
     }
   }
 
