@@ -124,6 +124,33 @@ class ComparisonShareCard extends StatelessWidget {
                       fontStyle: FontStyle.italic,
                     ),
                   ),
+                  if (result.stats.avgBaseScoreA > 0 ||
+                      result.stats.avgBaseScoreB > 0) ...[
+                    const SizedBox(height: 12),
+                    const Divider(height: 1),
+                    const SizedBox(height: 12),
+                    _ShareStatRow(
+                      label: 'Ort. Taban',
+                      valueA: result.stats.avgBaseScoreA > 0
+                          ? result.stats.avgBaseScoreA.toStringAsFixed(1)
+                          : '-',
+                      valueB: result.stats.avgBaseScoreB > 0
+                          ? result.stats.avgBaseScoreB.toStringAsFixed(1)
+                          : '-',
+                    ),
+                    const SizedBox(height: 4),
+                    _ShareStatRow(
+                      label: 'Bölüm',
+                      valueA: result.stats.totalDepartmentsA.toString(),
+                      valueB: result.stats.totalDepartmentsB.toString(),
+                    ),
+                    const SizedBox(height: 4),
+                    _ShareStatRow(
+                      label: 'Mekan',
+                      valueA: result.placeCountA.toString(),
+                      valueB: result.placeCountB.toString(),
+                    ),
+                  ],
                 ],
               ),
             ),
@@ -177,6 +204,59 @@ class _ShareScoreCard extends StatelessWidget {
           ),
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
+        ),
+      ],
+    );
+  }
+}
+
+class _ShareStatRow extends StatelessWidget {
+  final String label;
+  final String valueA;
+  final String valueB;
+
+  const _ShareStatRow({
+    required this.label,
+    required this.valueA,
+    required this.valueB,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          flex: 4,
+          child: Text(
+            valueA,
+            textAlign: TextAlign.right,
+            style: AppTextStyles.labelMedium.copyWith(
+              color: AppColors.primary,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ),
+        Expanded(
+          flex: 4,
+          child: Text(
+            label,
+            textAlign: TextAlign.center,
+            style: AppTextStyles.labelSmall.copyWith(
+              color: AppColors.textTertiary,
+              fontSize: 10,
+            ),
+          ),
+        ),
+        Expanded(
+          flex: 4,
+          child: Text(
+            valueB,
+            textAlign: TextAlign.left,
+            style: AppTextStyles.labelMedium.copyWith(
+              color: AppColors.secondary,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
         ),
       ],
     );

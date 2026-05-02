@@ -10,6 +10,7 @@ import '../widgets/comparison_header.dart';
 import '../widgets/comparison_category_row.dart';
 import '../widgets/comparison_stats_table.dart';
 import '../widgets/comparison_share_card.dart';
+import '../widgets/comparison_radar_chart.dart';
 
 class ComparisonScreen extends ConsumerWidget {
   const ComparisonScreen({super.key});
@@ -33,9 +34,15 @@ class ComparisonScreen extends ConsumerWidget {
                     child: Text('Karşılaştır', style: AppTextStyles.displaySmall),
                   ),
                   if (selection.uniIdA != null || selection.uniIdB != null)
-                    IconButton(
-                      icon: const Icon(Icons.refresh_rounded),
-                      tooltip: 'Sıfırla',
+                    TextButton.icon(
+                      icon: const Icon(Icons.refresh_rounded, size: 18),
+                      label: const Text('Sıfırla'),
+                      style: TextButton.styleFrom(
+                        foregroundColor: AppColors.error,
+                        backgroundColor: AppColors.error.withValues(alpha: 0.08),
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      ),
                       onPressed: () => ref.read(comparisonSelectionProvider.notifier).reset(),
                     ),
                   if (selection.bothSelected) ...[
@@ -133,6 +140,9 @@ class _ResultView extends StatelessWidget {
             uniBId: result.uniB.id,
           ),
         ),
+        const SizedBox(height: 24),
+        _SectionTitle('Genel Görünüm'),
+        ComparisonRadarChart(result: result),
         const SizedBox(height: 24),
         _SectionTitle('Genel İstatistikler'),
         ComparisonStatsTable(result: result),
