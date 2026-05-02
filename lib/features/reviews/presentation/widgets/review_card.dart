@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -180,19 +181,29 @@ class ReviewCard extends ConsumerWidget {
     return Row(
       children: [
         // Avatar
-        CircleAvatar(
-          radius: compact ? 16 : 20,
-          backgroundColor: AppColors.primary.withValues(alpha: 0.1),
-          backgroundImage: photoUrl != null
-              ? CachedNetworkImageProvider(photoUrl, maxWidth: 80, maxHeight: 80)
-              : null,
-          child: photoUrl == null
-              ? Icon(
-                  review.isAnonymous ? Icons.person_off_rounded : Icons.person,
-                  color: AppColors.primary,
-                  size: compact ? 16 : 20,
-                )
-              : null,
+        GestureDetector(
+          onTap: review.isAnonymous
+              ? null
+              : () => context.push('/user/${review.userId}'),
+          child: Opacity(
+            opacity: review.isAnonymous ? 0.5 : 1.0,
+            child: CircleAvatar(
+              radius: compact ? 16 : 20,
+              backgroundColor: review.isAnonymous
+                  ? AppColors.textTertiary.withValues(alpha: 0.15)
+                  : AppColors.primary.withValues(alpha: 0.1),
+              backgroundImage: photoUrl != null
+                  ? CachedNetworkImageProvider(photoUrl, maxWidth: 80, maxHeight: 80)
+                  : null,
+              child: photoUrl == null
+                  ? Icon(
+                      review.isAnonymous ? Icons.person_off_rounded : Icons.person,
+                      color: review.isAnonymous ? AppColors.textTertiary : AppColors.primary,
+                      size: compact ? 16 : 20,
+                    )
+                  : null,
+            ),
+          ),
         ),
         const SizedBox(width: 10),
 
