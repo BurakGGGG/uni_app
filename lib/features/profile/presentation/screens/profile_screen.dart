@@ -3,16 +3,21 @@ import 'package:flutter/foundation.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:in_app_review/in_app_review.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/widgets/widgets.dart';
+import '../../../../core/utils/snackbar_helper.dart';
 import '../../../auth/presentation/providers/auth_providers.dart';
 import '../../../auth/domain/user_model.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../../../core/providers/shared_preferences_provider.dart';
 import '../../../../scripts/seed_data_service.dart';
 import '../../../favorites/presentation/providers/favorites_providers.dart';
+import '../widgets/change_password_dialog.dart';
 
 /// Profil ekranı — auth durumuna göre içerik gösterir
 class ProfileScreen extends ConsumerWidget {
@@ -98,7 +103,12 @@ class ProfileScreen extends ConsumerWidget {
                           icon: Icons.security_rounded,
                           title: 'Güvenlik',
                           subtitle: 'Şifre değiştir',
-                          onTap: () {},
+                          onTap: () async {
+                            final result = await ChangePasswordDialog.show(context);
+                            if (result == true && context.mounted) {
+                              showAppSnackBar(context, message: 'Şifre başarıyla değiştirildi', isSuccess: true);
+                            }
+                          },
                         ),
                     ],
                   );
@@ -117,24 +127,73 @@ class ProfileScreen extends ConsumerWidget {
                     icon: Icons.info_outline_rounded,
                     title: 'Hakkında',
                     subtitle: '${AppConstants.appName} v${AppConstants.appVersion}',
-                    onTap: () {},
+                    onTap: () {
+                      showAboutDialog(
+                        context: context,
+                        applicationName: AppConstants.appName,
+                        applicationVersion: 'v${AppConstants.appVersion}',
+                        applicationIcon: Container(
+                          width: 48,
+                          height: 48,
+                          decoration: BoxDecoration(
+                            gradient: AppColors.primaryGradient,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: const Icon(Icons.school_rounded, color: Colors.white, size: 28),
+                        ),
+                        children: [
+                          const SizedBox(height: 16),
+                          const Text(
+                            'ÜniSeç, Türkiye\'deki üniversiteleri keşfetmeni, '
+                            'karşılaştırmanı ve deneyimlerini paylaşmanı sağlayan '
+                            'bir mobil uygulamadır.',
+                          ),
+                          const SizedBox(height: 8),
+                          const Text('© 2026 ÜniSeç Ekibi'),
+                        ],
+                      );
+                    },
                   ),
                   _SettingsItem(
                     icon: Icons.star_outline_rounded,
                     title: 'Uygulamayı Puanla',
                     subtitle: 'Google Play\'de değerlendir',
-                    onTap: () {},
+                    onTap: () async {
+                      final inAppReview = InAppReview.instance;
+                      if (await inAppReview.isAvailable()) {
+                        await inAppReview.requestReview();
+                      } else {
+                        // Fallback: Play Store URL
+                        final url = Uri.parse('https://play.google.com/store/apps/details?id=com.unisec.app');
+                        if (await canLaunchUrl(url)) {
+                          await launchUrl(url, mode: LaunchMode.externalApplication);
+                        }
+                      }
+                    },
                   ),
                   _SettingsItem(
                     icon: Icons.share_outlined,
                     title: 'Arkadaşına Öner',
                     subtitle: 'Linki paylaş',
-                    onTap: () {},
+                    onTap: () {
+                      Share.share(
+                        'ÜniSeç - Hayalindeki üniversiteyi keşfet! 🎓\nhttps://play.google.com/store/apps/details?id=com.unisec.app',
+                      );
+                    },
                   ),
                   _SettingsItem(
                     icon: Icons.privacy_tip_outlined,
                     title: 'Gizlilik Politikası',
-                    onTap: () {},
+                    onTap: () async {
+                      final url = Uri.parse('https://unisec.app/privacy');
+                      if (await canLaunchUrl(url)) {
+                        await launchUrl(url, mode: LaunchMode.externalApplication);
+                      } else {
+                        if (context.mounted) {
+                          showAppSnackBar(context, message: 'Gizlilik politikası yakında yayınlanacak');
+                        }
+                      }
+                    },
                   ),
                   if (kDebugMode)
                     _SettingsItem(
@@ -485,12 +544,13 @@ class ProfileScreen extends ConsumerWidget {
           label: 'Favori',
           value: '$favoritesCount',
           color: AppColors.error,
+          onTap: () => context.push('/favorites'),
         ),
         const SizedBox(width: 12),
         _StatCard(
-          icon: Icons.star_rounded,
-          label: 'Puan',
-          value: '4.5',
+          icon: Icons.cake_rounded,
+          label: 'Üyelik',
+          value: '${DateTime.now().difference(profile?.createdAt ?? DateTime.now()).inDays} gün',
           color: AppColors.warning,
         ),
       ],
