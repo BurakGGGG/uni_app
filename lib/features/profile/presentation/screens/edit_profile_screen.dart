@@ -8,6 +8,7 @@ import 'package:image_picker/image_picker.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/utils/snackbar_helper.dart';
+import '../../../../core/utils/profanity_filter.dart';
 import '../../../../core/widgets/widgets.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../../auth/presentation/providers/auth_providers.dart';
@@ -36,6 +37,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   String? _currentPhotoUrl;
   bool _isLoading = false;
   bool _hasChanges = false;
+  bool _bioHasProfanity = false;
 
   // Geçici üniversite listesi kaldırıldı, Firestore'dan dinamik alınacak
 
@@ -306,20 +308,30 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                     textCapitalization: TextCapitalization.sentences,
                     maxLines: 3,
                     maxLength: 150,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       labelText: 'Hakkımda (Opsiyonel)',
                       alignLabelWithHint: true,
-                      prefixIcon: Padding(
+                      prefixIcon: const Padding(
                         padding: EdgeInsets.only(bottom: 40),
                         child: Icon(Icons.info_outline_rounded),
                       ),
                       hintText: 'Kendinden kısaca bahset...',
+                      errorText: _bioHasProfanity ? 'Uygunsuz içerik tespit edildi' : null,
+                      errorStyle: const TextStyle(color: AppColors.error),
                     ),
                     onChanged: (value) {
+                      final hasProfanity = ProfanityFilter.containsProfanity(value);
                       setState(() {
                         _bio = value.trim().isEmpty ? null : value.trim();
+                        _bioHasProfanity = hasProfanity;
                         _hasChanges = true;
                       });
+                    },
+                    validator: (value) {
+                      if (value != null && ProfanityFilter.containsProfanity(value)) {
+                        return 'Uygunsuz içerik tespit edildi';
+                      }
+                      return null;
                     },
                   ).animate().fadeIn(delay: 350.ms, duration: 400.ms),
 
@@ -352,7 +364,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                   GradientButton(
                     text: 'Kaydet',
                     icon: Icons.check_rounded,
-                    onPressed: (_hasChanges && !_isLoading) ? _saveProfile : null,
+                    onPressed: (_hasChanges && !_isLoading && !_bioHasProfanity) ? _saveProfile : null,
                   ).animate().fadeIn(delay: 500.ms, duration: 400.ms),
 
                   const SizedBox(height: 40),
