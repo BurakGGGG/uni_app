@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -144,12 +145,8 @@ class AuthRepository {
   // ─── Çıkış Yap ───────────────────────────────────────────────
 
   Future<void> signOut() async {
-    // FCM token sil
-    try {
-      await FCMService().unregisterToken();
-    } catch (_) {
-      // Token silme başarısız olsa bile çıkışı engelleme
-    }
+    // Token unregister'ı fire-and-forget — login'e geçişi yavaşlatma
+    unawaited(FCMService().unregisterToken().catchError((_) {}));
 
     _cachedUser = null;
     _lastCacheTime = null;

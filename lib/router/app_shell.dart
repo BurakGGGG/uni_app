@@ -21,6 +21,9 @@ class AppShell extends ConsumerStatefulWidget {
 }
 
 class _AppShellState extends ConsumerState<AppShell> with WidgetsBindingObserver {
+  DateTime? _lastVerificationCheck;
+  static const _verificationDebounce = Duration(minutes: 5);
+
   @override
   void initState() {
     super.initState();
@@ -52,6 +55,21 @@ class _AppShellState extends ConsumerState<AppShell> with WidgetsBindingObserver
   }
 
   Future<void> _checkVerification() async {
+    // Zaten doğrulanmış kullanıcı için hiç çağırma
+    final profile = ref.read(currentUserProvider).value;
+    if (profile != null && profile.isVerifiedStudent) return;
+
+    // edu.tr maili olmayan kullanıcı için de çağırma
+    if (profile != null && !profile.hasEduEmail) return;
+
+    // Son çağrıdan beri 5 dakika geçmediyse debounce
+    if (_lastVerificationCheck != null &&
+        DateTime.now().difference(_lastVerificationCheck!) < _verificationDebounce) {
+      return;
+    }
+
+    _lastVerificationCheck = DateTime.now();
+
     final success = await ref.read(authRepositoryProvider).reloadAndCheckVerification();
     if (success && mounted) {
       // Firestore'daki güncel isVerifiedStudent değerini okutmak için her iki provider'ı yenile
