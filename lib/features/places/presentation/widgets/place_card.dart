@@ -29,43 +29,24 @@ class PlaceCard extends ConsumerStatefulWidget {
   ConsumerState<PlaceCard> createState() => _PlaceCardState();
 }
 
-class _PlaceCardState extends ConsumerState<PlaceCard>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _controller;
-  late final Animation<double> _scale;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 100),
-      lowerBound: 0.0,
-      upperBound: 0.04,
-    );
-    _scale = Tween<double>(begin: 1.0, end: 0.96).animate(_controller);
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
+class _PlaceCardState extends ConsumerState<PlaceCard> {
+  bool _isPressed = false;
 
   PlaceModel get place => widget.place;
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTapDown: (_) => _controller.forward(),
+      onTapDown: (_) => setState(() => _isPressed = true),
       onTapUp: (_) {
-        _controller.reverse();
+        setState(() => _isPressed = false);
         widget.onTap?.call();
       },
-      onTapCancel: () => _controller.reverse(),
-      child: AnimatedBuilder(
-        animation: _scale,
-        builder: (_, child) => Transform.scale(scale: _scale.value, child: child),
+      onTapCancel: () => setState(() => _isPressed = false),
+      child: AnimatedScale(
+        scale: _isPressed ? 0.97 : 1.0,
+        duration: const Duration(milliseconds: 100),
+        curve: Curves.easeInOut,
         child: _buildCard(),
       ),
     );

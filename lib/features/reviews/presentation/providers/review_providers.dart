@@ -29,7 +29,6 @@ final universityReviewsProvider = StreamProvider.family<List<ReviewModel>, Strin
 
 /// Bir bölüme ait yorumları dinleyen sağlayıcı
 final departmentReviewsProvider = StreamProvider.family<List<ReviewModel>, String>((ref, departmentId) {
-  ref.keepAlive();
   final repository = ref.watch(reviewRepositoryProvider);
   return repository.getDepartmentReviews(departmentId);
 });
@@ -155,7 +154,6 @@ class SortedReviewsParams {
 final sortedReviewsProvider =
     StreamProvider.family<List<ReviewModel>, SortedReviewsParams>(
   (ref, params) {
-    ref.keepAlive();
     final sort = ref.watch(reviewSortProvider);
     final repo = ref.read(reviewRepositoryProvider);
     final orderBy = sort == ReviewSort.newest ? 'createdAt' : 'likes';
@@ -175,7 +173,6 @@ final sortedReviewsProvider =
 
 /// Bir mekana ait yorumları dinleyen sağlayıcı
 final placeReviewsProvider = StreamProvider.family<List<ReviewModel>, String>((ref, placeId) {
-  ref.keepAlive();
   final repository = ref.watch(reviewRepositoryProvider);
   return repository.getPlaceReviews(placeId);
 });

@@ -21,6 +21,9 @@ import '../features/auth/presentation/screens/register_screen.dart';
 import '../features/profile/presentation/screens/edit_profile_screen.dart';
 import '../features/university/presentation/screens/university_detail_screen.dart';
 import '../features/university/presentation/screens/department_detail_screen.dart';
+import '../features/university/presentation/screens/uni_departments_screen.dart';
+import '../features/university/presentation/screens/uni_places_screen.dart';
+import '../features/university/presentation/screens/uni_reviews_screen.dart';
 import '../features/home/presentation/screens/search_screen.dart';
 import '../features/university/presentation/screens/city_universities_screen.dart';
 import '../features/university/presentation/screens/all_cities_screen.dart';
@@ -50,6 +53,9 @@ class AppRoutes {
   static const String allCities = '/cities';
   static const String writeReview = '/write-review/:type/:targetId';
   static const String allReviews = '/all-reviews';
+  static const String universityDepartments = '/university/:uniId/departments';
+  static const String universityPlaces = '/university/:uniId/places';
+  static const String universityReviews = '/university/:uniId/reviews';
 }
 
 /// GoRouter konfigürasyon provider'ı
@@ -184,6 +190,24 @@ final routerProvider = Provider<GoRouter>((ref) {
     GoRoute(
       path: '/university/:uniId',
       builder: (context, state) => UniversityDetailScreen(
+        universityId: state.pathParameters['uniId']!,
+      ),
+    ),
+    GoRoute(
+      path: '/university/:uniId/departments',
+      builder: (context, state) => UniDepartmentsScreen(
+        universityId: state.pathParameters['uniId']!,
+      ),
+    ),
+    GoRoute(
+      path: '/university/:uniId/places',
+      builder: (context, state) => UniPlacesScreen(
+        universityId: state.pathParameters['uniId']!,
+      ),
+    ),
+    GoRoute(
+      path: '/university/:uniId/reviews',
+      builder: (context, state) => UniReviewsScreen(
         universityId: state.pathParameters['uniId']!,
       ),
     ),
