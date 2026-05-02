@@ -12,8 +12,7 @@ service cloud.firestore {
 
     // Admin kontrolü (seed verisi yüklemek için)
     function isAdmin() {
-      // Geliştirme/test için geçici olarak herkese yazma izni veriyoruz
-      return true;
+      return isAuthenticated() && request.auth.token.admin == true;
     }
 
     // Kullanıcı edu.tr doğrulanmış öğrenci mi? (Doğrudan Auth Token'dan)

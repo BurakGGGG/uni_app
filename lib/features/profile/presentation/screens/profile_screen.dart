@@ -216,6 +216,23 @@ class ProfileScreen extends ConsumerWidget {
                       title: 'Seed Verisini Yükle (Debug)',
                       subtitle: 'Firestore\'a örnek veri yazar',
                       onTap: () async {
+                        // Admin yetkisi kontrolü
+                        final user = ref.read(authRepositoryProvider).currentUser;
+                        final idToken = await user?.getIdTokenResult();
+                        final isAdmin = idToken?.claims?['admin'] == true;
+
+                        if (!isAdmin) {
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Bu işlem için Admin yetkisi gerekiyor.'),
+                                backgroundColor: AppColors.error,
+                              ),
+                            );
+                          }
+                          return;
+                        }
+
                         await seed_data.loadLibrary();
                         final seedService = seed_data.SeedDataService();
                         try {
