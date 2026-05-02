@@ -27,6 +27,7 @@ import '../features/university/presentation/screens/all_cities_screen.dart';
 import '../features/reviews/presentation/screens/write_review_screen.dart';
 import '../features/reviews/presentation/screens/my_reviews_screen.dart';
 import '../features/reviews/domain/models/review_model.dart';
+import '../features/profile/presentation/screens/public_profile_screen.dart';
 import 'app_shell.dart';
 
 /// Uygulama route isimleri
@@ -171,6 +172,14 @@ final routerProvider = Provider<GoRouter>((ref) {
     GoRoute(
       path: AppRoutes.editProfile,
       builder: (context, state) => const EditProfileScreen(),
+    ),
+
+    // ─── Public Profil ─────────────────────────────────────────
+    GoRoute(
+      path: '/user/:userId',
+      builder: (context, state) => PublicProfileScreen(
+        userId: state.pathParameters['userId']!,
+      ),
     ),
     GoRoute(
       path: '/university/:uniId',
