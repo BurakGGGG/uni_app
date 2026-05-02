@@ -369,8 +369,9 @@ class _PopularUniCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final favoritesAsync = ref.watch(favoritesProvider);
-    final isFavorite = favoritesAsync.value?.contains(university.id) ?? false;
+    final isFavorite = ref.watch(
+      favoritesProvider.select((async) => async.value?.contains(university.id) ?? false),
+    );
     final colors = [
       AppColors.primary,
       AppColors.secondary,

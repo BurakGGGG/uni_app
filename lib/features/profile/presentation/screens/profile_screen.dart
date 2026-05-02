@@ -15,7 +15,7 @@ import '../../../auth/presentation/providers/auth_providers.dart';
 import '../../../auth/domain/user_model.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../../../core/providers/shared_preferences_provider.dart';
-import '../../../../scripts/seed_data_service.dart';
+import '../../../../scripts/seed_data_service.dart' deferred as seed_data;
 import '../../../favorites/presentation/providers/favorites_providers.dart';
 import '../widgets/change_password_dialog.dart';
 
@@ -216,7 +216,8 @@ class ProfileScreen extends ConsumerWidget {
                       title: 'Seed Verisini Yükle (Debug)',
                       subtitle: 'Firestore\'a örnek veri yazar',
                       onTap: () async {
-                        final seedService = SeedDataService();
+                        await seed_data.loadLibrary();
+                        final seedService = seed_data.SeedDataService();
                         try {
                           await seedService.uploadSeedData();
                           if (context.mounted) {
@@ -268,8 +269,9 @@ class ProfileScreen extends ConsumerWidget {
                           ),
                         );
                         if (confirmed == true) {
-                          await ref.read(authControllerProvider.notifier).signOut();
+                          // Önce nav, sonra signOut → kullanıcı bekleme algılamasın
                           if (context.mounted) context.go('/login');
+                          ref.read(authControllerProvider.notifier).signOut();
                         }
                       },
                       icon: const Icon(Icons.logout_rounded, color: AppColors.error),
