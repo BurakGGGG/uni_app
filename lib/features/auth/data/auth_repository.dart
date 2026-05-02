@@ -226,6 +226,7 @@ class AuthRepository {
     String? universityId,
     String? department,
     int? grade,
+    String? bio,
   }) async {
     final updates = <String, dynamic>{};
     if (displayName != null) updates['displayName'] = displayName;
@@ -233,6 +234,7 @@ class AuthRepository {
     if (universityId != null) updates['universityId'] = universityId;
     if (department != null) updates['department'] = department;
     if (grade != null) updates['grade'] = grade;
+    if (bio != null) updates['bio'] = bio;
 
     if (updates.isNotEmpty) {
       await _firestore.collection('users').doc(uid).update(updates);

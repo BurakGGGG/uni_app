@@ -32,6 +32,12 @@ class ComparisonScreen extends ConsumerWidget {
                   Expanded(
                     child: Text('Karşılaştır', style: AppTextStyles.displaySmall),
                   ),
+                  if (selection.uniIdA != null || selection.uniIdB != null)
+                    IconButton(
+                      icon: const Icon(Icons.refresh_rounded),
+                      tooltip: 'Sıfırla',
+                      onPressed: () => ref.read(comparisonSelectionProvider.notifier).reset(),
+                    ),
                   if (selection.bothSelected) ...[
                     IconButton(
                       icon: const Icon(Icons.swap_horiz_rounded),

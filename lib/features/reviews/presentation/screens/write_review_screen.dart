@@ -331,7 +331,6 @@ class _WriteReviewScreenState extends ConsumerState<WriteReviewScreen> {
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
-        backgroundColor: AppColors.background,
         appBar: AppBar(
           title: Text(
             widget.initialReview != null

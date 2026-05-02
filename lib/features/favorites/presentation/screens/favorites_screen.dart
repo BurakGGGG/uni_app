@@ -19,7 +19,6 @@ class FavoritesScreen extends ConsumerWidget {
     final user = authState.value;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
       appBar: AppBar(
         title: const Text('Favoriler'),
       ),

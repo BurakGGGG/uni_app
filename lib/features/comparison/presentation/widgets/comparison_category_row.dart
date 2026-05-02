@@ -41,6 +41,23 @@ class ComparisonCategoryRow extends StatelessWidget {
       );
     }
 
+    if (comparison.valueA == 0 && comparison.valueB == 0) {
+      return Container(
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: AppColors.surfaceVariant,
+          borderRadius: BorderRadius.circular(AppConstants.radiusMd),
+        ),
+        child: Row(children: [
+          const Icon(Icons.info_outline, size: 16, color: AppColors.textTertiary),
+          const SizedBox(width: 8),
+          Text('${comparison.categoryName}: Henüz yeterli yorum yok',
+            style: AppTextStyles.bodySmall.copyWith(color: AppColors.textTertiary)),
+        ]),
+      );
+    }
+
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       padding: const EdgeInsets.all(12),

@@ -34,7 +34,6 @@ dependencies:
   fl_chart: ^0.70.2
   google_fonts: ^6.2.1
   flutter_svg: ^2.0.17
-  flutter_animate: ^4.5.2
   gap: ^3.0.1
   iconsax_flutter: ^1.0.0+1
 
@@ -52,6 +51,7 @@ dependencies:
 
   # Icons
   cupertino_icons: ^1.0.8
+  flutter_animate: ^4.5.2
 
 dev_dependencies:
   flutter_test:

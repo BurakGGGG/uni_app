@@ -34,11 +34,23 @@ class NotificationTile extends ConsumerWidget {
             .deleteNotification(notification.id);
         onDismissed?.call();
       },
-      child: Material(
-        color: notification.isRead
-            ? AppColors.surface
-            : AppColors.primary.withValues(alpha: 0.04),
-        child: InkWell(
+      child: Container(
+        decoration: BoxDecoration(
+          color: notification.isRead
+              ? AppColors.surface
+              : AppColors.primary.withValues(alpha: 0.04),
+          border: notification.isRead
+              ? null
+              : const Border(
+                  left: BorderSide(
+                    color: AppColors.primary,
+                    width: 3,
+                  ),
+                ),
+        ),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
           onTap: () async {
             // Read olarak işaretle
             if (!notification.isRead) {
@@ -121,6 +133,7 @@ class NotificationTile extends ConsumerWidget {
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 }
