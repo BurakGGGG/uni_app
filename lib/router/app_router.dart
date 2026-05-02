@@ -31,12 +31,14 @@ import '../features/reviews/presentation/screens/write_review_screen.dart';
 import '../features/reviews/presentation/screens/my_reviews_screen.dart';
 import '../features/reviews/domain/models/review_model.dart';
 import '../features/profile/presentation/screens/public_profile_screen.dart';
+import '../features/home/presentation/screens/splash_screen.dart';
 import 'app_shell.dart';
 
 /// Uygulama route isimleri
 class AppRoutes {
   AppRoutes._();
 
+  static const String splash = '/splash';
   static const String home = '/';
   static const String explore = '/explore';
   static const String compare = '/compare';
@@ -63,7 +65,7 @@ final routerProvider = Provider<GoRouter>((ref) {
   final prefs = ref.watch(sharedPreferencesProvider);
 
   return GoRouter(
-    initialLocation: (prefs.getBool('onboarding_completed') ?? false) ? AppRoutes.home : AppRoutes.onboarding,
+    initialLocation: AppRoutes.splash,
     debugLogDiagnostics: true,
     refreshListenable: GoRouterRefreshStream(FirebaseAuth.instance.authStateChanges()),
     redirect: (context, state) {
@@ -72,6 +74,12 @@ final routerProvider = Provider<GoRouter>((ref) {
       final path = state.uri.path;
       final isGoingToAuth = path == AppRoutes.login || path == AppRoutes.register;
       final isGoingToOnboarding = path == AppRoutes.onboarding;
+      final isGoingToSplash = path == AppRoutes.splash;
+
+      // 0. Splash ekranındayken yönlendirme yapma
+      if (isGoingToSplash) {
+        return null;
+      }
 
       // 1. Onboarding bitmemişse
       if (!hasCompletedOnboarding && !isGoingToOnboarding) {
@@ -132,6 +140,12 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
     ),
     routes: [
+    // ─── Splash ───────────────────────────────────────────────────
+    GoRoute(
+      path: AppRoutes.splash,
+      builder: (context, state) => const SplashScreen(),
+    ),
+
     // ─── Arama ───────────────────────────────────────────────────
     GoRoute(
       path: '/search',
