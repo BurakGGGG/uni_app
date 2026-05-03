@@ -9,6 +9,7 @@ import '../../../../core/constants/app_constants.dart';
 import '../../../places/presentation/providers/place_providers.dart';
 import '../../../university/presentation/providers/university_providers.dart';
 import '../../domain/models/review_model.dart';
+import '../../../auth/presentation/providers/auth_providers.dart';
 import 'review_actions_menu.dart';
 import 'like_button.dart';
 import '../screens/photo_gallery_screen.dart';
@@ -70,7 +71,7 @@ class ReviewCard extends ConsumerWidget {
                 // Onay bekliyor banner'ı (sadece sahibine ve onaylanmamışsa)
                 if (!review.isApproved && showActions) _buildPendingApprovalBanner(),
                 if (!review.isApproved && showActions) const SizedBox(height: 12),
-                _buildHeader(context),
+                _buildHeader(context, ref),
                 const SizedBox(height: 12),
                 _buildComment(),
                 if (!compact && (review.pros.isNotEmpty || review.cons.isNotEmpty)) ...[
@@ -173,7 +174,10 @@ class ReviewCard extends ConsumerWidget {
 
   // ─── Header: avatar + isim + üni + rating + menu ──────────────────
 
-  Widget _buildHeader(BuildContext context) {
+  Widget _buildHeader(BuildContext context, WidgetRef ref) {
+    final currentUser = ref.watch(authStateProvider).value;
+    final isOwner = currentUser != null && currentUser.uid == review.userId;
+    final displayActions = showActions || isOwner;
     final displayName = review.isAnonymous ? 'Anonim Öğrenci' : review.userName;
     final displayUni = review.isAnonymous ? null : review.userUniversity;
     final photoUrl = review.isAnonymous ? null : review.userPhotoUrl;
@@ -261,12 +265,12 @@ class ReviewCard extends ConsumerWidget {
         ),
 
         // 3 nokta menü — ReviewActionsMenu widget'ı
-        if (showActions || showReportMenu) ...[
+        if (displayActions || showReportMenu) ...[
           const SizedBox(width: 8),
           ReviewActionsMenu(
             review: review,
-            showOwnerActions: showActions,
-            showReportAction: showReportMenu && !showActions,
+            showOwnerActions: displayActions,
+            showReportAction: showReportMenu && !displayActions,
             onEdit: onEdited,
             onDelete: onDeleted,
           ),
