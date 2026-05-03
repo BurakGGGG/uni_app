@@ -112,6 +112,8 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                           if (uni.hasCampus) 'Kampüslü',
                           uni.type,
                         ],
+                        brandPrimaryColor: uni.brandColor,
+                        logoAssetPath: uni.logoAssetPath,
                         onTap: () => context.push('/university/${uni.id}'),
                         badge: Container(
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
