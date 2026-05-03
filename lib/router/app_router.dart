@@ -24,6 +24,7 @@ import '../features/university/presentation/screens/department_detail_screen.dar
 import '../features/university/presentation/screens/uni_departments_screen.dart';
 import '../features/university/presentation/screens/uni_places_screen.dart';
 import '../features/university/presentation/screens/uni_reviews_screen.dart';
+import '../features/university/presentation/screens/university_gallery_screen.dart';
 import '../features/home/presentation/screens/search_screen.dart';
 import '../features/university/presentation/screens/city_universities_screen.dart';
 import '../features/university/presentation/screens/all_cities_screen.dart';
@@ -31,12 +32,14 @@ import '../features/reviews/presentation/screens/write_review_screen.dart';
 import '../features/reviews/presentation/screens/my_reviews_screen.dart';
 import '../features/reviews/domain/models/review_model.dart';
 import '../features/profile/presentation/screens/public_profile_screen.dart';
+import '../features/home/presentation/screens/splash_screen.dart';
 import 'app_shell.dart';
 
 /// Uygulama route isimleri
 class AppRoutes {
   AppRoutes._();
 
+  static const String splash = '/splash';
   static const String home = '/';
   static const String explore = '/explore';
   static const String compare = '/compare';
@@ -63,7 +66,7 @@ final routerProvider = Provider<GoRouter>((ref) {
   final prefs = ref.watch(sharedPreferencesProvider);
 
   return GoRouter(
-    initialLocation: (prefs.getBool('onboarding_completed') ?? false) ? AppRoutes.home : AppRoutes.onboarding,
+    initialLocation: AppRoutes.splash,
     debugLogDiagnostics: true,
     refreshListenable: GoRouterRefreshStream(FirebaseAuth.instance.authStateChanges()),
     redirect: (context, state) {
@@ -72,6 +75,12 @@ final routerProvider = Provider<GoRouter>((ref) {
       final path = state.uri.path;
       final isGoingToAuth = path == AppRoutes.login || path == AppRoutes.register;
       final isGoingToOnboarding = path == AppRoutes.onboarding;
+      final isGoingToSplash = path == AppRoutes.splash;
+
+      // 0. Splash ekranındayken yönlendirme yapma
+      if (isGoingToSplash) {
+        return null;
+      }
 
       // 1. Onboarding bitmemişse
       if (!hasCompletedOnboarding && !isGoingToOnboarding) {
@@ -132,6 +141,12 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
     ),
     routes: [
+    // ─── Splash ───────────────────────────────────────────────────
+    GoRoute(
+      path: AppRoutes.splash,
+      builder: (context, state) => const SplashScreen(),
+    ),
+
     // ─── Arama ───────────────────────────────────────────────────
     GoRoute(
       path: '/search',
@@ -208,6 +223,12 @@ final routerProvider = Provider<GoRouter>((ref) {
     GoRoute(
       path: '/university/:uniId/reviews',
       builder: (context, state) => UniReviewsScreen(
+        universityId: state.pathParameters['uniId']!,
+      ),
+    ),
+    GoRoute(
+      path: '/university/:uniId/gallery',
+      builder: (context, state) => UniversityGalleryScreen(
         universityId: state.pathParameters['uniId']!,
       ),
     ),

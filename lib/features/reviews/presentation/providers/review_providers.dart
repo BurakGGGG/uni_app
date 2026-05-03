@@ -4,6 +4,7 @@ import '../../../auth/presentation/providers/auth_providers.dart';
 import '../../data/review_repository.dart';
 import '../../data/report_repository.dart';
 import '../../domain/models/review_model.dart';
+import '../../domain/models/review_photo_model.dart';
 
 /// ReviewRepository sağlayıcısı
 final reviewRepositoryProvider = Provider<ReviewRepository>((ref) {
@@ -44,6 +45,24 @@ final recentReviewsProvider = StreamProvider<List<ReviewModel>>((ref) {
 final userReviewsProvider = StreamProvider.family<List<ReviewModel>, String>((ref, userId) {
   final repository = ref.watch(reviewRepositoryProvider);
   return repository.getUserReviews(userId);
+});
+
+/// Üniversiteye ait tüm fotoğraflı yorumları (bölüm, mekan, genel) dinleyen ve 
+/// düz bir fotoğraf listesine (ReviewPhotoModel) dönüştüren sağlayıcı
+final universityGalleryPhotosProvider = StreamProvider.family<List<ReviewPhotoModel>, String>((ref, universityId) {
+  ref.keepAlive();
+  final repository = ref.watch(reviewRepositoryProvider);
+  return repository.getAllReviewsForUniversity(universityId).map((reviews) {
+    final List<ReviewPhotoModel> photos = [];
+    for (final review in reviews) {
+      if (review.imageUrls.isNotEmpty) {
+        for (final url in review.imageUrls) {
+          photos.add(ReviewPhotoModel(imageUrl: url, review: review));
+        }
+      }
+    }
+    return photos;
+  });
 });
 
 // ─── Sprint 3 — Kişi B: Like Sistemi Provider'ları ─────────────────
