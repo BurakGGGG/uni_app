@@ -36,17 +36,17 @@ class SeedDataService {
     final batch1 = _firestore.batch();
 
     final cities = [
-      {'id': '34', 'name': 'İstanbul', 'plateCode': '34', 'photoUrl': 'https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?w=800', 'totalUniversityCount': 61, 'appUniversityCount': 6},
-      {'id': '06', 'name': 'Ankara', 'plateCode': '06', 'photoUrl': 'https://images.unsplash.com/photo-1587974928442-77dc3e0dba72?w=800', 'totalUniversityCount': 21, 'appUniversityCount': 5},
-      {'id': '35', 'name': 'İzmir', 'plateCode': '35', 'photoUrl': 'https://images.unsplash.com/photo-1580227184285-06ec1da6b9c9?w=800', 'totalUniversityCount': 10, 'appUniversityCount': 4},
-      {'id': '07', 'name': 'Antalya', 'plateCode': '07', 'photoUrl': 'https://images.unsplash.com/photo-1542051812871-7575088c5589?w=800', 'totalUniversityCount': 5, 'appUniversityCount': 2},
-      {'id': '26', 'name': 'Eskişehir', 'plateCode': '26', 'photoUrl': 'https://images.unsplash.com/photo-1622542730304-4df15a9ab350?w=800', 'totalUniversityCount': 3, 'appUniversityCount': 3},
-      {'id': '16', 'name': 'Bursa', 'plateCode': '16', 'photoUrl': 'https://images.unsplash.com/photo-1596482811342-63dbb480749d?w=800', 'totalUniversityCount': 3, 'appUniversityCount': 2},
-      {'id': '17', 'name': 'Çanakkale', 'plateCode': '17', 'photoUrl': 'https://images.unsplash.com/photo-1600862024765-b778749a0ce6?w=800', 'totalUniversityCount': 1, 'appUniversityCount': 1},
-      {'id': '58', 'name': 'Sivas', 'plateCode': '58', 'photoUrl': 'https://images.unsplash.com/photo-1610486001097-42f02cb8f344?w=800', 'totalUniversityCount': 2, 'appUniversityCount': 2},
-      {'id': '61', 'name': 'Trabzon', 'plateCode': '61', 'photoUrl': 'https://images.unsplash.com/photo-1602781489020-f1c50b69165b?w=800', 'totalUniversityCount': 3, 'appUniversityCount': 2},
-      {'id': '33', 'name': 'Mersin', 'plateCode': '33', 'photoUrl': 'https://images.unsplash.com/photo-1602336306028-2615cb38d01d?w=800', 'totalUniversityCount': 4, 'appUniversityCount': 2},
-      {'id': '19', 'name': 'Çorum', 'plateCode': '19', 'photoUrl': 'https://images.unsplash.com/photo-1635224747018-23ada6b1ab02?w=800', 'totalUniversityCount': 2, 'appUniversityCount': 1},
+      {'id': '34', 'name': 'İstanbul', 'plateCode': '34', 'photoUrl': 'https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?w=800', 'totalUniversityCount': 61, 'appUniversityCount': 6, 'brandPrimaryHex': '#1B3A6B', 'brandSecondaryHex': '#C9A84C', 'brandUseDarkOverlay': false},
+      {'id': '06', 'name': 'Ankara', 'plateCode': '06', 'photoUrl': 'https://images.unsplash.com/photo-1587974928442-77dc3e0dba72?w=800', 'totalUniversityCount': 21, 'appUniversityCount': 5, 'brandPrimaryHex': '#B5271A', 'brandSecondaryHex': '#7A0E08', 'brandUseDarkOverlay': false},
+      {'id': '35', 'name': 'İzmir', 'plateCode': '35', 'photoUrl': 'https://images.unsplash.com/photo-1580227184285-06ec1da6b9c9?w=800', 'totalUniversityCount': 10, 'appUniversityCount': 4, 'brandPrimaryHex': '#007BAC', 'brandSecondaryHex': '#00547A', 'brandUseDarkOverlay': false},
+      {'id': '07', 'name': 'Antalya', 'plateCode': '07', 'photoUrl': 'https://images.unsplash.com/photo-1542051812871-7575088c5589?w=800', 'totalUniversityCount': 5, 'appUniversityCount': 2, 'brandPrimaryHex': '#E07020', 'brandSecondaryHex': '#A84E10', 'brandUseDarkOverlay': false},
+      {'id': '26', 'name': 'Eskişehir', 'plateCode': '26', 'photoUrl': 'https://images.unsplash.com/photo-1622542730304-4df15a9ab350?w=800', 'totalUniversityCount': 3, 'appUniversityCount': 3, 'brandPrimaryHex': '#5B3D8C', 'brandSecondaryHex': '#3A245E', 'brandUseDarkOverlay': false},
+      {'id': '16', 'name': 'Bursa', 'plateCode': '16', 'photoUrl': 'https://images.unsplash.com/photo-1596482811342-63dbb480749d?w=800', 'totalUniversityCount': 3, 'appUniversityCount': 2, 'brandPrimaryHex': '#1E7A3E', 'brandSecondaryHex': '#0F4E26', 'brandUseDarkOverlay': false},
+      {'id': '17', 'name': 'Çanakkale', 'plateCode': '17', 'photoUrl': 'https://images.unsplash.com/photo-1600862024765-b778749a0ce6?w=800', 'totalUniversityCount': 1, 'appUniversityCount': 1, 'brandPrimaryHex': '#2C3D6F', 'brandSecondaryHex': '#8B1A1A', 'brandUseDarkOverlay': false},
+      {'id': '58', 'name': 'Sivas', 'plateCode': '58', 'photoUrl': 'https://images.unsplash.com/photo-1610486001097-42f02cb8f344?w=800', 'totalUniversityCount': 2, 'appUniversityCount': 2, 'brandPrimaryHex': '#8B1A1A', 'brandSecondaryHex': '#C8902A', 'brandUseDarkOverlay': false},
+      {'id': '61', 'name': 'Trabzon', 'plateCode': '61', 'photoUrl': 'https://images.unsplash.com/photo-1602781489020-f1c50b69165b?w=800', 'totalUniversityCount': 3, 'appUniversityCount': 2, 'brandPrimaryHex': '#0D5C36', 'brandSecondaryHex': '#1565C0', 'brandUseDarkOverlay': false},
+      {'id': '33', 'name': 'Mersin', 'plateCode': '33', 'photoUrl': 'https://images.unsplash.com/photo-1602336306028-2615cb38d01d?w=800', 'totalUniversityCount': 4, 'appUniversityCount': 2, 'brandPrimaryHex': '#D94F12', 'brandSecondaryHex': '#006B6B', 'brandUseDarkOverlay': false},
+      {'id': '19', 'name': 'Çorum', 'plateCode': '19', 'photoUrl': 'https://images.unsplash.com/photo-1635224747018-23ada6b1ab02?w=800', 'totalUniversityCount': 2, 'appUniversityCount': 1, 'brandPrimaryHex': '#7B4F23', 'brandSecondaryHex': '#C8A050', 'brandUseDarkOverlay': false},
     ];
 
     for (var city in cities) {
