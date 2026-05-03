@@ -6,7 +6,6 @@ import '../../../../core/constants/app_constants.dart';
 import '../providers/university_providers.dart';
 import '../../../auth/presentation/providers/auth_providers.dart';
 import '../../../reviews/presentation/widgets/review_list.dart';
-import '../../../reviews/presentation/widgets/category_ratings_chart.dart';
 import '../../../reviews/domain/models/review_model.dart';
 
 /// Tüm yorumların tam listesi — /university/:uniId/reviews
@@ -30,14 +29,7 @@ class UniReviewsScreen extends ConsumerWidget {
           return ListView(
             padding: const EdgeInsets.only(bottom: 80),
             children: [
-              // Kategori puanları özeti
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-                child: CategoryRatingsChart(
-                  ratings: uni.categoryRatings,
-                  reviewCount: uni.reviewCount,
-                ),
-              ),
+              // Kategori puanları butonuyla detail sayfasında açılıyor.
 
               // Değerlendir butonu
               Padding(
