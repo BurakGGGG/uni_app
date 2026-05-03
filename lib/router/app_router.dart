@@ -25,6 +25,7 @@ import '../features/university/presentation/screens/uni_departments_screen.dart'
 import '../features/university/presentation/screens/uni_places_screen.dart';
 import '../features/university/presentation/screens/uni_reviews_screen.dart';
 import '../features/university/presentation/screens/university_gallery_screen.dart';
+import '../features/university/presentation/screens/uni_ratings_screen.dart';
 import '../features/home/presentation/screens/search_screen.dart';
 import '../features/university/presentation/screens/city_universities_screen.dart';
 import '../features/university/presentation/screens/all_cities_screen.dart';
@@ -229,6 +230,12 @@ final routerProvider = Provider<GoRouter>((ref) {
     GoRoute(
       path: '/university/:uniId/gallery',
       builder: (context, state) => UniversityGalleryScreen(
+        universityId: state.pathParameters['uniId']!,
+      ),
+    ),
+    GoRoute(
+      path: '/university/:uniId/ratings',
+      builder: (context, state) => UniRatingsScreen(
         universityId: state.pathParameters['uniId']!,
       ),
     ),

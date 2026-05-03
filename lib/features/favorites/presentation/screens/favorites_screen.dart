@@ -385,6 +385,8 @@ class _FavoriteUniCardState extends State<_FavoriteUniCard>
                   if (uni.hasCampus) 'Kampüslü',
                   uni.type,
                 ],
+                brandPrimaryColor: uni.brandColor,
+                logoAssetPath: uni.logoAssetPath,
                 onTap: widget.onTap,
                 badge: Container(
                   padding: const EdgeInsets.symmetric(
