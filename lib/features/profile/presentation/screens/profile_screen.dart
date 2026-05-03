@@ -15,6 +15,7 @@ import '../../../auth/presentation/providers/auth_providers.dart';
 import '../../../auth/domain/user_model.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../../../core/providers/shared_preferences_provider.dart';
+import '../../../../scripts/brand_colors_migration.dart';
 import '../../../../scripts/seed_data_service.dart' deferred as seed_data;
 import '../../../favorites/presentation/providers/favorites_providers.dart';
 import '../widgets/change_password_dialog.dart';
@@ -254,6 +255,19 @@ class ProfileScreen extends ConsumerWidget {
                               ),
                             );
                           }
+                        }
+                      },
+                    ),
+                  if (kDebugMode)
+                    _SettingsItem(
+                      icon: Icons.palette_rounded,
+                      title: 'Marka Renklerini Yükle (Debug)',
+                      onTap: () async {
+                        await BrandColorsMigration().run();
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Marka renkleri yüklendi')),
+                          );
                         }
                       },
                     ),

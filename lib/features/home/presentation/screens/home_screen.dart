@@ -408,23 +408,38 @@ class _PopularUniCard extends ConsumerWidget {
     ];
     final color = colors[index % colors.length];
 
+    final brandColor = university.brandColor ?? color;
+
     return Container(
       width: 160,
       margin: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
       decoration: BoxDecoration(
-        color: AppColors.surface,
         borderRadius: BorderRadius.circular(AppConstants.radiusLg),
-        border: Border.all(color: AppColors.borderLight),
         boxShadow: AppColors.softShadow,
+        gradient: LinearGradient(
+          colors: [
+            brandColor.withValues(alpha: 0.5),
+            brandColor.withValues(alpha: 0.05),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
       ),
-      child: Material(
-        color: Colors.transparent,
-        borderRadius: BorderRadius.circular(AppConstants.radiusLg),
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(AppConstants.radiusLg),
-          child: Padding(
-            padding: const EdgeInsets.all(AppConstants.spacingLg),
+      child: Padding(
+        padding: const EdgeInsets.all(2.0), // Çerçeve kalınlığı
+        child: Container(
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.circular(AppConstants.radiusLg - 1.5),
+          ),
+          child: Material(
+            color: Colors.transparent,
+            borderRadius: BorderRadius.circular(AppConstants.radiusLg - 1.5),
+            child: InkWell(
+              onTap: onTap,
+              borderRadius: BorderRadius.circular(AppConstants.radiusLg - 1.5),
+              child: Padding(
+                padding: const EdgeInsets.all(AppConstants.spacingLg),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -432,14 +447,20 @@ class _PopularUniCard extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Container(
-                      width: 44,
-                      height: 44,
-                      decoration: BoxDecoration(
-                        color: color.withValues(alpha: 0.12),
-                        borderRadius: BorderRadius.circular(12),
+                    SizedBox(
+                      width: 52,
+                      height: 52,
+                      child: Image.asset(
+                        university.logoAssetPath,
+                        fit: BoxFit.contain,
+                        errorBuilder: (context, error, stackTrace) => Container(
+                          decoration: BoxDecoration(
+                            color: color.withValues(alpha: 0.12),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Icon(Icons.school_rounded, color: color, size: 28),
+                        ),
                       ),
-                      child: Icon(Icons.school_rounded, color: color, size: 24),
                     ),
                     if (isFavorite)
                       const Icon(Icons.favorite_rounded, color: AppColors.error, size: 18),
@@ -479,6 +500,8 @@ class _PopularUniCard extends ConsumerWidget {
             ),
           ),
         ),
+      ),
+      ),
       ),
     );
   }

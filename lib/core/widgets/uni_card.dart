@@ -16,6 +16,8 @@ class UniCard extends StatelessWidget {
   final Widget? trailing;
   final Widget? badge;
   final EdgeInsets? margin;
+  final Color? brandPrimaryColor;
+  final String? logoAssetPath;
 
   const UniCard({
     super.key,
@@ -29,6 +31,8 @@ class UniCard extends StatelessWidget {
     this.trailing,
     this.badge,
     this.margin,
+    this.brandPrimaryColor,
+    this.logoAssetPath,
   });
 
   @override
@@ -51,6 +55,37 @@ class UniCard extends StatelessWidget {
             padding: const EdgeInsets.all(AppConstants.spacingLg),
             child: Row(
               children: [
+                // Edge Accent
+                Container(
+                  width: 4,
+                  height: 64,
+                  decoration: BoxDecoration(
+                    color: brandPrimaryColor ?? AppColors.primary,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                
+                // Mini Logo
+                if (logoAssetPath != null) ...[
+                  Container(
+                    width: 40,
+                    height: 40,
+                    padding: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: AppColors.borderLight),
+                    ),
+                    child: Image.asset(
+                      logoAssetPath!,
+                      fit: BoxFit.contain,
+                      errorBuilder: (context, error, stackTrace) => const Icon(Icons.school, size: 24, color: Colors.grey),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                ],
+                
                 // Görsel
                 if (imageUrl != null) ...[
                   _buildImage(),

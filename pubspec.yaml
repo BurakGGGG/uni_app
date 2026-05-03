@@ -73,6 +73,7 @@ flutter:
     - assets/icons/
     - assets/splash/
     - assets/animations/
+    - assets/logos/
     - assets/data/places_seed.json
 
 flutter_native_splash:
