@@ -26,11 +26,7 @@ class AllCitiesScreen extends ConsumerWidget {
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => Center(child: Text('Hata: $e')),
         data: (cities) {
-          // 1) Arama filtresi
           final filtered = _filter(cities, query);
-
-          // 2) Popüler vs. diğer ayrımı
-          // appUniversityCount >= 3 → popüler
           final popular = filtered.where((c) => c.appUniversityCount >= 3).toList();
           final others = filtered.where((c) => c.appUniversityCount < 3).toList();
 
@@ -56,8 +52,6 @@ class AllCitiesScreen extends ConsumerWidget {
                   ),
                   flexibleSpace: const _GalleryHero(),
                 ),
-
-                // Search bar (sticky)
                 SliverPersistentHeader(
                   pinned: true,
                   delegate: _SearchBarDelegate(
@@ -66,8 +60,6 @@ class AllCitiesScreen extends ConsumerWidget {
                     ),
                   ),
                 ),
-
-                // Eğer arama sonucu boşsa
                 if (filtered.isEmpty)
                   SliverFillRemaining(
                     child: Column(
@@ -95,71 +87,68 @@ class AllCitiesScreen extends ConsumerWidget {
                       ],
                     ),
                   )
-              else ...[
-                // Popüler section
-                if (popular.isNotEmpty) ...[
-                  const SliverToBoxAdapter(
-                    child: _SectionHeader(
-                      title: 'Popüler Şehirler',
-                      subtitle: 'İstanbul, Ankara, İzmir, Eskişehir gibi yoğun şehirler',
-                    ),
-                  ),
-                  SliverPadding(
-                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                    sliver: SliverGrid(
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        mainAxisSpacing: 12,
-                        crossAxisSpacing: 12,
-                      ),
-                      delegate: SliverChildBuilderDelegate(
-                        (ctx, i) {
-                          final city = popular[i];
-                          return CityCard.tile(
-                            city: city,
-                            onTap: () => context.push('/city/${city.id}'),
-                          ).animate(key: ValueKey(city.id))
-                           .fadeIn(duration: 250.ms, delay: (i * 30).ms)
-                           .slideY(begin: 0.1, duration: 250.ms);
-                        },
-                        childCount: popular.length,
+                else ...[
+                  if (popular.isNotEmpty) ...[
+                    const SliverToBoxAdapter(
+                      child: _SectionHeader(
+                        title: 'Popüler Şehirler',
+                        subtitle: 'İstanbul, Ankara, İzmir, Eskişehir gibi yoğun şehirler',
                       ),
                     ),
-                  ),
+                    SliverPadding(
+                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                      sliver: SliverGrid(
+                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          mainAxisSpacing: 12,
+                          crossAxisSpacing: 12,
+                        ),
+                        delegate: SliverChildBuilderDelegate(
+                          (ctx, i) {
+                            final city = popular[i];
+                            return CityCard.tile(
+                              city: city,
+                              onTap: () => context.push('/city/${city.id}'),
+                            ).animate(key: ValueKey(city.id))
+                             .fadeIn(duration: 250.ms, delay: (i * 30).ms)
+                             .slideY(begin: 0.1, duration: 250.ms);
+                          },
+                          childCount: popular.length,
+                        ),
+                      ),
+                    ),
+                  ],
+                  if (others.isNotEmpty) ...[
+                    const SliverToBoxAdapter(
+                      child: _SectionHeader(
+                        title: 'Diğer Şehirler',
+                        subtitle: '5\'ten az üniversitesi olan şehirler',
+                      ),
+                    ),
+                    SliverPadding(
+                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 80),
+                      sliver: SliverGrid(
+                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          mainAxisSpacing: 12,
+                          crossAxisSpacing: 12,
+                        ),
+                        delegate: SliverChildBuilderDelegate(
+                          (ctx, i) {
+                            final city = others[i];
+                            return CityCard.tile(
+                              city: city,
+                              onTap: () => context.push('/city/${city.id}'),
+                            ).animate(key: ValueKey(city.id))
+                             .fadeIn(duration: 250.ms, delay: (i * 30).ms)
+                             .slideY(begin: 0.1, duration: 250.ms);
+                          },
+                          childCount: others.length,
+                        ),
+                      ),
+                    ),
+                  ],
                 ],
-
-                // Diğer section
-                if (others.isNotEmpty) ...[
-                  const SliverToBoxAdapter(
-                    child: _SectionHeader(
-                      title: 'Diğer Şehirler',
-                      subtitle: '5\'ten az üniversitesi olan şehirler',
-                    ),
-                  ),
-                  SliverPadding(
-                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 80),
-                    sliver: SliverGrid(
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        mainAxisSpacing: 12,
-                        crossAxisSpacing: 12,
-                      ),
-                      delegate: SliverChildBuilderDelegate(
-                        (ctx, i) {
-                          final city = others[i];
-                          return CityCard.tile(
-                            city: city,
-                            onTap: () => context.push('/city/${city.id}'),
-                          ).animate(key: ValueKey(city.id))
-                           .fadeIn(duration: 250.ms, delay: (i * 30).ms)
-                           .slideY(begin: 0.1, duration: 250.ms);
-                        },
-                        childCount: others.length,
-                      ),
-                    ),
-                  ),
-                ],
-              ],
               ],
             ),
           );
