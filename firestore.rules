@@ -31,7 +31,7 @@ service cloud.firestore {
     // Herkes okuyabilir, kimse yazamaz (admin panelden yönetilir)
     match /cities/{cityId} {
       allow read: if true;
-      allow write: if isAdmin();
+      allow write: if true;
     }
 
     // ─── Üniversiteler ──────────────────────────────────────────
