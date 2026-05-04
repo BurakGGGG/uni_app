@@ -23,56 +23,29 @@ class CityLogo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final dpr = MediaQuery.devicePixelRatioOf(context);
-    final cacheSize = (size * dpr).ceil().clamp(64, 1024);
-
-    final logo = Semantics(
-      label: '${city.name} logosu',
-      image: true,
-      child: ClipOval(
-        child: Image.asset(
-          city.logoAssetPath,
-          width: size,
-          height: size,
-          fit: BoxFit.cover,
-          cacheWidth: cacheSize,
-          filterQuality: FilterQuality.high,
-          errorBuilder: (ctx, err, stack) => _fallback(),
-        ),
-      ),
-    );
-
-    if (!withBackground) return logo;
-
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        gradient: city.surfaceGradient,
-        shape: BoxShape.circle,
-      ),
-      padding: EdgeInsets.all(size * padding),
-      child: logo,
-    );
-  }
-
-  Widget _fallback() {
-    final initial = city.name.isNotEmpty ? city.name[0] : '?';
+    // Geçici (şimdilik idare edecek) tasarım: Plaka kodunu gösteren şık bir daire
     return Container(
       width: size,
       height: size,
       decoration: BoxDecoration(
         gradient: city.brandGradient,
         shape: BoxShape.circle,
+        boxShadow: [
+          BoxShadow(
+            color: city.surfaceGradient.colors.first.withValues(alpha: 0.2),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Center(
         child: Text(
-          initial,
+          city.plateCode,
           style: TextStyle(
             color: Colors.white,
-            fontSize: size * 0.42,
-            fontWeight: FontWeight.w800,
-            letterSpacing: -0.5,
+            fontSize: size * 0.45,
+            fontWeight: FontWeight.bold,
+            letterSpacing: -1,
           ),
         ),
       ),
