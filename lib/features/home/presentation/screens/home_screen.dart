@@ -8,13 +8,14 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/widgets/widgets.dart';
 import '../../../university/presentation/providers/university_providers.dart';
-import '../../../university/domain/models/city_model.dart';
+
 import '../../../university/domain/models/university_model.dart';
 import '../../../favorites/presentation/providers/favorites_providers.dart';
 import '../../../reviews/presentation/providers/review_providers.dart';
 import '../../../reviews/presentation/widgets/review_card.dart';
 import '../../../reviews/domain/models/review_model.dart';
 import '../../../notifications/presentation/widgets/notification_bell.dart';
+import '../../../university/presentation/widgets/city_card.dart';
 
 /// Ana Sayfa ekranı
 class HomeScreen extends ConsumerWidget {
@@ -169,7 +170,7 @@ class HomeScreen extends ConsumerWidget {
                     onAction: () => context.push('/cities'),
                   ),
                   SizedBox(
-                    height: 110,
+                    height: 200,
                     child: citiesAsync.when(
                       loading: () => const Center(child: CircularProgressIndicator()),
                       error: (e, st) => Center(child: Text('$e')),
@@ -179,7 +180,7 @@ class HomeScreen extends ConsumerWidget {
                           padding: const EdgeInsets.symmetric(horizontal: 16),
                           itemCount: cities.length,
                           itemBuilder: (context, index) {
-                            return _CityChip(
+                            return CityCard.compact(
                               city: cities[index],
                               onTap: () => context.push('/city/${cities[index].id}'),
                             );
@@ -275,23 +276,6 @@ class HomeScreen extends ConsumerWidget {
       ),
     );
   }
-}
-
-// ─── Şehir Emoji Mapping ──────────────────────────────────────────────
-String _cityEmoji(String cityName) {
-  const emojis = {
-    'İstanbul': '🌉',
-    'Ankara': '🏛️',
-    'İzmir': '🌊',
-    'Antalya': '☀️',
-    'Eskişehir': '🎓',
-    'Bursa': '🌿',
-    'Çanakkale': '⚓',
-    'Sivas': '🏔️',
-    'Trabzon': '⛰️',
-    'Mersin': '🍊',
-  };
-  return emojis[cityName] ?? '🏙️';
 }
 
 // ─── Widget Components ──────────────────────────────────────────────
@@ -502,52 +486,6 @@ class _PopularUniCard extends ConsumerWidget {
         ),
       ),
       ),
-      ),
-    );
-  }
-}
-
-class _CityChip extends StatelessWidget {
-  final CityModel city;
-  final VoidCallback onTap;
-
-  const _CityChip({required this.city, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 90,
-      margin: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(AppConstants.radiusLg),
-        border: Border.all(color: AppColors.borderLight),
-        boxShadow: AppColors.softShadow,
-      ),
-      child: Material(
-        color: Colors.transparent,
-        borderRadius: BorderRadius.circular(AppConstants.radiusLg),
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(AppConstants.radiusLg),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(_cityEmoji(city.name), style: const TextStyle(fontSize: 28)),
-              const SizedBox(height: 6),
-              Text(
-                city.name,
-                style: AppTextStyles.titleSmall,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-              Text(
-                '${city.appUniversityCount} üni',
-                style: AppTextStyles.labelSmall.copyWith(fontSize: 10),
-              ),
-            ],
-          ),
-        ),
       ),
     );
   }

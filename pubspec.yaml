@@ -74,6 +74,7 @@ flutter:
     - assets/splash/
     - assets/animations/
     - assets/logos/
+    - assets/city_logos/
     - assets/data/places_seed.json
 
 flutter_native_splash:
