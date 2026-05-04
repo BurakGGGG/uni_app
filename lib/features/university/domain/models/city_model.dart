@@ -51,6 +51,28 @@ class CityModel {
         ],
       );
 
+  /// Logo + isim sertifikalı bir küçük chip (üni sayısı vs.)
+  LinearGradient get accentBadgeGradient => LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [
+          brandPrimary.withValues(alpha: 0.92),
+          brandSecondary.withValues(alpha: 0.92),
+        ],
+      );
+
+  /// Hero detail sayfası için dark/koyu overlay'li gradient
+  LinearGradient get heroOverlayGradient => LinearGradient(
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        colors: [
+          Colors.transparent,
+          brandPrimary.withValues(alpha: 0.6),
+          _darken(brandPrimary, 0.4).withValues(alpha: 0.95),
+        ],
+        stops: const [0.0, 0.5, 1.0],
+      );
+
   String get logoAssetPath => 'assets/city_logos/$id.png';
 
   // ─── Firestore Serialization ─────────────────────────────────────

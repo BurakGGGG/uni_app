@@ -3,18 +3,19 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class CityBrandColorsMigration {
   final _db = FirebaseFirestore.instance;
 
+  // Logo analizinden çıkan k-means dominant renkler.
   static const Map<String, Map<String, dynamic>> brandColors = {
-    '34': {'p': '#1B3A6B', 's': '#C9A84C', 'o': false}, // İstanbul
-    '06': {'p': '#B5271A', 's': '#7A0E08', 'o': false}, // Ankara
-    '35': {'p': '#007BAC', 's': '#00547A', 'o': false}, // İzmir
-    '07': {'p': '#E07020', 's': '#A84E10', 'o': false}, // Antalya
-    '26': {'p': '#5B3D8C', 's': '#3A245E', 'o': false}, // Eskişehir
-    '16': {'p': '#1E7A3E', 's': '#0F4E26', 'o': false}, // Bursa
-    '17': {'p': '#2C3D6F', 's': '#8B1A1A', 'o': false}, // Çanakkale
-    '58': {'p': '#8B1A1A', 's': '#C8902A', 'o': false}, // Sivas
-    '61': {'p': '#0D5C36', 's': '#1565C0', 'o': false}, // Trabzon
-    '33': {'p': '#D94F12', 's': '#006B6B', 'o': false}, // Mersin
-    '19': {'p': '#7B4F23', 's': '#C8A050', 'o': false}, // Çorum
+    '34': {'p': '#B96790', 's': '#D790AC', 'o': false}, // İstanbul
+    '06': {'p': '#5A38A2', 's': '#7C51BD', 'o': false}, // Ankara
+    '35': {'p': '#1DABDE', 's': '#4DC3DF', 'o': false}, // İzmir
+    '07': {'p': '#51B59C', 's': '#966BC0', 'o': false}, // Antalya
+    '26': {'p': '#154B7D', 's': '#60B7E8', 'o': false}, // Eskişehir
+    '16': {'p': '#412466', 's': '#7B5BA8', 'o': false}, // Bursa
+    '17': {'p': '#4EBFCE', 's': '#F47BA8', 'o': false}, // Çanakkale
+    '58': {'p': '#3773B4', 's': '#82B0DA', 'o': false}, // Sivas
+    '61': {'p': '#4C9DC2', 's': '#223E5A', 'o': false}, // Trabzon
+    '33': {'p': '#F97E26', 's': '#FFAA75', 'o': false}, // Mersin
+    '19': {'p': '#AB5B86', 's': '#361641', 'o': false}, // Çorum
   };
 
   Future<void> run() async {
@@ -29,6 +30,6 @@ class CityBrandColorsMigration {
     }
     await batch.commit();
     // ignore: avoid_print
-    print('✅ 11 şehre brand renkleri yazıldı');
+    print('✅ 11 şehre yeni brand renkleri yazıldı');
   }
 }

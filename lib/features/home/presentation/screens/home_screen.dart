@@ -170,7 +170,7 @@ class HomeScreen extends ConsumerWidget {
                     onAction: () => context.push('/cities'),
                   ),
                   SizedBox(
-                    height: 180,
+                    height: 200,
                     child: citiesAsync.when(
                       loading: () => const Center(child: CircularProgressIndicator()),
                       error: (e, st) => Center(child: Text('$e')),
@@ -180,7 +180,7 @@ class HomeScreen extends ConsumerWidget {
                           padding: const EdgeInsets.symmetric(horizontal: 16),
                           itemCount: cities.length,
                           itemBuilder: (context, index) {
-                            return CityCard(
+                            return CityCard.compact(
                               city: cities[index],
                               onTap: () => context.push('/city/${cities[index].id}'),
                             );

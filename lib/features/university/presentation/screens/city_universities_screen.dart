@@ -1,14 +1,19 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
-import '../../../../core/constants/app_constants.dart';
+import '../../../../core/utils/turkish_compare.dart';
 import '../../../../core/widgets/widgets.dart';
 import '../providers/university_providers.dart';
 import '../../domain/models/city_model.dart';
 import '../../domain/models/university_model.dart';
-import '../widgets/city_logo.dart';
+
+final _cityUniFilterProvider = StateProvider.family.autoDispose<String?, String>(
+  (ref, cityId) => null,
+);
 
 class CityUniversitiesScreen extends ConsumerWidget {
   final String cityId;
@@ -18,80 +23,144 @@ class CityUniversitiesScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final cityAsync = ref.watch(cityDetailProvider(cityId));
     final unisAsync = ref.watch(universitiesByCityProvider(cityId));
+    final filter = ref.watch(_cityUniFilterProvider(cityId));
 
     return Scaffold(
       backgroundColor: AppColors.background,
-      body: CustomScrollView(
-        slivers: [
-          // ─── Hero AppBar ─────────────────────────────────────────
-          cityAsync.when(
-            data: (city) => city != null
-                ? _CityHeroAppBar(city: city)
-                : const SliverAppBar(title: Text('Şehir')),
-            loading: () => const SliverAppBar(title: Text('Yükleniyor...')),
-            error: (e, st) => const SliverAppBar(title: Text('Hata')),
-          ),
-
-          // ─── KPI Strip ──────────────────────────────────────────
-          SliverToBoxAdapter(
-            child: cityAsync.when(
+      body: RefreshIndicator(
+        color: AppColors.primary,
+        onRefresh: () async {
+          ref.invalidate(cityDetailProvider(cityId));
+          ref.invalidate(universitiesByCityProvider(cityId));
+          await ref.read(cityDetailProvider(cityId).future);
+        },
+        child: CustomScrollView(
+          slivers: [
+            // ─── Hero AppBar ─────────────────────────────────────────
+            cityAsync.when(
               data: (city) => city != null
-                  ? _buildKpiStrip(city, unisAsync)
-                  : const SizedBox.shrink(),
-              loading: () => const SizedBox.shrink(),
-              error: (_, st) => const SizedBox.shrink(),
+                  ? _CityHeroAppBar(city: city)
+                  : const SliverAppBar(title: Text('Şehir')),
+              loading: () => const SliverAppBar(title: Text('Yükleniyor...')),
+              error: (e, st) => const SliverAppBar(title: Text('Hata')),
             ),
-          ),
 
-          // ─── Üniversite Listesi ──────────────────────────────────
-          unisAsync.when(
-            loading: () => const SliverFillRemaining(
-              child: Center(child: CircularProgressIndicator()),
+            // ─── KPI Strip ──────────────────────────────────────────
+            SliverToBoxAdapter(
+              child: cityAsync.when(
+                data: (city) => city != null
+                    ? _buildKpiStrip(city, unisAsync)
+                    : const SizedBox.shrink(),
+                loading: () => const SizedBox.shrink(),
+                error: (_, st) => const SizedBox.shrink(),
+              ),
             ),
-            error: (e, st) => SliverFillRemaining(
-              child: Center(child: Text('Hata: $e')),
-            ),
-            data: (universities) {
-              if (universities.isEmpty) {
-                return const SliverFillRemaining(
-                  child: EmptyStateWidget(
-                    icon: Icons.school_outlined,
-                    title: 'Üniversite bulunamadı',
-                    description:
-                        'Bu şehirde henüz üniversite eklenmemiş.',
+
+            // ─── Filter Pills ────────────────────────────────────────
+            SliverToBoxAdapter(
+              child: unisAsync.whenData((universities) {
+                final filtered = filter == null
+                    ? universities
+                    : universities.where((u) => u.type == filter).toList();
+                    
+                return Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
+                  child: Row(
+                    children: [
+                      _FilterPill(
+                        label: 'Tümü',
+                        selected: filter == null,
+                        onTap: () => ref.read(_cityUniFilterProvider(cityId).notifier).state = null,
+                      ),
+                      const SizedBox(width: 8),
+                      _FilterPill(
+                        label: 'Devlet',
+                        selected: filter == 'Devlet',
+                        onTap: () => ref.read(_cityUniFilterProvider(cityId).notifier).state = 'Devlet',
+                      ),
+                      const SizedBox(width: 8),
+                      _FilterPill(
+                        label: 'Vakıf',
+                        selected: filter == 'Vakıf',
+                        onTap: () => ref.read(_cityUniFilterProvider(cityId).notifier).state = 'Vakıf',
+                      ),
+                      const Spacer(),
+                      Text('${filtered.length} sonuç', style: AppTextStyles.labelSmall),
+                    ],
                   ),
                 );
-              }
-              return SliverPadding(
-                padding: const EdgeInsets.fromLTRB(4, 16, 4, 80),
-                sliver: SliverList(
-                  delegate: SliverChildBuilderDelegate(
-                    (context, index) {
-                      final uni = universities[index];
-                      return UniCard(
-                        title: uni.name,
-                        subtitle:
-                            '${uni.type} • Kuruluş: ${uni.establishedYear}',
-                        rating: uni.avgRating,
-                        reviewCount: uni.reviewCount,
-                        brandPrimaryColor: uni.brandColor,
-                        logoAssetPath: uni.logoAssetPath,
-                        tags: [
-                          if (uni.hasCampus) 'Kampüslü',
-                          uni.type
-                        ],
-                        onTap: () =>
-                            context.push('/university/${uni.id}'),
-                        badge: _uniTypeBadge(uni.type),
-                      );
-                    },
-                    childCount: universities.length,
+              }).valueOrNull ?? const SizedBox.shrink(),
+            ),
+
+            // ─── Üniversite Listesi ──────────────────────────────────
+            unisAsync.when(
+              loading: () => const SliverFillRemaining(
+                child: Center(child: CircularProgressIndicator()),
+              ),
+              error: (e, st) => SliverFillRemaining(
+                child: Center(child: Text('Hata: $e')),
+              ),
+              data: (universities) {
+                if (universities.isEmpty) {
+                  return const SliverFillRemaining(
+                    child: EmptyStateWidget(
+                      icon: Icons.school_outlined,
+                      title: 'Üniversite bulunamadı',
+                      description:
+                          'Bu şehirde henüz üniversite eklenmemiş.',
+                    ),
+                  );
+                }
+                
+                final filtered = filter == null
+                    ? universities
+                    : universities.where((u) => u.type == filter).toList();
+
+                final sorted = [...filtered]..sort((a, b) {
+                  if (b.reviewCount != a.reviewCount) return b.reviewCount.compareTo(a.reviewCount);
+                  return turkishCompare(a.name, b.name);
+                });
+                
+                if (sorted.isEmpty) {
+                  return const SliverFillRemaining(
+                    child: Center(child: Text('Bu filtreye uygun üniversite bulunamadı.')),
+                  );
+                }
+
+                return SliverPadding(
+                  padding: const EdgeInsets.fromLTRB(4, 8, 4, 80),
+                  sliver: SliverList(
+                    delegate: SliverChildBuilderDelegate(
+                      (context, index) {
+                        final uni = sorted[index];
+                        return UniCard(
+                          title: uni.name,
+                          subtitle:
+                              '${uni.type} • Kuruluş: ${uni.establishedYear}',
+                          rating: uni.avgRating,
+                          reviewCount: uni.reviewCount,
+                          brandPrimaryColor: uni.brandColor,
+                          logoAssetPath: uni.logoAssetPath,
+                          tags: [
+                            if (uni.hasCampus) 'Kampüslü',
+                            uni.type
+                          ],
+                          onTap: () =>
+                              context.push('/university/${uni.id}'),
+                          badge: _uniTypeBadge(uni.type),
+                        ).animate(
+                          key: ValueKey('uni_${uni.id}_$filter'),
+                        ).fadeIn(delay: (index * 40).ms, duration: 300.ms)
+                          .slideX(begin: 0.05);
+                      },
+                      childCount: sorted.length,
+                    ),
                   ),
-                ),
-              );
-            },
-          ),
-        ],
+                );
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -103,53 +172,34 @@ class CityUniversitiesScreen extends ConsumerWidget {
     final vakifCount = unis.where((u) => u.type == 'Vakıf').length;
 
     return Container(
-      margin: const EdgeInsets.fromLTRB(20, 20, 20, 0),
-      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(AppConstants.radiusLg),
-        border: Border.all(color: city.brandPrimary.withValues(alpha: 0.15)),
-        boxShadow: [
-          BoxShadow(
-            color: city.brandPrimary.withValues(alpha: 0.08),
-            blurRadius: 20,
-            offset: const Offset(0, 6),
-          ),
-        ],
-      ),
-      child: Row(
+      margin: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+      child: Wrap(
+        spacing: 8, runSpacing: 8,
         children: [
-          _kpi('${city.appUniversityCount}', 'Uygulama\'da',
-              city.brandPrimary),
-          _divider(),
-          _kpi('$devletCount', 'Devlet',
-              AppColors.stateUni),
-          _divider(),
-          _kpi('$vakifCount', 'Vakıf',
-              AppColors.foundationUni),
-          _divider(),
-          _kpi('${city.totalUniversityCount}', 'Toplam',
-              AppColors.textSecondary),
+          _KpiChip(
+            icon: Icons.apps_rounded,
+            label: '${city.appUniversityCount} ÜniSeç\'te',
+            color: city.brandPrimary,
+          ),
+          _KpiChip(
+            icon: Icons.account_balance_rounded,
+            label: '$devletCount Devlet',
+            color: AppColors.stateUni,
+          ),
+          _KpiChip(
+            icon: Icons.business_rounded,
+            label: '$vakifCount Vakıf',
+            color: AppColors.foundationUni,
+          ),
+          _KpiChip(
+            icon: Icons.school_outlined,
+            label: '${city.totalUniversityCount} toplam',
+            color: AppColors.textSecondary,
+          ),
         ],
       ),
     );
   }
-
-  Widget _kpi(String value, String label, Color color) => Expanded(
-        child: Column(
-          children: [
-            Text(value,
-                style: AppTextStyles.headlineSmall.copyWith(
-                    color: color, fontWeight: FontWeight.w800)),
-            const SizedBox(height: 2),
-            Text(label,
-                style: AppTextStyles.labelSmall
-                    .copyWith(color: AppColors.textTertiary)),
-          ],
-        ),
-      );
-
-  Widget _divider() => Container(width: 1, height: 28, color: AppColors.borderLight);
 
   Widget _uniTypeBadge(String type) => Container(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
@@ -178,7 +228,7 @@ class _CityHeroAppBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SliverAppBar(
-      expandedHeight: 200,
+      expandedHeight: 220,
       pinned: true,
       stretch: true,
       backgroundColor: city.brandPrimary,
@@ -200,16 +250,26 @@ class _CityHeroAppBar extends StatelessWidget {
           ),
         ),
       ),
+      bottom: PreferredSize(
+        preferredSize: const Size.fromHeight(32),
+        child: SizedBox(
+          height: 32,
+          child: CustomPaint(
+            painter: _WavePainter(color: AppColors.background),
+            size: Size.infinite,
+          ),
+        ),
+      ),
       flexibleSpace: LayoutBuilder(
         builder: (context, constraints) {
           final top = constraints.biggest.height;
           final collapsed = top <=
-              kToolbarHeight + MediaQuery.paddingOf(context).top + 20;
+              kToolbarHeight + MediaQuery.paddingOf(context).top + 40;
 
           return FlexibleSpaceBar(
             centerTitle: true,
             titlePadding:
-                const EdgeInsets.only(left: 60, right: 60, bottom: 14),
+                const EdgeInsets.only(left: 60, right: 60, bottom: 44),
             title: AnimatedOpacity(
               duration: const Duration(milliseconds: 200),
               opacity: collapsed ? 1.0 : 0.0,
@@ -223,7 +283,7 @@ class _CityHeroAppBar extends StatelessWidget {
               decoration: BoxDecoration(gradient: city.brandGradient),
               child: Stack(
                 children: [
-                  // Ambient glow
+                  // Sadece arka plan deseni (Glow)
                   Positioned.fill(
                     child: DecoratedBox(
                       decoration: BoxDecoration(
@@ -257,45 +317,26 @@ class _CityHeroAppBar extends StatelessWidget {
                       ),
                     ),
                   ),
-                  // Logo + İsim
+                  // Sadece İsim (Logo kaldırıldı)
                   Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         const SizedBox(height: 24),
-                        // Logo — beyaz daire üzerinde
-                        Container(
-                          width: 80,
-                          height: 80,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            shape: BoxShape.circle,
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.2),
-                                blurRadius: 20,
-                                offset: const Offset(0, 6),
-                              ),
-                            ],
-                          ),
-                          padding: const EdgeInsets.all(10),
-                          child: CityLogo(
-                              city: city, size: 60, withBackground: false),
-                        ),
-                        const SizedBox(height: 14),
                         Text(
                           city.name,
-                          style: AppTextStyles.displaySmall.copyWith(
+                          style: AppTextStyles.displayMedium.copyWith(
                             color: Colors.white,
                             fontWeight: FontWeight.w800,
-                            letterSpacing: -0.5,
+                            letterSpacing: -1.0,
                           ),
                         ),
                         const SizedBox(height: 4),
                         Text(
                           '${city.appUniversityCount} üniversite',
-                          style: AppTextStyles.labelLarge.copyWith(
-                            color: Colors.white.withValues(alpha: 0.8),
+                          style: AppTextStyles.titleMedium.copyWith(
+                            color: Colors.white.withValues(alpha: 0.9),
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
                       ],
@@ -306,6 +347,101 @@ class _CityHeroAppBar extends StatelessWidget {
             ),
           );
         },
+      ),
+    );
+  }
+}
+
+class _WavePainter extends CustomPainter {
+  final Color color;
+  _WavePainter({required this.color});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.fill;
+
+    final path = Path();
+    path.moveTo(0, size.height);
+    path.lineTo(0, size.height / 2);
+    
+    final amplitude = 12.0;
+    final frequency = 1.5;
+    for (double x = 0; x <= size.width; x++) {
+      final y = amplitude *
+          math.sin((x / size.width) * 2 * math.pi * frequency);
+      path.lineTo(x, (size.height / 2) + y);
+    }
+    path.lineTo(size.width, size.height);
+    path.close();
+    canvas.drawPath(path, paint);
+  }
+
+  @override
+  bool shouldRepaint(_) => false;
+}
+
+class _KpiChip extends StatelessWidget {
+  final IconData icon; 
+  final String label; 
+  final Color color;
+  const _KpiChip({required this.icon, required this.label, required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.10),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: color.withValues(alpha: 0.20)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 14, color: color),
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: AppTextStyles.labelMedium.copyWith(
+              color: color, fontWeight: FontWeight.w700,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _FilterPill extends StatelessWidget {
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  const _FilterPill({required this.label, required this.selected, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+          color: selected ? AppColors.primary : AppColors.surface,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: selected ? AppColors.primary : AppColors.borderLight,
+          ),
+        ),
+        child: Text(
+          label,
+          style: AppTextStyles.labelMedium.copyWith(
+            color: selected ? Colors.white : AppColors.textSecondary,
+            fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+          ),
+        ),
       ),
     );
   }
