@@ -16,23 +16,16 @@ class PreferenceListRepository {
   CollectionReference<Map<String, dynamic>> get _listsRef =>
       _firestore.collection('preferenceLists');
 
-  /// Slug üretimi: 5 karakterli alfanumerik (1/52^5 = 1/380M unique uzayı)
+  /// Slug üretimi: 8 karakterli alfanumerik (çakışma ihtimali çok düşük)
   static String _generateSlug() {
     const chars = 'abcdefghjkmnpqrstuvwxyz23456789'; // confusing chars çıkarıldı
     final rng = Random.secure();
-    return List.generate(5, (_) => chars[rng.nextInt(chars.length)]).join();
+    return List.generate(8, (_) => chars[rng.nextInt(chars.length)]).join();
   }
 
-  /// Unique slug bul (collision varsa tekrar üret)
-  Future<String> _findUniqueSlug({int maxAttempts = 5}) async {
-    for (var i = 0; i < maxAttempts; i++) {
-      final slug = _generateSlug();
-      final exists = await _listsRef.where('shareSlug', isEqualTo: slug)
-                                     .limit(1).get();
-      if (exists.docs.isEmpty) return slug;
-    }
-    // Fallback: 6 karakter
-    return _generateSlug() + Random.secure().nextInt(36).toRadixString(36);
+  /// Unique slug bul (veritabanını sorgulamadan, rastgele 8 karakter)
+  Future<String> _findUniqueSlug() async {
+    return _generateSlug();
   }
 
   /// Yeni liste oluştur
