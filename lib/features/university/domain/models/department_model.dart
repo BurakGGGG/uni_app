@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class DepartmentModel {
   final String id;
   final String universityId;
@@ -17,6 +19,10 @@ class DepartmentModel {
   /// Kategori bazlı ortalama puanlar (eğitim kalitesi, hoca, iş imkanı, staj, ders yükü)
   final Map<String, double> categoryRatings;
 
+  // ── Sprint 4.5 — ÖSYM Verileri ──────────────
+  final DepartmentScoreData? scoreData;
+  final DateTime? lastScoreUpdate;
+
   DepartmentModel({
     required this.id,
     required this.universityId,
@@ -32,6 +38,8 @@ class DepartmentModel {
     this.avgRating = 0.0,
     this.reviewCount = 0,
     this.categoryRatings = const {},
+    this.scoreData,
+    this.lastScoreUpdate,
   });
 
   factory DepartmentModel.fromMap(Map<String, dynamic> map, String id) {
@@ -54,6 +62,10 @@ class DepartmentModel {
           (key, value) => MapEntry(key, (value as num).toDouble()),
         ) ?? {},
       ),
+      scoreData: map['scoreData'] != null
+          ? DepartmentScoreData.fromMap(map['scoreData'])
+          : null,
+      lastScoreUpdate: (map['lastScoreUpdate'] as Timestamp?)?.toDate(),
     );
   }
 
@@ -72,6 +84,93 @@ class DepartmentModel {
       'avgRating': avgRating,
       'reviewCount': reviewCount,
       'categoryRatings': categoryRatings,
+      if (scoreData != null) 'scoreData': scoreData!.toMap(),
+      if (lastScoreUpdate != null) 'lastScoreUpdate': Timestamp.fromDate(lastScoreUpdate!),
     };
   }
+}
+
+// ── YENİ Model ────────────────────────────────────────────
+class DepartmentScoreData {
+  final int year;
+  final String scoreType;       // SAY, EA, SÖZ, DİL, TYT
+  final double baseScore;
+  final int ranking;
+  final int quota;
+  final int placedCount;
+  final Map<int, YearlyScore> previousYears;
+
+  const DepartmentScoreData({
+    required this.year,
+    required this.scoreType,
+    required this.baseScore,
+    required this.ranking,
+    required this.quota,
+    required this.placedCount,
+    this.previousYears = const {},
+  });
+
+  /// Doluluk oranı (yerleşen / kontenjan)
+  double get fillRate => quota == 0 ? 0 : placedCount / quota;
+
+  /// Tüm yıllar (mevcut + geçmiş) — küçükten büyüğe
+  List<MapEntry<int, YearlyScore>> get allYearsAscending {
+    final all = <int, YearlyScore>{
+      year: YearlyScore(baseScore: baseScore, ranking: ranking),
+      ...previousYears,
+    };
+    final sorted = all.entries.toList()..sort((a, b) => a.key.compareTo(b.key));
+    return sorted;
+  }
+
+  /// Geçen yıla göre puan farkı (negatif = düşmüş, pozitif = yükselmiş)
+  double? get yearOverYearDelta {
+    final prev = previousYears[year - 1];
+    if (prev == null) return null;
+    return baseScore - prev.baseScore;
+  }
+
+  factory DepartmentScoreData.fromMap(Map<String, dynamic> map) {
+    final prev = (map['previousYears'] as Map?)?.cast<String, dynamic>() ?? {};
+    return DepartmentScoreData(
+      year: map['year'] ?? 0,
+      scoreType: map['scoreType'] ?? '',
+      baseScore: (map['baseScore'] as num?)?.toDouble() ?? 0,
+      ranking: (map['ranking'] as num?)?.toInt() ?? 0,
+      quota: (map['quota'] as num?)?.toInt() ?? 0,
+      placedCount: (map['placedCount'] as num?)?.toInt() ?? 0,
+      previousYears: {
+        for (final entry in prev.entries)
+          int.parse(entry.key): YearlyScore.fromMap(entry.value as Map<String, dynamic>)
+      },
+    );
+  }
+
+  Map<String, dynamic> toMap() => {
+    'year': year,
+    'scoreType': scoreType,
+    'baseScore': baseScore,
+    'ranking': ranking,
+    'quota': quota,
+    'placedCount': placedCount,
+    'previousYears': {
+      for (final e in previousYears.entries) e.key.toString(): e.value.toMap()
+    },
+  };
+}
+
+class YearlyScore {
+  final double baseScore;
+  final int ranking;
+  const YearlyScore({required this.baseScore, required this.ranking});
+
+  factory YearlyScore.fromMap(Map<String, dynamic> m) => YearlyScore(
+        baseScore: (m['baseScore'] as num).toDouble(),
+        ranking: (m['ranking'] as num).toInt(),
+      );
+
+  Map<String, dynamic> toMap() => {
+        'baseScore': baseScore,
+        'ranking': ranking,
+      };
 }

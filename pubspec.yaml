@@ -75,6 +75,7 @@ flutter:
     - assets/animations/
     - assets/logos/
     - assets/data/places_seed.json
+    - assets/data/department_scores.json
 
 flutter_native_splash:
   color: "#1A1A2E"

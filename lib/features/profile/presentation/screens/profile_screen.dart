@@ -17,6 +17,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import '../../../../core/providers/shared_preferences_provider.dart';
 import '../../../../scripts/brand_colors_migration.dart';
 import '../../../../scripts/city_brand_colors_migration.dart';
+import '../../../../scripts/department_scores_migration.dart';
 import '../../../../scripts/seed_data_service.dart' deferred as seed_data;
 import '../../../favorites/presentation/providers/favorites_providers.dart';
 import '../../../university/presentation/providers/university_providers.dart';
@@ -290,6 +291,32 @@ class ProfileScreen extends ConsumerWidget {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(content: Text('Şehir marka renkleri yüklendi')),
                           );
+                        }
+                      },
+                    ),
+                  if (kDebugMode)
+                    _SettingsItem(
+                      icon: Icons.auto_graph_rounded,
+                      title: 'Bölüm Puanlarını Yükle (Debug)',
+                      subtitle: 'YÖK Atlas CSV verilerini aktarır',
+                      onTap: () async {
+                        try {
+                          final report = await DepartmentScoresMigration().run();
+                          if (context.mounted) {
+                            showAppSnackBar(
+                              context, 
+                              message: 'Başarılı: $report', 
+                              isSuccess: true,
+                            );
+                          }
+                        } catch (e) {
+                          if (context.mounted) {
+                            showAppSnackBar(
+                              context, 
+                              message: 'Hata: $e', 
+                              isSuccess: false,
+                            );
+                          }
                         }
                       },
                     ),
