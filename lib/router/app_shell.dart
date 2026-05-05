@@ -149,9 +149,9 @@ class _AppShellState extends ConsumerState<AppShell> with WidgetsBindingObserver
                     label: 'Karşılaştır',
                   ),
                   const NavigationDestination(
-                    icon: Icon(Icons.favorite_outline_rounded),
-                    selectedIcon: Icon(Icons.favorite_rounded, color: AppColors.primary),
-                    label: 'Favoriler',
+                    icon: Icon(Icons.list_alt_outlined),
+                    selectedIcon: Icon(Icons.list_alt_rounded, color: AppColors.primary),
+                    label: 'Listelerim',
                   ),
                   const NavigationDestination(
                     icon: Icon(Icons.person_outline_rounded),
