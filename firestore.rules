@@ -106,6 +106,25 @@ service cloud.firestore {
       allow update, delete: if false;
     }
 
+    // ─── Tercih Listeleri ────────────────────────────────────────
+    match /preferenceLists/{listId} {
+      // Public listeler herkes okuyabilir, private sadece sahibi
+      allow read: if resource.data.isPublic == true ||
+                     (request.auth != null && request.auth.uid == resource.data.userId);
+
+      // Sadece giriş yapmış kullanıcılar oluşturabilir,
+      // kendisini userId olarak set etmeli
+      allow create: if request.auth != null
+                    && request.resource.data.userId == request.auth.uid
+                    && request.resource.data.items.size() <= 24;
+
+      // Sahibi güncelleyebilir, viewCount herkes increment edebilir
+      allow update: if (request.auth != null && request.auth.uid == resource.data.userId)
+                    || (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['viewCount']));
+
+      allow delete: if request.auth != null && request.auth.uid == resource.data.userId;
+    }
+
     // ─── Kullanıcılar ───────────────────────────────────────────
     match /users/{userId} {
       // Herkes profil bilgilerini okuyabilir

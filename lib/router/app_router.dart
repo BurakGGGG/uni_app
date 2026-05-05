@@ -34,6 +34,9 @@ import '../features/reviews/presentation/screens/my_reviews_screen.dart';
 import '../features/reviews/domain/models/review_model.dart';
 import '../features/profile/presentation/screens/public_profile_screen.dart';
 import '../features/home/presentation/screens/splash_screen.dart';
+import '../features/preference_lists/presentation/screens/my_lists_screen.dart';
+import '../features/preference_lists/presentation/screens/list_edit_screen.dart';
+import '../features/preference_lists/presentation/screens/shared_list_screen.dart';
 import 'app_shell.dart';
 
 /// Uygulama route isimleri
@@ -321,6 +324,22 @@ final routerProvider = Provider<GoRouter>((ref) {
       path: AppRoutes.allCities,
       builder: (context, state) => const AllCitiesScreen(),
     ),
+    GoRoute(
+      path: AppRoutes.favorites,
+      builder: (context, state) => const FavoritesScreen(),
+    ),
+    GoRoute(
+      path: '/my-lists/:listId',
+      builder: (context, state) => ListEditScreen(
+        listId: state.pathParameters['listId']!,
+      ),
+    ),
+    GoRoute(
+      path: '/list/:shareSlug',
+      builder: (context, state) => SharedListScreen(
+        shareSlug: state.pathParameters['shareSlug']!,
+      ),
+    ),
 
     // ─── Shell Route (Bottom Navigation) ─────────────────────────
     StatefulShellRoute.indexedStack(
@@ -361,13 +380,13 @@ final routerProvider = Provider<GoRouter>((ref) {
             ),
           ],
         ),
-        // Favoriler
+        // Listelerim
         StatefulShellBranch(
           routes: [
             GoRoute(
-              path: AppRoutes.favorites,
+              path: '/my-lists',
               pageBuilder: (context, state) => const NoTransitionPage(
-                child: FavoritesScreen(),
+                child: MyListsScreen(),
               ),
             ),
           ],
