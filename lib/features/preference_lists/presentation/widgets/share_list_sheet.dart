@@ -12,101 +12,135 @@ class ShareListSheet {
     return showModalBottomSheet(
       context: context,
       backgroundColor: AppColors.surface,
+      showDragHandle: true,
+      isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      builder: (_) => _Content(list: list),
+      builder: (_) => Padding(
+        padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+        child: _Content(initialList: list),
+      ),
     );
   }
 }
 
 class _Content extends ConsumerWidget {
-  final PreferenceListModel list;
-  const _Content({required this.list});
+  final PreferenceListModel initialList;
+  const _Content({required this.initialList});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // Liste güncellendiğinde switch vb. UI anında tepki versin diye
+    // güncel listeyi provider üzerinden dinliyoruz.
+    final listsAsync = ref.watch(myPreferenceListsProvider);
+    final currentList = listsAsync.value?.firstWhere(
+      (l) => l.id == initialList.id,
+      orElse: () => initialList,
+    ) ?? initialList;
+
     return Padding(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.fromLTRB(20, 0, 20, 32),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Drag handle
-          Container(
-            width: 40,
-            height: 4,
-            decoration: BoxDecoration(
-              color: AppColors.borderLight,
-              borderRadius: BorderRadius.circular(2),
-            ),
-          ),
-          const SizedBox(height: 16),
-          Text('Listeyi Paylaş', style: AppTextStyles.headlineSmall),
-          const SizedBox(height: 16),
+          Text('Listeyi Paylaş', style: AppTextStyles.headlineSmall.copyWith(fontWeight: FontWeight.bold)),
+          const SizedBox(height: 24),
 
           // Public/Private toggle
-          SwitchListTile(
-            title: const Text('Herkese açık'),
-            subtitle: const Text('Linke sahip herkes görebilir'),
-            value: list.isPublic,
-            onChanged: (v) async {
-              await ref.read(preferenceListControllerProvider.notifier)
-                       .update(list.copyWith(isPublic: v));
-            },
+          Container(
+            decoration: BoxDecoration(
+              color: AppColors.surfaceVariant.withValues(alpha: 0.5),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: SwitchListTile(
+              title: const Text('Herkese açık', style: TextStyle(fontWeight: FontWeight.w600)),
+              subtitle: const Text('Linke sahip herkes görebilir'),
+              value: currentList.isPublic,
+              activeTrackColor: AppColors.primary,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              onChanged: (v) async {
+                await ref.read(preferenceListControllerProvider.notifier)
+                         .update(currentList.copyWith(isPublic: v));
+              },
+            ),
           ),
 
-          if (list.isPublic) ...[
-            const SizedBox(height: 16),
+          if (currentList.isPublic) ...[
+            const SizedBox(height: 20),
             // Link kart
             Container(
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: BoxDecoration(
-                color: AppColors.primary.withValues(alpha: 0.06),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppColors.primary.withValues(alpha: 0.2)),
+                color: AppColors.primary.withValues(alpha: 0.05),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: AppColors.primary.withValues(alpha: 0.15)),
               ),
               child: Row(
                 children: [
                   Expanded(
-                    child: Text(list.publicUrl,
-                        style: AppTextStyles.bodySmall.copyWith(color: AppColors.primary)),
+                    child: Text(
+                      currentList.publicUrl,
+                      style: AppTextStyles.bodyMedium.copyWith(color: AppColors.primary, fontWeight: FontWeight.w500),
+                    ),
                   ),
-                  IconButton(
-                    icon: const Icon(Icons.copy_rounded),
-                    onPressed: () async {
-                      await Clipboard.setData(ClipboardData(text: list.publicUrl));
-                      if (context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Bağlantı kopyalandı')),
-                        );
-                      }
-                    },
+                  Container(
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: IconButton(
+                      icon: const Icon(Icons.copy_rounded, color: AppColors.primary, size: 20),
+                      onPressed: () async {
+                        await Clipboard.setData(ClipboardData(text: currentList.publicUrl));
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Bağlantı kopyalandı')),
+                          );
+                        }
+                      },
+                    ),
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 20),
 
             // Paylaşım butonları
-            Row(
-              children: [
-                Expanded(
-                  child: ElevatedButton.icon(
-                    onPressed: () => Share.share(
-                      '"${list.title}" tercih listemi paylaştım — ${list.publicUrl}',
-                    ),
-                    icon: const Icon(Icons.share_rounded),
-                    label: const Text('Paylaş'),
-                  ),
+            SizedBox(
+              width: double.infinity,
+              height: 52,
+              child: ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  elevation: 0,
                 ),
-              ],
+                onPressed: () => Share.share(
+                  '"${currentList.title}" tercih listemi paylaştım — ${currentList.publicUrl}',
+                ),
+                icon: const Icon(Icons.share_rounded),
+                label: const Text('Bağlantıyı Gönder', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+              ),
             ),
 
-            const SizedBox(height: 12),
+            const SizedBox(height: 16),
             Text(
-              '${list.viewCount} görüntülenme',
-              style: AppTextStyles.labelSmall,
+              '${currentList.viewCount} görüntülenme',
+              style: AppTextStyles.labelSmall.copyWith(color: AppColors.textSecondary),
             ),
+          ] else ...[
+            const SizedBox(height: 16),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Text(
+                'Listeniz şu anda gizli. Paylaşım bağlantısını alabilmek için listeyi herkese açık hale getirmelisiniz.',
+                textAlign: TextAlign.center,
+                style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary),
+              ),
+            ),
+            const SizedBox(height: 16),
           ],
         ],
       ),
