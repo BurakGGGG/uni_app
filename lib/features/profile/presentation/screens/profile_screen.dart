@@ -96,6 +96,12 @@ class ProfileScreen extends ConsumerWidget {
                         onTap: () => context.push('/edit-profile'),
                       ),
                       _SettingsItem(
+                        icon: Icons.favorite_outline_rounded,
+                        title: 'Favorilerim',
+                        subtitle: '${ref.watch(favoritesProvider).value?.length ?? 0} üniversite',
+                        onTap: () => context.push('/favorites'),
+                      ),
+                      _SettingsItem(
                         icon: Icons.notifications_outlined,
                         title: 'Bildirimler',
                         subtitle: 'Yorum, favori bildirimleri',
