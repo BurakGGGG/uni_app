@@ -65,3 +65,18 @@ gerekli_dosyalar/
 # Cloud Functions build artifacts
 functions/lib/
 functions/node_modules/
+
+# Python virtual environments
+venv/
+**/venv/
+.venv/
+**/.venv/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Submodule cache
+taban_puanları/yokatlas-dataset-2025/
