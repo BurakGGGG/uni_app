@@ -42,6 +42,7 @@ UNI_MAPPING = {
 }
 
 def slugify(text: str) -> str:
+    """Seed data ile aynı mantık: Türkçe karakter → ascii, boşluk → _, tire korunur."""
     text = text.lower()
     replacements = {
         'ç': 'c', 'ş': 's', 'ı': 'i', 'ğ': 'g', 'ü': 'u', 'ö': 'o',
@@ -49,7 +50,8 @@ def slugify(text: str) -> str:
     }
     for k, v in replacements.items():
         text = text.replace(k, v)
-    text = re.sub(r'[^a-z0-9_]', '', text)
+    # Tire korunmalı — seed_data_service.dart ile tutarlı
+    text = re.sub(r'[^a-z0-9_\-]', '', text)
     return text
 
 def safe_float(val):
@@ -87,7 +89,7 @@ def main():
             # 1. Match University
             uni_id = None
             for key, val in UNI_MAPPING.items():
-                if key in uni_name:
+                if key == uni_name:
                     uni_id = val
                     break
             
