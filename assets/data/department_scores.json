@@ -508,7 +508,7 @@
       }
     },
     {
-      "deptId": "akdeniz_elektrikelektronik_muhendisligi",
+      "deptId": "akdeniz_elektrik-elektronik_muhendisligi",
       "year": 2024,
       "scoreType": "SAYISAL",
       "baseScore": 412.1400146484375,
@@ -3468,7 +3468,7 @@
       }
     },
     {
-      "deptId": "akdeniz_elektrikelektronik_muhendisligi",
+      "deptId": "akdeniz_elektrik-elektronik_muhendisligi",
       "year": 2024,
       "scoreType": "SAYISAL",
       "baseScore": 302.6700134277344,
@@ -7197,7 +7197,7 @@
       }
     },
     {
-      "deptId": "ankara_uni_elektrikelektronik_muhendisligi",
+      "deptId": "ankara_uni_elektrik-elektronik_muhendisligi",
       "year": 2024,
       "scoreType": "SAYISAL",
       "baseScore": 461.6180114746094,
@@ -9634,7 +9634,7 @@
       }
     },
     {
-      "deptId": "btu_elektrikelektronik_muhendisligi",
+      "deptId": "btu_elektrik-elektronik_muhendisligi",
       "year": 2024,
       "scoreType": "SAYISAL",
       "baseScore": 403.0570068359375,
@@ -10444,7 +10444,7 @@
       }
     },
     {
-      "deptId": "cumhuriyet_elektrikelektronik_muhendisligi",
+      "deptId": "cumhuriyet_elektrik-elektronik_muhendisligi",
       "year": 2024,
       "scoreType": "SAYISAL",
       "baseScore": 308.3529968261719,
@@ -16301,7 +16301,7 @@
       "previousYears": {}
     },
     {
-      "deptId": "comu_elektrikelektronik_muhendisligi",
+      "deptId": "comu_elektrik-elektronik_muhendisligi",
       "year": 2024,
       "scoreType": "SAYISAL",
       "baseScore": 380.4020080566406,
@@ -17048,7 +17048,7 @@
       }
     },
     {
-      "deptId": "dokuz_eylul_elektrikelektronik_muhendisligi",
+      "deptId": "dokuz_eylul_elektrik-elektronik_muhendisligi",
       "year": 2024,
       "scoreType": "SAYISAL",
       "baseScore": 447.8420104980469,
@@ -20487,7 +20487,7 @@
       }
     },
     {
-      "deptId": "ege_rafineri_ve_petrokimya_teknolojisi",
+      "deptId": "ege_rafineri_ve_petro-kimya_teknolojisi",
       "year": 2024,
       "scoreType": "TYT",
       "baseScore": 290.1090087890625,
@@ -21547,7 +21547,7 @@
       }
     },
     {
-      "deptId": "ege_elektrikelektronik_muhendisligi",
+      "deptId": "ege_elektrik-elektronik_muhendisligi",
       "year": 2024,
       "scoreType": "SAYISAL",
       "baseScore": 455.21600341796875,
@@ -21677,7 +21677,7 @@
       "previousYears": {}
     },
     {
-      "deptId": "ege_onyuz_yazilim_gelistirme",
+      "deptId": "ege_on-yuz_yazilim_gelistirme",
       "year": 2024,
       "scoreType": "TYT",
       "baseScore": 360.45098876953125,
@@ -21747,7 +21747,7 @@
       "previousYears": {}
     },
     {
-      "deptId": "ege_elektrikelektronik_muhendisligi",
+      "deptId": "ege_elektrik-elektronik_muhendisligi",
       "year": 2024,
       "scoreType": "SAYISAL",
       "baseScore": 382.5849914550781,
@@ -21777,7 +21777,7 @@
       "previousYears": {}
     },
     {
-      "deptId": "gazi_fen_bilgisi_ogretmenligi",
+      "deptId": "ogu_fen_bilgisi_ogretmenligi",
       "year": 2024,
       "scoreType": "SAYISAL",
       "baseScore": 292.8139953613281,
@@ -21796,7 +21796,7 @@
       }
     },
     {
-      "deptId": "gazi_ilkogretim_matematik_ogretmenligi",
+      "deptId": "ogu_ilkogretim_matematik_ogretmenligi",
       "year": 2024,
       "scoreType": "SAYISAL",
       "baseScore": 295.760986328125,
@@ -21815,7 +21815,7 @@
       }
     },
     {
-      "deptId": "gazi_sinif_ogretmenligi",
+      "deptId": "ogu_sinif_ogretmenligi",
       "year": 2024,
       "scoreType": "EŞİT AĞIRLIK",
       "baseScore": 371.5950012207031,
@@ -21834,7 +21834,7 @@
       }
     },
     {
-      "deptId": "gazi_biyoloji",
+      "deptId": "ogu_biyoloji",
       "year": 2024,
       "scoreType": "SAYISAL",
       "baseScore": 295.26300048828125,
@@ -21853,7 +21853,7 @@
       }
     },
     {
-      "deptId": "gazi_fizik",
+      "deptId": "ogu_fizik",
       "year": 2024,
       "scoreType": "SAYISAL",
       "baseScore": 285.0669860839844,
@@ -21872,7 +21872,7 @@
       }
     },
     {
-      "deptId": "gazi_istatistik",
+      "deptId": "ogu_istatistik",
       "year": 2024,
       "scoreType": "SAYISAL",
       "baseScore": 334.1130065917969,
@@ -21891,7 +21891,7 @@
       }
     },
     {
-      "deptId": "gazi_karsilastirmali_edebiyat",
+      "deptId": "ogu_karsilastirmali_edebiyat",
       "year": 2024,
       "scoreType": "DİL",
       "baseScore": 381.0369873046875,
@@ -21910,7 +21910,7 @@
       }
     },
     {
-      "deptId": "gazi_kimya",
+      "deptId": "ogu_kimya",
       "year": 2024,
       "scoreType": "SAYISAL",
       "baseScore": 327.57501220703125,
@@ -21929,7 +21929,7 @@
       }
     },
     {
-      "deptId": "gazi_tarih",
+      "deptId": "ogu_tarih",
       "year": 2024,
       "scoreType": "SÖZEL",
       "baseScore": 367.1239929199219,
@@ -21948,7 +21948,7 @@
       }
     },
     {
-      "deptId": "gazi_turk_dili_ve_edebiyati",
+      "deptId": "ogu_turk_dili_ve_edebiyati",
       "year": 2024,
       "scoreType": "SÖZEL",
       "baseScore": 373.6369934082031,
@@ -21967,7 +21967,7 @@
       }
     },
     {
-      "deptId": "gazi_iktisat",
+      "deptId": "ogu_iktisat",
       "year": 2024,
       "scoreType": "EŞİT AĞIRLIK",
       "baseScore": 308.42999267578125,
@@ -21986,7 +21986,7 @@
       }
     },
     {
-      "deptId": "gazi_isletme",
+      "deptId": "ogu_isletme",
       "year": 2024,
       "scoreType": "EŞİT AĞIRLIK",
       "baseScore": 317.4219970703125,
@@ -22005,7 +22005,7 @@
       }
     },
     {
-      "deptId": "gazi_maliye",
+      "deptId": "ogu_maliye",
       "year": 2024,
       "scoreType": "EŞİT AĞIRLIK",
       "baseScore": 303.4179992675781,
@@ -22024,7 +22024,7 @@
       }
     },
     {
-      "deptId": "gazi_uluslararasi_iliskiler",
+      "deptId": "ogu_uluslararasi_iliskiler",
       "year": 2024,
       "scoreType": "EŞİT AĞIRLIK",
       "baseScore": 330.80499267578125,
@@ -22043,7 +22043,7 @@
       }
     },
     {
-      "deptId": "gazi_bilgisayar_muhendisligi",
+      "deptId": "ogu_bilgisayar_muhendisligi",
       "year": 2024,
       "scoreType": "SAYISAL",
       "baseScore": 448.5559997558594,
@@ -22062,7 +22062,7 @@
       }
     },
     {
-      "deptId": "gazi_elektrikelektronik_muhendisligi",
+      "deptId": "ogu_elektrik-elektronik_muhendisligi",
       "year": 2024,
       "scoreType": "SAYISAL",
       "baseScore": 432.3030090332031,
@@ -22081,7 +22081,7 @@
       }
     },
     {
-      "deptId": "gazi_endustri_muhendisligi",
+      "deptId": "ogu_endustri_muhendisligi",
       "year": 2024,
       "scoreType": "SAYISAL",
       "baseScore": 417.8160095214844,
@@ -22100,7 +22100,7 @@
       }
     },
     {
-      "deptId": "gazi_insaat_muhendisligi",
+      "deptId": "ogu_insaat_muhendisligi",
       "year": 2024,
       "scoreType": "SAYISAL",
       "baseScore": 331.14300537109375,
@@ -22119,7 +22119,7 @@
       }
     },
     {
-      "deptId": "gazi_kimya_muhendisligi",
+      "deptId": "ogu_kimya_muhendisligi",
       "year": 2024,
       "scoreType": "SAYISAL",
       "baseScore": 395.0220031738281,
@@ -22138,7 +22138,7 @@
       }
     },
     {
-      "deptId": "gazi_maden_muhendisligi",
+      "deptId": "ogu_maden_muhendisligi",
       "year": 2024,
       "scoreType": "SAYISAL",
       "baseScore": 303.2760009765625,
@@ -22157,7 +22157,7 @@
       }
     },
     {
-      "deptId": "gazi_makine_muhendisligi",
+      "deptId": "ogu_makine_muhendisligi",
       "year": 2024,
       "scoreType": "SAYISAL",
       "baseScore": 402.8909912109375,
@@ -22176,7 +22176,7 @@
       }
     },
     {
-      "deptId": "gazi_metalurji_ve_malzeme_muhendisligi",
+      "deptId": "ogu_metalurji_ve_malzeme_muhendisligi",
       "year": 2024,
       "scoreType": "SAYISAL",
       "baseScore": 357.1650085449219,
@@ -22195,7 +22195,7 @@
       }
     },
     {
-      "deptId": "gazi_mimarlik",
+      "deptId": "ogu_mimarlik",
       "year": 2024,
       "scoreType": "SAYISAL",
       "baseScore": 365.0780029296875,
@@ -22214,7 +22214,7 @@
       }
     },
     {
-      "deptId": "gazi_tip",
+      "deptId": "ogu_tip",
       "year": 2024,
       "scoreType": "SAYISAL",
       "baseScore": 502.3290100097656,
@@ -22233,7 +22233,7 @@
       }
     },
     {
-      "deptId": "gazi_rehberlik_ve_psikolojik_danismanlik",
+      "deptId": "ogu_rehberlik_ve_psikolojik_danismanlik",
       "year": 2024,
       "scoreType": "EŞİT AĞIRLIK",
       "baseScore": 367.1300048828125,
@@ -22252,7 +22252,7 @@
       }
     },
     {
-      "deptId": "gazi_tarla_bitkileri",
+      "deptId": "ogu_tarla_bitkileri",
       "year": 2024,
       "scoreType": "SAYISAL",
       "baseScore": 275.07598876953125,
@@ -22271,7 +22271,7 @@
       }
     },
     {
-      "deptId": "gazi_bahce_bitkileri",
+      "deptId": "ogu_bahce_bitkileri",
       "year": 2024,
       "scoreType": "SAYISAL",
       "baseScore": 279.1159973144531,
@@ -22290,7 +22290,7 @@
       }
     },
     {
-      "deptId": "gazi_zootekni",
+      "deptId": "ogu_zootekni",
       "year": 2024,
       "scoreType": "SAYISAL",
       "baseScore": 259.59698486328125,
@@ -22309,7 +22309,7 @@
       }
     },
     {
-      "deptId": "gazi_dis_hekimligi",
+      "deptId": "ogu_dis_hekimligi",
       "year": 2024,
       "scoreType": "SAYISAL",
       "baseScore": 462.39801025390625,
@@ -22328,7 +22328,7 @@
       }
     },
     {
-      "deptId": "gazi_ilahiyat",
+      "deptId": "ogu_ilahiyat",
       "year": 2024,
       "scoreType": "SÖZEL",
       "baseScore": 338.6780090332031,
@@ -22347,7 +22347,7 @@
       }
     },
     {
-      "deptId": "gazi_tarimsal_biyoteknoloji",
+      "deptId": "ogu_tarimsal_biyoteknoloji",
       "year": 2024,
       "scoreType": "SAYISAL",
       "baseScore": 266.3500061035156,
@@ -22366,7 +22366,7 @@
       }
     },
     {
-      "deptId": "gazi_siyaset_bilimi_ve_kamu_yonetimi",
+      "deptId": "ogu_siyaset_bilimi_ve_kamu_yonetimi",
       "year": 2024,
       "scoreType": "EŞİT AĞIRLIK",
       "baseScore": 322.74200439453125,
@@ -22385,7 +22385,7 @@
       }
     },
     {
-      "deptId": "gazi_okul_oncesi_ogretmenligi",
+      "deptId": "ogu_okul_oncesi_ogretmenligi",
       "year": 2024,
       "scoreType": "SÖZEL",
       "baseScore": 423.11700439453125,
@@ -22404,7 +22404,7 @@
       }
     },
     {
-      "deptId": "gazi_turizm_isletmeciligi",
+      "deptId": "ogu_turizm_isletmeciligi",
       "year": 2024,
       "scoreType": "EŞİT AĞIRLIK",
       "baseScore": 281.4639892578125,
@@ -22423,7 +22423,7 @@
       }
     },
     {
-      "deptId": "gazi_gorsel_iletisim_tasarimi",
+      "deptId": "ogu_gorsel_iletisim_tasarimi",
       "year": 2024,
       "scoreType": "SÖZEL",
       "baseScore": 382.9989929199219,
@@ -22442,7 +22442,7 @@
       }
     },
     {
-      "deptId": "gazi_endustri_muhendisligi",
+      "deptId": "ogu_endustri_muhendisligi",
       "year": 2024,
       "scoreType": "SAYISAL",
       "baseScore": 299.9309997558594,
@@ -22457,7 +22457,7 @@
       }
     },
     {
-      "deptId": "gazi_ozel_egitim_ogretmenligi",
+      "deptId": "ogu_ozel_egitim_ogretmenligi",
       "year": 2024,
       "scoreType": "SÖZEL",
       "baseScore": 442.385009765625,
@@ -22476,7 +22476,7 @@
       }
     },
     {
-      "deptId": "gazi_ebelik",
+      "deptId": "ogu_ebelik",
       "year": 2024,
       "scoreType": "SAYISAL",
       "baseScore": 326.7409973144531,
@@ -22495,7 +22495,7 @@
       }
     },
     {
-      "deptId": "gazi_hemsirelik",
+      "deptId": "ogu_hemsirelik",
       "year": 2024,
       "scoreType": "SAYISAL",
       "baseScore": 376.73199462890625,
@@ -22514,7 +22514,7 @@
       }
     },
     {
-      "deptId": "gazi_saglik_yonetimi",
+      "deptId": "ogu_saglik_yonetimi",
       "year": 2024,
       "scoreType": "EŞİT AĞIRLIK",
       "baseScore": 304.76300048828125,
@@ -22533,7 +22533,7 @@
       }
     },
     {
-      "deptId": "gazi_tibbi_dokumantasyon_ve_sekreterlik",
+      "deptId": "ogu_tibbi_dokumantasyon_ve_sekreterlik",
       "year": 2024,
       "scoreType": "TYT",
       "baseScore": 342.7130126953125,
@@ -22552,7 +22552,7 @@
       }
     },
     {
-      "deptId": "gazi_makine",
+      "deptId": "ogu_makine",
       "year": 2024,
       "scoreType": "TYT",
       "baseScore": 291.82501220703125,
@@ -22571,7 +22571,7 @@
       }
     },
     {
-      "deptId": "gazi_bilgisayar_programciligi",
+      "deptId": "ogu_bilgisayar_programciligi",
       "year": 2024,
       "scoreType": "TYT",
       "baseScore": 333.8380126953125,
@@ -22590,7 +22590,7 @@
       }
     },
     {
-      "deptId": "gazi_muhasebe_ve_vergi_uygulamalari",
+      "deptId": "ogu_muhasebe_ve_vergi_uygulamalari",
       "year": 2024,
       "scoreType": "TYT",
       "baseScore": 287.9429931640625,
@@ -22609,7 +22609,7 @@
       }
     },
     {
-      "deptId": "gazi_tibbi_laboratuvar_teknikleri",
+      "deptId": "ogu_tibbi_laboratuvar_teknikleri",
       "year": 2024,
       "scoreType": "TYT",
       "baseScore": 343.42498779296875,
@@ -22628,7 +22628,7 @@
       }
     },
     {
-      "deptId": "gazi_ortopedik_protez_ve_ortez",
+      "deptId": "ogu_ortopedik_protez_ve_ortez",
       "year": 2024,
       "scoreType": "TYT",
       "baseScore": 325.9830017089844,
@@ -22647,7 +22647,7 @@
       }
     },
     {
-      "deptId": "gazi_tibbi_goruntuleme_teknikleri",
+      "deptId": "ogu_tibbi_goruntuleme_teknikleri",
       "year": 2024,
       "scoreType": "TYT",
       "baseScore": 356.36199951171875,
@@ -22666,7 +22666,7 @@
       }
     },
     {
-      "deptId": "gazi_insaat_teknolojisi",
+      "deptId": "ogu_insaat_teknolojisi",
       "year": 2024,
       "scoreType": "TYT",
       "baseScore": 281.7300109863281,
@@ -22685,7 +22685,7 @@
       }
     },
     {
-      "deptId": "gazi_ilk_ve_acil_yardim",
+      "deptId": "ogu_ilk_ve_acil_yardim",
       "year": 2024,
       "scoreType": "TYT",
       "baseScore": 363.9330139160156,
@@ -22704,7 +22704,7 @@
       }
     },
     {
-      "deptId": "gazi_yasli_bakimi",
+      "deptId": "ogu_yasli_bakimi",
       "year": 2024,
       "scoreType": "TYT",
       "baseScore": 303.30999755859375,
@@ -22723,7 +22723,7 @@
       }
     },
     {
-      "deptId": "gazi_cevre_koruma_ve_kontrol",
+      "deptId": "ogu_cevre_koruma_ve_kontrol",
       "year": 2024,
       "scoreType": "TYT",
       "baseScore": 283.09100341796875,
@@ -22742,7 +22742,7 @@
       }
     },
     {
-      "deptId": "gazi_mekatronik",
+      "deptId": "ogu_mekatronik",
       "year": 2024,
       "scoreType": "TYT",
       "baseScore": 332.3810119628906,
@@ -22761,7 +22761,7 @@
       }
     },
     {
-      "deptId": "gazi_makine",
+      "deptId": "ogu_makine",
       "year": 2024,
       "scoreType": "TYT",
       "baseScore": 326.8689880371094,
@@ -22780,7 +22780,7 @@
       }
     },
     {
-      "deptId": "gazi_optisyenlik",
+      "deptId": "ogu_optisyenlik",
       "year": 2024,
       "scoreType": "TYT",
       "baseScore": 332.0379943847656,
@@ -22799,7 +22799,7 @@
       }
     },
     {
-      "deptId": "gazi_atcilik_ve_antrenorlugu",
+      "deptId": "ogu_atcilik_ve_antrenorlugu",
       "year": 2024,
       "scoreType": "TYT",
       "baseScore": 271.739013671875,
@@ -22818,7 +22818,7 @@
       }
     },
     {
-      "deptId": "gazi_gastronomi_ve_mutfak_sanatlari",
+      "deptId": "ogu_gastronomi_ve_mutfak_sanatlari",
       "year": 2024,
       "scoreType": "SÖZEL",
       "baseScore": 405.4280090332031,
@@ -22837,7 +22837,7 @@
       }
     },
     {
-      "deptId": "gazi_sosyal_bilgiler_ogretmenligi",
+      "deptId": "ogu_sosyal_bilgiler_ogretmenligi",
       "year": 2024,
       "scoreType": "SÖZEL",
       "baseScore": 381.5929870605469,
@@ -22856,7 +22856,7 @@
       }
     },
     {
-      "deptId": "gazi_matematik_ve_bilgisayar_bilimleri",
+      "deptId": "ogu_matematik_ve_bilgisayar_bilimleri",
       "year": 2024,
       "scoreType": "SAYISAL",
       "baseScore": 341.99200439453125,
@@ -22875,7 +22875,7 @@
       }
     },
     {
-      "deptId": "gazi_hukuk",
+      "deptId": "ogu_hukuk",
       "year": 2024,
       "scoreType": "EŞİT AĞIRLIK",
       "baseScore": 413.8529968261719,
@@ -22894,7 +22894,7 @@
       }
     },
     {
-      "deptId": "gazi_ilahiyat",
+      "deptId": "ogu_ilahiyat",
       "year": 2024,
       "scoreType": "SÖZEL",
       "baseScore": 325.87701416015625,
@@ -22913,7 +22913,7 @@
       }
     },
     {
-      "deptId": "gazi_ucak_muhendisligi",
+      "deptId": "ogu_ucak_muhendisligi",
       "year": 2024,
       "scoreType": "SAYISAL",
       "baseScore": 472.6050109863281,
@@ -22932,7 +22932,7 @@
       }
     },
     {
-      "deptId": "gazi_gida_muhendisligi",
+      "deptId": "ogu_gida_muhendisligi",
       "year": 2024,
       "scoreType": "SAYISAL",
       "baseScore": 328.4389953613281,
@@ -22951,7 +22951,7 @@
       }
     },
     {
-      "deptId": "gazi_ucak_teknolojisi",
+      "deptId": "ogu_ucak_teknolojisi",
       "year": 2024,
       "scoreType": "TYT",
       "baseScore": 383.0360107421875,
@@ -22970,7 +22970,7 @@
       }
     },
     {
-      "deptId": "gazi_bitki_koruma",
+      "deptId": "ogu_bitki_koruma",
       "year": 2024,
       "scoreType": "SAYISAL",
       "baseScore": 296.8580017089844,
@@ -22989,7 +22989,7 @@
       }
     },
     {
-      "deptId": "gazi_endustriyel_tasarim",
+      "deptId": "ogu_endustriyel_tasarim",
       "year": 2024,
       "scoreType": "SAYISAL",
       "baseScore": 334.24200439453125,
@@ -23008,7 +23008,7 @@
       }
     },
     {
-      "deptId": "gazi_psikoloji",
+      "deptId": "ogu_psikoloji",
       "year": 2024,
       "scoreType": "EŞİT AĞIRLIK",
       "baseScore": 383.5480041503906,
@@ -23027,7 +23027,7 @@
       }
     },
     {
-      "deptId": "gazi_tibbi_dokumantasyon_ve_sekreterlik",
+      "deptId": "ogu_tibbi_dokumantasyon_ve_sekreterlik",
       "year": 2024,
       "scoreType": "TYT",
       "baseScore": 325.2590026855469,
@@ -23042,7 +23042,7 @@
       }
     },
     {
-      "deptId": "gazi_yasli_bakimi",
+      "deptId": "ogu_yasli_bakimi",
       "year": 2024,
       "scoreType": "TYT",
       "baseScore": 289.572998046875,
@@ -23551,7 +23551,7 @@
       }
     },
     {
-      "deptId": "gazi_elektrikelektronik_muhendisligi",
+      "deptId": "gazi_elektrik-elektronik_muhendisligi",
       "year": 2024,
       "scoreType": "SAYISAL",
       "baseScore": 456.31298828125,
@@ -23817,7 +23817,7 @@
       }
     },
     {
-      "deptId": "gazi_elektrikelektronik_muhendisligi",
+      "deptId": "gazi_elektrik-elektronik_muhendisligi",
       "year": 2024,
       "scoreType": "SAYISAL",
       "baseScore": 398.3009948730469,
@@ -23836,7 +23836,7 @@
       }
     },
     {
-      "deptId": "gazi_elektrikelektronik_muhendisligi",
+      "deptId": "gazi_elektrik-elektronik_muhendisligi",
       "year": 2024,
       "scoreType": "SAYISAL",
       "baseScore": 437.072998046875,
@@ -24165,7 +24165,7 @@
       }
     },
     {
-      "deptId": "gazi_elektrikelektronik_muhendisligi",
+      "deptId": "gazi_elektrik-elektronik_muhendisligi",
       "year": 2024,
       "scoreType": "SAYISAL",
       "baseScore": 480.9989929199219,
@@ -24794,7 +24794,7 @@
       }
     },
     {
-      "deptId": "gazi_elektrikelektronik_muhendisligi",
+      "deptId": "gazi_elektrik-elektronik_muhendisligi",
       "year": 2024,
       "scoreType": "SAYISAL",
       "baseScore": 355.4729919433594,
@@ -25598,7 +25598,7 @@
       }
     },
     {
-      "deptId": "hacettepe_elektrikelektronik_muhendisligi",
+      "deptId": "hacettepe_elektrik-elektronik_muhendisligi",
       "year": 2024,
       "scoreType": "SAYISAL",
       "baseScore": 512.35498046875,
@@ -27115,7 +27115,7 @@
       }
     },
     {
-      "deptId": "hitit_elektrikelektronik_muhendisligi",
+      "deptId": "hitit_elektrik-elektronik_muhendisligi",
       "year": 2024,
       "scoreType": "SAYISAL",
       "baseScore": 291.7969970703125,
@@ -29889,7 +29889,7 @@
       }
     },
     {
-      "deptId": "itu_elektrikelektronik_muhendisligi",
+      "deptId": "itu_elektrik-elektronik_muhendisligi",
       "year": 2024,
       "scoreType": "SAYISAL",
       "baseScore": 335.54400634765625,
@@ -29908,7 +29908,7 @@
       }
     },
     {
-      "deptId": "itu_elektrikelektronik_muhendisligi",
+      "deptId": "itu_elektrik-elektronik_muhendisligi",
       "year": 2024,
       "scoreType": "SAYISAL",
       "baseScore": 372.12799072265625,
@@ -32461,7 +32461,7 @@
       }
     },
     {
-      "deptId": "istanbul_uni_eticaret_ve_pazarlama",
+      "deptId": "istanbul_uni_e-ticaret_ve_pazarlama",
       "year": 2024,
       "scoreType": "TYT",
       "baseScore": 272.8179931640625,
@@ -32777,7 +32777,7 @@
       }
     },
     {
-      "deptId": "izmir_katipcelebi_elektrikelektronik_muhendisligi",
+      "deptId": "izmir_katipcelebi_elektrik-elektronik_muhendisligi",
       "year": 2024,
       "scoreType": "SAYISAL",
       "baseScore": 414.3059997558594,
@@ -34004,7 +34004,7 @@
       }
     },
     {
-      "deptId": "ktu_elektrikelektronik_muhendisligi",
+      "deptId": "ktu_elektrik-elektronik_muhendisligi",
       "year": 2024,
       "scoreType": "SAYISAL",
       "baseScore": 386.12799072265625,
@@ -34995,7 +34995,7 @@
       }
     },
     {
-      "deptId": "ktu_elektrikelektronik_muhendisligi",
+      "deptId": "ktu_elektrik-elektronik_muhendisligi",
       "year": 2024,
       "scoreType": "SAYISAL",
       "baseScore": 408.64599609375,
@@ -36389,7 +36389,7 @@
       }
     },
     {
-      "deptId": "marmara_elektrikelektronik_muhendisligi",
+      "deptId": "marmara_elektrik-elektronik_muhendisligi",
       "year": 2024,
       "scoreType": "SAYISAL",
       "baseScore": 463.2969970703125,
@@ -36579,7 +36579,7 @@
       }
     },
     {
-      "deptId": "marmara_elektrikelektronik_muhendisligi",
+      "deptId": "marmara_elektrik-elektronik_muhendisligi",
       "year": 2024,
       "scoreType": "SAYISAL",
       "baseScore": 438.92401123046875,
@@ -36598,7 +36598,7 @@
       }
     },
     {
-      "deptId": "marmara_elektrikelektronik_muhendisligi",
+      "deptId": "marmara_elektrik-elektronik_muhendisligi",
       "year": 2024,
       "scoreType": "SAYISAL",
       "baseScore": 366.5379943847656,
@@ -38306,7 +38306,7 @@
       }
     },
     {
-      "deptId": "mersin_uni_elektrikelektronik_muhendisligi",
+      "deptId": "mersin_uni_elektrik-elektronik_muhendisligi",
       "year": 2024,
       "scoreType": "SAYISAL",
       "baseScore": 351.0870056152344,
@@ -40803,7 +40803,7 @@
       }
     },
     {
-      "deptId": "odtu_elektrikelektronik_muhendisligi",
+      "deptId": "odtu_elektrik-elektronik_muhendisligi",
       "year": 2024,
       "scoreType": "SAYISAL",
       "baseScore": 534.4110107421875,
@@ -41031,7 +41031,7 @@
       }
     },
     {
-      "deptId": "odtu_elektrikelektronik_muhendisligi",
+      "deptId": "odtu_elektrik-elektronik_muhendisligi",
       "year": 2024,
       "scoreType": "SAYISAL",
       "baseScore": 429.66400146484375,
@@ -41174,7 +41174,7 @@
       }
     },
     {
-      "deptId": "odtu_elektrikelektronik_muhendisligi",
+      "deptId": "odtu_elektrik-elektronik_muhendisligi",
       "year": 2024,
       "scoreType": "SAYISAL",
       "baseScore": 295.0450134277344,
@@ -41412,7 +41412,7 @@
       }
     },
     {
-      "deptId": "odtu_elektrikelektronik_muhendisligi",
+      "deptId": "odtu_elektrik-elektronik_muhendisligi",
       "year": 2024,
       "scoreType": "SAYISAL",
       "baseScore": 291.0299987792969,
@@ -41696,7 +41696,7 @@
       "previousYears": {}
     },
     {
-      "deptId": "odtu_elektrikelektronik_muhendisligi",
+      "deptId": "odtu_elektrik-elektronik_muhendisligi",
       "year": 2024,
       "scoreType": "SAYISAL",
       "baseScore": 503.5870056152344,
@@ -42215,7 +42215,7 @@
       }
     },
     {
-      "deptId": "uludag_elektrikelektronik_muhendisligi",
+      "deptId": "uludag_elektrik-elektronik_muhendisligi",
       "year": 2024,
       "scoreType": "SAYISAL",
       "baseScore": 423.385009765625,
@@ -46470,7 +46470,7 @@
       }
     },
     {
-      "deptId": "alanya_elektrikelektronik_muhendisligi",
+      "deptId": "alanya_elektrik-elektronik_muhendisligi",
       "year": 2024,
       "scoreType": "SAYISAL",
       "baseScore": 342.1419982910156,
@@ -47454,7 +47454,7 @@
       }
     },
     {
-      "deptId": "izmir_demokrasi_elektrikelektronik_muhendisligi",
+      "deptId": "izmir_demokrasi_elektrik-elektronik_muhendisligi",
       "year": 2024,
       "scoreType": "SAYISAL",
       "baseScore": 369.2040100097656,
@@ -47779,1769 +47779,6 @@
       "scoreType": "EŞİT AĞIRLIK",
       "baseScore": 352.9179992675781,
       "ranking": 118358,
-      "quota": 30,
-      "placedCount": 30,
-      "previousYears": {}
-    },
-    {
-      "deptId": "istanbul_uni_tip",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 524.6259765625,
-      "ranking": 3296,
-      "quota": 270,
-      "placedCount": 270,
-      "previousYears": {
-        "2023": {
-          "baseScore": 533.02853,
-          "ranking": 3212
-        },
-        "2022": {
-          "baseScore": 532.19053,
-          "ranking": 2559
-        }
-      }
-    },
-    {
-      "deptId": "istanbul_uni_tip",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 536.6190185546875,
-      "ranking": 1306,
-      "quota": 65,
-      "placedCount": 65,
-      "previousYears": {
-        "2023": {
-          "baseScore": 543.69692,
-          "ranking": 884
-        },
-        "2022": {
-          "baseScore": 542.35645,
-          "ranking": 716
-        }
-      }
-    },
-    {
-      "deptId": "istanbul_uni_almanca_ogretmenligi",
-      "year": 2024,
-      "scoreType": "DİL",
-      "baseScore": 401.8089904785156,
-      "ranking": 23818,
-      "quota": 50,
-      "placedCount": 51,
-      "previousYears": {
-        "2023": {
-          "baseScore": 405.90673,
-          "ranking": 25923
-        },
-        "2022": {
-          "baseScore": 381.38097,
-          "ranking": 30505
-        }
-      }
-    },
-    {
-      "deptId": "istanbul_uni_fen_bilgisi_ogretmenligi",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 293.0199890136719,
-      "ranking": 289263,
-      "quota": 35,
-      "placedCount": 36,
-      "previousYears": {
-        "2023": {
-          "baseScore": 332.40659,
-          "ranking": 227980
-        },
-        "2022": {
-          "baseScore": 330.46837,
-          "ranking": 214327
-        }
-      }
-    },
-    {
-      "deptId": "istanbul_uni_fransizca_ogretmenligi",
-      "year": 2024,
-      "scoreType": "DİL",
-      "baseScore": 402.302001953125,
-      "ranking": 23625,
-      "quota": 30,
-      "placedCount": 31,
-      "previousYears": {
-        "2023": {
-          "baseScore": 406.87145,
-          "ranking": 25544
-        },
-        "2022": {
-          "baseScore": 390.69054,
-          "ranking": 27106
-        }
-      }
-    },
-    {
-      "deptId": "istanbul_uni_ilkogretim_matematik_ogretmenligi",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 305.9580078125,
-      "ranking": 246389,
-      "quota": 50,
-      "placedCount": 52,
-      "previousYears": {
-        "2023": {
-          "baseScore": 413.16943,
-          "ranking": 95032
-        },
-        "2022": {
-          "baseScore": 423.76501,
-          "ranking": 81011
-        }
-      }
-    },
-    {
-      "deptId": "istanbul_uni_rehberlik_ve_psikolojik_danismanlik",
-      "year": 2024,
-      "scoreType": "EŞİT AĞIRLIK",
-      "baseScore": 366.7799987792969,
-      "ranking": 85957,
-      "quota": 40,
-      "placedCount": 40,
-      "previousYears": {
-        "2023": {
-          "baseScore": 378.38624,
-          "ranking": 85501
-        },
-        "2022": {
-          "baseScore": 384.32436,
-          "ranking": 87978
-        }
-      }
-    },
-    {
-      "deptId": "istanbul_uni_sinif_ogretmenligi",
-      "year": 2024,
-      "scoreType": "EŞİT AĞIRLIK",
-      "baseScore": 368.1650085449219,
-      "ranking": 83102,
-      "quota": 50,
-      "placedCount": 50,
-      "previousYears": {
-        "2023": {
-          "baseScore": 378.99604,
-          "ranking": 84143
-        },
-        "2022": {
-          "baseScore": 380.60825,
-          "ranking": 96000
-        }
-      }
-    },
-    {
-      "deptId": "istanbul_uni_sosyal_bilgiler_ogretmenligi",
-      "year": 2024,
-      "scoreType": "SÖZEL",
-      "baseScore": 388.4849853515625,
-      "ranking": 47793,
-      "quota": 40,
-      "placedCount": 41,
-      "previousYears": {
-        "2023": {
-          "baseScore": 371.02532,
-          "ranking": 59491
-        },
-        "2022": {
-          "baseScore": 371.13283,
-          "ranking": 60870
-        }
-      }
-    },
-    {
-      "deptId": "istanbul_uni_turkce_ogretmenligi",
-      "year": 2024,
-      "scoreType": "SÖZEL",
-      "baseScore": 412.14300537109375,
-      "ranking": 19778,
-      "quota": 50,
-      "placedCount": 50,
-      "previousYears": {
-        "2023": {
-          "baseScore": 402.15441,
-          "ranking": 19517
-        },
-        "2022": {
-          "baseScore": 399.22342,
-          "ranking": 23328
-        }
-      }
-    },
-    {
-      "deptId": "istanbul_uni_bilgisayar_muhendisligi",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 466.875,
-      "ranking": 27165,
-      "quota": 95,
-      "placedCount": 95,
-      "previousYears": {
-        "2023": {
-          "baseScore": 500.05905,
-          "ranking": 18573
-        },
-        "2022": {
-          "baseScore": 495.80458,
-          "ranking": 20267
-        }
-      }
-    },
-    {
-      "deptId": "istanbul_uni_cevre_muhendisligi",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 331.8330078125,
-      "ranking": 181704,
-      "quota": 50,
-      "placedCount": 52,
-      "previousYears": {
-        "2023": {
-          "baseScore": 341.47373,
-          "ranking": 206614
-        },
-        "2022": {
-          "baseScore": 322.98704,
-          "ranking": 231329
-        }
-      }
-    },
-    {
-      "deptId": "istanbul_uni_deniz_ulastirma_isletme_muhendisligi",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 390.9830017089844,
-      "ranking": 92381,
-      "quota": 75,
-      "placedCount": 75,
-      "previousYears": {
-        "2023": {
-          "baseScore": 410.08596,
-          "ranking": 98615
-        },
-        "2022": {
-          "baseScore": 394.02324,
-          "ranking": 112984
-        }
-      }
-    },
-    {
-      "deptId": "istanbul_uni_elektrikelektronik_muhendisligi",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 432.7040100097656,
-      "ranking": 52063,
-      "quota": 80,
-      "placedCount": 80,
-      "previousYears": {
-        "2023": {
-          "baseScore": 459.59924,
-          "ranking": 49623
-        },
-        "2022": {
-          "baseScore": 451.93643,
-          "ranking": 54911
-        }
-      }
-    },
-    {
-      "deptId": "istanbul_uni_endustri_muhendisligi",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 438.9419860839844,
-      "ranking": 46957,
-      "quota": 75,
-      "placedCount": 75,
-      "previousYears": {
-        "2023": {
-          "baseScore": 466.60334,
-          "ranking": 43436
-        },
-        "2022": {
-          "baseScore": 461.94502,
-          "ranking": 46297
-        }
-      }
-    },
-    {
-      "deptId": "istanbul_uni_insaat_muhendisligi",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 368.0320129394531,
-      "ranking": 120622,
-      "quota": 60,
-      "placedCount": 60,
-      "previousYears": {
-        "2023": {
-          "baseScore": 378.39794,
-          "ranking": 139863
-        },
-        "2022": {
-          "baseScore": 362.6245,
-          "ranking": 155095
-        }
-      }
-    },
-    {
-      "deptId": "istanbul_uni_jeofizik_muhendisligi",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 297.635986328125,
-      "ranking": 273075,
-      "quota": 25,
-      "placedCount": 26,
-      "previousYears": {
-        "2022": {
-          "baseScore": 298.16746,
-          "ranking": 299297
-        }
-      }
-    },
-    {
-      "deptId": "istanbul_uni_jeoloji_muhendisligi",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 307.23199462890625,
-      "ranking": 242716,
-      "quota": 30,
-      "placedCount": 31,
-      "previousYears": {
-        "2023": {
-          "baseScore": 310.89513,
-          "ranking": 289105
-        },
-        "2022": {
-          "baseScore": 298.42458,
-          "ranking": 298456
-        }
-      }
-    },
-    {
-      "deptId": "istanbul_uni_kimya",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 355.13299560546875,
-      "ranking": 139721,
-      "quota": 50,
-      "placedCount": 50,
-      "previousYears": {
-        "2023": {
-          "baseScore": 372.20309,
-          "ranking": 149307
-        },
-        "2022": {
-          "baseScore": 348.64335,
-          "ranking": 178324
-        }
-      }
-    },
-    {
-      "deptId": "istanbul_uni_kimya_muhendisligi",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 411.4200134277344,
-      "ranking": 71072,
-      "quota": 50,
-      "placedCount": 50,
-      "previousYears": {
-        "2023": {
-          "baseScore": 432.40244,
-          "ranking": 74747
-        },
-        "2022": {
-          "baseScore": 420.77211,
-          "ranking": 83959
-        }
-      }
-    },
-    {
-      "deptId": "istanbul_uni_maden_muhendisligi",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 296.8429870605469,
-      "ranking": 275799,
-      "quota": 40,
-      "placedCount": 41,
-      "previousYears": {
-        "2022": {
-          "baseScore": 299.15606,
-          "ranking": 296156
-        }
-      }
-    },
-    {
-      "deptId": "istanbul_uni_makine_muhendisligi",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 420.74200439453125,
-      "ranking": 62395,
-      "quota": 85,
-      "placedCount": 85,
-      "previousYears": {
-        "2023": {
-          "baseScore": 447.95727,
-          "ranking": 60079
-        },
-        "2022": {
-          "baseScore": 436.39881,
-          "ranking": 68881
-        }
-      }
-    },
-    {
-      "deptId": "istanbul_uni_metalurji_ve_malzeme_muhendisligi",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 381.489013671875,
-      "ranking": 103474,
-      "quota": 75,
-      "placedCount": 75,
-      "previousYears": {
-        "2023": {
-          "baseScore": 408.1934,
-          "ranking": 100795
-        },
-        "2022": {
-          "baseScore": 398.9051,
-          "ranking": 107319
-        }
-      }
-    },
-    {
-      "deptId": "istanbul_uni_orman_endustrisi_muhendisligi",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 276.50799560546875,
-      "ranking": 358664,
-      "quota": 75,
-      "placedCount": 75,
-      "previousYears": {
-        "2023": {
-          "baseScore": 290.16391,
-          "ranking": 367668
-        },
-        "2022": {
-          "baseScore": 280.53752,
-          "ranking": 361695
-        }
-      }
-    },
-    {
-      "deptId": "istanbul_uni_orman_muhendisligi",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 287.4460144042969,
-      "ranking": 310492,
-      "quota": 60,
-      "placedCount": 60,
-      "previousYears": {
-        "2023": {
-          "baseScore": 301.93576,
-          "ranking": 320484
-        },
-        "2022": {
-          "baseScore": 291.55791,
-          "ranking": 321037
-        }
-      }
-    },
-    {
-      "deptId": "istanbul_uni_peyzaj_mimarligi",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 295.0849914550781,
-      "ranking": 281944,
-      "quota": 75,
-      "placedCount": 75,
-      "previousYears": {
-        "2023": {
-          "baseScore": 310.85047,
-          "ranking": 289264
-        },
-        "2022": {
-          "baseScore": 305.13661,
-          "ranking": 278254
-        }
-      }
-    },
-    {
-      "deptId": "istanbul_uni_veteriner",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 396.2359924316406,
-      "ranking": 86573,
-      "quota": 130,
-      "placedCount": 130,
-      "previousYears": {
-        "2023": {
-          "baseScore": 425.52044,
-          "ranking": 81790
-        },
-        "2022": {
-          "baseScore": 434.09003,
-          "ranking": 70985
-        }
-      }
-    },
-    {
-      "deptId": "istanbul_uni_bilgisayar_ve_ogretim_teknolojileri_ogretmenligi",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 312.635009765625,
-      "ranking": 227537,
-      "quota": 45,
-      "placedCount": 47,
-      "previousYears": {
-        "2023": {
-          "baseScore": 335.86819,
-          "ranking": 219595
-        },
-        "2022": {
-          "baseScore": 317.85156,
-          "ranking": 243850
-        }
-      }
-    },
-    {
-      "deptId": "istanbul_uni_ebelik",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 323.88800048828125,
-      "ranking": 199231,
-      "quota": 95,
-      "placedCount": 95,
-      "previousYears": {
-        "2023": {
-          "baseScore": 344.20639,
-          "ranking": 200732
-        },
-        "2022": {
-          "baseScore": 342.89298,
-          "ranking": 188995
-        }
-      }
-    },
-    {
-      "deptId": "istanbul_uni_fizyoterapi_ve_rehabilitasyon",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 336.3529968261719,
-      "ranking": 172725,
-      "quota": 75,
-      "placedCount": 75,
-      "previousYears": {
-        "2023": {
-          "baseScore": 366.50812,
-          "ranking": 158521
-        },
-        "2022": {
-          "baseScore": 371.21693,
-          "ranking": 142372
-        }
-      }
-    },
-    {
-      "deptId": "istanbul_uni_odyoloji",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 306.9169921875,
-      "ranking": 243619,
-      "quota": 40,
-      "placedCount": 40,
-      "previousYears": {
-        "2023": {
-          "baseScore": 324.40094,
-          "ranking": 248822
-        },
-        "2022": {
-          "baseScore": 328.60809,
-          "ranking": 218446
-        }
-      }
-    },
-    {
-      "deptId": "istanbul_uni_hemsirelik",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 379.31201171875,
-      "ranking": 106132,
-      "quota": 210,
-      "placedCount": 210,
-      "previousYears": {
-        "2023": {
-          "baseScore": 403.94919,
-          "ranking": 105828
-        },
-        "2022": {
-          "baseScore": 407.24468,
-          "ranking": 98136
-        }
-      }
-    },
-    {
-      "deptId": "istanbul_uni_sosyal_hizmet",
-      "year": 2024,
-      "scoreType": "EŞİT AĞIRLIK",
-      "baseScore": 305.2850036621094,
-      "ranking": 315927,
-      "quota": 75,
-      "placedCount": 77,
-      "previousYears": {
-        "2023": {
-          "baseScore": 312.37485,
-          "ranking": 332106
-        },
-        "2022": {
-          "baseScore": 318.05812,
-          "ranking": 305099
-        }
-      }
-    },
-    {
-      "deptId": "istanbul_uni_saglik_yonetimi",
-      "year": 2024,
-      "scoreType": "EŞİT AĞIRLIK",
-      "baseScore": 315.4330139160156,
-      "ranking": 257969,
-      "quota": 75,
-      "placedCount": 75,
-      "previousYears": {
-        "2023": {
-          "baseScore": 319.84096,
-          "ranking": 290168
-        },
-        "2022": {
-          "baseScore": 322.07984,
-          "ranking": 285291
-        }
-      }
-    },
-    {
-      "deptId": "istanbul_uni_gerontoloji",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 274.7279968261719,
-      "ranking": 367519,
-      "quota": 75,
-      "placedCount": 75,
-      "previousYears": {
-        "2023": {
-          "baseScore": 269.96856,
-          "ranking": 469896
-        },
-        "2022": {
-          "baseScore": 246.04218,
-          "ranking": 549738
-        }
-      }
-    },
-    {
-      "deptId": "istanbul_uni_okul_oncesi_ogretmenligi",
-      "year": 2024,
-      "scoreType": "SÖZEL",
-      "baseScore": 420.8370056152344,
-      "ranking": 13614,
-      "quota": 50,
-      "placedCount": 50,
-      "previousYears": {
-        "2023": {
-          "baseScore": 408.13416,
-          "ranking": 15183
-        },
-        "2022": {
-          "baseScore": 408.59739,
-          "ranking": 16107
-        }
-      }
-    },
-    {
-      "deptId": "istanbul_uni_ozel_egitim_ogretmenligi",
-      "year": 2024,
-      "scoreType": "SÖZEL",
-      "baseScore": 438.6090087890625,
-      "ranking": 5934,
-      "quota": 50,
-      "placedCount": 50,
-      "previousYears": {
-        "2023": {
-          "baseScore": 424.46811,
-          "ranking": 7152
-        },
-        "2022": {
-          "baseScore": 420.99308,
-          "ranking": 9488
-        }
-      }
-    },
-    {
-      "deptId": "istanbul_uni_gida_teknolojisi",
-      "year": 2024,
-      "scoreType": "TYT",
-      "baseScore": 319.6619873046875,
-      "ranking": 657862,
-      "quota": 50,
-      "placedCount": 52,
-      "previousYears": {
-        "2023": {
-          "baseScore": 318.27188,
-          "ranking": 682917
-        },
-        "2022": {
-          "baseScore": 316.86071,
-          "ranking": 627868
-        }
-      }
-    },
-    {
-      "deptId": "istanbul_uni_sulama_teknolojisi",
-      "year": 2024,
-      "scoreType": "TYT",
-      "baseScore": 291.3420104980469,
-      "ranking": 998333,
-      "quota": 40,
-      "placedCount": 41,
-      "previousYears": {
-        "2023": {
-          "baseScore": 289.34191,
-          "ranking": 1016785
-        },
-        "2022": {
-          "baseScore": 281.37132,
-          "ranking": 1023787
-        }
-      }
-    },
-    {
-      "deptId": "istanbul_uni_agiz_ve_dis_sagligi",
-      "year": 2024,
-      "scoreType": "TYT",
-      "baseScore": 351.864013671875,
-      "ranking": 400538,
-      "quota": 70,
-      "placedCount": 70,
-      "previousYears": {
-        "2023": {
-          "baseScore": 347.09125,
-          "ranking": 444141
-        },
-        "2022": {
-          "baseScore": 342.66494,
-          "ranking": 438999
-        }
-      }
-    },
-    {
-      "deptId": "istanbul_uni_tibbi_dokumantasyon_ve_sekreterlik",
-      "year": 2024,
-      "scoreType": "TYT",
-      "baseScore": 343.072998046875,
-      "ranking": 458406,
-      "quota": 70,
-      "placedCount": 70,
-      "previousYears": {
-        "2023": {
-          "baseScore": 340.70709,
-          "ranking": 489779
-        },
-        "2022": {
-          "baseScore": 324.3196,
-          "ranking": 570489
-        }
-      }
-    },
-    {
-      "deptId": "istanbul_uni_pazarlama",
-      "year": 2024,
-      "scoreType": "TYT",
-      "baseScore": 309.2550048828125,
-      "ranking": 770449,
-      "quota": 65,
-      "placedCount": 67,
-      "previousYears": {
-        "2023": {
-          "baseScore": 306.58755,
-          "ranking": 806339
-        },
-        "2022": {
-          "baseScore": 298.24454,
-          "ranking": 819805
-        }
-      }
-    },
-    {
-      "deptId": "istanbul_uni_turizm_ve_otel_isletmeciligi",
-      "year": 2024,
-      "scoreType": "TYT",
-      "baseScore": 315.59100341796875,
-      "ranking": 700169,
-      "quota": 65,
-      "placedCount": 66,
-      "previousYears": {
-        "2023": {
-          "baseScore": 310.17553,
-          "ranking": 766750
-        },
-        "2022": {
-          "baseScore": 306.90559,
-          "ranking": 728123
-        }
-      }
-    },
-    {
-      "deptId": "istanbul_uni_biyomedikal_cihaz_teknolojisi",
-      "year": 2024,
-      "scoreType": "TYT",
-      "baseScore": 311.42401123046875,
-      "ranking": 745613,
-      "quota": 70,
-      "placedCount": 72,
-      "previousYears": {
-        "2023": {
-          "baseScore": 306.49434,
-          "ranking": 807379
-        },
-        "2022": {
-          "baseScore": 307.733,
-          "ranking": 719939
-        }
-      }
-    },
-    {
-      "deptId": "istanbul_uni_elektrik",
-      "year": 2024,
-      "scoreType": "TYT",
-      "baseScore": 333.58099365234375,
-      "ranking": 530204,
-      "quota": 60,
-      "placedCount": 60,
-      "previousYears": {
-        "2023": {
-          "baseScore": 328.45617,
-          "ranking": 588743
-        },
-        "2022": {
-          "baseScore": 329.45521,
-          "ranking": 530327
-        }
-      }
-    },
-    {
-      "deptId": "istanbul_uni_makine",
-      "year": 2024,
-      "scoreType": "TYT",
-      "baseScore": 342.468994140625,
-      "ranking": 462635,
-      "quota": 60,
-      "placedCount": 60,
-      "previousYears": {
-        "2023": {
-          "baseScore": 335.6333,
-          "ranking": 528734
-        },
-        "2022": {
-          "baseScore": 334.09149,
-          "ranking": 496590
-        }
-      }
-    },
-    {
-      "deptId": "istanbul_uni_su_alti_teknolojisi",
-      "year": 2024,
-      "scoreType": "TYT",
-      "baseScore": 308.5950012207031,
-      "ranking": 778035,
-      "quota": 30,
-      "placedCount": 31,
-      "previousYears": {
-        "2023": {
-          "baseScore": 300.83564,
-          "ranking": 872654
-        },
-        "2022": {
-          "baseScore": 294.82074,
-          "ranking": 858129
-        }
-      }
-    },
-    {
-      "deptId": "istanbul_uni_bilgisayar_programciligi",
-      "year": 2024,
-      "scoreType": "TYT",
-      "baseScore": 381.7279968261719,
-      "ranking": 253942,
-      "quota": 60,
-      "placedCount": 60,
-      "previousYears": {
-        "2023": {
-          "baseScore": 387.00258,
-          "ranking": 238151
-        },
-        "2022": {
-          "baseScore": 391.13475,
-          "ranking": 215062
-        }
-      }
-    },
-    {
-      "deptId": "istanbul_uni_deri_teknolojisi",
-      "year": 2024,
-      "scoreType": "TYT",
-      "baseScore": 290.34600830078125,
-      "ranking": 1012379,
-      "quota": 40,
-      "placedCount": 41,
-      "previousYears": {
-        "2023": {
-          "baseScore": 285.34207,
-          "ranking": 1070222
-        },
-        "2022": {
-          "baseScore": 277.05633,
-          "ranking": 1082146
-        }
-      }
-    },
-    {
-      "deptId": "istanbul_uni_sivil_savunma_ve_itfaiyecilik",
-      "year": 2024,
-      "scoreType": "TYT",
-      "baseScore": 323.08099365234375,
-      "ranking": 623881,
-      "quota": 50,
-      "placedCount": 51,
-      "previousYears": {
-        "2023": {
-          "baseScore": 320.03343,
-          "ranking": 665806
-        },
-        "2022": {
-          "baseScore": 316.81805,
-          "ranking": 632662
-        }
-      }
-    },
-    {
-      "deptId": "istanbul_uni_dis_ticaret",
-      "year": 2024,
-      "scoreType": "TYT",
-      "baseScore": 327.5329895019531,
-      "ranking": 582335,
-      "quota": 65,
-      "placedCount": 67,
-      "previousYears": {
-        "2023": {
-          "baseScore": 324.74103,
-          "ranking": 621595
-        },
-        "2022": {
-          "baseScore": 317.85282,
-          "ranking": 624968
-        }
-      }
-    },
-    {
-      "deptId": "istanbul_uni_mobilya_ve_dekorasyon",
-      "year": 2024,
-      "scoreType": "TYT",
-      "baseScore": 299.4219970703125,
-      "ranking": 890043,
-      "quota": 40,
-      "placedCount": 41,
-      "previousYears": {
-        "2023": {
-          "baseScore": 296.27657,
-          "ranking": 927971
-        },
-        "2022": {
-          "baseScore": 293.01221,
-          "ranking": 879028
-        }
-      }
-    },
-    {
-      "deptId": "istanbul_uni_bankacilik_ve_sigortacilik",
-      "year": 2024,
-      "scoreType": "TYT",
-      "baseScore": 317.8240051269531,
-      "ranking": 676668,
-      "quota": 100,
-      "placedCount": 102,
-      "previousYears": {
-        "2023": {
-          "baseScore": 310.89383,
-          "ranking": 759102
-        },
-        "2022": {
-          "baseScore": 305.56885,
-          "ranking": 741268
-        }
-      }
-    },
-    {
-      "deptId": "istanbul_uni_muhasebe_ve_vergi_uygulamalari",
-      "year": 2024,
-      "scoreType": "TYT",
-      "baseScore": 315.1809997558594,
-      "ranking": 704514,
-      "quota": 65,
-      "placedCount": 67,
-      "previousYears": {
-        "2023": {
-          "baseScore": 311.11714,
-          "ranking": 756656
-        },
-        "2022": {
-          "baseScore": 306.20752,
-          "ranking": 735265
-        }
-      }
-    },
-    {
-      "deptId": "istanbul_uni_otomotiv_teknolojisi",
-      "year": 2024,
-      "scoreType": "TYT",
-      "baseScore": 330.3999938964844,
-      "ranking": 557146,
-      "quota": 60,
-      "placedCount": 61,
-      "previousYears": {
-        "2023": {
-          "baseScore": 326.56038,
-          "ranking": 605199
-        },
-        "2022": {
-          "baseScore": 321.12723,
-          "ranking": 596702
-        }
-      }
-    },
-    {
-      "deptId": "istanbul_uni_isletme_yonetimi",
-      "year": 2024,
-      "scoreType": "TYT",
-      "baseScore": 320.68798828125,
-      "ranking": 647558,
-      "quota": 65,
-      "placedCount": 66,
-      "previousYears": {
-        "2023": {
-          "baseScore": 316.78969,
-          "ranking": 697674
-        },
-        "2022": {
-          "baseScore": 308.60332,
-          "ranking": 711258
-        }
-      }
-    },
-    {
-      "deptId": "istanbul_uni_iklimlendirme_ve_sogutma_teknolojisi",
-      "year": 2024,
-      "scoreType": "TYT",
-      "baseScore": 295.3940124511719,
-      "ranking": 943415,
-      "quota": 60,
-      "placedCount": 61,
-      "previousYears": {
-        "2023": {
-          "baseScore": 291.3196,
-          "ranking": 990849
-        },
-        "2022": {
-          "baseScore": 286.45959,
-          "ranking": 958233
-        }
-      }
-    },
-    {
-      "deptId": "istanbul_uni_elektronik_haberlesme_teknolojisi",
-      "year": 2024,
-      "scoreType": "TYT",
-      "baseScore": 317.7669982910156,
-      "ranking": 677242,
-      "quota": 60,
-      "placedCount": 62,
-      "previousYears": {
-        "2023": {
-          "baseScore": 310.50316,
-          "ranking": 763290
-        },
-        "2022": {
-          "baseScore": 309.63243,
-          "ranking": 701193
-        }
-      }
-    },
-    {
-      "deptId": "istanbul_uni_elektronik_teknolojisi",
-      "year": 2024,
-      "scoreType": "TYT",
-      "baseScore": 327.3489990234375,
-      "ranking": 583972,
-      "quota": 60,
-      "placedCount": 60,
-      "previousYears": {
-        "2023": {
-          "baseScore": 321.15535,
-          "ranking": 654950
-        },
-        "2022": {
-          "baseScore": 319.69428,
-          "ranking": 609009
-        }
-      }
-    },
-    {
-      "deptId": "istanbul_uni_kontrol_ve_otomasyon_teknolojisi",
-      "year": 2024,
-      "scoreType": "TYT",
-      "baseScore": 325.1759948730469,
-      "ranking": 603921,
-      "quota": 60,
-      "placedCount": 61,
-      "previousYears": {
-        "2023": {
-          "baseScore": 319.00082,
-          "ranking": 675775
-        },
-        "2022": {
-          "baseScore": 314.45998,
-          "ranking": 655815
-        }
-      }
-    },
-    {
-      "deptId": "istanbul_uni_dis_protez_teknolojisi",
-      "year": 2024,
-      "scoreType": "TYT",
-      "baseScore": 351.3210144042969,
-      "ranking": 403833,
-      "quota": 70,
-      "placedCount": 70,
-      "previousYears": {
-        "2023": {
-          "baseScore": 344.3925,
-          "ranking": 462990
-        },
-        "2022": {
-          "baseScore": 337.5567,
-          "ranking": 472528
-        }
-      }
-    },
-    {
-      "deptId": "istanbul_uni_tibbi_laboratuvar_teknikleri",
-      "year": 2024,
-      "scoreType": "TYT",
-      "baseScore": 344.0169982910156,
-      "ranking": 451919,
-      "quota": 70,
-      "placedCount": 70,
-      "previousYears": {
-        "2023": {
-          "baseScore": 340.24965,
-          "ranking": 493268
-        },
-        "2022": {
-          "baseScore": 339.64657,
-          "ranking": 458417
-        }
-      }
-    },
-    {
-      "deptId": "istanbul_uni_tibbi_goruntuleme_teknikleri",
-      "year": 2024,
-      "scoreType": "TYT",
-      "baseScore": 351.0450134277344,
-      "ranking": 405507,
-      "quota": 70,
-      "placedCount": 70,
-      "previousYears": {
-        "2023": {
-          "baseScore": 345.45035,
-          "ranking": 455577
-        },
-        "2022": {
-          "baseScore": 343.68493,
-          "ranking": 432632
-        }
-      }
-    },
-    {
-      "deptId": "istanbul_uni_ayakkabi_tasarim_ve_uretimi",
-      "year": 2024,
-      "scoreType": "TYT",
-      "baseScore": 292.40899658203125,
-      "ranking": 983550,
-      "quota": 50,
-      "placedCount": 52,
-      "previousYears": {
-        "2023": {
-          "baseScore": 290.37565,
-          "ranking": 1003273
-        },
-        "2022": {
-          "baseScore": 284.34589,
-          "ranking": 985065
-        }
-      }
-    },
-    {
-      "deptId": "istanbul_uni_sivil_havacilik_kabin_hizmetleri",
-      "year": 2024,
-      "scoreType": "TYT",
-      "baseScore": 349.43701171875,
-      "ranking": 415736,
-      "quota": 60,
-      "placedCount": 60,
-      "previousYears": {
-        "2023": {
-          "baseScore": 341.00613,
-          "ranking": 487542
-        },
-        "2022": {
-          "baseScore": 334.63835,
-          "ranking": 492707
-        }
-      }
-    },
-    {
-      "deptId": "istanbul_uni_ucak_teknolojisi",
-      "year": 2024,
-      "scoreType": "TYT",
-      "baseScore": 374.989990234375,
-      "ranking": 281476,
-      "quota": 50,
-      "placedCount": 50,
-      "previousYears": {
-        "2023": {
-          "baseScore": 371.9974,
-          "ranking": 301666
-        },
-        "2022": {
-          "baseScore": 370.67548,
-          "ranking": 292083
-        }
-      }
-    },
-    {
-      "deptId": "istanbul_uni_radyoterapi",
-      "year": 2024,
-      "scoreType": "TYT",
-      "baseScore": 328.218994140625,
-      "ranking": 576116,
-      "quota": 70,
-      "placedCount": 70,
-      "previousYears": {
-        "2023": {
-          "baseScore": 323.63941,
-          "ranking": 631611
-        },
-        "2022": {
-          "baseScore": 323.14578,
-          "ranking": 579924
-        }
-      }
-    },
-    {
-      "deptId": "istanbul_uni_atcilik_ve_antrenorlugu",
-      "year": 2024,
-      "scoreType": "TYT",
-      "baseScore": 316.1659851074219,
-      "ranking": 694041,
-      "quota": 50,
-      "placedCount": 52,
-      "previousYears": {
-        "2023": {
-          "baseScore": 314.26245,
-          "ranking": 723766
-        },
-        "2022": {
-          "baseScore": 318.77296,
-          "ranking": 617013
-        }
-      }
-    },
-    {
-      "deptId": "istanbul_uni_avcilik_ve_yaban_hayati",
-      "year": 2024,
-      "scoreType": "TYT",
-      "baseScore": 309.93701171875,
-      "ranking": 762414,
-      "quota": 30,
-      "placedCount": 31,
-      "previousYears": {
-        "2023": {
-          "baseScore": 300.90815,
-          "ranking": 871777
-        },
-        "2022": {
-          "baseScore": 292.64681,
-          "ranking": 883295
-        }
-      }
-    },
-    {
-      "deptId": "istanbul_uni_ozel_guvenlik_ve_koruma",
-      "year": 2024,
-      "scoreType": "TYT",
-      "baseScore": 302.05999755859375,
-      "ranking": 856459,
-      "quota": 30,
-      "placedCount": 31,
-      "previousYears": {
-        "2023": {
-          "baseScore": 297.35829,
-          "ranking": 914652
-        },
-        "2022": {
-          "baseScore": 289.36957,
-          "ranking": 922484
-        }
-      }
-    },
-    {
-      "deptId": "istanbul_uni_nukleer_tip_teknikleri",
-      "year": 2024,
-      "scoreType": "TYT",
-      "baseScore": 319.4440002441406,
-      "ranking": 660098,
-      "quota": 50,
-      "placedCount": 52,
-      "previousYears": {
-        "2023": {
-          "baseScore": 316.1815,
-          "ranking": 703797
-        },
-        "2022": {
-          "baseScore": 313.11927,
-          "ranking": 668273
-        }
-      }
-    },
-    {
-      "deptId": "istanbul_uni_grafik_tasarimi",
-      "year": 2024,
-      "scoreType": "TYT",
-      "baseScore": 351.1889953613281,
-      "ranking": 404642,
-      "quota": 60,
-      "placedCount": 60,
-      "previousYears": {
-        "2023": {
-          "baseScore": 355.51791,
-          "ranking": 389951
-        },
-        "2022": {
-          "baseScore": 348.84666,
-          "ranking": 401511
-        }
-      }
-    },
-    {
-      "deptId": "istanbul_uni_cevre_muhendisligi",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 351.0530090332031,
-      "ranking": 146375,
-      "quota": 30,
-      "placedCount": 31,
-      "previousYears": {
-        "2023": {
-          "baseScore": 373.12415,
-          "ranking": 147922
-        },
-        "2022": {
-          "baseScore": 358.03622,
-          "ranking": 162270
-        }
-      }
-    },
-    {
-      "deptId": "istanbul_uni_peyzaj_ve_sus_bitkileri_yetistiriciligi",
-      "year": 2024,
-      "scoreType": "TYT",
-      "baseScore": 301.010009765625,
-      "ranking": 869821,
-      "quota": 50,
-      "placedCount": 52,
-      "previousYears": {
-        "2023": {
-          "baseScore": 296.93287,
-          "ranking": 919893
-        },
-        "2022": {
-          "baseScore": 291.12405,
-          "ranking": 901473
-        }
-      }
-    },
-    {
-      "deptId": "istanbul_uni_polimer_teknolojisi",
-      "year": 2024,
-      "scoreType": "TYT",
-      "baseScore": 300.1099853515625,
-      "ranking": 881219,
-      "quota": 50,
-      "placedCount": 52,
-      "previousYears": {
-        "2023": {
-          "baseScore": 291.30564,
-          "ranking": 991018
-        },
-        "2022": {
-          "baseScore": 284.4227,
-          "ranking": 984016
-        }
-      }
-    },
-    {
-      "deptId": "istanbul_uni_basim_ve_yayim_teknolojileri",
-      "year": 2024,
-      "scoreType": "TYT",
-      "baseScore": 302.0830078125,
-      "ranking": 856182,
-      "quota": 65,
-      "placedCount": 67,
-      "previousYears": {
-        "2023": {
-          "baseScore": 301.56932,
-          "ranking": 863920
-        },
-        "2022": {
-          "baseScore": 295.7562,
-          "ranking": 847430
-        }
-      }
-    },
-    {
-      "deptId": "istanbul_uni_seramik_ve_cam_tasarimi",
-      "year": 2024,
-      "scoreType": "TYT",
-      "baseScore": 306.968994140625,
-      "ranking": 797006,
-      "quota": 60,
-      "placedCount": 62,
-      "previousYears": {
-        "2023": {
-          "baseScore": 301.02727,
-          "ranking": 870359
-        },
-        "2022": {
-          "baseScore": 290.26689,
-          "ranking": 911689
-        }
-      }
-    },
-    {
-      "deptId": "istanbul_uni_emlak_yonetimi",
-      "year": 2024,
-      "scoreType": "TYT",
-      "baseScore": 301.45098876953125,
-      "ranking": 864038,
-      "quota": 65,
-      "placedCount": 67,
-      "previousYears": {
-        "2023": {
-          "baseScore": 296.78511,
-          "ranking": 921741
-        },
-        "2022": {
-          "baseScore": 288.44806,
-          "ranking": 933713
-        }
-      }
-    },
-    {
-      "deptId": "istanbul_uni_hemsirelik",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 406.33099365234375,
-      "ranking": 76112,
-      "quota": 30,
-      "placedCount": 30,
-      "previousYears": {
-        "2023": {
-          "baseScore": 433.4864,
-          "ranking": 73650
-        },
-        "2022": {
-          "baseScore": 436.75425,
-          "ranking": 68534
-        }
-      }
-    },
-    {
-      "deptId": "istanbul_uni_grafik_tasarimi",
-      "year": 2024,
-      "scoreType": "TYT",
-      "baseScore": 342.2099914550781,
-      "ranking": 464556,
-      "quota": 1,
-      "placedCount": 1,
-      "previousYears": {
-        "2023": {
-          "baseScore": 282.35568,
-          "ranking": 1111312
-        }
-      }
-    },
-    {
-      "deptId": "istanbul_uni_dis_hekimligi",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 464.9779968261719,
-      "ranking": 28375,
-      "quota": 60,
-      "placedCount": 60,
-      "previousYears": {
-        "2023": {
-          "baseScore": 487.08301,
-          "ranking": 27276
-        },
-        "2022": {
-          "baseScore": 489.60773,
-          "ranking": 24579
-        }
-      }
-    },
-    {
-      "deptId": "istanbul_uni_bankacilik_ve_sigortacilik",
-      "year": 2024,
-      "scoreType": "TYT",
-      "baseScore": 266.3030090332031,
-      "ranking": 1378122,
-      "quota": 200,
-      "placedCount": 205,
-      "previousYears": {
-        "2023": {
-          "baseScore": 281.3085,
-          "ranking": 1125938
-        },
-        "2022": {
-          "baseScore": 269.70532,
-          "ranking": 1187600
-        }
-      }
-    },
-    {
-      "deptId": "istanbul_uni_dis_ticaret",
-      "year": 2024,
-      "scoreType": "TYT",
-      "baseScore": 268.906005859375,
-      "ranking": 1336192,
-      "quota": 200,
-      "placedCount": 205,
-      "previousYears": {
-        "2023": {
-          "baseScore": 294.90078,
-          "ranking": 945128
-        },
-        "2022": {
-          "baseScore": 280.90903,
-          "ranking": 1029974
-        }
-      }
-    },
-    {
-      "deptId": "istanbul_uni_emlak_yonetimi",
-      "year": 2024,
-      "scoreType": "TYT",
-      "baseScore": 251.0659942626953,
-      "ranking": 1634119,
-      "quota": 200,
-      "placedCount": 204,
-      "previousYears": {
-        "2023": {
-          "baseScore": 276.09505,
-          "ranking": 1200297
-        },
-        "2022": {
-          "baseScore": 266.1201,
-          "ranking": 1242078
-        }
-      }
-    },
-    {
-      "deptId": "istanbul_uni_isletme_yonetimi",
-      "year": 2024,
-      "scoreType": "TYT",
-      "baseScore": 263.8970031738281,
-      "ranking": 1417261,
-      "quota": 200,
-      "placedCount": 205,
-      "previousYears": {
-        "2023": {
-          "baseScore": 286.35595,
-          "ranking": 1056562
-        },
-        "2022": {
-          "baseScore": 275.62406,
-          "ranking": 1102051
-        }
-      }
-    },
-    {
-      "deptId": "istanbul_uni_muhasebe_ve_vergi_uygulamalari",
-      "year": 2024,
-      "scoreType": "TYT",
-      "baseScore": 264.8160095214844,
-      "ranking": 1402440,
-      "quota": 200,
-      "placedCount": 205,
-      "previousYears": {
-        "2023": {
-          "baseScore": 285.04821,
-          "ranking": 1074279
-        },
-        "2022": {
-          "baseScore": 274.46645,
-          "ranking": 1118266
-        }
-      }
-    },
-    {
-      "deptId": "istanbul_uni_pazarlama",
-      "year": 2024,
-      "scoreType": "TYT",
-      "baseScore": 249.07400512695312,
-      "ranking": 1668769,
-      "quota": 200,
-      "placedCount": 205,
-      "previousYears": {
-        "2023": {
-          "baseScore": 277.65803,
-          "ranking": 1177966
-        },
-        "2022": {
-          "baseScore": 268.09811,
-          "ranking": 1211830
-        }
-      }
-    },
-    {
-      "deptId": "istanbul_uni_turizm_ve_otel_isletmeciligi",
-      "year": 2024,
-      "scoreType": "TYT",
-      "baseScore": 257.5119934082031,
-      "ranking": 1523848,
-      "quota": 200,
-      "placedCount": 205,
-      "previousYears": {
-        "2023": {
-          "baseScore": 280.08389,
-          "ranking": 1143251
-        },
-        "2022": {
-          "baseScore": 269.6668,
-          "ranking": 1188183
-        }
-      }
-    },
-    {
-      "deptId": "istanbul_uni_orman_muhendisligi",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 189.71099853515625,
-      "ranking": 1210830,
-      "quota": 1,
-      "placedCount": 1,
-      "previousYears": {
-        "2022": {
-          "baseScore": 200.17584,
-          "ranking": 1064670
-        }
-      }
-    },
-    {
-      "deptId": "istanbul_uni_eczacilik",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 440.364013671875,
-      "ranking": 45809,
-      "quota": 40,
-      "placedCount": 40,
-      "previousYears": {
-        "2023": {
-          "baseScore": 463.86999,
-          "ranking": 45908
-        },
-        "2022": {
-          "baseScore": 465.79115,
-          "ranking": 43197
-        }
-      }
-    },
-    {
-      "deptId": "istanbul_uni_spor_yoneticiligi",
-      "year": 2024,
-      "scoreType": "EŞİT AĞIRLIK",
-      "baseScore": 302.6990051269531,
-      "ranking": 332024,
-      "quota": 44,
-      "placedCount": 44,
-      "previousYears": {
-        "2023": {
-          "baseScore": 303.48182,
-          "ranking": 388601
-        },
-        "2022": {
-          "baseScore": 303.87213,
-          "ranking": 384934
-        }
-      }
-    },
-    {
-      "deptId": "istanbul_uni_sanal_ve_artirilmis_gerceklik",
-      "year": 2024,
-      "scoreType": "TYT",
-      "baseScore": 366.989990234375,
-      "ranking": 318212,
-      "quota": 25,
-      "placedCount": 25,
-      "previousYears": {
-        "2023": {
-          "baseScore": 367.46955,
-          "ranking": 323779
-        }
-      }
-    },
-    {
-      "deptId": "istanbul_uni_radyo_ve_televizyon_programciligi",
-      "year": 2024,
-      "scoreType": "TYT",
-      "baseScore": 316.8290100097656,
-      "ranking": 686922,
-      "quota": 65,
-      "placedCount": 66,
-      "previousYears": {
-        "2023": {
-          "baseScore": 306.36831,
-          "ranking": 808798
-        }
-      }
-    },
-    {
-      "deptId": "istanbul_uni_nukleer_tip_teknikleri",
-      "year": 2024,
-      "scoreType": "TYT",
-      "baseScore": 236.50999450683594,
-      "ranking": 1892212,
-      "quota": 1,
-      "placedCount": 1,
-      "previousYears": {}
-    },
-    {
-      "deptId": "istanbul_uni_veteriner",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 407.7250061035156,
-      "ranking": 74688,
       "quota": 30,
       "placedCount": 30,
       "previousYears": {}
@@ -50836,7 +49073,7 @@
       }
     },
     {
-      "deptId": "sivas_btu_elektrikelektronik_muhendisligi",
+      "deptId": "sivas_btu_elektrik-elektronik_muhendisligi",
       "year": 2024,
       "scoreType": "SAYISAL",
       "baseScore": 352.0299987792969,
@@ -51284,7 +49521,7 @@
       }
     },
     {
-      "deptId": "tarsus_elektrikelektronik_muhendisligi",
+      "deptId": "tarsus_elektrik-elektronik_muhendisligi",
       "year": 2024,
       "scoreType": "SAYISAL",
       "baseScore": 308.9010009765625,
@@ -52649,7 +50886,7 @@
       }
     },
     {
-      "deptId": "estu_elektrikelektronik_muhendisligi",
+      "deptId": "estu_elektrik-elektronik_muhendisligi",
       "year": 2024,
       "scoreType": "SAYISAL",
       "baseScore": 440.3900146484375,
@@ -53492,7 +51729,7 @@
       }
     },
     {
-      "deptId": "aydin_elektrikelektronik_muhendisligi",
+      "deptId": "aydin_elektrik-elektronik_muhendisligi",
       "year": 2024,
       "scoreType": "SAYISAL",
       "baseScore": 290.41400146484375,
@@ -53958,7 +52195,7 @@
       }
     },
     {
-      "deptId": "aydin_elektrikelektronik_muhendisligi",
+      "deptId": "aydin_elektrik-elektronik_muhendisligi",
       "year": 2024,
       "scoreType": "SAYISAL",
       "baseScore": 404.66900634765625,
@@ -59814,7 +58051,7 @@
       }
     },
     {
-      "deptId": "gelisim_elektrikelektronik_muhendisligi",
+      "deptId": "gelisim_elektrik-elektronik_muhendisligi",
       "year": 2024,
       "scoreType": "SAYISAL",
       "baseScore": 378.677001953125,
@@ -59833,7 +58070,7 @@
       }
     },
     {
-      "deptId": "gelisim_elektrikelektronik_muhendisligi",
+      "deptId": "gelisim_elektrik-elektronik_muhendisligi",
       "year": 2024,
       "scoreType": "SAYISAL",
       "baseScore": 297.5469970703125,
@@ -64742,7 +62979,7 @@
       }
     },
     {
-      "deptId": "gelisim_elektrikelektronik_muhendisligi",
+      "deptId": "gelisim_elektrik-elektronik_muhendisligi",
       "year": 2024,
       "scoreType": "SAYISAL",
       "baseScore": 381.5050048828125,
@@ -64761,7 +62998,7 @@
       }
     },
     {
-      "deptId": "gelisim_elektrikelektronik_muhendisligi",
+      "deptId": "gelisim_elektrik-elektronik_muhendisligi",
       "year": 2024,
       "scoreType": "SAYISAL",
       "baseScore": 292.7409973144531,
@@ -65559,7 +63796,7 @@
       "previousYears": {}
     },
     {
-      "deptId": "medipol_elektrikelektronik_muhendisligi",
+      "deptId": "medipol_elektrik-elektronik_muhendisligi",
       "year": 2024,
       "scoreType": "SAYISAL",
       "baseScore": 444.91400146484375,
@@ -69442,3856 +67679,6 @@
       "ranking": 1694482,
       "quota": 34,
       "placedCount": 5,
-      "previousYears": {}
-    },
-    {
-      "deptId": "akdeniz_ilkogretim_matematik_ogretmenligi",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 292.6889953613281,
-      "ranking": 290441,
-      "quota": 35,
-      "placedCount": 3,
-      "previousYears": {
-        "2022": {
-          "baseScore": 317.55807,
-          "ranking": 244559
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_ilkogretim_matematik_ogretmenligi",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 316.5199890136719,
-      "ranking": 217251,
-      "quota": 8,
-      "placedCount": 8,
-      "previousYears": {
-        "2023": {
-          "baseScore": 363.09441,
-          "ranking": 164386
-        },
-        "2022": {
-          "baseScore": 377.16909,
-          "ranking": 134085
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_okul_oncesi_ogretmenligi",
-      "year": 2024,
-      "scoreType": "SÖZEL",
-      "baseScore": 319.2770080566406,
-      "ranking": 273855,
-      "quota": 22,
-      "placedCount": 10,
-      "previousYears": {
-        "2023": {
-          "baseScore": 344.00572,
-          "ranking": 128940
-        },
-        "2022": {
-          "baseScore": 357.92463,
-          "ranking": 89242
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_okul_oncesi_ogretmenligi",
-      "year": 2024,
-      "scoreType": "SÖZEL",
-      "baseScore": 400.1180114746094,
-      "ranking": 31795,
-      "quota": 8,
-      "placedCount": 8,
-      "previousYears": {
-        "2023": {
-          "baseScore": 386.35434,
-          "ranking": 35575
-        },
-        "2022": {
-          "baseScore": 386.54086,
-          "ranking": 37044
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_rehberlik_ve_psikolojik_danismanlik",
-      "year": 2024,
-      "scoreType": "EŞİT AĞIRLIK",
-      "baseScore": 312.5889892578125,
-      "ranking": 273159,
-      "quota": 16,
-      "placedCount": 3,
-      "previousYears": {
-        "2022": {
-          "baseScore": 319.6648,
-          "ranking": 297159
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_rehberlik_ve_psikolojik_danismanlik",
-      "year": 2024,
-      "scoreType": "EŞİT AĞIRLIK",
-      "baseScore": 328.2019958496094,
-      "ranking": 199071,
-      "quota": 10,
-      "placedCount": 10,
-      "previousYears": {
-        "2023": {
-          "baseScore": 340.3183,
-          "ranking": 196207
-        },
-        "2022": {
-          "baseScore": 332.91184,
-          "ranking": 237522
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_sinif_ogretmenligi",
-      "year": 2024,
-      "scoreType": "EŞİT AĞIRLIK",
-      "baseScore": 309.6419982910156,
-      "ranking": 289880,
-      "quota": 19,
-      "placedCount": 12,
-      "previousYears": {
-        "2023": {
-          "baseScore": 326.21673,
-          "ranking": 257853
-        },
-        "2022": {
-          "baseScore": 323.05888,
-          "ranking": 280594
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_turkce_ogretmenligi",
-      "year": 2024,
-      "scoreType": "SÖZEL",
-      "baseScore": 371.50299072265625,
-      "ranking": 80085,
-      "quota": 5,
-      "placedCount": 5,
-      "previousYears": {
-        "2023": {
-          "baseScore": 368.40792,
-          "ranking": 64665
-        },
-        "2022": {
-          "baseScore": 371.93042,
-          "ranking": 59517
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_psikoloji",
-      "year": 2024,
-      "scoreType": "EŞİT AĞIRLIK",
-      "baseScore": 191.2480010986328,
-      "ranking": 1599716,
-      "quota": 18,
-      "placedCount": 7,
-      "previousYears": {
-        "2023": {
-          "baseScore": 326.91558,
-          "ranking": 254415
-        },
-        "2022": {
-          "baseScore": 310.36884,
-          "ranking": 346230
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_psikoloji",
-      "year": 2024,
-      "scoreType": "EŞİT AĞIRLIK",
-      "baseScore": 345.7349853515625,
-      "ranking": 138304,
-      "quota": 12,
-      "placedCount": 12,
-      "previousYears": {
-        "2023": {
-          "baseScore": 358.51749,
-          "ranking": 135088
-        },
-        "2022": {
-          "baseScore": 356.36664,
-          "ranking": 157230
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_turk_dili_ve_edebiyati",
-      "year": 2024,
-      "scoreType": "SÖZEL",
-      "baseScore": 195.28599548339844,
-      "ranking": 1343071,
-      "quota": 17,
-      "placedCount": 4,
-      "previousYears": {
-        "2022": {
-          "baseScore": 177.04396,
-          "ranking": 1469609
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_matematik_ve_bilgisayar_bilimleri",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 286.2909851074219,
-      "ranking": 315279,
-      "quota": 7,
-      "placedCount": 7,
-      "previousYears": {
-        "2023": {
-          "baseScore": 301.58509,
-          "ranking": 321791
-        },
-        "2022": {
-          "baseScore": 280.22749,
-          "ranking": 362933
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_turk_dili_ve_edebiyati",
-      "year": 2024,
-      "scoreType": "SÖZEL",
-      "baseScore": 266.7019958496094,
-      "ranking": 685307,
-      "quota": 8,
-      "placedCount": 8,
-      "previousYears": {
-        "2023": {
-          "baseScore": 240.4641,
-          "ranking": 920102
-        },
-        "2022": {
-          "baseScore": 231.77852,
-          "ranking": 1026597
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_hukuk",
-      "year": 2024,
-      "scoreType": "EŞİT AĞIRLIK",
-      "baseScore": 352.072998046875,
-      "ranking": 120663,
-      "quota": 50,
-      "placedCount": 7,
-      "previousYears": {
-        "2023": {
-          "baseScore": 371.83134,
-          "ranking": 100284
-        },
-        "2022": {
-          "baseScore": 376.24012,
-          "ranking": 105818
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_hukuk",
-      "year": 2024,
-      "scoreType": "EŞİT AĞIRLIK",
-      "baseScore": 383.9219970703125,
-      "ranking": 55612,
-      "quota": 17,
-      "placedCount": 17,
-      "previousYears": {
-        "2023": {
-          "baseScore": 397.72687,
-          "ranking": 48715
-        },
-        "2022": {
-          "baseScore": 399.88065,
-          "ranking": 57801
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_halkla_iliskiler_ve_reklamcilik",
-      "year": 2024,
-      "scoreType": "SÖZEL",
-      "baseScore": 245.91400146484375,
-      "ranking": 903705,
-      "quota": 9,
-      "placedCount": 9,
-      "previousYears": {
-        "2023": {
-          "baseScore": 214.55126,
-          "ranking": 1207065
-        },
-        "2022": {
-          "baseScore": 196.62338,
-          "ranking": 1371091
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_iktisat",
-      "year": 2024,
-      "scoreType": "EŞİT AĞIRLIK",
-      "baseScore": 266.114013671875,
-      "ranking": 642280,
-      "quota": 10,
-      "placedCount": 10,
-      "previousYears": {
-        "2023": {
-          "baseScore": 259.13986,
-          "ranking": 780582
-        },
-        "2022": {
-          "baseScore": 247.48785,
-          "ranking": 908863
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_isletme",
-      "year": 2024,
-      "scoreType": "EŞİT AĞIRLIK",
-      "baseScore": 192.5260009765625,
-      "ranking": 1588168,
-      "quota": 21,
-      "placedCount": 17,
-      "previousYears": {
-        "2023": {
-          "baseScore": 239.00958,
-          "ranking": 1023759
-        },
-        "2022": {
-          "baseScore": 265.6772,
-          "ranking": 699319
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_isletme",
-      "year": 2024,
-      "scoreType": "EŞİT AĞIRLIK",
-      "baseScore": 297.2019958496094,
-      "ranking": 368888,
-      "quota": 7,
-      "placedCount": 7,
-      "previousYears": {
-        "2023": {
-          "baseScore": 299.61485,
-          "ranking": 415257
-        },
-        "2022": {
-          "baseScore": 274.95438,
-          "ranking": 607749
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_kamu_yonetimi",
-      "year": 2024,
-      "scoreType": "EŞİT AĞIRLIK",
-      "baseScore": 225.45799255371094,
-      "ranking": 1169082,
-      "quota": 10,
-      "placedCount": 10,
-      "previousYears": {
-        "2023": {
-          "baseScore": 215.28951,
-          "ranking": 1353636
-        },
-        "2022": {
-          "baseScore": 201.13187,
-          "ranking": 1543198
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_siyaset_bilimi",
-      "year": 2024,
-      "scoreType": "EŞİT AĞIRLIK",
-      "baseScore": 262.5379943847656,
-      "ranking": 681424,
-      "quota": 2,
-      "placedCount": 2,
-      "previousYears": {
-        "2023": {
-          "baseScore": 265.71578,
-          "ranking": 710045
-        },
-        "2022": {
-          "baseScore": 250.1964,
-          "ranking": 875185
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_uluslararasi_iliskiler",
-      "year": 2024,
-      "scoreType": "EŞİT AĞIRLIK",
-      "baseScore": 199.51300048828125,
-      "ranking": 1516470,
-      "quota": 15,
-      "placedCount": 7,
-      "previousYears": {
-        "2022": {
-          "baseScore": 263.6087,
-          "ranking": 721104
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_uluslararasi_iliskiler",
-      "year": 2024,
-      "scoreType": "EŞİT AĞIRLIK",
-      "baseScore": 287.93798828125,
-      "ranking": 438717,
-      "quota": 8,
-      "placedCount": 8,
-      "previousYears": {
-        "2023": {
-          "baseScore": 290.46198,
-          "ranking": 483694
-        },
-        "2022": {
-          "baseScore": 283.90646,
-          "ranking": 529233
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_mimarlik",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 305.1319885253906,
-      "ranking": 248833,
-      "quota": 8,
-      "placedCount": 8,
-      "previousYears": {
-        "2023": {
-          "baseScore": 332.48818,
-          "ranking": 227766
-        },
-        "2022": {
-          "baseScore": 330.21571,
-          "ranking": 214913
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_bilgisayar_muhendisligi",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 412.21099853515625,
-      "ranking": 70331,
-      "quota": 10,
-      "placedCount": 10,
-      "previousYears": {
-        "2023": {
-          "baseScore": 445.52608,
-          "ranking": 62327
-        },
-        "2022": {
-          "baseScore": 443.02938,
-          "ranking": 62781
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_bilisim_sistemleri_muhendisligi",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 315.59100341796875,
-      "ranking": 219669,
-      "quota": 9,
-      "placedCount": 9,
-      "previousYears": {
-        "2023": {
-          "baseScore": 329.40344,
-          "ranking": 235564
-        },
-        "2022": {
-          "baseScore": 305.94771,
-          "ranking": 275789
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_elektrikelektronik_muhendisligi",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 294.4909973144531,
-      "ranking": 284097,
-      "quota": 17,
-      "placedCount": 8,
-      "previousYears": {
-        "2023": {
-          "baseScore": 315.34094,
-          "ranking": 275136
-        },
-        "2022": {
-          "baseScore": 298.86249,
-          "ranking": 297056
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_elektrikelektronik_muhendisligi",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 350.5509948730469,
-      "ranking": 147176,
-      "quota": 7,
-      "placedCount": 7,
-      "previousYears": {
-        "2023": {
-          "baseScore": 373.58802,
-          "ranking": 147208
-        },
-        "2022": {
-          "baseScore": 337.18435,
-          "ranking": 200246
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_endustri_muhendisligi",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 364.1960144042969,
-      "ranking": 126118,
-      "quota": 7,
-      "placedCount": 7,
-      "previousYears": {
-        "2023": {
-          "baseScore": 385.52284,
-          "ranking": 129664
-        },
-        "2022": {
-          "baseScore": 345.11709,
-          "ranking": 184802
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_insaat_muhendisligi",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 295.39801025390625,
-      "ranking": 280809,
-      "quota": 4,
-      "placedCount": 1,
-      "previousYears": {}
-    },
-    {
-      "deptId": "akdeniz_insaat_muhendisligi",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 314.42999267578125,
-      "ranking": 222703,
-      "quota": 1,
-      "placedCount": 1,
-      "previousYears": {
-        "2022": {
-          "baseScore": 300.69663,
-          "ranking": 291425
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_makine_muhendisligi",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 322.6180114746094,
-      "ranking": 202147,
-      "quota": 7,
-      "placedCount": 7,
-      "previousYears": {
-        "2023": {
-          "baseScore": 339.60029,
-          "ranking": 210855
-        },
-        "2022": {
-          "baseScore": 313.98551,
-          "ranking": 253560
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_mekatronik_muhendisligi",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 327.5950012207031,
-      "ranking": 190925,
-      "quota": 7,
-      "placedCount": 7,
-      "previousYears": {
-        "2023": {
-          "baseScore": 333.56855,
-          "ranking": 225149
-        },
-        "2022": {
-          "baseScore": 311.19624,
-          "ranking": 261107
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_yazilim_muhendisligi",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 378.9360046386719,
-      "ranking": 106577,
-      "quota": 11,
-      "placedCount": 11,
-      "previousYears": {
-        "2023": {
-          "baseScore": 432.71349,
-          "ranking": 74418
-        },
-        "2022": {
-          "baseScore": 430.21355,
-          "ranking": 74648
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_turkce_ogretmenligi",
-      "year": 2024,
-      "scoreType": "SÖZEL",
-      "baseScore": 317.1759948730469,
-      "ranking": 285678,
-      "quota": 10,
-      "placedCount": 1,
-      "previousYears": {
-        "2023": {
-          "baseScore": 313.28092,
-          "ranking": 265225
-        },
-        "2022": {
-          "baseScore": 310.34124,
-          "ranking": 285947
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_okul_oncesi_ogretmenligi",
-      "year": 2024,
-      "scoreType": "SÖZEL",
-      "baseScore": 337.25201416015625,
-      "ranking": 188057,
-      "quota": 20,
-      "placedCount": 5,
-      "previousYears": {
-        "2023": {
-          "baseScore": 341.06826,
-          "ranking": 139056
-        },
-        "2022": {
-          "baseScore": 346.74762,
-          "ranking": 120689
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_sinif_ogretmenligi",
-      "year": 2024,
-      "scoreType": "EŞİT AĞIRLIK",
-      "baseScore": 338.0920104980469,
-      "ranking": 162214,
-      "quota": 6,
-      "placedCount": 6,
-      "previousYears": {
-        "2023": {
-          "baseScore": 354.98258,
-          "ranking": 145534
-        },
-        "2022": {
-          "baseScore": 353.76505,
-          "ranking": 164853
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_sinif_ogretmenligi",
-      "year": 2024,
-      "scoreType": "EŞİT AĞIRLIK",
-      "baseScore": 311.93798828125,
-      "ranking": 276731,
-      "quota": 12,
-      "placedCount": 3,
-      "previousYears": {
-        "2023": {
-          "baseScore": 326.22747,
-          "ranking": 257796
-        },
-        "2022": {
-          "baseScore": 319.81217,
-          "ranking": 296432
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_beslenme_ve_diyetetik",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 223.6719970703125,
-      "ranking": 827052,
-      "quota": 20,
-      "placedCount": 20,
-      "previousYears": {
-        "2023": {
-          "baseScore": 243.20658,
-          "ranking": 671685
-        },
-        "2022": {
-          "baseScore": 247.02694,
-          "ranking": 542366
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_fizyoterapi_ve_rehabilitasyon",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 226.35499572753906,
-      "ranking": 792353,
-      "quota": 21,
-      "placedCount": 21,
-      "previousYears": {
-        "2023": {
-          "baseScore": 241.81026,
-          "ranking": 684912
-        },
-        "2022": {
-          "baseScore": 248.19547,
-          "ranking": 533850
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_hemsirelik",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 277.9949951171875,
-      "ranking": 351481,
-      "quota": 40,
-      "placedCount": 40,
-      "previousYears": {
-        "2023": {
-          "baseScore": 302.49035,
-          "ranking": 318471
-        },
-        "2022": {
-          "baseScore": 292.57899,
-          "ranking": 317572
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_fizyoterapi_ve_rehabilitasyon",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 279.35400390625,
-      "ranking": 345210,
-      "quota": 7,
-      "placedCount": 7,
-      "previousYears": {
-        "2023": {
-          "baseScore": 295.65642,
-          "ranking": 344595
-        },
-        "2022": {
-          "baseScore": 276.18344,
-          "ranking": 379713
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_fizyoterapi_ve_rehabilitasyon",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 204.52499389648438,
-      "ranking": 1064799,
-      "quota": 17,
-      "placedCount": 17,
-      "previousYears": {
-        "2023": {
-          "baseScore": 242.95223,
-          "ranking": 674002
-        },
-        "2022": {
-          "baseScore": 231.64132,
-          "ranking": 675205
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_hemsirelik",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 315.37200927734375,
-      "ranking": 220248,
-      "quota": 14,
-      "placedCount": 14,
-      "previousYears": {
-        "2023": {
-          "baseScore": 333.44487,
-          "ranking": 225469
-        },
-        "2022": {
-          "baseScore": 328.18439,
-          "ranking": 219423
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_bilgisayar_muhendisligi",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 333.1310119628906,
-      "ranking": 179052,
-      "quota": 7,
-      "placedCount": 7,
-      "previousYears": {
-        "2023": {
-          "baseScore": 417.12055,
-          "ranking": 90683
-        },
-        "2022": {
-          "baseScore": 399.08195,
-          "ranking": 107116
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_isletme_muhendisligi",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 300.8280029296875,
-      "ranking": 262283,
-      "quota": 4,
-      "placedCount": 3,
-      "previousYears": {}
-    },
-    {
-      "deptId": "akdeniz_isletme_muhendisligi",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 338.4469909667969,
-      "ranking": 168725,
-      "quota": 1,
-      "placedCount": 1,
-      "previousYears": {
-        "2023": {
-          "baseScore": 324.40993,
-          "ranking": 248794
-        },
-        "2022": {
-          "baseScore": 342.10745,
-          "ranking": 190438
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_saglik_yonetimi",
-      "year": 2024,
-      "scoreType": "EŞİT AĞIRLIK",
-      "baseScore": 198.71400451660156,
-      "ranking": 1525446,
-      "quota": 3,
-      "placedCount": 1,
-      "previousYears": {}
-    },
-    {
-      "deptId": "akdeniz_saglik_yonetimi",
-      "year": 2024,
-      "scoreType": "EŞİT AĞIRLIK",
-      "baseScore": 253.66600036621094,
-      "ranking": 785711,
-      "quota": 4,
-      "placedCount": 4,
-      "previousYears": {
-        "2023": {
-          "baseScore": 236.03498,
-          "ranking": 1062930
-        },
-        "2022": {
-          "baseScore": 221.2179,
-          "ranking": 1270827
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_saglik_yonetimi",
-      "year": 2024,
-      "scoreType": "EŞİT AĞIRLIK",
-      "baseScore": 175.8780059814453,
-      "ranking": 1686465,
-      "quota": 3,
-      "placedCount": 2,
-      "previousYears": {}
-    },
-    {
-      "deptId": "akdeniz_molekuler_biyoloji_ve_genetik",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 246.5489959716797,
-      "ranking": 562298,
-      "quota": 14,
-      "placedCount": 14,
-      "previousYears": {
-        "2023": {
-          "baseScore": 276.2021,
-          "ranking": 434945
-        },
-        "2022": {
-          "baseScore": 285.22102,
-          "ranking": 343692
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_molekuler_biyoloji_ve_genetik",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 316.30499267578125,
-      "ranking": 217803,
-      "quota": 6,
-      "placedCount": 6,
-      "previousYears": {
-        "2023": {
-          "baseScore": 372.74983,
-          "ranking": 148527
-        },
-        "2022": {
-          "baseScore": 357.96379,
-          "ranking": 162387
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_beslenme_ve_diyetetik",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 278.8630065917969,
-      "ranking": 347466,
-      "quota": 6,
-      "placedCount": 6,
-      "previousYears": {
-        "2023": {
-          "baseScore": 299.2622,
-          "ranking": 330441
-        },
-        "2022": {
-          "baseScore": 289.1449,
-          "ranking": 329630
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_beslenme_ve_diyetetik",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 218.11199951171875,
-      "ranking": 899008,
-      "quota": 14,
-      "placedCount": 14,
-      "previousYears": {
-        "2023": {
-          "baseScore": 233.36823,
-          "ranking": 772602
-        },
-        "2022": {
-          "baseScore": 249.96771,
-          "ranking": 521293
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_halkla_iliskiler_ve_reklamcilik",
-      "year": 2024,
-      "scoreType": "SÖZEL",
-      "baseScore": 167.30099487304688,
-      "ranking": 1420239,
-      "quota": 13,
-      "placedCount": 3,
-      "previousYears": {
-        "2022": {
-          "baseScore": 187.69394,
-          "ranking": 1426751
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_halkla_iliskiler_ve_reklamcilik",
-      "year": 2024,
-      "scoreType": "SÖZEL",
-      "baseScore": 260.9070129394531,
-      "ranking": 744670,
-      "quota": 10,
-      "placedCount": 10,
-      "previousYears": {
-        "2023": {
-          "baseScore": 248.3286,
-          "ranking": 831444
-        },
-        "2022": {
-          "baseScore": 198.34412,
-          "ranking": 1358405
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_psikoloji",
-      "year": 2024,
-      "scoreType": "EŞİT AĞIRLIK",
-      "baseScore": 179.5760040283203,
-      "ranking": 1674265,
-      "quota": 27,
-      "placedCount": 20,
-      "previousYears": {
-        "2023": {
-          "baseScore": 280.55677,
-          "ranking": 567375
-        },
-        "2022": {
-          "baseScore": 285.90883,
-          "ranking": 512759
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_tip",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 474.25201416015625,
-      "ranking": 22844,
-      "quota": 5,
-      "placedCount": 5,
-      "previousYears": {
-        "2023": {
-          "baseScore": 495.73908,
-          "ranking": 21391
-        },
-        "2022": {
-          "baseScore": 499.18813,
-          "ranking": 18094
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_tip",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 446.8269958496094,
-      "ranking": 40917,
-      "quota": 5,
-      "placedCount": 5,
-      "previousYears": {
-        "2023": {
-          "baseScore": 483.28015,
-          "ranking": 30089
-        },
-        "2022": {
-          "baseScore": 479.95728,
-          "ranking": 31797
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_psikoloji",
-      "year": 2024,
-      "scoreType": "EŞİT AĞIRLIK",
-      "baseScore": 343.2699890136719,
-      "ranking": 145787,
-      "quota": 12,
-      "placedCount": 12,
-      "previousYears": {
-        "2023": {
-          "baseScore": 352.27157,
-          "ranking": 153933
-        },
-        "2022": {
-          "baseScore": 350.78346,
-          "ranking": 173923
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_beslenme_ve_diyetetik",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 214.0489959716797,
-      "ranking": 950559,
-      "quota": 19,
-      "placedCount": 10,
-      "previousYears": {
-        "2023": {
-          "baseScore": 246.57496,
-          "ranking": 640381
-        },
-        "2022": {
-          "baseScore": 232.93143,
-          "ranking": 662416
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_beslenme_ve_diyetetik",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 288.68798828125,
-      "ranking": 305584,
-      "quota": 6,
-      "placedCount": 6,
-      "previousYears": {
-        "2023": {
-          "baseScore": 305.4025,
-          "ranking": 307952
-        },
-        "2022": {
-          "baseScore": 286.32573,
-          "ranking": 339704
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_beslenme_ve_diyetetik",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 190.6699981689453,
-      "ranking": 1202947,
-      "quota": 15,
-      "placedCount": 7,
-      "previousYears": {
-        "2023": {
-          "baseScore": 214.43558,
-          "ranking": 1005449
-        },
-        "2022": {
-          "baseScore": 239.11596,
-          "ranking": 605470
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_fizyoterapi_ve_rehabilitasyon",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 228.94900512695312,
-      "ranking": 759410,
-      "quota": 21,
-      "placedCount": 21,
-      "previousYears": {
-        "2023": {
-          "baseScore": 204.18048,
-          "ranking": 1138877
-        },
-        "2022": {
-          "baseScore": 247.75384,
-          "ranking": 537035
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_fizyoterapi_ve_rehabilitasyon",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 281.85400390625,
-      "ranking": 333983,
-      "quota": 7,
-      "placedCount": 7,
-      "previousYears": {
-        "2023": {
-          "baseScore": 296.41313,
-          "ranking": 341468
-        },
-        "2022": {
-          "baseScore": 259.26833,
-          "ranking": 463079
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_ozel_egitim_ogretmenligi",
-      "year": 2024,
-      "scoreType": "SÖZEL",
-      "baseScore": 389.12799072265625,
-      "ranking": 46755,
-      "quota": 21,
-      "placedCount": 21,
-      "previousYears": {
-        "2023": {
-          "baseScore": 373.55659,
-          "ranking": 54917
-        },
-        "2022": {
-          "baseScore": 378.14573,
-          "ranking": 48851
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_ozel_egitim_ogretmenligi",
-      "year": 2024,
-      "scoreType": "SÖZEL",
-      "baseScore": 419.3900146484375,
-      "ranking": 14497,
-      "quota": 8,
-      "placedCount": 8,
-      "previousYears": {
-        "2023": {
-          "baseScore": 402.32671,
-          "ranking": 19394
-        },
-        "2022": {
-          "baseScore": 401.45565,
-          "ranking": 21449
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_fizyoterapi_ve_rehabilitasyon",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 199.91700744628906,
-      "ranking": 1115180,
-      "quota": 17,
-      "placedCount": 13,
-      "previousYears": {
-        "2023": {
-          "baseScore": 232.47961,
-          "ranking": 782702
-        },
-        "2022": {
-          "baseScore": 227.69211,
-          "ranking": 716272
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_tip",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 439.9830017089844,
-      "ranking": 46124,
-      "quota": 10,
-      "placedCount": 2,
-      "previousYears": {
-        "2023": {
-          "baseScore": 463.80567,
-          "ranking": 45969
-        },
-        "2022": {
-          "baseScore": 466.79625,
-          "ranking": 42321
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_ic_mimarlik",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 177.5070037841797,
-      "ranking": 1283116,
-      "quota": 15,
-      "placedCount": 15,
-      "previousYears": {
-        "2023": {
-          "baseScore": 254.74965,
-          "ranking": 572909
-        },
-        "2022": {
-          "baseScore": 259.00081,
-          "ranking": 464603
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_ic_mimarlik",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 281.0840148925781,
-      "ranking": 337424,
-      "quota": 7,
-      "placedCount": 7,
-      "previousYears": {
-        "2023": {
-          "baseScore": 295.71982,
-          "ranking": 344331
-        },
-        "2022": {
-          "baseScore": 281.01378,
-          "ranking": 359823
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_ic_mimarlik",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 191.44500732421875,
-      "ranking": 1196388,
-      "quota": 13,
-      "placedCount": 11,
-      "previousYears": {
-        "2023": {
-          "baseScore": 255.55168,
-          "ranking": 566668
-        },
-        "2022": {
-          "baseScore": 238.29752,
-          "ranking": 612660
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_ic_mimarlik",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 217.07400512695312,
-      "ranking": 912395,
-      "quota": 15,
-      "placedCount": 15,
-      "previousYears": {
-        "2023": {
-          "baseScore": 257.83689,
-          "ranking": 549517
-        },
-        "2022": {
-          "baseScore": 242.1619,
-          "ranking": 579893
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_ic_mimarlik",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 216.56300354003906,
-      "ranking": 918998,
-      "quota": 17,
-      "placedCount": 16,
-      "previousYears": {
-        "2023": {
-          "baseScore": 273.96238,
-          "ranking": 447273
-        },
-        "2022": {
-          "baseScore": 260.99972,
-          "ranking": 453310
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_ic_mimarlik",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 286.35400390625,
-      "ranking": 315004,
-      "quota": 8,
-      "placedCount": 8,
-      "previousYears": {
-        "2023": {
-          "baseScore": 302.83346,
-          "ranking": 317202
-        },
-        "2022": {
-          "baseScore": 292.33742,
-          "ranking": 318394
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_bilgisayar_programciligi",
-      "year": 2024,
-      "scoreType": "TYT",
-      "baseScore": 244.57699584960938,
-      "ranking": 1747796,
-      "quota": 18,
-      "placedCount": 18,
-      "previousYears": {
-        "2023": {
-          "baseScore": 242.84399,
-          "ranking": 1739773
-        },
-        "2022": {
-          "baseScore": 221.25384,
-          "ranking": 2128494
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_turizm_ve_otel_isletmeciligi",
-      "year": 2024,
-      "scoreType": "TYT",
-      "baseScore": 179.2480010986328,
-      "ranking": 2730473,
-      "quota": 14,
-      "placedCount": 13,
-      "previousYears": {
-        "2023": {
-          "baseScore": 190.7887,
-          "ranking": 2731847
-        },
-        "2022": {
-          "baseScore": 203.09006,
-          "ranking": 2572683
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_insaat_teknolojisi",
-      "year": 2024,
-      "scoreType": "TYT",
-      "baseScore": 205.968994140625,
-      "ranking": 2445692,
-      "quota": 7,
-      "placedCount": 7,
-      "previousYears": {
-        "2023": {
-          "baseScore": 221.52454,
-          "ranking": 2143940
-        },
-        "2022": {
-          "baseScore": 181.06134,
-          "ranking": 2878603
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_bilgisayar_programciligi",
-      "year": 2024,
-      "scoreType": "TYT",
-      "baseScore": 313.99200439453125,
-      "ranking": 717492,
-      "quota": 7,
-      "placedCount": 7,
-      "previousYears": {
-        "2023": {
-          "baseScore": 315.41864,
-          "ranking": 711748
-        },
-        "2022": {
-          "baseScore": 302.39657,
-          "ranking": 775030
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_bilgisayar_programciligi",
-      "year": 2024,
-      "scoreType": "TYT",
-      "baseScore": 214.3780059814453,
-      "ranking": 2299142,
-      "quota": 15,
-      "placedCount": 15,
-      "previousYears": {
-        "2023": {
-          "baseScore": 256.16889,
-          "ranking": 1510048
-        },
-        "2022": {
-          "baseScore": 267.53295,
-          "ranking": 1220454
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_insaat_teknolojisi",
-      "year": 2024,
-      "scoreType": "TYT",
-      "baseScore": 282.1650085449219,
-      "ranking": 1130606,
-      "quota": 3,
-      "placedCount": 3,
-      "previousYears": {
-        "2023": {
-          "baseScore": 252.2202,
-          "ranking": 1576659
-        },
-        "2022": {
-          "baseScore": 241.69334,
-          "ranking": 1671427
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_insaat_teknolojisi",
-      "year": 2024,
-      "scoreType": "TYT",
-      "baseScore": 217.13499450683594,
-      "ranking": 2249027,
-      "quota": 5,
-      "placedCount": 5,
-      "previousYears": {
-        "2023": {
-          "baseScore": 224.07757,
-          "ranking": 2093279
-        },
-        "2022": {
-          "baseScore": 209.87971,
-          "ranking": 2411665
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_turizm_ve_otel_isletmeciligi",
-      "year": 2024,
-      "scoreType": "TYT",
-      "baseScore": 280.4630126953125,
-      "ranking": 1155981,
-      "quota": 6,
-      "placedCount": 6,
-      "previousYears": {
-        "2023": {
-          "baseScore": 274.55899,
-          "ranking": 1222589
-        },
-        "2022": {
-          "baseScore": 237.71124,
-          "ranking": 1753031
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_ascilik",
-      "year": 2024,
-      "scoreType": "TYT",
-      "baseScore": 192.4029998779297,
-      "ranking": 2637692,
-      "quota": 18,
-      "placedCount": 12,
-      "previousYears": {
-        "2023": {
-          "baseScore": 209.27294,
-          "ranking": 2392809
-        },
-        "2022": {
-          "baseScore": 186.81039,
-          "ranking": 2838419
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_ascilik",
-      "year": 2024,
-      "scoreType": "TYT",
-      "baseScore": 297.2929992675781,
-      "ranking": 918037,
-      "quota": 8,
-      "placedCount": 8,
-      "previousYears": {
-        "2023": {
-          "baseScore": 285.63106,
-          "ranking": 1066366
-        },
-        "2022": {
-          "baseScore": 266.45082,
-          "ranking": 1236895
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_ascilik",
-      "year": 2024,
-      "scoreType": "TYT",
-      "baseScore": 226.8209991455078,
-      "ranking": 2070665,
-      "quota": 8,
-      "placedCount": 8,
-      "previousYears": {
-        "2023": {
-          "baseScore": 206.00547,
-          "ranking": 2458654
-        },
-        "2022": {
-          "baseScore": 231.9818,
-          "ranking": 1876312
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_anestezi",
-      "year": 2024,
-      "scoreType": "TYT",
-      "baseScore": 256.3789978027344,
-      "ranking": 1543119,
-      "quota": 26,
-      "placedCount": 26,
-      "previousYears": {
-        "2023": {
-          "baseScore": 269.06509,
-          "ranking": 1304895
-        },
-        "2022": {
-          "baseScore": 256.21618,
-          "ranking": 1393952
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_anestezi",
-      "year": 2024,
-      "scoreType": "TYT",
-      "baseScore": 324.87200927734375,
-      "ranking": 606782,
-      "quota": 9,
-      "placedCount": 9,
-      "previousYears": {
-        "2023": {
-          "baseScore": 320.23266,
-          "ranking": 663858
-        },
-        "2022": {
-          "baseScore": 313.27598,
-          "ranking": 666850
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_anestezi",
-      "year": 2024,
-      "scoreType": "TYT",
-      "baseScore": 238.6280059814453,
-      "ranking": 1854087,
-      "quota": 25,
-      "placedCount": 25,
-      "previousYears": {
-        "2023": {
-          "baseScore": 252.82978,
-          "ranking": 1566384
-        },
-        "2022": {
-          "baseScore": 256.62925,
-          "ranking": 1395787
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_ilk_ve_acil_yardim",
-      "year": 2024,
-      "scoreType": "TYT",
-      "baseScore": 239.7050018310547,
-      "ranking": 1834750,
-      "quota": 46,
-      "placedCount": 46,
-      "previousYears": {
-        "2023": {
-          "baseScore": 253.18208,
-          "ranking": 1560345
-        },
-        "2022": {
-          "baseScore": 250.05508,
-          "ranking": 1438090
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_ilk_ve_acil_yardim",
-      "year": 2024,
-      "scoreType": "TYT",
-      "baseScore": 313.3999938964844,
-      "ranking": 723873,
-      "quota": 12,
-      "placedCount": 12,
-      "previousYears": {
-        "2023": {
-          "baseScore": 313.84488,
-          "ranking": 728113
-        },
-        "2022": {
-          "baseScore": 316.38225,
-          "ranking": 638288
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_ilk_ve_acil_yardim",
-      "year": 2024,
-      "scoreType": "TYT",
-      "baseScore": 237.9739990234375,
-      "ranking": 1865924,
-      "quota": 22,
-      "placedCount": 22,
-      "previousYears": {
-        "2023": {
-          "baseScore": 256.57428,
-          "ranking": 1503414
-        },
-        "2022": {
-          "baseScore": 260.49347,
-          "ranking": 1331380
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_agiz_ve_dis_sagligi",
-      "year": 2024,
-      "scoreType": "TYT",
-      "baseScore": 222.83099365234375,
-      "ranking": 2144570,
-      "quota": 21,
-      "placedCount": 21,
-      "previousYears": {
-        "2023": {
-          "baseScore": 223.18834,
-          "ranking": 2110926
-        },
-        "2022": {
-          "baseScore": 210.78975,
-          "ranking": 2389370
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_agiz_ve_dis_sagligi",
-      "year": 2024,
-      "scoreType": "TYT",
-      "baseScore": 307.69000244140625,
-      "ranking": 788479,
-      "quota": 5,
-      "placedCount": 5,
-      "previousYears": {
-        "2023": {
-          "baseScore": 293.49357,
-          "ranking": 962755
-        },
-        "2022": {
-          "baseScore": 264.56488,
-          "ranking": 1266040
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_agiz_ve_dis_sagligi",
-      "year": 2024,
-      "scoreType": "TYT",
-      "baseScore": 231.70700073242188,
-      "ranking": 1980361,
-      "quota": 9,
-      "placedCount": 9,
-      "previousYears": {
-        "2023": {
-          "baseScore": 236.25759,
-          "ranking": 1860267
-        },
-        "2022": {
-          "baseScore": 232.04161,
-          "ranking": 1748800
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_diyaliz",
-      "year": 2024,
-      "scoreType": "TYT",
-      "baseScore": 203.3780059814453,
-      "ranking": 2487621,
-      "quota": 12,
-      "placedCount": 12,
-      "previousYears": {
-        "2023": {
-          "baseScore": 204.95363,
-          "ranking": 2479616
-        },
-        "2022": {
-          "baseScore": 197.23734,
-          "ranking": 2693357
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_diyaliz",
-      "year": 2024,
-      "scoreType": "TYT",
-      "baseScore": 297.65301513671875,
-      "ranking": 913175,
-      "quota": 4,
-      "placedCount": 4,
-      "previousYears": {
-        "2023": {
-          "baseScore": 275.06237,
-          "ranking": 1215140
-        },
-        "2022": {
-          "baseScore": 257.69857,
-          "ranking": 1377694
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_diyaliz",
-      "year": 2024,
-      "scoreType": "TYT",
-      "baseScore": 182.875,
-      "ranking": 2714640,
-      "quota": 9,
-      "placedCount": 9,
-      "previousYears": {
-        "2023": {
-          "baseScore": 221.96178,
-          "ranking": 2135333
-        },
-        "2022": {
-          "baseScore": 215.15314,
-          "ranking": 2279961
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_fizyoterapi",
-      "year": 2024,
-      "scoreType": "TYT",
-      "baseScore": 219.20399475097656,
-      "ranking": 2211280,
-      "quota": 19,
-      "placedCount": 19,
-      "previousYears": {
-        "2023": {
-          "baseScore": 213.9554,
-          "ranking": 2297604
-        },
-        "2022": {
-          "baseScore": 218.78639,
-          "ranking": 2189894
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_fizyoterapi",
-      "year": 2024,
-      "scoreType": "TYT",
-      "baseScore": 302.1159973144531,
-      "ranking": 855767,
-      "quota": 5,
-      "placedCount": 5,
-      "previousYears": {
-        "2023": {
-          "baseScore": 300.1706,
-          "ranking": 880476
-        },
-        "2022": {
-          "baseScore": 287.46846,
-          "ranking": 895231
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_fizyoterapi",
-      "year": 2024,
-      "scoreType": "TYT",
-      "baseScore": 180.99899291992188,
-      "ranking": 2723696,
-      "quota": 11,
-      "placedCount": 11,
-      "previousYears": {
-        "2023": {
-          "baseScore": 244.51846,
-          "ranking": 1709989
-        },
-        "2022": {
-          "baseScore": 220.79077,
-          "ranking": 2139879
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_tibbi_goruntuleme_teknikleri",
-      "year": 2024,
-      "scoreType": "TYT",
-      "baseScore": 225.18699645996094,
-      "ranking": 2101149,
-      "quota": 24,
-      "placedCount": 24,
-      "previousYears": {
-        "2023": {
-          "baseScore": 218.93109,
-          "ranking": 2196226
-        },
-        "2022": {
-          "baseScore": 199.76193,
-          "ranking": 2643733
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_tibbi_goruntuleme_teknikleri",
-      "year": 2024,
-      "scoreType": "TYT",
-      "baseScore": 305.9079895019531,
-      "ranking": 809606,
-      "quota": 7,
-      "placedCount": 7,
-      "previousYears": {
-        "2023": {
-          "baseScore": 297.65979,
-          "ranking": 910974
-        },
-        "2022": {
-          "baseScore": 281.58013,
-          "ranking": 1020993
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_tibbi_goruntuleme_teknikleri",
-      "year": 2024,
-      "scoreType": "TYT",
-      "baseScore": 239.55499267578125,
-      "ranking": 1837394,
-      "quota": 14,
-      "placedCount": 14,
-      "previousYears": {
-        "2023": {
-          "baseScore": 230.33129,
-          "ranking": 1971888
-        },
-        "2022": {
-          "baseScore": 206.94029,
-          "ranking": 2483410
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_ameliyathane_hizmetleri",
-      "year": 2024,
-      "scoreType": "TYT",
-      "baseScore": 221.33900451660156,
-      "ranking": 2172007,
-      "quota": 14,
-      "placedCount": 14,
-      "previousYears": {
-        "2023": {
-          "baseScore": 217.24866,
-          "ranking": 2230451
-        },
-        "2022": {
-          "baseScore": 213.47666,
-          "ranking": 2321997
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_ameliyathane_hizmetleri",
-      "year": 2024,
-      "scoreType": "TYT",
-      "baseScore": 302.1000061035156,
-      "ranking": 855961,
-      "quota": 4,
-      "placedCount": 4,
-      "previousYears": {
-        "2023": {
-          "baseScore": 288.19292,
-          "ranking": 1031902
-        },
-        "2022": {
-          "baseScore": 262.72589,
-          "ranking": 1295025
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_ameliyathane_hizmetleri",
-      "year": 2024,
-      "scoreType": "TYT",
-      "baseScore": 215.6750030517578,
-      "ranking": 2275652,
-      "quota": 7,
-      "placedCount": 7,
-      "previousYears": {
-        "2023": {
-          "baseScore": 234.95366,
-          "ranking": 1884633
-        },
-        "2022": {
-          "baseScore": 216.31351,
-          "ranking": 2250896
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_radyoterapi",
-      "year": 2024,
-      "scoreType": "TYT",
-      "baseScore": 189.3000030517578,
-      "ranking": 2668714,
-      "quota": 16,
-      "placedCount": 16,
-      "previousYears": {
-        "2023": {
-          "baseScore": 200.90224,
-          "ranking": 2559154
-        },
-        "2022": {
-          "baseScore": 203.98877,
-          "ranking": 2552462
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_radyoterapi",
-      "year": 2024,
-      "scoreType": "TYT",
-      "baseScore": 294.0830078125,
-      "ranking": 960990,
-      "quota": 5,
-      "placedCount": 5,
-      "previousYears": {
-        "2023": {
-          "baseScore": 278.4879,
-          "ranking": 1165992
-        },
-        "2022": {
-          "baseScore": 245.40204,
-          "ranking": 1598943
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_radyoterapi",
-      "year": 2024,
-      "scoreType": "TYT",
-      "baseScore": 196.11500549316406,
-      "ranking": 2593187,
-      "quota": 9,
-      "placedCount": 7,
-      "previousYears": {
-        "2023": {
-          "baseScore": 223.31865,
-          "ranking": 2108262
-        },
-        "2022": {
-          "baseScore": 222.40783,
-          "ranking": 2100449
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_sivil_havacilik_kabin_hizmetleri",
-      "year": 2024,
-      "scoreType": "TYT",
-      "baseScore": 320.0350036621094,
-      "ranking": 654073,
-      "quota": 7,
-      "placedCount": 7,
-      "previousYears": {
-        "2023": {
-          "baseScore": 309.46413,
-          "ranking": 774387
-        },
-        "2022": {
-          "baseScore": 297.82363,
-          "ranking": 824366
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_sivil_havacilik_kabin_hizmetleri",
-      "year": 2024,
-      "scoreType": "TYT",
-      "baseScore": 241.58099365234375,
-      "ranking": 1800967,
-      "quota": 28,
-      "placedCount": 28,
-      "previousYears": {
-        "2023": {
-          "baseScore": 216.59536,
-          "ranking": 2243760
-        },
-        "2022": {
-          "baseScore": 198.67725,
-          "ranking": 2665646
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_hemsirelik",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 308.9519958496094,
-      "ranking": 237757,
-      "quota": 9,
-      "placedCount": 9,
-      "previousYears": {
-        "2023": {
-          "baseScore": 324.39976,
-          "ranking": 248826
-        },
-        "2022": {
-          "baseScore": 309.38897,
-          "ranking": 266103
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_hemsirelik",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 259.73699951171875,
-      "ranking": 455563,
-      "quota": 29,
-      "placedCount": 29,
-      "previousYears": {
-        "2023": {
-          "baseScore": 280.17493,
-          "ranking": 414085
-        },
-        "2022": {
-          "baseScore": 277.19575,
-          "ranking": 375456
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_aktuerya_bilimleri",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 229.38099670410156,
-      "ranking": 754002,
-      "quota": 8,
-      "placedCount": 8,
-      "previousYears": {
-        "2023": {
-          "baseScore": 238.39396,
-          "ranking": 719062
-        },
-        "2022": {
-          "baseScore": 207.4485,
-          "ranking": 965394
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_aktuerya_bilimleri",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 194.98899841308594,
-      "ranking": 1164441,
-      "quota": 8,
-      "placedCount": 2,
-      "previousYears": {}
-    },
-    {
-      "deptId": "akdeniz_eczacilik",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 424.0010070800781,
-      "ranking": 59529,
-      "quota": 9,
-      "placedCount": 9,
-      "previousYears": {
-        "2023": {
-          "baseScore": 449.8521,
-          "ranking": 58350
-        },
-        "2022": {
-          "baseScore": 453.30392,
-          "ranking": 53688
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_ozel_egitim_ogretmenligi",
-      "year": 2024,
-      "scoreType": "SÖZEL",
-      "baseScore": 384.9219970703125,
-      "ranking": 53777,
-      "quota": 21,
-      "placedCount": 21,
-      "previousYears": {
-        "2023": {
-          "baseScore": 368.86111,
-          "ranking": 63731
-        },
-        "2022": {
-          "baseScore": 363.28092,
-          "ranking": 76658
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_psikoloji",
-      "year": 2024,
-      "scoreType": "EŞİT AĞIRLIK",
-      "baseScore": 225.08099365234375,
-      "ranking": 1174505,
-      "quota": 41,
-      "placedCount": 41,
-      "previousYears": {
-        "2023": {
-          "baseScore": 279.872,
-          "ranking": 573442
-        },
-        "2022": {
-          "baseScore": 280.38284,
-          "ranking": 558958
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_psikoloji",
-      "year": 2024,
-      "scoreType": "EŞİT AĞIRLIK",
-      "baseScore": 205.2949981689453,
-      "ranking": 1447000,
-      "quota": 50,
-      "placedCount": 40,
-      "previousYears": {
-        "2023": {
-          "baseScore": 296.40431,
-          "ranking": 438439
-        },
-        "2022": {
-          "baseScore": 287.74695,
-          "ranking": 498137
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_hemsirelik",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 248.52699279785156,
-      "ranking": 544045,
-      "quota": 36,
-      "placedCount": 36,
-      "previousYears": {
-        "2023": {
-          "baseScore": 291.12036,
-          "ranking": 363480
-        },
-        "2022": {
-          "baseScore": 280.85058,
-          "ranking": 360457
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_eczacilik",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 387.7380065917969,
-      "ranking": 96143,
-      "quota": 26,
-      "placedCount": 11,
-      "previousYears": {
-        "2023": {
-          "baseScore": 431.56036,
-          "ranking": 75601
-        },
-        "2022": {
-          "baseScore": 417.0893,
-          "ranking": 87623
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_biyomedikal_muhendisligi",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 295.1910095214844,
-      "ranking": 281578,
-      "quota": 2,
-      "placedCount": 2,
-      "previousYears": {
-        "2023": {
-          "baseScore": 309.05571,
-          "ranking": 295259
-        },
-        "2022": {
-          "baseScore": 301.29033,
-          "ranking": 289638
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_ortopedik_protez_ve_ortez",
-      "year": 2024,
-      "scoreType": "TYT",
-      "baseScore": 278.79400634765625,
-      "ranking": 1181177,
-      "quota": 4,
-      "placedCount": 4,
-      "previousYears": {
-        "2023": {
-          "baseScore": 267.58066,
-          "ranking": 1327762
-        },
-        "2022": {
-          "baseScore": 244.38784,
-          "ranking": 1618669
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_pastacilik_ve_ekmekcilik",
-      "year": 2024,
-      "scoreType": "TYT",
-      "baseScore": 180.8489990234375,
-      "ranking": 2724323,
-      "quota": 12,
-      "placedCount": 7,
-      "previousYears": {
-        "2022": {
-          "baseScore": 229.30755,
-          "ranking": 1936899
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_pastacilik_ve_ekmekcilik",
-      "year": 2024,
-      "scoreType": "TYT",
-      "baseScore": 271.7650146484375,
-      "ranking": 1290333,
-      "quota": 5,
-      "placedCount": 5,
-      "previousYears": {
-        "2023": {
-          "baseScore": 239.03253,
-          "ranking": 1809114
-        },
-        "2022": {
-          "baseScore": 237.21925,
-          "ranking": 1763147
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_dis_hekimligi",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 446.10101318359375,
-      "ranking": 41443,
-      "quota": 8,
-      "placedCount": 8,
-      "previousYears": {
-        "2023": {
-          "baseScore": 469.15334,
-          "ranking": 41274
-        },
-        "2022": {
-          "baseScore": 470.6077,
-          "ranking": 39172
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_dis_hekimligi",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 423.87200927734375,
-      "ranking": 59651,
-      "quota": 11,
-      "placedCount": 11,
-      "previousYears": {
-        "2023": {
-          "baseScore": 460.00616,
-          "ranking": 49295
-        },
-        "2022": {
-          "baseScore": 457.672,
-          "ranking": 49952
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_dijital_oyun_tasarimi",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 193.77000427246094,
-      "ranking": 1175721,
-      "quota": 29,
-      "placedCount": 22,
-      "previousYears": {
-        "2023": {
-          "baseScore": 277.95956,
-          "ranking": 425514
-        },
-        "2022": {
-          "baseScore": 256.97312,
-          "ranking": 476333
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_dijital_oyun_tasarimi",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 284.54998779296875,
-      "ranking": 322515,
-      "quota": 12,
-      "placedCount": 12,
-      "previousYears": {
-        "2023": {
-          "baseScore": 347.35885,
-          "ranking": 194151
-        },
-        "2022": {
-          "baseScore": 310.09714,
-          "ranking": 264070
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_gorsel_iletisim_tasarimi",
-      "year": 2024,
-      "scoreType": "SÖZEL",
-      "baseScore": 299.05499267578125,
-      "ranking": 402585,
-      "quota": 9,
-      "placedCount": 9,
-      "previousYears": {
-        "2023": {
-          "baseScore": 283.6466,
-          "ranking": 476380
-        },
-        "2022": {
-          "baseScore": 257.71927,
-          "ranking": 733247
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_gorsel_iletisim_tasarimi",
-      "year": 2024,
-      "scoreType": "SÖZEL",
-      "baseScore": 226.26199340820312,
-      "ranking": 1105438,
-      "quota": 24,
-      "placedCount": 5,
-      "previousYears": {
-        "2023": {
-          "baseScore": 213.68774,
-          "ranking": 1215941
-        },
-        "2022": {
-          "baseScore": 218.49763,
-          "ranking": 1173640
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_radyo_televizyon_ve_sinema",
-      "year": 2024,
-      "scoreType": "SÖZEL",
-      "baseScore": 270.8630065917969,
-      "ranking": 643899,
-      "quota": 9,
-      "placedCount": 9,
-      "previousYears": {
-        "2023": {
-          "baseScore": 265.38893,
-          "ranking": 647931
-        },
-        "2022": {
-          "baseScore": 234.38299,
-          "ranking": 997344
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_radyo_televizyon_ve_sinema",
-      "year": 2024,
-      "scoreType": "SÖZEL",
-      "baseScore": 309.2380065917969,
-      "ranking": 332951,
-      "quota": 13,
-      "placedCount": 1,
-      "previousYears": {
-        "2022": {
-          "baseScore": 230.26165,
-          "ranking": 1043867
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_yeni_medya_ve_iletisim",
-      "year": 2024,
-      "scoreType": "SÖZEL",
-      "baseScore": 261.6210021972656,
-      "ranking": 737372,
-      "quota": 11,
-      "placedCount": 11,
-      "previousYears": {
-        "2023": {
-          "baseScore": 243.69522,
-          "ranking": 883624
-        },
-        "2022": {
-          "baseScore": 193.82822,
-          "ranking": 1390344
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_yeni_medya_ve_iletisim",
-      "year": 2024,
-      "scoreType": "SÖZEL",
-      "baseScore": 224.6580047607422,
-      "ranking": 1120541,
-      "quota": 14,
-      "placedCount": 2,
-      "previousYears": {
-        "2022": {
-          "baseScore": 225.78605,
-          "ranking": 1094255
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_yeni_medya_ve_iletisim",
-      "year": 2024,
-      "scoreType": "SÖZEL",
-      "baseScore": 293.3609924316406,
-      "ranking": 445097,
-      "quota": 9,
-      "placedCount": 9,
-      "previousYears": {
-        "2023": {
-          "baseScore": 265.2712,
-          "ranking": 649104
-        },
-        "2022": {
-          "baseScore": 226.24309,
-          "ranking": 1089218
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_bilisim_sistemleri_ve_teknolojileri",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 261.906005859375,
-      "ranking": 441103,
-      "quota": 23,
-      "placedCount": 23,
-      "previousYears": {
-        "2023": {
-          "baseScore": 282.0398,
-          "ranking": 404936
-        },
-        "2022": {
-          "baseScore": 272.77445,
-          "ranking": 394697
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_bilisim_sistemleri_ve_teknolojileri",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 286.8760070800781,
-      "ranking": 312827,
-      "quota": 9,
-      "placedCount": 9,
-      "previousYears": {
-        "2023": {
-          "baseScore": 310.78092,
-          "ranking": 289478
-        },
-        "2022": {
-          "baseScore": 291.03021,
-          "ranking": 322863
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_bilisim_sistemleri_ve_teknolojileri",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 228.69200134277344,
-      "ranking": 762609,
-      "quota": 23,
-      "placedCount": 17,
-      "previousYears": {
-        "2023": {
-          "baseScore": 276.99419,
-          "ranking": 430675
-        },
-        "2022": {
-          "baseScore": 264.76944,
-          "ranking": 433303
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_elektronik_ve_haberlesme_muhendisligi",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 311.447998046875,
-      "ranking": 230794,
-      "quota": 4,
-      "placedCount": 4,
-      "previousYears": {
-        "2023": {
-          "baseScore": 326.42693,
-          "ranking": 243323
-        },
-        "2022": {
-          "baseScore": 317.58551,
-          "ranking": 244488
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_bilisim_sistemleri_ve_teknolojileri",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 234.0780029296875,
-      "ranking": 696201,
-      "quota": 23,
-      "placedCount": 23,
-      "previousYears": {
-        "2023": {
-          "baseScore": 260.33625,
-          "ranking": 531701
-        },
-        "2022": {
-          "baseScore": 253.39779,
-          "ranking": 498642
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_bilisim_sistemleri_ve_teknolojileri",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 277.7330017089844,
-      "ranking": 352762,
-      "quota": 9,
-      "placedCount": 9,
-      "previousYears": {
-        "2023": {
-          "baseScore": 301.86379,
-          "ranking": 320769
-        },
-        "2022": {
-          "baseScore": 277.54058,
-          "ranking": 373990
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_bilisim_sistemleri_ve_teknolojileri",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 157.31900024414062,
-      "ranking": 1306502,
-      "quota": 18,
-      "placedCount": 10,
-      "previousYears": {
-        "2023": {
-          "baseScore": 258.3513,
-          "ranking": 545740
-        },
-        "2022": {
-          "baseScore": 235.67298,
-          "ranking": 636224
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_dis_hekimligi",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 402.9049987792969,
-      "ranking": 79583,
-      "quota": 11,
-      "placedCount": 3,
-      "previousYears": {
-        "2023": {
-          "baseScore": 435.58235,
-          "ranking": 71632
-        },
-        "2022": {
-          "baseScore": 434.65181,
-          "ranking": 70426
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_ortopedik_protez_ve_ortez",
-      "year": 2024,
-      "scoreType": "TYT",
-      "baseScore": 184.7969970703125,
-      "ranking": 2703512,
-      "quota": 11,
-      "placedCount": 8,
-      "previousYears": {
-        "2022": {
-          "baseScore": 232.27917,
-          "ranking": 1869738
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_ortopedik_protez_ve_ortez",
-      "year": 2024,
-      "scoreType": "TYT",
-      "baseScore": 180.01400756835938,
-      "ranking": 2727667,
-      "quota": 8,
-      "placedCount": 5,
-      "previousYears": {
-        "2023": {
-          "baseScore": 216.97084,
-          "ranking": 2236101
-        },
-        "2022": {
-          "baseScore": 215.96557,
-          "ranking": 1909668
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_hukuk",
-      "year": 2024,
-      "scoreType": "EŞİT AĞIRLIK",
-      "baseScore": 350.6260070800781,
-      "ranking": 124522,
-      "quota": 43,
-      "placedCount": 18,
-      "previousYears": {
-        "2023": {
-          "baseScore": 366.88499,
-          "ranking": 112387
-        },
-        "2022": {
-          "baseScore": 370.75211,
-          "ranking": 118867
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_halkla_iliskiler_ve_reklamcilik",
-      "year": 2024,
-      "scoreType": "SÖZEL",
-      "baseScore": 224.02000427246094,
-      "ranking": 1126671,
-      "quota": 9,
-      "placedCount": 1,
-      "previousYears": {}
-    },
-    {
-      "deptId": "akdeniz_radyo_televizyon_ve_sinema",
-      "year": 2024,
-      "scoreType": "SÖZEL",
-      "baseScore": 174.7100067138672,
-      "ranking": 1412576,
-      "quota": 14,
-      "placedCount": 6,
-      "previousYears": {
-        "2023": {
-          "baseScore": 177.1758,
-          "ranking": 1507521
-        },
-        "2022": {
-          "baseScore": 164.70102,
-          "ranking": 1490154
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_radyo_televizyon_ve_sinema",
-      "year": 2024,
-      "scoreType": "SÖZEL",
-      "baseScore": 275.614990234375,
-      "ranking": 598444,
-      "quota": 10,
-      "placedCount": 10,
-      "previousYears": {
-        "2023": {
-          "baseScore": 271.99754,
-          "ranking": 582271
-        },
-        "2022": {
-          "baseScore": 275.31281,
-          "ranking": 555986
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_yeni_medya_ve_iletisim",
-      "year": 2024,
-      "scoreType": "SÖZEL",
-      "baseScore": 235.83799743652344,
-      "ranking": 1009852,
-      "quota": 12,
-      "placedCount": 1,
-      "previousYears": {
-        "2022": {
-          "baseScore": 239.90022,
-          "ranking": 933956
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_iktisat",
-      "year": 2024,
-      "scoreType": "EŞİT AĞIRLIK",
-      "baseScore": 216.17799377441406,
-      "ranking": 1300528,
-      "quota": 24,
-      "placedCount": 3,
-      "previousYears": {
-        "2022": {
-          "baseScore": 225.20481,
-          "ranking": 1213469
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_finans_ve_bankacilik",
-      "year": 2024,
-      "scoreType": "EŞİT AĞIRLIK",
-      "baseScore": 236.7689971923828,
-      "ranking": 1008309,
-      "quota": 8,
-      "placedCount": 8,
-      "previousYears": {
-        "2023": {
-          "baseScore": 232.57281,
-          "ranking": 1109460
-        },
-        "2022": {
-          "baseScore": 219.87987,
-          "ranking": 1290030
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_bankacilik_ve_sigortacilik",
-      "year": 2024,
-      "scoreType": "EŞİT AĞIRLIK",
-      "baseScore": 239.7310028076172,
-      "ranking": 967533,
-      "quota": 4,
-      "placedCount": 4,
-      "previousYears": {
-        "2023": {
-          "baseScore": 240.03072,
-          "ranking": 1010636
-        },
-        "2022": {
-          "baseScore": 217.94177,
-          "ranking": 1317977
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_insan_kaynaklari_yonetimi",
-      "year": 2024,
-      "scoreType": "EŞİT AĞIRLIK",
-      "baseScore": 235.81100463867188,
-      "ranking": 1021880,
-      "quota": 8,
-      "placedCount": 8,
-      "previousYears": {
-        "2023": {
-          "baseScore": 212.81284,
-          "ranking": 1389110
-        },
-        "2022": {
-          "baseScore": 217.86204,
-          "ranking": 1319135
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_pazarlama",
-      "year": 2024,
-      "scoreType": "EŞİT AĞIRLIK",
-      "baseScore": 229.18600463867188,
-      "ranking": 1115942,
-      "quota": 6,
-      "placedCount": 6,
-      "previousYears": {
-        "2023": {
-          "baseScore": 225.91475,
-          "ranking": 1201984
-        },
-        "2022": {
-          "baseScore": 226.84469,
-          "ranking": 1189862
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_uluslararasi_finans_ve_bankacilik",
-      "year": 2024,
-      "scoreType": "EŞİT AĞIRLIK",
-      "baseScore": 260.4779968261719,
-      "ranking": 704789,
-      "quota": 8,
-      "placedCount": 8,
-      "previousYears": {
-        "2023": {
-          "baseScore": 251.21389,
-          "ranking": 871168
-        },
-        "2022": {
-          "baseScore": 242.99202,
-          "ranking": 966546
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_uluslararasi_ticaret_ve_isletmecilik",
-      "year": 2024,
-      "scoreType": "EŞİT AĞIRLIK",
-      "baseScore": 204.24200439453125,
-      "ranking": 1460146,
-      "quota": 17,
-      "placedCount": 17,
-      "previousYears": {
-        "2023": {
-          "baseScore": 255.31651,
-          "ranking": 823662
-        },
-        "2022": {
-          "baseScore": 273.08517,
-          "ranking": 625256
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_uluslararasi_ticaret_ve_isletmecilik",
-      "year": 2024,
-      "scoreType": "EŞİT AĞIRLIK",
-      "baseScore": 303.48199462890625,
-      "ranking": 327068,
-      "quota": 8,
-      "placedCount": 8,
-      "previousYears": {
-        "2023": {
-          "baseScore": 294.78424,
-          "ranking": 450262
-        },
-        "2022": {
-          "baseScore": 292.74864,
-          "ranking": 460049
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_uluslararasi_ticaret_ve_isletmecilik",
-      "year": 2024,
-      "scoreType": "EŞİT AĞIRLIK",
-      "baseScore": 215.75599670410156,
-      "ranking": 1306409,
-      "quota": 17,
-      "placedCount": 17,
-      "previousYears": {
-        "2023": {
-          "baseScore": 212.82525,
-          "ranking": 1388918
-        },
-        "2022": {
-          "baseScore": 237.6166,
-          "ranking": 1038622
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_uluslararasi_ticaret_ve_isletmecilik",
-      "year": 2024,
-      "scoreType": "EŞİT AĞIRLIK",
-      "baseScore": 269.78900146484375,
-      "ranking": 604064,
-      "quota": 8,
-      "placedCount": 8,
-      "previousYears": {
-        "2023": {
-          "baseScore": 257.07901,
-          "ranking": 803686
-        },
-        "2022": {
-          "baseScore": 248.55683,
-          "ranking": 895602
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_yonetim_bilisim_sistemleri",
-      "year": 2024,
-      "scoreType": "EŞİT AĞIRLIK",
-      "baseScore": 343.5010070800781,
-      "ranking": 145088,
-      "quota": 6,
-      "placedCount": 6,
-      "previousYears": {
-        "2023": {
-          "baseScore": 337.43846,
-          "ranking": 207702
-        },
-        "2022": {
-          "baseScore": 319.60526,
-          "ranking": 297432
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_bilgisayar_muhendisligi",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 291.0320129394531,
-      "ranking": 296575,
-      "quota": 20,
-      "placedCount": 6,
-      "previousYears": {
-        "2023": {
-          "baseScore": 335.22514,
-          "ranking": 221165
-        },
-        "2022": {
-          "baseScore": 309.64656,
-          "ranking": 265372
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_bilgisayar_muhendisligi",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 306.1340026855469,
-      "ranking": 245864,
-      "quota": 18,
-      "placedCount": 2,
-      "previousYears": {
-        "2023": {
-          "baseScore": 338.26507,
-          "ranking": 213942
-        },
-        "2022": {
-          "baseScore": 303.5108,
-          "ranking": 282892
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_bilgisayar_muhendisligi",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 294.5899963378906,
-      "ranking": 283731,
-      "quota": 36,
-      "placedCount": 32,
-      "previousYears": {
-        "2023": {
-          "baseScore": 377.4544,
-          "ranking": 141257
-        },
-        "2022": {
-          "baseScore": 346.38978,
-          "ranking": 182430
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_bilgisayar_muhendisligi",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 302.4259948730469,
-      "ranking": 257225,
-      "quota": 19,
-      "placedCount": 9,
-      "previousYears": {
-        "2023": {
-          "baseScore": 364.7068,
-          "ranking": 161597
-        },
-        "2022": {
-          "baseScore": 344.88912,
-          "ranking": 185238
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_bilisim_sistemleri_muhendisligi",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 303.385986328125,
-      "ranking": 254170,
-      "quota": 11,
-      "placedCount": 3,
-      "previousYears": {}
-    },
-    {
-      "deptId": "akdeniz_bilisim_sistemleri_muhendisligi",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 314.5989990234375,
-      "ranking": 222268,
-      "quota": 9,
-      "placedCount": 1,
-      "previousYears": {}
-    },
-    {
-      "deptId": "akdeniz_elektrikelektronik_muhendisligi",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 314.072998046875,
-      "ranking": 223666,
-      "quota": 10,
-      "placedCount": 1,
-      "previousYears": {
-        "2023": {
-          "baseScore": 326.76228,
-          "ranking": 242426
-        },
-        "2022": {
-          "baseScore": 303.69383,
-          "ranking": 282381
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_endustri_muhendisligi",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 291.7049865722656,
-      "ranking": 293987,
-      "quota": 19,
-      "placedCount": 16,
-      "previousYears": {
-        "2023": {
-          "baseScore": 322.9509,
-          "ranking": 252839
-        },
-        "2022": {
-          "baseScore": 308.62962,
-          "ranking": 268235
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_endustri_muhendisligi",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 320.9750061035156,
-      "ranking": 206138,
-      "quota": 13,
-      "placedCount": 1,
-      "previousYears": {
-        "2023": {
-          "baseScore": 324.00044,
-          "ranking": 249922
-        },
-        "2022": {
-          "baseScore": 311.95714,
-          "ranking": 259006
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_makine_muhendisligi",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 297.88800048828125,
-      "ranking": 272191,
-      "quota": 11,
-      "placedCount": 4,
-      "previousYears": {
-        "2022": {
-          "baseScore": 303.65839,
-          "ranking": 282484
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_makine_muhendisligi",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 297.77301025390625,
-      "ranking": 272588,
-      "quota": 9,
-      "placedCount": 3,
-      "previousYears": {
-        "2023": {
-          "baseScore": 318.91759,
-          "ranking": 264282
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_mekatronik_muhendisligi",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 290.3680114746094,
-      "ranking": 299196,
-      "quota": 11,
-      "placedCount": 3,
-      "previousYears": {
-        "2023": {
-          "baseScore": 308.40639,
-          "ranking": 297467
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_mekatronik_muhendisligi",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 312.6470031738281,
-      "ranking": 227503,
-      "quota": 7,
-      "placedCount": 1,
-      "previousYears": {}
-    },
-    {
-      "deptId": "akdeniz_yazilim_muhendisligi",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 294.968994140625,
-      "ranking": 282343,
-      "quota": 35,
-      "placedCount": 15,
-      "previousYears": {
-        "2023": {
-          "baseScore": 366.3794,
-          "ranking": 158722
-        },
-        "2022": {
-          "baseScore": 337.04089,
-          "ranking": 200559
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_yazilim_muhendisligi",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 297.2239990234375,
-      "ranking": 274473,
-      "quota": 29,
-      "placedCount": 4,
-      "previousYears": {
-        "2023": {
-          "baseScore": 351.17965,
-          "ranking": 186358
-        },
-        "2022": {
-          "baseScore": 331.03267,
-          "ranking": 213170
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_hemsirelik",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 176.8489990234375,
-      "ranking": 1285386,
-      "quota": 22,
-      "placedCount": 22,
-      "previousYears": {
-        "2023": {
-          "baseScore": 277.7726,
-          "ranking": 426511
-        },
-        "2022": {
-          "baseScore": 266.17942,
-          "ranking": 426209
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_egzersiz_ve_spor_bilimleri",
-      "year": 2024,
-      "scoreType": "EŞİT AĞIRLIK",
-      "baseScore": 209.7830047607422,
-      "ranking": 1388502,
-      "quota": 7,
-      "placedCount": 7,
-      "previousYears": {
-        "2023": {
-          "baseScore": 224.32461,
-          "ranking": 1224262
-        },
-        "2022": {
-          "baseScore": 206.92711,
-          "ranking": 1469748
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_egzersiz_ve_spor_bilimleri",
-      "year": 2024,
-      "scoreType": "EŞİT AĞIRLIK",
-      "baseScore": 249.3249969482422,
-      "ranking": 839935,
-      "quota": 3,
-      "placedCount": 3,
-      "previousYears": {
-        "2023": {
-          "baseScore": 253.27572,
-          "ranking": 847050
-        },
-        "2022": {
-          "baseScore": 256.05565,
-          "ranking": 805059
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_egzersiz_ve_spor_bilimleri",
-      "year": 2024,
-      "scoreType": "EŞİT AĞIRLIK",
-      "baseScore": 200.9530029296875,
-      "ranking": 1499759,
-      "quota": 5,
-      "placedCount": 5,
-      "previousYears": {
-        "2023": {
-          "baseScore": 209.02924,
-          "ranking": 1443581
-        },
-        "2022": {
-          "baseScore": 219.02904,
-          "ranking": 1302134
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_fizik",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 231.1199951171875,
-      "ranking": 732189,
-      "quota": 8,
-      "placedCount": 8,
-      "previousYears": {
-        "2023": {
-          "baseScore": 281.57533,
-          "ranking": 407128
-        },
-        "2022": {
-          "baseScore": 232.27346,
-          "ranking": 668942
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_kimya",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 278.0679931640625,
-      "ranking": 351139,
-      "quota": 6,
-      "placedCount": 6,
-      "previousYears": {
-        "2023": {
-          "baseScore": 295.41842,
-          "ranking": 345598
-        },
-        "2022": {
-          "baseScore": 270.4632,
-          "ranking": 405373
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_muhasebe_ve_finans_yonetimi",
-      "year": 2024,
-      "scoreType": "EŞİT AĞIRLIK",
-      "baseScore": 265.489013671875,
-      "ranking": 648922,
-      "quota": 2,
-      "placedCount": 2,
-      "previousYears": {
-        "2023": {
-          "baseScore": 253.08094,
-          "ranking": 849255
-        },
-        "2022": {
-          "baseScore": 246.88526,
-          "ranking": 916505
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_fizik",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 229.92599487304688,
-      "ranking": 747058,
-      "quota": 2,
-      "placedCount": 2,
-      "previousYears": {
-        "2023": {
-          "baseScore": 216.44312,
-          "ranking": 979542
-        },
-        "2022": {
-          "baseScore": 254.78308,
-          "ranking": 489735
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_istatistik_ve_bilgisayar_bilimleri",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 218.4320068359375,
-      "ranking": 894933,
-      "quota": 8,
-      "placedCount": 4,
-      "previousYears": {
-        "2023": {
-          "baseScore": 258.31413,
-          "ranking": 546023
-        },
-        "2022": {
-          "baseScore": 175.80228,
-          "ranking": 1361166
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_istatistik_ve_bilgisayar_bilimleri",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 284.64898681640625,
-      "ranking": 322075,
-      "quota": 4,
-      "placedCount": 4,
-      "previousYears": {
-        "2023": {
-          "baseScore": 299.52832,
-          "ranking": 329383
-        },
-        "2022": {
-          "baseScore": 257.31529,
-          "ranking": 474323
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_istatistik_ve_bilgisayar_bilimleri",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 239.10299682617188,
-      "ranking": 637916,
-      "quota": 8,
-      "placedCount": 3,
-      "previousYears": {
-        "2023": {
-          "baseScore": 250.09235,
-          "ranking": 610003
-        },
-        "2022": {
-          "baseScore": 228.3256,
-          "ranking": 709461
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_kimya",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 238.36000061035156,
-      "ranking": 646178,
-      "quota": 4,
-      "placedCount": 4,
-      "previousYears": {
-        "2023": {
-          "baseScore": 233.54401,
-          "ranking": 770682
-        },
-        "2022": {
-          "baseScore": 248.9912,
-          "ranking": 528131
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_matematik_ve_bilgisayar_bilimleri",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 193.8419952392578,
-      "ranking": 1175093,
-      "quota": 11,
-      "placedCount": 11,
-      "previousYears": {
-        "2023": {
-          "baseScore": 266.28056,
-          "ranking": 492388
-        },
-        "2022": {
-          "baseScore": 257.85493,
-          "ranking": 471149
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_dijital_oyun_tasarimi",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 214.44200134277344,
-      "ranking": 945666,
-      "quota": 19,
-      "placedCount": 5,
-      "previousYears": {
-        "2023": {
-          "baseScore": 267.19964,
-          "ranking": 486503
-        },
-        "2022": {
-          "baseScore": 257.33792,
-          "ranking": 474184
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_kamu_yonetimi",
-      "year": 2024,
-      "scoreType": "EŞİT AĞIRLIK",
-      "baseScore": 218.9320068359375,
-      "ranking": 1261925,
-      "quota": 19,
-      "placedCount": 1,
-      "previousYears": {
-        "2022": {
-          "baseScore": 183.94623,
-          "ranking": 1708136
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_uluslararasi_finans_ve_bankacilik",
-      "year": 2024,
-      "scoreType": "EŞİT AĞIRLIK",
-      "baseScore": 182.33200073242188,
-      "ranking": 1661674,
-      "quota": 27,
-      "placedCount": 4,
-      "previousYears": {
-        "2023": {
-          "baseScore": 196.6324,
-          "ranking": 1615094
-        },
-        "2022": {
-          "baseScore": 203.29623,
-          "ranking": 1516517
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_yonetim_bilisim_sistemleri",
-      "year": 2024,
-      "scoreType": "EŞİT AĞIRLIK",
-      "baseScore": 287.6969909667969,
-      "ranking": 440633,
-      "quota": 18,
-      "placedCount": 18,
-      "previousYears": {
-        "2023": {
-          "baseScore": 295.38988,
-          "ranking": 445846
-        },
-        "2022": {
-          "baseScore": 287.38962,
-          "ranking": 500974
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_matematik_ve_bilgisayar_bilimleri",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 186.2729949951172,
-      "ranking": 1236594,
-      "quota": 12,
-      "placedCount": 8,
-      "previousYears": {
-        "2023": {
-          "baseScore": 246.04907,
-          "ranking": 645179
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_molekuler_biyoloji_ve_genetik",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 239.79100036621094,
-      "ranking": 630684,
-      "quota": 10,
-      "placedCount": 10,
-      "previousYears": {
-        "2023": {
-          "baseScore": 249.06743,
-          "ranking": 618487
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_isletme",
-      "year": 2024,
-      "scoreType": "EŞİT AĞIRLIK",
-      "baseScore": 210.11599731445312,
-      "ranking": 1384092,
-      "quota": 7,
-      "placedCount": 5,
-      "previousYears": {
-        "2023": {
-          "baseScore": 254.61513,
-          "ranking": 831661
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_sivil_havacilik_kabin_hizmetleri",
-      "year": 2024,
-      "scoreType": "TYT",
-      "baseScore": 260.1919860839844,
-      "ranking": 1478520,
-      "quota": 10,
-      "placedCount": 10,
-      "previousYears": {
-        "2023": {
-          "baseScore": 261.74897,
-          "ranking": 1419086
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_uluslararasi_iliskiler",
-      "year": 2024,
-      "scoreType": "EŞİT AĞIRLIK",
-      "baseScore": 215.34500122070312,
-      "ranking": 1312364,
-      "quota": 11,
-      "placedCount": 6,
-      "previousYears": {
-        "2023": {
-          "baseScore": 231.39353,
-          "ranking": 1125741
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_uluslararasi_ticaret_ve_isletmecilik",
-      "year": 2024,
-      "scoreType": "EŞİT AĞIRLIK",
-      "baseScore": 222.86099243164062,
-      "ranking": 1205985,
-      "quota": 10,
-      "placedCount": 10,
-      "previousYears": {
-        "2023": {
-          "baseScore": 224.8228,
-          "ranking": 1217231
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_uluslararasi_ticaret_ve_isletmecilik",
-      "year": 2024,
-      "scoreType": "EŞİT AĞIRLIK",
-      "baseScore": 205.63699340820312,
-      "ranking": 1442615,
-      "quota": 10,
-      "placedCount": 4,
-      "previousYears": {
-        "2023": {
-          "baseScore": 252.00149,
-          "ranking": 861978
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_yonetim_bilisim_sistemleri",
-      "year": 2024,
-      "scoreType": "EŞİT AĞIRLIK",
-      "baseScore": 263.2550048828125,
-      "ranking": 673298,
-      "quota": 8,
-      "placedCount": 8,
-      "previousYears": {
-        "2023": {
-          "baseScore": 295.24316,
-          "ranking": 446883
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_gastronomi_ve_mutfak_sanatlari",
-      "year": 2024,
-      "scoreType": "SÖZEL",
-      "baseScore": 361.1520080566406,
-      "ranking": 105962,
-      "quota": 11,
-      "placedCount": 11,
-      "previousYears": {
-        "2023": {
-          "baseScore": 351.89406,
-          "ranking": 104446
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_gastronomi_ve_mutfak_sanatlari",
-      "year": 2024,
-      "scoreType": "SÖZEL",
-      "baseScore": 211.82400512695312,
-      "ranking": 1232938,
-      "quota": 44,
-      "placedCount": 29,
-      "previousYears": {
-        "2023": {
-          "baseScore": 242.43693,
-          "ranking": 897890
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_gastronomi_ve_mutfak_sanatlari",
-      "year": 2024,
-      "scoreType": "SÖZEL",
-      "baseScore": 212.8800048828125,
-      "ranking": 1224579,
-      "quota": 20,
-      "placedCount": 11,
-      "previousYears": {
-        "2023": {
-          "baseScore": 278.20677,
-          "ranking": 524446
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_gastronomi_ve_mutfak_sanatlari",
-      "year": 2024,
-      "scoreType": "SÖZEL",
-      "baseScore": 380.32000732421875,
-      "ranking": 62030,
-      "quota": 9,
-      "placedCount": 9,
-      "previousYears": {
-        "2023": {
-          "baseScore": 361.08211,
-          "ranking": 80559
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_gastronomi_ve_mutfak_sanatlari",
-      "year": 2024,
-      "scoreType": "SÖZEL",
-      "baseScore": 189.697998046875,
-      "ranking": 1369877,
-      "quota": 36,
-      "placedCount": 32,
-      "previousYears": {
-        "2023": {
-          "baseScore": 235.15156,
-          "ranking": 980412
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_gastronomi_ve_mutfak_sanatlari",
-      "year": 2024,
-      "scoreType": "SÖZEL",
-      "baseScore": 183.2429962158203,
-      "ranking": 1393295,
-      "quota": 15,
-      "placedCount": 10,
-      "previousYears": {
-        "2023": {
-          "baseScore": 232.07912,
-          "ranking": 1015268
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_turizm_isletmeciligi",
-      "year": 2024,
-      "scoreType": "EŞİT AĞIRLIK",
-      "baseScore": 260.57000732421875,
-      "ranking": 703783,
-      "quota": 4,
-      "placedCount": 4,
-      "previousYears": {
-        "2023": {
-          "baseScore": 252.55708,
-          "ranking": 855468
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_turizm_isletmeciligi",
-      "year": 2024,
-      "scoreType": "EŞİT AĞIRLIK",
-      "baseScore": 181.4320068359375,
-      "ranking": 1666113,
-      "quota": 12,
-      "placedCount": 10,
-      "previousYears": {
-        "2023": {
-          "baseScore": 192.25094,
-          "ranking": 1670409
-        }
-      }
-    },
-    {
-      "deptId": "akdeniz_bankacilik_ve_sigortacilik",
-      "year": 2024,
-      "scoreType": "EŞİT AĞIRLIK",
-      "baseScore": 228.01499938964844,
-      "ranking": 1132715,
-      "quota": 11,
-      "placedCount": 2,
-      "previousYears": {}
-    },
-    {
-      "deptId": "akdeniz_muhasebe_ve_finans_yonetimi",
-      "year": 2024,
-      "scoreType": "EŞİT AĞIRLIK",
-      "baseScore": 151.6959991455078,
-      "ranking": 1703562,
-      "quota": 8,
-      "placedCount": 2,
-      "previousYears": {}
-    },
-    {
-      "deptId": "akdeniz_biyomedikal_muhendisligi",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 294.2049865722656,
-      "ranking": 285070,
-      "quota": 3,
-      "placedCount": 1,
-      "previousYears": {}
-    },
-    {
-      "deptId": "akdeniz_elektronik_ve_haberlesme_muhendisligi",
-      "year": 2024,
-      "scoreType": "SAYISAL",
-      "baseScore": 306.23199462890625,
-      "ranking": 245580,
-      "quota": 4,
-      "placedCount": 1,
-      "previousYears": {}
-    },
-    {
-      "deptId": "akdeniz_turizm_isletmeciligi",
-      "year": 2024,
-      "scoreType": "EŞİT AĞIRLIK",
-      "baseScore": 194.74200439453125,
-      "ranking": 1567260,
-      "quota": 4,
-      "placedCount": 2,
       "previousYears": {}
     },
     {

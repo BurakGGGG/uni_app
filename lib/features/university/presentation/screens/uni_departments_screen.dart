@@ -6,6 +6,7 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../providers/university_providers.dart';
 import '../../domain/models/department_model.dart';
+import '../widgets/score_badge.dart';
 
 /// Tüm bölümlerin tam listesi — /university/:uniId/departments
 class UniDepartmentsScreen extends ConsumerWidget {
@@ -84,64 +85,117 @@ class _DepartmentCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final hasScoreData = department.scoreData != null;
+
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
       decoration: BoxDecoration(
         color: AppColors.surface,
-        borderRadius: BorderRadius.circular(AppConstants.radiusMd),
+        borderRadius: BorderRadius.circular(AppConstants.radiusLg),
         border: Border.all(color: AppColors.borderLight),
+        boxShadow: AppColors.softShadow,
       ),
       child: Material(
         color: Colors.transparent,
-        borderRadius: BorderRadius.circular(AppConstants.radiusMd),
+        borderRadius: BorderRadius.circular(AppConstants.radiusLg),
         child: InkWell(
           onTap: onTap,
-          borderRadius: BorderRadius.circular(AppConstants.radiusMd),
+          borderRadius: BorderRadius.circular(AppConstants.radiusLg),
           child: Padding(
             padding: const EdgeInsets.all(14),
-            child: Row(children: [
-              Container(
-                width: 40, height: 40,
-                decoration: BoxDecoration(
-                  color: (department.type == 'Lisans' ? AppColors.primary : AppColors.accent)
-                      .withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(10),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Üst satır: tip ikonu + ad + scoreType badge
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      width: 42,
+                      height: 42,
+                      decoration: BoxDecoration(
+                        color: (department.type == 'Lisans'
+                                ? AppColors.primary
+                                : AppColors.accent)
+                            .withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Icon(
+                        department.type == 'Lisans'
+                            ? Icons.school_rounded
+                            : Icons.auto_stories_rounded,
+                        color: department.type == 'Lisans'
+                            ? AppColors.primary
+                            : AppColors.accent,
+                        size: 20,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            department.name,
+                            style: AppTextStyles.titleSmall,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            '${department.faculty} · ${department.duration} Yıl · ${department.language}',
+                            style: AppTextStyles.labelSmall,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                    ),
+                    if (hasScoreData)
+                      ScoreBadge.scoreType(department.scoreData!.scoreType, small: true)
+                    else if (department.scoreType != null)
+                      ScoreBadge.scoreType(department.scoreType!, small: true),
+                  ],
                 ),
-                child: Icon(
-                  department.type == 'Lisans' ? Icons.school_rounded : Icons.auto_stories_rounded,
-                  color: department.type == 'Lisans' ? AppColors.primary : AppColors.accent,
-                  size: 20,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(department.name, style: AppTextStyles.titleSmall,
-                    maxLines: 1, overflow: TextOverflow.ellipsis),
-                  const SizedBox(height: 2),
-                  Text('${department.faculty} • ${department.language}',
-                    style: AppTextStyles.labelSmall,
-                    maxLines: 1, overflow: TextOverflow.ellipsis),
-                ],
-              )),
-              if (department.baseScore != null)
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: AppColors.primary.withValues(alpha: 0.08),
-                    borderRadius: BorderRadius.circular(6),
+
+                // Alt satır: puan rozetleri
+                if (hasScoreData) ...[
+                  const SizedBox(height: 10),
+                  Container(height: 1, color: AppColors.borderLight),
+                  const SizedBox(height: 8),
+                  _buildScoreRow(department.scoreData!),
+                ] else if (department.baseScore != null) ...[
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      ScoreBadge.baseScore(department.baseScore!, small: true),
+                      if (department.ranking != null) ...[
+                        const SizedBox(width: 6),
+                        ScoreBadge.ranking(department.ranking!, small: true),
+                      ],
+                    ],
                   ),
-                  child: Text(department.baseScore!.toStringAsFixed(1),
-                    style: AppTextStyles.labelMedium.copyWith(
-                      color: AppColors.primary, fontWeight: FontWeight.w700)),
-                ),
-              const SizedBox(width: 4),
-              const Icon(Icons.chevron_right_rounded, color: AppColors.textTertiary, size: 20),
-            ]),
+                ],
+              ],
+            ),
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildScoreRow(DepartmentScoreData scoreData) {
+    final delta = scoreData.yearOverYearDelta;
+    return Wrap(
+      spacing: 6,
+      runSpacing: 6,
+      children: [
+        ScoreBadge.baseScore(scoreData.baseScore, small: true),
+        ScoreBadge.ranking(scoreData.ranking, small: true),
+        ScoreBadge.quota(scoreData.placedCount, scoreData.quota, small: true),
+        if (delta != null && delta.abs() > 0.01)
+          ScoreBadge.delta(delta, small: true),
+      ],
     );
   }
 }

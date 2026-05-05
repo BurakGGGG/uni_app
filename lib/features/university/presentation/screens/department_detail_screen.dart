@@ -10,6 +10,9 @@ import '../../../reviews/presentation/widgets/review_list.dart';
 import '../../../reviews/domain/models/review_model.dart';
 import '../../../reviews/presentation/widgets/category_ratings_chart.dart';
 import '../../../auth/presentation/providers/auth_providers.dart';
+import '../widgets/score_badge.dart';
+import '../widgets/score_trend_chart.dart';
+import '../widgets/score_detail_sheet.dart';
 
 class DepartmentDetailScreen extends ConsumerWidget {
   final String departmentId;
@@ -144,8 +147,99 @@ class DepartmentDetailScreen extends ConsumerWidget {
 
                 const SizedBox(height: 16),
 
-                // Taban puan kartı
-                if (dept.baseScore != null)
+                // ─── Taban Puan Kartı ─────────────────────────────
+                if (dept.scoreData != null) ...[
+                  // Ana puan kartı — tıklanınca detay açılıyor
+                  GestureDetector(
+                    onTap: () => showScoreDetailSheet(context, dept.scoreData!, dept.name),
+                    child: Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: AppColors.surface,
+                        borderRadius: BorderRadius.circular(AppConstants.radiusLg),
+                        border: Border.all(color: AppColors.borderLight),
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 48,
+                            height: 48,
+                            decoration: BoxDecoration(
+                              color: AppColors.warning.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: const Icon(Icons.trending_up_rounded, color: AppColors.warning, size: 24),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Text('${dept.scoreData!.year} Taban Puanı', style: AppTextStyles.labelMedium),
+                                    const SizedBox(width: 6),
+                                    Icon(Icons.open_in_new_rounded, size: 14, color: AppColors.textTertiary),
+                                  ],
+                                ),
+                                const SizedBox(height: 2),
+                                Row(
+                                  children: [
+                                    Text(
+                                      dept.scoreData!.baseScore.toStringAsFixed(2),
+                                      style: AppTextStyles.headlineMedium.copyWith(color: AppColors.primary),
+                                    ),
+                                    if (dept.scoreData!.yearOverYearDelta != null) ...[
+                                      const SizedBox(width: 8),
+                                      ScoreBadge.delta(dept.scoreData!.yearOverYearDelta!, small: true),
+                                    ],
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                          ScoreBadge.scoreType(dept.scoreData!.scoreType),
+                        ],
+                      ),
+                    ),
+                  ).animate().fadeIn(delay: 300.ms, duration: 400.ms),
+
+                  const SizedBox(height: 12),
+
+                  // Detay grid'i — 4 kart
+                  Row(
+                    children: [
+                      _ScoreInfoTile(
+                        label: 'Başarı Sırası',
+                        value: dept.scoreData!.ranking.toString(),
+                        icon: Icons.emoji_events_rounded,
+                        color: AppColors.warning,
+                      ),
+                      const SizedBox(width: 8),
+                      _ScoreInfoTile(
+                        label: 'Kontenjan',
+                        value: '${dept.scoreData!.placedCount}/${dept.scoreData!.quota}',
+                        icon: Icons.people_rounded,
+                        color: AppColors.info,
+                      ),
+                      const SizedBox(width: 8),
+                      _ScoreInfoTile(
+                        label: 'Doluluk',
+                        value: '${(dept.scoreData!.fillRate * 100).toStringAsFixed(0)}%',
+                        icon: Icons.pie_chart_rounded,
+                        color: AppColors.success,
+                      ),
+                    ],
+                  ).animate().fadeIn(delay: 400.ms, duration: 400.ms),
+
+                  const SizedBox(height: 16),
+
+                  // Trend grafiği
+                  ScoreTrendChart(scoreData: dept.scoreData!)
+                      .animate().fadeIn(delay: 500.ms, duration: 400.ms),
+                ] else if (dept.baseScore != null) ...[
+                  // Fallback: eski veri yapısı
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.all(20),
@@ -170,7 +264,7 @@ class DepartmentDetailScreen extends ConsumerWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('2025 Taban Puanı', style: AppTextStyles.labelMedium),
+                              Text('Taban Puanı', style: AppTextStyles.labelMedium),
                               const SizedBox(height: 2),
                               Text(
                                 dept.baseScore!.toStringAsFixed(2),
@@ -180,23 +274,11 @@ class DepartmentDetailScreen extends ConsumerWidget {
                           ),
                         ),
                         if (dept.scoreType != null)
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                            decoration: BoxDecoration(
-                              color: AppColors.primary.withValues(alpha: 0.1),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Text(
-                              dept.scoreType!,
-                              style: AppTextStyles.labelMedium.copyWith(
-                                color: AppColors.primary,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                          ),
+                          ScoreBadge.scoreType(dept.scoreType!),
                       ],
                     ),
                   ).animate().fadeIn(delay: 300.ms, duration: 400.ms),
+                ],
 
                 const SizedBox(height: 24),
 
@@ -320,6 +402,43 @@ class _InfoTile extends StatelessWidget {
             Text(value, style: AppTextStyles.titleSmall),
             const SizedBox(height: 2),
             Text(label, style: AppTextStyles.labelSmall),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ScoreInfoTile extends StatelessWidget {
+  final String label;
+  final String value;
+  final IconData icon;
+  final Color color;
+
+  const _ScoreInfoTile({
+    required this.label,
+    required this.value,
+    required this.icon,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(AppConstants.radiusLg),
+          border: Border.all(color: AppColors.borderLight),
+        ),
+        child: Column(
+          children: [
+            Icon(icon, color: color, size: 20),
+            const SizedBox(height: 6),
+            Text(value, style: AppTextStyles.titleSmall.copyWith(fontSize: 13)),
+            const SizedBox(height: 2),
+            Text(label, style: AppTextStyles.labelSmall.copyWith(fontSize: 10)),
           ],
         ),
       ),
