@@ -18,8 +18,14 @@ class CategoryRatingsChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (ratings.isEmpty || reviewCount == 0) {
+    // Hiç yorum yoksa empty state göster
+    if (reviewCount == 0) {
       return _buildEmptyState();
+    }
+
+    // Yorum var ama kategori puanları henüz hesaplanmamışsa, bölümü gizle
+    if (ratings.isEmpty) {
+      return const SizedBox.shrink();
     }
     
     return Container(
