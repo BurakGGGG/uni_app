@@ -37,6 +37,9 @@ import '../features/home/presentation/screens/splash_screen.dart';
 import '../features/preference_lists/presentation/screens/my_lists_screen.dart';
 import '../features/preference_lists/presentation/screens/list_edit_screen.dart';
 import '../features/preference_lists/presentation/screens/shared_list_screen.dart';
+import '../features/recommendation/presentation/screens/recommendation_intro_screen.dart';
+import '../features/recommendation/presentation/screens/recommendation_chat_screen.dart';
+import '../features/recommendation/presentation/screens/recommendation_result_screen.dart';
 import 'app_shell.dart';
 
 /// Uygulama route isimleri
@@ -339,6 +342,20 @@ final routerProvider = Provider<GoRouter>((ref) {
       builder: (context, state) => SharedListScreen(
         shareSlug: state.pathParameters['shareSlug']!,
       ),
+    ),
+
+    // ─── Tercih Asistanı (AI Recommendation) ──────────────────────
+    GoRoute(
+      path: '/recommend',
+      builder: (context, state) => const RecommendationIntroScreen(),
+    ),
+    GoRoute(
+      path: '/recommend/chat',
+      builder: (context, state) => const RecommendationChatScreen(),
+    ),
+    GoRoute(
+      path: '/recommend/result',
+      builder: (context, state) => const RecommendationResultScreen(),
     ),
 
     // ─── Shell Route (Bottom Navigation) ─────────────────────────
