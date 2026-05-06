@@ -115,13 +115,13 @@ class _ListEditScreenState extends ConsumerState<ListEditScreen> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: const Text('Listeyi Sil'),
         content: Text(
-          '"${list.title}" listesini silmek istediğine emin misin? Bu islem geri alinamaz.',
+          '"${list.title}" listesini silmek istediğine emin misin? Bu işlem geri alınamaz.',
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
             child: const Text(
-              'Vazgec',
+              'Vazgeç',
               style: TextStyle(color: AppColors.textSecondary),
             ),
           ),
@@ -151,7 +151,7 @@ class _ListEditScreenState extends ConsumerState<ListEditScreen> {
       if (!mounted) return;
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('Silme hatasi: $e')));
+      ).showSnackBar(SnackBar(content: Text('Silme hatası: $e')));
     } finally {
       if (mounted) {
         setState(() => _isDeleting = false);
@@ -159,18 +159,24 @@ class _ListEditScreenState extends ConsumerState<ListEditScreen> {
     }
   }
 
-  void _sortByScoreDescending(PreferenceListModel list) {
+  void _sortByRankingAscending(PreferenceListModel list) {
     final current = _effectiveItems(list);
     if (current.length < 2) return;
 
+    // Sıralama (ranking) küçük = daha iyi (1. sıra en iyi). Bu yüzden artan sıralama:
+    // ranking'i olmayan veya 0 olan öğeler en sona düşer.
     setState(() {
       _previousOrderBeforeSort = _normalizedItems(current);
       final sorted = [...current]
         ..sort((a, b) {
-          final aScore = a.baseScore ?? double.negativeInfinity;
-          final bScore = b.baseScore ?? double.negativeInfinity;
-          final scoreCompare = bScore.compareTo(aScore);
-          if (scoreCompare != 0) return scoreCompare;
+          final aRank = (a.ranking == null || a.ranking! <= 0)
+              ? double.infinity
+              : a.ranking!.toDouble();
+          final bRank = (b.ranking == null || b.ranking! <= 0)
+              ? double.infinity
+              : b.ranking!.toDouble();
+          final rankCompare = aRank.compareTo(bRank);
+          if (rankCompare != 0) return rankCompare;
           return a.order.compareTo(b.order);
         });
       _draftItems = _normalizedItems(sorted);
@@ -244,7 +250,7 @@ class _ListEditScreenState extends ConsumerState<ListEditScreen> {
         error: (e, _) => Center(child: Text('Hata: $e')),
         data: (list) {
           if (list == null) {
-            return const Center(child: Text('Liste bulunamadi.'));
+            return const Center(child: Text('Liste bulunamadı.'));
           }
           _syncDraftIfNeeded(list);
           return _buildContent(list);
@@ -322,7 +328,7 @@ class _ListEditScreenState extends ConsumerState<ListEditScreen> {
             child: _ActionBar(
               canUndo: _previousOrderBeforeSort != null,
               canSort: items.length > 1,
-              onSort: () => _sortByScoreDescending(list),
+              onSort: () => _sortByRankingAscending(list),
               onUndo: _undoSort,
             ),
           ),
@@ -352,7 +358,7 @@ class _ListEditScreenState extends ConsumerState<ListEditScreen> {
                 label: Text(
                   isFull
                       ? 'Limit dolu (${PreferenceListModel.maxItems})'
-                      : 'Bolum Ekle',
+                      : 'Bölüm Ekle',
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 15,
@@ -487,7 +493,7 @@ class _ActionBar extends StatelessWidget {
             ),
             icon: const Icon(Icons.sort_rounded, size: 18),
             label: const Text(
-              'Puan Yuksekten',
+              'Sıralamaya Göre',
               style: TextStyle(fontWeight: FontWeight.w700),
             ),
           ),
@@ -584,7 +590,7 @@ class _ListSummaryCard extends StatelessWidget {
                     ),
                     const SizedBox(width: 5),
                     Text(
-                      list.isPublic ? 'Herkese Acik' : 'Gizli',
+                      list.isPublic ? 'Herkese Açık' : 'Gizli',
                       style: AppTextStyles.labelSmall.copyWith(
                         color: list.isPublic
                             ? AppColors.success
@@ -694,15 +700,15 @@ class _EmptyItems extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             Text(
-              'Liste bos',
+              'Liste boş',
               style: AppTextStyles.titleLarge.copyWith(
                 fontWeight: FontWeight.w700,
               ),
             ),
             const SizedBox(height: 6),
             Text(
-              'Yukaridaki butona tiklayarak universite ve bolum sec. '
-              'Tercihlerini surukleyerek veya puana gore siralayabilirsin.',
+              '"Bölüm Ekle" butonuna tıklayarak üniversite ve bölüm seç. '
+              'Tercihlerini sürükleyerek veya sıralamaya göre düzenleyebilirsin.',
               textAlign: TextAlign.center,
               style: AppTextStyles.bodyMedium.copyWith(
                 color: AppColors.textSecondary,
