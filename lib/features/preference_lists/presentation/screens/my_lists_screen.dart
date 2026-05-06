@@ -37,6 +37,7 @@ class MyListsScreen extends ConsumerWidget {
       body: SafeArea(
         child: CustomScrollView(
           physics: const BouncingScrollPhysics(),
+          cacheExtent: 1000,
           slivers: [
             SliverToBoxAdapter(
               child: Padding(
