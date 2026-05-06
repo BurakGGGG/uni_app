@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../university/presentation/widgets/score_badge.dart';
 import '../providers/preference_list_providers.dart';
 import '../../domain/models/preference_list_model.dart';
 import '../widgets/share_list_sheet.dart';
@@ -16,20 +17,218 @@ class ListEditScreen extends ConsumerStatefulWidget {
 }
 
 class _ListEditScreenState extends ConsumerState<ListEditScreen> {
+  List<PreferenceItem>? _draftItems;
+  List<PreferenceItem>? _lastSavedItems;
+  List<PreferenceItem>? _previousOrderBeforeSort;
+  bool _isSaving = false;
+  bool _isDeleting = false;
+
   Future<void> _addItem(PreferenceListModel currentList) async {
     final newItem = await DepartmentPickerSheet.show(context);
     if (newItem == null) return;
-    
-    if (currentList.items.any((i) => i.deptId == newItem.deptId)) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Bu bölüm zaten listede')));
+
+    final currentItems = _effectiveItems(currentList);
+    if (currentItems.any((i) => i.deptId == newItem.deptId)) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Bu bölüm zaten listede')));
+      }
       return;
     }
 
-    try {
-      await ref.read(preferenceListRepositoryProvider).addItem(widget.listId, newItem);
-    } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Hata: $e')));
+    if (currentItems.length >= PreferenceListModel.maxItems) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Listede en fazla ${PreferenceListModel.maxItems} tercih olabilir',
+            ),
+          ),
+        );
+      }
+      return;
     }
+
+    setState(() {
+      _draftItems = [
+        ...currentItems,
+        newItem.copyWith(order: currentItems.length + 1),
+      ];
+    });
+  }
+
+  List<PreferenceItem> _effectiveItems(PreferenceListModel list) =>
+      _draftItems ?? list.items;
+
+  void _syncDraftIfNeeded(PreferenceListModel list) {
+    final incoming = _normalizedItems(list.items);
+    if (_draftItems == null) {
+      _draftItems = incoming;
+      _lastSavedItems = incoming;
+      return;
+    }
+
+    if (!_isDirty && !_listEquals(_lastSavedItems, incoming)) {
+      _draftItems = incoming;
+      _lastSavedItems = incoming;
+      _previousOrderBeforeSort = null;
+    }
+  }
+
+  bool get _isDirty => !_listEquals(_draftItems, _lastSavedItems);
+
+  Future<void> _saveItems() async {
+    final items = _draftItems;
+    if (items == null || !_isDirty || _isSaving) return;
+
+    setState(() => _isSaving = true);
+    try {
+      await ref
+          .read(preferenceListRepositoryProvider)
+          .reorderItems(widget.listId, items);
+      if (!mounted) return;
+      setState(() {
+        _lastSavedItems = _normalizedItems(items);
+        _draftItems = _normalizedItems(items);
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Tercih listesi kaydedildi')),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Kaydetme hatası: $e')));
+    } finally {
+      if (mounted) {
+        setState(() => _isSaving = false);
+      }
+    }
+  }
+
+  Future<void> _deleteList(PreferenceListModel list) async {
+    if (_isDeleting) return;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text('Listeyi Sil'),
+        content: Text(
+          '"${list.title}" listesini silmek istediğine emin misin? Bu islem geri alinamaz.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text(
+              'Vazgec',
+              style: TextStyle(color: AppColors.textSecondary),
+            ),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: FilledButton.styleFrom(
+              backgroundColor: AppColors.error,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Sil'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true || !mounted) return;
+
+    setState(() => _isDeleting = true);
+    try {
+      await ref.read(preferenceListControllerProvider.notifier).delete(list.id);
+      if (!mounted) return;
+      Navigator.pop(context);
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Tercih listesi silindi')));
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Silme hatasi: $e')));
+    } finally {
+      if (mounted) {
+        setState(() => _isDeleting = false);
+      }
+    }
+  }
+
+  void _sortByScoreDescending(PreferenceListModel list) {
+    final current = _effectiveItems(list);
+    if (current.length < 2) return;
+
+    setState(() {
+      _previousOrderBeforeSort = _normalizedItems(current);
+      final sorted = [...current]
+        ..sort((a, b) {
+          final aScore = a.baseScore ?? double.negativeInfinity;
+          final bScore = b.baseScore ?? double.negativeInfinity;
+          final scoreCompare = bScore.compareTo(aScore);
+          if (scoreCompare != 0) return scoreCompare;
+          return a.order.compareTo(b.order);
+        });
+      _draftItems = _normalizedItems(sorted);
+    });
+  }
+
+  void _undoSort() {
+    final previous = _previousOrderBeforeSort;
+    if (previous == null) return;
+    setState(() {
+      _draftItems = _normalizedItems(previous);
+      _previousOrderBeforeSort = null;
+    });
+  }
+
+  void _removeAt(int index, PreferenceListModel list) {
+    final current = _effectiveItems(list);
+    setState(() {
+      final updated = [...current]..removeAt(index);
+      _draftItems = _normalizedItems(updated);
+    });
+  }
+
+  List<PreferenceItem> _normalizedItems(List<PreferenceItem> items) {
+    return List<PreferenceItem>.generate(
+      items.length,
+      (index) => items[index].copyWith(order: index + 1),
+      growable: false,
+    );
+  }
+
+  bool _listEquals(List<PreferenceItem>? a, List<PreferenceItem>? b) {
+    if (identical(a, b)) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+    for (var i = 0; i < a.length; i++) {
+      if (!_sameItem(a[i], b[i])) return false;
+    }
+    return true;
+  }
+
+  bool _sameItem(PreferenceItem a, PreferenceItem b) {
+    return a.deptId == b.deptId &&
+        a.uniId == b.uniId &&
+        a.order == b.order &&
+        a.note == b.note &&
+        a.deptName == b.deptName &&
+        a.uniName == b.uniName &&
+        a.uniLogoUrl == b.uniLogoUrl &&
+        a.faculty == b.faculty &&
+        a.deptType == b.deptType &&
+        a.language == b.language &&
+        a.scoreType == b.scoreType &&
+        a.baseScore == b.baseScore &&
+        a.ranking == b.ranking &&
+        a.quota == b.quota &&
+        a.placedCount == b.placedCount &&
+        a.uniBrandHex == b.uniBrandHex;
   }
 
   @override
@@ -39,10 +238,15 @@ class _ListEditScreenState extends ConsumerState<ListEditScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       body: listAsync.when(
-        loading: () => const Center(child: CircularProgressIndicator(color: AppColors.primary)),
+        loading: () => const Center(
+          child: CircularProgressIndicator(color: AppColors.primary),
+        ),
         error: (e, _) => Center(child: Text('Hata: $e')),
         data: (list) {
-          if (list == null) return const Center(child: Text('Liste bulunamadı.'));
+          if (list == null) {
+            return const Center(child: Text('Liste bulunamadi.'));
+          }
+          _syncDraftIfNeeded(list);
           return _buildContent(list);
         },
       ),
@@ -50,151 +254,200 @@ class _ListEditScreenState extends ConsumerState<ListEditScreen> {
   }
 
   Widget _buildContent(PreferenceListModel list) {
+    final items = _effectiveItems(list);
+    final isFull = items.length >= PreferenceListModel.maxItems;
+
     return CustomScrollView(
       physics: const BouncingScrollPhysics(),
       slivers: [
-        // ── Gradient Header ──────────────────────────────────────
         SliverToBoxAdapter(
-          child: Container(
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Color(0xFFFF6584), Color(0xFF8B5CF6)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-            ),
-            child: SafeArea(
-              bottom: false,
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(8, 8, 8, 28),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Top bar
-                    Row(
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
-                          onPressed: () => Navigator.pop(context),
-                          style: IconButton.styleFrom(
-                            backgroundColor: Colors.white.withValues(alpha: 0.15),
-                          ),
-                        ),
-                        const Spacer(),
-                        IconButton(
-                          icon: const Icon(Icons.share_rounded, color: Colors.white),
-                          onPressed: () => ShareListSheet.show(context, list),
-                          style: IconButton.styleFrom(
-                            backgroundColor: Colors.white.withValues(alpha: 0.15),
-                          ),
-                        ),
-                      ],
+          child: SafeArea(
+            bottom: false,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(8, 8, 16, 0),
+              child: Row(
+                children: [
+                  IconButton(
+                    icon: const Icon(
+                      Icons.arrow_back_rounded,
+                      color: AppColors.textPrimary,
                     ),
-                    const SizedBox(height: 16),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            list.title,
-                            style: AppTextStyles.headlineSmall.copyWith(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: -0.3,
-                            ),
-                          ),
-                          if (list.description.isNotEmpty) ...[
-                            const SizedBox(height: 6),
-                            Text(
-                              list.description,
-                              style: AppTextStyles.bodyMedium.copyWith(
-                                color: Colors.white.withValues(alpha: 0.85),
-                              ),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ],
-                          const SizedBox(height: 16),
-                          // Stats chips
-                          Row(
-                            children: [
-                              _HeaderChip(
-                                icon: Icons.format_list_bulleted_rounded,
-                                label: '${list.items.length} / ${PreferenceListModel.maxItems} tercih',
-                              ),
-                              const SizedBox(width: 12),
-                              _HeaderChip(
-                                icon: list.isPublic ? Icons.public_rounded : Icons.lock_rounded,
-                                label: list.isPublic ? 'Herkese Açık' : 'Gizli',
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                  const Spacer(),
+                  IconButton(
+                    icon: const Icon(
+                      Icons.share_rounded,
+                      color: AppColors.textPrimary,
                     ),
-                  ],
-                ),
+                    onPressed: () => ShareListSheet.show(context, list),
+                  ),
+                ],
               ),
             ),
           ),
         ),
-
-        // ── Add Button ────────────────────────────────────────
         SliverToBoxAdapter(
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(20, 20, 20, 8),
+            padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  list.title,
+                  style: AppTextStyles.headlineMedium.copyWith(
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: -0.5,
+                  ),
+                ),
+                if (list.description.isNotEmpty) ...[
+                  const SizedBox(height: 6),
+                  Text(
+                    list.description,
+                    style: AppTextStyles.bodyMedium.copyWith(
+                      color: AppColors.textSecondary,
+                      height: 1.4,
+                    ),
+                  ),
+                ],
+                const SizedBox(height: 14),
+                _ListSummaryCard(list: list.copyWith(items: items)),
+              ],
+            ),
+          ),
+        ),
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 4, 20, 12),
+            child: _ActionBar(
+              canUndo: _previousOrderBeforeSort != null,
+              canSort: items.length > 1,
+              onSort: () => _sortByScoreDescending(list),
+              onUndo: _undoSort,
+            ),
+          ),
+        ),
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 4, 20, 12),
             child: SizedBox(
-              height: 54,
+              height: 50,
               child: ElevatedButton.icon(
-                onPressed: () => _addItem(list),
+                onPressed: isFull
+                    ? null
+                    : () => _addItem(list.copyWith(items: items)),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  backgroundColor: isFull
+                      ? AppColors.surfaceVariant
+                      : AppColors.primary,
+                  foregroundColor: isFull
+                      ? AppColors.textTertiary
+                      : Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
                   elevation: 0,
                 ),
-                icon: const Icon(Icons.add_rounded, size: 22),
-                label: const Text('Bölüm Seç ve Ekle', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                icon: const Icon(Icons.add_rounded, size: 20),
+                label: Text(
+                  isFull
+                      ? 'Limit dolu (${PreferenceListModel.maxItems})'
+                      : 'Bolum Ekle',
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 15,
+                  ),
+                ),
               ),
             ),
           ),
         ),
-
-        // ── List Items or Empty State ─────────────────────────
-        if (list.items.isEmpty)
-          SliverFillRemaining(
-            hasScrollBody: false,
-            child: _buildEmptyItems(),
-          )
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
+            child: Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: _isDeleting ? null : () => _deleteList(list),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: AppColors.error,
+                      side: BorderSide(
+                        color: AppColors.error.withValues(alpha: 0.28),
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                    ),
+                    icon: _isDeleting
+                        ? const SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Icon(Icons.delete_outline_rounded, size: 18),
+                    label: const Text(
+                      'Sil',
+                      style: TextStyle(fontWeight: FontWeight.w700),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: FilledButton.icon(
+                    onPressed: _isDirty && !_isSaving ? _saveItems : null,
+                    style: FilledButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                    ),
+                    icon: _isSaving
+                        ? const SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : const Icon(Icons.save_rounded, size: 18),
+                    label: Text(
+                      _isDirty ? 'Kaydet' : 'Kaydedildi',
+                      style: const TextStyle(fontWeight: FontWeight.w700),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        if (items.isEmpty)
+          const SliverFillRemaining(hasScrollBody: false, child: _EmptyItems())
         else
           SliverPadding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
+            padding: const EdgeInsets.fromLTRB(16, 4, 16, 32),
             sliver: SliverReorderableList(
-              itemCount: list.items.length,
-              onReorder: (oldIndex, newIndex) async {
+              itemCount: items.length,
+              onReorder: (oldIndex, newIndex) {
                 if (newIndex > oldIndex) newIndex--;
-                final items = List<PreferenceItem>.from(list.items);
-                final item = items.removeAt(oldIndex);
-                items.insert(newIndex, item);
-                try {
-                  await ref.read(preferenceListRepositoryProvider).reorderItems(widget.listId, items);
-                } catch (e) {
-                  if (mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Hata: $e')));
-                  }
-                }
+                setState(() {
+                  final reordered = [...items];
+                  final item = reordered.removeAt(oldIndex);
+                  reordered.insert(newIndex, item);
+                  _draftItems = _normalizedItems(reordered);
+                });
               },
               itemBuilder: (context, index) {
-                final item = list.items[index];
+                final item = items[index];
                 return _ItemCard(
-                  key: ValueKey(item.deptId),
+                  key: ValueKey('${item.deptId}_${item.order}'),
                   item: item,
                   index: index,
-                  onDelete: () async {
-                    final items = List<PreferenceItem>.from(list.items)..removeAt(index);
-                    await ref.read(preferenceListRepositoryProvider).reorderItems(widget.listId, items);
-                  },
+                  onDelete: () => _removeAt(index, list),
                 );
               },
             ),
@@ -202,8 +455,224 @@ class _ListEditScreenState extends ConsumerState<ListEditScreen> {
       ],
     );
   }
+}
 
-  Widget _buildEmptyItems() {
+class _ActionBar extends StatelessWidget {
+  final bool canSort;
+  final bool canUndo;
+  final VoidCallback onSort;
+  final VoidCallback onUndo;
+
+  const _ActionBar({
+    required this.canSort,
+    required this.canUndo,
+    required this.onSort,
+    required this.onUndo,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: OutlinedButton.icon(
+            onPressed: canSort ? onSort : null,
+            style: OutlinedButton.styleFrom(
+              foregroundColor: AppColors.textPrimary,
+              side: BorderSide(color: AppColors.borderLight),
+              padding: const EdgeInsets.symmetric(vertical: 14),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
+            ),
+            icon: const Icon(Icons.sort_rounded, size: 18),
+            label: const Text(
+              'Puan Yuksekten',
+              style: TextStyle(fontWeight: FontWeight.w700),
+            ),
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: OutlinedButton.icon(
+            onPressed: canUndo ? onUndo : null,
+            style: OutlinedButton.styleFrom(
+              foregroundColor: AppColors.textSecondary,
+              side: BorderSide(color: AppColors.borderLight),
+              padding: const EdgeInsets.symmetric(vertical: 14),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
+            ),
+            icon: const Icon(Icons.undo_rounded, size: 18),
+            label: const Text(
+              'Geri Al',
+              style: TextStyle(fontWeight: FontWeight.w700),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _ListSummaryCard extends StatelessWidget {
+  final PreferenceListModel list;
+  const _ListSummaryCard({required this.list});
+
+  @override
+  Widget build(BuildContext context) {
+    final filled = list.items.length;
+    const max = PreferenceListModel.maxItems;
+    final progress = (filled / max).clamp(0.0, 1.0);
+
+    final stByCount = <String, int>{};
+    for (final it in list.items) {
+      final st = it.scoreType;
+      if (st == null) continue;
+      stByCount[st] = (stByCount[st] ?? 0) + 1;
+    }
+
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.borderLight),
+        boxShadow: AppColors.softShadow,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Text(
+                '$filled',
+                style: AppTextStyles.headlineSmall.copyWith(
+                  fontWeight: FontWeight.w800,
+                  color: AppColors.primary,
+                ),
+              ),
+              const SizedBox(width: 4),
+              Text(
+                '/ $max tercih',
+                style: AppTextStyles.bodySmall.copyWith(
+                  color: AppColors.textSecondary,
+                ),
+              ),
+              const Spacer(),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
+                decoration: BoxDecoration(
+                  color: list.isPublic
+                      ? AppColors.success.withValues(alpha: 0.10)
+                      : AppColors.surfaceVariant,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      list.isPublic ? Icons.public_rounded : Icons.lock_rounded,
+                      size: 12,
+                      color: list.isPublic
+                          ? AppColors.success
+                          : AppColors.textTertiary,
+                    ),
+                    const SizedBox(width: 5),
+                    Text(
+                      list.isPublic ? 'Herkese Acik' : 'Gizli',
+                      style: AppTextStyles.labelSmall.copyWith(
+                        color: list.isPublic
+                            ? AppColors.success
+                            : AppColors.textTertiary,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(4),
+            child: LinearProgressIndicator(
+              value: progress,
+              minHeight: 6,
+              backgroundColor: AppColors.surfaceVariant,
+              valueColor: const AlwaysStoppedAnimation(AppColors.primary),
+            ),
+          ),
+          if (stByCount.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: stByCount.entries
+                  .map((e) => _ScoreTypeChip(type: e.key, count: e.value))
+                  .toList(),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _ScoreTypeChip extends StatelessWidget {
+  final String type;
+  final int count;
+  const _ScoreTypeChip({required this.type, required this.count});
+
+  @override
+  Widget build(BuildContext context) {
+    final color = _color(type);
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.10),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: color.withValues(alpha: 0.2)),
+      ),
+      child: Text(
+        '$count $type',
+        style: AppTextStyles.labelSmall.copyWith(
+          color: color,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+    );
+  }
+
+  Color _color(String type) {
+    switch (type) {
+      case 'SAY':
+        return const Color(0xFF3B82F6);
+      case 'EA':
+        return const Color(0xFF8B5CF6);
+      case 'SOZ':
+      case 'SÖZ':
+        return const Color(0xFFEC4899);
+      case 'DIL':
+      case 'DİL':
+        return const Color(0xFF10B981);
+      case 'TYT':
+        return const Color(0xFFF59E0B);
+      default:
+        return AppColors.primary;
+    }
+  }
+}
+
+class _EmptyItems extends StatelessWidget {
+  const _EmptyItems();
+
+  @override
+  Widget build(BuildContext context) {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
@@ -211,23 +680,34 @@ class _ListEditScreenState extends ConsumerState<ListEditScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              padding: const EdgeInsets.all(28),
+              width: 80,
+              height: 80,
               decoration: BoxDecoration(
                 color: AppColors.primary.withValues(alpha: 0.08),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.school_rounded, size: 56, color: AppColors.primary),
+              child: const Icon(
+                Icons.school_rounded,
+                size: 36,
+                color: AppColors.primary,
+              ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 16),
             Text(
-              'Listeye Bölüm Ekle',
-              style: AppTextStyles.titleLarge.copyWith(fontWeight: FontWeight.bold),
+              'Liste bos',
+              style: AppTextStyles.titleLarge.copyWith(
+                fontWeight: FontWeight.w700,
+              ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 6),
             Text(
-              'Yukarıdaki butona tıklayarak üniversite ve bölüm seçebilirsin.\nTercihlerini sürükleyerek sıralayabilirsin.',
+              'Yukaridaki butona tiklayarak universite ve bolum sec. '
+              'Tercihlerini surukleyerek veya puana gore siralayabilirsin.',
               textAlign: TextAlign.center,
-              style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary, height: 1.5),
+              style: AppTextStyles.bodyMedium.copyWith(
+                color: AppColors.textSecondary,
+                height: 1.5,
+              ),
             ),
           ],
         ),
@@ -236,33 +716,6 @@ class _ListEditScreenState extends ConsumerState<ListEditScreen> {
   }
 }
 
-// ── Header Chip ──────────────────────────────────────────────
-class _HeaderChip extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  const _HeaderChip({required this.icon, required this.label});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.18),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 14, color: Colors.white),
-          const SizedBox(width: 6),
-          Text(label, style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600)),
-        ],
-      ),
-    );
-  }
-}
-
-// ── Individual Item Card ─────────────────────────────────────
 class _ItemCard extends StatelessWidget {
   final PreferenceItem item;
   final int index;
@@ -277,91 +730,193 @@ class _ItemCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final brand = _hexToColor(item.uniBrandHex) ?? AppColors.primary;
+
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
+      padding: const EdgeInsets.symmetric(vertical: 5),
       child: Material(
         color: AppColors.surface,
-        borderRadius: BorderRadius.circular(20),
-        elevation: 1,
-        shadowColor: AppColors.textPrimary.withValues(alpha: 0.06),
+        borderRadius: BorderRadius.circular(16),
         child: Container(
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: AppColors.borderLight.withValues(alpha: 0.6)),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: AppColors.borderLight),
+            boxShadow: AppColors.softShadow,
           ),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
+            padding: const EdgeInsets.all(12),
             child: Row(
               children: [
-                // Drag handle
-                ReorderableDragStartListener(
-                  index: index,
-                  child: Padding(
-                    padding: const EdgeInsets.all(8),
-                    child: Icon(Icons.drag_handle_rounded, color: AppColors.textTertiary.withValues(alpha: 0.5), size: 22),
-                  ),
-                ),
-                // Order number
                 Container(
-                  width: 36,
-                  height: 36,
+                  width: 44,
+                  height: 44,
                   decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        AppColors.primary.withValues(alpha: 0.15),
-                        AppColors.primary.withValues(alpha: 0.08),
-                      ],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                    borderRadius: BorderRadius.circular(10),
+                    color: brand.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(12),
                   ),
                   child: Center(
                     child: Text(
                       '${index + 1}',
                       style: TextStyle(
-                        color: AppColors.primary,
-                        fontWeight: FontWeight.bold,
-                        fontSize: index < 9 ? 16 : 14,
+                        color: brand,
+                        fontWeight: FontWeight.w800,
+                        fontSize: index < 9 ? 18 : 16,
                       ),
                     ),
                   ),
                 ),
-                const SizedBox(width: 14),
-                // Department info
+                const SizedBox(width: 12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        item.deptName,
-                        style: AppTextStyles.bodyLarge.copyWith(fontWeight: FontWeight.w600),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              item.deptName,
+                              style: AppTextStyles.titleSmall.copyWith(
+                                fontWeight: FontWeight.w700,
+                                height: 1.2,
+                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          if (item.scoreType != null) ...[
+                            const SizedBox(width: 6),
+                            ScoreBadge.scoreType(item.scoreType!, small: true),
+                          ],
+                        ],
                       ),
-                      const SizedBox(height: 2),
+                      const SizedBox(height: 3),
                       Text(
                         item.uniName,
-                        style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary),
+                        style: AppTextStyles.labelSmall.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
+                      if (_hasScoreInfo) ...[
+                        const SizedBox(height: 8),
+                        Wrap(
+                          spacing: 6,
+                          runSpacing: 6,
+                          children: [
+                            if (item.baseScore != null && item.baseScore! > 0)
+                              _MiniStat(
+                                icon: Icons.trending_up_rounded,
+                                color: AppColors.primary,
+                                value: item.baseScore!.toStringAsFixed(2),
+                              ),
+                            if (item.ranking != null && item.ranking! > 0)
+                              _MiniStat(
+                                icon: Icons.emoji_events_rounded,
+                                color: AppColors.warning,
+                                value: _formatRank(item.ranking!),
+                              ),
+                            if (item.quota != null && item.quota! > 0)
+                              _MiniStat(
+                                icon: Icons.people_alt_rounded,
+                                color: AppColors.info,
+                                value: item.placedCount != null
+                                    ? '${item.placedCount}/${item.quota}'
+                                    : '${item.quota}',
+                              ),
+                          ],
+                        ),
+                      ],
                     ],
                   ),
                 ),
-                // Delete button
-                IconButton(
-                  icon: Icon(Icons.close_rounded, color: AppColors.error.withValues(alpha: 0.7), size: 20),
-                  onPressed: onDelete,
-                  style: IconButton.styleFrom(
-                    backgroundColor: AppColors.error.withValues(alpha: 0.06),
+                ReorderableDragStartListener(
+                  index: index,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 6),
+                    child: Icon(
+                      Icons.drag_indicator_rounded,
+                      color: AppColors.textTertiary,
+                      size: 22,
+                    ),
                   ),
                 ),
-                const SizedBox(width: 4),
+                IconButton(
+                  icon: const Icon(
+                    Icons.close_rounded,
+                    color: AppColors.error,
+                    size: 18,
+                  ),
+                  onPressed: onDelete,
+                  visualDensity: VisualDensity.compact,
+                  style: IconButton.styleFrom(
+                    backgroundColor: AppColors.error.withValues(alpha: 0.08),
+                    minimumSize: const Size(32, 32),
+                    padding: EdgeInsets.zero,
+                  ),
+                ),
               ],
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  bool get _hasScoreInfo =>
+      (item.baseScore != null && item.baseScore! > 0) ||
+      (item.ranking != null && item.ranking! > 0) ||
+      (item.quota != null && item.quota! > 0);
+
+  static String _formatRank(int rank) {
+    if (rank >= 1000000) return '${(rank / 1000000).toStringAsFixed(1)}M';
+    if (rank >= 1000) return '${(rank / 1000).toStringAsFixed(0)}B';
+    return '$rank';
+  }
+
+  static Color? _hexToColor(String? hex) {
+    if (hex == null) return null;
+    var h = hex.replaceAll('#', '');
+    if (h.length == 6) h = 'FF$h';
+    final v = int.tryParse(h, radix: 16);
+    return v != null ? Color(v) : null;
+  }
+}
+
+class _MiniStat extends StatelessWidget {
+  final IconData icon;
+  final Color color;
+  final String value;
+
+  const _MiniStat({
+    required this.icon,
+    required this.color,
+    required this.value,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.10),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 12, color: color),
+          const SizedBox(width: 4),
+          Text(
+            value,
+            style: AppTextStyles.labelSmall.copyWith(
+              color: color,
+              fontWeight: FontWeight.w700,
+              fontSize: 11,
+            ),
+          ),
+        ],
       ),
     );
   }

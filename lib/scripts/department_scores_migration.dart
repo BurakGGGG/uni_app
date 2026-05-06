@@ -44,8 +44,27 @@ class DepartmentScoresMigration {
         'previousYears': score['previousYears'] ?? {},
       };
 
+      // Metadata alanları — yeni doküman oluşturulurken adı/fakültesi boş kalmasın diye.
+      // Parser alias kayıtlarda bunları boş bırakır → seed'in mevcut alanları korunsun.
+      final metadata = <String, dynamic>{};
+      void putIfNonEmpty(String key, dynamic value) {
+        if (value == null) return;
+        if (value is String && value.isEmpty) return;
+        metadata[key] = value;
+      }
+
+      putIfNonEmpty('id', deptId);
+      putIfNonEmpty('universityId', score['universityId']);
+      putIfNonEmpty('name', score['name']);
+      putIfNonEmpty('faculty', score['faculty']);
+      putIfNonEmpty('type', score['type']);
+      putIfNonEmpty('language', score['language']);
+      putIfNonEmpty('duration', score['duration']);
+      putIfNonEmpty('description', score['description']);
+
       // merge: true → belge varsa günceller, yoksa oluşturur
       batch.set(ref, {
+        ...metadata,
         'scoreData': scoreData,
         'lastScoreUpdate': FieldValue.serverTimestamp(),
         'baseScore': score['baseScore'],
