@@ -79,7 +79,7 @@ class MyListsScreen extends ConsumerWidget {
                   );
                 }
                 return SliverPadding(
-                  padding: const EdgeInsets.fromLTRB(20, 4, 20, 32),
+                  padding: const EdgeInsets.fromLTRB(20, 4, 20, 96),
                   sliver: SliverList.separated(
                     itemCount: lists.length,
                     separatorBuilder: (_, _) => const SizedBox(height: 12),
@@ -570,7 +570,7 @@ class _EmptyState extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              'Yukarıdaki butona tıklayarak ilk tercih listeni oluşturmaya başla.',
+              'Sağ alttaki "Yeni Liste" butonuna tıklayarak ilk tercih listeni oluşturmaya başla.',
               textAlign: TextAlign.center,
               style: AppTextStyles.bodyMedium.copyWith(
                 color: AppColors.textSecondary,
