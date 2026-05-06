@@ -101,6 +101,15 @@ class PreferenceItem {
   final String deptName;
   final String uniName;
   final String? uniLogoUrl;
+  final String? faculty;
+  final String? deptType;     // Lisans / Önlisans
+  final String? language;     // Türkçe / İngilizce
+  final String? scoreType;    // SAY / EA / SÖZ / DİL / TYT
+  final double? baseScore;    // 2024 taban
+  final int? ranking;         // 2024 sıralama
+  final int? quota;
+  final int? placedCount;
+  final String? uniBrandHex;  // Kart accent rengi için
 
   const PreferenceItem({
     required this.deptId,
@@ -110,35 +119,71 @@ class PreferenceItem {
     required this.deptName,
     required this.uniName,
     this.uniLogoUrl,
+    this.faculty,
+    this.deptType,
+    this.language,
+    this.scoreType,
+    this.baseScore,
+    this.ranking,
+    this.quota,
+    this.placedCount,
+    this.uniBrandHex,
   });
 
   factory PreferenceItem.fromMap(Map<String, dynamic> m) => PreferenceItem(
-    deptId: m['deptId'] ?? '',
-    uniId: m['uniId'] ?? '',
-    order: (m['order'] as num?)?.toInt() ?? 0,
-    note: m['note'],
-    deptName: m['deptName'] ?? '',
-    uniName: m['uniName'] ?? '',
-    uniLogoUrl: m['uniLogoUrl'],
-  );
+        deptId: m['deptId'] ?? '',
+        uniId: m['uniId'] ?? '',
+        order: (m['order'] as num?)?.toInt() ?? 0,
+        note: m['note'],
+        deptName: m['deptName'] ?? '',
+        uniName: m['uniName'] ?? '',
+        uniLogoUrl: m['uniLogoUrl'],
+        faculty: m['faculty'] as String?,
+        deptType: m['deptType'] as String?,
+        language: m['language'] as String?,
+        scoreType: m['scoreType'] as String?,
+        baseScore: (m['baseScore'] as num?)?.toDouble(),
+        ranking: (m['ranking'] as num?)?.toInt(),
+        quota: (m['quota'] as num?)?.toInt(),
+        placedCount: (m['placedCount'] as num?)?.toInt(),
+        uniBrandHex: m['uniBrandHex'] as String?,
+      );
 
   Map<String, dynamic> toMap() => {
-    'deptId': deptId,
-    'uniId': uniId,
-    'order': order,
-    if (note != null) 'note': note,
-    'deptName': deptName,
-    'uniName': uniName,
-    if (uniLogoUrl != null) 'uniLogoUrl': uniLogoUrl,
-  };
+        'deptId': deptId,
+        'uniId': uniId,
+        'order': order,
+        if (note != null) 'note': note,
+        'deptName': deptName,
+        'uniName': uniName,
+        if (uniLogoUrl != null) 'uniLogoUrl': uniLogoUrl,
+        if (faculty != null) 'faculty': faculty,
+        if (deptType != null) 'deptType': deptType,
+        if (language != null) 'language': language,
+        if (scoreType != null) 'scoreType': scoreType,
+        if (baseScore != null) 'baseScore': baseScore,
+        if (ranking != null) 'ranking': ranking,
+        if (quota != null) 'quota': quota,
+        if (placedCount != null) 'placedCount': placedCount,
+        if (uniBrandHex != null) 'uniBrandHex': uniBrandHex,
+      };
 
   PreferenceItem copyWith({int? order, String? note}) => PreferenceItem(
-    deptId: deptId,
-    uniId: uniId,
-    order: order ?? this.order,
-    note: note ?? this.note,
-    deptName: deptName,
-    uniName: uniName,
-    uniLogoUrl: uniLogoUrl,
-  );
+        deptId: deptId,
+        uniId: uniId,
+        order: order ?? this.order,
+        note: note ?? this.note,
+        deptName: deptName,
+        uniName: uniName,
+        uniLogoUrl: uniLogoUrl,
+        faculty: faculty,
+        deptType: deptType,
+        language: language,
+        scoreType: scoreType,
+        baseScore: baseScore,
+        ranking: ranking,
+        quota: quota,
+        placedCount: placedCount,
+        uniBrandHex: uniBrandHex,
+      );
 }

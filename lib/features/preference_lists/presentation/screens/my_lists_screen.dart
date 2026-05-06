@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../auth/presentation/providers/auth_providers.dart';
 import '../providers/preference_list_providers.dart';
 import '../../domain/models/preference_list_model.dart';
 import '../widgets/share_list_sheet.dart';
+import '../widgets/create_list_sheet.dart';
 
 class MyListsScreen extends ConsumerWidget {
   const MyListsScreen({super.key});
@@ -22,11 +24,15 @@ class MyListsScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: AppColors.background,
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _showCreateDialog(context, ref),
-        backgroundColor: AppColors.secondary,
+        onPressed: () => CreateListSheet.show(context, ref),
+        backgroundColor: AppColors.primary,
+        foregroundColor: Colors.white,
         elevation: 4,
-        icon: const Icon(Icons.add_rounded, color: Colors.white),
-        label: const Text('Yeni Liste', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
+        icon: const Icon(Icons.add_rounded),
+        label: const Text(
+          'Yeni Liste',
+          style: TextStyle(fontWeight: FontWeight.w700),
+        ),
       ),
       body: SafeArea(
         child: CustomScrollView(
@@ -34,26 +40,37 @@ class MyListsScreen extends ConsumerWidget {
           slivers: [
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(24, 32, 24, 24),
+                padding: const EdgeInsets.fromLTRB(20, 28, 20, 20),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       'Merhaba $userName,',
-                      style: AppTextStyles.bodyLarge.copyWith(color: AppColors.textSecondary, fontWeight: FontWeight.w500),
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 4),
                     Text(
                       'Tercih Listelerim',
-                      style: AppTextStyles.headlineMedium.copyWith(fontWeight: FontWeight.bold, color: AppColors.textPrimary, letterSpacing: -0.5),
+                      style: AppTextStyles.headlineMedium.copyWith(
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: -0.5,
+                      ),
                     ),
                   ],
                 ),
               ),
             ),
+
             listsAsync.when(
-              loading: () => const SliverFillRemaining(child: Center(child: CircularProgressIndicator(color: AppColors.primary))),
-              error: (e, _) => SliverFillRemaining(child: Center(child: Text('Hata: $e'))),
+              loading: () => const SliverFillRemaining(
+                child: Center(
+                  child: CircularProgressIndicator(color: AppColors.primary),
+                ),
+              ),
+              error: (e, _) =>
+                  SliverFillRemaining(child: Center(child: Text('Hata: $e'))),
               data: (lists) {
                 if (lists.isEmpty) {
                   return const SliverFillRemaining(
@@ -62,16 +79,15 @@ class MyListsScreen extends ConsumerWidget {
                   );
                 }
                 return SliverPadding(
-                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 100),
+                  padding: const EdgeInsets.fromLTRB(20, 4, 20, 32),
                   sliver: SliverList.separated(
                     itemCount: lists.length,
-                    separatorBuilder: (context, index) => const SizedBox(height: 20),
+                    separatorBuilder: (_, _) => const SizedBox(height: 12),
                     itemBuilder: (_, i) => _ListCard(
                       list: lists[i],
                       onTap: () => context.push('/my-lists/${lists[i].id}'),
                       onShare: () => ShareListSheet.show(context, lists[i]),
                       onDelete: () => _confirmDelete(context, ref, lists[i]),
-                      colorIndex: i,
                     ),
                   ),
                 );
@@ -83,103 +99,68 @@ class MyListsScreen extends ConsumerWidget {
     );
   }
 
-  void _showCreateDialog(BuildContext context, WidgetRef ref) {
-    final titleCtrl = TextEditingController();
-    final descCtrl = TextEditingController();
-    showDialog(
+  Future<void> _confirmDelete(
+    BuildContext context,
+    WidgetRef ref,
+    PreferenceListModel list,
+  ) {
+    return showDialog(
       context: context,
       builder: (c) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        title: Text('Yeni Liste Oluştur', style: AppTextStyles.titleLarge.copyWith(fontWeight: FontWeight.bold)),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Row(
           children: [
-            TextField(
-              controller: titleCtrl,
-              decoration: InputDecoration(
-                labelText: 'Liste Adı',
-                filled: true,
-                fillColor: AppColors.surfaceVariant,
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: AppColors.errorLight,
+                borderRadius: BorderRadius.circular(10),
               ),
-              autofocus: true,
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: descCtrl,
-              decoration: InputDecoration(
-                labelText: 'Açıklama (Opsiyonel)',
-                filled: true,
-                fillColor: AppColors.surfaceVariant,
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+              child: const Icon(
+                Icons.delete_outline_rounded,
+                color: AppColors.error,
+                size: 22,
               ),
             ),
+            const SizedBox(width: 12),
+            const Expanded(child: Text('Listeyi Sil')),
           ],
         ),
-        actionsPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+        content: Text(
+          '"${list.title}" listesini silmek istediğine emin misin? Bu işlem geri alınamaz.',
+          style: AppTextStyles.bodyMedium,
+        ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(c), 
-            child: const Text('İptal', style: TextStyle(color: AppColors.textSecondary, fontWeight: FontWeight.bold)),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.secondary,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+            onPressed: () => Navigator.pop(c),
+            child: const Text(
+              'Vazgeç',
+              style: TextStyle(
+                color: AppColors.textSecondary,
+                fontWeight: FontWeight.w600,
+              ),
             ),
-            onPressed: () async {
-              if (titleCtrl.text.trim().isEmpty) return;
-              try {
-                final list = await ref.read(preferenceListControllerProvider.notifier).create(
-                  title: titleCtrl.text.trim(),
-                  description: descCtrl.text.trim(),
-                );
-                if (c.mounted) {
-                  Navigator.pop(c);
-                  if (list != null) c.push('/my-lists/${list.id}');
-                }
-              } catch (e) {
-                if (c.mounted) {
-                  ScaffoldMessenger.of(c).showSnackBar(SnackBar(content: Text('Hata: $e')));
-                }
-              }
-            },
-            child: const Text('Oluştur', style: TextStyle(fontWeight: FontWeight.bold)),
           ),
-        ],
-      ),
-    );
-  }
-
-  void _confirmDelete(BuildContext context, WidgetRef ref, PreferenceListModel list) {
-    showDialog(
-      context: context,
-      builder: (c) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        title: const Row(
-          children: [
-            Icon(Icons.warning_amber_rounded, color: AppColors.error, size: 28),
-            SizedBox(width: 12),
-            Text('Listeyi Sil'),
-          ],
-        ),
-        content: Text('"${list.title}" listesini silmek istediğinize emin misiniz? Bu işlem geri alınamaz.'),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(c), child: const Text('İptal', style: TextStyle(color: AppColors.textSecondary, fontWeight: FontWeight.bold))),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.error.withValues(alpha: 0.1),
-              foregroundColor: AppColors.error,
+              backgroundColor: AppColors.error,
+              foregroundColor: Colors.white,
               elevation: 0,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
             ),
             onPressed: () {
-              ref.read(preferenceListControllerProvider.notifier).delete(list.id);
+              ref
+                  .read(preferenceListControllerProvider.notifier)
+                  .delete(list.id);
               Navigator.pop(c);
             },
-            child: const Text('Sil', style: TextStyle(fontWeight: FontWeight.bold)),
+            child: const Text(
+              'Sil',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
           ),
         ],
       ),
@@ -187,161 +168,143 @@ class MyListsScreen extends ConsumerWidget {
   }
 }
 
+// ── List Card (sade, marka rengi vurgulu) ────────────────────────
 class _ListCard extends StatelessWidget {
   final PreferenceListModel list;
   final VoidCallback onTap;
   final VoidCallback onShare;
   final VoidCallback onDelete;
-  final int colorIndex;
 
   const _ListCard({
     required this.list,
     required this.onTap,
     required this.onShare,
     required this.onDelete,
-    required this.colorIndex,
   });
 
   @override
   Widget build(BuildContext context) {
-    final colors = [
-      [const Color(0xFFFF6584), const Color(0xFF8B5CF6)], // Signature Pink to Purple
-      [const Color(0xFF6C63FF), const Color(0xFF4A42DB)], // Primary Blue/Purple
-      [const Color(0xFF00D9FF), const Color(0xFF00A8C6)], // Accent Cyan
-      [const Color(0xFFF59E0B), const Color(0xFFD97706)], // Amber
-      [const Color(0xFF10B981), const Color(0xFF059669)], // Emerald
-    ];
-    final gradientColors = colors[colorIndex % colors.length];
+    final filled = list.items.length;
+    const max = PreferenceListModel.maxItems;
+    final progress = (filled / max).clamp(0.0, 1.0);
 
-    return Container(
-      decoration: BoxDecoration(
-        boxShadow: [
-          BoxShadow(
-            color: gradientColors[0].withValues(alpha: 0.25),
-            blurRadius: 16,
-            offset: const Offset(0, 8),
+    return Material(
+      color: AppColors.surface,
+      borderRadius: BorderRadius.circular(20),
+      elevation: 0,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(20),
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: AppColors.borderLight),
+            boxShadow: AppColors.softShadow,
           ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(24),
-        child: Material(
-          color: Colors.transparent,
-          child: InkWell(
-            onTap: onTap,
-            child: Ink(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: gradientColors,
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-              ),
-              child: Stack(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Decorative background icon
-                  Positioned(
-                    right: -20,
-                    bottom: -20,
-                    child: Transform.rotate(
-                      angle: -0.2,
-                      child: Icon(
-                        Icons.school_rounded,
-                        size: 160,
-                        color: Colors.white.withValues(alpha: 0.12),
-                      ),
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withValues(alpha: 0.10),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Icon(
+                      Icons.format_list_numbered_rounded,
+                      color: AppColors.primary,
+                      size: 22,
                     ),
                   ),
-                  // Content
-                  Padding(
-                    padding: const EdgeInsets.all(24),
+                  const SizedBox(width: 12),
+                  Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withValues(alpha: 0.2),
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(
-                                    list.isPublic ? Icons.public_rounded : Icons.lock_rounded,
-                                    color: Colors.white,
-                                    size: 14,
-                                  ),
-                                  const SizedBox(width: 6),
-                                  Text(
-                                    list.isPublic ? 'Herkese Açık' : 'Gizli',
-                                    style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Row(
-                              children: [
-                                IconButton(
-                                  icon: const Icon(Icons.share_rounded, color: Colors.white, size: 22),
-                                  onPressed: onShare,
-                                  constraints: const BoxConstraints(),
-                                  padding: const EdgeInsets.all(4),
-                                ),
-                                const SizedBox(width: 12),
-                                IconButton(
-                                  icon: const Icon(Icons.delete_outline_rounded, color: Colors.white70, size: 24),
-                                  onPressed: onDelete,
-                                  constraints: const BoxConstraints(),
-                                  padding: const EdgeInsets.all(4),
-                                ),
-                              ],
-                            )
-                          ],
-                        ),
-                        const SizedBox(height: 24),
                         Text(
                           list.title,
-                          style: AppTextStyles.titleLarge.copyWith(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 22),
+                          style: AppTextStyles.titleMedium.copyWith(
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: -0.2,
+                          ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
                         if (list.description.isNotEmpty) ...[
-                          const SizedBox(height: 6),
+                          const SizedBox(height: 2),
                           Text(
                             list.description,
-                            style: AppTextStyles.bodyMedium.copyWith(color: Colors.white.withValues(alpha: 0.9)),
-                            maxLines: 2,
+                            style: AppTextStyles.labelSmall.copyWith(
+                              color: AppColors.textSecondary,
+                            ),
+                            maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
                         ],
-                        const SizedBox(height: 24),
+                      ],
+                    ),
+                  ),
+                  _ListActionsButton(onShare: onShare, onDelete: onDelete),
+                ],
+              ),
+              const SizedBox(height: 14),
+              Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
                         Row(
                           children: [
-                            const Icon(Icons.format_list_bulleted_rounded, color: Colors.white, size: 18),
-                            const SizedBox(width: 8),
                             Text(
-                              '${list.items.length} Tercih',
-                              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 15),
+                              '$filled',
+                              style: AppTextStyles.titleLarge.copyWith(
+                                fontWeight: FontWeight.w800,
+                                color: AppColors.primary,
+                              ),
                             ),
-                            const Spacer(),
-                            const Icon(Icons.remove_red_eye_rounded, color: Colors.white70, size: 18),
-                            const SizedBox(width: 6),
+                            const SizedBox(width: 4),
                             Text(
-                              '${list.viewCount}',
-                              style: const TextStyle(color: Colors.white70, fontWeight: FontWeight.w600, fontSize: 15),
+                              '/ $max tercih',
+                              style: AppTextStyles.bodySmall.copyWith(
+                                color: AppColors.textSecondary,
+                              ),
                             ),
                           ],
+                        ),
+                        const SizedBox(height: 6),
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(4),
+                          child: LinearProgressIndicator(
+                            value: progress,
+                            minHeight: 6,
+                            backgroundColor: AppColors.surfaceVariant,
+                            valueColor: const AlwaysStoppedAnimation(
+                              AppColors.primary,
+                            ),
+                          ),
                         ),
                       ],
                     ),
                   ),
+                  const SizedBox(width: 16),
+                  _StatusChip(
+                    icon: list.isPublic
+                        ? Icons.public_rounded
+                        : Icons.lock_rounded,
+                    label: list.isPublic ? 'Açık' : 'Gizli',
+                    color: list.isPublic
+                        ? AppColors.success
+                        : AppColors.textTertiary,
+                  ),
                 ],
               ),
-            ),
+            ],
           ),
         ),
       ),
@@ -349,34 +312,270 @@ class _ListCard extends StatelessWidget {
   }
 }
 
+class _ListActionsButton extends StatelessWidget {
+  final VoidCallback onShare;
+  final VoidCallback onDelete;
+
+  const _ListActionsButton({required this.onShare, required this.onDelete});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => _showBottomSheet(context),
+      child: Container(
+        padding: const EdgeInsets.all(6),
+        decoration: BoxDecoration(
+          color: AppColors.textTertiary.withValues(alpha: 0.08),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Icon(
+          Icons.more_horiz_rounded,
+          size: 18,
+          color: AppColors.textTertiary,
+        ),
+      ),
+    );
+  }
+
+  void _showBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => Container(
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.1),
+              blurRadius: 20,
+              offset: const Offset(0, -4),
+            ),
+          ],
+        ),
+        child: SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                margin: const EdgeInsets.only(top: 12),
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: AppColors.textTertiary.withValues(alpha: 0.3),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(height: 20),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.settings_rounded,
+                      size: 20,
+                      color: AppColors.textSecondary,
+                    ),
+                    const SizedBox(width: 8),
+                    Text('İşlemler', style: AppTextStyles.titleMedium),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+              _ActionTile(
+                icon: Icons.share_rounded,
+                label: 'Listeyi Paylaş',
+                subtitle: 'Paylaşım bağlantısını ve görünürlüğü yönet',
+                iconColor: AppColors.primary,
+                iconBgColor: AppColors.primary.withValues(alpha: 0.1),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  onShare();
+                },
+              ),
+              _ActionTile(
+                icon: Icons.delete_outline_rounded,
+                label: 'Listeyi Sil',
+                subtitle: 'Bu işlem geri alınamaz',
+                iconColor: AppColors.error,
+                iconBgColor: AppColors.error.withValues(alpha: 0.1),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  onDelete();
+                },
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: TextButton(
+                    onPressed: () => Navigator.pop(ctx),
+                    style: TextButton.styleFrom(
+                      foregroundColor: AppColors.textSecondary,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(
+                          AppConstants.radiusMd,
+                        ),
+                        side: BorderSide(color: AppColors.borderLight),
+                      ),
+                    ),
+                    child: const Text('İptal'),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ActionTile extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String subtitle;
+  final Color iconColor;
+  final Color iconBgColor;
+  final VoidCallback onTap;
+
+  const _ActionTile({
+    required this.icon,
+    required this.label,
+    required this.subtitle,
+    required this.iconColor,
+    required this.iconBgColor,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: iconBgColor,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(icon, size: 22, color: iconColor),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      label,
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      subtitle,
+                      style: AppTextStyles.labelSmall.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(
+                Icons.chevron_right_rounded,
+                size: 20,
+                color: AppColors.textTertiary,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _StatusChip extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final Color color;
+  const _StatusChip({
+    required this.icon,
+    required this.label,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.10),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 14, color: color),
+          const SizedBox(width: 5),
+          Text(
+            label,
+            style: AppTextStyles.labelSmall.copyWith(
+              color: color,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ── Empty State ─────────────────────────────────────────────────
 class _EmptyState extends StatelessWidget {
   const _EmptyState();
   @override
   Widget build(BuildContext context) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(32),
+        padding: const EdgeInsets.fromLTRB(32, 0, 32, 32),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              padding: const EdgeInsets.all(32),
+              width: 96,
+              height: 96,
               decoration: BoxDecoration(
-                color: AppColors.secondary.withValues(alpha: 0.08),
+                color: AppColors.primary.withValues(alpha: 0.08),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.rocket_launch_rounded, size: 64, color: AppColors.secondary),
+              child: const Icon(
+                Icons.format_list_numbered_rounded,
+                size: 44,
+                color: AppColors.primary,
+              ),
             ),
-            const SizedBox(height: 32),
+            const SizedBox(height: 20),
             Text(
-              'Hayallerini Sırala!',
-              style: AppTextStyles.headlineSmall.copyWith(fontWeight: FontWeight.bold),
+              'Henüz listen yok',
+              style: AppTextStyles.titleLarge.copyWith(
+                fontWeight: FontWeight.w700,
+              ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 8),
             Text(
-              'Henüz hiçbir tercih listesi oluşturmadın. Üniversite ve bölümleri araştırarak hemen kendi listeni oluşturmaya başla.',
+              'Yukarıdaki butona tıklayarak ilk tercih listeni oluşturmaya başla.',
               textAlign: TextAlign.center,
-              style: AppTextStyles.bodyLarge.copyWith(color: AppColors.textSecondary, height: 1.5),
+              style: AppTextStyles.bodyMedium.copyWith(
+                color: AppColors.textSecondary,
+                height: 1.5,
+              ),
             ),
           ],
         ),
@@ -385,6 +584,7 @@ class _EmptyState extends StatelessWidget {
   }
 }
 
+// ── Unauthenticated View ────────────────────────────────────────
 class _UnauthenticatedView extends StatelessWidget {
   const _UnauthenticatedView();
   @override
@@ -392,31 +592,58 @@ class _UnauthenticatedView extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
-        child: CustomScrollView(
-          slivers: [
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.all(24),
-                child: Text('Tercih Listelerim', style: AppTextStyles.headlineMedium.copyWith(fontWeight: FontWeight.bold, letterSpacing: -0.5)),
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 28, 20, 0),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'Tercih Listelerim',
+                  style: AppTextStyles.headlineMedium.copyWith(
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: -0.5,
+                  ),
+                ),
               ),
             ),
-            SliverFillRemaining(
+            Expanded(
               child: Center(
                 child: Padding(
                   padding: const EdgeInsets.all(32),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Icon(Icons.lock_person_rounded, size: 72, color: AppColors.textTertiary),
-                      const SizedBox(height: 24),
-                      Text('Giriş Yapmalısınız', style: AppTextStyles.titleLarge.copyWith(fontWeight: FontWeight.bold)),
-                      const SizedBox(height: 12),
-                      Text(
-                        'Listelerinizi görmek ve yeni tercihler eklemek için giriş yapmalısınız.',
-                        textAlign: TextAlign.center,
-                        style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary, height: 1.5),
+                      Container(
+                        width: 96,
+                        height: 96,
+                        decoration: BoxDecoration(
+                          color: AppColors.surfaceVariant,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.lock_person_rounded,
+                          size: 44,
+                          color: AppColors.textTertiary,
+                        ),
                       ),
-                      const SizedBox(height: 32),
+                      const SizedBox(height: 20),
+                      Text(
+                        'Giriş Yapmalısın',
+                        style: AppTextStyles.titleLarge.copyWith(
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Listelerini görmek ve yeni tercihler eklemek için önce giriş yapmalısın.',
+                        textAlign: TextAlign.center,
+                        style: AppTextStyles.bodyMedium.copyWith(
+                          color: AppColors.textSecondary,
+                          height: 1.5,
+                        ),
+                      ),
+                      const SizedBox(height: 24),
                       SizedBox(
                         width: double.infinity,
                         height: 52,
@@ -424,11 +651,19 @@ class _UnauthenticatedView extends StatelessWidget {
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppColors.primary,
                             foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
                             elevation: 0,
                           ),
                           onPressed: () => context.push('/login'),
-                          child: const Text('Giriş Yap', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                          child: const Text(
+                            'Giriş Yap',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
                         ),
                       ),
                     ],
