@@ -7,7 +7,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../../../../core/providers/shared_preferences_provider.dart';
 import '../../../auth/presentation/providers/auth_providers.dart';
 import '../../../university/presentation/providers/university_providers.dart';
-import '../../../reviews/presentation/providers/review_providers.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
@@ -111,14 +110,12 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
     // 3. Veri yükleme görevleri (sadece ana sayfaya gidecekse)
     Future<void> dataLoadFuture = Future.value();
     if (isGoingToHome) {
-      // Arka planda anasayfa verilerini çek (Riverpod future'larını bekle)
-      // ignore: unused_local_variable
+      // Sadece kritik verileri ön yükle (cold start optimizasyonu)
+      // popular ve reviews Home açıldıktan sonra Riverpod lazy-load eder
       dataLoadFuture = Future.wait([
-        ref.read(citiesProvider.future),
-        ref.read(popularUniversitiesProvider.future),
-        ref.read(recentReviewsProvider.future),
-        ref.read(currentUserProvider.future), // Profil bilgisini de önbelleğe al
-      ]).catchError((_) => []); // Hata olsa bile devam et, anasayfa kendi handle etsin
+        ref.read(citiesProvider.future),     // Home için zorunlu
+        ref.read(currentUserProvider.future), // Profil için zorunlu
+      ]).catchError((_) => []); // Hata olsa bile devam et
     }
 
     // 4. İkisini birden bekle ama maksimum 4 saniye timeout koy
