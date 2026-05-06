@@ -13,10 +13,10 @@ class UniversityRepository {
   final Map<String, List<DepartmentModel>> _departmentsCache = {};
   DateTime? _lastFetchTime;
 
-  /// Cache geçerli mi? (5 dakika TTL)
+  /// Cache geçerli mi? (15 dakika TTL — puan verisi az değişir)
   bool get _isCacheValid =>
       _lastFetchTime != null &&
-      DateTime.now().difference(_lastFetchTime!) < const Duration(minutes: 5);
+      DateTime.now().difference(_lastFetchTime!) < const Duration(minutes: 15);
 
   /// Cache'i temizle (pull-to-refresh için)
   void clearCache() {
@@ -127,10 +127,20 @@ class UniversityRepository {
       return _departmentsCache[uniId]!;
     }
 
-    final snapshot = await _firestore
-        .collection('departments')
-        .where('universityId', isEqualTo: uniId)
-        .get();
+    // Önce server'dan dene, başarısız olursa cache'ten oku (offline destek)
+    QuerySnapshot<Map<String, dynamic>> snapshot;
+    try {
+      snapshot = await _firestore
+          .collection('departments')
+          .where('universityId', isEqualTo: uniId)
+          .get(const GetOptions(source: Source.serverAndCache));
+    } catch (_) {
+      // Offline fallback — Firestore cache'inden oku
+      snapshot = await _firestore
+          .collection('departments')
+          .where('universityId', isEqualTo: uniId)
+          .get(const GetOptions(source: Source.cache));
+    }
     
     final departments = snapshot.docs
         .map((doc) => DepartmentModel.fromMap(doc.data(), doc.id))

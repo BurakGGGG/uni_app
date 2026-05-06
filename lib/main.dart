@@ -50,6 +50,9 @@ void main() async {
     DeviceOrientation.portraitDown,
   ]);
 
+  // Image cache boyutunu 50 MB ile sınırla (bellek optimizasyonu)
+  PaintingBinding.instance.imageCache.maximumSizeBytes = 50 * 1024 * 1024;
+
   runApp(
     ProviderScope(
       overrides: [

@@ -87,7 +87,8 @@ class _DepartmentCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final hasScoreData = department.scoreData != null;
 
-    return Container(
+    return RepaintBoundary(
+      child: Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
       decoration: BoxDecoration(
         color: AppColors.surface,
@@ -180,6 +181,7 @@ class _DepartmentCard extends StatelessWidget {
             ),
           ),
         ),
+      ),
       ),
     );
   }
