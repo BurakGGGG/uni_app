@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'models/recommendation_question.dart';
 
 class QuestionBank {
+  /// 19 soru (S2 ikiye bölündü: S2a puan türü + S2b sıralama)
   static const List<RecommendationQuestion> questions = [
     // ─── S1: Alan ──────────────────────────────────────────────
     RecommendationQuestion(
@@ -20,21 +21,65 @@ class QuestionBank {
       ],
     ),
 
-    // ─── S2: Puan ──────────────────────────────────────────────
+    // ─── S2a: Puan Türü ────────────────────────────────────────
     RecommendationQuestion(
-      id: 'puan',
-      question: 'TYT + AYT sıralaman hangi aralıkta?',
-      hint: 'Yaklaşık sıralaman yeterli, kesin olmasa da olur',
+      id: 'puan_turu',
+      question: 'Hangi puan türüyle başvurmayı planlıyorsun?',
+      hint: 'Puan türünü bilmiyorsan "Henüz bilmiyorum" seçebilirsin',
       type: QuestionType.singleSelect,
       options: [
-        QuestionOption(id: 'cok_iyi', label: 'İlk 5.000 (200 altı)',
-            icon: Icons.emoji_events_rounded, tags: {'puan': 'cok_iyi'}),
-        QuestionOption(id: 'iyi', label: '5.000 – 50.000 arası',
-            icon: Icons.trending_up_rounded, tags: {'puan': 'iyi'}),
-        QuestionOption(id: 'orta', label: '50.000 – 200.000 arası',
-            icon: Icons.horizontal_rule_rounded, tags: {'puan': 'orta'}),
-        QuestionOption(id: 'dusuk', label: '200.000 üstü / Bilmiyorum',
-            icon: Icons.help_outline_rounded, tags: {'puan': 'dusuk'}),
+        QuestionOption(id: 'say', label: 'SAY (Sayısal)',
+            icon: Icons.calculate_rounded, tags: {'puanTuru': 'say'}),
+        QuestionOption(id: 'ea', label: 'EA (Eşit Ağırlık)',
+            icon: Icons.balance_rounded, tags: {'puanTuru': 'ea'}),
+        QuestionOption(id: 'soz', label: 'SÖZ (Sözel)',
+            icon: Icons.menu_book_rounded, tags: {'puanTuru': 'soz'}),
+        QuestionOption(id: 'tyt', label: 'TYT (Önlisans düşünüyorum)',
+            icon: Icons.school_rounded, tags: {'puanTuru': 'tyt'}),
+        QuestionOption(id: 'belirsiz', label: 'Henüz bilmiyorum',
+            icon: Icons.help_outline_rounded, tags: {'puanTuru': 'belirsiz'}),
+      ],
+    ),
+
+    // ─── S2b: Sıralama Aralığı ────────────────────────────────
+    RecommendationQuestion(
+      id: 'siralama',
+      question: 'Tahmini sıralamanı en iyi tanımlayan aralık hangisi?',
+      hint: 'Deneme sınavlarındaki sıralamana göre tahmin edebilirsin',
+      type: QuestionType.singleSelect,
+      options: [
+        // 1. Zirve ve Yüksek Rekabet (Dar Aralıklar)
+        QuestionOption(id: 's_0_1k', label: '1 – 1.000',
+            icon: Icons.military_tech_rounded, tags: {'siralama': '500'}),
+        QuestionOption(id: 's_1k_5k', label: '1.001 – 5.000',
+            icon: Icons.emoji_events_rounded, tags: {'siralama': '3000'}),
+        QuestionOption(id: 's_5k_10k', label: '5.001 – 10.000',
+            icon: Icons.star_rounded, tags: {'siralama': '7500'}),
+        QuestionOption(id: 's_10k_20k', label: '10.001 – 20.000',
+            icon: Icons.trending_up_rounded, tags: {'siralama': '15000'}),
+        QuestionOption(id: 's_20k_50k', label: '20.001 – 50.000',
+            icon: Icons.trending_up_rounded, tags: {'siralama': '35000'}),
+        // 2. Orta - Üst Segment
+        QuestionOption(id: 's_50k_100k', label: '50.001 – 100.000',
+            icon: Icons.show_chart_rounded, tags: {'siralama': '75000'}),
+        QuestionOption(id: 's_100k_150k', label: '100.001 – 150.000',
+            icon: Icons.show_chart_rounded, tags: {'siralama': '125000'}),
+        QuestionOption(id: 's_150k_250k', label: '150.001 – 250.000',
+            icon: Icons.horizontal_rule_rounded, tags: {'siralama': '200000'}),
+        // 3. Geniş Kitle
+        QuestionOption(id: 's_250k_500k', label: '250.001 – 500.000',
+            icon: Icons.horizontal_rule_rounded, tags: {'siralama': '375000'}),
+        QuestionOption(id: 's_500k_750k', label: '500.001 – 750.000',
+            icon: Icons.horizontal_rule_rounded, tags: {'siralama': '625000'}),
+        QuestionOption(id: 's_750k_1m', label: '750.001 – 1.000.000',
+            icon: Icons.horizontal_rule_rounded, tags: {'siralama': '875000'}),
+        // 4. Genel ve Baraj Üstü
+        QuestionOption(id: 's_1m_1_5m', label: '1.000.001 – 1.500.000',
+            icon: Icons.trending_down_rounded, tags: {'siralama': '1250000'}),
+        QuestionOption(id: 's_1_5m_2m', label: '1.500.001 – 2.000.000',
+            icon: Icons.trending_down_rounded, tags: {'siralama': '1750000'}),
+        QuestionOption(id: 's_2m_plus', label: '2.000.001 – 3.000.000+',
+            icon: Icons.trending_down_rounded, tags: {'siralama': '2500000'}),
       ],
     ),
 
