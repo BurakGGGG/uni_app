@@ -61,7 +61,7 @@ class RecommendationIntroScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 12),
               Text(
-                'Sana 18 kısa soru soracağım,\nhayalindeki üniversiteyi birlikte bulalım.',
+                'Sana birkaç kısa soru soracağım,\nhayalindeki üniversiteyi birlikte bulalım.',
                 textAlign: TextAlign.center,
                 style: AppTextStyles.bodyLarge.copyWith(
                   color: AppColors.textSecondary,
