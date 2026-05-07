@@ -9,8 +9,8 @@ import '../core/providers/shared_preferences_provider.dart';
 import 'go_router_refresh_stream.dart';
 import '../features/home/presentation/screens/home_screen.dart';
 import '../features/home/presentation/screens/explore_screen.dart';
-import '../features/comparison/presentation/screens/comparison_screen.dart';
 import '../features/comparison/presentation/screens/comparison_hub_screen.dart';
+import '../features/comparison/presentation/screens/university_comparison_screen.dart';
 import '../features/monetization/presentation/screens/paywall_screen.dart';
 import '../features/notifications/presentation/screens/notification_center_screen.dart';
 import '../features/auth/presentation/providers/auth_providers.dart';
@@ -361,7 +361,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       // ─── Karşılaştırma Alt Rotaları ────────────────────────────────
       GoRoute(
         path: '/compare/university',
-        builder: (context, state) => const ComparisonScreen(),
+        builder: (context, state) => const UniversityComparisonScreen(),
       ),
       GoRoute(
         path: '/compare/paywall',
