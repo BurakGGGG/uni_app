@@ -10,6 +10,8 @@ import 'go_router_refresh_stream.dart';
 import '../features/home/presentation/screens/home_screen.dart';
 import '../features/home/presentation/screens/explore_screen.dart';
 import '../features/comparison/presentation/screens/comparison_screen.dart';
+import '../features/comparison/presentation/screens/comparison_hub_screen.dart';
+import '../features/monetization/presentation/screens/paywall_screen.dart';
 import '../features/notifications/presentation/screens/notification_center_screen.dart';
 import '../features/auth/presentation/providers/auth_providers.dart';
 import '../features/notifications/presentation/screens/notification_settings_screen.dart';
@@ -356,6 +358,16 @@ final routerProvider = Provider<GoRouter>((ref) {
             SharedListScreen(shareSlug: state.pathParameters['shareSlug']!),
       ),
 
+      // ─── Karşılaştırma Alt Rotaları ────────────────────────────────
+      GoRoute(
+        path: '/compare/university',
+        builder: (context, state) => const ComparisonScreen(),
+      ),
+      GoRoute(
+        path: '/compare/paywall',
+        builder: (context, state) => const PaywallScreen(),
+      ),
+
       // ─── Tercih Asistanı ─────────────────────────────────────────
       GoRoute(
         path: '/recommend',
@@ -402,7 +414,7 @@ final routerProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: AppRoutes.compare,
                 pageBuilder: (context, state) =>
-                    const NoTransitionPage(child: ComparisonScreen()),
+                    const NoTransitionPage(child: ComparisonHubScreen()),
               ),
             ],
           ),
