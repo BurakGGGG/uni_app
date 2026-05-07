@@ -3,8 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../domain/models/recommendation_enrichment.dart';
 import '../../domain/models/recommendation_result.dart';
 import '../providers/recommendation_providers.dart';
+import '../widgets/typewriter_text.dart';
 
 class RecommendationResultScreen extends ConsumerWidget {
   const RecommendationResultScreen({super.key});
@@ -18,8 +20,10 @@ class RecommendationResultScreen extends ConsumerWidget {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: Text('Önerilerim',
-            style: AppTextStyles.titleLarge.copyWith(fontWeight: FontWeight.bold)),
+        title: Text(
+          'Önerilerim',
+          style: AppTextStyles.titleLarge.copyWith(fontWeight: FontWeight.bold),
+        ),
         centerTitle: true,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_rounded),
@@ -33,9 +37,80 @@ class RecommendationResultScreen extends ConsumerWidget {
           ),
         ],
       ),
-      body: result.recommendations.isEmpty
-          ? _buildEmpty(context)
-          : _buildResults(context, result),
+      body: result.when(
+        loading: () => const Center(
+          child: CircularProgressIndicator(color: AppColors.primary),
+        ),
+        error: (error, stackTrace) => _buildError(context, error),
+        data: (data) {
+          if (data.recommendations.isEmpty) return _buildEmpty(context);
+          final enrichmentAsync =
+              ref.watch(recommendationEnrichmentProvider);
+          return _buildResults(context, data, enrichmentAsync);
+        },
+      ),
+    );
+  }
+
+  Widget _buildError(BuildContext context, Object error) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(28),
+              decoration: BoxDecoration(
+                color: AppColors.error.withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(999),
+              ),
+              child: const Icon(
+                Icons.error_outline_rounded,
+                size: 56,
+                color: AppColors.error,
+              ),
+            ),
+            const SizedBox(height: 24),
+            Text(
+              'Bir şeyler ters gitti',
+              style: AppTextStyles.headlineSmall.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'Öneriler hazırlanırken bir hata oluştu. Lütfen tekrar deneyin.',
+              textAlign: TextAlign.center,
+              style: AppTextStyles.bodyLarge.copyWith(
+                color: AppColors.textSecondary,
+                height: 1.5,
+              ),
+            ),
+            const SizedBox(height: 32),
+            SizedBox(
+              width: double.infinity,
+              height: 52,
+              child: ElevatedButton.icon(
+                onPressed: () => context.go('/recommend'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  elevation: 0,
+                ),
+                icon: const Icon(Icons.replay_rounded),
+                label: const Text(
+                  'Yeniden Dene',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -50,18 +125,29 @@ class RecommendationResultScreen extends ConsumerWidget {
               padding: const EdgeInsets.all(28),
               decoration: BoxDecoration(
                 color: AppColors.secondary.withValues(alpha: 0.08),
-                shape: BoxShape.circle,
+                borderRadius: BorderRadius.circular(999),
               ),
-              child: const Icon(Icons.search_off_rounded, size: 56, color: AppColors.secondary),
+              child: const Icon(
+                Icons.search_off_rounded,
+                size: 56,
+                color: AppColors.secondary,
+              ),
             ),
             const SizedBox(height: 24),
-            Text('Önerimiz yok',
-                style: AppTextStyles.headlineSmall.copyWith(fontWeight: FontWeight.bold)),
+            Text(
+              'Önerimiz yok',
+              style: AppTextStyles.headlineSmall.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
             const SizedBox(height: 12),
             Text(
               'Verdiğin cevaplara uygun üniversite bulamadık. Filtreleri gevşeterek tekrar dene.',
               textAlign: TextAlign.center,
-              style: AppTextStyles.bodyLarge.copyWith(color: AppColors.textSecondary, height: 1.5),
+              style: AppTextStyles.bodyLarge.copyWith(
+                color: AppColors.textSecondary,
+                height: 1.5,
+              ),
             ),
             const SizedBox(height: 32),
             SizedBox(
@@ -72,12 +158,16 @@ class RecommendationResultScreen extends ConsumerWidget {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
                   foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
                   elevation: 0,
                 ),
                 icon: const Icon(Icons.replay_rounded),
-                label: const Text('Yeniden Başla',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                label: const Text(
+                  'Yeniden Başla',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                ),
               ),
             ),
           ],
@@ -86,81 +176,91 @@ class RecommendationResultScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildResults(BuildContext context, RecommendationResult result) {
-    final topThree = result.recommendations.where(
-        (r) => r.medal == MedalType.gold || r.medal == MedalType.silver || r.medal == MedalType.bronze).toList();
-    final others = result.recommendations.where(
-        (r) => r.medal == MedalType.honorable || r.medal == MedalType.none).toList();
+  Widget _buildResults(
+    BuildContext context,
+    RecommendationResult result,
+    AsyncValue<RecommendationEnrichment?> enrichmentAsync,
+  ) {
+    final topThree = result.recommendations
+        .where(
+          (r) =>
+              r.medal == MedalType.gold ||
+              r.medal == MedalType.silver ||
+              r.medal == MedalType.bronze,
+        )
+        .toList();
+    final others = result.recommendations
+        .where(
+          (r) => r.medal == MedalType.honorable || r.medal == MedalType.none,
+        )
+        .toList();
+
+    final enrichment = enrichmentAsync.value;
+    final aiLoading = enrichmentAsync.isLoading;
 
     return ListView(
       physics: const BouncingScrollPhysics(),
       padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
       children: [
-        // Summary card
-        Container(
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: [Color(0xFFFF6584), Color(0xFF8B5CF6)],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            borderRadius: BorderRadius.circular(24),
-            boxShadow: [
-              BoxShadow(
-                color: const Color(0xFFFF6584).withValues(alpha: 0.25),
-                blurRadius: 16,
-                offset: const Offset(0, 8),
-              ),
-            ],
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Row(
-                children: [
-                  Icon(Icons.auto_awesome_rounded, color: Colors.white, size: 22),
-                  SizedBox(width: 8),
-                  Text('Analiz Sonucu',
-                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
-                ],
-              ),
-              const SizedBox(height: 12),
-              Text(
-                result.summary,
-                style: AppTextStyles.bodyLarge.copyWith(color: Colors.white, height: 1.5),
-              ),
-            ],
-          ),
+        // AI Summary card — Groq destekli özet
+        _AiSummaryCard(
+          fallbackSummary: result.summary,
+          enrichment: enrichment,
+          loading: aiLoading,
         ),
+        const SizedBox(height: 20),
 
-        const SizedBox(height: 28),
+        const SizedBox(height: 8),
 
         // Podium — Top 3
         if (topThree.isNotEmpty) ...[
-          Text('🏆 En İyi Eşleşmeler',
-              style: AppTextStyles.titleLarge.copyWith(fontWeight: FontWeight.bold)),
+          Text(
+            '🏆 En İyi Eşleşmeler',
+            style: AppTextStyles.titleLarge.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
+          ),
           const SizedBox(height: 4),
-          Text('Tercihlerine en uygun 3 öneri',
-              style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary)),
+          Text(
+            'Tercihlerine en uygun 3 öneri',
+            style: AppTextStyles.bodySmall.copyWith(
+              color: AppColors.textSecondary,
+            ),
+          ),
           const SizedBox(height: 16),
 
-          ...topThree.map((rec) => _MedalCard(rec: rec)),
+          ...topThree.map(
+            (rec) => _MedalCard(
+              rec: rec,
+              aiReason:
+                  enrichment?.reasoningFor(rec.universityId, rec.departmentId),
+            ),
+          ),
 
           const SizedBox(height: 24),
         ],
 
         // Other recommendations
         if (others.isNotEmpty) ...[
-          Text('Diğer Öneriler',
-              style: AppTextStyles.titleLarge.copyWith(fontWeight: FontWeight.bold)),
+          Text(
+            'Diğer Öneriler',
+            style: AppTextStyles.titleLarge.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
+          ),
           const SizedBox(height: 4),
-          Text('Senin için uygun olabilecek diğer seçenekler',
-              style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary)),
+          Text(
+            'Senin için uygun olabilecek diğer seçenekler',
+            style: AppTextStyles.bodySmall.copyWith(
+              color: AppColors.textSecondary,
+            ),
+          ),
           const SizedBox(height: 16),
 
-          ...others.asMap().entries.map((entry) =>
-              _OtherCard(rec: entry.value, rank: entry.key + 4)),
+          ...others.asMap().entries.map(
+            (entry) =>
+                _OtherCard(rec: entry.value, rank: entry.key + 4),
+          ),
         ],
 
         const SizedBox(height: 16),
@@ -174,11 +274,15 @@ class RecommendationResultScreen extends ConsumerWidget {
             style: OutlinedButton.styleFrom(
               foregroundColor: AppColors.primary,
               side: const BorderSide(color: AppColors.primary, width: 2),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
             ),
             icon: const Icon(Icons.replay_rounded),
-            label: const Text('Yeniden Dene',
-                style: TextStyle(fontWeight: FontWeight.bold)),
+            label: const Text(
+              'Yeniden Dene',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
           ),
         ),
       ],
@@ -189,7 +293,8 @@ class RecommendationResultScreen extends ConsumerWidget {
 // ── Medal Card (Top 3) ──────────────────────────────────────
 class _MedalCard extends StatelessWidget {
   final CombinedRecommendation rec;
-  const _MedalCard({required this.rec});
+  final String? aiReason;
+  const _MedalCard({required this.rec, this.aiReason});
 
   @override
   Widget build(BuildContext context) {
@@ -208,7 +313,10 @@ class _MedalCard extends StatelessWidget {
           child: Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: medalData.color.withValues(alpha: 0.3), width: 1.5),
+              border: Border.all(
+                color: medalData.color.withValues(alpha: 0.3),
+                width: 1.5,
+              ),
             ),
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -236,8 +344,10 @@ class _MedalCard extends StatelessWidget {
                         ],
                       ),
                       child: Center(
-                        child: Text(medalData.emoji,
-                            style: const TextStyle(fontSize: 24)),
+                        child: Text(
+                          medalData.emoji,
+                          style: const TextStyle(fontSize: 24),
+                        ),
                       ),
                     ),
                     const SizedBox(width: 14),
@@ -246,19 +356,32 @@ class _MedalCard extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(rec.departmentName,
-                              style: AppTextStyles.titleMedium.copyWith(fontWeight: FontWeight.bold),
-                              maxLines: 1, overflow: TextOverflow.ellipsis),
+                          Text(
+                            rec.departmentName,
+                            style: AppTextStyles.titleMedium.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                           const SizedBox(height: 2),
-                          Text(rec.universityName,
-                              style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary),
-                              maxLines: 1, overflow: TextOverflow.ellipsis),
+                          Text(
+                            rec.universityName,
+                            style: AppTextStyles.bodySmall.copyWith(
+                              color: AppColors.textSecondary,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ],
                       ),
                     ),
                     // Score
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
                       decoration: BoxDecoration(
                         color: medalData.color.withValues(alpha: 0.12),
                         borderRadius: BorderRadius.circular(12),
@@ -274,25 +397,69 @@ class _MedalCard extends StatelessWidget {
                     ),
                   ],
                 ),
-                if (rec.reasons.isNotEmpty) ...[
+                if (aiReason != null && aiReason!.isNotEmpty) ...[
                   const SizedBox(height: 12),
                   const Divider(height: 1),
                   const SizedBox(height: 12),
-                  ...rec.reasons.map((reason) => Padding(
-                        padding: const EdgeInsets.only(bottom: 4),
-                        child: Row(
-                          children: [
-                            Icon(Icons.check_circle_rounded,
-                                size: 16, color: medalData.color),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Text(reason,
-                                  style: AppTextStyles.bodySmall.copyWith(
-                                      color: AppColors.textSecondary, height: 1.3)),
-                            ),
-                          ],
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: medalData.color.withValues(alpha: 0.06),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(
+                        color: medalData.color.withValues(alpha: 0.18),
+                      ),
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Icon(
+                          Icons.auto_awesome_rounded,
+                          size: 14,
+                          color: medalData.color,
                         ),
-                      )),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: TypewriterText(
+                            aiReason!,
+                            style: AppTextStyles.bodySmall.copyWith(
+                              color: AppColors.textPrimary,
+                              height: 1.4,
+                            ),
+                            perWord: const Duration(milliseconds: 50),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ] else if (rec.reasons.isNotEmpty) ...[
+                  const SizedBox(height: 12),
+                  const Divider(height: 1),
+                  const SizedBox(height: 12),
+                  ...rec.reasons.map(
+                    (reason) => Padding(
+                      padding: const EdgeInsets.only(bottom: 4),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.check_circle_rounded,
+                            size: 16,
+                            color: medalData.color,
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              reason,
+                              style: AppTextStyles.bodySmall.copyWith(
+                                color: AppColors.textSecondary,
+                                height: 1.3,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
                 ],
               ],
             ),
@@ -305,25 +472,25 @@ class _MedalCard extends StatelessWidget {
   _MedalData _getMedalData(MedalType medal) {
     return switch (medal) {
       MedalType.gold => _MedalData(
-          emoji: '🥇',
-          color: const Color(0xFFD4A017),
-          gradient: [const Color(0xFFFFD700), const Color(0xFFFFA500)],
-        ),
+        emoji: '🥇',
+        color: const Color(0xFFD4A017),
+        gradient: [const Color(0xFFFFD700), const Color(0xFFFFA500)],
+      ),
       MedalType.silver => _MedalData(
-          emoji: '🥈',
-          color: const Color(0xFF8E8E8E),
-          gradient: [const Color(0xFFC0C0C0), const Color(0xFF8E8E8E)],
-        ),
+        emoji: '🥈',
+        color: const Color(0xFF8E8E8E),
+        gradient: [const Color(0xFFC0C0C0), const Color(0xFF8E8E8E)],
+      ),
       MedalType.bronze => _MedalData(
-          emoji: '🥉',
-          color: const Color(0xFFCD7F32),
-          gradient: [const Color(0xFFCD7F32), const Color(0xFF8B5A2B)],
-        ),
+        emoji: '🥉',
+        color: const Color(0xFFCD7F32),
+        gradient: [const Color(0xFFCD7F32), const Color(0xFF8B5A2B)],
+      ),
       _ => _MedalData(
-          emoji: '⭐',
-          color: AppColors.primary,
-          gradient: [AppColors.primary, AppColors.primary],
-        ),
+        emoji: '⭐',
+        color: AppColors.primary,
+        gradient: [AppColors.primary, AppColors.primary],
+      ),
     };
   }
 }
@@ -332,7 +499,11 @@ class _MedalData {
   final String emoji;
   final Color color;
   final List<Color> gradient;
-  _MedalData({required this.emoji, required this.color, required this.gradient});
+  _MedalData({
+    required this.emoji,
+    required this.color,
+    required this.gradient,
+  });
 }
 
 // ── Other Card (4-8) ────────────────────────────────────────
@@ -359,53 +530,200 @@ class _OtherCard extends StatelessWidget {
               border: Border.all(color: AppColors.borderLight),
             ),
             padding: const EdgeInsets.all(14),
-            child: Row(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  width: 36,
-                  height: 36,
-                  decoration: BoxDecoration(
-                    color: AppColors.primary.withValues(alpha: 0.08),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Center(
-                    child: Text('#$rank',
-                        style: TextStyle(
+                Row(
+                  children: [
+                    Container(
+                      width: 36,
+                      height: 36,
+                      decoration: BoxDecoration(
+                        color: AppColors.primary.withValues(alpha: 0.08),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Center(
+                        child: Text(
+                          '#$rank',
+                          style: TextStyle(
                             color: AppColors.primary,
                             fontWeight: FontWeight.bold,
-                            fontSize: 14)),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(rec.departmentName,
-                          style: AppTextStyles.bodyLarge.copyWith(fontWeight: FontWeight.w600),
-                          maxLines: 1, overflow: TextOverflow.ellipsis),
-                      Text(rec.universityName,
-                          style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary),
-                          maxLines: 1, overflow: TextOverflow.ellipsis),
-                    ],
-                  ),
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: AppColors.accent.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    '%${rec.normalizedScore.toInt()}',
-                    style: const TextStyle(
-                        color: AppColors.accent, fontWeight: FontWeight.bold, fontSize: 13),
-                  ),
+                            fontSize: 14,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            rec.departmentName,
+                            style: AppTextStyles.bodyLarge.copyWith(
+                              fontWeight: FontWeight.w600,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          Text(
+                            rec.universityName,
+                            style: AppTextStyles.bodySmall.copyWith(
+                              color: AppColors.textSecondary,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.accent.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        '%${rec.normalizedScore.toInt()}',
+                        style: const TextStyle(
+                          color: AppColors.accent,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+// ── AI Summary Card ─────────────────────────────────────────
+class _AiSummaryCard extends StatelessWidget {
+  final String fallbackSummary;
+  final RecommendationEnrichment? enrichment;
+  final bool loading;
+
+  const _AiSummaryCard({
+    required this.fallbackSummary,
+    required this.enrichment,
+    required this.loading,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final hasAi = enrichment != null && enrichment!.summary.isNotEmpty;
+    final body = hasAi ? enrichment!.summary : fallbackSummary;
+
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [Color(0xFFFF6584), Color(0xFF8B5CF6)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF8B5CF6).withValues(alpha: 0.25),
+            blurRadius: 16,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.18),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(
+                  Icons.auto_awesome_rounded,
+                  color: Colors.white,
+                  size: 16,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                hasAi ? 'Akıllı Öneri Özeti' : 'Analiz Sonucu',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 15,
+                  letterSpacing: 0.2,
+                ),
+              ),
+              const Spacer(),
+              if (loading)
+                const SizedBox(
+                  width: 14,
+                  height: 14,
+                  child: CircularProgressIndicator(
+                    color: Colors.white,
+                    strokeWidth: 2,
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          if (loading && !hasAi) ...[
+            // Skeleton — yüklenirken
+            _SkeletonLine(width: double.infinity),
+            const SizedBox(height: 8),
+            _SkeletonLine(width: double.infinity),
+            const SizedBox(height: 8),
+            _SkeletonLine(width: 200),
+          ] else if (hasAi)
+            // AI metni kelime kelime gelir
+            TypewriterText(
+              body,
+              style: AppTextStyles.bodyLarge.copyWith(
+                color: Colors.white,
+                height: 1.5,
+              ),
+              perWord: const Duration(milliseconds: 60),
+            )
+          else
+            // Fallback (kural motoru özeti) — direkt göster
+            Text(
+              body,
+              style: AppTextStyles.bodyLarge.copyWith(
+                color: Colors.white,
+                height: 1.5,
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SkeletonLine extends StatelessWidget {
+  final double width;
+  const _SkeletonLine({required this.width});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: width,
+      height: 14,
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.22),
+        borderRadius: BorderRadius.circular(7),
       ),
     );
   }

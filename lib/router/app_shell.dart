@@ -12,16 +12,14 @@ import '../features/university/presentation/providers/university_providers.dart'
 class AppShell extends ConsumerStatefulWidget {
   final StatefulNavigationShell navigationShell;
 
-  const AppShell({
-    super.key,
-    required this.navigationShell,
-  });
+  const AppShell({super.key, required this.navigationShell});
 
   @override
   ConsumerState<AppShell> createState() => _AppShellState();
 }
 
-class _AppShellState extends ConsumerState<AppShell> with WidgetsBindingObserver {
+class _AppShellState extends ConsumerState<AppShell>
+    with WidgetsBindingObserver {
   DateTime? _lastVerificationCheck;
   static const _verificationDebounce = Duration(minutes: 5);
 
@@ -65,13 +63,16 @@ class _AppShellState extends ConsumerState<AppShell> with WidgetsBindingObserver
 
     // Son çağrıdan beri 5 dakika geçmediyse debounce
     if (_lastVerificationCheck != null &&
-        DateTime.now().difference(_lastVerificationCheck!) < _verificationDebounce) {
+        DateTime.now().difference(_lastVerificationCheck!) <
+            _verificationDebounce) {
       return;
     }
 
     _lastVerificationCheck = DateTime.now();
 
-    final success = await ref.read(authRepositoryProvider).reloadAndCheckVerification();
+    final success = await ref
+        .read(authRepositoryProvider)
+        .reloadAndCheckVerification();
     if (success && mounted) {
       // Firestore'daki güncel isVerifiedStudent değerini okutmak için her iki provider'ı yenile
       ref.invalidate(currentUserProvider);
@@ -90,79 +91,97 @@ class _AppShellState extends ConsumerState<AppShell> with WidgetsBindingObserver
         onPopInvokedWithResult: (didPop, result) {
           if (didPop) return;
           // Home değilse Home'a dön
-          widget.navigationShell.goBranch(0);
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) widget.navigationShell.goBranch(0);
+          });
         },
         child: Scaffold(
-        body: widget.navigationShell,
-        bottomNavigationBar: Container(
-          decoration: BoxDecoration(
-            color: AppColors.surface,
-            boxShadow: AppColors.bottomNavShadow,
-          ),
-          child: SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              child: NavigationBar(
-                selectedIndex: widget.navigationShell.currentIndex,
-                onDestinationSelected: (index) {
-                  if (index == widget.navigationShell.currentIndex) {
-                    final ctrl = PrimaryScrollController.of(context);
-                    if (ctrl.hasClients) {
-                      ctrl.animateTo(0, duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
+          body: widget.navigationShell,
+          bottomNavigationBar: Container(
+            decoration: BoxDecoration(
+              color: AppColors.surface,
+              boxShadow: AppColors.bottomNavShadow,
+            ),
+            child: SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                child: NavigationBar(
+                  selectedIndex: widget.navigationShell.currentIndex,
+                  onDestinationSelected: (index) {
+                    if (index == widget.navigationShell.currentIndex) {
+                      final ctrl = PrimaryScrollController.of(context);
+                      if (ctrl.hasClients) {
+                        ctrl.animateTo(
+                          0,
+                          duration: const Duration(milliseconds: 300),
+                          curve: Curves.easeOut,
+                        );
+                      }
+                    } else {
+                      widget.navigationShell.goBranch(
+                        index,
+                        initialLocation: false,
+                      );
                     }
-                  } else {
-                    widget.navigationShell.goBranch(
-                      index,
-                      initialLocation: false,
-                    );
-                  }
-                },
-                backgroundColor: Colors.transparent,
-                surfaceTintColor: Colors.transparent,
-                elevation: 0,
-                height: 64,
-                indicatorColor: AppColors.primary.withValues(alpha: 0.12),
-                labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
-                animationDuration: const Duration(milliseconds: 400),
-                destinations: [
-                  const NavigationDestination(
-                    icon: Icon(Icons.home_outlined),
-                    selectedIcon: Icon(Icons.home_rounded, color: AppColors.primary),
-                    label: 'Ana Sayfa',
-                  ),
-                  const NavigationDestination(
-                    icon: Icon(Icons.explore_outlined),
-                    selectedIcon: Icon(Icons.explore_rounded, color: AppColors.primary),
-                    label: 'Keşfet',
-                  ),
-                  NavigationDestination(
-                    icon: SvgPicture.asset(
-                      'assets/icons/compare_icon_outline.svg',
-                      width: 24,
-                      height: 24,
+                  },
+                  backgroundColor: Colors.transparent,
+                  surfaceTintColor: Colors.transparent,
+                  elevation: 0,
+                  height: 64,
+                  indicatorColor: AppColors.primary.withValues(alpha: 0.12),
+                  labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+                  animationDuration: const Duration(milliseconds: 400),
+                  destinations: [
+                    const NavigationDestination(
+                      icon: Icon(Icons.home_outlined),
+                      selectedIcon: Icon(
+                        Icons.home_rounded,
+                        color: AppColors.primary,
+                      ),
+                      label: 'Ana Sayfa',
                     ),
-                    selectedIcon: SvgPicture.asset(
-                      'assets/icons/compare_icon.svg',
-                      width: 24,
-                      height: 24,
+                    const NavigationDestination(
+                      icon: Icon(Icons.explore_outlined),
+                      selectedIcon: Icon(
+                        Icons.explore_rounded,
+                        color: AppColors.primary,
+                      ),
+                      label: 'Keşfet',
                     ),
-                    label: 'Karşılaştır',
-                  ),
-                  const NavigationDestination(
-                    icon: Icon(Icons.list_alt_outlined),
-                    selectedIcon: Icon(Icons.list_alt_rounded, color: AppColors.primary),
-                    label: 'Listelerim',
-                  ),
-                  const NavigationDestination(
-                    icon: Icon(Icons.person_outline_rounded),
-                    selectedIcon: Icon(Icons.person_rounded, color: AppColors.primary),
-                    label: 'Profil',
-                  ),
-                ],
+                    NavigationDestination(
+                      icon: SvgPicture.asset(
+                        'assets/icons/compare_icon_outline.svg',
+                        width: 24,
+                        height: 24,
+                      ),
+                      selectedIcon: SvgPicture.asset(
+                        'assets/icons/compare_icon.svg',
+                        width: 24,
+                        height: 24,
+                      ),
+                      label: 'Karşılaştır',
+                    ),
+                    const NavigationDestination(
+                      icon: Icon(Icons.list_alt_outlined),
+                      selectedIcon: Icon(
+                        Icons.list_alt_rounded,
+                        color: AppColors.primary,
+                      ),
+                      label: 'Listelerim',
+                    ),
+                    const NavigationDestination(
+                      icon: Icon(Icons.person_outline_rounded),
+                      selectedIcon: Icon(
+                        Icons.person_rounded,
+                        color: AppColors.primary,
+                      ),
+                      label: 'Profil',
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
-        ),
         ),
       ),
     );

@@ -20,6 +20,12 @@ class RecommendationEngine {
   /// 2. Puan türü hard filter uygula
   /// 3. Her bölüm için bölüm skoru hesapla (W1-W7)
   /// 4. Her bölüm × üniversite için toplam skor hesapla
+  /// Public: cevaplardan tag map'i çıkar (LLM'e göndermek için).
+  Map<String, String> extractTagsForLlm(
+    Map<String, RecommendationAnswer> answers,
+  ) =>
+      _extractTags(answers);
+
   /// 5. Skor ≥ 40 olanları filtrele, sırala, madalya ata
   List<CombinedRecommendation> generateRecommendations(
     Map<String, RecommendationAnswer> answers,
@@ -84,6 +90,15 @@ class RecommendationEngine {
         if (userRanking > 0 && uniRanking > 0) {
           w5Score = _puanUyumu(userRanking, uniRanking);
           if (w5Score == 0.0) continue; // Puan hiç yetmiyor, atla
+        }
+
+        // ── RİSK PROFİLİ FİLTRESİ ──
+        // garanti: yalnızca rahat girilebilir (w5 ≥ 0.8)
+        // denge:   varsayılan (w5 ≥ 0.4 zaten yukarıda elenmedi)
+        // yuksek:  sınırda + zorlayıcı seçimler önceliklendirilsin
+        final risk = userTags['risk'] ?? 'denge';
+        if (userRanking > 0 && uniRanking > 0) {
+          if (risk == 'garanti' && w5Score < 0.8) continue;
         }
 
         // v2 formül: deptScore × 0.55 + güçSkoru × 7 + bonuslar
@@ -168,6 +183,46 @@ class RecommendationEngine {
     for (final question in QuestionBank.questions) {
       final answer = answers[question.id];
       if (answer == null) continue;
+
+      // Slider / RangeSlider sorularını çöz
+      if ((question.type == QuestionType.slider ||
+              question.type == QuestionType.rangeSlider) &&
+          question.slider != null) {
+        final selected = answer.selectedOptionIds.isEmpty
+            ? null
+            : answer.selectedOptionIds.first;
+        if (selected == null) {
+          continue;
+        }
+        final snaps = question.slider!.snaps;
+        final tagKey = question.slider!.tagKey;
+
+        if (selected.startsWith('snap_')) {
+          final idx = int.tryParse(selected.substring(5)) ?? 0;
+          if (idx >= 0 && idx < snaps.length) {
+            tags[tagKey] = snaps[idx].tagValue;
+          }
+        } else if (selected.startsWith('range_')) {
+          final parts = selected.substring(6).split('_');
+          if (parts.length == 2) {
+            final minIdx = int.tryParse(parts[0]) ?? 0;
+            final maxIdx = int.tryParse(parts[1]) ?? snaps.length - 1;
+            if (minIdx >= 0 && maxIdx < snaps.length && minIdx <= maxIdx) {
+              final minVal = int.tryParse(snaps[minIdx].tagValue) ?? 0;
+              final maxVal = int.tryParse(snaps[maxIdx].tagValue) ?? 0;
+              // Engine, ranking için orta noktayı kullanır.
+              final mid = ((minVal + maxVal) / 2).round();
+              tags[tagKey] = mid.toString();
+              // Aralık bilgisini de tut — LLM prompt için faydalı.
+              tags['${tagKey}Min'] = minVal.toString();
+              tags['${tagKey}Max'] = maxVal.toString();
+            }
+          }
+        }
+        continue;
+      }
+
+      if (question.options.isEmpty) continue;
 
       for (final optionId in answer.selectedOptionIds) {
         final option = question.options.firstWhere(
@@ -254,8 +309,37 @@ class RecommendationEngine {
       reasons.add('Stres toleransın uygun');
     }
 
+    // ── Motivasyon bonusu (max +5) ──
+    // Kullanıcının "neden bu alan" cevabı bölümün karakteriyle örtüşüyorsa bonus.
+    final motivasyon = userTags['motivasyon'];
+    if (motivasyon == 'gelir' && _highIncomeDepts.contains(dept.id)) {
+      totalScore += 5;
+      reasons.add('Maddi getirisi yüksek bir alan');
+    } else if (motivasyon == 'toplum' &&
+        _socialImpactDepts.contains(dept.id)) {
+      totalScore += 5;
+      reasons.add('Topluma doğrudan fayda sağlayan bir alan');
+    } else if (motivasyon == 'tutku') {
+      // Tutku — W2 (ilgi) skorunun ek katkısı (max +3)
+      totalScore += w2 * 3;
+    }
+
     return _DeptScoreResult(score: totalScore, reasons: reasons);
   }
+
+  // Motivasyon bonusu için bölüm grupları
+  static const _highIncomeDepts = {
+    'tip', 'dis', 'eczacilik', 'hukuk',
+    'bilgisayar_muh', 'elektrik_muh', 'mekatronik_muh',
+    'endustri_muh', 'makine_muh', 'insaat_muh', 'ucak_muh',
+  };
+  static const _socialImpactDepts = {
+    'hemsirelik', 'ebelik', 'fizyoterapi', 'beslenme',
+    'rpd', 'ozel_egitim', 'sinif_ogr', 'okul_oncesi',
+    'turkce_ogr', 'fen_bilgisi_ogr', 'matematik_ogr',
+    'sosyal_hizmet', 'psikoloji', 'cocuk_gelisimi',
+    'ilahiyat', 'acil_yardim',
+  };
 
   // ─── Kural eşleşme ─────────────────────────────────────────
   double _matchRules(Map<String, double> rules, Map<String, String> userTags) {
@@ -326,6 +410,31 @@ class RecommendationEngine {
       }
     } else if (dil == 'farketmez') {
       total += 1;
+    }
+
+    // ── Risk profili bonusu ──
+    final risk = userTags['risk'];
+    if (risk == 'yuksek') {
+      // Yüksek hedef: prestijli/güçlü üniversiteleri öne çıkar (+3)
+      if (strengthScore >= 4) total += 3;
+    } else if (risk == 'garanti') {
+      // Garanti: rahat girebileceği yerlere ek bonus (+2)
+      if (w5Score >= 0.9) total += 2;
+    }
+
+    // ── Şehir profili bonusu ──
+    // Kullanıcı "büyük metropol" diyorsa İstanbul/Ankara/İzmir bonusu
+    final sehirTipi = userTags['sehirTipi'];
+    final bigCities = {'istanbul', 'ankara', 'izmir'};
+    final mediumCities = {'bursa', 'eskisehir', 'antalya', 'mersin'};
+    if (sehirTipi == 'buyuk' && bigCities.contains(uni.city)) {
+      total += 2;
+    } else if (sehirTipi == 'orta' && mediumCities.contains(uni.city)) {
+      total += 2;
+    } else if (sehirTipi == 'sakin' &&
+        !bigCities.contains(uni.city) &&
+        !mediumCities.contains(uni.city)) {
+      total += 2;
     }
 
     return total;
