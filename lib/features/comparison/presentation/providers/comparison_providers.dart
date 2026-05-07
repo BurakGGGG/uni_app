@@ -1,6 +1,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../data/city_comparison_repository.dart';
 import '../../data/comparison_repository.dart';
+import '../../data/department_comparison_repository.dart';
+import '../../domain/models/city_comparison.dart';
 import '../../domain/models/comparison_result.dart';
+import '../../domain/models/department_comparison.dart';
 import '../../../university/data/university_repository.dart';
 import '../../../places/data/place_repository.dart';
 
@@ -62,4 +66,46 @@ final comparisonResultProvider = FutureProvider<ComparisonResult?>((ref) async {
     selection.uniIdA!,
     selection.uniIdB!,
   );
+});
+
+class ComparisonPair {
+  final String idA;
+  final String idB;
+
+  const ComparisonPair({
+    required this.idA,
+    required this.idB,
+  });
+}
+
+final departmentComparisonRepositoryProvider =
+    Provider<DepartmentComparisonRepository>((ref) {
+  return DepartmentComparisonRepository(
+    universityRepository: UniversityRepository(),
+  );
+});
+
+final cityComparisonRepositoryProvider = Provider<CityComparisonRepository>((ref) {
+  return CityComparisonRepository(
+    universityRepository: UniversityRepository(),
+  );
+});
+
+final departmentComparisonResultProvider =
+    FutureProvider.family<DepartmentComparisonResult?, ComparisonPair>(
+        (ref, pair) async {
+  if (pair.idA == pair.idB) return null;
+  return ref.read(departmentComparisonRepositoryProvider).compare(
+        pair.idA,
+        pair.idB,
+      );
+});
+
+final cityComparisonResultProvider =
+    FutureProvider.family<CityComparisonResult?, ComparisonPair>((ref, pair) async {
+  if (pair.idA == pair.idB) return null;
+  return ref.read(cityComparisonRepositoryProvider).compare(
+        pair.idA,
+        pair.idB,
+      );
 });
