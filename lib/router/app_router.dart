@@ -75,12 +75,16 @@ final routerProvider = Provider<GoRouter>((ref) {
   return GoRouter(
     initialLocation: AppRoutes.splash,
     debugLogDiagnostics: true,
-    refreshListenable: GoRouterRefreshStream(FirebaseAuth.instance.authStateChanges()),
+    refreshListenable: GoRouterRefreshStream(
+      FirebaseAuth.instance.authStateChanges(),
+    ),
     redirect: (context, state) {
-      final hasCompletedOnboarding = prefs.getBool('onboarding_completed') ?? false;
+      final hasCompletedOnboarding =
+          prefs.getBool('onboarding_completed') ?? false;
       final isLoggedIn = FirebaseAuth.instance.currentUser != null;
       final path = state.uri.path;
-      final isGoingToAuth = path == AppRoutes.login || path == AppRoutes.register;
+      final isGoingToAuth =
+          path == AppRoutes.login || path == AppRoutes.register;
       final isGoingToOnboarding = path == AppRoutes.onboarding;
       final isGoingToSplash = path == AppRoutes.splash;
 
@@ -96,7 +100,10 @@ final routerProvider = Provider<GoRouter>((ref) {
 
       // 2. Korumalı Rotalar (Sprint 3'te yorum rotaları buraya eklenecek)
       final protectedRoutes = [AppRoutes.editProfile, '/my-reviews'];
-      final isGoingToProtected = protectedRoutes.contains(path) || path.startsWith('/write-review') || path.startsWith('/edit-review');
+      final isGoingToProtected =
+          protectedRoutes.contains(path) ||
+          path.startsWith('/write-review') ||
+          path.startsWith('/edit-review');
 
       if (isGoingToProtected && !isLoggedIn) {
         final encodedPath = Uri.encodeComponent(state.uri.toString());
@@ -128,9 +135,16 @@ final routerProvider = Provider<GoRouter>((ref) {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.error_outline_rounded, size: 64, color: Colors.redAccent),
+              const Icon(
+                Icons.error_outline_rounded,
+                size: 64,
+                color: Colors.redAccent,
+              ),
               const SizedBox(height: 16),
-              const Text('Sayfa bulunamadı', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+              const Text(
+                'Sayfa bulunamadı',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
               const SizedBox(height: 8),
               const Text(
                 'Aradığınız içerik taşınmış veya silinmiş olabilir.',
@@ -148,279 +162,272 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
     ),
     routes: [
-    // ─── Splash ───────────────────────────────────────────────────
-    GoRoute(
-      path: AppRoutes.splash,
-      builder: (context, state) => const SplashScreen(),
-    ),
+      // ─── Splash ───────────────────────────────────────────────────
+      GoRoute(
+        path: AppRoutes.splash,
+        builder: (context, state) => const SplashScreen(),
+      ),
 
-    // ─── Arama ───────────────────────────────────────────────────
-    GoRoute(
-      path: '/search',
-      builder: (context, state) => const SearchScreen(),
-    ),
+      // ─── Arama ───────────────────────────────────────────────────
+      GoRoute(
+        path: '/search',
+        builder: (context, state) => const SearchScreen(),
+      ),
 
-    // ─── Bildirimler ──────────────────────────────────────────────
-    GoRoute(
-      path: '/notifications',
-      builder: (context, state) => const NotificationCenterScreen(),
-    ),
-    GoRoute(
-      path: '/notification-settings',
-      builder: (context, state) => const NotificationSettingsScreen(),
-    ),
+      // ─── Bildirimler ──────────────────────────────────────────────
+      GoRoute(
+        path: '/notifications',
+        builder: (context, state) => const NotificationCenterScreen(),
+      ),
+      GoRoute(
+        path: '/notification-settings',
+        builder: (context, state) => const NotificationSettingsScreen(),
+      ),
 
-    // ─── Tüm Yorumlar ────────────────────────────────────────────
-    GoRoute(
-      path: AppRoutes.allReviews,
-      builder: (context, state) => const AllReviewsScreen(),
-    ),
+      // ─── Tüm Yorumlar ────────────────────────────────────────────
+      GoRoute(
+        path: AppRoutes.allReviews,
+        builder: (context, state) => const AllReviewsScreen(),
+      ),
 
-    // ─── Mekan Detayı ─────────────────────────────────────────
-    GoRoute(
-      path: '/place/:placeId',
-      builder: (context, state) => PlaceDetailScreen(
-        placeId: state.pathParameters['placeId']!,
+      // ─── Mekan Detayı ─────────────────────────────────────────
+      GoRoute(
+        path: '/place/:placeId',
+        builder: (context, state) =>
+            PlaceDetailScreen(placeId: state.pathParameters['placeId']!),
       ),
-    ),
 
-    // ─── Auth & Profile Routes ───────────────────────────────────
-    GoRoute(
-      path: AppRoutes.onboarding,
-      builder: (context, state) => const OnboardingScreen(),
-    ),
-    GoRoute(
-      path: AppRoutes.login,
-      builder: (context, state) => const LoginScreen(),
-    ),
-    GoRoute(
-      path: AppRoutes.register,
-      builder: (context, state) => const RegisterScreen(),
-    ),
-    GoRoute(
-      path: AppRoutes.editProfile,
-      builder: (context, state) => const EditProfileScreen(),
-    ),
+      // ─── Auth & Profile Routes ───────────────────────────────────
+      GoRoute(
+        path: AppRoutes.onboarding,
+        builder: (context, state) => const OnboardingScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.login,
+        builder: (context, state) => const LoginScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.register,
+        builder: (context, state) => const RegisterScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.editProfile,
+        builder: (context, state) => const EditProfileScreen(),
+      ),
 
-    // ─── Public Profil ─────────────────────────────────────────
-    GoRoute(
-      path: '/user/:userId',
-      builder: (context, state) => PublicProfileScreen(
-        userId: state.pathParameters['userId']!,
+      // ─── Public Profil ─────────────────────────────────────────
+      GoRoute(
+        path: '/user/:userId',
+        builder: (context, state) =>
+            PublicProfileScreen(userId: state.pathParameters['userId']!),
       ),
-    ),
-    GoRoute(
-      path: '/university/:uniId',
-      builder: (context, state) => UniversityDetailScreen(
-        universityId: state.pathParameters['uniId']!,
-      ),
-    ),
-    GoRoute(
-      path: '/university/:uniId/departments',
-      builder: (context, state) => UniDepartmentsScreen(
-        universityId: state.pathParameters['uniId']!,
-      ),
-    ),
-    GoRoute(
-      path: '/university/:uniId/places',
-      builder: (context, state) => UniPlacesScreen(
-        universityId: state.pathParameters['uniId']!,
-      ),
-    ),
-    GoRoute(
-      path: '/university/:uniId/reviews',
-      builder: (context, state) => UniReviewsScreen(
-        universityId: state.pathParameters['uniId']!,
-      ),
-    ),
-    GoRoute(
-      path: '/university/:uniId/gallery',
-      builder: (context, state) => UniversityGalleryScreen(
-        universityId: state.pathParameters['uniId']!,
-      ),
-    ),
-    GoRoute(
-      path: '/university/:uniId/ratings',
-      builder: (context, state) => UniRatingsScreen(
-        universityId: state.pathParameters['uniId']!,
-      ),
-    ),
-    GoRoute(
-      path: '/write-review/:type/:targetId',
-      redirect: (context, state) {
-        final userAsync = ProviderScope.containerOf(context).read(currentUserProvider);
-        final user = userAsync.valueOrNull;
-        if (user == null) {
-          final encodedPath = Uri.encodeComponent(state.uri.toString());
-          return '/login?from=$encodedPath';
-        }
-        if (!user.isVerifiedStudent) {
-          // İleride verify-email rotası olursa oraya da atılabilir.
-          // Şimdilik null döndürüp yazmasını engelleyemeyiz çünkü verify-email rotası yok,
-          // router redirect içinde snackbar da gösteremeyiz.
-          // Bu yüzden ui da engellemek daha mantıklı, ama istenen bu:
-        }
-        return null;
-      },
-      builder: (context, state) {
-        final typeStr = state.pathParameters['type']!;
-        final targetId = state.pathParameters['targetId']!;
-        final type = ReviewType.values.firstWhere(
-          (t) => t.name == typeStr,
-          orElse: () => ReviewType.university,
-        );
-        // Department ise universityId'yi query parametreden al
-        // Place ise universityId query param'dan gelir
-        final universityId = state.uri.queryParameters['uni'] ?? targetId;
-        final placeSubType = state.uri.queryParameters['pt'];
-        return WriteReviewScreen(
-          type: type,
-          targetId: targetId,
-          universityId: universityId,
-          placeSubType: placeSubType,
-        );
-      },
-    ),
-    GoRoute(
-      path: '/edit-review/:reviewId',
-      builder: (context, state) {
-        final reviewId = state.pathParameters['reviewId']!;
-        return Consumer(
-          builder: (context, ref, _) {
-            final reviewAsync = ref.watch(reviewDetailProvider(reviewId));
-            return reviewAsync.when(
-              data: (r) {
-                if (r == null) {
-                  return const Scaffold(body: Center(child: Text('Yorum bulunamadı')));
-                }
-                return WriteReviewScreen(
-                  targetId: r.targetId,
-                  type: r.type,
-                  universityId: r.universityId,
-                  initialReview: r,
-                );
-              },
-              loading: () => const Scaffold(body: Center(child: CircularProgressIndicator())),
-              error: (e, _) => Scaffold(body: Center(child: Text('Hata: $e'))),
-            );
-          },
-        );
-      },
-    ),
-    GoRoute(
-      path: '/my-reviews',
-      builder: (context, state) => const MyReviewsScreen(),
-    ),
-    GoRoute(
-      path: AppRoutes.departmentDetail,
-      builder: (context, state) => DepartmentDetailScreen(
-        departmentId: state.pathParameters['deptId']!,
-      ),
-    ),
-    GoRoute(
-      path: AppRoutes.cityDetail,
-      builder: (context, state) => CityUniversitiesScreen(
-        cityId: state.pathParameters['cityId']!,
-      ),
-    ),
-    GoRoute(
-      path: AppRoutes.allCities,
-      builder: (context, state) => const AllCitiesScreen(),
-    ),
-    GoRoute(
-      path: AppRoutes.favorites,
-      builder: (context, state) => const FavoritesScreen(),
-    ),
-    GoRoute(
-      path: '/my-lists/:listId',
-      builder: (context, state) => ListEditScreen(
-        listId: state.pathParameters['listId']!,
-      ),
-    ),
-    GoRoute(
-      path: '/list/:shareSlug',
-      builder: (context, state) => SharedListScreen(
-        shareSlug: state.pathParameters['shareSlug']!,
-      ),
-    ),
-
-    // ─── Tercih Asistanı (AI Recommendation) ──────────────────────
-    GoRoute(
-      path: '/recommend',
-      builder: (context, state) => const RecommendationIntroScreen(),
-    ),
-    GoRoute(
-      path: '/recommend/chat',
-      builder: (context, state) => const RecommendationChatScreen(),
-    ),
-    GoRoute(
-      path: '/recommend/result',
-      builder: (context, state) => const RecommendationResultScreen(),
-    ),
-
-    // ─── Shell Route (Bottom Navigation) ─────────────────────────
-    StatefulShellRoute.indexedStack(
-      builder: (context, state, navigationShell) {
-        return AppShell(navigationShell: navigationShell);
-      },
-      branches: [
-        // Ana Sayfa
-        StatefulShellBranch(
-          routes: [
-            GoRoute(
-              path: AppRoutes.home,
-              pageBuilder: (context, state) => const NoTransitionPage(
-                child: HomeScreen(),
-              ),
-            ),
-          ],
+      GoRoute(
+        path: '/university/:uniId',
+        builder: (context, state) => UniversityDetailScreen(
+          universityId: state.pathParameters['uniId']!,
         ),
-        // Keşfet
-        StatefulShellBranch(
-          routes: [
-            GoRoute(
-              path: AppRoutes.explore,
-              pageBuilder: (context, state) => const NoTransitionPage(
-                child: ExploreScreen(),
-              ),
-            ),
-          ],
+      ),
+      GoRoute(
+        path: '/university/:uniId/departments',
+        builder: (context, state) =>
+            UniDepartmentsScreen(universityId: state.pathParameters['uniId']!),
+      ),
+      GoRoute(
+        path: '/university/:uniId/places',
+        builder: (context, state) =>
+            UniPlacesScreen(universityId: state.pathParameters['uniId']!),
+      ),
+      GoRoute(
+        path: '/university/:uniId/reviews',
+        builder: (context, state) =>
+            UniReviewsScreen(universityId: state.pathParameters['uniId']!),
+      ),
+      GoRoute(
+        path: '/university/:uniId/gallery',
+        builder: (context, state) => UniversityGalleryScreen(
+          universityId: state.pathParameters['uniId']!,
         ),
-        // Karşılaştır
-        StatefulShellBranch(
-          routes: [
-            GoRoute(
-              path: AppRoutes.compare,
-              pageBuilder: (context, state) => const NoTransitionPage(
-                child: ComparisonScreen(),
-              ),
-            ),
-          ],
+      ),
+      GoRoute(
+        path: '/university/:uniId/ratings',
+        builder: (context, state) =>
+            UniRatingsScreen(universityId: state.pathParameters['uniId']!),
+      ),
+      GoRoute(
+        path: '/write-review/:type/:targetId',
+        redirect: (context, state) {
+          final userAsync = ProviderScope.containerOf(
+            context,
+          ).read(currentUserProvider);
+          final user = userAsync.valueOrNull;
+          if (user == null) {
+            final encodedPath = Uri.encodeComponent(state.uri.toString());
+            return '/login?from=$encodedPath';
+          }
+          if (!user.isVerifiedStudent) {
+            // İleride verify-email rotası olursa oraya da atılabilir.
+            // Şimdilik null döndürüp yazmasını engelleyemeyiz çünkü verify-email rotası yok,
+            // router redirect içinde snackbar da gösteremeyiz.
+            // Bu yüzden ui da engellemek daha mantıklı, ama istenen bu:
+          }
+          return null;
+        },
+        builder: (context, state) {
+          final typeStr = state.pathParameters['type']!;
+          final targetId = state.pathParameters['targetId']!;
+          final type = ReviewType.values.firstWhere(
+            (t) => t.name == typeStr,
+            orElse: () => ReviewType.university,
+          );
+          // Department ise universityId'yi query parametreden al
+          // Place ise universityId query param'dan gelir
+          final universityId = state.uri.queryParameters['uni'] ?? targetId;
+          final placeSubType = state.uri.queryParameters['pt'];
+          return WriteReviewScreen(
+            type: type,
+            targetId: targetId,
+            universityId: universityId,
+            placeSubType: placeSubType,
+          );
+        },
+      ),
+      GoRoute(
+        path: '/edit-review/:reviewId',
+        builder: (context, state) {
+          final reviewId = state.pathParameters['reviewId']!;
+          return Consumer(
+            builder: (context, ref, _) {
+              final reviewAsync = ref.watch(reviewDetailProvider(reviewId));
+              return reviewAsync.when(
+                data: (r) {
+                  if (r == null) {
+                    return const Scaffold(
+                      body: Center(child: Text('Yorum bulunamadı')),
+                    );
+                  }
+                  return WriteReviewScreen(
+                    targetId: r.targetId,
+                    type: r.type,
+                    universityId: r.universityId,
+                    initialReview: r,
+                  );
+                },
+                loading: () => const Scaffold(
+                  body: Center(child: CircularProgressIndicator()),
+                ),
+                error: (e, _) =>
+                    Scaffold(body: Center(child: Text('Hata: $e'))),
+              );
+            },
+          );
+        },
+      ),
+      GoRoute(
+        path: '/my-reviews',
+        builder: (context, state) => const MyReviewsScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.departmentDetail,
+        builder: (context, state) => DepartmentDetailScreen(
+          departmentId: state.pathParameters['deptId']!,
         ),
-        // Listelerim
-        StatefulShellBranch(
-          routes: [
-            GoRoute(
-              path: '/my-lists',
-              pageBuilder: (context, state) => const NoTransitionPage(
-                child: MyListsScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.cityDetail,
+        builder: (context, state) =>
+            CityUniversitiesScreen(cityId: state.pathParameters['cityId']!),
+      ),
+      GoRoute(
+        path: AppRoutes.allCities,
+        builder: (context, state) => const AllCitiesScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.favorites,
+        builder: (context, state) => const FavoritesScreen(),
+      ),
+      GoRoute(
+        path: '/my-lists/:listId',
+        builder: (context, state) =>
+            ListEditScreen(listId: state.pathParameters['listId']!),
+      ),
+      GoRoute(
+        path: '/list/:shareSlug',
+        builder: (context, state) =>
+            SharedListScreen(shareSlug: state.pathParameters['shareSlug']!),
+      ),
+
+      // ─── Tercih Asistanı ─────────────────────────────────────────
+      GoRoute(
+        path: '/recommend',
+        builder: (context, state) => const RecommendationIntroScreen(),
+      ),
+      GoRoute(
+        path: '/recommend/chat',
+        builder: (context, state) => const RecommendationChatScreen(),
+      ),
+      GoRoute(
+        path: '/recommend/result',
+        builder: (context, state) => const RecommendationResultScreen(),
+      ),
+
+      // ─── Shell Route (Bottom Navigation) ─────────────────────────
+      StatefulShellRoute.indexedStack(
+        builder: (context, state, navigationShell) {
+          return AppShell(navigationShell: navigationShell);
+        },
+        branches: [
+          // Ana Sayfa
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoutes.home,
+                pageBuilder: (context, state) =>
+                    const NoTransitionPage(child: HomeScreen()),
               ),
-            ),
-          ],
-        ),
-        // Profil
-        StatefulShellBranch(
-          routes: [
-            GoRoute(
-              path: AppRoutes.profile,
-              pageBuilder: (context, state) => const NoTransitionPage(
-                child: ProfileScreen(),
+            ],
+          ),
+          // Keşfet
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoutes.explore,
+                pageBuilder: (context, state) =>
+                    const NoTransitionPage(child: ExploreScreen()),
               ),
-            ),
-          ],
-        ),
-      ],
-    ),
-  ],
-);
+            ],
+          ),
+          // Karşılaştır
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoutes.compare,
+                pageBuilder: (context, state) =>
+                    const NoTransitionPage(child: ComparisonScreen()),
+              ),
+            ],
+          ),
+          // Listelerim
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/my-lists',
+                pageBuilder: (context, state) =>
+                    const NoTransitionPage(child: MyListsScreen()),
+              ),
+            ],
+          ),
+          // Profil
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoutes.profile,
+                pageBuilder: (context, state) =>
+                    const NoTransitionPage(child: ProfileScreen()),
+              ),
+            ],
+          ),
+        ],
+      ),
+    ],
+  );
 });
