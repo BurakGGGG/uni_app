@@ -156,5 +156,14 @@ service cloud.firestore {
       allow create, delete: if isOwner(userId);
       allow update: if false;
     }
+
+    // ─── Recommendation Enrichment Cache ─────────────────────────
+    // Cloud Function (admin SDK) yazar; istemci doğrudan yazamaz/okuyamaz.
+    // Doc id format: {uid}_{hash}, sadece sahibinin okuma izni var.
+    match /recommendationEnrichments/{cacheId} {
+      allow read: if isAuthenticated() &&
+                     resource.data.userId == request.auth.uid;
+      allow write: if false;
+    }
   }
 }

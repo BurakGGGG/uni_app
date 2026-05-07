@@ -17,7 +17,7 @@ class RecommendationIntroScreen extends ConsumerWidget {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_rounded),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () => context.go('/'),
         ),
       ),
       body: SafeArea(
@@ -76,9 +76,68 @@ class RecommendationIntroScreen extends ConsumerWidget {
                 alignment: WrapAlignment.center,
                 children: [
                   _FeatureChip(icon: Icons.speed_rounded, label: '~4 dakika'),
-                  _FeatureChip(icon: Icons.emoji_events_rounded, label: 'Altın / Gümüş / Bronz'),
+                  _FeatureChip(
+                    icon: Icons.emoji_events_rounded,
+                    label: 'Altın / Gümüş / Bronz',
+                  ),
                   _FeatureChip(icon: Icons.school_rounded, label: '8 öneri'),
                 ],
+              ),
+              const SizedBox(height: 24),
+              // Beta uyarısı
+              Container(
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: AppColors.warning.withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(
+                    color: AppColors.warning.withValues(alpha: 0.25),
+                  ),
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: AppColors.warning.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Icon(
+                        Icons.science_rounded,
+                        size: 16,
+                        color: AppColors.warning,
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Beta — Geliştirme Aşaması',
+                            style: AppTextStyles.labelSmall.copyWith(
+                              color: AppColors.warning,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: 0.3,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            'Bu asistan henüz geliştirilme aşamasında. Öneriler '
+                            'kesin tercih kararı için değil, yönlendirme '
+                            'amaçlıdır. Final tercihinde mutlaka kendi '
+                            'araştırmanı yap.',
+                            style: AppTextStyles.bodySmall.copyWith(
+                              color: AppColors.textSecondary,
+                              height: 1.4,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
               const Spacer(flex: 3),
               // Start button
@@ -90,7 +149,7 @@ class RecommendationIntroScreen extends ConsumerWidget {
                     // Reset state
                     ref.read(currentQuestionIndexProvider.notifier).state = 0;
                     ref.read(recommendationAnswersProvider.notifier).state = {};
-                    context.push('/recommend/chat');
+                    context.go('/recommend/chat');
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.transparent,
