@@ -165,5 +165,32 @@ service cloud.firestore {
                      resource.data.userId == request.auth.uid;
       allow write: if false;
     }
+    // ─── Abonelikler (Subscriptions) ─────────────────────────────
+    // RevenueCat webhook → Cloud Function yazar. Client sadece okur.
+    match /subscriptions/{uid} {
+      allow read: if isOwner(uid);
+      allow write: if false;  // Sadece Cloud Function (webhook)
+    }
+
+    // ─── Kullanım İstatistikleri (Usage Stats) ───────────────────
+    // Günlük karşılaştırma sayacı client tarafından artırılabilir.
+    // AI limitleri sadece Cloud Function tarafından sıfırlanır.
+    match /users/{uid}/usageStats/{docId} {
+      allow read: if isOwner(uid);
+      allow create: if isOwner(uid);
+      allow update: if isOwner(uid) &&
+        request.resource.data.diff(resource.data)
+          .affectedKeys().hasOnly(['dailyComparisons', 'lastResetDate', 'totalComparisons']);
+      // dailyAiComparisons, dailyAiRecommendations → sadece Cloud Function
+      allow delete: if false;
+    }
+
+    // ─── AI Özet Cache ───────────────────────────────────────────
+    // Aynı üniversite çifti için 24 saatlik cache.
+    // Cloud Function yazar, herkes (authenticated) okuyabilir.
+    match /aiSummaryCache/{cacheKey} {
+      allow read: if isAuthenticated();
+      allow write: if false;
+    }
   }
 }
