@@ -7,6 +7,10 @@
         android:label="ÜniSeç"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+        <!-- Required by google_mobile_ads; replace with production AdMob App ID before release. -->
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-3940256099942544~3347511713"/>
         <!-- FCM channel default -->
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_channel_id"
