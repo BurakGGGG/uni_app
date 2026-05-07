@@ -1,12 +1,17 @@
 import '../../university/data/university_repository.dart';
+import '../../university/domain/models/department_model.dart';
 import '../domain/models/department_comparison.dart';
 
 class DepartmentComparisonRepository {
-  final UniversityRepository _universityRepository;
+  final UniversityRepository? _universityRepository;
+  final Future<DepartmentModel?> Function(String departmentId)? _getDepartmentById;
 
   DepartmentComparisonRepository({
     UniversityRepository? universityRepository,
-  }) : _universityRepository = universityRepository ?? UniversityRepository();
+    Future<DepartmentModel?> Function(String departmentId)? getDepartmentById,
+  })  : _universityRepository =
+            getDepartmentById == null ? (universityRepository ?? UniversityRepository()) : universityRepository,
+        _getDepartmentById = getDepartmentById;
 
   Future<DepartmentComparisonResult?> compare(
     String departmentIdA,
@@ -17,8 +22,8 @@ class DepartmentComparisonRepository {
     }
 
     final results = await Future.wait([
-      _universityRepository.getDepartment(departmentIdA),
-      _universityRepository.getDepartment(departmentIdB),
+      _readDepartment(departmentIdA),
+      _readDepartment(departmentIdB),
     ]);
 
     final deptA = results[0];
@@ -95,5 +100,15 @@ class DepartmentComparisonRepository {
   double _fillRate({int? quota, int? placed}) {
     if (quota == null || placed == null || quota <= 0) return 0;
     return placed / quota;
+  }
+
+  Future<DepartmentModel?> _readDepartment(String departmentId) {
+    final getDepartmentById = _getDepartmentById;
+    if (getDepartmentById != null) {
+      return getDepartmentById(departmentId);
+    }
+    final universityRepository = _universityRepository;
+    if (universityRepository == null) return Future.value(null);
+    return universityRepository.getDepartment(departmentId);
   }
 }
