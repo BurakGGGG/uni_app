@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'dart:ui';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/widgets.dart';
@@ -12,6 +13,8 @@ import '../widgets/comparison_category_row.dart';
 import '../widgets/comparison_stats_table.dart';
 import '../widgets/comparison_share_card.dart';
 import '../widgets/comparison_radar_chart.dart';
+import '../../../favorites/presentation/providers/favorites_providers.dart';
+import '../../../auth/presentation/providers/auth_providers.dart';
 
 class ComparisonScreen extends ConsumerWidget {
   const ComparisonScreen({super.key});
@@ -20,65 +23,104 @@ class ComparisonScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final selection = ref.watch(comparisonSelectionProvider);
     final resultAsync = ref.watch(comparisonResultProvider);
+    final gateLocked = ref.watch(comparisonAdGateLockedProvider);
+    final gateBusy = ref.watch(comparisonAdGateBusyProvider);
 
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
+        child: Stack(
+          children: [
+            SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Expanded(
-                    child: Text('Karşılaştır', style: AppTextStyles.displaySmall),
-                  ),
-                  if (selection.uniIdA != null || selection.uniIdB != null)
-                    TextButton.icon(
-                      icon: const Icon(Icons.refresh_rounded, size: 18),
-                      label: const Text('Sıfırla'),
-                      style: TextButton.styleFrom(
-                        foregroundColor: AppColors.error,
-                        backgroundColor: AppColors.error.withValues(alpha: 0.08),
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  Row(
+                    children: [
+                      Expanded(
+                        child:
+                            Text('Karşılaştır', style: AppTextStyles.displaySmall),
                       ),
-                      onPressed: () => ref.read(comparisonSelectionProvider.notifier).reset(),
-                    ),
-                  if (selection.bothSelected) ...[
-                    IconButton(
-                      icon: const Icon(Icons.swap_horiz_rounded),
-                      tooltip: 'Yer Değiştir',
-                      onPressed: () =>
-                          ref.read(comparisonSelectionProvider.notifier).swap(),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.ios_share_rounded),
-                      tooltip: 'Paylaş',
-                      onPressed: () async {
-                        final result = resultAsync.valueOrNull;
-                        if (result != null) {
-                          await ComparisonShareCard.shareCard(context, result);
-                        }
-                      },
-                    ),
-                  ],
+                      if (selection.uniIdA != null || selection.uniIdB != null)
+                        TextButton.icon(
+                          icon: const Icon(Icons.refresh_rounded, size: 18),
+                          label: const Text('Sıfırla'),
+                          style: TextButton.styleFrom(
+                            foregroundColor: AppColors.error,
+                            backgroundColor:
+                                AppColors.error.withValues(alpha: 0.08),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 8),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8)),
+                          ),
+                          onPressed: () =>
+                              ref.read(comparisonSelectionProvider.notifier).reset(),
+                        ),
+                      if (selection.bothSelected) ...[
+                        IconButton(
+                          icon: const Icon(Icons.swap_horiz_rounded),
+                          tooltip: 'Yer Değiştir',
+                          onPressed: () =>
+                              ref.read(comparisonSelectionProvider.notifier).swap(),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.ios_share_rounded),
+                          tooltip: 'Paylaş',
+                          onPressed: () async {
+                            final result = resultAsync.valueOrNull;
+                            if (result != null) {
+                              await ComparisonShareCard.shareCard(context, result);
+                            }
+                          },
+                        ),
+                      ],
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Üniversiteleri yan yana kıyasla',
+                    style: AppTextStyles.bodySmall,
+                  ),
+                  const SizedBox(height: 24),
+                  const ComparisonUniPicker(),
+                  const SizedBox(height: 24),
+                  AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 260),
+                    switchInCurve: Curves.easeOutCubic,
+                    switchOutCurve: Curves.easeInCubic,
+                    child: _buildBody(context, selection, resultAsync),
+                  ),
                 ],
               ),
-              const SizedBox(height: 4),
-              Text(
-                'Üniversiteleri yan yana kıyasla',
-                style: AppTextStyles.bodySmall,
+            ),
+
+            if (gateLocked)
+              Positioned.fill(
+                child: _ComparisonAdGateOverlay(
+                  isBusy: gateBusy,
+                  onCtaPressed: () => _showAdGateModal(context: context),
+                ),
               ),
-              const SizedBox(height: 24),
-              const ComparisonUniPicker(),
-              const SizedBox(height: 24),
-              _buildBody(context, selection, resultAsync),
-            ],
-          ),
+          ],
         ),
       ),
+      bottomNavigationBar: selection.bothSelected && resultAsync.valueOrNull != null
+          ? _ComparisonFloatingActionBar(
+              result: resultAsync.value!,
+              onShare: () => ComparisonShareCard.shareCard(context, resultAsync.value!),
+              onFavorite: () => _showFavoriteModal(
+                context: context,
+                ref: ref,
+                result: resultAsync.value!,
+              ),
+              onRecompare: () {
+                ref.read(comparisonSelectionProvider.notifier).reset();
+                ref.invalidate(comparisonResultProvider);
+              },
+            )
+          : null,
     );
   }
 
@@ -101,6 +143,551 @@ class ComparisonScreen extends ConsumerWidget {
         if (result == null) return const _EmptyState();
         return _ResultView(result: result);
       },
+    );
+  }
+}
+
+/// UI state for rewarded-ad gate. Kişi A'nın limit/ad logic'i bu provider'ları set edecek.
+final comparisonAdGateLockedProvider = StateProvider<bool>((ref) => false);
+final comparisonAdGateBusyProvider = StateProvider<bool>((ref) => false);
+
+Future<void> _showAdGateModal({
+  required BuildContext context,
+}) async {
+  final isDark = Theme.of(context).brightness == Brightness.dark;
+
+  await showModalBottomSheet<void>(
+    context: context,
+    isScrollControlled: true,
+    backgroundColor: Colors.transparent,
+    builder: (context) {
+      return SafeArea(
+        child: Container(
+          margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+          decoration: BoxDecoration(
+            color: isDark ? const Color(0xFF141424) : Colors.white,
+            borderRadius: BorderRadius.circular(18),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.18),
+                blurRadius: 24,
+                offset: const Offset(0, 8),
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    width: 44,
+                    height: 44,
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withValues(alpha: 0.12),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.lock_rounded, color: AppColors.primary),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      'Günlük limit doldu',
+                      style: AppTextStyles.titleMedium.copyWith(
+                        fontWeight: FontWeight.w800,
+                        color: isDark ? Colors.white : AppColors.textPrimary,
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    icon: Icon(
+                      Icons.close_rounded,
+                      color: (isDark ? Colors.white : AppColors.textPrimary)
+                          .withValues(alpha: 0.8),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Devam etmek için kısa bir reklam izleyebilir veya Plus’a geçebilirsin.',
+                style: AppTextStyles.bodyMedium.copyWith(
+                  color: isDark ? Colors.white70 : AppColors.textSecondary,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Consumer(
+                builder: (context, ref, _) {
+                  final busy = ref.watch(comparisonAdGateBusyProvider);
+                  return Column(
+                    children: [
+                      SizedBox(
+                        width: double.infinity,
+                        child: FilledButton.icon(
+                          onPressed: busy
+                              ? null
+                              : () async {
+                                  ref
+                                      .read(comparisonAdGateBusyProvider.notifier)
+                                      .state = true;
+                                  // UI-only: Kişi A'nın AdService entegrasyonu sonrası burası gerçek akışa bağlanacak.
+                                  await Future<void>.delayed(
+                                      const Duration(milliseconds: 900));
+                                  if (context.mounted) {
+                                    Navigator.of(context).pop();
+                                  }
+                                  ref
+                                      .read(comparisonAdGateBusyProvider.notifier)
+                                      .state = false;
+                                  ref
+                                      .read(comparisonAdGateLockedProvider.notifier)
+                                      .state = false;
+                                },
+                          icon: busy
+                              ? const SizedBox(
+                                  width: 16,
+                                  height: 16,
+                                  child: CircularProgressIndicator(strokeWidth: 2),
+                                )
+                              : const Icon(Icons.smart_display_rounded, size: 18),
+                          label: Text(busy ? 'Yükleniyor…' : 'Reklamı İzle'),
+                          style: FilledButton.styleFrom(
+                            backgroundColor: AppColors.primary,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 14),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(14)),
+                            textStyle: AppTextStyles.labelLarge
+                                .copyWith(fontWeight: FontWeight.w800),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      SizedBox(
+                        width: double.infinity,
+                        child: OutlinedButton.icon(
+                          onPressed: busy
+                              ? null
+                              : () {
+                                  // TODO: paywall route - mevcut router akışına bağlanacak
+                                  Navigator.of(context).pop();
+                                },
+                          icon: const Icon(Icons.rocket_launch_rounded, size: 18),
+                          label: const Text('Plus’a Geç'),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor:
+                                isDark ? Colors.white : AppColors.textPrimary,
+                            side: BorderSide(
+                              color: (isDark ? Colors.white : AppColors.textPrimary)
+                                  .withValues(alpha: 0.16),
+                            ),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 14),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(14)),
+                            textStyle: AppTextStyles.labelLarge
+                                .copyWith(fontWeight: FontWeight.w800),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                    ],
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
+      );
+    },
+  );
+}
+
+Future<void> _showFavoriteModal({
+  required BuildContext context,
+  required WidgetRef ref,
+  required ComparisonResult result,
+}) async {
+  final auth = ref.read(authStateProvider).valueOrNull;
+  if (auth == null) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Favori için giriş yapmalısın.')),
+    );
+    return;
+  }
+
+  final favorites = ref.read(favoritesProvider).valueOrNull ?? const <String>[];
+  final aFav = favorites.contains(result.uniA.id);
+  final bFav = favorites.contains(result.uniB.id);
+
+  await showModalBottomSheet<void>(
+    context: context,
+    backgroundColor: Colors.transparent,
+    builder: (context) {
+      final isDark = Theme.of(context).brightness == Brightness.dark;
+      return SafeArea(
+        child: Container(
+          margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+          decoration: BoxDecoration(
+            color: isDark ? const Color(0xFF141424) : Colors.white,
+            borderRadius: BorderRadius.circular(18),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.18),
+                blurRadius: 24,
+                offset: const Offset(0, 8),
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Favorilere ekle',
+                style: AppTextStyles.titleMedium.copyWith(
+                  fontWeight: FontWeight.w800,
+                  color: isDark ? Colors.white : AppColors.textPrimary,
+                ),
+              ),
+              const SizedBox(height: 8),
+              _FavoriteChoiceTile(
+                title: result.uniA.name,
+                isFavorite: aFav,
+                onTap: () async {
+                  await ref.read(favoritesControllerProvider.notifier).toggleFavorite(
+                        auth.uid,
+                        result.uniA.id,
+                        aFav,
+                      );
+                  if (context.mounted) Navigator.of(context).pop();
+                },
+              ),
+              const SizedBox(height: 8),
+              _FavoriteChoiceTile(
+                title: result.uniB.name,
+                isFavorite: bFav,
+                onTap: () async {
+                  await ref.read(favoritesControllerProvider.notifier).toggleFavorite(
+                        auth.uid,
+                        result.uniB.id,
+                        bFav,
+                      );
+                  if (context.mounted) Navigator.of(context).pop();
+                },
+              ),
+              const SizedBox(height: 6),
+            ],
+          ),
+        ),
+      );
+    },
+  );
+}
+
+class _FavoriteChoiceTile extends StatelessWidget {
+  final String title;
+  final bool isFavorite;
+  final VoidCallback onTap;
+
+  const _FavoriteChoiceTile({
+    required this.title,
+    required this.isFavorite,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(14),
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+          decoration: BoxDecoration(
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.06)
+                : AppColors.surfaceVariant,
+            borderRadius: BorderRadius.circular(14),
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  title,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    fontWeight: FontWeight.w700,
+                    color: isDark ? Colors.white : AppColors.textPrimary,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Icon(
+                isFavorite ? Icons.favorite_rounded : Icons.favorite_border_rounded,
+                color: isFavorite ? AppColors.error : AppColors.textTertiary,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ComparisonFloatingActionBar extends StatelessWidget {
+  final ComparisonResult result;
+  final VoidCallback onShare;
+  final VoidCallback onFavorite;
+  final VoidCallback onRecompare;
+
+  const _ComparisonFloatingActionBar({
+    required this.result,
+    required this.onShare,
+    required this.onFavorite,
+    required this.onRecompare,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return SafeArea(
+      top: false,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(18),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              decoration: BoxDecoration(
+                color: (isDark ? Colors.black : Colors.white)
+                    .withValues(alpha: isDark ? 0.35 : 0.70),
+                borderRadius: BorderRadius.circular(18),
+                border: Border.all(
+                  color: (isDark ? Colors.white : Colors.black)
+                      .withValues(alpha: 0.08),
+                ),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: _ActionPill(
+                      icon: Icons.ios_share_rounded,
+                      label: 'Paylaş',
+                      onTap: onShare,
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: _ActionPill(
+                      icon: Icons.favorite_rounded,
+                      label: 'Favorile',
+                      onTap: onFavorite,
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: _ActionPill(
+                      icon: Icons.refresh_rounded,
+                      label: 'Yeniden',
+                      onTap: onRecompare,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ActionPill extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+
+  const _ActionPill({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(14),
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+          decoration: BoxDecoration(
+            color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.06),
+            borderRadius: BorderRadius.circular(14),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, size: 18, color: isDark ? Colors.white : AppColors.textPrimary),
+              const SizedBox(width: 8),
+              Flexible(
+                child: Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyles.labelMedium.copyWith(
+                    fontWeight: FontWeight.w800,
+                    color: isDark ? Colors.white : AppColors.textPrimary,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ComparisonAdGateOverlay extends StatelessWidget {
+  final bool isBusy;
+  final VoidCallback onCtaPressed;
+
+  const _ComparisonAdGateOverlay({
+    required this.isBusy,
+    required this.onCtaPressed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return AnimatedOpacity(
+      duration: const Duration(milliseconds: 220),
+      opacity: 1,
+      child: Stack(
+        children: [
+          Positioned.fill(
+            child: ClipRect(
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 14, sigmaY: 14),
+                child: Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        (isDark ? Colors.black : Colors.white)
+                            .withValues(alpha: 0.55),
+                        (isDark ? Colors.black : Colors.white)
+                            .withValues(alpha: 0.72),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          Center(
+            child: Container(
+              margin: const EdgeInsets.symmetric(horizontal: 24),
+              padding: const EdgeInsets.fromLTRB(18, 18, 18, 16),
+              decoration: BoxDecoration(
+                color: isDark ? const Color(0xFF141424) : Colors.white,
+                borderRadius: BorderRadius.circular(18),
+                border: Border.all(
+                  color: (isDark ? Colors.white : Colors.black)
+                      .withValues(alpha: 0.08),
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.18),
+                    blurRadius: 28,
+                    offset: const Offset(0, 10),
+                  ),
+                ],
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 52,
+                    height: 52,
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withValues(alpha: 0.12),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.lock_rounded, color: AppColors.primary),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    'Devam etmek için kilidi aç',
+                    textAlign: TextAlign.center,
+                    style: AppTextStyles.titleMedium.copyWith(
+                      fontWeight: FontWeight.w900,
+                      color: isDark ? Colors.white : AppColors.textPrimary,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    'Günlük karşılaştırma hakkın doldu.',
+                    textAlign: TextAlign.center,
+                    style: AppTextStyles.bodySmall.copyWith(
+                      color: isDark ? Colors.white70 : AppColors.textSecondary,
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                  SizedBox(
+                    width: double.infinity,
+                    child: FilledButton(
+                      onPressed: isBusy ? null : onCtaPressed,
+                      style: FilledButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 14, vertical: 12),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14)),
+                        textStyle: AppTextStyles.labelLarge
+                            .copyWith(fontWeight: FontWeight.w900),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          if (isBusy) ...[
+                            const SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            ),
+                            const SizedBox(width: 10),
+                          ] else ...[
+                            const Icon(Icons.smart_display_rounded, size: 18),
+                            const SizedBox(width: 10),
+                          ],
+                          Text(isBusy ? 'Yükleniyor…' : 'Reklamı İzle / Plus’a Geç'),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
