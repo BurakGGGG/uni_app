@@ -122,6 +122,25 @@ class AppColors {
     ),
   ];
 
+  // ─── Subscription Tier Colors ──────────────────────────────────
+  static const Color tierFree = Color(0xFF6B7280);     // Gri
+  static const Color tierPlus = Color(0xFF6C63FF);     // Mor (primary ile aynı)
+  static const Color tierPro = Color(0xFFD4A017);      // Altın
+
+  static const LinearGradient tierPlusGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [Color(0xFF6C63FF), Color(0xFF8B5CF6)],
+  );
+
+  static const LinearGradient tierProGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [Color(0xFFD4A017), Color(0xFFFF8C00)],
+  );
+
+  static const Color lockOverlay = Color(0x88000000);
+
   /// Rating değerine göre renk döndürür (1-5 arası)
   static Color ratingColor(double rating) {
     if (rating >= 4.5) return ratingExcellent;
