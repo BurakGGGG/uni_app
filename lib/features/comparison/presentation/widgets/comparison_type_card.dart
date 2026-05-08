@@ -14,6 +14,7 @@ class ComparisonTypeCard extends StatefulWidget {
   final Color iconColor;
   final LinearGradient? iconGradient;
   final bool isLocked;
+  final bool isSelected;
   final VoidCallback? onTap;
 
   const ComparisonTypeCard({
@@ -25,6 +26,7 @@ class ComparisonTypeCard extends StatefulWidget {
     this.iconColor = AppColors.primary,
     this.iconGradient,
     this.isLocked = false,
+    this.isSelected = false,
     this.onTap,
   });
 
@@ -36,6 +38,8 @@ class _ComparisonTypeCardState extends State<ComparisonTypeCard>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _scaleAnim;
+  late AnimationController _lockPulseController;
+  late Animation<double> _lockPulseAnim;
   bool _isPressed = false;
 
   @override
@@ -48,11 +52,37 @@ class _ComparisonTypeCardState extends State<ComparisonTypeCard>
     _scaleAnim = Tween<double>(begin: 1.0, end: 0.97).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
     );
+    _lockPulseController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1100),
+    );
+    _lockPulseAnim = Tween<double>(begin: 1.0, end: 1.12).animate(
+      CurvedAnimation(parent: _lockPulseController, curve: Curves.easeInOut),
+    );
+    _refreshPulse();
+  }
+
+  @override
+  void didUpdateWidget(covariant ComparisonTypeCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.isLocked != widget.isLocked) {
+      _refreshPulse();
+    }
+  }
+
+  void _refreshPulse() {
+    if (widget.isLocked) {
+      _lockPulseController.repeat(reverse: true);
+    } else {
+      _lockPulseController.stop();
+      _lockPulseController.value = 0;
+    }
   }
 
   @override
   void dispose() {
     _controller.dispose();
+    _lockPulseController.dispose();
     super.dispose();
   }
 
@@ -93,22 +123,32 @@ class _ComparisonTypeCardState extends State<ComparisonTypeCard>
                     : AppColors.surface),
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
-              color: _isPressed
+              color: widget.isSelected
+                  ? widget.iconColor.withValues(alpha: 0.42)
+                  : _isPressed
                   ? widget.iconColor.withValues(alpha: 0.3)
                   : (isDark
                       ? Colors.white.withValues(alpha: 0.08)
                       : AppColors.border),
-              width: _isPressed ? 1.5 : 1,
+              width: widget.isSelected ? 2 : (_isPressed ? 1.5 : 1),
             ),
             boxShadow: _isPressed
                 ? []
-                : [
+                : (widget.isSelected
+                    ? [
+                        BoxShadow(
+                          color: widget.iconColor.withValues(alpha: 0.22),
+                          blurRadius: 24,
+                          offset: const Offset(0, 8),
+                        ),
+                      ]
+                    : [
                     BoxShadow(
                       color: widget.iconColor.withValues(alpha: 0.08),
                       blurRadius: 16,
                       offset: const Offset(0, 4),
                     ),
-                  ],
+                  ]),
           ),
           child: Row(
             children: [
@@ -181,17 +221,24 @@ class _ComparisonTypeCardState extends State<ComparisonTypeCard>
               ),
               // Kilit / ok ikonu
               if (widget.isLocked)
-                Container(
-                  width: 36,
-                  height: 36,
-                  decoration: BoxDecoration(
-                    color: AppColors.tierPlus.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(10),
+                AnimatedBuilder(
+                  animation: _lockPulseAnim,
+                  builder: (context, child) => Transform.scale(
+                    scale: _lockPulseAnim.value,
+                    child: child,
                   ),
-                  child: const Icon(
-                    Icons.lock_rounded,
-                    color: AppColors.tierPlus,
-                    size: 18,
+                  child: Container(
+                    width: 36,
+                    height: 36,
+                    decoration: BoxDecoration(
+                      color: AppColors.tierPlus.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Icon(
+                      Icons.lock_rounded,
+                      color: AppColors.tierPlus,
+                      size: 18,
+                    ),
                   ),
                 )
               else
