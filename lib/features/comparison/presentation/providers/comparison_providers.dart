@@ -1,4 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../data/ai_comparison_summary_service.dart';
 import '../../data/city_comparison_repository.dart';
 import '../../data/comparison_repository.dart';
 import '../../data/department_comparison_repository.dart';
@@ -323,3 +325,214 @@ final canAccessDepartmentComparisonProvider = Provider<bool>((ref) {
     error: (error, stackTrace) => false,
   );
 });
+
+final aiComparisonSummaryServiceProvider = Provider<AiComparisonSummaryService>((ref) {
+  return AiComparisonSummaryService();
+});
+
+final aiComparisonSummaryProvider = FutureProvider<AiComparisonSummaryResult?>((ref) async {
+  final canUseAi = ref.watch(canUseAiComparisonProvider);
+  if (!canUseAi) return null;
+
+  final result = await ref.watch(comparisonResultProvider.future);
+  if (result == null) return null;
+
+  final service = ref.read(aiComparisonSummaryServiceProvider);
+  return service.summarizeUniversityComparison(result);
+});
+
+class RatingTrendPoint {
+  final DateTime month;
+  final double avgRatingA;
+  final double avgRatingB;
+
+  const RatingTrendPoint({
+    required this.month,
+    required this.avgRatingA,
+    required this.avgRatingB,
+  });
+}
+
+class CategoryHeatMapCell {
+  final String category;
+  final double valueA;
+  final double valueB;
+
+  const CategoryHeatMapCell({
+    required this.category,
+    required this.valueA,
+    required this.valueB,
+  });
+}
+
+class DepartmentScatterPoint {
+  final String departmentId;
+  final String departmentName;
+  final double baseScore;
+  final int ranking;
+  final String universityId;
+
+  const DepartmentScatterPoint({
+    required this.departmentId,
+    required this.departmentName,
+    required this.baseScore,
+    required this.ranking,
+    required this.universityId,
+  });
+}
+
+class DepartmentScatterData {
+  final List<DepartmentScatterPoint> pointsA;
+  final List<DepartmentScatterPoint> pointsB;
+
+  const DepartmentScatterData({
+    required this.pointsA,
+    required this.pointsB,
+  });
+}
+
+final canUseProComparisonChartsProvider = Provider<bool>((ref) {
+  final tier = ref.watch(subscriptionTierProvider);
+  return tier.when(
+    data: (t) => canUseProCharts(t),
+    loading: () => false,
+    error: (error, stackTrace) => false,
+  );
+});
+
+final ratingTrendProvider =
+    FutureProvider.family<List<RatingTrendPoint>, ComparisonPair>(
+  (ref, pair) async {
+    final canUse = ref.watch(canUseProComparisonChartsProvider);
+    if (!canUse) return const [];
+
+    final firestore = FirebaseFirestore.instance;
+    final now = DateTime.now();
+    final startMonth = DateTime(now.year, now.month - 5, 1);
+
+    Future<Map<DateTime, double>> aggregateMonthlyAvg(String universityId) async {
+      final snapshot = await firestore
+          .collection('reviews')
+          .where('universityId', isEqualTo: universityId)
+          .where('isApproved', isEqualTo: true)
+          .where(
+            'createdAt',
+            isGreaterThanOrEqualTo: Timestamp.fromDate(startMonth),
+          )
+          .get();
+
+      final totals = <DateTime, double>{};
+      final counts = <DateTime, int>{};
+
+      for (final doc in snapshot.docs) {
+        final data = doc.data();
+        final rating = (data['rating'] as num?)?.toDouble();
+        final createdAt = (data['createdAt'] as Timestamp?)?.toDate();
+        if (rating == null || createdAt == null) continue;
+        final monthKey = DateTime(createdAt.year, createdAt.month, 1);
+        totals[monthKey] = (totals[monthKey] ?? 0) + rating;
+        counts[monthKey] = (counts[monthKey] ?? 0) + 1;
+      }
+
+      return {
+        for (final month in totals.keys)
+          month: counts[month] == null || counts[month] == 0
+              ? 0
+              : totals[month]! / counts[month]!,
+      };
+    }
+
+    final results = await Future.wait([
+      aggregateMonthlyAvg(pair.idA),
+      aggregateMonthlyAvg(pair.idB),
+    ]);
+    final monthlyA = results[0];
+    final monthlyB = results[1];
+
+    return List.generate(6, (index) {
+      final month = DateTime(startMonth.year, startMonth.month + index, 1);
+      return RatingTrendPoint(
+        month: month,
+        avgRatingA: monthlyA[month] ?? 0,
+        avgRatingB: monthlyB[month] ?? 0,
+      );
+    });
+  },
+);
+
+final categoryHeatMapProvider =
+    FutureProvider.family<List<CategoryHeatMapCell>, ComparisonPair>(
+  (ref, pair) async {
+    final canUse = ref.watch(canUseProComparisonChartsProvider);
+    if (!canUse) return const [];
+
+    final repo = UniversityRepository();
+    final results = await Future.wait([
+      repo.getUniversity(pair.idA),
+      repo.getUniversity(pair.idB),
+    ]);
+    final uniA = results[0];
+    final uniB = results[1];
+    if (uniA == null || uniB == null) return const [];
+
+    final categories = <String>{
+      ...uniA.categoryRatings.keys,
+      ...uniB.categoryRatings.keys,
+    }.toList()
+      ..sort();
+
+    return categories
+        .map(
+          (category) => CategoryHeatMapCell(
+            category: category,
+            valueA: (uniA.categoryRatings[category] ?? 0).toDouble(),
+            valueB: (uniB.categoryRatings[category] ?? 0).toDouble(),
+          ),
+        )
+        .toList();
+  },
+);
+
+final departmentScatterProvider =
+    FutureProvider.family<DepartmentScatterData, ComparisonPair>(
+  (ref, pair) async {
+    final canUse = ref.watch(canUseProComparisonChartsProvider);
+    if (!canUse) {
+      return const DepartmentScatterData(pointsA: [], pointsB: []);
+    }
+
+    final repo = UniversityRepository();
+    final departmentLists = await Future.wait([
+      repo.getDepartmentsByUniversity(pair.idA),
+      repo.getDepartmentsByUniversity(pair.idB),
+    ]);
+
+    List<DepartmentScatterPoint> mapPoints(
+      List<DepartmentModel> departments,
+      String universityId,
+    ) {
+      return departments
+          .where((d) {
+            final baseScore = d.baseScore ?? d.scoreData?.baseScore;
+            final ranking = d.ranking ?? d.scoreData?.ranking;
+            return baseScore != null &&
+                ranking != null &&
+                baseScore > 0 &&
+                ranking > 0;
+          })
+          .map((d) => DepartmentScatterPoint(
+                departmentId: d.id,
+                departmentName: d.name,
+                baseScore: d.baseScore ?? d.scoreData!.baseScore,
+                ranking: d.ranking ?? d.scoreData!.ranking,
+                universityId: universityId,
+              ))
+          .toList();
+    }
+
+    return DepartmentScatterData(
+      pointsA: mapPoints(departmentLists[0], pair.idA),
+      pointsB: mapPoints(departmentLists[1], pair.idB),
+    );
+  },
+);
