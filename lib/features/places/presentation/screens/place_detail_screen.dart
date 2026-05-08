@@ -15,6 +15,7 @@ import '../../domain/models/place_model.dart';
 import '../providers/place_providers.dart';
 import '../widgets/place_type_chip.dart';
 import '../widgets/dorm_info_card.dart';
+import '../widgets/dorm_room_floor_plan.dart';
 import '../widgets/place_amenities_grid.dart';
 import '../widgets/place_detail_skeleton.dart';
 
@@ -62,6 +63,13 @@ class _PlaceDetailScreenState extends ConsumerState<PlaceDetailScreen> {
         if (place.type == PlaceType.dorm) ...[
           const SliverToBoxAdapter(child: SizedBox(height: 16)),
           SliverToBoxAdapter(child: DormInfoCard(place: place)),
+          // Kadı Burhaneddin KYK Yurdu özel oda krokisi
+          if (place.name.contains('Kadı Burhaneddin') ||
+              place.name.contains('kadı burhaneddin') ||
+              place.name.toLowerCase().contains('kadı burhaneddin')) ...[
+            const SliverToBoxAdapter(child: SizedBox(height: 12)),
+            const SliverToBoxAdapter(child: DormRoomFloorPlan()),
+          ],
         ],
         SliverToBoxAdapter(child: _buildInfoSection(place)),
         if (place.amenities.isNotEmpty)
