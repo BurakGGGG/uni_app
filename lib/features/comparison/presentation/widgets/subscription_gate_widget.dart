@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../../services/analytics_service.dart';
 import '../../../monetization/domain/enums/subscription_tier.dart';
 import '../../../monetization/presentation/providers/subscription_providers.dart';
 
@@ -159,7 +160,15 @@ class _DefaultLockedView extends StatelessWidget {
 
                   // Paywall CTA
                   FilledButton.icon(
-                    onPressed: () => context.push('/compare/paywall'),
+                    onPressed: () async {
+                      await AnalyticsService().logPaywallShown(
+                        trigger: 'feature_lock',
+                        userTier: 'free',
+                      );
+                      if (context.mounted) {
+                        context.push('/compare/paywall');
+                      }
+                    },
                     icon: const Icon(Icons.rocket_launch_rounded, size: 16),
                     label: Text('$tierLabel\'a Geç'),
                     style: FilledButton.styleFrom(

@@ -16,6 +16,7 @@ import '../../../university/data/university_repository.dart';
 import '../../../university/domain/models/department_model.dart';
 import '../../../university/domain/models/university_model.dart';
 import '../../../places/data/place_repository.dart';
+import '../../../../services/analytics_service.dart';
 
 // ─── Sprint 4 — Karşılaştırma Seçim State ─────────────────
 
@@ -65,6 +66,10 @@ final comparisonRepositoryProvider = Provider<ComparisonRepository>((ref) {
   );
 });
 
+final analyticsServiceProvider = Provider<AnalyticsService>((ref) {
+  return AnalyticsService();
+});
+
 final adServiceProvider = Provider<AdService>((ref) {
   final service = AdService();
   service.preloadRewardedAd();
@@ -112,11 +117,32 @@ class ComparisonGateController {
     }
 
     final tier = await _ref.read(subscriptionTierProvider.future);
+    await _ref.read(analyticsServiceProvider).logComparisonStarted(
+          type: 'university',
+          userTier: tier.name,
+        );
     final gateService = _ref.read(comparisonGateServiceProvider);
     final decision = await gateService.checkAndConsumeQuota(tier);
 
     if (decision.isAllowed) {
       _consumedPairKeys.add(key);
+      if (decision.rewardedAdWatched) {
+        final stats = await _ref.read(usageStatsRepositoryProvider).getUsageStats();
+        await _ref.read(analyticsServiceProvider).logAdWatched(
+              completed: true,
+              dailyComparisonCount: stats.dailyComparisons,
+            );
+      }
+    } else {
+      final stats = await _ref.read(usageStatsRepositoryProvider).getUsageStats();
+      await _ref.read(analyticsServiceProvider).logAdWatched(
+            completed: false,
+            dailyComparisonCount: stats.dailyComparisons,
+          );
+      await _ref.read(analyticsServiceProvider).logPaywallShown(
+            trigger: 'daily_limit',
+            userTier: tier.name,
+          );
     }
     return decision;
   }
@@ -142,19 +168,28 @@ final comparisonGateDecisionProvider =
       );
 });
 
+final _comparisonResultCache = <String, ComparisonResult?>{};
+
 /// Karşılaştırma sonucu — her iki uni seçildiğinde otomatik tetiklenir
 final comparisonResultProvider = FutureProvider<ComparisonResult?>((ref) async {
   final selection = ref.watch(comparisonSelectionProvider);
   if (!selection.bothSelected) return null;
   if (selection.uniIdA == selection.uniIdB) return null;
+  final key = _pairKey(selection.uniIdA!, selection.uniIdB!);
 
   final gateDecision = await ref.watch(comparisonGateDecisionProvider.future);
   if (gateDecision == null || !gateDecision.isAllowed) return null;
 
-  return ref.read(comparisonRepositoryProvider).compare(
-    selection.uniIdA!,
-    selection.uniIdB!,
-  );
+  try {
+    final result = await ref.read(comparisonRepositoryProvider).compare(
+          selection.uniIdA!,
+          selection.uniIdB!,
+        );
+    _comparisonResultCache[key] = result;
+    return result;
+  } catch (_) {
+    return _comparisonResultCache[key];
+  }
 });
 
 class ComparisonPair {
@@ -184,20 +219,38 @@ final departmentComparisonResultProvider =
     FutureProvider.family<DepartmentComparisonResult?, ComparisonPair>(
         (ref, pair) async {
   if (pair.idA == pair.idB) return null;
-  return ref.read(departmentComparisonRepositoryProvider).compare(
-        pair.idA,
-        pair.idB,
-      );
+  final key = _pairKey(pair.idA, pair.idB);
+  try {
+    final result = await ref.read(departmentComparisonRepositoryProvider).compare(
+          pair.idA,
+          pair.idB,
+        );
+    _departmentResultCache[key] = result;
+    return result;
+  } catch (_) {
+    return _departmentResultCache[key];
+  }
 });
+
+final _departmentResultCache = <String, DepartmentComparisonResult?>{};
 
 final cityComparisonResultProvider =
     FutureProvider.family<CityComparisonResult?, ComparisonPair>((ref, pair) async {
   if (pair.idA == pair.idB) return null;
-  return ref.read(cityComparisonRepositoryProvider).compare(
-        pair.idA,
-        pair.idB,
-      );
+  final key = _pairKey(pair.idA, pair.idB);
+  try {
+    final result = await ref.read(cityComparisonRepositoryProvider).compare(
+          pair.idA,
+          pair.idB,
+        );
+    _cityResultCache[key] = result;
+    return result;
+  } catch (_) {
+    return _cityResultCache[key];
+  }
 });
+
+final _cityResultCache = <String, CityComparisonResult?>{};
 
 class DepartmentPickerFilter {
   final String? universityId;
@@ -330,6 +383,8 @@ final aiComparisonSummaryServiceProvider = Provider<AiComparisonSummaryService>(
   return AiComparisonSummaryService();
 });
 
+final _aiSummaryCache = <String, AiComparisonSummaryResult>{};
+
 final aiComparisonSummaryProvider = FutureProvider<AiComparisonSummaryResult?>((ref) async {
   final canUseAi = ref.watch(canUseAiComparisonProvider);
   if (!canUseAi) return null;
@@ -338,7 +393,14 @@ final aiComparisonSummaryProvider = FutureProvider<AiComparisonSummaryResult?>((
   if (result == null) return null;
 
   final service = ref.read(aiComparisonSummaryServiceProvider);
-  return service.summarizeUniversityComparison(result);
+  final key = _pairKey(result.uniA.id, result.uniB.id);
+  try {
+    final summary = await service.summarizeUniversityComparison(result);
+    _aiSummaryCache[key] = summary;
+    return summary;
+  } catch (_) {
+    return _aiSummaryCache[key];
+  }
 });
 
 class RatingTrendPoint {
@@ -400,11 +462,16 @@ final canUseProComparisonChartsProvider = Provider<bool>((ref) {
   );
 });
 
+final _ratingTrendCache = <String, List<RatingTrendPoint>>{};
+final _heatMapCache = <String, List<CategoryHeatMapCell>>{};
+final _scatterCache = <String, DepartmentScatterData>{};
+
 final ratingTrendProvider =
     FutureProvider.family<List<RatingTrendPoint>, ComparisonPair>(
   (ref, pair) async {
     final canUse = ref.watch(canUseProComparisonChartsProvider);
     if (!canUse) return const [];
+    final key = _pairKey(pair.idA, pair.idB);
 
     final firestore = FirebaseFirestore.instance;
     final now = DateTime.now();
@@ -442,21 +509,27 @@ final ratingTrendProvider =
       };
     }
 
-    final results = await Future.wait([
-      aggregateMonthlyAvg(pair.idA),
-      aggregateMonthlyAvg(pair.idB),
-    ]);
-    final monthlyA = results[0];
-    final monthlyB = results[1];
+    try {
+      final results = await Future.wait([
+        aggregateMonthlyAvg(pair.idA),
+        aggregateMonthlyAvg(pair.idB),
+      ]);
+      final monthlyA = results[0];
+      final monthlyB = results[1];
 
-    return List.generate(6, (index) {
-      final month = DateTime(startMonth.year, startMonth.month + index, 1);
-      return RatingTrendPoint(
-        month: month,
-        avgRatingA: monthlyA[month] ?? 0,
-        avgRatingB: monthlyB[month] ?? 0,
-      );
-    });
+      final output = List.generate(6, (index) {
+        final month = DateTime(startMonth.year, startMonth.month + index, 1);
+        return RatingTrendPoint(
+          month: month,
+          avgRatingA: monthlyA[month] ?? 0,
+          avgRatingB: monthlyB[month] ?? 0,
+        );
+      });
+      _ratingTrendCache[key] = output;
+      return output;
+    } catch (_) {
+      return _ratingTrendCache[key] ?? const [];
+    }
   },
 );
 
@@ -465,31 +538,38 @@ final categoryHeatMapProvider =
   (ref, pair) async {
     final canUse = ref.watch(canUseProComparisonChartsProvider);
     if (!canUse) return const [];
+    final key = _pairKey(pair.idA, pair.idB);
 
-    final repo = UniversityRepository();
-    final results = await Future.wait([
-      repo.getUniversity(pair.idA),
-      repo.getUniversity(pair.idB),
-    ]);
-    final uniA = results[0];
-    final uniB = results[1];
-    if (uniA == null || uniB == null) return const [];
+    try {
+      final repo = UniversityRepository();
+      final results = await Future.wait([
+        repo.getUniversity(pair.idA),
+        repo.getUniversity(pair.idB),
+      ]);
+      final uniA = results[0];
+      final uniB = results[1];
+      if (uniA == null || uniB == null) return _heatMapCache[key] ?? const [];
 
-    final categories = <String>{
-      ...uniA.categoryRatings.keys,
-      ...uniB.categoryRatings.keys,
-    }.toList()
-      ..sort();
+      final categories = <String>{
+        ...uniA.categoryRatings.keys,
+        ...uniB.categoryRatings.keys,
+      }.toList()
+        ..sort();
 
-    return categories
-        .map(
-          (category) => CategoryHeatMapCell(
-            category: category,
-            valueA: (uniA.categoryRatings[category] ?? 0).toDouble(),
-            valueB: (uniB.categoryRatings[category] ?? 0).toDouble(),
-          ),
-        )
-        .toList();
+      final output = categories
+          .map(
+            (category) => CategoryHeatMapCell(
+              category: category,
+              valueA: (uniA.categoryRatings[category] ?? 0).toDouble(),
+              valueB: (uniB.categoryRatings[category] ?? 0).toDouble(),
+            ),
+          )
+          .toList();
+      _heatMapCache[key] = output;
+      return output;
+    } catch (_) {
+      return _heatMapCache[key] ?? const [];
+    }
   },
 );
 
@@ -497,15 +577,17 @@ final departmentScatterProvider =
     FutureProvider.family<DepartmentScatterData, ComparisonPair>(
   (ref, pair) async {
     final canUse = ref.watch(canUseProComparisonChartsProvider);
+    final key = _pairKey(pair.idA, pair.idB);
     if (!canUse) {
       return const DepartmentScatterData(pointsA: [], pointsB: []);
     }
 
-    final repo = UniversityRepository();
-    final departmentLists = await Future.wait([
-      repo.getDepartmentsByUniversity(pair.idA),
-      repo.getDepartmentsByUniversity(pair.idB),
-    ]);
+    try {
+      final repo = UniversityRepository();
+      final departmentLists = await Future.wait([
+        repo.getDepartmentsByUniversity(pair.idA),
+        repo.getDepartmentsByUniversity(pair.idB),
+      ]);
 
     List<DepartmentScatterPoint> mapPoints(
       List<DepartmentModel> departments,
@@ -530,9 +612,19 @@ final departmentScatterProvider =
           .toList();
     }
 
-    return DepartmentScatterData(
-      pointsA: mapPoints(departmentLists[0], pair.idA),
-      pointsB: mapPoints(departmentLists[1], pair.idB),
-    );
+      final output = DepartmentScatterData(
+        pointsA: mapPoints(departmentLists[0], pair.idA),
+        pointsB: mapPoints(departmentLists[1], pair.idB),
+      );
+      _scatterCache[key] = output;
+      return output;
+    } catch (_) {
+      return _scatterCache[key] ?? const DepartmentScatterData(pointsA: [], pointsB: []);
+    }
   },
 );
+
+String _pairKey(String a, String b) {
+  final sorted = [a, b]..sort();
+  return '${sorted[0]}__${sorted[1]}';
+}

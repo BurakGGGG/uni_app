@@ -97,3 +97,6 @@ export { enrichRecommendations } from './recommendations/enrich';
 // Sprint 6/8 — Comparison AI summary + günlük AI quota reset
 export { generateComparisonSummary } from './comparison/summary';
 export { resetAiQuotaDaily } from './usage/reset_ai_quota';
+
+// Sprint 9 — RevenueCat webhook sync
+export { revenuecatWebhook } from './revenuecat/webhook';
