@@ -76,6 +76,7 @@ export const generateComparisonSummary = onCall(
           incrementAiComparisons: true,
           today,
         });
+        await logSummaryRequest(uid, input, true);
         return {
           summary,
           cached: true,
@@ -107,6 +108,7 @@ export const generateComparisonSummary = onCall(
       incrementAiComparisons: true,
       today,
     });
+    await logSummaryRequest(uid, input, false);
 
     return {
       summary,
@@ -209,4 +211,19 @@ function formatDate(d: Date): string {
 
 function makeHash(payload: unknown): string {
   return crypto.createHash('sha256').update(JSON.stringify(payload)).digest('hex').slice(0, 24);
+}
+
+async function logSummaryRequest(
+  uid: string,
+  input: SummaryInput,
+  cached: boolean
+): Promise<void> {
+  await db.collection('aiSummaryLogs').add({
+    userId: uid,
+    comparisonType: input.comparisonType,
+    entityAId: input.entityA.id,
+    entityBId: input.entityB.id,
+    cacheHit: cached,
+    createdAt: admin.firestore.FieldValue.serverTimestamp(),
+  });
 }

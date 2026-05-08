@@ -7,6 +7,7 @@ import 'package:purchases_flutter/purchases_flutter.dart';
 
 import '../features/monetization/domain/enums/subscription_tier.dart';
 import '../features/monetization/domain/models/subscription_model.dart';
+import 'analytics_service.dart';
 
 /// RevenueCat SDK entegrasyonu — FCMService singleton pattern'i.
 ///
@@ -148,6 +149,14 @@ class RevenueCatService {
     try {
       await Purchases.purchase(PurchaseParams.package(package));
       debugPrint('[RevenueCat] Purchase successful: ${package.identifier}');
+      final tier = package.storeProduct.identifier.contains('pro')
+          ? 'pro'
+          : 'plus';
+      final billing = package.packageType == PackageType.annual ? 'yearly' : 'monthly';
+      await AnalyticsService().logSubscriptionPurchased(
+        tier: tier,
+        billing: billing,
+      );
       return true;
     } catch (e) {
       final errorCode = e is PlatformException
