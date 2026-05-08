@@ -154,6 +154,7 @@ class _TabbedResultView extends StatefulWidget {
 class _TabbedResultViewState extends State<_TabbedResultView>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  bool _showWinnerConfetti = true;
 
   static const _tabs = ['Genel', 'Kategoriler', 'Grafik', 'İstatistik'];
 
@@ -161,6 +162,9 @@ class _TabbedResultViewState extends State<_TabbedResultView>
   void initState() {
     super.initState();
     _tabController = TabController(length: _tabs.length, vsync: this);
+    Future<void>.delayed(const Duration(milliseconds: 2200), () {
+      if (mounted) setState(() => _showWinnerConfetti = false);
+    });
   }
 
   @override
@@ -173,13 +177,15 @@ class _TabbedResultViewState extends State<_TabbedResultView>
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return Column(
+    return Stack(
       children: [
-        // ─── Hero Section ──────────────────────────────────
-        ComparisonHeroSection(result: widget.result),
+        Column(
+          children: [
+            // ─── Hero Section ──────────────────────────────────
+            ComparisonHeroSection(result: widget.result),
 
-        // ─── Animasyonlu Tab Bar ───────────────────────────
-        Container(
+            // ─── Animasyonlu Tab Bar ───────────────────────────
+            Container(
           margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           padding: const EdgeInsets.all(4),
           decoration: BoxDecoration(
@@ -220,19 +226,83 @@ class _TabbedResultViewState extends State<_TabbedResultView>
           ),
         ),
 
-        // ─── Tab İçerikleri ────────────────────────────────
-        Expanded(
-          child: TabBarView(
-            controller: _tabController,
-            children: [
-              _GeneralTab(result: widget.result),
-              _CategoriesTab(result: widget.result),
-              _ChartTab(result: widget.result),
-              _StatsTab(result: widget.result),
-            ],
-          ),
+            // ─── Tab İçerikleri ────────────────────────────────
+            Expanded(
+              child: TabBarView(
+                controller: _tabController,
+                children: [
+                  _GeneralTab(result: widget.result),
+                  _CategoriesTab(result: widget.result),
+                  _ChartTab(result: widget.result),
+                  _StatsTab(result: widget.result),
+                ],
+              ),
+            ),
+          ],
         ),
+        if (_showWinnerConfetti && widget.result.overallWinnerId != null)
+          const IgnorePointer(
+            child: _WinnerConfettiOverlay(),
+          ),
       ],
+    );
+  }
+}
+
+class _WinnerConfettiOverlay extends StatefulWidget {
+  const _WinnerConfettiOverlay();
+
+  @override
+  State<_WinnerConfettiOverlay> createState() => _WinnerConfettiOverlayState();
+}
+
+class _WinnerConfettiOverlayState extends State<_WinnerConfettiOverlay>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 2000),
+    )..forward();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, _) {
+        final t = Curves.easeOutCubic.transform(_controller.value);
+        return Opacity(
+          opacity: (1 - t).clamp(0.0, 1.0),
+          child: Stack(
+            children: List.generate(18, (i) {
+              final dx = (i % 6) / 6.0;
+              final dy = (i ~/ 6) / 3.0;
+              final drift = (i.isEven ? 1 : -1) * 40.0 * t;
+              return Positioned(
+                left: 20 + dx * (MediaQuery.of(context).size.width - 40) + drift,
+                top: 20 + dy * 28 + (t * 120),
+                child: Transform.rotate(
+                  angle: t * (i + 1) * 0.4,
+                  child: Text(
+                    i % 3 == 0 ? '✨' : (i % 3 == 1 ? '🎉' : '⭐'),
+                    style: TextStyle(fontSize: 14 + (i % 4) * 2.0),
+                  ),
+                ),
+              );
+            }),
+          ),
+        );
+      },
     );
   }
 }

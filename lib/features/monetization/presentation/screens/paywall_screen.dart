@@ -184,7 +184,10 @@ class _PaywallScreenState extends State<PaywallScreen>
             : 'Satin alma tamamlanmadi.'),
       ),
     );
-    if (ok) context.pop();
+    if (ok) {
+      await _showSuccessSheet();
+      if (mounted) context.pop();
+    }
   }
 
   Future<void> _handleRestore() async {
@@ -601,6 +604,14 @@ class _PaywallScreenState extends State<PaywallScreen>
     );
   }
 
+  Future<void> _showSuccessSheet() async {
+    await showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const _PurchaseSuccessDialog(),
+    );
+  }
+
   Widget _buildFooter(bool isDark) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -728,4 +739,117 @@ class _FeatureItem {
   final bool included;
 
   const _FeatureItem(this.label, this.included);
+}
+
+class _PurchaseSuccessDialog extends StatefulWidget {
+  const _PurchaseSuccessDialog();
+
+  @override
+  State<_PurchaseSuccessDialog> createState() => _PurchaseSuccessDialogState();
+}
+
+class _PurchaseSuccessDialogState extends State<_PurchaseSuccessDialog>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1700),
+    )..forward();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(18, 20, 18, 16),
+        decoration: BoxDecoration(
+          color: Theme.of(context).brightness == Brightness.dark
+              ? const Color(0xFF161628)
+              : Colors.white,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Stack(
+          children: [
+            Positioned.fill(
+              child: IgnorePointer(
+                child: AnimatedBuilder(
+                  animation: _controller,
+                  builder: (context, _) {
+                    final t = Curves.easeOut.transform(_controller.value);
+                    return Opacity(
+                      opacity: (1 - t).clamp(0.0, 1.0),
+                      child: Stack(
+                        children: List.generate(14, (i) {
+                          return Positioned(
+                            left: 8 + (i % 7) * 36 + (i.isEven ? -16 : 16) * t,
+                            top: 4 + (i ~/ 7) * 20 + (110 * t),
+                            child: Text(
+                              i.isEven ? '🎉' : '✨',
+                              style: TextStyle(fontSize: 12 + (i % 3) * 2.0),
+                            ),
+                          );
+                        }),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ),
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 64,
+                  height: 64,
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [AppColors.success, AppColors.primary],
+                    ),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.check_rounded,
+                      color: Colors.white, size: 34),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  'Satin alma basarili!',
+                  style: AppTextStyles.titleMedium.copyWith(
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Planin aktif edildi. Tum ozelliklerin keyfini cikar.',
+                  textAlign: TextAlign.center,
+                  style: AppTextStyles.bodySmall.copyWith(
+                    color: AppColors.textSecondary,
+                    height: 1.4,
+                  ),
+                ),
+                const SizedBox(height: 14),
+                SizedBox(
+                  width: double.infinity,
+                  child: FilledButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: const Text('Harika'),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }

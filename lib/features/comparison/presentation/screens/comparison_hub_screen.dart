@@ -26,6 +26,7 @@ class _ComparisonHubScreenState extends ConsumerState<ComparisonHubScreen>
   // Staggered animation delays for cards
   late List<Animation<double>> _cardFadeAnims;
   late List<Animation<Offset>> _cardSlideAnims;
+  int _selectedTypeIndex = 0;
 
   @override
   void initState() {
@@ -111,7 +112,11 @@ class _ComparisonHubScreenState extends ConsumerState<ComparisonHubScreen>
                   badge: 'Ücretsiz • Günde 1 hak',
                   iconColor: AppColors.primary,
                   isLocked: false,
-                  onTap: () => context.push('/compare/university'),
+                  isSelected: _selectedTypeIndex == 0,
+                  onTap: () {
+                    setState(() => _selectedTypeIndex = 0);
+                    context.push('/compare/university');
+                  },
                 ),
               ),
               const SizedBox(height: 14),
@@ -129,7 +134,11 @@ class _ComparisonHubScreenState extends ConsumerState<ComparisonHubScreen>
                     badge: 'Plus veya Pro gerekli',
                     iconColor: AppColors.tierPlus,
                     isLocked: !canDepartment,
-                    onTap: () => context.push('/compare/department'),
+                    isSelected: _selectedTypeIndex == 1,
+                    onTap: () {
+                      setState(() => _selectedTypeIndex = 1);
+                      context.push('/compare/department');
+                    },
                   ),
                 ),
               ),
@@ -148,7 +157,11 @@ class _ComparisonHubScreenState extends ConsumerState<ComparisonHubScreen>
                     badge: 'Plus veya Pro gerekli',
                     iconColor: AppColors.tierPlus,
                     isLocked: !canCity,
-                    onTap: () => context.push('/compare/city'),
+                    isSelected: _selectedTypeIndex == 2,
+                    onTap: () {
+                      setState(() => _selectedTypeIndex = 2);
+                      context.push('/compare/city');
+                    },
                   ),
                 ),
               ),
