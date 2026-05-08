@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:purchases_flutter/purchases_flutter.dart';
+import '../../../../services/revenuecat_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../domain/models/subscription_model.dart';
+import '../../domain/enums/subscription_tier.dart';
 
 /// Paywall Ekranı — Full UI
 /// 3 plan kartı horizontal scroll (Free / Plus / Pro)
@@ -17,8 +21,12 @@ class PaywallScreen extends StatefulWidget {
 
 class _PaywallScreenState extends State<PaywallScreen>
     with TickerProviderStateMixin {
+  final RevenueCatService _revenueCatService = RevenueCatService();
   bool _isYearly = false;
   int _selectedPlanIndex = 1; // Plus varsayılan seçili
+  bool _isPurchasing = false;
+  bool _isRestoring = false;
+  Offerings? _offerings;
   final PageController _pageController = PageController(
     viewportFraction: 0.82,
     initialPage: 1,
@@ -50,6 +58,7 @@ class _PaywallScreenState extends State<PaywallScreen>
     Future.delayed(const Duration(milliseconds: 300), () {
       if (mounted) _featureListController.forward();
     });
+    _loadOfferings();
   }
 
   @override
@@ -109,6 +118,87 @@ class _PaywallScreenState extends State<PaywallScreen>
       isPopular: false,
     ),
   ];
+
+  Future<void> _loadOfferings() async {
+    final offerings = await _revenueCatService.getOfferings();
+    if (!mounted) return;
+    setState(() => _offerings = offerings);
+  }
+
+  Package? _resolvePackage() {
+    final offerings = _offerings;
+    if (offerings == null || offerings.current == null) return null;
+
+    final isPlus = _selectedPlanIndex == 1;
+    final wantYearly = _isYearly;
+    final packages = offerings.current!.availablePackages;
+    final wantedProductId = isPlus
+        ? (wantYearly
+            ? RevenueCatProductIds.plusYearly
+            : RevenueCatProductIds.plusMonthly)
+        : (wantYearly
+            ? RevenueCatProductIds.proYearly
+            : RevenueCatProductIds.proMonthly);
+
+    Package? best;
+    for (final p in packages) {
+      final id = p.identifier.toLowerCase();
+      final matchPlan = id.contains(wantedProductId.toLowerCase()) ||
+          (isPlus ? id.contains('plus') : id.contains('pro'));
+      if (!matchPlan) continue;
+      final matchPeriod = wantYearly
+          ? p.packageType == PackageType.annual
+          : p.packageType == PackageType.monthly;
+      if (matchPeriod) return p;
+      best ??= p;
+    }
+
+    // Fallback: plan-specific paket bulunamazsa current offering'den period eşleşen ilk paketi al
+    for (final p in packages) {
+      if (wantYearly && p.packageType == PackageType.annual) return p;
+      if (!wantYearly && p.packageType == PackageType.monthly) return p;
+    }
+    return best;
+  }
+
+  Future<void> _handlePurchase() async {
+    if (_selectedPlanIndex == 0) {
+      context.pop();
+      return;
+    }
+    final pkg = _resolvePackage();
+    if (pkg == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Paket bilgisi alinamadi. Tekrar dene.')),
+      );
+      return;
+    }
+    setState(() => _isPurchasing = true);
+    final ok = await _revenueCatService.purchasePackage(pkg);
+    if (!mounted) return;
+    setState(() => _isPurchasing = false);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(ok
+            ? 'Satin alma basarili. Planin guncelleniyor.'
+            : 'Satin alma tamamlanmadi.'),
+      ),
+    );
+    if (ok) context.pop();
+  }
+
+  Future<void> _handleRestore() async {
+    setState(() => _isRestoring = true);
+    final tier = await _revenueCatService.restorePurchases();
+    if (!mounted) return;
+    setState(() => _isRestoring = false);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Geri yukleme sonucu: ${tier.label}')),
+    );
+    if (tier != SubscriptionTier.free) {
+      context.pop();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -183,6 +273,8 @@ class _PaywallScreenState extends State<PaywallScreen>
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     _buildCtaButton(isDark),
+                    const SizedBox(height: 8),
+                    _buildRestoreButton(),
                     const SizedBox(height: 12),
                     _buildFooter(isDark),
                     const SizedBox(height: 16),
@@ -438,19 +530,7 @@ class _PaywallScreenState extends State<PaywallScreen>
         SizedBox(
           width: double.infinity, height: 54,
           child: FilledButton(
-            onPressed: () {
-              if (isFree) {
-                context.pop();
-              } else {
-                // TODO: RevenueCat satın alma akışı (Hafta 2)
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                  content: Text('${selectedPlan.name} planı yakında aktif olacak!'),
-                  behavior: SnackBarBehavior.floating,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12)),
-                ));
-              }
-            },
+            onPressed: _isPurchasing || _isRestoring ? null : _handlePurchase,
             style: FilledButton.styleFrom(
               backgroundColor: isFree ? AppColors.textSecondary : selectedPlan.tierColor,
               foregroundColor: Colors.white,
@@ -459,7 +539,16 @@ class _PaywallScreenState extends State<PaywallScreen>
               textStyle: AppTextStyles.titleSmall
                   .copyWith(fontWeight: FontWeight.w700),
             ),
-            child: Text(isFree ? 'Mevcut Plan' : '${selectedPlan.name} Planı Seç'),
+            child: _isPurchasing
+                ? const SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Colors.white,
+                    ),
+                  )
+                : Text(isFree ? 'Mevcut Plan' : '${selectedPlan.name} Planı Seç'),
           ),
         ),
         if (!isFree && _selectedPlanIndex == 1) ...[
@@ -491,6 +580,24 @@ class _PaywallScreenState extends State<PaywallScreen>
           ),
         ],
       ],
+    );
+  }
+
+  Widget _buildRestoreButton() {
+    return SizedBox(
+      width: double.infinity,
+      height: 44,
+      child: TextButton.icon(
+        onPressed: _isPurchasing || _isRestoring ? null : _handleRestore,
+        icon: _isRestoring
+            ? const SizedBox(
+                width: 14,
+                height: 14,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              )
+            : const Icon(Icons.restore_rounded, size: 18),
+        label: const Text('Satin alimi geri yukle'),
+      ),
     );
   }
 
