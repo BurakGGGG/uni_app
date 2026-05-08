@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../services/revenuecat_service.dart';
@@ -32,6 +34,7 @@ final usageStatsRepositoryProvider = Provider<UsageStatsRepository>((ref) {
 final subscriptionTierProvider = StreamProvider<SubscriptionTier>((ref) {
   final subscriptionRepo = ref.watch(subscriptionRepositoryProvider);
   final revenueCatService = RevenueCatService();
+  unawaited(revenueCatService.init());
 
   return Stream<SubscriptionTier>.multi((controller) {
     // Fallback kaynak: Firestore abonelik dokümanı.

@@ -1,8 +1,13 @@
-import 'package:flutter/material.dart';
 import 'dart:ui';
+
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../monetization/domain/enums/subscription_tier.dart';
+import '../../../monetization/presentation/providers/subscription_providers.dart';
 
 /// SubscriptionGateWidget — UI Shell
 /// Kişi A'nın logic'ini bekliyor. Şimdilik sadece UI kısmı hazır.
@@ -19,13 +24,9 @@ import '../../../../core/theme/app_text_styles.dart';
 ///
 /// currentTier >= requiredTier ise child'ı gösterir,
 /// değilse bulanık overlay + kilit ikonu + paywall CTA gösterir.
-class SubscriptionGateWidget extends StatelessWidget {
-  /// Gerekli minimum tier: 'plus' veya 'pro'
-  final String requiredTier;
-
-  /// Kullanıcının mevcut tier'ı: 'free', 'plus', 'pro'
-  /// TODO: Kişi A'nın subscriptionTierProvider'ına bağlanacak
-  final String currentTier;
+class SubscriptionGateWidget extends ConsumerWidget {
+  /// Gerekli minimum tier.
+  final SubscriptionTier requiredTier;
 
   /// Erişim engelli kısımdaki özellik adı
   final String featureName;
@@ -36,64 +37,80 @@ class SubscriptionGateWidget extends StatelessWidget {
   /// Opsiyonel: kilit durumunda gösterilecek özel fallback
   final Widget? lockedFallback;
 
+  /// Kilitliyse child önizlemesini blur göster.
+  final bool showBlurPreview;
+
   const SubscriptionGateWidget({
     super.key,
     required this.requiredTier,
-    this.currentTier = 'free', // TODO: Provider'dan gelecek
     required this.featureName,
     required this.child,
     this.lockedFallback,
+    this.showBlurPreview = true,
   });
 
-  bool get _hasAccess {
-    const tierOrder = {'free': 0, 'plus': 1, 'pro': 2};
-    return (tierOrder[currentTier] ?? 0) >= (tierOrder[requiredTier] ?? 0);
-  }
-
   @override
-  Widget build(BuildContext context) {
-    if (_hasAccess) return child;
-    if (lockedFallback != null) return lockedFallback!;
-    return _DefaultLockedView(
-      requiredTier: requiredTier,
-      featureName: featureName,
-      child: child,
+  Widget build(BuildContext context, WidgetRef ref) {
+    final tierAsync = ref.watch(subscriptionTierProvider);
+
+    return tierAsync.when(
+      data: (tier) {
+        if (tier.satisfies(requiredTier)) {
+          return child;
+        }
+        if (lockedFallback != null) return lockedFallback!;
+        return _DefaultLockedView(
+          requiredTier: requiredTier,
+          featureName: featureName,
+          showBlurPreview: showBlurPreview,
+          child: child,
+        );
+      },
+      loading: () => const SizedBox.shrink(),
+      error: (error, stackTrace) => child,
     );
   }
 }
 
 /// Varsayılan kilit görünümü — blur overlay + kilit ikonu + CTA
 class _DefaultLockedView extends StatelessWidget {
-  final String requiredTier;
+  final SubscriptionTier requiredTier;
   final String featureName;
   final Widget child;
+  final bool showBlurPreview;
 
   const _DefaultLockedView({
     required this.requiredTier,
     required this.featureName,
     required this.child,
+    required this.showBlurPreview,
   });
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final tierColor =
-        requiredTier == 'pro' ? AppColors.tierPro : AppColors.tierPlus;
-    final tierLabel = requiredTier == 'pro' ? 'Pro' : 'Plus';
+        requiredTier == SubscriptionTier.pro ? AppColors.tierPro : AppColors.tierPlus;
+    final tierLabel = requiredTier.label;
 
     return ClipRRect(
       borderRadius: BorderRadius.circular(16),
       child: Stack(
         children: [
           // Alt katman — bulanık içerik önizlemesi
-          Positioned.fill(
-            child: IgnorePointer(
-              child: ImageFiltered(
-                imageFilter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
-                child: Opacity(opacity: 0.4, child: child),
+          if (showBlurPreview)
+            Positioned.fill(
+              child: IgnorePointer(
+                child: ImageFiltered(
+                  imageFilter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
+                  child: Opacity(opacity: 0.4, child: child),
+                ),
               ),
             ),
-          ),
+          if (!showBlurPreview)
+            Positioned.fill(
+              child: Container(color: Colors.transparent),
+            ),
 
           // Üst katman — kilit overlay
           Positioned.fill(

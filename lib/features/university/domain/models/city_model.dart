@@ -7,6 +7,7 @@ class CityModel {
   final String photoUrl;
   final int totalUniversityCount;
   final int appUniversityCount;
+  final int? population;
   final String? brandPrimaryHex;
   final String? brandSecondaryHex;
   final bool brandUseDarkOverlay;
@@ -18,6 +19,7 @@ class CityModel {
     required this.photoUrl,
     required this.totalUniversityCount,
     required this.appUniversityCount,
+    this.population,
     this.brandPrimaryHex,
     this.brandSecondaryHex,
     this.brandUseDarkOverlay = false,
@@ -85,6 +87,7 @@ class CityModel {
       photoUrl: map['photoUrl'] ?? '',
       totalUniversityCount: map['totalUniversityCount'] ?? 0,
       appUniversityCount: map['appUniversityCount'] ?? 0,
+      population: (map['population'] as num?)?.toInt(),
       brandPrimaryHex: map['brandPrimaryHex'] as String?,
       brandSecondaryHex: map['brandSecondaryHex'] as String?,
       brandUseDarkOverlay: map['brandUseDarkOverlay'] ?? false,
@@ -97,6 +100,7 @@ class CityModel {
         'photoUrl': photoUrl,
         'totalUniversityCount': totalUniversityCount,
         'appUniversityCount': appUniversityCount,
+        if (population != null) 'population': population,
         if (brandPrimaryHex != null) 'brandPrimaryHex': brandPrimaryHex,
         if (brandSecondaryHex != null) 'brandSecondaryHex': brandSecondaryHex,
         'brandUseDarkOverlay': brandUseDarkOverlay,
