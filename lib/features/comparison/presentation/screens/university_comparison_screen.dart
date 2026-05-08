@@ -4,6 +4,8 @@ import 'package:flutter_svg/flutter_svg.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/widgets.dart';
+import '../../../monetization/domain/enums/subscription_tier.dart';
+import '../../../monetization/presentation/providers/subscription_providers.dart';
 import '../../domain/models/comparison_result.dart';
 import '../providers/comparison_providers.dart';
 import '../widgets/comparison_uni_picker.dart';
@@ -12,6 +14,7 @@ import '../widgets/animated_comparison_bar.dart';
 import '../widgets/comparison_radar_chart.dart';
 import '../widgets/comparison_stats_table.dart';
 import '../widgets/comparison_share_card.dart';
+import '../widgets/comparison_ai_summary_card.dart';
 
 /// Üniversite Karşılaştırma Ekranı — Yeniden Yazım (Gün 3)
 /// Hero Section + 4 Tab'lı sonuç görünümü
@@ -236,13 +239,17 @@ class _TabbedResultViewState extends State<_TabbedResultView>
 
 // ─── Genel Tab ─────────────────────────────────────────────────────
 
-class _GeneralTab extends StatelessWidget {
+class _GeneralTab extends ConsumerWidget {
   final ComparisonResult result;
   const _GeneralTab({required this.result});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final canUseAi = ref.watch(canUseAiComparisonProvider);
+    final usage = ref.watch(usageStatsProvider);
+    final tier = ref.watch(subscriptionTierProvider).valueOrNull ?? SubscriptionTier.free;
+    final loadingAi = usage.isLoading;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
@@ -281,6 +288,14 @@ class _GeneralTab extends StatelessWidget {
 
           // Öne çıkan karşılaştırma özeti
           _SummaryCard(result: result, isDark: isDark),
+          const SizedBox(height: 16),
+
+          ComparisonAiSummaryCard(
+            loading: loadingAi,
+            canUseAi: canUseAi,
+            isLimitReached: tier == SubscriptionTier.pro && !canUseAi,
+            summaryText: result.summaryText,
+          ),
           const SizedBox(height: 16),
 
           // Quick stats

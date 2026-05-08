@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../monetization/domain/enums/subscription_tier.dart';
+import '../../../monetization/presentation/widgets/subscription_gate_widget.dart';
 import '../../domain/models/department_comparison.dart';
 import '../providers/comparison_providers.dart';
 import '../widgets/department_picker_bottom_sheet.dart';
@@ -30,7 +33,11 @@ class _DepartmentComparisonScreenState
     final resultAsync =
         pair == null ? const AsyncValue<DepartmentComparisonResult?>.data(null) : ref.watch(departmentComparisonResultProvider(pair));
 
-    return Scaffold(
+    return SubscriptionGateWidget(
+      requiredTier: SubscriptionTier.plus,
+      showBlurPreview: true,
+      onLocked: () => context.push('/compare/paywall'),
+      child: Scaffold(
       backgroundColor: isDark ? const Color(0xFF0F0F1A) : AppColors.background,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
@@ -112,6 +119,7 @@ class _DepartmentComparisonScreenState
             ],
           ),
         ),
+      ),
       ),
     );
   }

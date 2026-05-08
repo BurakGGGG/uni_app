@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../monetization/domain/enums/subscription_tier.dart';
+import '../../../monetization/presentation/providers/subscription_providers.dart';
+import '../../../monetization/presentation/widgets/subscription_gate_widget.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../widgets/comparison_type_card.dart';
@@ -7,14 +11,14 @@ import '../widgets/comparison_type_card.dart';
 /// Karşılaştırma Hub Ekranı
 /// Kullanıcı hangi tür karşılaştırma yapacağını seçer:
 /// Üniversite (Free), Bölüm (Plus+), Şehir (Plus+)
-class ComparisonHubScreen extends StatefulWidget {
+class ComparisonHubScreen extends ConsumerStatefulWidget {
   const ComparisonHubScreen({super.key});
 
   @override
-  State<ComparisonHubScreen> createState() => _ComparisonHubScreenState();
+  ConsumerState<ComparisonHubScreen> createState() => _ComparisonHubScreenState();
 }
 
-class _ComparisonHubScreenState extends State<ComparisonHubScreen>
+class _ComparisonHubScreenState extends ConsumerState<ComparisonHubScreen>
     with TickerProviderStateMixin {
   late AnimationController _fadeController;
   late AnimationController _slideController;
@@ -78,10 +82,10 @@ class _ComparisonHubScreenState extends State<ComparisonHubScreen>
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    // TODO: Gerçek tier bilgisi Kişi A'nın provider'ından gelecek
-    // Şimdilik statik olarak 'free' kullanılıyor
-    const currentTier = 'free'; // SubscriptionTier.free
+    final tierAsync = ref.watch(subscriptionTierProvider);
+    final canDepartment = ref.watch(canCompareDepartmentsProvider);
+    final canCity = ref.watch(canCompareCitiesProvider);
+    final currentTier = tierAsync.valueOrNull ?? SubscriptionTier.free;
 
     return Scaffold(
       backgroundColor: isDark ? const Color(0xFF0F0F1A) : AppColors.background,
@@ -114,42 +118,38 @@ class _ComparisonHubScreenState extends State<ComparisonHubScreen>
 
               _buildAnimatedCard(
                 index: 1,
-                child: ComparisonTypeCard(
-                  icon: Icons.menu_book_rounded,
-                  title: 'Bölüm',
-                  description:
-                      'Aynı bölümü farklı üniversitelerde karşılaştır',
-                  badge: 'Plus veya Pro gerekli',
-                  iconColor: AppColors.tierPlus,
-                  isLocked: currentTier == 'free',
-                  onTap: () {
-                    if (currentTier == 'free') {
-                      context.push('/compare/paywall');
-                    } else {
-                      context.push('/compare/department');
-                    }
-                  },
+                child: SubscriptionGateWidget(
+                  requiredTier: SubscriptionTier.plus,
+                  showBlurPreview: true,
+                  onLocked: () => context.push('/compare/paywall'),
+                  child: ComparisonTypeCard(
+                    icon: Icons.menu_book_rounded,
+                    title: 'Bölüm',
+                    description: 'Aynı bölümü farklı üniversitelerde karşılaştır',
+                    badge: 'Plus veya Pro gerekli',
+                    iconColor: AppColors.tierPlus,
+                    isLocked: !canDepartment,
+                    onTap: () => context.push('/compare/department'),
+                  ),
                 ),
               ),
               const SizedBox(height: 14),
 
               _buildAnimatedCard(
                 index: 2,
-                child: ComparisonTypeCard(
-                  icon: Icons.location_city_rounded,
-                  title: 'Şehir',
-                  description:
-                      'İki şehrin üniversite ekosistemini karşılaştır',
-                  badge: 'Plus veya Pro gerekli',
-                  iconColor: AppColors.tierPlus,
-                  isLocked: currentTier == 'free',
-                  onTap: () {
-                    if (currentTier == 'free') {
-                      context.push('/compare/paywall');
-                    } else {
-                      context.push('/compare/city');
-                    }
-                  },
+                child: SubscriptionGateWidget(
+                  requiredTier: SubscriptionTier.plus,
+                  showBlurPreview: true,
+                  onLocked: () => context.push('/compare/paywall'),
+                  child: ComparisonTypeCard(
+                    icon: Icons.location_city_rounded,
+                    title: 'Şehir',
+                    description: 'İki şehrin üniversite ekosistemini karşılaştır',
+                    badge: 'Plus veya Pro gerekli',
+                    iconColor: AppColors.tierPlus,
+                    isLocked: !canCity,
+                    onTap: () => context.push('/compare/city'),
+                  ),
                 ),
               ),
 
@@ -219,7 +219,7 @@ class _ComparisonHubScreenState extends State<ComparisonHubScreen>
   Widget _buildSubscriptionFooter(
     BuildContext context,
     bool isDark,
-    String currentTier,
+    SubscriptionTier currentTier,
   ) {
     return Container(
       padding: const EdgeInsets.all(20),
@@ -279,7 +279,7 @@ class _ComparisonHubScreenState extends State<ComparisonHubScreen>
             ),
           ),
           // Sağ taraf - upgrade butonu
-          if (currentTier == 'free')
+          if (currentTier == SubscriptionTier.free)
             FilledButton.icon(
               onPressed: () => context.push('/compare/paywall'),
               icon: const Icon(Icons.rocket_launch_rounded, size: 18),
@@ -304,33 +304,33 @@ class _ComparisonHubScreenState extends State<ComparisonHubScreen>
     );
   }
 
-  IconData _tierIcon(String tier) {
+  IconData _tierIcon(SubscriptionTier tier) {
     switch (tier) {
-      case 'plus':
+      case SubscriptionTier.plus:
         return Icons.star_rounded;
-      case 'pro':
+      case SubscriptionTier.pro:
         return Icons.workspace_premium_rounded;
       default:
         return Icons.person_outline_rounded;
     }
   }
 
-  Color _tierColor(String tier) {
+  Color _tierColor(SubscriptionTier tier) {
     switch (tier) {
-      case 'plus':
+      case SubscriptionTier.plus:
         return AppColors.tierPlus;
-      case 'pro':
+      case SubscriptionTier.pro:
         return AppColors.tierPro;
       default:
         return AppColors.tierFree;
     }
   }
 
-  String _tierLabel(String tier) {
+  String _tierLabel(SubscriptionTier tier) {
     switch (tier) {
-      case 'plus':
+      case SubscriptionTier.plus:
         return 'Plus';
-      case 'pro':
+      case SubscriptionTier.pro:
         return 'Pro';
       default:
         return 'Ücretsiz';
