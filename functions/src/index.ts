@@ -93,3 +93,7 @@ export { cleanupStaleTokens } from './notifications/cleanup_stale_tokens';
 
 // Sprint 5 — AI tercih önerisi zenginleştirme (Groq)
 export { enrichRecommendations } from './recommendations/enrich';
+
+// Sprint 6/8 — Comparison AI summary + günlük AI quota reset
+export { generateComparisonSummary } from './comparison/summary';
+export { resetAiQuotaDaily } from './usage/reset_ai_quota';

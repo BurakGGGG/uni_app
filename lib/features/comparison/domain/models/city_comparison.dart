@@ -15,6 +15,12 @@ class CityComparisonResult {
   final double avgRatingB;
   final double avgReviewCountA;
   final double avgReviewCountB;
+  final int? populationA;
+  final int? populationB;
+  final List<String> topDepartmentTypesA;
+  final List<String> topDepartmentTypesB;
+  final double universityDensityPerMillionA;
+  final double universityDensityPerMillionB;
 
   final String? winnerId;
 
@@ -31,9 +37,19 @@ class CityComparisonResult {
     required this.avgRatingB,
     required this.avgReviewCountA,
     required this.avgReviewCountB,
+    this.populationA,
+    this.populationB,
+    this.topDepartmentTypesA = const [],
+    this.topDepartmentTypesB = const [],
+    this.universityDensityPerMillionA = 0,
+    this.universityDensityPerMillionB = 0,
     required this.winnerId,
   });
 
   double get avgRatingDelta => avgRatingA - avgRatingB;
   int get universityCountDelta => universityCountA - universityCountB;
+  int? get populationDelta {
+    if (populationA == null || populationB == null) return null;
+    return populationA! - populationB!;
+  }
 }

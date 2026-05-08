@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 
 import '../features/monetization/domain/enums/subscription_tier.dart';
@@ -70,6 +71,7 @@ class RevenueCatService {
 
   /// Mevcut müşteri bilgisinden aktif tier'ı tespit et.
   Future<SubscriptionTier> getCurrentTier() async {
+    await init();
     try {
       final customerInfo = await Purchases.getCustomerInfo();
       return _tierFromCustomerInfo(customerInfo);
@@ -115,7 +117,10 @@ class RevenueCatService {
     final controller = StreamController<SubscriptionTier>();
 
     // İlk değeri hemen gönder
-    getCurrentTier().then(controller.add);
+    getCurrentTier().then(controller.add).catchError((Object e) {
+      debugPrint('[RevenueCat] tierStream initial error: $e');
+      controller.add(SubscriptionTier.free);
+    });
 
     // RC listener — abonelik değişikliklerinde tetiklenir
     Purchases.addCustomerInfoUpdateListener((info) {
@@ -128,6 +133,7 @@ class RevenueCatService {
 
   /// Mevcut offerings'i getir (paywall için).
   Future<Offerings?> getOfferings() async {
+    await init();
     try {
       return await Purchases.getOfferings();
     } catch (e) {
@@ -138,13 +144,16 @@ class RevenueCatService {
 
   /// Belirtilen paketi satın al.
   Future<bool> purchasePackage(Package package) async {
+    await init();
     try {
       await Purchases.purchase(PurchaseParams.package(package));
       debugPrint('[RevenueCat] Purchase successful: ${package.identifier}');
       return true;
     } catch (e) {
-      if (e is PurchasesErrorCode &&
-          e == PurchasesErrorCode.purchaseCancelledError) {
+      final errorCode = e is PlatformException
+          ? PurchasesErrorHelper.getErrorCode(e)
+          : PurchasesErrorCode.unknownError;
+      if (errorCode == PurchasesErrorCode.purchaseCancelledError) {
         debugPrint('[RevenueCat] Purchase cancelled');
         return false;
       }
@@ -155,6 +164,7 @@ class RevenueCatService {
 
   /// Satın almaları geri yükle (restore purchases).
   Future<SubscriptionTier> restorePurchases() async {
+    await init();
     try {
       final info = await Purchases.restorePurchases();
       final tier = _tierFromCustomerInfo(info);
