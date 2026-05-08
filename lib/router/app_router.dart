@@ -12,6 +12,7 @@ import '../features/home/presentation/screens/explore_screen.dart';
 import '../features/comparison/presentation/screens/comparison_hub_screen.dart';
 import '../features/comparison/presentation/screens/university_comparison_screen.dart';
 import '../features/comparison/presentation/screens/department_comparison_screen.dart';
+import '../features/comparison/presentation/screens/city_comparison_screen.dart';
 import '../features/monetization/presentation/screens/paywall_screen.dart';
 import '../features/notifications/presentation/screens/notification_center_screen.dart';
 import '../features/auth/presentation/providers/auth_providers.dart';
@@ -367,6 +368,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/compare/department',
         builder: (context, state) => const DepartmentComparisonScreen(),
+      ),
+      GoRoute(
+        path: '/compare/city',
+        builder: (context, state) => const CityComparisonScreen(),
       ),
       GoRoute(
         path: '/compare/paywall',

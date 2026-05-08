@@ -1,0 +1,106 @@
+import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter/material.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_text_styles.dart';
+
+class CityComparPieChart extends StatelessWidget {
+  final int stateCount;
+  final int foundationCount;
+
+  const CityComparPieChart({
+    super.key,
+    required this.stateCount,
+    required this.foundationCount,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final total = stateCount + foundationCount;
+    if (total <= 0) {
+      return Center(
+        child: Text('Veri yok', style: AppTextStyles.bodySmall),
+      );
+    }
+
+    return Column(
+      children: [
+        SizedBox(
+          height: 160,
+          child: PieChart(
+            PieChartData(
+              sectionsSpace: 2,
+              centerSpaceRadius: 46,
+              startDegreeOffset: -90,
+              sections: [
+                PieChartSectionData(
+                  color: AppColors.info,
+                  value: stateCount.toDouble(),
+                  title: '',
+                  radius: 54,
+                ),
+                PieChartSectionData(
+                  color: AppColors.tierPlus,
+                  value: foundationCount.toDouble(),
+                  title: '',
+                  radius: 54,
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 10),
+        Wrap(
+          spacing: 10,
+          runSpacing: 10,
+          alignment: WrapAlignment.center,
+          children: [
+            _LegendDot(label: 'Devlet', value: stateCount, color: AppColors.info),
+            _LegendDot(
+              label: 'Vakıf',
+              value: foundationCount,
+              color: AppColors.tierPlus,
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class _LegendDot extends StatelessWidget {
+  final String label;
+  final int value;
+  final Color color;
+  const _LegendDot({
+    required this.label,
+    required this.value,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceVariant,
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 10,
+            height: 10,
+            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+          ),
+          const SizedBox(width: 8),
+          Text(
+            '$label • $value',
+            style: AppTextStyles.labelSmall.copyWith(fontWeight: FontWeight.w800),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
