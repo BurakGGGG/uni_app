@@ -54,4 +54,6 @@ flutter {
 
 dependencies {
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
+    // Flutter embedding deferred component classes reference splitinstall APIs.
+    implementation("com.google.android.play:feature-delivery:2.1.0")
 }

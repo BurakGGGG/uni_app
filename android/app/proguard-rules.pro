@@ -11,3 +11,7 @@
 # Google Sign-In
 -keep class com.google.android.gms.** { *; }
 -dontwarn com.google.android.gms.**
+
+# Play Core (Flutter deferred components / split install references)
+-keep class com.google.android.play.core.** { *; }
+-dontwarn com.google.android.play.core.**
