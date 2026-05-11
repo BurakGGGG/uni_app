@@ -17,6 +17,7 @@ import '../../../university/domain/models/department_model.dart';
 import '../../../university/domain/models/university_model.dart';
 import '../../../places/data/place_repository.dart';
 import '../../../../services/analytics_service.dart';
+import 'package:flutter/foundation.dart';
 
 // ─── Sprint 4 — Karşılaştırma Seçim State ─────────────────
 
@@ -200,6 +201,17 @@ class ComparisonPair {
     required this.idA,
     required this.idB,
   });
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ComparisonPair &&
+          runtimeType == other.runtimeType &&
+          idA == other.idA &&
+          idB == other.idB;
+
+  @override
+  int get hashCode => idA.hashCode ^ idB.hashCode;
 }
 
 final departmentComparisonRepositoryProvider =
@@ -221,13 +233,17 @@ final departmentComparisonResultProvider =
   if (pair.idA == pair.idB) return null;
   final key = _pairKey(pair.idA, pair.idB);
   try {
-    final result = await ref.read(departmentComparisonRepositoryProvider).compare(
+    final result = await ref
+        .read(departmentComparisonRepositoryProvider)
+        .compare(
           pair.idA,
           pair.idB,
-        );
+        )
+        .timeout(const Duration(seconds: 10));
     _departmentResultCache[key] = result;
     return result;
-  } catch (_) {
+  } catch (e) {
+    debugPrint('[DepartmentComparison] compare failed for $key: $e');
     return _departmentResultCache[key];
   }
 });
@@ -239,13 +255,17 @@ final cityComparisonResultProvider =
   if (pair.idA == pair.idB) return null;
   final key = _pairKey(pair.idA, pair.idB);
   try {
-    final result = await ref.read(cityComparisonRepositoryProvider).compare(
+    final result = await ref
+        .read(cityComparisonRepositoryProvider)
+        .compare(
           pair.idA,
           pair.idB,
-        );
+        )
+        .timeout(const Duration(seconds: 10));
     _cityResultCache[key] = result;
     return result;
-  } catch (_) {
+  } catch (e) {
+    debugPrint('[CityComparison] compare failed for $key: $e');
     return _cityResultCache[key];
   }
 });

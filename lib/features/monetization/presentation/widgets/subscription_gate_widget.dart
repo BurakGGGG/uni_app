@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/theme/app_colors.dart';
 import '../../domain/enums/subscription_tier.dart';
 import '../providers/subscription_providers.dart';
 
@@ -108,8 +109,8 @@ class _BlurLockedOverlay extends StatelessWidget {
               imageFilter: ImageFilter.blur(sigmaX: 4, sigmaY: 4),
               child: ColorFiltered(
                 colorFilter: const ColorFilter.mode(
-                  Colors.black26,
-                  BlendMode.darken,
+                  Colors.white38,
+                  BlendMode.lighten,
                 ),
                 child: IgnorePointer(child: child),
               ),
@@ -119,7 +120,7 @@ class _BlurLockedOverlay extends StatelessWidget {
             Positioned.fill(
               child: Container(
                 decoration: BoxDecoration(
-                  color: Colors.black.withValues(alpha: 0.5),
+                  color: Colors.white.withValues(alpha: 0.74),
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Column(
@@ -139,17 +140,17 @@ class _BlurLockedOverlay extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      '${requiredTier.label} ile Aç',
+                      _requiredTierTitle(requiredTier),
                       style: theme.textTheme.titleSmall?.copyWith(
-                        color: Colors.white,
+                        color: AppColors.textPrimary,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Bu özellik ${requiredTier.label} aboneliği gerektirir',
+                      _requiredTierDescription(requiredTier),
                       style: theme.textTheme.bodySmall?.copyWith(
-                        color: Colors.white70,
+                        color: AppColors.textSecondary,
                       ),
                       textAlign: TextAlign.center,
                     ),
@@ -161,6 +162,27 @@ class _BlurLockedOverlay extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  String _requiredTierDescription(SubscriptionTier tier) {
+    if (tier == SubscriptionTier.plus) {
+      return 'Bölüm ve şehir sıralamalarını açmak için Plus gerekir (Pro da açar).';
+    }
+    if (tier == SubscriptionTier.pro) {
+      return 'Pro grafiklerini açmak için Pro gerekir.';
+    }
+    return 'Bu özellik için uygun bir plan gerekir';
+  }
+
+  String _requiredTierTitle(SubscriptionTier tier) {
+    switch (tier) {
+      case SubscriptionTier.plus:
+        return 'Bölüm & Şehir Sıralamaları';
+      case SubscriptionTier.pro:
+        return 'Pro Grafikler';
+      case SubscriptionTier.free:
+        return 'Üyelik';
+    }
   }
 }
 

@@ -109,7 +109,9 @@ class _ComparisonHubScreenState extends ConsumerState<ComparisonHubScreen>
                   icon: Icons.account_balance_rounded,
                   title: 'Üniversite',
                   description: 'İki üniversiteyi detaylı karşılaştır',
-                  badge: 'Ücretsiz • Günde 1 hak',
+                  badge: currentTier == SubscriptionTier.free
+                      ? 'Ücretsiz • Günde 1 hak'
+                      : '',
                   iconColor: AppColors.primary,
                   isLocked: false,
                   isSelected: _selectedTypeIndex == 0,
@@ -131,7 +133,7 @@ class _ComparisonHubScreenState extends ConsumerState<ComparisonHubScreen>
                     icon: Icons.menu_book_rounded,
                     title: 'Bölüm',
                     description: 'Aynı bölümü farklı üniversitelerde karşılaştır',
-                    badge: 'Plus veya Pro gerekli',
+                    badge: 'Plus ile Bölüm Sıralaması (Pro da açar)',
                     iconColor: AppColors.tierPlus,
                     isLocked: !canDepartment,
                     isSelected: _selectedTypeIndex == 1,
@@ -154,7 +156,7 @@ class _ComparisonHubScreenState extends ConsumerState<ComparisonHubScreen>
                     icon: Icons.location_city_rounded,
                     title: 'Şehir',
                     description: 'İki şehrin üniversite ekosistemini karşılaştır',
-                    badge: 'Plus veya Pro gerekli',
+                    badge: 'Plus ile Şehir Sıralaması (Pro da açar)',
                     iconColor: AppColors.tierPlus,
                     isLocked: !canCity,
                     isSelected: _selectedTypeIndex == 2,

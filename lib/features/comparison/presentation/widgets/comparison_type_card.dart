@@ -35,7 +35,7 @@ class ComparisonTypeCard extends StatefulWidget {
 }
 
 class _ComparisonTypeCardState extends State<ComparisonTypeCard>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _scaleAnim;
   late AnimationController _lockPulseController;
@@ -194,28 +194,29 @@ class _ComparisonTypeCardState extends State<ComparisonTypeCard>
                     ),
                     const SizedBox(height: 8),
                     // Badge
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: widget.isLocked
-                            ? AppColors.tierPlus.withValues(alpha: 0.1)
-                            : AppColors.success.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        widget.badge,
-                        style: AppTextStyles.labelSmall.copyWith(
+                    if (_shouldShowBadge(widget.badge, widget.isLocked))
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
                           color: widget.isLocked
-                              ? AppColors.tierPlus
-                              : AppColors.success,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 11,
+                              ? AppColors.tierPlus.withValues(alpha: 0.1)
+                              : AppColors.success.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          widget.badge,
+                          style: AppTextStyles.labelSmall.copyWith(
+                            color: widget.isLocked
+                                ? AppColors.tierPlus
+                                : AppColors.success,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 11,
+                          ),
                         ),
                       ),
-                    ),
                   ],
                 ),
               ),
@@ -260,5 +261,15 @@ class _ComparisonTypeCardState extends State<ComparisonTypeCard>
         ),
       ),
     );
+  }
+
+  bool _shouldShowBadge(String badge, bool isLocked) {
+    if (badge.trim().isEmpty) return false;
+    // Kullanıcı zaten kilidi açtıysa (isLocked=false) "Plus/Pro gerekli" gibi
+    // gereksiz metinleri göstermemek için badge metnindeki anahtar kelimeleri filtreliyoruz.
+    if (isLocked) return true;
+    final lower = badge.toLowerCase();
+    final mentionsPlusOrPro = lower.contains('plus') || lower.contains('pro');
+    return !mentionsPlusOrPro;
   }
 }

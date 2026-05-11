@@ -8,6 +8,7 @@ import '../../../monetization/presentation/widgets/subscription_gate_widget.dart
 import '../../domain/models/department_comparison.dart';
 import '../providers/comparison_providers.dart';
 import '../widgets/department_picker_bottom_sheet.dart';
+import '../../../university/domain/models/department_model.dart';
 
 class DepartmentComparisonScreen extends ConsumerStatefulWidget {
   const DepartmentComparisonScreen({super.key});
@@ -83,12 +84,15 @@ class _DepartmentComparisonScreenState
                 children: [
                   Expanded(
                     child: _PickCard(
-                      title: 'Bölüm A',
+                      title: _a != null ? _a!.department.name : 'Bölüm A',
                       pick: _a,
                       accent: AppColors.primary,
                       onTap: () async {
                         final pick =
-                            await DepartmentPickerBottomSheet.show(context);
+                            await DepartmentPickerBottomSheet.show(
+                          context,
+                          departmentNameFilter: _b?.department.name,
+                        );
                         if (pick != null) setState(() => _a = pick);
                       },
                     ),
@@ -96,12 +100,15 @@ class _DepartmentComparisonScreenState
                   const SizedBox(width: 12),
                   Expanded(
                     child: _PickCard(
-                      title: 'Bölüm B',
+                      title: _b != null ? _b!.department.name : 'Bölüm B',
                       pick: _b,
                       accent: AppColors.secondary,
                       onTap: () async {
                         final pick =
-                            await DepartmentPickerBottomSheet.show(context);
+                            await DepartmentPickerBottomSheet.show(
+                          context,
+                          departmentNameFilter: _a?.department.name,
+                        );
                         if (pick != null) setState(() => _b = pick);
                       },
                     ),
@@ -140,10 +147,83 @@ class _DepartmentComparisonScreenState
       ),
       error: (e, _) => _ErrorCard(message: '$e', isDark: isDark),
       data: (result) {
-        if (result == null) return _ErrorCard(message: 'Sonuç bulunamadı.', isDark: isDark);
-        return _DepartmentResultView(result: result);
+        final fallback = (_a != null && _b != null)
+            ? _buildFallbackResult(_a!.department, _b!.department)
+            : null;
+        final effectiveResult = result ?? fallback;
+        if (effectiveResult == null) {
+          return _ErrorCard(message: 'Sonuç bulunamadı.', isDark: isDark);
+        }
+        return _DepartmentResultView(result: effectiveResult);
       },
     );
+  }
+
+  DepartmentComparisonResult _buildFallbackResult(
+    DepartmentModel deptA,
+    DepartmentModel deptB,
+  ) {
+    final baseA = deptA.baseScore ?? deptA.scoreData?.baseScore ?? 0;
+    final baseB = deptB.baseScore ?? deptB.scoreData?.baseScore ?? 0;
+    final rankA = (deptA.ranking ?? deptA.scoreData?.ranking)?.toDouble() ?? 0;
+    final rankB = (deptB.ranking ?? deptB.scoreData?.ranking)?.toDouble() ?? 0;
+    final quotaA = (deptA.quota ?? deptA.scoreData?.quota)?.toDouble() ?? 0;
+    final quotaB = (deptB.quota ?? deptB.scoreData?.quota)?.toDouble() ?? 0;
+    final fillA = _fillRate(
+      quota: deptA.scoreData?.quota ?? deptA.quota,
+      placed: deptA.scoreData?.placedCount,
+    );
+    final fillB = _fillRate(
+      quota: deptB.scoreData?.quota ?? deptB.quota,
+      placed: deptB.scoreData?.placedCount,
+    );
+
+    final pointsA = _metricPoint(baseA, baseB, higherIsBetter: true) +
+        _metricPoint(rankA, rankB, higherIsBetter: false) +
+        _metricPoint(fillA, fillB, higherIsBetter: true) +
+        _metricPoint(quotaA, quotaB, higherIsBetter: true);
+    final pointsB = _metricPoint(baseB, baseA, higherIsBetter: true) +
+        _metricPoint(rankB, rankA, higherIsBetter: false) +
+        _metricPoint(fillB, fillA, higherIsBetter: true) +
+        _metricPoint(quotaB, quotaA, higherIsBetter: true);
+
+    String? winnerId;
+    if (pointsA > pointsB) {
+      winnerId = deptA.id;
+    } else if (pointsB > pointsA) {
+      winnerId = deptB.id;
+    }
+
+    final scoreTypeA = deptA.scoreType ?? deptA.scoreData?.scoreType;
+    final scoreTypeB = deptB.scoreType ?? deptB.scoreData?.scoreType;
+
+    return DepartmentComparisonResult(
+      deptA: deptA,
+      deptB: deptB,
+      scoreDeltas: <String, double>{
+        'baseScore': baseA - baseB,
+        'ranking': rankB - rankA,
+        'fillRate': fillA - fillB,
+        'quota': quotaA - quotaB,
+      },
+      winnerId: winnerId,
+      hasScoreTypeMismatch: scoreTypeA != null &&
+          scoreTypeB != null &&
+          scoreTypeA.isNotEmpty &&
+          scoreTypeB.isNotEmpty &&
+          scoreTypeA != scoreTypeB,
+    );
+  }
+
+  int _metricPoint(double a, double b, {required bool higherIsBetter}) {
+    if ((a - b).abs() < 0.0001) return 0;
+    if (higherIsBetter) return a > b ? 1 : 0;
+    return a < b ? 1 : 0;
+  }
+
+  double _fillRate({int? quota, int? placed}) {
+    if (quota == null || placed == null || quota <= 0) return 0;
+    return placed / quota;
   }
 }
 
@@ -262,12 +342,35 @@ class _PickCard extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  Container(
-                    width: 9,
-                    height: 9,
-                    decoration:
-                        BoxDecoration(color: accent, shape: BoxShape.circle),
-                  ),
+                  if (uni != null)
+                    Container(
+                      width: 22,
+                      height: 22,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(6),
+                        border: Border.all(
+                          color: accent.withValues(alpha: 0.3),
+                        ),
+                      ),
+                      padding: const EdgeInsets.all(2),
+                      child: Image.asset(
+                        uni.logoAssetPath,
+                        fit: BoxFit.contain,
+                        errorBuilder: (_, _, _) => Icon(
+                          Icons.school_rounded,
+                          size: 14,
+                          color: accent,
+                        ),
+                      ),
+                    )
+                  else
+                    Container(
+                      width: 9,
+                      height: 9,
+                      decoration:
+                          BoxDecoration(color: accent, shape: BoxShape.circle),
+                    ),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
@@ -276,6 +379,8 @@ class _PickCard extends StatelessWidget {
                         fontWeight: FontWeight.w800,
                         color: isDark ? Colors.white : AppColors.textPrimary,
                       ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                   const Icon(Icons.chevron_right_rounded, color: AppColors.textTertiary),
@@ -327,24 +432,23 @@ class _PickCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 10),
-                Row(
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
                   children: [
                     _MetaPill(
                       icon: Icons.timelapse_rounded,
                       label: '${dept.duration} yıl',
                     ),
-                    const SizedBox(width: 8),
                     _MetaPill(
                       icon: Icons.language_rounded,
                       label: dept.language,
                     ),
-                    if (scoreType != null && scoreType.isNotEmpty) ...[
-                      const SizedBox(width: 8),
+                    if (scoreType != null && scoreType.isNotEmpty)
                       _MetaPill(
                         icon: Icons.stacked_bar_chart_rounded,
                         label: scoreType,
                       ),
-                    ],
                   ],
                 ),
               ],
