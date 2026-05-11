@@ -25,33 +25,43 @@ class CityComparPieChart extends StatelessWidget {
     return Column(
       children: [
         SizedBox(
-          height: 160,
+          height: 110,
           child: PieChart(
             PieChartData(
               sectionsSpace: 2,
-              centerSpaceRadius: 46,
+              centerSpaceRadius: 24,
               startDegreeOffset: -90,
               sections: [
                 PieChartSectionData(
                   color: AppColors.info,
                   value: stateCount.toDouble(),
-                  title: '',
-                  radius: 54,
+                  title: '$stateCount',
+                  titleStyle: const TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w900,
+                    color: Colors.white,
+                  ),
+                  radius: 32,
                 ),
                 PieChartSectionData(
                   color: AppColors.tierPlus,
                   value: foundationCount.toDouble(),
-                  title: '',
-                  radius: 54,
+                  title: '$foundationCount',
+                  titleStyle: const TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w900,
+                    color: Colors.white,
+                  ),
+                  radius: 32,
                 ),
               ],
             ),
           ),
         ),
-        const SizedBox(height: 10),
+        const SizedBox(height: 8),
         Wrap(
-          spacing: 10,
-          runSpacing: 10,
+          spacing: 8,
+          runSpacing: 6,
           alignment: WrapAlignment.center,
           children: [
             _LegendDot(label: 'Devlet', value: stateCount, color: AppColors.info),

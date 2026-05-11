@@ -41,20 +41,18 @@ class UniversityComparisonScreen extends ConsumerWidget {
         ),
         actions: [
           if (selection.uniIdA != null || selection.uniIdB != null)
-            IconButton(
-              icon: const Icon(Icons.refresh_rounded, size: 20),
-              tooltip: 'Sıfırla',
-              color: AppColors.error,
-              onPressed: () =>
-                  ref.read(comparisonSelectionProvider.notifier).reset(),
+            TextButton.icon(
+              icon: Icon(Icons.refresh_rounded, size: 18, color: AppColors.error),
+              label: Text(
+                'Sıfırla',
+                style: AppTextStyles.labelSmall.copyWith(
+                  color: AppColors.error,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              onPressed: () => _showResetConfirmation(context, ref),
             ),
-          if (selection.bothSelected) ...[
-            IconButton(
-              icon: const Icon(Icons.swap_horiz_rounded, size: 22),
-              tooltip: 'Yer Değiştir',
-              onPressed: () =>
-                  ref.read(comparisonSelectionProvider.notifier).swap(),
-            ),
+          if (selection.bothSelected)
             IconButton(
               icon: const Icon(Icons.ios_share_rounded, size: 20),
               tooltip: 'Paylaş',
@@ -65,13 +63,13 @@ class UniversityComparisonScreen extends ConsumerWidget {
                 }
               },
             ),
-          ],
         ],
       ),
       body: Column(
         children: [
-          // ─── Üniversite Seçici ──────────────────────────────
-          const ComparisonUniPicker(),
+          // ─── Üniversite Seçici (sadece sonuç yokken görünür) ───
+          if (!selection.bothSelected || resultAsync.valueOrNull == null)
+            const ComparisonUniPicker(),
 
           // ─── Sonuç Alanı ────────────────────────────────────
           Expanded(
@@ -104,6 +102,63 @@ class UniversityComparisonScreen extends ConsumerWidget {
         if (result == null) return _EmptyState(isDark: isDark);
         return _TabbedResultView(result: result);
       },
+    );
+  }
+
+  static void _showResetConfirmation(BuildContext context, WidgetRef ref) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: isDark ? const Color(0xFF1A1A2E) : Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        icon: Icon(
+          Icons.refresh_rounded,
+          color: AppColors.error,
+          size: 32,
+        ),
+        title: Text(
+          'Karşılaştırmayı Sıfırla',
+          style: AppTextStyles.titleMedium.copyWith(
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        content: Text(
+          'Mevcut karşılaştırma sıfırlansın mı? Yeni üniversiteler seçebilirsiniz.',
+          style: AppTextStyles.bodySmall.copyWith(
+            color: AppColors.textSecondary,
+          ),
+          textAlign: TextAlign.center,
+        ),
+        actionsAlignment: MainAxisAlignment.center,
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(
+              'İptal',
+              style: AppTextStyles.labelMedium.copyWith(
+                color: AppColors.textSecondary,
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          FilledButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              ref.read(comparisonSelectionProvider.notifier).reset();
+            },
+            style: FilledButton.styleFrom(
+              backgroundColor: AppColors.error,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            child: const Text('Sıfırla'),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -154,7 +209,6 @@ class _TabbedResultView extends StatefulWidget {
 class _TabbedResultViewState extends State<_TabbedResultView>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  bool _showWinnerConfetti = true;
 
   static const _tabs = ['Genel', 'Kategoriler', 'Grafik', 'İstatistik'];
 
@@ -162,9 +216,6 @@ class _TabbedResultViewState extends State<_TabbedResultView>
   void initState() {
     super.initState();
     _tabController = TabController(length: _tabs.length, vsync: this);
-    Future<void>.delayed(const Duration(milliseconds: 2200), () {
-      if (mounted) setState(() => _showWinnerConfetti = false);
-    });
   }
 
   @override
@@ -177,15 +228,13 @@ class _TabbedResultViewState extends State<_TabbedResultView>
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return Stack(
+    return Column(
       children: [
-        Column(
-          children: [
-            // ─── Hero Section ──────────────────────────────────
-            ComparisonHeroSection(result: widget.result),
+        // ─── Hero Section ──────────────────────────────────
+        ComparisonHeroSection(result: widget.result),
 
-            // ─── Animasyonlu Tab Bar ───────────────────────────
-            Container(
+        // ─── Animasyonlu Tab Bar ───────────────────────────
+        Container(
           margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           padding: const EdgeInsets.all(4),
           decoration: BoxDecoration(
@@ -226,86 +275,23 @@ class _TabbedResultViewState extends State<_TabbedResultView>
           ),
         ),
 
-            // ─── Tab İçerikleri ────────────────────────────────
-            Expanded(
-              child: TabBarView(
-                controller: _tabController,
-                children: [
-                  _GeneralTab(result: widget.result),
-                  _CategoriesTab(result: widget.result),
-                  _ChartTab(result: widget.result),
-                  _StatsTab(result: widget.result),
-                ],
-              ),
-            ),
-          ],
-        ),
-        if (_showWinnerConfetti && widget.result.overallWinnerId != null)
-          const IgnorePointer(
-            child: _WinnerConfettiOverlay(),
+        // ─── Tab İçerikleri ────────────────────────────────
+        Expanded(
+          child: TabBarView(
+            controller: _tabController,
+            children: [
+              _GeneralTab(result: widget.result),
+              _CategoriesTab(result: widget.result),
+              _ChartTab(result: widget.result),
+              _StatsTab(result: widget.result),
+            ],
           ),
+        ),
       ],
     );
   }
 }
 
-class _WinnerConfettiOverlay extends StatefulWidget {
-  const _WinnerConfettiOverlay();
-
-  @override
-  State<_WinnerConfettiOverlay> createState() => _WinnerConfettiOverlayState();
-}
-
-class _WinnerConfettiOverlayState extends State<_WinnerConfettiOverlay>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _controller;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 2000),
-    )..forward();
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _controller,
-      builder: (context, _) {
-        final t = Curves.easeOutCubic.transform(_controller.value);
-        return Opacity(
-          opacity: (1 - t).clamp(0.0, 1.0),
-          child: Stack(
-            children: List.generate(18, (i) {
-              final dx = (i % 6) / 6.0;
-              final dy = (i ~/ 6) / 3.0;
-              final drift = (i.isEven ? 1 : -1) * 40.0 * t;
-              return Positioned(
-                left: 20 + dx * (MediaQuery.of(context).size.width - 40) + drift,
-                top: 20 + dy * 28 + (t * 120),
-                child: Transform.rotate(
-                  angle: t * (i + 1) * 0.4,
-                  child: Text(
-                    i % 3 == 0 ? '✨' : (i % 3 == 1 ? '🎉' : '⭐'),
-                    style: TextStyle(fontSize: 14 + (i % 4) * 2.0),
-                  ),
-                ),
-              );
-            }),
-          ),
-        );
-      },
-    );
-  }
-}
 
 // ─── Genel Tab ─────────────────────────────────────────────────────
 
@@ -633,6 +619,26 @@ class _CategoriesTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final categories = result.categoryComparisons.values.toList();
+    if (categories.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 16),
+          child: EmptyStateWidget(
+            illustration: Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: AppColors.primary.withValues(alpha: 0.06),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.rate_review_rounded, size: 32, color: AppColors.primary),
+            ),
+            title: 'Yeterli değerlendirme yok',
+            description:
+                'Bu iki üniversite için henüz kategori puanı oluşturacak yorum bulunmuyor.',
+          ),
+        ),
+      );
+    }
     return ListView.builder(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 80),
       itemCount: categories.length,
@@ -656,6 +662,25 @@ class _ChartTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (result.categoryComparisons.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 16),
+          child: EmptyStateWidget(
+            illustration: Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: AppColors.secondary.withValues(alpha: 0.06),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.show_chart_rounded, size: 32, color: AppColors.secondary),
+            ),
+            title: 'Grafik üretmek için yorum gerekiyor',
+            description: 'Henüz yeterli değerlendirme olmadığı için grafikler boş görünüyor.',
+          ),
+        ),
+      );
+    }
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(0, 8, 0, 80),
       child: ComparisonRadarChart(result: result),

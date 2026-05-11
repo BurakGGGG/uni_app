@@ -22,6 +22,9 @@ import '../../../../scripts/delete_missing_departments.dart';
 import '../../../../scripts/seed_data_service.dart' deferred as seed_data;
 import '../../../favorites/presentation/providers/favorites_providers.dart';
 import '../../../university/presentation/providers/university_providers.dart';
+import '../../../monetization/domain/enums/subscription_tier.dart';
+import '../../../monetization/presentation/providers/subscription_providers.dart';
+import '../../../comparison/presentation/providers/comparison_providers.dart';
 import '../widgets/change_password_dialog.dart';
 
 /// Profil ekranı — auth durumuna göre içerik gösterir
@@ -97,12 +100,7 @@ class ProfileScreen extends ConsumerWidget {
                         subtitle: 'Fotoğraf, isim, üniversite',
                         onTap: () => context.push('/edit-profile'),
                       ),
-                      _SettingsItem(
-                        icon: Icons.favorite_outline_rounded,
-                        title: 'Favorilerim',
-                        subtitle: '${ref.watch(favoritesProvider).value?.length ?? 0} üniversite',
-                        onTap: () => context.push('/favorites'),
-                      ),
+                      _buildMembershipSettingsItem(context, ref),
                       _SettingsItem(
                         icon: Icons.notifications_outlined,
                         title: 'Bildirimler',
@@ -376,6 +374,11 @@ class ProfileScreen extends ConsumerWidget {
                           ),
                         );
                         if (confirmed == true) {
+                          // Comparison state'lerini sıfırla
+                          ref.read(comparisonSelectionProvider.notifier).reset();
+                          ref.invalidate(comparisonResultProvider);
+                          ref.invalidate(comparisonGateDecisionProvider);
+                          ref.invalidate(comparisonGateControllerProvider);
                           // Önce nav, sonra signOut → kullanıcı bekleme algılamasın
                           if (context.mounted) context.go('/login');
                           ref.read(authControllerProvider.notifier).signOut();
@@ -402,6 +405,127 @@ class ProfileScreen extends ConsumerWidget {
           ),
         ),
       ),
+    );
+  }
+
+  _SettingsItem _buildMembershipSettingsItem(BuildContext context, WidgetRef ref) {
+    final tier = ref.watch(subscriptionTierProvider).valueOrNull ?? SubscriptionTier.free;
+
+    return _SettingsItem(
+      icon: Icons.workspace_premium_rounded,
+      title: 'Üyelik Planı',
+      subtitle: '${tier.label} planını kullanıyorsun',
+      onTap: () => _showPlanDetails(context, tier),
+    );
+  }
+
+  void _showPlanDetails(BuildContext context, SubscriptionTier currentTier) {
+    final plans = [
+      (
+        tier: SubscriptionTier.free,
+        title: 'Ücretsiz',
+        features: const [
+          'Üniversite karşılaştırma (günlük limitli)',
+          'Temel keşif ve inceleme özellikleri',
+        ],
+      ),
+      (
+        tier: SubscriptionTier.plus,
+        title: 'Plus',
+        features: const [
+          'Bölüm ve şehir karşılaştırmaları',
+          'Daha geniş kullanım limitleri',
+        ],
+      ),
+      (
+        tier: SubscriptionTier.pro,
+        title: 'Pro',
+        features: const [
+          'Tüm Plus özellikleri',
+          'Pro grafikler ve AI destekli özet özellikleri',
+        ],
+      ),
+    ];
+
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) {
+        return Container(
+          decoration: const BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Plan Detayları',
+                style: AppTextStyles.titleLarge.copyWith(fontWeight: FontWeight.w800),
+              ),
+              const SizedBox(height: 16),
+              ...plans.map((plan) {
+                final isCurrent = plan.tier == currentTier;
+                return Container(
+                  width: double.infinity,
+                  margin: const EdgeInsets.only(bottom: 10),
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: isCurrent
+                        ? AppColors.primary.withValues(alpha: 0.08)
+                        : AppColors.background,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: isCurrent
+                          ? AppColors.primary.withValues(alpha: 0.35)
+                          : AppColors.borderLight,
+                    ),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Text(
+                            plan.title,
+                            style: AppTextStyles.titleSmall.copyWith(fontWeight: FontWeight.w800),
+                          ),
+                          const Spacer(),
+                        ],
+                      ),
+                      const SizedBox(height: 6),
+                      ...plan.features.map(
+                        (feature) => Padding(
+                          padding: const EdgeInsets.only(bottom: 2),
+                          child: Text(
+                            '• $feature',
+                            style: AppTextStyles.bodySmall.copyWith(
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }),
+              const SizedBox(height: 6),
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton(
+                  onPressed: () {
+                    Navigator.pop(ctx);
+                    context.push('/compare/paywall');
+                  },
+                  child: const Text('Planları Gör ve Yükselt'),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 

@@ -109,11 +109,32 @@ class _ComparisonRadarChartState extends State<ComparisonRadarChart>
                     const BorderSide(color: AppColors.borderLight, width: 0.5),
                 getTitle: (index, angle) {
                   final name = cats[index].categoryName;
-                  // Uzun isimleri kısalt
-                  final short =
-                      name.length > 10 ? '${name.substring(0, 9)}…' : name;
+                  // Uzun isimleri satır ortasından böl
+                  String displayName;
+                  if (name.length <= 12) {
+                    displayName = name;
+                  } else {
+                    // Ortaya yakın bir boşluktan böl
+                    final mid = name.length ~/ 2;
+                    final spaceAfter = name.indexOf(' ', mid);
+                    final spaceBefore = name.lastIndexOf(' ', mid);
+                    int splitAt;
+                    if (spaceAfter != -1 && spaceBefore != -1) {
+                      splitAt = (spaceAfter - mid).abs() < (spaceBefore - mid).abs()
+                          ? spaceAfter
+                          : spaceBefore;
+                    } else {
+                      splitAt = spaceAfter != -1 ? spaceAfter : spaceBefore;
+                    }
+                    if (splitAt > 0 && splitAt < name.length - 1) {
+                      displayName =
+                          '${name.substring(0, splitAt)}\n${name.substring(splitAt + 1)}';
+                    } else {
+                      displayName = name;
+                    }
+                  }
                   return RadarChartTitle(
-                    text: short,
+                    text: displayName,
                     angle: angle,
                     positionPercentageOffset: 0.15,
                   );

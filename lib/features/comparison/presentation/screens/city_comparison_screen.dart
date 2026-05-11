@@ -6,6 +6,7 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../../monetization/domain/enums/subscription_tier.dart';
 import '../../../monetization/presentation/widgets/subscription_gate_widget.dart';
 import '../../../university/domain/models/city_model.dart';
+import '../../../university/presentation/widgets/city_logo.dart';
 import '../../domain/models/city_comparison.dart';
 import '../providers/comparison_providers.dart';
 import '../widgets/city_compar_pie_chart.dart';
@@ -82,7 +83,7 @@ class _CityComparisonScreenState extends ConsumerState<CityComparisonScreen> {
                 children: [
                   Expanded(
                     child: _CityPickCard(
-                      title: 'Şehir A',
+                      title: _a != null ? _a!.name : 'Şehir A',
                       city: _a,
                       accent: AppColors.primary,
                       onTap: () async {
@@ -94,7 +95,7 @@ class _CityComparisonScreenState extends ConsumerState<CityComparisonScreen> {
                   const SizedBox(width: 12),
                   Expanded(
                     child: _CityPickCard(
-                      title: 'Şehir B',
+                      title: _b != null ? _b!.name : 'Şehir B',
                       city: _b,
                       accent: AppColors.secondary,
                       onTap: () async {
@@ -136,11 +137,44 @@ class _CityComparisonScreenState extends ConsumerState<CityComparisonScreen> {
       ),
       error: (e, _) => _ErrorCard(message: '$e', isDark: isDark),
       data: (result) {
-        if (result == null) {
+        final fallback = (_a != null && _b != null)
+            ? _buildFallbackResult(_a!, _b!)
+            : null;
+        final effectiveResult = result ?? fallback;
+        if (effectiveResult == null) {
           return _ErrorCard(message: 'Sonuç bulunamadı.', isDark: isDark);
         }
-        return _CityResultView(result: result);
+        return _CityResultView(result: effectiveResult);
       },
+    );
+  }
+
+  CityComparisonResult _buildFallbackResult(CityModel cityA, CityModel cityB) {
+    final countA = cityA.appUniversityCount;
+    final countB = cityB.appUniversityCount;
+    String? winnerId;
+    if (countA > countB) {
+      winnerId = cityA.id;
+    } else if (countB > countA) {
+      winnerId = cityB.id;
+    }
+
+    return CityComparisonResult(
+      cityA: cityA,
+      cityB: cityB,
+      universityCountA: countA,
+      universityCountB: countB,
+      stateUniversityCountA: 0,
+      stateUniversityCountB: 0,
+      foundationUniversityCountA: 0,
+      foundationUniversityCountB: 0,
+      avgRatingA: 0,
+      avgRatingB: 0,
+      avgReviewCountA: 0,
+      avgReviewCountB: 0,
+      populationA: cityA.population,
+      populationB: cityB.population,
+      winnerId: winnerId,
     );
   }
 }
@@ -257,11 +291,14 @@ class _CityPickCard extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  Container(
-                    width: 9,
-                    height: 9,
-                    decoration: BoxDecoration(color: accent, shape: BoxShape.circle),
-                  ),
+                  if (city != null)
+                    CityLogo(city: city!, size: 22, withBackground: true)
+                  else
+                    Container(
+                      width: 9,
+                      height: 9,
+                      decoration: BoxDecoration(color: accent, shape: BoxShape.circle),
+                    ),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
@@ -270,6 +307,8 @@ class _CityPickCard extends StatelessWidget {
                         fontWeight: FontWeight.w800,
                         color: isDark ? Colors.white : AppColors.textPrimary,
                       ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                   const Icon(Icons.chevron_right_rounded, color: AppColors.textTertiary),
@@ -372,21 +411,23 @@ class _CityResultView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final maxUni = (result.universityCountA > result.universityCountB
-            ? result.universityCountA
-            : result.universityCountB)
-        .clamp(1, 9999);
+    // final isDark removed — not used in this widget
 
     return Column(
       children: [
-        _GaugeCard(
-          isDark: isDark,
-          a: result.universityCountA,
-          b: result.universityCountB,
-          max: maxUni,
+        // ─── Üniversite Sayısı ──────────────────────────
+        _CompareBarCard(
+          title: 'Üniversite Sayısı',
+          labelA: result.cityA.name,
+          labelB: result.cityB.name,
+          valueA: result.universityCountA.toDouble(),
+          valueB: result.universityCountB.toDouble(),
+          textA: '${result.universityCountA}',
+          textB: '${result.universityCountB}',
         ),
         const SizedBox(height: 12),
+
+        // ─── Devlet / Vakıf Dağılımı ─────────────────
         _Card(
           title: 'Devlet / Vakıf Dağılımı',
           child: Row(
@@ -394,7 +435,11 @@ class _CityResultView extends StatelessWidget {
               Expanded(
                 child: Column(
                   children: [
-                    Text('Şehir A', style: AppTextStyles.labelSmall.copyWith(fontWeight: FontWeight.w900)),
+                    Text(result.cityA.name,
+                        style: AppTextStyles.labelSmall.copyWith(
+                          fontWeight: FontWeight.w900,
+                          color: AppColors.primary,
+                        )),
                     const SizedBox(height: 8),
                     CityComparPieChart(
                       stateCount: result.stateUniversityCountA,
@@ -403,11 +448,19 @@ class _CityResultView extends StatelessWidget {
                   ],
                 ),
               ),
-              const SizedBox(width: 12),
+              Container(
+                width: 1,
+                height: 100,
+                color: AppColors.borderLight,
+              ),
               Expanded(
                 child: Column(
                   children: [
-                    Text('Şehir B', style: AppTextStyles.labelSmall.copyWith(fontWeight: FontWeight.w900)),
+                    Text(result.cityB.name,
+                        style: AppTextStyles.labelSmall.copyWith(
+                          fontWeight: FontWeight.w900,
+                          color: AppColors.secondary,
+                        )),
                     const SizedBox(height: 8),
                     CityComparPieChart(
                       stateCount: result.stateUniversityCountB,
@@ -420,31 +473,22 @@ class _CityResultView extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 12),
-        _Card(
-          title: 'Top 3 Güçlü Bölüm',
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: const [
-                  _Chip(label: 'Yakında'),
-                  _Chip(label: 'Veri'),
-                  _Chip(label: 'Eklenecek'),
-                ],
-              ),
-              const SizedBox(height: 10),
-              Text(
-                'Not: Bu bölüm CityComparisonRepository genişletilince gerçek veriye bağlanacak.',
-                style: AppTextStyles.labelSmall.copyWith(
-                  color: isDark ? Colors.white70 : AppColors.textSecondary,
-                ),
-              ),
-            ],
+
+        // ─── Nüfus ─────────────────────────────────
+        if ((result.populationA ?? 0) > 0 || (result.populationB ?? 0) > 0)
+          _CompareBarCard(
+            title: 'Nüfus',
+            labelA: result.cityA.name,
+            labelB: result.cityB.name,
+            valueA: (result.populationA ?? 0).toDouble(),
+            valueB: (result.populationB ?? 0).toDouble(),
+            textA: _formatPopulation(result.populationA ?? 0),
+            textB: _formatPopulation(result.populationB ?? 0),
           ),
-        ),
-        const SizedBox(height: 12),
+        if ((result.populationA ?? 0) > 0 || (result.populationB ?? 0) > 0)
+          const SizedBox(height: 12),
+
+        // ─── Şehir Özellikleri ────────────────────────
         _Card(
           title: 'Şehir Özellikleri',
           child: Column(
@@ -456,13 +500,13 @@ class _CityResultView extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               _InfoRow(
-                label: 'Toplam Üni (DB)',
+                label: 'Toplam Üni',
                 a: result.cityA.totalUniversityCount.toString(),
                 b: result.cityB.totalUniversityCount.toString(),
               ),
               const SizedBox(height: 8),
               _InfoRow(
-                label: 'Üni (Uygulama)',
+                label: 'ÜniSeç\'te',
                 a: result.cityA.appUniversityCount.toString(),
                 b: result.cityB.appUniversityCount.toString(),
               ),
@@ -472,98 +516,110 @@ class _CityResultView extends StatelessWidget {
       ],
     );
   }
+
+  static String _formatPopulation(int pop) {
+    if (pop >= 1000000) return '${(pop / 1000000).toStringAsFixed(1)}M';
+    if (pop >= 1000) return '${(pop / 1000).toStringAsFixed(0)}B';
+    return '$pop';
+  }
 }
 
-class _GaugeCard extends StatelessWidget {
-  final bool isDark;
-  final int a;
-  final int b;
-  final int max;
-  const _GaugeCard({
-    required this.isDark,
-    required this.a,
-    required this.b,
-    required this.max,
+class _CompareBarCard extends StatelessWidget {
+  final String title;
+  final String labelA;
+  final String labelB;
+  final double valueA;
+  final double valueB;
+  final String textA;
+  final String textB;
+
+  const _CompareBarCard({
+    required this.title,
+    required this.labelA,
+    required this.labelB,
+    required this.valueA,
+    required this.valueB,
+    required this.textA,
+    required this.textB,
   });
 
   @override
   Widget build(BuildContext context) {
+    // isDark not needed here
+    final maxV = (valueA > valueB ? valueA : valueB).clamp(1.0, double.infinity);
+    final pctA = (valueA / maxV).clamp(0.0, 1.0);
+    final pctB = (valueB / maxV).clamp(0.0, 1.0);
+
     return _Card(
-      title: 'Üniversite Sayısı',
-      child: Row(
+      title: title,
+      child: Column(
         children: [
-          Expanded(child: _MiniGauge(label: 'Şehir A', value: a, max: max, color: AppColors.primary)),
-          const SizedBox(width: 12),
-          Expanded(child: _MiniGauge(label: 'Şehir B', value: b, max: max, color: AppColors.secondary)),
+          _BarRow(
+            label: labelA,
+            value: textA,
+            pct: pctA,
+            color: AppColors.primary,
+          ),
+          const SizedBox(height: 10),
+          _BarRow(
+            label: labelB,
+            value: textB,
+            pct: pctB,
+            color: AppColors.secondary,
+          ),
         ],
       ),
     );
   }
 }
 
-class _MiniGauge extends StatelessWidget {
+class _BarRow extends StatelessWidget {
   final String label;
-  final int value;
-  final int max;
+  final String value;
+  final double pct;
   final Color color;
-  const _MiniGauge({
+  const _BarRow({
     required this.label,
     required this.value,
-    required this.max,
+    required this.pct,
     required this.color,
   });
 
   @override
   Widget build(BuildContext context) {
-    final v = (value / max).clamp(0.0, 1.0);
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Column(
-        children: [
-          Text(label, style: AppTextStyles.labelSmall.copyWith(fontWeight: FontWeight.w900)),
-          const SizedBox(height: 10),
-          SizedBox(
-            width: 88,
-            height: 88,
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                CircularProgressIndicator(
-                  value: v,
-                  strokeWidth: 10,
-                  backgroundColor: Colors.black.withValues(alpha: 0.06),
-                  color: color,
-                  strokeCap: StrokeCap.round,
-                ),
-                Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      '$value',
-                      style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.w900,
-                        color: color,
-                      ),
-                    ),
-                    Text(
-                      'üni',
-                      style: AppTextStyles.labelSmall.copyWith(
-                        color: AppColors.textSecondary,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              label,
+              style: AppTextStyles.labelSmall.copyWith(
+                fontWeight: FontWeight.w700,
+                color: color,
+              ),
             ),
+            Text(
+              value,
+              style: AppTextStyles.labelMedium.copyWith(
+                fontWeight: FontWeight.w900,
+                color: color,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 4),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(6),
+          child: LinearProgressIndicator(
+            value: pct,
+            minHeight: 10,
+            backgroundColor: color.withValues(alpha: 0.08),
+            valueColor: AlwaysStoppedAnimation(color),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
@@ -604,24 +660,7 @@ class _Card extends StatelessWidget {
   }
 }
 
-class _Chip extends StatelessWidget {
-  final String label;
-  const _Chip({required this.label});
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-      decoration: BoxDecoration(
-        color: AppColors.surfaceVariant,
-        borderRadius: BorderRadius.circular(999),
-      ),
-      child: Text(
-        label,
-        style: AppTextStyles.labelSmall.copyWith(fontWeight: FontWeight.w900),
-      ),
-    );
-  }
-}
+
 
 class _InfoRow extends StatelessWidget {
   final String label;

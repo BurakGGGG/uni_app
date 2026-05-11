@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
@@ -104,67 +103,102 @@ class _UniLogo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Column(
       children: [
-        Stack(
-          alignment: Alignment.center,
-          children: [
-            // Glow efekti
-            if (isWinner)
+        SizedBox(
+          width: 76,
+          height: 76,
+          child: Stack(
+            clipBehavior: Clip.none,
+            alignment: Alignment.center,
+            children: [
+              // Glow efekti
+              if (isWinner)
+                Container(
+                  width: 76,
+                  height: 76,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(18),
+                    boxShadow: [
+                      BoxShadow(
+                        color: color.withValues(alpha: 0.35),
+                        blurRadius: 20,
+                        spreadRadius: 2,
+                      ),
+                    ],
+                  ),
+                ),
+              // Logo container — rounded rectangle, beyaz arka plan
               Container(
-                width: 72,
-                height: 72,
+                width: 64,
+                height: 64,
                 decoration: BoxDecoration(
-                  shape: BoxShape.circle,
+                  color: isDark ? Colors.white.withValues(alpha: 0.95) : Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: isWinner
+                        ? color
+                        : (isDark
+                            ? Colors.white.withValues(alpha: 0.15)
+                            : AppColors.borderLight),
+                    width: isWinner ? 2.5 : 1,
+                  ),
                   boxShadow: [
                     BoxShadow(
-                      color: color.withValues(alpha: 0.3),
-                      blurRadius: 20,
-                      spreadRadius: 2,
+                      color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.08),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
                     ),
                   ],
                 ),
-              ),
-            // Logo container
-            Container(
-              width: 64,
-              height: 64,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: color.withValues(alpha: 0.08),
-                border: Border.all(
-                  color: isWinner
-                      ? color
-                      : color.withValues(alpha: 0.2),
-                  width: isWinner ? 3 : 1.5,
+                padding: const EdgeInsets.all(8),
+                child: Image.asset(
+                  uni.logoAssetPath,
+                  fit: BoxFit.contain,
+                  errorBuilder: (_, _, _) => _FallbackLogo(
+                    name: uni.name,
+                    color: color,
+                  ),
                 ),
               ),
-              child: ClipOval(
-                child: uni.logoUrl.isNotEmpty
-                    ? CachedNetworkImage(
-                        imageUrl: uni.logoUrl,
-                        width: 64,
-                        height: 64,
-                        fit: BoxFit.cover,
-                        errorWidget: (_, e, s) => _FallbackLogo(
-                          name: uni.name,
-                          color: color,
+              // Winner badge — sağ alt köşede altın rozet
+              if (isWinner)
+                Positioned(
+                  bottom: -4,
+                  right: -4,
+                  child: Container(
+                    width: 26,
+                    height: 26,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: const LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [Color(0xFFFFD700), Color(0xFFFFA000)],
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFFFFD700).withValues(alpha: 0.4),
+                          blurRadius: 6,
+                          offset: const Offset(0, 2),
                         ),
-                      )
-                    : _FallbackLogo(name: uni.name, color: color),
-              ),
-            ),
-            // Winner crown
-            if (isWinner)
-              Positioned(
-                top: -2,
-                child: Icon(
-                  Icons.emoji_events_rounded,
-                  size: 20,
-                  color: AppColors.warning,
+                      ],
+                      border: Border.all(
+                        color: isDark ? const Color(0xFF1A1A2E) : Colors.white,
+                        width: 2,
+                      ),
+                    ),
+                    alignment: Alignment.center,
+                    child: const Icon(
+                      Icons.emoji_events_rounded,
+                      size: 14,
+                      color: Colors.white,
+                    ),
+                  ),
                 ),
-              ),
-          ],
+            ],
+          ),
         ),
         const SizedBox(height: 8),
         Text(

@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -100,13 +99,26 @@ class ComparisonUniPicker extends ConsumerWidget {
                         final disabled = uni.id == otherId;
                         return ListTile(
                           enabled: !disabled,
-                          leading: CircleAvatar(
-                            backgroundColor: AppColors.primary.withValues(alpha: 0.1),
-                            child: Text(uni.name[0],
-                              style: TextStyle(
-                                color: AppColors.primary,
-                                fontWeight: FontWeight.w700,
-                              )),
+                          leading: Container(
+                            width: 40,
+                            height: 40,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(color: AppColors.borderLight),
+                            ),
+                            padding: const EdgeInsets.all(4),
+                            child: Image.asset(
+                              uni.logoAssetPath,
+                              fit: BoxFit.contain,
+                              errorBuilder: (_, _, _) => Center(
+                                child: Text(uni.name[0],
+                                  style: TextStyle(
+                                    color: AppColors.primary,
+                                    fontWeight: FontWeight.w700,
+                                  )),
+                              ),
+                            ),
                           ),
                           title: Text(uni.name),
                           subtitle: Text('${uni.type} • ${uni.campusLayout.label}'),
@@ -190,20 +202,34 @@ class _UniSlot extends ConsumerWidget {
             return Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                CircleAvatar(
-                  radius: 24,
-                  backgroundColor: color.withValues(alpha: 0.12),
-                  child: uni.logoUrl.isNotEmpty
-                    ? ClipOval(child: CachedNetworkImage(
-                        imageUrl: uni.logoUrl,
-                        width: 48, height: 48, fit: BoxFit.cover,
-                        errorWidget: (ctx, url, err) => Text(
-                          uni.name[0],
-                          style: TextStyle(color: color, fontWeight: FontWeight.w700),
-                        ),
-                      ))
-                    : Text(uni.name[0], style: TextStyle(
-                        color: color, fontWeight: FontWeight.w700)),
+                Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: color.withValues(alpha: 0.2),
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.06),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  padding: const EdgeInsets.all(6),
+                  child: Image.asset(
+                    uni.logoAssetPath,
+                    fit: BoxFit.contain,
+                    errorBuilder: (_, _, _) => Center(
+                      child: Text(
+                        uni.name[0],
+                        style: TextStyle(color: color, fontWeight: FontWeight.w700, fontSize: 16),
+                      ),
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 8),
                 Text(

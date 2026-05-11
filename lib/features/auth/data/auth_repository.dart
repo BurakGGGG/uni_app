@@ -6,6 +6,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import '../domain/user_model.dart';
 import '../../notifications/data/fcm_service.dart';
+import '../../../services/revenuecat_service.dart';
 
 /// Auth işlemlerini yöneten repository
 class AuthRepository {
@@ -51,6 +52,9 @@ class AuthRepository {
 
       final userModel = await _createOrUpdateUser(user);
 
+      // RevenueCat kullanıcı eşlemesini güncelle.
+      unawaited(RevenueCatService().login(user.uid));
+
       // FCM token kaydet
       await FCMService().registerToken();
 
@@ -88,7 +92,12 @@ class AuthRepository {
         await user.sendEmailVerification();
       }
 
-      return await _createOrUpdateUser(user, displayName: name);
+      final userModel = await _createOrUpdateUser(user, displayName: name);
+
+      // RevenueCat kullanıcı eşlemesini güncelle.
+      unawaited(RevenueCatService().login(user.uid));
+
+      return userModel;
     } on FirebaseAuthException catch (e) {
       throw _handleAuthError(e);
     } catch (e) {
@@ -120,6 +129,9 @@ class AuthRepository {
 
       final userModel = await _createOrUpdateUser(user);
 
+      // RevenueCat kullanıcı eşlemesini güncelle.
+      unawaited(RevenueCatService().login(user.uid));
+
       // FCM token kaydet
       await FCMService().registerToken();
 
@@ -147,6 +159,8 @@ class AuthRepository {
   Future<void> signOut() async {
     // Token unregister'ı fire-and-forget — login'e geçişi yavaşlatma
     unawaited(FCMService().unregisterToken().catchError((_) {}));
+    // RevenueCat'ten logOut: eski entitlement'ların yeni kullanıcıya taşmaması için.
+    unawaited(RevenueCatService().logout());
 
     _cachedUser = null;
     _lastCacheTime = null;

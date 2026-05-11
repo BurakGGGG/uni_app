@@ -8,6 +8,8 @@ import '../../data/usage_stats_repository.dart';
 import '../../domain/enums/subscription_tier.dart';
 import '../../domain/models/subscription_model.dart';
 import '../../domain/models/usage_stats_model.dart';
+import '../../../auth/presentation/providers/auth_providers.dart';
+import '../../../../core/providers/shared_preferences_provider.dart';
 
 // ═══════════════════════════════════════════════════════════════
 //  Repository Providers
@@ -18,7 +20,8 @@ final subscriptionRepositoryProvider = Provider<SubscriptionRepository>((ref) {
 });
 
 final usageStatsRepositoryProvider = Provider<UsageStatsRepository>((ref) {
-  return UsageStatsRepository();
+  final prefs = ref.watch(sharedPreferencesProvider);
+  return UsageStatsRepository(prefs: prefs);
 });
 
 // ═══════════════════════════════════════════════════════════════
@@ -31,10 +34,21 @@ final usageStatsRepositoryProvider = Provider<UsageStatsRepository>((ref) {
 ///   1. RC online → RC'den tier oku
 ///   2. RC offline → Firestore subscriptions/{uid}'den oku
 ///   3. Hiçbiri yoksa → free
-final subscriptionTierProvider = StreamProvider<SubscriptionTier>((ref) {
+final subscriptionTierProvider =
+    StreamProvider.autoDispose<SubscriptionTier>((ref) {
+  final authState = ref.watch(authStateProvider);
+  final isLoggedIn = authState.valueOrNull != null;
+
   final subscriptionRepo = ref.watch(subscriptionRepositoryProvider);
   final revenueCatService = RevenueCatService();
   unawaited(revenueCatService.init());
+
+  // Logout / misafir modunda önce kesin olarak FREE göster.
+  // Böylece RevenueCat tarafındaki geç güncellenen entitlement'lar UI'ya
+  // yansımaz ve kullanım hemen kilitlenir.
+  if (!isLoggedIn) {
+    return Stream<SubscriptionTier>.value(SubscriptionTier.free);
+  }
 
   return Stream<SubscriptionTier>.multi((controller) {
     // Fallback kaynak: Firestore abonelik dokümanı.
