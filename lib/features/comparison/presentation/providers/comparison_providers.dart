@@ -7,11 +7,14 @@ import '../../data/ai_comparison_summary_service.dart';
 import '../../data/city_comparison_repository.dart';
 import '../../data/comparison_repository.dart';
 import '../../data/comparison_history_repository.dart';
+import '../../data/comparison_notes_repository.dart';
 import '../../data/department_comparison_repository.dart';
 import '../../domain/models/city_comparison.dart';
 import '../../domain/models/comparison_history_entry.dart';
+import '../../domain/models/comparison_note.dart';
 import '../../domain/models/comparison_result.dart';
 import '../../domain/models/department_comparison.dart';
+import '../../domain/models/triple_comparison_result.dart';
 import '../../domain/services/comparison_gate_service.dart';
 import '../../../monetization/data/ad_service.dart';
 import '../../../monetization/data/usage_stats_repository.dart';
@@ -35,16 +38,25 @@ void _comparisonKeepAliveFiveMinutes(Ref ref) {
 class ComparisonSelection {
   final String? uniIdA;
   final String? uniIdB;
-  const ComparisonSelection({this.uniIdA, this.uniIdB});
+  final String? uniIdC; // Üçlü karşılaştırma için 3. uni (Pro feature)
+  const ComparisonSelection({this.uniIdA, this.uniIdB, this.uniIdC});
 
-  ComparisonSelection copyWith({String? uniIdA, String? uniIdB}) {
+  ComparisonSelection copyWith({
+    String? uniIdA,
+    String? uniIdB,
+    String? uniIdC,
+    bool clearC = false,
+  }) {
     return ComparisonSelection(
       uniIdA: uniIdA ?? this.uniIdA,
       uniIdB: uniIdB ?? this.uniIdB,
+      uniIdC: clearC ? null : (uniIdC ?? this.uniIdC),
     );
   }
 
   bool get bothSelected => uniIdA != null && uniIdB != null;
+  bool get allThreeSelected =>
+      uniIdA != null && uniIdB != null && uniIdC != null;
 }
 
 class ComparisonSelectionNotifier extends Notifier<ComparisonSelection> {
@@ -53,11 +65,14 @@ class ComparisonSelectionNotifier extends Notifier<ComparisonSelection> {
 
   void selectA(String id) => state = state.copyWith(uniIdA: id);
   void selectB(String id) => state = state.copyWith(uniIdB: id);
+  void selectC(String id) => state = state.copyWith(uniIdC: id);
+  void removeC() => state = state.copyWith(clearC: true);
 
   void swap() {
     state = ComparisonSelection(
       uniIdA: state.uniIdB,
       uniIdB: state.uniIdA,
+      uniIdC: state.uniIdC,
     );
   }
 
@@ -222,6 +237,53 @@ final comparisonResultProvider =
       e,
       st,
       reason: 'comparisonResultProvider failed',
+      fatal: false,
+    );
+    rethrow;
+  }
+});
+
+// ─── Üçlü Karşılaştırma (Pro) ─────────────────────────────────────
+
+/// Pro tier kullanıcı üçlü karşılaştırma yapabilir mi? UI gating için.
+final canCompareTripleProvider = Provider<bool>((ref) {
+  final tier = ref.watch(subscriptionTierProvider);
+  return tier.when(
+    data: (t) => canCompareTriple(t),
+    loading: () => false,
+    error: (_, _) => false,
+  );
+});
+
+/// 3 üniversite seçildiğinde otomatik tetiklenir. Selection.uniIdC null ise
+/// null döner. Pro değilse de null döner.
+final tripleComparisonResultProvider =
+    FutureProvider.autoDispose<TripleComparisonResult?>((ref) async {
+  _comparisonKeepAliveFiveMinutes(ref);
+  final selection = ref.watch(comparisonSelectionProvider);
+  if (!selection.allThreeSelected) return null;
+  if (!ref.watch(canCompareTripleProvider)) return null;
+
+  final idA = selection.uniIdA!;
+  final idB = selection.uniIdB!;
+  final idC = selection.uniIdC!;
+  // Aynı ID'leri reddet (model de fırlatır ama erken çık)
+  if ({idA, idB, idC}.length != 3) return null;
+
+  try {
+    final result =
+        await ref.read(comparisonRepositoryProvider).compareThree(idA, idB, idC);
+    if (result != null) {
+      // Üçlü karşılaştırmayı geçmişe kaydetme şimdilik desteklenmiyor —
+      // mevcut history schema'sı ikili çift için tasarlandı. Future work.
+    }
+    return result;
+  } catch (e, st) {
+    debugPrint('[tripleComparisonResultProvider] compareThree failed: $e');
+    FirebaseCrashlytics.instance.recordError(
+      e,
+      st,
+      reason: 'tripleComparisonResultProvider failed',
       fatal: false,
     );
     rethrow;
@@ -891,6 +953,38 @@ final departmentScatterProvider =
       );
       return const DepartmentScatterData(pointsA: [], pointsB: []);
     }
+  },
+);
+
+// ─── Karşılaştırma Notları (Pro Tier) ─────────────────────────────
+
+final comparisonNotesRepositoryProvider =
+    Provider<ComparisonNotesRepository>((ref) {
+  return ComparisonNotesRepository();
+});
+
+/// Pro kullanıcı karşılaştırma notlarını kullanabilir mi? (UI gating için)
+final canUseComparisonNotesProvider = Provider<bool>((ref) {
+  final tier = ref.watch(subscriptionTierProvider);
+  return tier.when(
+    data: (t) => canUseComparisonNotes(t),
+    loading: () => false,
+    error: (_, _) => false,
+  );
+});
+
+/// Belirli bir karşılaştırma çifti için notlar — real-time stream.
+/// Non-Pro kullanıcı için boş döner.
+final comparisonNotesForPairProvider = StreamProvider.autoDispose
+    .family<List<ComparisonNote>, ({String type, String idA, String idB})>(
+  (ref, params) {
+    final canUse = ref.watch(canUseComparisonNotesProvider);
+    if (!canUse) return Stream.value(const <ComparisonNote>[]);
+    return ref.watch(comparisonNotesRepositoryProvider).watchNotesForPair(
+          comparisonType: params.type,
+          entityAId: params.idA,
+          entityBId: params.idB,
+        );
   },
 );
 

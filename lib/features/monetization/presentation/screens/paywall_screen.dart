@@ -7,11 +7,9 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../domain/models/subscription_model.dart';
 import '../../domain/enums/subscription_tier.dart';
 
-/// Paywall Ekranı — Full UI
-/// 3 plan kartı horizontal scroll (Free / Plus / Pro)
-/// Feature check-list animasyonu, "En Popüler" badge,
-/// Aylık/Yıllık toggle, "Ücretsiz Dene (7 gün)" butonu
-/// RevenueCat entegrasyonu Hafta 2'de yapılacak
+/// Paywall Ekranı — Tier-reactive UI
+/// Üstte Ücretsiz/Plus/Pro chip seçicisi, ortada özellik listesi,
+/// altta Aylık/Yıllık fiyat kartları. Pro = altın-turuncu, Plus = mor gradient.
 class PaywallScreen extends StatefulWidget {
   const PaywallScreen({super.key});
 
@@ -22,60 +20,42 @@ class PaywallScreen extends StatefulWidget {
 class _PaywallScreenState extends State<PaywallScreen>
     with TickerProviderStateMixin {
   final RevenueCatService _revenueCatService = RevenueCatService();
-  bool _isYearly = false;
-  int _selectedPlanIndex = 1; // Plus varsayılan seçili
+
+  SubscriptionTier _selectedTier = SubscriptionTier.plus;
+  bool _isYearly = true;
   bool _isPurchasing = false;
   bool _isRestoring = false;
   Offerings? _offerings;
-  final PageController _pageController = PageController(
-    viewportFraction: 0.82,
-    initialPage: 1,
-  );
 
-  late AnimationController _headerFadeController;
-  late AnimationController _featureListController;
-  late Animation<double> _headerFadeAnim;
+  late AnimationController _fadeController;
+  late Animation<double> _fadeAnim;
 
   @override
   void initState() {
     super.initState();
-
-    _headerFadeController = AnimationController(
+    _fadeController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 600),
+      duration: const Duration(milliseconds: 500),
     );
-    _headerFadeAnim = CurvedAnimation(
-      parent: _headerFadeController,
-      curve: Curves.easeOut,
-    );
-
-    _featureListController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 800),
-    );
-
-    _headerFadeController.forward();
-    Future.delayed(const Duration(milliseconds: 300), () {
-      if (mounted) _featureListController.forward();
-    });
+    _fadeAnim = CurvedAnimation(parent: _fadeController, curve: Curves.easeOut);
+    _fadeController.forward();
     _loadOfferings();
   }
 
   @override
   void dispose() {
-    _headerFadeController.dispose();
-    _featureListController.dispose();
-    _pageController.dispose();
+    _fadeController.dispose();
     super.dispose();
   }
 
-  static const _plans = [
-    _PlanData(
-      name: 'Free',
+  // ─── Tier data ────────────────────────────────────────────────────
+  static const Map<SubscriptionTier, _PlanData> _plans = {
+    SubscriptionTier.free: _PlanData(
+      name: 'Ücretsiz',
       monthlyPrice: 'Bedava',
       yearlyPrice: 'Bedava',
-      tierColor: AppColors.tierFree,
       icon: Icons.person_outline_rounded,
+      subtitle: 'Temel karşılaştırma özelliklerine sınırlı erişim.',
       features: [
         _FeatureItem('Üniversite karşılaştırma (1/gün)', true),
         _FeatureItem('Bölüm karşılaştırma', false),
@@ -83,14 +63,13 @@ class _PaywallScreenState extends State<PaywallScreen>
         _FeatureItem('AI karşılaştırma özeti', false),
         _FeatureItem('Pro grafikler', false),
       ],
-      isPopular: false,
     ),
-    _PlanData(
+    SubscriptionTier.plus: _PlanData(
       name: 'Plus',
       monthlyPrice: '39.90₺/ay',
       yearlyPrice: '32.90₺/ay',
-      tierColor: AppColors.tierPlus,
       icon: Icons.star_rounded,
+      subtitle: 'Sınırsız karşılaştırma + reklamsız deneyim.',
       features: [
         _FeatureItem('Sınırsız üniversite karşılaştırma', true),
         _FeatureItem('Bölüm karşılaştırma', true),
@@ -99,14 +78,13 @@ class _PaywallScreenState extends State<PaywallScreen>
         _FeatureItem('AI karşılaştırma özeti', false),
         _FeatureItem('Pro grafikler', false),
       ],
-      isPopular: true,
     ),
-    _PlanData(
+    SubscriptionTier.pro: _PlanData(
       name: 'Pro',
       monthlyPrice: '69.90₺/ay',
       yearlyPrice: '58.90₺/ay',
-      tierColor: AppColors.tierPro,
       icon: Icons.workspace_premium_rounded,
+      subtitle: 'Yapay zeka destekli analiz + tüm Plus özellikleri.',
       features: [
         _FeatureItem('Plus dahil tüm özellikler', true),
         _FeatureItem('AI karşılaştırma özeti (5/gün)', true),
@@ -115,10 +93,42 @@ class _PaywallScreenState extends State<PaywallScreen>
         _FeatureItem('Trend & scatter grafikler', true),
         _FeatureItem('Isı haritası', true),
       ],
-      isPopular: false,
     ),
-  ];
+  };
 
+  _PlanData get _currentPlan => _plans[_selectedTier]!;
+
+  // ─── Tier theme helpers ───────────────────────────────────────────
+  LinearGradient _activeGradient(SubscriptionTier t) {
+    switch (t) {
+      case SubscriptionTier.pro:
+        return AppColors.tierProGradient;
+      case SubscriptionTier.plus:
+        return AppColors.tierPlusGradient;
+      case SubscriptionTier.free:
+        return LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            AppColors.tierFree,
+            AppColors.tierFree.withValues(alpha: 0.7),
+          ],
+        );
+    }
+  }
+
+  Color _activeColor(SubscriptionTier t) {
+    switch (t) {
+      case SubscriptionTier.pro:
+        return AppColors.tierPro;
+      case SubscriptionTier.plus:
+        return AppColors.tierPlus;
+      case SubscriptionTier.free:
+        return AppColors.tierFree;
+    }
+  }
+
+  // ─── RevenueCat (korunuyor) ───────────────────────────────────────
   Future<void> _loadOfferings() async {
     final offerings = await _revenueCatService.getOfferings();
     if (!mounted) return;
@@ -129,7 +139,7 @@ class _PaywallScreenState extends State<PaywallScreen>
     final offerings = _offerings;
     if (offerings == null || offerings.current == null) return null;
 
-    final isPlus = _selectedPlanIndex == 1;
+    final isPlus = _selectedTier == SubscriptionTier.plus;
     final wantYearly = _isYearly;
     final packages = offerings.current!.availablePackages;
     final wantedProductId = isPlus
@@ -153,7 +163,6 @@ class _PaywallScreenState extends State<PaywallScreen>
       best ??= p;
     }
 
-    // Fallback: plan-specific paket bulunamazsa current offering'den period eşleşen ilk paketi al
     for (final p in packages) {
       if (wantYearly && p.packageType == PackageType.annual) return p;
       if (!wantYearly && p.packageType == PackageType.monthly) return p;
@@ -162,7 +171,7 @@ class _PaywallScreenState extends State<PaywallScreen>
   }
 
   Future<void> _handlePurchase() async {
-    if (_selectedPlanIndex == 0) {
+    if (_selectedTier == SubscriptionTier.free) {
       context.pop();
       return;
     }
@@ -203,85 +212,223 @@ class _PaywallScreenState extends State<PaywallScreen>
     }
   }
 
+  Future<void> _showSuccessSheet() async {
+    await showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const _PurchaseSuccessDialog(),
+    );
+  }
+
+  void _onTierTap(SubscriptionTier t) {
+    if (t == _selectedTier) return;
+    setState(() => _selectedTier = t);
+    _fadeController.forward(from: 0);
+  }
+
+  // ─── Build ────────────────────────────────────────────────────────
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isFree = _selectedTier == SubscriptionTier.free;
+    final activeGradient = _activeGradient(_selectedTier);
+    final activeColor = _activeColor(_selectedTier);
 
     return Scaffold(
       backgroundColor: isDark ? const Color(0xFF0F0F1A) : AppColors.background,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back_rounded,
-              color: isDark ? Colors.white : AppColors.textPrimary),
-          onPressed: () => context.pop(),
-        ),
-        title: Text('Planlar',
-            style: AppTextStyles.titleMedium.copyWith(
-              fontWeight: FontWeight.w700,
-              color: isDark ? Colors.white : AppColors.textPrimary,
-            )),
-        centerTitle: true,
-      ),
       body: SafeArea(
-        child: Column(
+        child: Stack(
           children: [
-            // ─── Başlık + Toggle (sabit) ─────────────────────
             FadeTransition(
-              opacity: _headerFadeAnim,
+              opacity: _fadeAnim,
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
+                padding: const EdgeInsets.fromLTRB(20, 60, 20, 16),
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const SizedBox(height: 8),
-                    _buildTitle(isDark),
-                    const SizedBox(height: 20),
-                    _buildBillingToggle(isDark),
-                    const SizedBox(height: 20),
+                    _TierChipsRow(
+                      selected: _selectedTier,
+                      onTap: _onTierTap,
+                      isDark: isDark,
+                    ),
+                    const SizedBox(height: 14),
+                    _PaywallHeader(
+                      tier: _selectedTier,
+                      plan: _currentPlan,
+                      gradient: activeGradient,
+                      color: activeColor,
+                      isDark: isDark,
+                    ),
+                    const SizedBox(height: 14),
+                    Flexible(
+                      child: _FeatureChecklist(
+                        features: _currentPlan.features,
+                        color: activeColor,
+                        isDark: isDark,
+                      ),
+                    ),
+                    if (!isFree) ...[
+                      const SizedBox(height: 18),
+                      _PricingCards(
+                        plan: _currentPlan,
+                        isYearly: _isYearly,
+                        onSelect: (v) => setState(() => _isYearly = v),
+                        color: activeColor,
+                        gradient: activeGradient,
+                        isDark: isDark,
+                      ),
+                    ],
+                    const Spacer(),
+                    _CtaButton(
+                      label: isFree
+                          ? 'Ücretsiz Devam Et'
+                          : '${_currentPlan.name} Planına Geç',
+                      gradient: activeGradient,
+                      color: activeColor,
+                      busy: _isPurchasing,
+                      onTap: _isPurchasing || _isRestoring
+                          ? null
+                          : _handlePurchase,
+                    ),
+                    const SizedBox(height: 4),
+                    _RestoreButton(
+                      onTap: _isPurchasing || _isRestoring
+                          ? null
+                          : _handleRestore,
+                      busy: _isRestoring,
+                    ),
+                    const SizedBox(height: 6),
+                    const _SecurityFooter(),
                   ],
                 ),
               ),
             ),
-
-            // ─── Horizontal Plan Kartları ───────────────────
-            SizedBox(
-              height: 380,
-              child: PageView.builder(
-                controller: _pageController,
-                itemCount: 3,
-                onPageChanged: (i) => setState(() => _selectedPlanIndex = i),
-                itemBuilder: (context, index) {
-                  return AnimatedBuilder(
-                    animation: _pageController,
-                    builder: (context, child) {
-                      double scale = 1.0;
-                      if (_pageController.position.haveDimensions) {
-                        final page = _pageController.page ?? 1.0;
-                        scale = (1 - (page - index).abs() * 0.08).clamp(0.9, 1.0);
-                      }
-                      return Transform.scale(scale: scale, child: child);
-                    },
-                    child: _buildPlanCard(index, isDark),
-                  );
-                },
-              ),
+            Positioned(
+              top: 10,
+              left: 14,
+              child: _FloatingCloseButton(isDark: isDark),
             ),
+          ],
+        ),
+      ),
+    );
+  }
+}
 
-            // ─── Alt kısım (CTA + footer) ──────────────────
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    _buildCtaButton(isDark),
-                    const SizedBox(height: 8),
-                    _buildRestoreButton(),
-                    const SizedBox(height: 12),
-                    _buildFooter(isDark),
-                    const SizedBox(height: 16),
-                  ],
+// ─── Tier chips row ──────────────────────────────────────────────────
+class _TierChipsRow extends StatelessWidget {
+  final SubscriptionTier selected;
+  final ValueChanged<SubscriptionTier> onTap;
+  final bool isDark;
+
+  const _TierChipsRow({
+    required this.selected,
+    required this.onTap,
+    required this.isDark,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(child: _chip(SubscriptionTier.free)),
+        const SizedBox(width: 8),
+        Expanded(child: _chip(SubscriptionTier.plus)),
+        const SizedBox(width: 8),
+        Expanded(child: _chip(SubscriptionTier.pro)),
+      ],
+    );
+  }
+
+  Widget _chip(SubscriptionTier t) {
+    final isSelected = selected == t;
+    final LinearGradient gradient;
+    final Color color;
+    final IconData icon;
+    final String label;
+    switch (t) {
+      case SubscriptionTier.free:
+        color = AppColors.tierFree;
+        gradient = LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [color, color.withValues(alpha: 0.7)],
+        );
+        icon = Icons.person_outline_rounded;
+        label = 'Ücretsiz';
+        break;
+      case SubscriptionTier.plus:
+        color = AppColors.tierPlus;
+        gradient = AppColors.tierPlusGradient;
+        icon = Icons.star_rounded;
+        label = 'Plus';
+        break;
+      case SubscriptionTier.pro:
+        color = AppColors.tierPro;
+        gradient = AppColors.tierProGradient;
+        icon = Icons.workspace_premium_rounded;
+        label = 'Pro';
+        break;
+    }
+
+    return GestureDetector(
+      onTap: () => onTap(t),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 240),
+        curve: Curves.easeOutCubic,
+        height: 54,
+        decoration: BoxDecoration(
+          gradient: isSelected ? gradient : null,
+          color: isSelected
+              ? null
+              : (isDark
+                  ? Colors.white.withValues(alpha: 0.04)
+                  : AppColors.surface),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: isSelected
+                ? Colors.transparent
+                : (isDark
+                    ? Colors.white.withValues(alpha: 0.08)
+                    : AppColors.border),
+            width: 1,
+          ),
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: color.withValues(alpha: 0.35),
+                    blurRadius: 14,
+                    offset: const Offset(0, 6),
+                  ),
+                ]
+              : null,
+        ),
+        alignment: Alignment.center,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              icon,
+              size: 16,
+              color: isSelected
+                  ? Colors.white
+                  : (isDark
+                      ? Colors.white.withValues(alpha: 0.7)
+                      : AppColors.textSecondary),
+            ),
+            const SizedBox(width: 6),
+            Flexible(
+              child: Text(
+                label,
+                overflow: TextOverflow.ellipsis,
+                style: AppTextStyles.labelMedium.copyWith(
+                  fontWeight: FontWeight.w800,
+                  fontSize: 13,
+                  color: isSelected
+                      ? Colors.white
+                      : (isDark
+                          ? Colors.white.withValues(alpha: 0.85)
+                          : AppColors.textPrimary),
                 ),
               ),
             ),
@@ -290,232 +437,354 @@ class _PaywallScreenState extends State<PaywallScreen>
       ),
     );
   }
+}
 
-  Widget _buildTitle(bool isDark) {
-    return Column(
-      children: [
-        Container(
-          width: 52, height: 52,
-          decoration: BoxDecoration(
-            gradient: AppColors.primaryGradient,
-            borderRadius: BorderRadius.circular(14),
-          ),
-          child: const Icon(Icons.rocket_launch_rounded,
-              color: Colors.white, size: 26),
-        ),
-        const SizedBox(height: 12),
-        Text(
-          'Daha fazlasına erişmek için\nbir plan seç',
-          textAlign: TextAlign.center,
-          style: AppTextStyles.titleMedium.copyWith(
-            fontWeight: FontWeight.w800,
-            height: 1.3,
-            color: isDark ? Colors.white : AppColors.textPrimary,
-          ),
-        ),
-      ],
-    );
-  }
+// ─── Header (gradient icon + ShaderMask title + subtitle) ─────────────
+class _PaywallHeader extends StatelessWidget {
+  final SubscriptionTier tier;
+  final _PlanData plan;
+  final LinearGradient gradient;
+  final Color color;
+  final bool isDark;
 
-  Widget _buildBillingToggle(bool isDark) {
-    return Container(
-      padding: const EdgeInsets.all(4),
-      decoration: BoxDecoration(
-        color: isDark
-            ? Colors.white.withValues(alpha: 0.06)
-            : AppColors.surfaceVariant,
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: Row(
+  const _PaywallHeader({
+    required this.tier,
+    required this.plan,
+    required this.gradient,
+    required this.color,
+    required this.isDark,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 280),
+      switchInCurve: Curves.easeOutCubic,
+      transitionBuilder: (child, anim) =>
+          FadeTransition(opacity: anim, child: child),
+      child: Column(
+        key: ValueKey(tier),
         children: [
-          Expanded(
-            child: _toggleBtn('Aylık', !_isYearly, isDark,
-                () => setState(() => _isYearly = false)),
+          Container(
+            width: 62,
+            height: 62,
+            decoration: BoxDecoration(
+              gradient: gradient,
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: color.withValues(alpha: 0.35),
+                  blurRadius: 18,
+                  spreadRadius: 1,
+                  offset: const Offset(0, 6),
+                ),
+              ],
+            ),
+            child: Icon(plan.icon, color: Colors.white, size: 28),
           ),
-          Expanded(
-            child: _toggleBtn('Yıllık • %20 indirim', _isYearly, isDark,
-                () => setState(() => _isYearly = true),
-                badge: !_isYearly ? 'TASARRUF' : null),
+          const SizedBox(height: 12),
+          ShaderMask(
+            shaderCallback: (bounds) => gradient.createShader(bounds),
+            child: Text(
+              '${plan.name} Plan',
+              style: AppTextStyles.titleLarge.copyWith(
+                fontWeight: FontWeight.w900,
+                color: Colors.white,
+                fontSize: 23,
+                letterSpacing: -0.3,
+              ),
+            ),
+          ),
+          const SizedBox(height: 4),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 14),
+            child: Text(
+              plan.subtitle,
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: AppTextStyles.bodySmall.copyWith(
+                color: isDark
+                    ? Colors.white.withValues(alpha: 0.65)
+                    : AppColors.textSecondary,
+                height: 1.3,
+                fontSize: 12,
+              ),
+            ),
           ),
         ],
       ),
     );
   }
+}
 
-  Widget _toggleBtn(String label, bool selected, bool isDark, VoidCallback onTap,
-      {String? badge}) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(vertical: 11),
-        decoration: BoxDecoration(
-          color: selected
-              ? (isDark ? Colors.white.withValues(alpha: 0.12) : Colors.white)
-              : Colors.transparent,
-          borderRadius: BorderRadius.circular(10),
-          boxShadow: selected
-              ? [BoxShadow(color: Colors.black.withValues(alpha: 0.06),
-                  blurRadius: 8, offset: const Offset(0, 2))]
-              : null,
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+// ─── Feature Checklist (Amie style) ──────────────────────────────────
+class _FeatureChecklist extends StatelessWidget {
+  final List<_FeatureItem> features;
+  final Color color;
+  final bool isDark;
+
+  const _FeatureChecklist({
+    required this.features,
+    required this.color,
+    required this.isDark,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 240),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: isDark ? 0.08 : 0.04),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: color.withValues(alpha: 0.18)),
+      ),
+      child: SingleChildScrollView(
+        physics: const ClampingScrollPhysics(),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Text(label,
-                style: AppTextStyles.labelSmall.copyWith(
-                  fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-                  color: selected
-                      ? (isDark ? Colors.white : AppColors.textPrimary)
-                      : AppColors.textSecondary,
-                )),
-            if (badge != null) ...[
-              const SizedBox(width: 4),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
-                decoration: BoxDecoration(
-                  color: AppColors.success.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: Text(badge,
-                    style: const TextStyle(
-                        fontSize: 8, fontWeight: FontWeight.w700,
-                        color: AppColors.success)),
-              ),
+            for (var i = 0; i < features.length; i++) ...[
+              _FeatureRow(item: features[i], color: color, isDark: isDark),
+              if (i < features.length - 1) const SizedBox(height: 7),
             ],
           ],
         ),
       ),
     );
   }
+}
 
-  Widget _buildPlanCard(int index, bool isDark) {
-    final plan = _plans[index];
-    final isSelected = _selectedPlanIndex == index;
-    final price = _isYearly ? plan.yearlyPrice : plan.monthlyPrice;
+class _FeatureRow extends StatelessWidget {
+  final _FeatureItem item;
+  final Color color;
+  final bool isDark;
 
-    return GestureDetector(
-      onTap: () {
-        setState(() => _selectedPlanIndex = index);
-        _pageController.animateToPage(index,
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeInOut);
-      },
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 250),
-        margin: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: isDark
-              ? (isSelected
-                  ? plan.tierColor.withValues(alpha: 0.1)
-                  : Colors.white.withValues(alpha: 0.04))
-              : (isSelected
-                  ? plan.tierColor.withValues(alpha: 0.04)
-                  : AppColors.surface),
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(
-            color: isSelected
-                ? plan.tierColor.withValues(alpha: 0.5)
-                : (isDark
-                    ? Colors.white.withValues(alpha: 0.06)
-                    : AppColors.border),
-            width: isSelected ? 2 : 1,
-          ),
-          boxShadow: isSelected
-              ? [BoxShadow(color: plan.tierColor.withValues(alpha: 0.15),
-                  blurRadius: 24, offset: const Offset(0, 8))]
-              : [BoxShadow(color: Colors.black.withValues(alpha: 0.04),
-                  blurRadius: 12, offset: const Offset(0, 4))],
+  const _FeatureRow({
+    required this.item,
+    required this.color,
+    required this.isDark,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final included = item.included;
+    return Row(
+      children: [
+        Icon(
+          Icons.check_rounded,
+          size: 16,
+          color: included
+              ? color
+              : (isDark
+                  ? Colors.white.withValues(alpha: 0.20)
+                  : AppColors.textTertiary.withValues(alpha: 0.5)),
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Header: ikon + isim + badge
-            Row(
-              children: [
-                Container(
-                  width: 44, height: 44,
+        const SizedBox(width: 10),
+        Expanded(
+          child: Text(
+            item.label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: AppTextStyles.bodyMedium.copyWith(
+              fontWeight: included ? FontWeight.w700 : FontWeight.w500,
+              fontSize: 12.5,
+              color: included
+                  ? (isDark ? Colors.white : AppColors.textPrimary)
+                  : (isDark
+                      ? Colors.white.withValues(alpha: 0.35)
+                      : AppColors.textTertiary),
+              decoration: included ? null : TextDecoration.lineThrough,
+              decorationColor: AppColors.textTertiary,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// ─── Pricing Cards (Aylık + Yıllık stacked) ──────────────────────────
+class _PricingCards extends StatelessWidget {
+  final _PlanData plan;
+  final bool isYearly;
+  final ValueChanged<bool> onSelect;
+  final Color color;
+  final LinearGradient gradient;
+  final bool isDark;
+
+  const _PricingCards({
+    required this.plan,
+    required this.isYearly,
+    required this.onSelect,
+    required this.color,
+    required this.gradient,
+    required this.isDark,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        _PricingCard(
+          title: 'Aylık',
+          price: plan.monthlyPrice,
+          selected: !isYearly,
+          onTap: () => onSelect(false),
+          color: color,
+          gradient: gradient,
+          isDark: isDark,
+        ),
+        const SizedBox(height: 14),
+        Padding(
+          padding: const EdgeInsets.only(top: 10),
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              _PricingCard(
+                title: 'Yıllık',
+                price: plan.yearlyPrice,
+                subtitle: 'Yılın tamamı için en avantajlı seçenek',
+                selected: isYearly,
+                onTap: () => onSelect(true),
+                color: color,
+                gradient: gradient,
+                isDark: isDark,
+              ),
+              Positioned(
+                top: -12,
+                left: 18,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
-                    color: plan.tierColor.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(13),
-                  ),
-                  child: Icon(plan.icon, color: plan.tierColor, size: 24),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Text(plan.name,
-                              style: AppTextStyles.titleSmall.copyWith(
-                                fontWeight: FontWeight.w800,
-                                color: isDark ? Colors.white : AppColors.textPrimary,
-                              )),
-                          if (plan.isPopular) ...[
-                            const SizedBox(width: 8),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 8, vertical: 3),
-                              decoration: BoxDecoration(
-                                gradient: AppColors.tierPlusGradient,
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                              child: const Text('EN POPÜLER',
-                                  style: TextStyle(
-                                    fontSize: 9, fontWeight: FontWeight.w800,
-                                    color: Colors.white, letterSpacing: 0.5,
-                                  )),
-                            ),
-                          ],
-                        ],
+                    gradient: gradient,
+                    borderRadius: BorderRadius.circular(8),
+                    boxShadow: [
+                      BoxShadow(
+                        color: color.withValues(alpha: 0.35),
+                        blurRadius: 10,
+                        offset: const Offset(0, 3),
                       ),
-                      const SizedBox(height: 2),
-                      Text(price,
-                          style: AppTextStyles.titleSmall.copyWith(
-                            fontWeight: FontWeight.w700,
-                            color: plan.tierColor,
-                          )),
                     ],
                   ),
-                ),
-                // Radio indicator
-                AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  width: 24, height: 24,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: isSelected ? plan.tierColor : Colors.transparent,
-                    border: Border.all(
-                      color: isSelected ? plan.tierColor : AppColors.textTertiary,
-                      width: 2,
+                  child: const Text(
+                    'TASARRUF %20',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 10,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 0.4,
                     ),
                   ),
-                  child: isSelected
-                      ? const Icon(Icons.check_rounded, color: Colors.white, size: 16)
-                      : null,
                 ),
-              ],
-            ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
 
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 14),
-              child: Divider(
-                color: isDark
-                    ? Colors.white.withValues(alpha: 0.06)
-                    : AppColors.borderLight,
-                height: 1,
+class _PricingCard extends StatelessWidget {
+  final String title;
+  final String price;
+  final String? subtitle;
+  final bool selected;
+  final VoidCallback onTap;
+  final Color color;
+  final LinearGradient gradient;
+  final bool isDark;
+
+  const _PricingCard({
+    required this.title,
+    required this.price,
+    this.subtitle,
+    required this.selected,
+    required this.onTap,
+    required this.color,
+    required this.gradient,
+    required this.isDark,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          color: isDark
+              ? (selected
+                  ? color.withValues(alpha: 0.10)
+                  : Colors.white.withValues(alpha: 0.04))
+              : (selected
+                  ? color.withValues(alpha: 0.06)
+                  : AppColors.surface),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: selected
+                ? color
+                : (isDark
+                    ? Colors.white.withValues(alpha: 0.08)
+                    : AppColors.border),
+            width: selected ? 2 : 1,
+          ),
+        ),
+        child: Row(
+          children: [
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              width: 24,
+              height: 24,
+              decoration: BoxDecoration(
+                gradient: selected ? gradient : null,
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: selected ? color : AppColors.textTertiary,
+                  width: 2,
+                ),
+              ),
+              child: selected
+                  ? const Icon(Icons.check_rounded,
+                      size: 16, color: Colors.white)
+                  : null,
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: AppTextStyles.titleSmall.copyWith(
+                      fontWeight: FontWeight.w800,
+                      color: isDark ? Colors.white : AppColors.textPrimary,
+                    ),
+                  ),
+                  if (subtitle != null) ...[
+                    const SizedBox(height: 2),
+                    Text(
+                      subtitle!,
+                      style: AppTextStyles.labelSmall.copyWith(
+                        color: isDark
+                            ? Colors.white.withValues(alpha: 0.55)
+                            : AppColors.textTertiary,
+                        fontSize: 11,
+                      ),
+                    ),
+                  ],
+                ],
               ),
             ),
-
-            // Feature check-list with staggered animation
-            Expanded(
-              child: _AnimatedFeatureList(
-                features: plan.features,
-                controller: _featureListController,
-                isDark: isDark,
+            Text(
+              price,
+              style: AppTextStyles.titleMedium.copyWith(
+                fontWeight: FontWeight.w900,
+                color: color,
               ),
             ),
           ],
@@ -523,76 +792,92 @@ class _PaywallScreenState extends State<PaywallScreen>
       ),
     );
   }
+}
 
-  Widget _buildCtaButton(bool isDark) {
-    final selectedPlan = _plans[_selectedPlanIndex];
-    final isFree = _selectedPlanIndex == 0;
+// ─── CTA Button (gradient + glow) ────────────────────────────────────
+class _CtaButton extends StatelessWidget {
+  final String label;
+  final LinearGradient gradient;
+  final Color color;
+  final bool busy;
+  final VoidCallback? onTap;
 
-    return Column(
-      children: [
-        SizedBox(
-          width: double.infinity, height: 54,
-          child: FilledButton(
-            onPressed: _isPurchasing || _isRestoring ? null : _handlePurchase,
-            style: FilledButton.styleFrom(
-              backgroundColor: isFree ? AppColors.textSecondary : selectedPlan.tierColor,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16)),
-              textStyle: AppTextStyles.titleSmall
-                  .copyWith(fontWeight: FontWeight.w700),
+  const _CtaButton({
+    required this.label,
+    required this.gradient,
+    required this.color,
+    required this.busy,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      height: 56,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 240),
+        decoration: BoxDecoration(
+          gradient: gradient,
+          borderRadius: BorderRadius.circular(18),
+          boxShadow: [
+            BoxShadow(
+              color: color.withValues(alpha: 0.4),
+              blurRadius: 20,
+              offset: const Offset(0, 8),
             ),
-            child: _isPurchasing
-                ? const SizedBox(
-                    width: 18,
-                    height: 18,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: Colors.white,
-                    ),
-                  )
-                : Text(isFree ? 'Mevcut Plan' : '${selectedPlan.name} Planı Seç'),
-          ),
+          ],
         ),
-        if (!isFree && _selectedPlanIndex == 1) ...[
-          const SizedBox(height: 10),
-          SizedBox(
-            width: double.infinity, height: 46,
-            child: OutlinedButton.icon(
-              onPressed: () {
-                // TODO: RevenueCat 7-gün free trial (Hafta 2)
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                  content: const Text('7 günlük deneme yakında aktif olacak!'),
-                  behavior: SnackBarBehavior.floating,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12)),
-                ));
-              },
-              icon: const Icon(Icons.card_giftcard_rounded, size: 18),
-              label: const Text('7 Gün Ücretsiz Dene — Plus'),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: AppColors.tierPlus,
-                side: BorderSide(
-                    color: AppColors.tierPlus.withValues(alpha: 0.3)),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14)),
-                textStyle: AppTextStyles.labelMedium
-                    .copyWith(fontWeight: FontWeight.w600),
-              ),
+        child: ElevatedButton(
+          onPressed: onTap,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.transparent,
+            shadowColor: Colors.transparent,
+            foregroundColor: Colors.white,
+            disabledForegroundColor: Colors.white.withValues(alpha: 0.6),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(18),
             ),
+            padding: EdgeInsets.zero,
           ),
-        ],
-      ],
+          child: busy
+              ? const SizedBox(
+                  width: 22,
+                  height: 22,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2.4,
+                    color: Colors.white,
+                  ),
+                )
+              : Text(
+                  label,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 0.3,
+                  ),
+                ),
+        ),
+      ),
     );
   }
+}
 
-  Widget _buildRestoreButton() {
+// ─── Restore button ──────────────────────────────────────────────────
+class _RestoreButton extends StatelessWidget {
+  final VoidCallback? onTap;
+  final bool busy;
+
+  const _RestoreButton({required this.onTap, required this.busy});
+
+  @override
+  Widget build(BuildContext context) {
     return SizedBox(
       width: double.infinity,
       height: 44,
       child: TextButton.icon(
-        onPressed: _isPurchasing || _isRestoring ? null : _handleRestore,
-        icon: _isRestoring
+        onPressed: onTap,
+        icon: busy
             ? const SizedBox(
                 width: 14,
                 height: 14,
@@ -603,134 +888,90 @@ class _PaywallScreenState extends State<PaywallScreen>
       ),
     );
   }
+}
 
-  Future<void> _showSuccessSheet() async {
-    await showDialog<void>(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => const _PurchaseSuccessDialog(),
-    );
-  }
+// ─── Security footer ─────────────────────────────────────────────────
+class _SecurityFooter extends StatelessWidget {
+  const _SecurityFooter();
 
-  Widget _buildFooter(bool isDark) {
+  @override
+  Widget build(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         const Icon(Icons.lock_outline_rounded,
             size: 13, color: AppColors.textTertiary),
         const SizedBox(width: 4),
-        Text('Güvenli ödeme • İstediğinde iptal',
-            style: AppTextStyles.labelSmall.copyWith(
-              color: AppColors.textTertiary, fontSize: 11)),
+        Text(
+          'Güvenli ödeme • İstediğinde iptal',
+          style: AppTextStyles.labelSmall.copyWith(
+            color: AppColors.textTertiary,
+            fontSize: 11,
+          ),
+        ),
       ],
     );
   }
 }
 
-// ─── Animated Feature Check-list ─────────────────────────────────────
-
-class _AnimatedFeatureList extends StatelessWidget {
-  final List<_FeatureItem> features;
-  final AnimationController controller;
+// ─── Floating close button ───────────────────────────────────────────
+class _FloatingCloseButton extends StatelessWidget {
   final bool isDark;
-
-  const _AnimatedFeatureList({
-    required this.features,
-    required this.controller,
-    required this.isDark,
-  });
+  const _FloatingCloseButton({required this.isDark});
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      physics: const NeverScrollableScrollPhysics(),
-      padding: EdgeInsets.zero,
-      itemCount: features.length,
-      itemBuilder: (context, index) {
-        final f = features[index];
-        final start = (index * 0.1).clamp(0.0, 0.7);
-        final end = (start + 0.4).clamp(0.0, 1.0);
-
-        final fadeAnim = Tween<double>(begin: 0.0, end: 1.0).animate(
-          CurvedAnimation(
-            parent: controller,
-            curve: Interval(start, end, curve: Curves.easeOut),
+    return Container(
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: isDark ? 0.30 : 0.08),
+            blurRadius: 10,
+            offset: const Offset(0, 3),
           ),
-        );
-        final slideAnim = Tween<Offset>(
-          begin: const Offset(-0.15, 0),
-          end: Offset.zero,
-        ).animate(
-          CurvedAnimation(
-            parent: controller,
-            curve: Interval(start, end, curve: Curves.easeOutCubic),
-          ),
-        );
-
-        return FadeTransition(
-          opacity: fadeAnim,
-          child: SlideTransition(
-            position: slideAnim,
-            child: Padding(
-              padding: const EdgeInsets.only(bottom: 8),
-              child: Row(
-                children: [
-                  Container(
-                    width: 20, height: 20,
-                    decoration: BoxDecoration(
-                      color: f.included
-                          ? AppColors.success.withValues(alpha: 0.12)
-                          : AppColors.error.withValues(alpha: 0.08),
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: Icon(
-                      f.included ? Icons.check_rounded : Icons.close_rounded,
-                      size: 14,
-                      color: f.included ? AppColors.success : AppColors.textTertiary,
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Text(f.label,
-                        style: AppTextStyles.bodySmall.copyWith(
-                          color: f.included
-                              ? (isDark
-                                  ? Colors.white.withValues(alpha: 0.85)
-                                  : AppColors.textPrimary)
-                              : AppColors.textTertiary,
-                          decoration: f.included ? null : TextDecoration.lineThrough,
-                          decorationColor: AppColors.textTertiary,
-                        )),
-                  ),
-                ],
-              ),
+        ],
+      ),
+      child: Material(
+        color: isDark
+            ? Colors.white.withValues(alpha: 0.10)
+            : Colors.white,
+        shape: const CircleBorder(),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          customBorder: const CircleBorder(),
+          onTap: () => context.pop(),
+          child: SizedBox(
+            width: 40,
+            height: 40,
+            child: Icon(
+              Icons.close_rounded,
+              size: 22,
+              color: isDark ? Colors.white : AppColors.textPrimary,
             ),
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 }
 
-// ─── Data Models (statik) ──────────────────────────────────────────
-
+// ─── Data ────────────────────────────────────────────────────────────
 class _PlanData {
   final String name;
   final String monthlyPrice;
   final String yearlyPrice;
-  final Color tierColor;
   final IconData icon;
+  final String subtitle;
   final List<_FeatureItem> features;
-  final bool isPopular;
 
   const _PlanData({
     required this.name,
     required this.monthlyPrice,
     required this.yearlyPrice,
-    required this.tierColor,
     required this.icon,
+    required this.subtitle,
     required this.features,
-    required this.isPopular,
   });
 }
 
@@ -741,6 +982,7 @@ class _FeatureItem {
   const _FeatureItem(this.label, this.included);
 }
 
+// ─── Success Dialog (preserved) ──────────────────────────────────────
 class _PurchaseSuccessDialog extends StatefulWidget {
   const _PurchaseSuccessDialog();
 

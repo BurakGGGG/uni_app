@@ -6,4 +6,6 @@ class AppHaptic {
   static Future<void> reset() => HapticFeedback.lightImpact();
   static Future<void> limitReached() => HapticFeedback.heavyImpact();
   static Future<void> aiSummaryReceived() => HapticFeedback.lightImpact();
+  static Future<void> noteSaved() => HapticFeedback.lightImpact();
+  static Future<void> noteDeleted() => HapticFeedback.selectionClick();
 }
