@@ -4,193 +4,196 @@ service cloud.firestore {
   match /databases/{database}/documents {
 
     // ─── Yardımcı Fonksiyonlar ──────────────────────────────────
-
-    // Kullanıcı giriş yapmış mı?
     function isAuthenticated() {
       return request.auth != null;
     }
 
-    // Admin kontrolü (seed verisi yüklemek için)
     function isAdmin() {
       return isAuthenticated() && request.auth.token.admin == true;
     }
 
-    // Kullanıcı edu.tr doğrulanmış öğrenci mi? (Doğrudan Auth Token'dan)
     function isVerifiedStudent() {
       return isAuthenticated() &&
         request.auth.token.email_verified == true &&
         request.auth.token.email.matches('.*\\.edu\\.tr$');
     }
 
-    // Belgenin sahibi bu kullanıcı mı?
     function isOwner(userId) {
       return isAuthenticated() && request.auth.uid == userId;
     }
 
     // ─── Şehirler ───────────────────────────────────────────────
-    // Herkes okuyabilir, kimse yazamaz (admin panelden yönetilir)
     match /cities/{cityId} {
       allow read: if true;
-      allow write: if true;
+      allow write: if isAdmin();
     }
 
     // ─── Üniversiteler ──────────────────────────────────────────
-    // Herkes okuyabilir, kimse yazamaz (admin panelden yönetilir)
     match /universities/{uniId} {
       allow read: if true;
-      allow write: if true; // TEMP: was isAdmin()
+      allow write: if isAdmin();
     }
 
     // ─── Bölümler ───────────────────────────────────────────────
-    // Herkes okuyabilir, kimse yazamaz (admin panelden yönetilir)
     match /departments/{deptId} {
       allow read: if true;
-      allow write: if isAuthenticated(); // TEMP: migration re-run
+      allow write: if isAdmin();
     }
 
-    // ─── Mekanlar (Places) ──────────────────────────────────────
+    // ─── Mekanlar ───────────────────────────────────────────────
     match /places/{placeId} {
       allow read: if true;
       allow write: if isAdmin();
     }
 
-    // ─── Bildirimler (Notifications) ────────────────────────────
+    // ─── Bildirimler ────────────────────────────────────────────
     match /notifications/{notifId} {
       allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
-      allow update: if isAuthenticated() && 
+      allow update: if isAuthenticated() &&
         resource.data.userId == request.auth.uid &&
         request.resource.data.diff(resource.data).affectedKeys().hasOnly(['isRead']);
       allow delete: if isAuthenticated() && resource.data.userId == request.auth.uid;
-      // create sadece Cloud Function tarafından yapılır (admin)
       allow create: if false;
     }
 
     // ─── Yorumlar ───────────────────────────────────────────────
     match /reviews/{reviewId} {
-      // Onaylı yorumlar herkese açık, onaysız yorumu sadece sahibi görebilir
       allow read: if resource.data.isApproved == true
         || (request.auth != null && request.auth.uid == resource.data.userId);
 
-      // Sadece doğrulanmış öğrenciler kendi üniversitelerine yorum yazabilir
       allow create: if isVerifiedStudent() &&
         request.resource.data.userId == request.auth.uid &&
-        request.resource.data.universityId == get(/databases/$(database)/documents/users/$(request.auth.uid)).data.universityId;
+        request.resource.data.universityId == get(/databases/$(database)/documents/users/$(request.auth.uid)).data.universityId &&
+        // Rating 1-5 arasında olmalı
+        request.resource.data.rating is number &&
+        request.resource.data.rating >= 1 &&
+        request.resource.data.rating <= 5;
 
-      // Yorum sahibi: tüm alanları düzenleyebilir (userId dışında)
-      // Başkaları: sadece 'likes' sayacını değiştirebilir (beğenme/beğenmeme için)
       allow update: if isAuthenticated() && (
-        // Yorum sahibi: userId aynı kalmalı
         (isOwner(resource.data.userId) &&
          request.resource.data.userId == resource.data.userId) ||
-        // Başkaları: sadece likes alanını değiştirebilir, diğer her şey sabit
         (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likes']))
       );
 
-      // Sadece kendi yorumunu silebilir
       allow delete: if isOwner(resource.data.userId);
     }
 
-    // ─── Likes Subcollection ──────────────────────────────────
-    // Her kullanıcı kendi like kaydını oluşturabilir/silebilir
     match /reviews/{reviewId}/likes/{userId} {
       allow read: if true;
       allow create, delete: if isAuthenticated() && request.auth.uid == userId;
       allow update: if false;
     }
 
-    // ─── Raporlar / Şikayetler ───────────────────────────────────
     match /reports/{reportId} {
-      allow read: if false;
+      allow read: if isAdmin();  // Admin moderator panel için
       allow create: if isAuthenticated()
         && request.resource.data.userId == request.auth.uid;
       allow update, delete: if false;
     }
 
-    // ─── Tercih Listeleri ────────────────────────────────────────
     match /preferenceLists/{listId} {
-      // Public listeler herkes okuyabilir, private sadece sahibi
       allow read: if resource.data.isPublic == true ||
                      (request.auth != null && request.auth.uid == resource.data.userId);
 
-      // Sadece giriş yapmış kullanıcılar oluşturabilir,
-      // kendisini userId olarak set etmeli
       allow create: if request.auth != null
                     && request.resource.data.userId == request.auth.uid
                     && request.resource.data.items.size() <= 24;
 
-      // Sahibi güncelleyebilir, viewCount herkes increment edebilir
       allow update: if (request.auth != null && request.auth.uid == resource.data.userId)
                     || (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['viewCount']));
 
       allow delete: if request.auth != null && request.auth.uid == resource.data.userId;
     }
 
-    // ─── Kullanıcılar ───────────────────────────────────────────
     match /users/{userId} {
-      // Herkes profil bilgilerini okuyabilir
       allow read: if true;
-
-      // Sadece kendi profilini oluşturabilir
       allow create: if isOwner(userId);
-
-      // Sadece kendi profilini güncelleyebilir, isVerifiedStudent için token kontrolü zorunludur
       allow update: if isOwner(userId) && (
         !request.resource.data.diff(resource.data).affectedKeys().hasAny(['isVerifiedStudent']) ||
         (request.resource.data.isVerifiedStudent == true && request.auth.token.email_verified == true && request.auth.token.email.matches('.*\\.edu\\.tr$')) ||
         (request.resource.data.isVerifiedStudent == false)
       );
-
-      // Profil silme: sadece kendi hesabı
       allow delete: if isOwner(userId);
     }
 
-    // ─── Favoriler ──────────────────────────────────────────────
     match /users/{userId}/favorites/{favId} {
       allow read: if isOwner(userId);
       allow write: if isOwner(userId);
     }
 
-    // ─── Beğenilen Yorumlar (denormalize) ────────────────────────
     match /users/{userId}/likedReviews/{reviewId} {
       allow read: if isOwner(userId);
       allow create, delete: if isOwner(userId);
       allow update: if false;
     }
 
-    // ─── Recommendation Enrichment Cache ─────────────────────────
-    // Cloud Function (admin SDK) yazar; istemci doğrudan yazamaz/okuyamaz.
-    // Doc id format: {uid}_{hash}, sadece sahibinin okuma izni var.
+    // ─── Karşılaştırma Geçmişi ───────────────────────────────
+    // Plus/Pro kullanıcı için saklanır. Sadece sahibi okuyabilir ve yazabilir.
+    // Subscription tier kontrolü client tarafında yapılır (server-side enforcement
+    // gerekmez — listeye yazma sınırlı sayıda, abuse riski düşük).
+    match /users/{userId}/comparisonHistory/{historyId} {
+      allow read: if isOwner(userId);
+      allow create: if isOwner(userId) &&
+        request.resource.data.type in ['university', 'department', 'city'] &&
+        request.resource.data.entityAId is string &&
+        request.resource.data.entityBId is string &&
+        request.resource.data.entityAName is string &&
+        request.resource.data.entityBName is string;
+      allow delete: if isOwner(userId);
+      allow update: if false;
+    }
+
     match /recommendationEnrichments/{cacheId} {
       allow read: if isAuthenticated() &&
+                     cacheId.matches(request.auth.uid + '_.*') &&
                      resource.data.userId == request.auth.uid;
       allow write: if false;
     }
-    // ─── Abonelikler (Subscriptions) ─────────────────────────────
-    // RevenueCat webhook → Cloud Function yazar. Client sadece okur.
+
     match /subscriptions/{uid} {
       allow read: if isOwner(uid);
-      allow write: if false;  // Sadece Cloud Function (webhook)
+      allow write: if false;
     }
 
-    // ─── Kullanım İstatistikleri (Usage Stats) ───────────────────
-    // Günlük karşılaştırma sayacı client tarafından artırılabilir.
-    // AI limitleri sadece Cloud Function tarafından sıfırlanır.
+    // ─── Kullanım İstatistikleri (Sıkı validation) ───────────────
     match /users/{uid}/usageStats/{docId} {
       allow read: if isOwner(uid);
-      allow create: if isOwner(uid);
+
+      allow create: if isOwner(uid) &&
+        request.resource.data.dailyComparisons == 0 &&
+        request.resource.data.totalComparisons == 0;
+
       allow update: if isOwner(uid) &&
         request.resource.data.diff(resource.data)
-          .affectedKeys().hasOnly(['dailyComparisons', 'lastResetDate', 'totalComparisons']);
-      // dailyAiComparisons, dailyAiRecommendations → sadece Cloud Function
+          .affectedKeys().hasOnly(['dailyComparisons', 'lastResetDate', 'totalComparisons']) &&
+        (
+          (request.resource.data.dailyComparisons == resource.data.dailyComparisons + 1) ||
+          (request.resource.data.dailyComparisons == 0)
+        ) &&
+        request.resource.data.totalComparisons >= resource.data.totalComparisons &&
+        request.resource.data.totalComparisons <= resource.data.totalComparisons + 1 &&
+        request.resource.data.lastResetDate is string &&
+        request.resource.data.lastResetDate.matches('\\d{4}-\\d{2}-\\d{2}');
+
       allow delete: if false;
     }
 
     // ─── AI Özet Cache ───────────────────────────────────────────
-    // Aynı üniversite çifti için 24 saatlik cache.
-    // Cloud Function yazar, herkes (authenticated) okuyabilir.
     match /aiSummaryCache/{cacheKey} {
       allow read: if isAuthenticated();
       allow write: if false;
+    }
+
+    // ─── AI Özet Logları ────────────────────────────────────────
+    match /aiSummaryLogs/{logId} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+
+    // ─── Webhook Events (Idempotency) ───────────────────────────
+    // Sadece admin SDK (Cloud Function) yazar, kimse okuyamaz/yazamaz.
+    match /webhookEvents/{eventId} {
+      allow read, write: if false;
     }
   }
 }

@@ -1,50 +1,80 @@
-import * as functions from 'firebase-functions';
+import { onSchedule } from 'firebase-functions/v2/scheduler';
 import * as admin from 'firebase-admin';
+import { logger } from 'firebase-functions';
 
 const db = admin.firestore();
+const BATCH_SIZE = 400;
+const MAX_BATCHES_PER_RUN = 100;  // 100 * 400 = 40k kullanıcı / run
 
 /**
  * Her gün 00:00'da usageStats günlük AI sayaçlarını sıfırlar.
+ *
+ * İyileştirmeler:
+ * - v2 scheduler API kullanılıyor
+ * - retryCount: 3 — Hata olursa otomatik retry
+ * - MAX_BATCHES_PER_RUN — Tek run'da maksimum 40k kullanıcı (timeout korunur)
+ * - collectionGroup query ile direkt usageStats'a erişim (users üzerinden dolaşmak yerine)
+ * - Per-batch error logging
  */
-export const resetAiQuotaDaily = functions
-  .region('europe-west1')
-  .pubsub
-  .schedule('0 0 * * *')
-  .timeZone('Europe/Istanbul')
-  .onRun(async () => {
+export const resetAiQuotaDaily = onSchedule(
+  {
+    region: 'europe-west1',
+    schedule: 'every day 00:00',
+    timeZone: 'Europe/Istanbul',
+    timeoutSeconds: 540,        // ← 9 dakika tam
+    memory: '512MiB',
+    retryCount: 3,              // ← Hata olursa otomatik retry
+  },
+  async () => {
     const today = formatDate(new Date());
-    let totalUpdated = 0;
-    let lastUserDoc: FirebaseFirestore.QueryDocumentSnapshot | undefined;
+    let totalReset = 0;
+    let lastDoc: admin.firestore.QueryDocumentSnapshot | null = null;
+    let batchIndex = 0;
 
-    while (true) {
-      let query = db.collection('users').orderBy(admin.firestore.FieldPath.documentId()).limit(400);
+    while (batchIndex < MAX_BATCHES_PER_RUN) {
+      let query = db
+        .collectionGroup('usageStats')
+        .where('lastResetDate', '!=', today)
+        .limit(BATCH_SIZE)
+        .orderBy('lastResetDate');
 
-      if (lastUserDoc) {
-        query = query.startAfter(lastUserDoc);
+      if (lastDoc) {
+        query = query.startAfter(lastDoc);
       }
 
-      const usersSnap = await query.get();
-      if (usersSnap.empty) break;
+      const snap = await query.get();
+      if (snap.empty) break;
 
       const batch = db.batch();
-      for (const userDoc of usersSnap.docs) {
-        const usageRef = userDoc.ref.collection('usageStats').doc('current');
-        batch.set(usageRef, {
-          dailyAiComparisons: 0,
-          dailyAiRecommendations: 0,
-          lastResetDate: today,
-        }, { merge: true });
-      }
-      await batch.commit();
-      totalUpdated += usersSnap.size;
-      lastUserDoc = usersSnap.docs[usersSnap.docs.length - 1];
+      snap.docs.forEach((doc) => {
+        batch.set(
+          doc.ref,
+          {
+            lastResetDate: today,
+            dailyAiComparisons: 0,
+            dailyAiRecommendations: 0,
+            dailyComparisons: 0,
+          },
+          { merge: true },
+        );
+      });
 
-      if (usersSnap.size < 400) break;
+      try {
+        await batch.commit();
+        totalReset += snap.size;
+        lastDoc = snap.docs[snap.docs.length - 1];
+        batchIndex += 1;
+      } catch (err) {
+        logger.error('Reset batch failed', { batchIndex, err });
+        throw err;  // Retry mekanizmasını tetikle
+      }
+
+      if (snap.size < BATCH_SIZE) break;
     }
 
-    console.log(`[resetAiQuotaDaily] Reset AI quota docs: ${totalUpdated}`);
-    return null;
-  });
+    logger.info(`AI quota reset complete: ${totalReset} users in ${batchIndex} batches`);
+  },
+);
 
 function formatDate(d: Date): string {
   const y = d.getFullYear();
