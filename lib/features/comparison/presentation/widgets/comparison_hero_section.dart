@@ -168,6 +168,7 @@ class _UniLogo extends StatelessWidget {
                   ),
                 ),
               ),
+              ),
                 ),
               ),
               // Winner badge — sağ alt köşede altın rozet

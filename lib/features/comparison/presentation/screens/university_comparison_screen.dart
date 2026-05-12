@@ -113,6 +113,7 @@ class _UniversityComparisonScreenState
                 ref.read(comparisonSelectionProvider.notifier).swap();
               },
             ),
+          if (selection.bothSelected)
             IconButton(
               icon: const Icon(Icons.ios_share_rounded, size: 20),
               tooltip: loc.share,
@@ -123,7 +124,6 @@ class _UniversityComparisonScreenState
                 }
               },
             ),
-          ],
         ],
       ),
       body: Column(

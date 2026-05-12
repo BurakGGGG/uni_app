@@ -145,6 +145,7 @@ class ComparisonScreen extends ConsumerWidget {
                   },
                 ),
               ),
+
             )
           : null,
     );
