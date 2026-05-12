@@ -8,37 +8,134 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../domain/models/comparison_result.dart';
 
+enum ShareFormat {
+  instagramStory(width: 1080, height: 1920),
+  instagramPost(width: 1080, height: 1080),
+  twitterCard(width: 1200, height: 675),
+  whatsappPreview(width: 800, height: 600);
+
+  final int width;
+  final int height;
+  const ShareFormat({required this.width, required this.height});
+
+  double get aspectRatio => width / height;
+}
+
+class ShareFormatPicker extends StatelessWidget {
+  final ValueChanged<ShareFormat> onSelected;
+
+  const ShareFormatPicker({super.key, required this.onSelected});
+
+  static Future<ShareFormat?> show(BuildContext context) {
+    return showModalBottomSheet<ShareFormat>(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (ctx) => ShareFormatPicker(
+        onSelected: (format) => Navigator.pop(ctx, format),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const SizedBox(height: 12),
+          Container(
+            width: 40,
+            height: 4,
+            decoration: BoxDecoration(
+              color: AppColors.borderLight,
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'Paylaşım Formatı',
+            style: AppTextStyles.titleMedium,
+          ),
+          const SizedBox(height: 8),
+          ListTile(
+            leading: const Icon(Icons.camera_alt_rounded),
+            title: const Text('Instagram Hikaye (9:16)'),
+            onTap: () => onSelected(ShareFormat.instagramStory),
+          ),
+          ListTile(
+            leading: const Icon(Icons.crop_square_rounded),
+            title: const Text('Instagram Gönderi (1:1)'),
+            onTap: () => onSelected(ShareFormat.instagramPost),
+          ),
+          ListTile(
+            leading: const Icon(Icons.forum_rounded),
+            title: const Text('Twitter / WhatsApp'),
+            onTap: () => onSelected(ShareFormat.twitterCard),
+          ),
+          const SizedBox(height: 16),
+        ],
+      ),
+    );
+  }
+}
+
 class ComparisonShareCard extends StatelessWidget {
   final ComparisonResult result;
   final ScreenshotController controller;
+  final ShareFormat format;
 
   const ComparisonShareCard({
     super.key,
     required this.result,
     required this.controller,
+    required this.format,
   });
 
   static Future<void> shareCard(
     BuildContext context,
     ComparisonResult result,
   ) async {
+    final mediaQueryData = MediaQuery.of(context);
+    final format = await ShareFormatPicker.show(context);
+    if (format == null) return;
+
     final controller = ScreenshotController();
     final image = await controller.captureFromWidget(
       MediaQuery(
-        data: MediaQuery.of(context),
-        child: ComparisonShareCard(result: result, controller: controller),
+        data: mediaQueryData,
+        child: ComparisonShareCard(
+          result: result,
+          controller: controller,
+          format: format,
+        ),
       ),
-      pixelRatio: 2.5,
+      pixelRatio: 2.0,
+      targetSize: Size(format.width.toDouble(), format.height.toDouble()),
     );
 
     final tempDir = await getTemporaryDirectory();
-    final file = File('${tempDir.path}/karsilastirma.png');
+    final file = File('${tempDir.path}/karsilastirma_${DateTime.now().millisecondsSinceEpoch}.png');
     await file.writeAsBytes(image);
+
+    // Deep-link URL — alıcı app'i indirip yüklediyse direkt karşılaştırmaya gelir.
+    // Host şu an placeholder; production'a hazırlanırken Universal/App Links setup'ı
+    // (apple-app-site-association, assetlinks.json) sonrasında çalışır hale gelir.
+    final shareLink = Uri(
+      scheme: 'https',
+      host: 'uniseç.app',
+      path: '/compare/university',
+      queryParameters: {
+        'a': result.uniA.id,
+        'b': result.uniB.id,
+      },
+    ).toString();
 
     await Share.shareXFiles(
       [XFile(file.path)],
       text:
-          '${result.uniA.name} vs ${result.uniB.name} karşılaştırması — ÜniSeç ile yap!',
+          '${result.uniA.name} vs ${result.uniB.name} karşılaştırması — ÜniSeç ile yap!\n\n$shareLink',
     );
   }
 
@@ -51,8 +148,9 @@ class ComparisonShareCard extends StatelessWidget {
     return Screenshot(
       controller: controller,
       child: Container(
-        width: 480,
-        padding: const EdgeInsets.all(24),
+        width: format.width.toDouble(),
+        height: format.height.toDouble(),
+        padding: EdgeInsets.all(format.width * 0.05), // Dinamik padding
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
@@ -64,191 +162,198 @@ class ComparisonShareCard extends StatelessWidget {
             end: Alignment.bottomRight,
           ),
         ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
+        child: Stack(
           children: [
-            Row(
-              children: [
-                Container(
-                  width: 34,
-                  height: 34,
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.18),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: Colors.white.withValues(alpha: 0.22),
-                    ),
-                  ),
-                  child: const Icon(Icons.school_rounded, color: Colors.white, size: 18),
-                ),
-                const SizedBox(width: 10),
-                const Expanded(
-                  child: Text(
-                    'ÜniSeç',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w900,
-                      fontSize: 16,
-                      letterSpacing: 0.2,
-                    ),
-                  ),
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.18),
-                    borderRadius: BorderRadius.circular(999),
-                    border: Border.all(color: Colors.white.withValues(alpha: 0.22)),
-                  ),
-                  child: const Text(
-                    'Karşılaştırma',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w800,
-                      fontSize: 11,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(18),
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 14, sigmaY: 14),
-                child: Container(
-                  padding: const EdgeInsets.fromLTRB(18, 18, 18, 16),
-                  decoration: BoxDecoration(
-                    color: (isDark ? Colors.black : Colors.white).withValues(alpha: 0.92),
-                    borderRadius: BorderRadius.circular(18),
-                    border: Border.all(
-                      color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.06),
-                    ),
-                  ),
-                  child: Column(
+            Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Text(
+                      Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.18),
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(
+                            color: Colors.white.withValues(alpha: 0.22),
+                          ),
+                        ),
+                        child: const Icon(Icons.school_rounded, color: Colors.white, size: 22),
+                      ),
+                      const SizedBox(width: 12),
+                      const Text(
+                        'ÜniSeç',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w900,
+                          fontSize: 20,
+                          letterSpacing: 0.2,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(20),
+                    child: BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 14, sigmaY: 14),
+                      child: Container(
+                        padding: const EdgeInsets.all(24),
+                        decoration: BoxDecoration(
+                          color: (isDark ? Colors.black : Colors.white).withValues(alpha: 0.92),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.06),
+                          ),
+                        ),
+                        child: Column(
+                          children: [
+                            Text(
                               '${result.uniA.name}  vs  ${result.uniB.name}',
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
                               textAlign: TextAlign.center,
-                              style: AppTextStyles.titleMedium.copyWith(
+                              style: AppTextStyles.titleLarge.copyWith(
                                 fontWeight: FontWeight.w900,
                                 color: isDark ? Colors.white : AppColors.textPrimary,
                               ),
                             ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 14),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: _ShareScoreCard(
-                              name: result.uniA.name,
-                              score: result.uniA.avgRating,
-                              color: AppColors.primary,
-                              isWinner: winnerA,
+                            const SizedBox(height: 20),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: _ShareScoreCard(
+                                    name: result.uniA.name,
+                                    score: result.uniA.avgRating,
+                                    color: AppColors.primary,
+                                    isWinner: winnerA,
+                                  ),
+                                ),
+                                const SizedBox(width: 16),
+                                Container(
+                                  padding:
+                                      const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                                  decoration: BoxDecoration(
+                                    color: (isDark ? Colors.white : Colors.black)
+                                        .withValues(alpha: 0.06),
+                                    borderRadius: BorderRadius.circular(999),
+                                  ),
+                                  child: Text(
+                                    'VS',
+                                    style: TextStyle(
+                                      color: isDark ? Colors.white : AppColors.textPrimary,
+                                      fontWeight: FontWeight.w900,
+                                      fontSize: 14,
+                                      letterSpacing: 0.8,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: _ShareScoreCard(
+                                    name: result.uniB.name,
+                                    score: result.uniB.avgRating,
+                                    color: AppColors.secondary,
+                                    isWinner: winnerB,
+                                  ),
+                                ),
+                              ],
                             ),
-                          ),
-                          const SizedBox(width: 12),
-                          Container(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                            decoration: BoxDecoration(
-                              color: (isDark ? Colors.white : Colors.black)
-                                  .withValues(alpha: 0.06),
-                              borderRadius: BorderRadius.circular(999),
-                            ),
-                            child: Text(
-                              'VS',
-                              style: TextStyle(
-                                color: isDark ? Colors.white : AppColors.textPrimary,
-                                fontWeight: FontWeight.w900,
-                                fontSize: 12,
-                                letterSpacing: 0.6,
+                            const SizedBox(height: 18),
+                            Container(
+                              width: double.infinity,
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                              decoration: BoxDecoration(
+                                color: (isDark ? Colors.white : Colors.black)
+                                    .withValues(alpha: 0.06),
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              child: Text(
+                                result.summaryText,
+                                textAlign: TextAlign.center,
+                                style: AppTextStyles.bodyLarge.copyWith(
+                                  height: 1.3,
+                                  color: isDark ? Colors.white70 : AppColors.textSecondary,
+                                  fontStyle: FontStyle.italic,
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
                             ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: _ShareScoreCard(
-                              name: result.uniB.name,
-                              score: result.uniB.avgRating,
-                              color: AppColors.secondary,
-                              isWinner: winnerB,
-                            ),
-                          ),
-                        ],
+                            if (result.stats.avgBaseScoreA > 0 ||
+                                result.stats.avgBaseScoreB > 0) ...[
+                              const SizedBox(height: 18),
+                              Divider(
+                                height: 1,
+                                color: (isDark ? Colors.white : Colors.black)
+                                    .withValues(alpha: 0.08),
+                              ),
+                              const SizedBox(height: 16),
+                              _ShareStatRow(
+                                label: 'Ort. Taban',
+                                valueA: result.stats.avgBaseScoreA > 0
+                                    ? result.stats.avgBaseScoreA.toStringAsFixed(1)
+                                    : '-',
+                                valueB: result.stats.avgBaseScoreB > 0
+                                    ? result.stats.avgBaseScoreB.toStringAsFixed(1)
+                                    : '-',
+                              ),
+                              const SizedBox(height: 10),
+                              _ShareStatRow(
+                                label: 'Bölüm',
+                                valueA: result.stats.totalDepartmentsA.toString(),
+                                valueB: result.stats.totalDepartmentsB.toString(),
+                              ),
+                              const SizedBox(height: 10),
+                              _ShareStatRow(
+                                label: 'Mekan',
+                                valueA: result.placeCountA.toString(),
+                                valueB: result.placeCountB.toString(),
+                              ),
+                            ],
+                          ],
+                        ),
                       ),
-                      const SizedBox(height: 14),
-                      Container(
-                        width: double.infinity,
-                        padding:
-                            const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                        decoration: BoxDecoration(
-                          color: (isDark ? Colors.white : Colors.black)
-                              .withValues(alpha: 0.06),
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                        child: Text(
-                          result.summaryText,
-                          textAlign: TextAlign.center,
-                          style: AppTextStyles.bodyMedium.copyWith(
-                            height: 1.3,
-                            color: isDark ? Colors.white70 : AppColors.textSecondary,
-                            fontStyle: FontStyle.italic,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                      if (result.stats.avgBaseScoreA > 0 ||
-                          result.stats.avgBaseScoreB > 0) ...[
-                        const SizedBox(height: 14),
-                        Divider(
-                          height: 1,
-                          color: (isDark ? Colors.white : Colors.black)
-                              .withValues(alpha: 0.08),
-                        ),
-                        const SizedBox(height: 12),
-                        _ShareStatRow(
-                          label: 'Ort. Taban',
-                          valueA: result.stats.avgBaseScoreA > 0
-                              ? result.stats.avgBaseScoreA.toStringAsFixed(1)
-                              : '-',
-                          valueB: result.stats.avgBaseScoreB > 0
-                              ? result.stats.avgBaseScoreB.toStringAsFixed(1)
-                              : '-',
-                        ),
-                        const SizedBox(height: 6),
-                        _ShareStatRow(
-                          label: 'Bölüm',
-                          valueA: result.stats.totalDepartmentsA.toString(),
-                          valueB: result.stats.totalDepartmentsB.toString(),
-                        ),
-                        const SizedBox(height: 6),
-                        _ShareStatRow(
-                          label: 'Mekan',
-                          valueA: result.placeCountA.toString(),
-                          valueB: result.placeCountB.toString(),
-                        ),
-                      ],
-                    ],
+                    ),
                   ),
-                ),
+                ],
               ),
             ),
-            const SizedBox(height: 12),
-            Text(
-              'unisec.app • Türkiye\'nin üniversite rehberi',
-              style: TextStyle(
-                color: Colors.white.withValues(alpha: 0.82),
-                fontSize: 11,
-                fontWeight: FontWeight.w700,
-                letterSpacing: 0.2,
+            // Watermark
+            Positioned(
+              bottom: 12,
+              right: 12,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.95),
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.1),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.school_rounded, color: AppColors.primary, size: 16),
+                    const SizedBox(width: 6),
+                    const Text(
+                      'üniSeç',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w900,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ],

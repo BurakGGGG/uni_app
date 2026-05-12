@@ -7,6 +7,8 @@ import '../../../monetization/presentation/widgets/subscription_gate_widget.dart
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../widgets/comparison_type_card.dart';
+import '../widgets/comparison_history_sheet.dart';
+import '../../../../l10n/generated/app_localizations.dart';
 
 /// Karşılaştırma Hub Ekranı
 /// Kullanıcı hangi tür karşılaştırma yapacağını seçer:
@@ -97,7 +99,7 @@ class _ComparisonHubScreenState extends ConsumerState<ComparisonHubScreen>
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // ─── Header ──────────────────────────────────────────
-              _buildHeader(isDark),
+              _buildHeader(context, isDark),
               const SizedBox(height: 8),
               _buildSubtitle(isDark),
               const SizedBox(height: 28),
@@ -109,9 +111,7 @@ class _ComparisonHubScreenState extends ConsumerState<ComparisonHubScreen>
                   icon: Icons.account_balance_rounded,
                   title: 'Üniversite',
                   description: 'İki üniversiteyi detaylı karşılaştır',
-                  badge: currentTier == SubscriptionTier.free
-                      ? 'Ücretsiz • Günde 1 hak'
-                      : '',
+
                   iconColor: AppColors.primary,
                   isLocked: false,
                   isSelected: _selectedTypeIndex == 0,
@@ -133,9 +133,10 @@ class _ComparisonHubScreenState extends ConsumerState<ComparisonHubScreen>
                     icon: Icons.menu_book_rounded,
                     title: 'Bölüm',
                     description: 'Aynı bölümü farklı üniversitelerde karşılaştır',
-                    badge: 'Plus ile Bölüm Sıralaması (Pro da açar)',
+
                     iconColor: AppColors.tierPlus,
                     isLocked: !canDepartment,
+                    requiredTier: SubscriptionTier.plus,
                     isSelected: _selectedTypeIndex == 1,
                     onTap: () {
                       setState(() => _selectedTypeIndex = 1);
@@ -156,9 +157,10 @@ class _ComparisonHubScreenState extends ConsumerState<ComparisonHubScreen>
                     icon: Icons.location_city_rounded,
                     title: 'Şehir',
                     description: 'İki şehrin üniversite ekosistemini karşılaştır',
-                    badge: 'Plus ile Şehir Sıralaması (Pro da açar)',
+
                     iconColor: AppColors.tierPlus,
                     isLocked: !canCity,
+                    requiredTier: SubscriptionTier.plus,
                     isSelected: _selectedTypeIndex == 2,
                     onTap: () {
                       setState(() => _selectedTypeIndex = 2);
@@ -181,7 +183,7 @@ class _ComparisonHubScreenState extends ConsumerState<ComparisonHubScreen>
     );
   }
 
-  Widget _buildHeader(bool isDark) {
+  Widget _buildHeader(BuildContext context, bool isDark) {
     return Row(
       children: [
         // Dekoratif çizgi
@@ -196,12 +198,21 @@ class _ComparisonHubScreenState extends ConsumerState<ComparisonHubScreen>
         const SizedBox(width: 12),
         Expanded(
           child: Text(
-            'Karşılaştır',
+            AppLocalizations.of(context).comparisonHubTitle,
             style: AppTextStyles.displaySmall.copyWith(
               fontWeight: FontWeight.w800,
               letterSpacing: -0.5,
             ),
           ),
+        ),
+        // Geçmiş butonu — tüm tier'larda görünür, içerik tier'a göre değişir.
+        IconButton(
+          icon: Icon(
+            Icons.history_rounded,
+            color: isDark ? Colors.white : AppColors.textPrimary,
+          ),
+          tooltip: 'Karşılaştırma geçmişi',
+          onPressed: () => ComparisonHistorySheet.show(context),
         ),
       ],
     );

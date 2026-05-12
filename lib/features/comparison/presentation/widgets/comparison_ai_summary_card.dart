@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../../core/widgets/shimmer_box.dart';
 import '../../../recommendation/presentation/widgets/typewriter_text.dart';
 
 class ComparisonAiSummaryCard extends StatelessWidget {
@@ -7,6 +9,10 @@ class ComparisonAiSummaryCard extends StatelessWidget {
   final bool canUseAi;
   final bool isLimitReached;
   final String summaryText;
+  final String? errorMessage;
+  final VoidCallback? onRetry;
+  final bool regenerateAllowed;
+  final VoidCallback? onRegenerate;
 
   const ComparisonAiSummaryCard({
     super.key,
@@ -14,6 +20,10 @@ class ComparisonAiSummaryCard extends StatelessWidget {
     required this.canUseAi,
     required this.isLimitReached,
     required this.summaryText,
+    this.errorMessage,
+    this.onRetry,
+    this.regenerateAllowed = false,
+    this.onRegenerate,
   });
 
   @override
@@ -25,19 +35,9 @@ class ComparisonAiSummaryCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFFD4A017), Color(0xFF8B5CF6)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
+        gradient: AppColors.aiSummaryGradient,
         borderRadius: BorderRadius.circular(18),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF8B5CF6).withValues(alpha: 0.25),
-            blurRadius: 18,
-            offset: const Offset(0, 8),
-          ),
-        ],
+        boxShadow: AppColors.aiSummaryShadow,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -80,14 +80,63 @@ class ComparisonAiSummaryCard extends StatelessWidget {
           ),
           const SizedBox(height: 14),
           if (loading) ...[
-            _SkeletonLine(width: double.infinity),
+            // 5.1 — Shimmer skeleton
+            const ShimmerBox(
+              height: 14,
+              borderRadius: 7,
+              baseColor: Color(0x33FFFFFF),
+              highlightColor: Color(0x55FFFFFF),
+            ),
             const SizedBox(height: 8),
-            _SkeletonLine(width: double.infinity),
+            const ShimmerBox(
+              height: 14,
+              borderRadius: 7,
+              baseColor: Color(0x33FFFFFF),
+              highlightColor: Color(0x55FFFFFF),
+            ),
             const SizedBox(height: 8),
-            const _SkeletonLine(width: 190),
-          ] else if (blocked && isLimitReached) ...[
+            const ShimmerBox(
+              width: 190,
+              height: 14,
+              borderRadius: 7,
+              baseColor: Color(0x33FFFFFF),
+              highlightColor: Color(0x55FFFFFF),
+            ),
+          ] else if (errorMessage != null) ...[
+            // ─── Error State ────────────────────────────────
             Text(
-              '5 AI ozetin doldu, yarin tekrar dene.',
+              errorMessage!,
+              style: AppTextStyles.bodyMedium.copyWith(
+                color: Colors.white,
+                height: 1.45,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            if (onRetry != null) ...[
+              const SizedBox(height: 12),
+              TextButton.icon(
+                onPressed: onRetry,
+                icon: const Icon(Icons.refresh_rounded, color: Colors.white, size: 18),
+                label: const Text(
+                  'Tekrar dene',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                style: TextButton.styleFrom(
+                  backgroundColor: Colors.white.withValues(alpha: 0.2),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                ),
+              ),
+            ],
+          ] else if (blocked && isLimitReached) ...[
+            // 5.4 — Yazım düzeltmesi
+            Text(
+              'Günlük AI özet hakkın doldu, yarın tekrar dene.',
               style: AppTextStyles.bodyMedium.copyWith(
                 color: Colors.white,
                 height: 1.45,
@@ -95,8 +144,9 @@ class ComparisonAiSummaryCard extends StatelessWidget {
               ),
             ),
           ] else if (blocked) ...[
+            // 5.4 — Yazım düzeltmesi
             Text(
-              'AI Analizi Pro pakette aktif. Pro’ya gecerek detayli ozeti acabilirsin.',
+              'AI Analizi Pro pakette aktif. Pro\'ya geçerek detaylı özeti açabilirsin.',
               style: AppTextStyles.bodyMedium.copyWith(
                 color: Colors.white,
                 height: 1.45,
@@ -114,16 +164,41 @@ class ComparisonAiSummaryCard extends StatelessWidget {
               perWord: const Duration(milliseconds: 60),
             ),
           ],
-          if (!loading && !blocked) ...[
-            const SizedBox(height: 10),
-            Text(
-              'Pro analizi aktif',
-              style: AppTextStyles.labelSmall.copyWith(
-                color: isDark
-                    ? Colors.white.withValues(alpha: 0.9)
-                    : Colors.white.withValues(alpha: 0.92),
-                fontWeight: FontWeight.w800,
-              ),
+          if (!loading && !blocked && summaryText.isNotEmpty && errorMessage == null) ...[
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Text(
+                  'Pro analizi aktif',
+                  style: AppTextStyles.labelSmall.copyWith(
+                    color: isDark
+                        ? Colors.white.withValues(alpha: 0.9)
+                        : Colors.white.withValues(alpha: 0.92),
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                const Spacer(),
+                if (regenerateAllowed && onRegenerate != null)
+                  TextButton.icon(
+                    onPressed: onRegenerate,
+                    icon: const Icon(Icons.refresh, color: Colors.white, size: 16),
+                    label: const Text(
+                      'Yeniden üret',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 12,
+                      ),
+                    ),
+                    style: TextButton.styleFrom(
+                      backgroundColor: Colors.white.withValues(alpha: 0.15),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    ),
+                  ),
+              ],
             ),
           ],
         ],
@@ -131,21 +206,3 @@ class ComparisonAiSummaryCard extends StatelessWidget {
     );
   }
 }
-
-class _SkeletonLine extends StatelessWidget {
-  final double width;
-  const _SkeletonLine({required this.width});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: width,
-      height: 14,
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.22),
-        borderRadius: BorderRadius.circular(7),
-      ),
-    );
-  }
-}
-

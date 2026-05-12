@@ -19,7 +19,7 @@ class ComparisonHeroSection extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: isDark
-              ? [const Color(0xFF1A1A2E), const Color(0xFF16213E)]
+              ? [AppColors.darkSurface, const Color(0xFF16213E)]
               : [
                   AppColors.primary.withValues(alpha: 0.04),
                   AppColors.secondary.withValues(alpha: 0.04),
@@ -30,6 +30,7 @@ class ComparisonHeroSection extends StatelessWidget {
         children: [
           // ─── Logo + VS + Logo ──────────────────────────────
           Row(
+            textDirection: Directionality.of(context),
             children: [
               Expanded(child: _UniLogo(
                 uni: result.uniA,
@@ -63,6 +64,7 @@ class ComparisonHeroSection extends StatelessWidget {
 
           // ─── Kategori kazanım sayıları ─────────────────────
           Row(
+            textDirection: Directionality.of(context),
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               _WinChip(
@@ -130,7 +132,11 @@ class _UniLogo extends StatelessWidget {
                   ),
                 ),
               // Logo container — rounded rectangle, beyaz arka plan
-              Container(
+              Hero(
+                tag: 'uni_${uni.id}_compare',
+                child: Material(
+                  color: Colors.transparent,
+                  child: Container(
                 width: 64,
                 height: 64,
                 decoration: BoxDecoration(
@@ -162,6 +168,9 @@ class _UniLogo extends StatelessWidget {
                   ),
                 ),
               ),
+              ),
+                ),
+              ),
               // Winner badge — sağ alt köşede altın rozet
               if (isWinner)
                 Positioned(
@@ -185,7 +194,7 @@ class _UniLogo extends StatelessWidget {
                         ),
                       ],
                       border: Border.all(
-                        color: isDark ? const Color(0xFF1A1A2E) : Colors.white,
+                        color: isDark ? AppColors.darkSurface : Colors.white,
                         width: 2,
                       ),
                     ),
@@ -292,7 +301,13 @@ class _ScoreStrip extends StatelessWidget {
         ),
         const SizedBox(width: 12),
         // Delta badge
-        Container(
+        Semantics(
+          label: absDelta < 0.05
+              ? 'Berabere'
+              : delta > 0
+                  ? '${result.uniA.name} ${absDelta.toStringAsFixed(1)} puan önde'
+                  : '${result.uniB.name} ${absDelta.toStringAsFixed(1)} puan önde',
+          child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
           decoration: BoxDecoration(
             color: absDelta < 0.05
@@ -316,6 +331,7 @@ class _ScoreStrip extends StatelessWidget {
                   : (delta > 0 ? AppColors.primary : AppColors.secondary),
             ),
           ),
+        ),
         ),
         const SizedBox(width: 12),
         // B skoru

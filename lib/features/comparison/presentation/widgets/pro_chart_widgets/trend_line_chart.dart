@@ -228,7 +228,7 @@ class _TrendLineChartState extends State<TrendLineChart> {
           final selected = _touchedIndex == spot.x.toInt();
           return FlDotCirclePainter(
             radius: selected ? 6.5 : 4.8,
-            color: selected ? color : (isDark ? const Color(0xFF141424) : Colors.white),
+            color: selected ? color : (isDark ? AppColors.darkSurfaceVariant : Colors.white),
             strokeWidth: 2.5,
             strokeColor: color,
           );

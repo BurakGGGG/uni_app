@@ -11,9 +11,22 @@ import '../../domain/models/city_comparison.dart';
 import '../providers/comparison_providers.dart';
 import '../widgets/city_compar_pie_chart.dart';
 import '../widgets/city_picker_bottom_sheet.dart';
+import '../widgets/offline_banner.dart';
+import '../../../../core/providers/connectivity_provider.dart';
+import '../../../../l10n/generated/app_localizations.dart';
+import '../../../university/data/university_repository.dart';
 
 class CityComparisonScreen extends ConsumerStatefulWidget {
-  const CityComparisonScreen({super.key});
+  /// Deep-link / geçmişten gelen önceden seçili şehir ID'leri.
+  /// Verilirse initState'te repository'den lookup edilir ve _a/_b set'lenir.
+  final String? initialAId;
+  final String? initialBId;
+
+  const CityComparisonScreen({
+    super.key,
+    this.initialAId,
+    this.initialBId,
+  });
 
   @override
   ConsumerState<CityComparisonScreen> createState() => _CityComparisonScreenState();
@@ -24,11 +37,40 @@ class _CityComparisonScreenState extends ConsumerState<CityComparisonScreen> {
   CityModel? _b;
 
   @override
+  void initState() {
+    super.initState();
+    if (widget.initialAId != null || widget.initialBId != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _resolveInitial());
+    }
+  }
+
+  Future<void> _resolveInitial() async {
+    final repo = UniversityRepository();
+    Future<CityModel?> lookup(String? id) async {
+      if (id == null || id.isEmpty) return null;
+      return repo.getCity(id);
+    }
+
+    final results = await Future.wait([
+      lookup(widget.initialAId),
+      lookup(widget.initialBId),
+    ]);
+    if (!mounted) return;
+    setState(() {
+      if (results[0] != null) _a = results[0];
+      if (results[1] != null) _b = results[1];
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final loc = AppLocalizations.of(context);
 
-    final pair = (_a != null && _b != null)
-        ? ComparisonPair(idA: _a!.id, idB: _b!.id)
+    final a = _a;
+    final b = _b;
+    final pair = (a != null && b != null)
+        ? ComparisonPair(idA: a.id, idB: b.id)
         : null;
 
     final resultAsync = pair == null
@@ -40,12 +82,12 @@ class _CityComparisonScreenState extends ConsumerState<CityComparisonScreen> {
       showBlurPreview: true,
       onLocked: () => context.push('/compare/paywall'),
       child: Scaffold(
-      backgroundColor: isDark ? const Color(0xFF0F0F1A) : AppColors.background,
+      backgroundColor: isDark ? AppColors.darkBackground : AppColors.background,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         title: Text(
-          'Şehir Karşılaştır',
+          loc.comparisonCity,
           style: AppTextStyles.titleMedium.copyWith(
             fontWeight: FontWeight.w800,
             color: isDark ? Colors.white : AppColors.textPrimary,
@@ -59,17 +101,32 @@ class _CityComparisonScreenState extends ConsumerState<CityComparisonScreen> {
                 _b = null;
               }),
               icon: const Icon(Icons.refresh_rounded, size: 18),
-              label: const Text('Sıfırla'),
+              label: Text(loc.reset),
               style: TextButton.styleFrom(foregroundColor: AppColors.error),
             ),
         ],
       ),
       body: SafeArea(
-        child: SingleChildScrollView(
+        child: RefreshIndicator(
+          color: AppColors.primary,
+          onRefresh: () async {
+            final ca = _a;
+            final cb = _b;
+            if (ca != null && cb != null) {
+              final pair = ComparisonPair(idA: ca.id, idB: cb.id);
+              ref.invalidate(cityComparisonResultProvider(pair));
+              await ref.read(cityComparisonResultProvider(pair).future);
+            }
+          },
+          child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 28),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // ─── Offline Banner ──────────────────────────────
+              if (!ref.watch(isOnlineProvider))
+                const OfflineBanner(),
               Text(
                 'İki şehrin üniversite ekosistemini kıyasla',
                 style: AppTextStyles.bodyMedium.copyWith(
@@ -83,7 +140,7 @@ class _CityComparisonScreenState extends ConsumerState<CityComparisonScreen> {
                 children: [
                   Expanded(
                     child: _CityPickCard(
-                      title: _a != null ? _a!.name : 'Şehir A',
+                      title: a?.name ?? loc.selectCityA,
                       city: _a,
                       accent: AppColors.primary,
                       onTap: () async {
@@ -95,7 +152,7 @@ class _CityComparisonScreenState extends ConsumerState<CityComparisonScreen> {
                   const SizedBox(width: 12),
                   Expanded(
                     child: _CityPickCard(
-                      title: _b != null ? _b!.name : 'Şehir B',
+                      title: b?.name ?? loc.selectCityB,
                       city: _b,
                       accent: AppColors.secondary,
                       onTap: () async {
@@ -117,6 +174,7 @@ class _CityComparisonScreenState extends ConsumerState<CityComparisonScreen> {
             ],
           ),
         ),
+        ),
       ),
       ),
     );
@@ -137,8 +195,10 @@ class _CityComparisonScreenState extends ConsumerState<CityComparisonScreen> {
       ),
       error: (e, _) => _ErrorCard(message: '$e', isDark: isDark),
       data: (result) {
-        final fallback = (_a != null && _b != null)
-            ? _buildFallbackResult(_a!, _b!)
+        final ca = _a;
+        final cb = _b;
+        final fallback = (ca != null && cb != null)
+            ? _buildFallbackResult(ca, cb)
             : null;
         final effectiveResult = result ?? fallback;
         if (effectiveResult == null) {
@@ -341,7 +401,7 @@ class _CityPickCard extends StatelessWidget {
                 ),
               ] else ...[
                 Text(
-                  city!.name,
+                  city?.name ?? '—',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: AppTextStyles.bodyMedium.copyWith(
@@ -354,12 +414,12 @@ class _CityPickCard extends StatelessWidget {
                   children: [
                     _MetaPill(
                       icon: Icons.confirmation_number_rounded,
-                      label: city!.plateCode,
+                      label: city?.plateCode ?? '—',
                     ),
                     const SizedBox(width: 8),
                     _MetaPill(
                       icon: Icons.school_rounded,
-                      label: '${city!.appUniversityCount}',
+                      label: '${city?.appUniversityCount ?? 0}',
                     ),
                   ],
                 ),

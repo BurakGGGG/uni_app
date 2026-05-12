@@ -83,3 +83,7 @@ taban_puanları/yokatlas-dataset-2025/
 find_missing.py
 test_slug.dart
 taban_puanları_875_bolum.csv
+
+.claude/
+
+android/build/

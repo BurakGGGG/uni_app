@@ -1,20 +1,18 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../monetization/domain/enums/subscription_tier.dart';
 
 /// Hub ekranındaki karşılaştırma tipi kartı
-/// [icon] İkon verisi, [title] Başlık, [description] Açıklama,
-/// [badge] Alt bilgi badge'i, [isLocked] Kilit durumu,
-/// [onTap] Tıklama callback'i
 class ComparisonTypeCard extends StatefulWidget {
   final IconData icon;
   final String title;
   final String description;
-  final String badge;
   final Color iconColor;
   final LinearGradient? iconGradient;
   final bool isLocked;
   final bool isSelected;
+  final SubscriptionTier? requiredTier;
   final VoidCallback? onTap;
 
   const ComparisonTypeCard({
@@ -22,11 +20,11 @@ class ComparisonTypeCard extends StatefulWidget {
     required this.icon,
     required this.title,
     required this.description,
-    required this.badge,
     this.iconColor = AppColors.primary,
     this.iconGradient,
     this.isLocked = false,
     this.isSelected = false,
+    this.requiredTier,
     this.onTap,
   });
 
@@ -38,8 +36,6 @@ class _ComparisonTypeCardState extends State<ComparisonTypeCard>
     with TickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _scaleAnim;
-  late AnimationController _lockPulseController;
-  late Animation<double> _lockPulseAnim;
   bool _isPressed = false;
 
   @override
@@ -52,37 +48,11 @@ class _ComparisonTypeCardState extends State<ComparisonTypeCard>
     _scaleAnim = Tween<double>(begin: 1.0, end: 0.97).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
     );
-    _lockPulseController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1100),
-    );
-    _lockPulseAnim = Tween<double>(begin: 1.0, end: 1.12).animate(
-      CurvedAnimation(parent: _lockPulseController, curve: Curves.easeInOut),
-    );
-    _refreshPulse();
-  }
-
-  @override
-  void didUpdateWidget(covariant ComparisonTypeCard oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.isLocked != widget.isLocked) {
-      _refreshPulse();
-    }
-  }
-
-  void _refreshPulse() {
-    if (widget.isLocked) {
-      _lockPulseController.repeat(reverse: true);
-    } else {
-      _lockPulseController.stop();
-      _lockPulseController.value = 0;
-    }
   }
 
   @override
   void dispose() {
     _controller.dispose();
-    _lockPulseController.dispose();
     super.dispose();
   }
 
@@ -123,14 +93,18 @@ class _ComparisonTypeCardState extends State<ComparisonTypeCard>
                     : AppColors.surface),
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
-              color: widget.isSelected
-                  ? widget.iconColor.withValues(alpha: 0.42)
-                  : _isPressed
-                  ? widget.iconColor.withValues(alpha: 0.3)
-                  : (isDark
-                      ? Colors.white.withValues(alpha: 0.08)
-                      : AppColors.border),
-              width: widget.isSelected ? 2 : (_isPressed ? 1.5 : 1),
+              color: widget.isLocked
+                  ? (widget.requiredTier == SubscriptionTier.pro
+                      ? AppColors.tierPro.withValues(alpha: 0.5)
+                      : AppColors.tierPlus.withValues(alpha: 0.5))
+                  : widget.isSelected
+                      ? widget.iconColor.withValues(alpha: 0.42)
+                      : _isPressed
+                          ? widget.iconColor.withValues(alpha: 0.3)
+                          : (isDark
+                              ? Colors.white.withValues(alpha: 0.08)
+                              : AppColors.border),
+              width: widget.isLocked ? 2 : (widget.isSelected ? 2 : (_isPressed ? 1.5 : 1)),
             ),
             boxShadow: _isPressed
                 ? []
@@ -143,117 +117,117 @@ class _ComparisonTypeCardState extends State<ComparisonTypeCard>
                         ),
                       ]
                     : [
-                    BoxShadow(
-                      color: widget.iconColor.withValues(alpha: 0.08),
-                      blurRadius: 16,
-                      offset: const Offset(0, 4),
-                    ),
-                  ]),
+                        BoxShadow(
+                          color: widget.iconColor.withValues(alpha: 0.08),
+                          blurRadius: 16,
+                          offset: const Offset(0, 4),
+                        ),
+                      ]),
           ),
-          child: Row(
+          child: Stack(
+            clipBehavior: Clip.none,
             children: [
-              // İkon
-              Container(
-                width: 52,
-                height: 52,
-                decoration: BoxDecoration(
-                  gradient: widget.iconGradient ??
-                      LinearGradient(
-                        colors: [
-                          widget.iconColor.withValues(alpha: 0.15),
-                          widget.iconColor.withValues(alpha: 0.08),
-                        ],
-                      ),
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                child: Icon(
-                  widget.icon,
-                  color: widget.iconColor,
-                  size: 26,
-                ),
-              ),
-              const SizedBox(width: 16),
-              // İçerik
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      widget.title,
-                      style: AppTextStyles.titleSmall.copyWith(
-                        fontWeight: FontWeight.w700,
-                      ),
+              Row(
+                children: [
+                  // İkon
+                  Container(
+                    width: 52,
+                    height: 52,
+                    decoration: BoxDecoration(
+                      gradient: widget.iconGradient ??
+                          LinearGradient(
+                            colors: [
+                              widget.iconColor.withValues(alpha: 0.15),
+                              widget.iconColor.withValues(alpha: 0.08),
+                            ],
+                          ),
+                      borderRadius: BorderRadius.circular(14),
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      widget.description,
-                      style: AppTextStyles.bodySmall.copyWith(
-                        color: AppColors.textSecondary,
-                        height: 1.3,
-                      ),
+                    child: Icon(
+                      widget.icon,
+                      color: widget.iconColor,
+                      size: 26,
                     ),
-                    const SizedBox(height: 8),
-                    // Badge
-                    if (_shouldShowBadge(widget.badge, widget.isLocked))
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: widget.isLocked
-                              ? AppColors.tierPlus.withValues(alpha: 0.1)
-                              : AppColors.success.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(
-                          widget.badge,
-                          style: AppTextStyles.labelSmall.copyWith(
-                            color: widget.isLocked
-                                ? AppColors.tierPlus
-                                : AppColors.success,
-                            fontWeight: FontWeight.w600,
-                            fontSize: 11,
+                  ),
+                  const SizedBox(width: 16),
+                  // İçerik
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          widget.title,
+                          style: AppTextStyles.titleSmall.copyWith(
+                            fontWeight: FontWeight.w700,
                           ),
                         ),
+                        const SizedBox(height: 4),
+                        Text(
+                          widget.description,
+                          style: AppTextStyles.bodySmall.copyWith(
+                            color: AppColors.textSecondary,
+                            height: 1.3,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  // Ok ikonu (Eğer kilitli değilse)
+                  if (!widget.isLocked)
+                    Container(
+                      width: 36,
+                      height: 36,
+                      decoration: BoxDecoration(
+                        color: widget.iconColor.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(10),
                       ),
-                  ],
-                ),
+                      child: Icon(
+                        Icons.arrow_forward_ios_rounded,
+                        color: widget.iconColor,
+                        size: 16,
+                      ),
+                    ),
+                ],
               ),
-              // Kilit / ok ikonu
-              if (widget.isLocked)
-                AnimatedBuilder(
-                  animation: _lockPulseAnim,
-                  builder: (context, child) => Transform.scale(
-                    scale: _lockPulseAnim.value,
-                    child: child,
-                  ),
+              // PRO / PLUS Badge
+              if (widget.isLocked && widget.requiredTier != null)
+                Positioned(
+                  top: -12,
+                  right: -12,
                   child: Container(
-                    width: 36,
-                    height: 36,
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                     decoration: BoxDecoration(
-                      color: AppColors.tierPlus.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(10),
+                      gradient: widget.requiredTier == SubscriptionTier.pro
+                          ? AppColors.tierProGradient
+                          : AppColors.tierPlusGradient,
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: (widget.requiredTier == SubscriptionTier.pro
+                                  ? AppColors.tierPro
+                                  : AppColors.tierPlus)
+                              .withValues(alpha: 0.3),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
                     ),
-                    child: const Icon(
-                      Icons.lock_rounded,
-                      color: AppColors.tierPlus,
-                      size: 18,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.lock_rounded, size: 12, color: Colors.white),
+                        const SizedBox(width: 4),
+                        Text(
+                          widget.requiredTier == SubscriptionTier.pro ? 'PRO' : 'PLUS',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                )
-              else
-                Container(
-                  width: 36,
-                  height: 36,
-                  decoration: BoxDecoration(
-                    color: widget.iconColor.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Icon(
-                    Icons.arrow_forward_ios_rounded,
-                    color: widget.iconColor,
-                    size: 16,
                   ),
                 ),
             ],
@@ -261,15 +235,5 @@ class _ComparisonTypeCardState extends State<ComparisonTypeCard>
         ),
       ),
     );
-  }
-
-  bool _shouldShowBadge(String badge, bool isLocked) {
-    if (badge.trim().isEmpty) return false;
-    // Kullanıcı zaten kilidi açtıysa (isLocked=false) "Plus/Pro gerekli" gibi
-    // gereksiz metinleri göstermemek için badge metnindeki anahtar kelimeleri filtreliyoruz.
-    if (isLocked) return true;
-    final lower = badge.toLowerCase();
-    final mentionsPlusOrPro = lower.contains('plus') || lower.contains('pro');
-    return !mentionsPlusOrPro;
   }
 }

@@ -174,3 +174,16 @@ class YearlyScore {
         'ranking': ranking,
       };
 }
+
+// ── Null-safe score erişimi ─────────────────────────────────
+extension DepartmentScoreFallback on DepartmentModel {
+  /// baseScore (legacy) veya scoreData.baseScore, hangisi mevcutsa
+  double? get effectiveBaseScore => baseScore ?? scoreData?.baseScore;
+
+  /// ranking (legacy) veya scoreData.ranking
+  int? get effectiveRanking => ranking ?? scoreData?.ranking;
+
+  /// scoreType (legacy) veya scoreData.scoreType
+  String? get effectiveScoreType => scoreType ?? scoreData?.scoreType;
+}
+

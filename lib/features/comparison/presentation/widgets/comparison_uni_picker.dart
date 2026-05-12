@@ -15,6 +15,7 @@ class ComparisonUniPicker extends ConsumerWidget {
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Row(
+        textDirection: Directionality.of(context),
         children: [
           Expanded(child: _UniSlot(
             uniId: selection.uniIdA,
@@ -202,7 +203,11 @@ class _UniSlot extends ConsumerWidget {
             return Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Container(
+                Hero(
+                  tag: 'uni_${uni.id}_compare',
+                  child: Material(
+                    color: Colors.transparent,
+                    child: Container(
                   width: 48,
                   height: 48,
                   decoration: BoxDecoration(
@@ -229,6 +234,8 @@ class _UniSlot extends ConsumerWidget {
                         style: TextStyle(color: color, fontWeight: FontWeight.w700, fontSize: 16),
                       ),
                     ),
+                  ),
+                ),
                   ),
                 ),
                 const SizedBox(height: 8),

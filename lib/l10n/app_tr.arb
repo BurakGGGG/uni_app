@@ -1,0 +1,80 @@
+{
+  "@@locale": "tr",
+  "comparisonHubTitle": "Karşılaştır",
+  "@comparisonHubTitle": {
+    "description": "Karşılaştırma hub ekranı başlığı"
+  },
+  "comparisonUniversity": "Üniversite Karşılaştır",
+  "comparisonUniversityDesc": "İki üniversiteyi yan yana kıyasla",
+  "comparisonDepartment": "Bölüm Karşılaştır",
+  "comparisonDepartmentDesc": "Aynı bölümü farklı üniversitelerde kıyasla",
+  "comparisonCity": "Şehir Karşılaştır",
+  "comparisonCityDesc": "İki şehrin üniversite ekosistemini kıyasla",
+  "selectUniversityA": "Üniversite A",
+  "selectUniversityB": "Üniversite B",
+  "selectDepartmentA": "Bölüm A",
+  "selectDepartmentB": "Bölüm B",
+  "selectCityA": "Şehir A",
+  "selectCityB": "Şehir B",
+  "swap": "Yer Değiştir",
+  "share": "Paylaş",
+  "reset": "Sıfırla",
+  "retry": "Tekrar Dene",
+  "tabGeneral": "Genel",
+  "tabCategories": "Kategoriler",
+  "tabChart": "Grafik",
+  "tabStats": "İstatistik",
+  "emptyStateTitle": "İki {entityType} seç",
+  "@emptyStateTitle": {
+    "placeholders": {
+      "entityType": {
+        "type": "String",
+        "example": "üniversite"
+      }
+    }
+  },
+  "loadingComparison": "Karşılaştırma yükleniyor…",
+  "errorComparison": "Karşılaştırma yüklenirken bir hata oluştu",
+  "aiSummaryTitle": "AI Analizi",
+  "aiSummaryProRequired": "AI Analizi Pro pakette aktif. Pro'ya geçerek detaylı özeti açabilirsin.",
+  "aiSummaryLimitReached": "Günlük {limit} AI özet hakkın doldu, yarın tekrar dene.",
+  "@aiSummaryLimitReached": {
+    "placeholders": {
+      "limit": {"type": "int", "example": "5"}
+    }
+  },
+  "aiSummaryActive": "Pro analizi aktif",
+  "aiSummaryRegenerate": "Yeniden Üret",
+  "watchAdToContinue": "Reklamı İzle ve Devam Et",
+  "upgradePlus": "Plus'a Geç — Sınırsız",
+  "cancelForNow": "Şimdilik Vazgeç",
+  "dailyLimitReached": "Günlük karşılaştırma hakkın doldu",
+  "comparisonStarted": "Karşılaştırma başladı",
+  "scoreType": "Puan Türü",
+  "baseScore": "Taban Puan",
+  "ranking": "Sıralama",
+  "quota": "Kontenjan",
+  "fillRate": "Doluluk Oranı",
+  "duration": "Süre",
+  "language": "Dil",
+  "type": "Tür",
+  "categoryRating": "Kategori Puanı",
+  "reviewCount": "Yorum Sayısı",
+  "averageRating": "Ortalama Puan",
+  "establishedYear": "Kuruluş Yılı",
+  "stateUniversity": "Devlet",
+  "foundationUniversity": "Vakıf",
+  "winner": "Kazanan",
+  "tie": "Berabere",
+  "noEnoughReviews": "Yeterli yorum yok",
+  "trendInsufficient": "Trend için yeterli yorum yok",
+  "offline": "İnternet bağlantısı yok",
+  "offlineDescription": "Karşılaştırma yapmak için internete bağlan.",
+  "shareSubject": "{uniA} vs {uniB} — Karşılaştırma",
+  "@shareSubject": {
+    "placeholders": {
+      "uniA": {"type": "String"},
+      "uniB": {"type": "String"}
+    }
+  }
+}

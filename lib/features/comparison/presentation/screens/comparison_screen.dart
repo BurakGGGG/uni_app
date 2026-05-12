@@ -122,19 +122,30 @@ class ComparisonScreen extends ConsumerWidget {
         ),
       ),
       bottomNavigationBar: selection.bothSelected && resultAsync.valueOrNull != null
-          ? _ComparisonFloatingActionBar(
-              result: resultAsync.value!,
-              onShare: () => ComparisonShareCard.shareCard(context, resultAsync.value!),
-              onFavorite: () => _showFavoriteModal(
-                context: context,
-                ref: ref,
-                result: resultAsync.value!,
+          ? SafeArea(
+              top: false,
+              child: Padding(
+                padding: EdgeInsets.only(
+                  left: 16,
+                  right: 16,
+                  bottom: 16 + MediaQuery.of(context).viewPadding.bottom,
+                ),
+                child: _ComparisonFloatingActionBar(
+                  result: resultAsync.value!,
+                  onShare: () => ComparisonShareCard.shareCard(context, resultAsync.value!),
+                  onFavorite: () => _showFavoriteModal(
+                    context: context,
+                    ref: ref,
+                    result: resultAsync.value!,
+                  ),
+                  onRecompare: () {
+                    ref.read(comparisonSelectionProvider.notifier).reset();
+                    ref.read(comparisonAdGateLockedProvider.notifier).state = false;
+                    ref.invalidate(comparisonResultProvider);
+                  },
+                ),
               ),
-              onRecompare: () {
-                ref.read(comparisonSelectionProvider.notifier).reset();
-                ref.read(comparisonAdGateLockedProvider.notifier).state = false;
-                ref.invalidate(comparisonResultProvider);
-              },
+
             )
           : null,
     );
@@ -188,7 +199,7 @@ Future<void> _showAdGateModal({
               margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
               padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
               decoration: BoxDecoration(
-                color: isDark ? const Color(0xFF141424) : Colors.white,
+                color: isDark ? AppColors.darkSurfaceVariant : Colors.white,
                 borderRadius: BorderRadius.circular(22),
                 boxShadow: [
                   BoxShadow(
@@ -392,7 +403,7 @@ Future<void> _showFavoriteModal({
           margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
           decoration: BoxDecoration(
-            color: isDark ? const Color(0xFF141424) : Colors.white,
+            color: isDark ? AppColors.darkSurfaceVariant : Colors.white,
             borderRadius: BorderRadius.circular(18),
             boxShadow: [
               BoxShadow(
@@ -665,7 +676,7 @@ class _ComparisonAdGateOverlay extends ConsumerWidget {
               margin: const EdgeInsets.symmetric(horizontal: 24),
               padding: const EdgeInsets.fromLTRB(18, 18, 18, 16),
               decoration: BoxDecoration(
-                color: isDark ? const Color(0xFF141424) : Colors.white,
+                color: isDark ? AppColors.darkSurfaceVariant : Colors.white,
                 borderRadius: BorderRadius.circular(18),
                 border: Border.all(
                   color: (isDark ? Colors.white : Colors.black)

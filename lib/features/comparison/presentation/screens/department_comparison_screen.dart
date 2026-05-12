@@ -8,10 +8,23 @@ import '../../../monetization/presentation/widgets/subscription_gate_widget.dart
 import '../../domain/models/department_comparison.dart';
 import '../providers/comparison_providers.dart';
 import '../widgets/department_picker_bottom_sheet.dart';
+import '../widgets/offline_banner.dart';
+import '../../../university/data/university_repository.dart';
 import '../../../university/domain/models/department_model.dart';
+import '../../../../core/providers/connectivity_provider.dart';
+import '../../../../l10n/generated/app_localizations.dart';
 
 class DepartmentComparisonScreen extends ConsumerStatefulWidget {
-  const DepartmentComparisonScreen({super.key});
+  /// Deep-link / geçmişten gelen önceden seçili bölüm ID'leri.
+  /// Verilirse initState'te repository'den lookup edilir ve _a/_b set'lenir.
+  final String? initialAId;
+  final String? initialBId;
+
+  const DepartmentComparisonScreen({
+    super.key,
+    this.initialAId,
+    this.initialBId,
+  });
 
   @override
   ConsumerState<DepartmentComparisonScreen> createState() =>
@@ -25,11 +38,44 @@ class _DepartmentComparisonScreenState
   DepartmentPickResult? _b;
 
   @override
+  void initState() {
+    super.initState();
+    if (widget.initialAId != null || widget.initialBId != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _resolveInitial());
+    }
+  }
+
+  Future<void> _resolveInitial() async {
+    final repo = UniversityRepository();
+    Future<DepartmentPickResult?> lookup(String? id) async {
+      if (id == null || id.isEmpty) return null;
+      final dept = await repo.getDepartment(id);
+      if (dept == null) return null;
+      final uni = await repo.getUniversity(dept.universityId);
+      if (uni == null) return null;
+      return DepartmentPickResult(university: uni, department: dept);
+    }
+
+    final results = await Future.wait([
+      lookup(widget.initialAId),
+      lookup(widget.initialBId),
+    ]);
+    if (!mounted) return;
+    setState(() {
+      if (results[0] != null) _a = results[0];
+      if (results[1] != null) _b = results[1];
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final loc = AppLocalizations.of(context);
 
-    final pair = (_a != null && _b != null)
-        ? ComparisonPair(idA: _a!.department.id, idB: _b!.department.id)
+    final a = _a;
+    final b = _b;
+    final pair = (a != null && b != null)
+        ? ComparisonPair(idA: a.department.id, idB: b.department.id)
         : null;
     final resultAsync =
         pair == null ? const AsyncValue<DepartmentComparisonResult?>.data(null) : ref.watch(departmentComparisonResultProvider(pair));
@@ -39,12 +85,12 @@ class _DepartmentComparisonScreenState
       showBlurPreview: true,
       onLocked: () => context.push('/compare/paywall'),
       child: Scaffold(
-      backgroundColor: isDark ? const Color(0xFF0F0F1A) : AppColors.background,
+      backgroundColor: isDark ? AppColors.darkBackground : AppColors.background,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         title: Text(
-          'Bölüm Karşılaştır',
+          loc.comparisonDepartment,
           style: AppTextStyles.titleMedium.copyWith(
             fontWeight: FontWeight.w800,
             color: isDark ? Colors.white : AppColors.textPrimary,
@@ -58,7 +104,7 @@ class _DepartmentComparisonScreenState
                 _b = null;
               }),
               icon: const Icon(Icons.refresh_rounded, size: 18),
-              label: const Text('Sıfırla'),
+              label: Text(loc.reset),
               style: TextButton.styleFrom(
                 foregroundColor: AppColors.error,
               ),
@@ -66,11 +112,29 @@ class _DepartmentComparisonScreenState
         ],
       ),
       body: SafeArea(
-        child: SingleChildScrollView(
+        child: RefreshIndicator(
+          color: AppColors.primary,
+          onRefresh: () async {
+            final da = _a;
+            final db = _b;
+            if (da != null && db != null) {
+              final pair = ComparisonPair(
+                idA: da.department.id,
+                idB: db.department.id,
+              );
+              ref.invalidate(departmentComparisonResultProvider(pair));
+              await ref.read(departmentComparisonResultProvider(pair).future);
+            }
+          },
+          child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 28),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // ─── Offline Banner ──────────────────────────────
+              if (!ref.watch(isOnlineProvider))
+                const OfflineBanner(),
               Text(
                 'Aynı bölümü farklı üniversitelerde kıyasla',
                 style: AppTextStyles.bodyMedium.copyWith(
@@ -84,7 +148,7 @@ class _DepartmentComparisonScreenState
                 children: [
                   Expanded(
                     child: _PickCard(
-                      title: _a != null ? _a!.department.name : 'Bölüm A',
+                      title: a?.department.name ?? loc.selectDepartmentA,
                       pick: _a,
                       accent: AppColors.primary,
                       onTap: () async {
@@ -100,7 +164,7 @@ class _DepartmentComparisonScreenState
                   const SizedBox(width: 12),
                   Expanded(
                     child: _PickCard(
-                      title: _b != null ? _b!.department.name : 'Bölüm B',
+                      title: b?.department.name ?? loc.selectDepartmentB,
                       pick: _b,
                       accent: AppColors.secondary,
                       onTap: () async {
@@ -126,6 +190,7 @@ class _DepartmentComparisonScreenState
             ],
           ),
         ),
+        ),
       ),
       ),
     );
@@ -147,8 +212,10 @@ class _DepartmentComparisonScreenState
       ),
       error: (e, _) => _ErrorCard(message: '$e', isDark: isDark),
       data: (result) {
-        final fallback = (_a != null && _b != null)
-            ? _buildFallbackResult(_a!.department, _b!.department)
+        final da = _a;
+        final db = _b;
+        final fallback = (da != null && db != null)
+            ? _buildFallbackResult(da.department, db.department)
             : null;
         final effectiveResult = result ?? fallback;
         if (effectiveResult == null) {
@@ -413,7 +480,7 @@ class _PickCard extends StatelessWidget {
                 ),
               ] else ...[
                 Text(
-                  dept!.name,
+                  dept?.name ?? '—',
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: AppTextStyles.bodyMedium.copyWith(
@@ -424,7 +491,7 @@ class _PickCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  uni!.name,
+                  uni?.name ?? '—',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: AppTextStyles.labelSmall.copyWith(
@@ -438,11 +505,11 @@ class _PickCard extends StatelessWidget {
                   children: [
                     _MetaPill(
                       icon: Icons.timelapse_rounded,
-                      label: '${dept.duration} yıl',
+                      label: '${dept?.duration ?? 4} yıl',
                     ),
                     _MetaPill(
                       icon: Icons.language_rounded,
-                      label: dept.language,
+                      label: dept?.language ?? 'Türkçe',
                     ),
                     if (scoreType != null && scoreType.isNotEmpty)
                       _MetaPill(
