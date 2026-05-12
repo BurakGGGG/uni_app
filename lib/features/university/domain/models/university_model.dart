@@ -56,6 +56,12 @@ class UniversityModel {
   final String? brandSecondaryHex;   // "#7A0000"
   final bool brandUseDarkOverlay;    // açık logolar için true
 
+  // ── Sprint 11 (6.4) — Place sayım denormalizasyonu ──
+  // Cloud Function `recomputePlaceCount` trigger'ı tarafından güncellenir.
+  // null ise client tarafı eski yöntemle (PlaceRepository) fallback yapar.
+  final int? placeCount;
+  final Map<String, int>? placeBreakdown;
+
   UniversityModel({
     required this.id,
     required this.cityId,
@@ -75,6 +81,8 @@ class UniversityModel {
     this.brandPrimaryHex,
     this.brandSecondaryHex,
     this.brandUseDarkOverlay = false,
+    this.placeCount,
+    this.placeBreakdown,
   });
 
   // YENİ getter — brand color'u döner
@@ -142,6 +150,10 @@ class UniversityModel {
       brandPrimaryHex: map['brandPrimaryHex'] as String?,
       brandSecondaryHex: map['brandSecondaryHex'] as String?,
       brandUseDarkOverlay: map['brandUseDarkOverlay'] ?? false,
+      placeCount: (map['placeCount'] as num?)?.toInt(),
+      placeBreakdown: (map['placeBreakdown'] as Map<String, dynamic>?)?.map(
+        (key, value) => MapEntry(key, (value as num).toInt()),
+      ),
     );
   }
   Map<String, dynamic> toMap() {
@@ -163,6 +175,8 @@ class UniversityModel {
       if (brandPrimaryHex != null) 'brandPrimaryHex': brandPrimaryHex,
       if (brandSecondaryHex != null) 'brandSecondaryHex': brandSecondaryHex,
       'brandUseDarkOverlay': brandUseDarkOverlay,
+      if (placeCount != null) 'placeCount': placeCount,
+      if (placeBreakdown != null) 'placeBreakdown': placeBreakdown,
     };
   }
 }

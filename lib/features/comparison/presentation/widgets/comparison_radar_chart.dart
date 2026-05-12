@@ -42,7 +42,11 @@ class _ComparisonRadarChartState extends State<ComparisonRadarChart>
       return const SizedBox.shrink();
     }
 
-    return Container(
+    return Semantics(
+      label: _buildSemanticLabel(result, cats),
+      image: true,
+      excludeSemantics: true,
+      child: Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -168,7 +172,29 @@ class _ComparisonRadarChartState extends State<ComparisonRadarChart>
           ),
         ],
       ),
+    ),
     );
+  }
+
+  String _buildSemanticLabel(
+    ComparisonResult result,
+    List<CategoryComparison> cats,
+  ) {
+    final buffer = StringBuffer();
+    buffer.write('${result.uniA.name} ve ${result.uniB.name} kategori karşılaştırması. ');
+    for (final cat in cats) {
+      buffer.write('${cat.categoryName}: ');
+      buffer.write('${result.uniA.name} ${cat.valueA.toStringAsFixed(1)}, ');
+      buffer.write('${result.uniB.name} ${cat.valueB.toStringAsFixed(1)}. ');
+      if (cat.winnerId == result.uniA.id) {
+        buffer.write('${result.uniA.name} kazandı. ');
+      } else if (cat.winnerId == result.uniB.id) {
+        buffer.write('${result.uniB.name} kazandı. ');
+      } else {
+        buffer.write('Berabere. ');
+      }
+    }
+    return buffer.toString();
   }
 }
 

@@ -57,7 +57,7 @@ class _ProOverlay extends StatelessWidget {
                   width: double.infinity,
                   padding: const EdgeInsets.fromLTRB(16, 16, 16, 14),
                   decoration: BoxDecoration(
-                    color: isDark ? const Color(0xFF141424) : Colors.white,
+                    color: isDark ? AppColors.darkSurfaceVariant : Colors.white,
                     borderRadius: BorderRadius.circular(18),
                     border: Border.all(
                       color:

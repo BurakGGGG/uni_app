@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/widgets.dart';
@@ -15,25 +14,78 @@ import '../widgets/comparison_radar_chart.dart';
 import '../widgets/comparison_stats_table.dart';
 import '../widgets/comparison_share_card.dart';
 import '../widgets/comparison_ai_summary_card.dart';
+import '../widgets/offline_banner.dart';
+import '../../data/ai_comparison_summary_service.dart';
+import '../../../../core/providers/connectivity_provider.dart';
+import '../widgets/comparison_result_skeleton.dart';
+import '../widgets/comparison_empty_state.dart';
+import '../../../../core/utils/haptic.dart';
+import '../../../../l10n/generated/app_localizations.dart';
 
 /// Üniversite Karşılaştırma Ekranı — Yeniden Yazım (Gün 3)
 /// Hero Section + 4 Tab'lı sonuç görünümü
-class UniversityComparisonScreen extends ConsumerWidget {
-  const UniversityComparisonScreen({super.key});
+class UniversityComparisonScreen extends ConsumerStatefulWidget {
+  /// Deep-link veya geçmişten gelen önceden seçili üniversite ID'leri.
+  /// Verilirse initState'te `comparisonSelectionProvider`'a set'lenir.
+  final String? initialAId;
+  final String? initialBId;
+
+  const UniversityComparisonScreen({
+    super.key,
+    this.initialAId,
+    this.initialBId,
+  });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<UniversityComparisonScreen> createState() =>
+      _UniversityComparisonScreenState();
+}
+
+class _UniversityComparisonScreenState
+    extends ConsumerState<UniversityComparisonScreen> {
+  @override
+  void initState() {
+    super.initState();
+    final a = widget.initialAId;
+    final b = widget.initialBId;
+    if (a == null && b == null) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final notifier = ref.read(comparisonSelectionProvider.notifier);
+      if (a != null && a.isNotEmpty) notifier.selectA(a);
+      if (b != null && b.isNotEmpty) notifier.selectB(b);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    ref.listen(comparisonResultProvider, (previous, next) {
+      if (next is! AsyncData<ComparisonResult?>) return;
+      if (next.value == null) return;
+      if (previous is AsyncLoading) {
+        AppHaptic.compareSuccess();
+      }
+    });
+    ref.listen(comparisonGateDecisionProvider, (previous, next) {
+      next.whenData((decision) {
+        if (decision != null && !decision.isAllowed) {
+          AppHaptic.limitReached();
+        }
+      });
+    });
+
     final selection = ref.watch(comparisonSelectionProvider);
     final resultAsync = ref.watch(comparisonResultProvider);
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final loc = AppLocalizations.of(context);
 
     return Scaffold(
-      backgroundColor: isDark ? const Color(0xFF0F0F1A) : AppColors.background,
+      backgroundColor: isDark ? AppColors.darkBackground : AppColors.background,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         title: Text(
-          'Üniversite Karşılaştır',
+          loc.comparisonUniversity,
           style: AppTextStyles.titleMedium.copyWith(
             fontWeight: FontWeight.w700,
             color: isDark ? Colors.white : AppColors.textPrimary,
@@ -44,7 +96,7 @@ class UniversityComparisonScreen extends ConsumerWidget {
             TextButton.icon(
               icon: Icon(Icons.refresh_rounded, size: 18, color: AppColors.error),
               label: Text(
-                'Sıfırla',
+                loc.reset,
                 style: AppTextStyles.labelSmall.copyWith(
                   color: AppColors.error,
                   fontWeight: FontWeight.w700,
@@ -52,10 +104,18 @@ class UniversityComparisonScreen extends ConsumerWidget {
               ),
               onPressed: () => _showResetConfirmation(context, ref),
             ),
-          if (selection.bothSelected)
+          if (selection.bothSelected) ...[
+            IconButton(
+              icon: const Icon(Icons.swap_horiz_rounded),
+              tooltip: loc.swap,
+              onPressed: () {
+                AppHaptic.swap();
+                ref.read(comparisonSelectionProvider.notifier).swap();
+              },
+            ),
             IconButton(
               icon: const Icon(Icons.ios_share_rounded, size: 20),
-              tooltip: 'Paylaş',
+              tooltip: loc.share,
               onPressed: () async {
                 final result = resultAsync.valueOrNull;
                 if (result != null) {
@@ -63,10 +123,15 @@ class UniversityComparisonScreen extends ConsumerWidget {
                 }
               },
             ),
+          ],
         ],
       ),
       body: Column(
         children: [
+          // ─── Offline Banner ──────────────────────────────────
+          if (!ref.watch(isOnlineProvider))
+            const OfflineBanner(),
+
           // ─── Üniversite Seçici (sadece sonuç yokken görünür) ───
           if (!selection.bothSelected || resultAsync.valueOrNull == null)
             const ComparisonUniPicker(),
@@ -91,7 +156,7 @@ class UniversityComparisonScreen extends ConsumerWidget {
     }
 
     return resultAsync.when(
-      loading: () => const Center(child: CircularProgressIndicator()),
+      loading: () => const ComparisonResultSkeleton(),
       error: (e, _) => Center(
         child: Padding(
           padding: const EdgeInsets.all(32),
@@ -110,7 +175,7 @@ class UniversityComparisonScreen extends ConsumerWidget {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: isDark ? const Color(0xFF1A1A2E) : Colors.white,
+        backgroundColor: isDark ? AppColors.darkSurface : Colors.white,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
         ),
@@ -146,6 +211,7 @@ class UniversityComparisonScreen extends ConsumerWidget {
           const SizedBox(width: 8),
           FilledButton(
             onPressed: () {
+              AppHaptic.reset();
               Navigator.pop(ctx);
               ref.read(comparisonSelectionProvider.notifier).reset();
             },
@@ -155,7 +221,7 @@ class UniversityComparisonScreen extends ConsumerWidget {
                 borderRadius: BorderRadius.circular(10),
               ),
             ),
-            child: const Text('Sıfırla'),
+            child: Text(AppLocalizations.of(context).reset),
           ),
         ],
       ),
@@ -171,27 +237,10 @@ class _EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 32),
-        child: EmptyStateWidget(
-          illustration: Container(
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: AppColors.primary.withValues(alpha: 0.06),
-              shape: BoxShape.circle,
-            ),
-            child: SvgPicture.asset(
-              'assets/icons/compare_icon.svg',
-              width: 56,
-              height: 56,
-            ),
-          ),
-          title: 'İki üniversite seç',
-          description:
-              'Yukarıdan iki üniversite seçince karşılaştırma sonuçları burada gözükür.',
-        ),
-      ),
+    return const ComparisonEmptyState(
+      title: 'İki üniversite seç',
+      subtitle: 'Yukarıdan iki üniversite seçince karşılaştırma sonuçları burada gözükür.',
+      fallbackIcon: Icons.school_rounded,
     );
   }
 }
@@ -227,6 +276,7 @@ class _TabbedResultViewState extends State<_TabbedResultView>
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final loc = AppLocalizations.of(context);
 
     return Column(
       children: [
@@ -269,9 +319,94 @@ class _TabbedResultViewState extends State<_TabbedResultView>
               fontSize: 12,
             ),
             labelPadding: EdgeInsets.zero,
-            tabs: _tabs
-                .map((t) => Tab(height: 36, text: t))
-                .toList(),
+            tabs: [
+              Tab(
+                height: 36,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.dashboard_rounded, size: 14),
+                    const SizedBox(width: 4),
+                    Flexible(
+                      child: Text(
+                        loc.tabGeneral,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Tab(
+                height: 36,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.category_rounded, size: 14),
+                    const SizedBox(width: 4),
+                    Flexible(
+                      child: Text(
+                        loc.tabCategories,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    if (widget.result.categoryComparisons.isNotEmpty) ...[
+                      const SizedBox(width: 4),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: AppColors.primary,
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Text(
+                          '${widget.result.categoryComparisons.length}',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 9,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              Tab(
+                height: 36,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.insights_rounded, size: 14),
+                    const SizedBox(width: 4),
+                    Flexible(
+                      child: Text(
+                        loc.tabChart,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Tab(
+                height: 36,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.analytics_rounded, size: 14),
+                    const SizedBox(width: 4),
+                    Flexible(
+                      child: Text(
+                        loc.tabStats,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
         ),
 
@@ -295,6 +430,10 @@ class _TabbedResultViewState extends State<_TabbedResultView>
 
 // ─── Genel Tab ─────────────────────────────────────────────────────
 
+/// Outer wrapper — sadece RefreshIndicator için ref kullanır.
+/// Static kartlar (`_BigInfoCard`, `_SummaryCard`, `_QuickStatsRow`) sadece
+/// `result` değişince rebuild olur. AI summary state'i `_AiSummarySection`
+/// içinde izlenir; o değişince sadece o widget rebuild olur.
 class _GeneralTab extends ConsumerWidget {
   final ComparisonResult result;
   const _GeneralTab({required this.result});
@@ -302,63 +441,157 @@ class _GeneralTab extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return RefreshIndicator(
+      color: AppColors.primary,
+      onRefresh: () async {
+        ref.invalidate(comparisonResultProvider);
+        ref.invalidate(aiComparisonSummaryProvider);
+        final selection = ref.read(comparisonSelectionProvider);
+        if (selection.bothSelected) {
+          final pair = ComparisonPair(
+            idA: selection.uniIdA!,
+            idB: selection.uniIdB!,
+          );
+          ref.invalidate(ratingTrendProvider(pair));
+          ref.invalidate(categoryHeatMapProvider(pair));
+        }
+        await ref.read(comparisonResultProvider.future);
+      },
+      child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Büyük puan kartları — result değişmedikçe rebuild olmaz
+            Row(
+              children: [
+                Expanded(
+                  child: _BigInfoCard(
+                    label: result.uniA.name,
+                    score: result.uniA.avgRating,
+                    reviewCount: result.uniA.reviewCount,
+                    color: AppColors.primary,
+                    type: result.uniA.type,
+                    year: result.uniA.establishedYear,
+                    isDark: isDark,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _BigInfoCard(
+                    label: result.uniB.name,
+                    score: result.uniB.avgRating,
+                    reviewCount: result.uniB.reviewCount,
+                    color: AppColors.secondary,
+                    type: result.uniB.type,
+                    year: result.uniB.establishedYear,
+                    isDark: isDark,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+
+            // Öne çıkan karşılaştırma özeti
+            _SummaryCard(result: result, isDark: isDark),
+            const SizedBox(height: 16),
+
+            // AI summary — kendi Consumer'ı içinde, izole rebuild
+            _AiSummarySection(result: result),
+            const SizedBox(height: 16),
+
+            // Quick stats
+            _QuickStatsRow(result: result, isDark: isDark),
+            const SizedBox(height: 80),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// AI summary kartının izole Consumer'ı.
+/// 4 provider izler ama yalnızca bu widget rebuild olur — kardeş kartlar etkilenmez.
+class _AiSummarySection extends ConsumerWidget {
+  final ComparisonResult result;
+  const _AiSummarySection({required this.result});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    ref.listen(aiComparisonSummaryProvider, (previous, next) {
+      if (next is! AsyncData<AiComparisonSummaryResult?>) return;
+      final summary = next.value;
+      if (summary == null || summary.summary.trim().isEmpty) return;
+      if (previous is AsyncLoading) {
+        AppHaptic.aiSummaryReceived();
+      }
+    });
+
+    // Regenerate feedback'i (başarılı veya hata) snackbar olarak göster
+    ref.listen<RegenerateFeedback?>(regenerateFeedbackProvider, (prev, next) {
+      if (next == null) return;
+      if (prev?.tag == next.tag) return; // aynı feedback tekrar
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(
+          content: Text(next.message),
+          backgroundColor: next.isError ? AppColors.error : AppColors.success,
+          duration: const Duration(seconds: 3),
+          behavior: SnackBarBehavior.floating,
+          margin: const EdgeInsets.all(16),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        ));
+      // Tek sefer göstersin, hemen sıfırla
+      Future.microtask(
+        () => ref.read(regenerateFeedbackProvider.notifier).state = null,
+      );
+    });
+
     final canUseAi = ref.watch(canUseAiComparisonProvider);
     final usage = ref.watch(usageStatsProvider);
-    final tier = ref.watch(subscriptionTierProvider).valueOrNull ?? SubscriptionTier.free;
-    final loadingAi = usage.isLoading;
+    final tier = ref.watch(subscriptionTierProvider).valueOrNull ??
+        SubscriptionTier.free;
+    final aiSummaryAsync = ref.watch(aiComparisonSummaryProvider);
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Büyük puan kartları
-          Row(
-            children: [
-              Expanded(
-                child: _BigInfoCard(
-                  label: result.uniA.name,
-                  score: result.uniA.avgRating,
-                  reviewCount: result.uniA.reviewCount,
-                  color: AppColors.primary,
-                  type: result.uniA.type,
-                  year: result.uniA.establishedYear,
-                  isDark: isDark,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _BigInfoCard(
-                  label: result.uniB.name,
-                  score: result.uniB.avgRating,
-                  reviewCount: result.uniB.reviewCount,
-                  color: AppColors.secondary,
-                  type: result.uniB.type,
-                  year: result.uniB.establishedYear,
-                  isDark: isDark,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
+    final bool aiLoading = usage.isLoading || aiSummaryAsync.isLoading;
+    final String aiSummaryText = aiSummaryAsync.valueOrNull?.summary ?? '';
+    final bool aiLimitReached = tier == SubscriptionTier.pro && !canUseAi;
+    String? aiErrorMessage;
+    if (aiSummaryAsync.hasError) {
+      final err = aiSummaryAsync.error;
+      if (err is AiSummaryFailure) {
+        aiErrorMessage = err.userMessage;
+      } else {
+        aiErrorMessage = 'Beklenmeyen bir hata oluştu. Lütfen tekrar dene.';
+      }
+    }
 
-          // Öne çıkan karşılaştırma özeti
-          _SummaryCard(result: result, isDark: isDark),
-          const SizedBox(height: 16),
+    // Regenerate: Pro tier · özet hazır · hata yok · bu çift için kullanılmamış
+    // (server kalıcı tutar — UI sadece UX için set'i kontrol eder)
+    final usedKeys = ref.watch(regenerateUsedPairsProvider);
+    final sortedIds = [result.uniA.id, result.uniB.id]..sort();
+    final pairKey = '${sortedIds[0]}__${sortedIds[1]}';
+    final bool regenerateAllowed = tier == SubscriptionTier.pro &&
+        !aiLoading &&
+        aiSummaryText.isNotEmpty &&
+        aiErrorMessage == null &&
+        !usedKeys.contains(pairKey);
 
-          ComparisonAiSummaryCard(
-            loading: loadingAi,
-            canUseAi: canUseAi,
-            isLimitReached: tier == SubscriptionTier.pro && !canUseAi,
-            summaryText: result.summaryText,
-          ),
-          const SizedBox(height: 16),
-
-          // Quick stats
-          _QuickStatsRow(result: result, isDark: isDark),
-          const SizedBox(height: 80),
-        ],
-      ),
+    return ComparisonAiSummaryCard(
+      loading: aiLoading,
+      canUseAi: canUseAi,
+      isLimitReached: aiLimitReached,
+      summaryText: aiSummaryText.isNotEmpty ? aiSummaryText : result.summaryText,
+      errorMessage: aiErrorMessage,
+      onRetry: aiErrorMessage != null
+          ? () => ref.invalidate(aiComparisonSummaryProvider)
+          : null,
+      regenerateAllowed: regenerateAllowed,
+      onRegenerate: regenerateAllowed
+          ? () => triggerAiRegenerate(ref)
+          : null,
     );
   }
 }

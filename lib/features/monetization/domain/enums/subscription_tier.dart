@@ -54,3 +54,8 @@ bool canUseProCharts(SubscriptionTier tier) =>
 /// AI öneri asistanı için Pro gerekli.
 bool canUseAiRecommendation(SubscriptionTier tier) =>
     tier == SubscriptionTier.pro;
+
+/// Karşılaştırma geçmişi için Plus veya Pro gerekli.
+/// Free/misafir kullanıcı buton görür ama listenin yerine paywall mesajı gösterilir.
+bool canUseComparisonHistory(SubscriptionTier tier) =>
+    tier == SubscriptionTier.plus || tier == SubscriptionTier.pro;

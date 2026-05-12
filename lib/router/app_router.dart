@@ -363,15 +363,24 @@ final routerProvider = Provider<GoRouter>((ref) {
       // ─── Karşılaştırma Alt Rotaları ────────────────────────────────
       GoRoute(
         path: '/compare/university',
-        builder: (context, state) => const UniversityComparisonScreen(),
+        builder: (context, state) => UniversityComparisonScreen(
+          initialAId: state.uri.queryParameters['a'],
+          initialBId: state.uri.queryParameters['b'],
+        ),
       ),
       GoRoute(
         path: '/compare/department',
-        builder: (context, state) => const DepartmentComparisonScreen(),
+        builder: (context, state) => DepartmentComparisonScreen(
+          initialAId: state.uri.queryParameters['a'],
+          initialBId: state.uri.queryParameters['b'],
+        ),
       ),
       GoRoute(
         path: '/compare/city',
-        builder: (context, state) => const CityComparisonScreen(),
+        builder: (context, state) => CityComparisonScreen(
+          initialAId: state.uri.queryParameters['a'],
+          initialBId: state.uri.queryParameters['b'],
+        ),
       ),
       GoRoute(
         path: '/compare/paywall',

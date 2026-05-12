@@ -6,11 +6,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:timeago/timeago.dart' as timeago;
+import 'package:intl/date_symbol_data_local.dart';
 import 'core/theme/app_theme.dart';
 import 'core/constants/app_constants.dart';
 import 'core/providers/shared_preferences_provider.dart';
 import 'router/app_router.dart';
 import 'features/notifications/data/fcm_service.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'l10n/generated/app_localizations.dart';
 
 import 'firebase_options.dart';
 
@@ -27,6 +30,8 @@ void main() async {
   final results = await Future.wait([
     Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform),
     SharedPreferences.getInstance(),
+    // intl DateFormat için Türkçe locale verisini yükle (7.5 — AppFormatters)
+    initializeDateFormatting('tr_TR'),
   ]);
   
   final prefs = results[1] as SharedPreferences;
@@ -100,6 +105,16 @@ class _UniSecAppState extends ConsumerState<UniSecApp> {
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
       routerConfig: router,
+      localizationsDelegates: const [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [
+        Locale('tr'),
+        Locale('en'),
+      ],
     );
   }
 }
