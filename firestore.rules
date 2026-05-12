@@ -143,6 +143,27 @@ service cloud.firestore {
       allow update: if false;
     }
 
+    // ─── Karşılaştırma Notları ─────────────────────────────────
+    // Pro kullanıcı için kişisel notlar. Sadece sahibi CRUD yapabilir.
+    // Subscription tier kontrolü client tarafında yapılır.
+    match /users/{userId}/comparisonNotes/{noteId} {
+      allow read: if isOwner(userId);
+      allow create: if isOwner(userId) &&
+        request.resource.data.comparisonType in ['university', 'department', 'city'] &&
+        request.resource.data.entityAId is string &&
+        request.resource.data.entityBId is string &&
+        request.resource.data.note is string &&
+        request.resource.data.note.size() > 0 &&
+        request.resource.data.note.size() <= 500;
+      allow update: if isOwner(userId) &&
+        request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['note', 'pros', 'cons', 'rating', 'updatedAt']) &&
+        request.resource.data.note is string &&
+        request.resource.data.note.size() > 0 &&
+        request.resource.data.note.size() <= 500;
+      allow delete: if isOwner(userId);
+    }
+
     match /recommendationEnrichments/{cacheId} {
       allow read: if isAuthenticated() &&
                      cacheId.matches(request.auth.uid + '_.*') &&
