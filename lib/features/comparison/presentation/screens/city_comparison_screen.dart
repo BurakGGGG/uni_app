@@ -12,6 +12,8 @@ import '../providers/comparison_providers.dart';
 import '../widgets/city_compar_pie_chart.dart';
 import '../widgets/city_picker_bottom_sheet.dart';
 import '../widgets/offline_banner.dart';
+import '../widgets/comparison_picker_slot.dart';
+import '../widgets/comparison_notes_section.dart';
 import '../../../../core/providers/connectivity_provider.dart';
 import '../../../../l10n/generated/app_localizations.dart';
 import '../../../university/data/university_repository.dart';
@@ -127,20 +129,22 @@ class _CityComparisonScreenState extends ConsumerState<CityComparisonScreen> {
               // ─── Offline Banner ──────────────────────────────
               if (!ref.watch(isOnlineProvider))
                 const OfflineBanner(),
-              Text(
-                'İki şehrin üniversite ekosistemini kıyasla',
-                style: AppTextStyles.bodyMedium.copyWith(
-                  color: isDark
-                      ? Colors.white.withValues(alpha: 0.65)
-                      : AppColors.textSecondary,
-                ),
+              // Header — başlık + alt başlık
+              const ComparisonPickerHeader(
+                icon: Icons.location_city_rounded,
+                title: 'Şehir Karşılaştır',
+                subtitle:
+                    'İki şehrin üniversite ekosistemini karşılaştır. '
+                    'Devlet/vakıf dağılımı, üniversite sayısı ve daha fazlası.',
+                accentColor: AppColors.primary,
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 20),
               Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Expanded(
                     child: _CityPickCard(
-                      title: a?.name ?? loc.selectCityA,
+                      title: loc.selectCityA,
                       city: _a,
                       accent: AppColors.primary,
                       onTap: () async {
@@ -149,10 +153,12 @@ class _CityComparisonScreenState extends ConsumerState<CityComparisonScreen> {
                       },
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: 10),
+                  const ComparisonVsBadge(),
+                  const SizedBox(width: 10),
                   Expanded(
                     child: _CityPickCard(
-                      title: b?.name ?? loc.selectCityB,
+                      title: loc.selectCityB,
                       city: _b,
                       accent: AppColors.secondary,
                       onTap: () async {
@@ -330,102 +336,78 @@ class _CityPickCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(18),
+    final c = city;
+    if (c == null) {
+      return ComparisonPickerSlot(
+        isEmpty: true,
+        emptyLabel: title,
+        emptyIcon: Icons.location_city_rounded,
+        accentColor: accent,
         onTap: onTap,
-        child: Container(
-          padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(
-            color: isDark ? Colors.white.withValues(alpha: 0.06) : Colors.white,
-            borderRadius: BorderRadius.circular(18),
-            border: Border.all(
-              color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.08),
-            ),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  if (city != null)
-                    CityLogo(city: city!, size: 22, withBackground: true)
-                  else
-                    Container(
-                      width: 9,
-                      height: 9,
-                      decoration: BoxDecoration(color: accent, shape: BoxShape.circle),
-                    ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      title,
-                      style: AppTextStyles.labelMedium.copyWith(
-                        fontWeight: FontWeight.w800,
-                        color: isDark ? Colors.white : AppColors.textPrimary,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                  const Icon(Icons.chevron_right_rounded, color: AppColors.textTertiary),
-                ],
-              ),
-              const SizedBox(height: 10),
-              if (city == null) ...[
-                Text(
-                  'Seçmek için dokun',
-                  style: AppTextStyles.bodySmall.copyWith(
-                    color: isDark ? Colors.white70 : AppColors.textSecondary,
-                  ),
-                ),
-                const SizedBox(height: 14),
-                Container(
-                  height: 44,
-                  decoration: BoxDecoration(
-                    color: accent.withValues(alpha: 0.10),
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  child: Center(
-                    child: Text(
-                      'Şehir Seç',
-                      style: AppTextStyles.labelLarge.copyWith(
-                        fontWeight: FontWeight.w900,
-                        color: accent,
-                      ),
-                    ),
-                  ),
-                ),
-              ] else ...[
-                Text(
-                  city?.name ?? '—',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTextStyles.bodyMedium.copyWith(
-                    fontWeight: FontWeight.w900,
-                    color: isDark ? Colors.white : AppColors.textPrimary,
-                  ),
-                ),
-                const SizedBox(height: 6),
-                Row(
-                  children: [
-                    _MetaPill(
-                      icon: Icons.confirmation_number_rounded,
-                      label: city?.plateCode ?? '—',
-                    ),
-                    const SizedBox(width: 8),
-                    _MetaPill(
-                      icon: Icons.school_rounded,
-                      label: '${city?.appUniversityCount ?? 0}',
-                    ),
-                  ],
-                ),
-              ],
+      );
+    }
+
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return InkWell(
+      borderRadius: BorderRadius.circular(20),
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 220),
+        curve: Curves.easeOutCubic,
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              accent.withValues(alpha: isDark ? 0.14 : 0.08),
+              isDark ? AppColors.darkSurface : AppColors.surface,
             ],
           ),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: accent.withValues(alpha: 0.5), width: 2),
+          boxShadow: [
+            BoxShadow(
+              color: accent.withValues(alpha: 0.15),
+              blurRadius: 14,
+              offset: const Offset(0, 6),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            CityLogo(city: c, size: 56, withBackground: true),
+            const SizedBox(height: 10),
+            Text(
+              c.name,
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: AppTextStyles.labelMedium.copyWith(
+                fontWeight: FontWeight.w900,
+                fontSize: 13,
+                height: 1.2,
+                color: isDark ? Colors.white : AppColors.textPrimary,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 4,
+              runSpacing: 4,
+              alignment: WrapAlignment.center,
+              children: [
+                _MetaPill(
+                  icon: Icons.confirmation_number_rounded,
+                  label: c.plateCode,
+                ),
+                _MetaPill(
+                  icon: Icons.school_rounded,
+                  label: '${c.appUniversityCount}',
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );
@@ -572,6 +554,14 @@ class _CityResultView extends StatelessWidget {
               ),
             ],
           ),
+        ),
+        const SizedBox(height: 16),
+
+        // Pro — Karşılaştırma Notları
+        ComparisonNotesSection(
+          comparisonType: 'city',
+          entityAId: result.cityA.id,
+          entityBId: result.cityB.id,
         ),
       ],
     );

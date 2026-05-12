@@ -9,6 +9,9 @@ import '../../domain/models/department_comparison.dart';
 import '../providers/comparison_providers.dart';
 import '../widgets/department_picker_bottom_sheet.dart';
 import '../widgets/offline_banner.dart';
+import '../widgets/comparison_notes_section.dart';
+import '../widgets/comparison_picker_slot.dart';
+import '../widgets/university_logo_box.dart';
 import '../../../university/data/university_repository.dart';
 import '../../../university/domain/models/department_model.dart';
 import '../../../../core/providers/connectivity_provider.dart';
@@ -135,20 +138,22 @@ class _DepartmentComparisonScreenState
               // ─── Offline Banner ──────────────────────────────
               if (!ref.watch(isOnlineProvider))
                 const OfflineBanner(),
-              Text(
-                'Aynı bölümü farklı üniversitelerde kıyasla',
-                style: AppTextStyles.bodyMedium.copyWith(
-                  color: isDark
-                      ? Colors.white.withValues(alpha: 0.65)
-                      : AppColors.textSecondary,
-                ),
+              // Header — başlık + alt başlık
+              const ComparisonPickerHeader(
+                icon: Icons.menu_book_rounded,
+                title: 'Bölüm Karşılaştır',
+                subtitle:
+                    'Aynı bölümü iki farklı üniversitede karşılaştır. '
+                    'Taban puan, sıralama ve kontenjan yan yana gelsin.',
+                accentColor: AppColors.primary,
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 20),
               Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Expanded(
                     child: _PickCard(
-                      title: a?.department.name ?? loc.selectDepartmentA,
+                      title: loc.selectDepartmentA,
                       pick: _a,
                       accent: AppColors.primary,
                       onTap: () async {
@@ -161,10 +166,12 @@ class _DepartmentComparisonScreenState
                       },
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: 10),
+                  const ComparisonVsBadge(),
+                  const SizedBox(width: 10),
                   Expanded(
                     child: _PickCard(
-                      title: b?.department.name ?? loc.selectDepartmentB,
+                      title: loc.selectDepartmentB,
                       pick: _b,
                       accent: AppColors.secondary,
                       onTap: () async {
@@ -385,142 +392,100 @@ class _PickCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final dept = pick?.department;
-    final uni = pick?.university;
-    final scoreType = dept?.scoreData?.scoreType ?? dept?.scoreType;
-
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(18),
+    final p = pick;
+    if (p == null) {
+      return ComparisonPickerSlot(
+        isEmpty: true,
+        emptyLabel: title,
+        emptyIcon: Icons.menu_book_rounded,
+        accentColor: accent,
         onTap: onTap,
-        child: Container(
-          padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(
-            color: isDark ? Colors.white.withValues(alpha: 0.06) : Colors.white,
-            borderRadius: BorderRadius.circular(18),
-            border: Border.all(
-              color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.08),
-            ),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  if (uni != null)
-                    Container(
-                      width: 22,
-                      height: 22,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(6),
-                        border: Border.all(
-                          color: accent.withValues(alpha: 0.3),
-                        ),
-                      ),
-                      padding: const EdgeInsets.all(2),
-                      child: Image.asset(
-                        uni.logoAssetPath,
-                        fit: BoxFit.contain,
-                        errorBuilder: (_, _, _) => Icon(
-                          Icons.school_rounded,
-                          size: 14,
-                          color: accent,
-                        ),
-                      ),
-                    )
-                  else
-                    Container(
-                      width: 9,
-                      height: 9,
-                      decoration:
-                          BoxDecoration(color: accent, shape: BoxShape.circle),
-                    ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      title,
-                      style: AppTextStyles.labelMedium.copyWith(
-                        fontWeight: FontWeight.w800,
-                        color: isDark ? Colors.white : AppColors.textPrimary,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                  const Icon(Icons.chevron_right_rounded, color: AppColors.textTertiary),
-                ],
-              ),
-              const SizedBox(height: 10),
-              if (pick == null) ...[
-                Text(
-                  'Seçmek için dokun',
-                  style: AppTextStyles.bodySmall.copyWith(
-                    color: isDark ? Colors.white70 : AppColors.textSecondary,
-                  ),
-                ),
-                const SizedBox(height: 14),
-                Container(
-                  height: 44,
-                  decoration: BoxDecoration(
-                    color: accent.withValues(alpha: 0.10),
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  child: Center(
-                    child: Text(
-                      'Bölüm Seç',
-                      style: AppTextStyles.labelLarge.copyWith(
-                        fontWeight: FontWeight.w900,
-                        color: accent,
-                      ),
-                    ),
-                  ),
-                ),
-              ] else ...[
-                Text(
-                  dept?.name ?? '—',
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTextStyles.bodyMedium.copyWith(
-                    fontWeight: FontWeight.w900,
-                    color: isDark ? Colors.white : AppColors.textPrimary,
-                    height: 1.15,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  uni?.name ?? '—',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTextStyles.labelSmall.copyWith(
-                    color: isDark ? Colors.white70 : AppColors.textSecondary,
-                  ),
-                ),
-                const SizedBox(height: 10),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: [
-                    _MetaPill(
-                      icon: Icons.timelapse_rounded,
-                      label: '${dept?.duration ?? 4} yıl',
-                    ),
-                    _MetaPill(
-                      icon: Icons.language_rounded,
-                      label: dept?.language ?? 'Türkçe',
-                    ),
-                    if (scoreType != null && scoreType.isNotEmpty)
-                      _MetaPill(
-                        icon: Icons.stacked_bar_chart_rounded,
-                        label: scoreType,
-                      ),
-                  ],
-                ),
-              ],
+      );
+    }
+
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final dept = p.department;
+    final uni = p.university;
+    final scoreType = dept.scoreData?.scoreType ?? dept.scoreType;
+
+    return InkWell(
+      borderRadius: BorderRadius.circular(20),
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 220),
+        curve: Curves.easeOutCubic,
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              accent.withValues(alpha: isDark ? 0.14 : 0.08),
+              isDark ? AppColors.darkSurface : AppColors.surface,
             ],
           ),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: accent.withValues(alpha: 0.5), width: 2),
+          boxShadow: [
+            BoxShadow(
+              color: accent.withValues(alpha: 0.15),
+              blurRadius: 14,
+              offset: const Offset(0, 6),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            UniversityLogoBox(
+              universityId: uni.id,
+              universityName: uni.name,
+              accentColor: accent,
+              size: 52,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              dept.name,
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: AppTextStyles.labelMedium.copyWith(
+                fontWeight: FontWeight.w900,
+                fontSize: 12,
+                height: 1.2,
+                color: isDark ? Colors.white : AppColors.textPrimary,
+              ),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              uni.name,
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: AppTextStyles.labelSmall.copyWith(
+                color: accent,
+                fontSize: 10.5,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 4,
+              runSpacing: 4,
+              alignment: WrapAlignment.center,
+              children: [
+                _MetaPill(
+                  icon: Icons.timelapse_rounded,
+                  label: '${dept.duration}y',
+                ),
+                if (scoreType != null && scoreType.isNotEmpty)
+                  _MetaPill(
+                    icon: Icons.stacked_bar_chart_rounded,
+                    label: scoreType,
+                  ),
+              ],
+            ),
+          ],
         ),
       ),
     );
@@ -628,6 +593,14 @@ class _DepartmentResultView extends StatelessWidget {
         ),
         const SizedBox(height: 12),
         _InfoRowCard(deptA: result.deptA, deptB: result.deptB),
+        const SizedBox(height: 16),
+
+        // Pro — Karşılaştırma Notları
+        ComparisonNotesSection(
+          comparisonType: 'department',
+          entityAId: result.deptA.id,
+          entityBId: result.deptB.id,
+        ),
       ],
     );
   }

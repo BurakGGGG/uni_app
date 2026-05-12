@@ -131,44 +131,43 @@ class _UniLogo extends StatelessWidget {
                     ],
                   ),
                 ),
-              // Logo container — rounded rectangle, beyaz arka plan
+              // Glow efekti
               Hero(
                 tag: 'uni_${uni.id}_compare',
                 child: Material(
                   color: Colors.transparent,
                   child: Container(
-                width: 64,
-                height: 64,
-                decoration: BoxDecoration(
-                  color: isDark ? Colors.white.withValues(alpha: 0.95) : Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: isWinner
-                        ? color
-                        : (isDark
-                            ? Colors.white.withValues(alpha: 0.15)
-                            : AppColors.borderLight),
-                    width: isWinner ? 2.5 : 1,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.08),
-                      blurRadius: 12,
-                      offset: const Offset(0, 4),
+                    width: 64,
+                    height: 64,
+                    decoration: BoxDecoration(
+                      color: isDark ? Colors.white.withValues(alpha: 0.95) : Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: isWinner
+                            ? color
+                            : (isDark
+                                ? Colors.white.withValues(alpha: 0.15)
+                                : AppColors.borderLight),
+                        width: isWinner ? 2.5 : 1,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.08),
+                          blurRadius: 12,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-                padding: const EdgeInsets.all(8),
-                child: Image.asset(
-                  uni.logoAssetPath,
-                  fit: BoxFit.contain,
-                  errorBuilder: (_, _, _) => _FallbackLogo(
-                    name: uni.name,
-                    color: color,
+                    padding: const EdgeInsets.all(8),
+                    child: Image.asset(
+                      uni.logoAssetPath,
+                      fit: BoxFit.contain,
+                      errorBuilder: (_, _, _) => _FallbackLogo(
+                        name: uni.name,
+                        color: color,
+                      ),
+                    ),
                   ),
-                ),
-              ),
-              ),
                 ),
               ),
               // Winner badge — sağ alt köşede altın rozet
