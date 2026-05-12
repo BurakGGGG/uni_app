@@ -141,6 +141,58 @@ class AppColors {
 
   static const Color lockOverlay = Color(0x88000000);
 
+  // ─── Dark Mode Surfaces ────────────────────────────────────────
+  static const Color darkBackground = Color(0xFF0F0F1A);
+  static const Color darkSurface = Color(0xFF1A1A2E);
+  static const Color darkSurfaceVariant = Color(0xFF141424);
+  static const Color darkSurfaceElevated = Color(0xFF22223F);
+
+  // ─── Dark Mode Overlays (Alpha) ────────────────────────────────
+  static Color darkOverlay06 = Colors.white.withValues(alpha: 0.06);
+  static Color darkOverlay10 = Colors.white.withValues(alpha: 0.10);
+  static Color darkOverlay12 = Colors.white.withValues(alpha: 0.12);
+  static Color darkOverlay22 = Colors.white.withValues(alpha: 0.22);
+  static Color darkOverlay60 = Colors.white.withValues(alpha: 0.60);
+
+  // ─── Brand Accents ─────────────────────────────────────────────
+  static const Color gold = Color(0xFFD4A017);
+  static const Color gradientPurple = Color(0xFF8B5CF6);
+  static const Color gradientPink = Color(0xFFEC4899);
+  static const Color gradientCyan = Color(0xFF06B6D4);
+
+  // ─── AI Summary Gradient ───────────────────────────────────────
+  static const LinearGradient aiSummaryGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [gold, gradientPurple],
+  );
+
+  static List<BoxShadow> aiSummaryShadow = [
+    BoxShadow(
+      color: gradientPurple.withValues(alpha: 0.25),
+      blurRadius: 18,
+      offset: const Offset(0, 8),
+    ),
+  ];
+
+  // ─── Comparison Specific ───────────────────────────────────────
+  static const Color winnerHighlight = Color(0xFF10B981);
+  static const Color loserMuted = Color(0xFFD1D5DB);
+  static const Color tieColor = Color(0xFFF59E0B);
+
+  /// Tema (dark/light) duyarlı surface seçici
+  static Color surfaceFor(BuildContext context) {
+    return Theme.of(context).brightness == Brightness.dark
+        ? darkSurface
+        : surface;
+  }
+
+  static Color backgroundFor(BuildContext context) {
+    return Theme.of(context).brightness == Brightness.dark
+        ? darkBackground
+        : background;
+  }
+
   /// Rating değerine göre renk döndürür (1-5 arası)
   static Color ratingColor(double rating) {
     if (rating >= 4.5) return ratingExcellent;
