@@ -321,7 +321,6 @@ class ComparisonRepository {
       placeCountC: placeCountC,
     );
   }
-
   /// Helper: Fetch işlemini try-catch'le sar, hata olursa fallback dön
   Future<T> _safelyGet<T>(
     Future<T> Function() fetcher, {

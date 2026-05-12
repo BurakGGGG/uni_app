@@ -59,7 +59,6 @@ bool canUseAiRecommendation(SubscriptionTier tier) =>
 /// Free/misafir kullanıcı buton görür ama listenin yerine paywall mesajı gösterilir.
 bool canUseComparisonHistory(SubscriptionTier tier) =>
     tier == SubscriptionTier.plus || tier == SubscriptionTier.pro;
-
 /// Karşılaştırma notları için Plus veya Pro gerekli.
 bool canUseComparisonNotes(SubscriptionTier tier) =>
     tier == SubscriptionTier.plus || tier == SubscriptionTier.pro;

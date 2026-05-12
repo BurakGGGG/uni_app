@@ -112,6 +112,14 @@ class _UniversityComparisonScreenState
               onPressed: () => _showResetConfirmation(context, ref),
             ),
           if (selection.bothSelected) ...[
+            IconButton(
+              icon: const Icon(Icons.swap_horiz_rounded),
+              tooltip: loc.swap,
+              onPressed: () {
+                AppHaptic.swap();
+                ref.read(comparisonSelectionProvider.notifier).swap();
+              },
+            ),
             // 3. üniversite ekle (Pro feature). Pro değilse paywall'a yönlendirir.
             // allThreeSelected ise buton yerine "kaldır" gösterilir.
             if (!selection.allThreeSelected)

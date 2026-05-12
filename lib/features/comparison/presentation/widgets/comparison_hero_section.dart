@@ -131,6 +131,7 @@ class _UniLogo extends StatelessWidget {
                     ],
                   ),
                 ),
+              // Glow efekti
               Hero(
                 tag: 'uni_${uni.id}_compare',
                 child: Material(

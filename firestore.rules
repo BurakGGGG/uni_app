@@ -163,7 +163,6 @@ service cloud.firestore {
         request.resource.data.note.size() <= 500;
       allow delete: if isOwner(userId);
     }
-
     match /recommendationEnrichments/{cacheId} {
       allow read: if isAuthenticated() &&
                      cacheId.matches(request.auth.uid + '_.*') &&
