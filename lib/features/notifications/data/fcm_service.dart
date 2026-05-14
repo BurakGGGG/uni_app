@@ -5,6 +5,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter/foundation.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 
 /// Background message handler — top-level fonksiyon olmalı
 @pragma('vm:entry-point')
@@ -33,39 +34,44 @@ class FCMService {
   void Function(Map<String, dynamic> data)? onNotificationTap;
   
   Future<void> init() async {
-    if (_initialized) return;
-    _initialized = true;
-    
-    // 1. Background handler register
-    FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
-    
-    // 2. Local notifications init (foreground gösterimi için)
-    await _initLocalNotifications();
-    
-    // 3. Permission iste
-    await requestPermission();
-    
-    // 4. Foreground listener
-    _foregroundSub = FirebaseMessaging.onMessage.listen(_handleForegroundMessage);
-    
-    // 5. Token refresh listener
-    _tokenRefreshSub = _messaging.onTokenRefresh.listen(_saveTokenToFirestore);
-    
-    // 6. Notification tap (background → foreground) listener
-    _onMessageOpenedSub = FirebaseMessaging.onMessageOpenedApp.listen(_handleMessageOpenedApp);
-    
-    // 7. Eğer uygulama notification ile cold-start ediliyorsa
-    final initialMessage = await _messaging.getInitialMessage();
-    if (initialMessage != null) {
-      _handleMessageOpenedApp(initialMessage);
+    try {
+      if (_initialized) return;
+      _initialized = true;
+      
+      // 1. Background handler register
+      FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+      
+      // 2. Local notifications init (foreground gösterimi için)
+      await _initLocalNotifications();
+      
+      // 3. Permission iste
+      await requestPermission();
+      
+      // 4. Foreground listener
+      _foregroundSub = FirebaseMessaging.onMessage.listen(_handleForegroundMessage);
+      
+      // 5. Token refresh listener
+      _tokenRefreshSub = _messaging.onTokenRefresh.listen(_saveTokenToFirestore);
+      
+      // 6. Notification tap (background → foreground) listener
+      _onMessageOpenedSub = FirebaseMessaging.onMessageOpenedApp.listen(_handleMessageOpenedApp);
+      
+      // 7. Eğer uygulama notification ile cold-start ediliyorsa
+      final initialMessage = await _messaging.getInitialMessage();
+      if (initialMessage != null) {
+        _handleMessageOpenedApp(initialMessage);
+      }
+      
+      // 8. Zaten giriş yapmış kullanıcı varsa token'ı kaydet
+      if (_auth.currentUser != null) {
+        registerToken();
+      }
+      
+      debugPrint('[FCM] Service initialized');
+    } catch (e, st) {
+      FirebaseCrashlytics.instance.recordError(e, st, reason: 'fcm_init_error', fatal: false);
+      rethrow;
     }
-    
-    // 8. Zaten giriş yapmış kullanıcı varsa token'ı kaydet
-    if (_auth.currentUser != null) {
-      registerToken();
-    }
-    
-    debugPrint('[FCM] Service initialized');
   }
   
   Future<void> _initLocalNotifications() async {
@@ -127,15 +133,20 @@ class FCMService {
   }
   
   Future<void> _saveTokenToFirestore(String token) async {
-    final user = _auth.currentUser;
-    if (user == null) return;
-    
-    await _firestore.collection('users').doc(user.uid).set({
-      'fcmTokens': FieldValue.arrayUnion([token]),
-      'lastTokenRefresh': FieldValue.serverTimestamp(),
-    }, SetOptions(merge: true));
-    
-    debugPrint('[FCM] Token saved: ${token.substring(0, 20)}...');
+    try {
+      final user = _auth.currentUser;
+      if (user == null) return;
+      
+      await _firestore.collection('users').doc(user.uid).set({
+        'fcmTokens': FieldValue.arrayUnion([token]),
+        'lastTokenRefresh': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+      
+      debugPrint('[FCM] Token saved: ${token.substring(0, 20)}...');
+    } catch (e, st) {
+      FirebaseCrashlytics.instance.recordError(e, st, reason: 'fcm_saveTokenToFirestore_error', fatal: false);
+      rethrow;
+    }
   }
   
   /// Logout sırasında çağrılır

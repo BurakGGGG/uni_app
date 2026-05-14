@@ -532,6 +532,76 @@ class AppLocalizationsTr extends AppLocalizations {
       'Sadece onaylı üniversite öğrencileri değerlendirme yapabilir (.edu.tr).';
 
   @override
+  String get reviewAnonymousStudent => 'Anonim Öğrenci';
+
+  @override
+  String get reviewLoading => 'Yükleniyor...';
+
+  @override
+  String get reviewUniversityFallback => 'Üniversite';
+
+  @override
+  String get reviewDepartmentFallback => 'Bölüm';
+
+  @override
+  String get reviewPlaceFallback => 'Mekan';
+
+  @override
+  String get reviewUniversityReview => 'Üniversite Yorumu';
+
+  @override
+  String get reviewDepartmentReview => 'Bölüm Yorumu';
+
+  @override
+  String get reviewPlaceReview => 'Mekan Yorumu';
+
+  @override
+  String get reviewPendingTitle => 'Yayınlanmadı';
+
+  @override
+  String get reviewPendingDesc =>
+      'Yorumun moderasyon aşamasında. Uygunsuz içerik tespit edildiyse düzenleyerek tekrar gönderebilirsin.';
+
+  @override
+  String get reviewShowLess => 'Daha az göster';
+
+  @override
+  String get reviewReadMore => 'Devamını oku';
+
+  @override
+  String get recommendIntroTitle => 'Tercih Asistanı';
+
+  @override
+  String get recommendIntroSubtitle =>
+      'Sana birkaç kısa soru soracağım,\nhayalindeki üniversiteyi birlikte bulalım.';
+
+  @override
+  String get recommendIntroDuration => '~4 dakika';
+
+  @override
+  String get recommendIntroMedals => 'Altın / Gümüş / Bronz';
+
+  @override
+  String get recommendIntroSuggestions => '8 öneri';
+
+  @override
+  String get recommendIntroBetaTitle => 'Beta — Geliştirme Aşaması';
+
+  @override
+  String get recommendIntroBetaDesc =>
+      'Bu asistan henüz geliştirilme aşamasında. Öneriler kesin tercih kararı için değil, yönlendirme amaçlıdır. Final tercihinde mutlaka kendi araştırmanı yap.';
+
+  @override
+  String get recommendIntroStart => 'Başlayalım';
+
+  @override
+  String get recommendIntroDurationNote => 'Yaklaşık 4 dakika sürer';
+
+  @override
+  String get aiSummaryLimitReachedSimple =>
+      'Günlük AI özet hakkın doldu, yarın tekrar dene.';
+
+  @override
   String get commonRetry => 'Tekrar dene';
 
   @override

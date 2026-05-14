@@ -7,6 +7,7 @@ import '../../../auth/presentation/providers/auth_providers.dart';
 import '../../../university/presentation/widgets/score_badge.dart';
 import '../providers/preference_list_providers.dart';
 import '../../domain/models/preference_list_model.dart';
+import '../../../../core/widgets/user_avatar.dart';
 
 class SharedListScreen extends ConsumerWidget {
   final String shareSlug;
@@ -118,20 +119,10 @@ class SharedListScreen extends ConsumerWidget {
                 // Author + stats
                 Row(
                   children: [
-                    CircleAvatar(
-                      radius: 18,
-                      backgroundColor:
-                          AppColors.primary.withValues(alpha: 0.12),
-                      backgroundImage: list.userPhotoUrl != null
-                          ? NetworkImage(list.userPhotoUrl!)
-                          : null,
-                      child: list.userPhotoUrl == null
-                          ? const Icon(
-                              Icons.person,
-                              color: AppColors.primary,
-                              size: 18,
-                            )
-                          : null,
+                    UserAvatar(
+                      photoUrl: list.userPhotoUrl,
+                      name: list.userName,
+                      size: 36,
                     ),
                     const SizedBox(width: 10),
                     Expanded(

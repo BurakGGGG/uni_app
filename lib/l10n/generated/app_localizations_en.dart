@@ -533,6 +533,76 @@ class AppLocalizationsEn extends AppLocalizations {
       'Only verified university students can write reviews (.edu.tr).';
 
   @override
+  String get reviewAnonymousStudent => 'Anonymous Student';
+
+  @override
+  String get reviewLoading => 'Loading...';
+
+  @override
+  String get reviewUniversityFallback => 'University';
+
+  @override
+  String get reviewDepartmentFallback => 'Department';
+
+  @override
+  String get reviewPlaceFallback => 'Place';
+
+  @override
+  String get reviewUniversityReview => 'University Review';
+
+  @override
+  String get reviewDepartmentReview => 'Department Review';
+
+  @override
+  String get reviewPlaceReview => 'Place Review';
+
+  @override
+  String get reviewPendingTitle => 'Not Published';
+
+  @override
+  String get reviewPendingDesc =>
+      'Your review is under moderation. If inappropriate content was detected, you can edit and resubmit.';
+
+  @override
+  String get reviewShowLess => 'Show less';
+
+  @override
+  String get reviewReadMore => 'Read more';
+
+  @override
+  String get recommendIntroTitle => 'Preference Assistant';
+
+  @override
+  String get recommendIntroSubtitle =>
+      'I\'ll ask you a few short questions,\nlet\'s find your dream university together.';
+
+  @override
+  String get recommendIntroDuration => '~4 minutes';
+
+  @override
+  String get recommendIntroMedals => 'Gold / Silver / Bronze';
+
+  @override
+  String get recommendIntroSuggestions => '8 suggestions';
+
+  @override
+  String get recommendIntroBetaTitle => 'Beta — Development Phase';
+
+  @override
+  String get recommendIntroBetaDesc =>
+      'This assistant is still under development. Suggestions are for guidance only, not final decisions. Always do your own research for final preferences.';
+
+  @override
+  String get recommendIntroStart => 'Let\'s Start';
+
+  @override
+  String get recommendIntroDurationNote => 'Takes approximately 4 minutes';
+
+  @override
+  String get aiSummaryLimitReachedSimple =>
+      'You\'ve used your daily AI summary quota. Try again tomorrow.';
+
+  @override
   String get commonRetry => 'Try again';
 
   @override

@@ -57,14 +57,11 @@ class AiComparisonSummaryResult {
 /// Özet üretimi ve cache/limit kontrolü Cloud Function tarafında yapılır.
 class AiComparisonSummaryService {
   final FirebaseFunctions _functions;
-  final FirebaseCrashlytics? _crashlytics;
 
   AiComparisonSummaryService({
     FirebaseFunctions? functions,
-    FirebaseCrashlytics? crashlytics,
   })  : _functions = functions ??
-            FirebaseFunctions.instanceFor(region: 'europe-west1'),
-        _crashlytics = crashlytics;
+            FirebaseFunctions.instanceFor(region: 'europe-west1');
 
   Future<AiComparisonSummaryResult> summarizeUniversityComparison(
     ComparisonResult result, {
@@ -99,18 +96,19 @@ class AiComparisonSummaryService {
       );
     } on FirebaseFunctionsException catch (e, st) {
       debugPrint('[AiSummary] FirebaseFunctionsException: ${e.code} - ${e.message}');
-      _crashlytics?.recordError(
+      FirebaseCrashlytics.instance.recordError(
         e,
         st,
-        reason: 'AI summary call failed',
+        reason: 'ai_summarizeUniversityComparison_functions_error',
         information: ['code: ${e.code}', 'message: ${e.message}'],
+        fatal: false,
       );
       throw _mapFirebaseError(e);
     } on AiSummaryFailure {
       rethrow;
     } catch (e, st) {
       debugPrint('[AiSummary] Unknown error: $e');
-      _crashlytics?.recordError(e, st, reason: 'AI summary unknown error');
+      FirebaseCrashlytics.instance.recordError(e, st, reason: 'ai_summarizeUniversityComparison_unknown_error', fatal: false);
       throw const AiSummaryUnknownError();
     }
   }

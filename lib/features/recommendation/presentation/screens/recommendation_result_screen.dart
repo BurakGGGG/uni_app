@@ -204,96 +204,141 @@ class RecommendationResultScreen extends ConsumerWidget {
     final enrichment = enrichmentAsync.value;
     final aiLoading = enrichmentAsync.isLoading;
 
-    return ListView(
-      physics: const BouncingScrollPhysics(),
-      padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
-      children: [
-        // AI Summary card — Groq destekli özet
-        _AiSummaryCard(
-          fallbackSummary: result.summary,
-          enrichment: enrichment,
-          loading: aiLoading,
-        ),
-        const SizedBox(height: 20),
+    return Builder(
+      builder: (context) {
+        final totalItems = 3 + topThree.length + (others.isNotEmpty ? 3 + others.length : 0) + 2; // 2 for padding and CTA
 
-        const SizedBox(height: 8),
+        return ListView.builder(
+          physics: const BouncingScrollPhysics(),
+          padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
+          itemCount: totalItems,
+          itemBuilder: (context, index) {
+            if (index == 0) {
+              return _AiSummaryCard(
+                fallbackSummary: result.summary,
+                enrichment: enrichment,
+                loading: aiLoading,
+              );
+            }
+            if (index == 1) return const SizedBox(height: 20);
+            if (index == 2) return const SizedBox(height: 8);
 
-        // Podium — Top 3
-        if (topThree.isNotEmpty) ...[
-          Text(
-            '🏆 En İyi Eşleşmeler',
-            style: AppTextStyles.titleLarge.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            'Tercihlerine en uygun 3 öneri',
-            style: AppTextStyles.bodySmall.copyWith(
-              color: AppColors.textSecondary,
-            ),
-          ),
-          const SizedBox(height: 16),
+            int currentIndex = 3;
 
-          ...topThree.map(
-            (rec) => _MedalCard(
-              rec: rec,
-              aiReason:
-                  enrichment?.reasoningFor(rec.universityId, rec.departmentId),
-            ),
-          ),
+            // Top 3 section
+            if (topThree.isNotEmpty) {
+              if (index == currentIndex) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '🏆 En İyi Eşleşmeler',
+                      style: AppTextStyles.titleLarge.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Tercihlerine en uygun 3 öneri',
+                      style: AppTextStyles.bodySmall.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                  ],
+                );
+              }
+              currentIndex++;
 
-          const SizedBox(height: 24),
-        ],
+              if (index >= currentIndex && index < currentIndex + topThree.length) {
+                final rec = topThree[index - currentIndex];
+                return _MedalCard(
+                  rec: rec,
+                  aiReason: enrichment?.reasoningFor(rec.universityId, rec.departmentId),
+                );
+              }
+              currentIndex += topThree.length;
 
-        // Other recommendations
-        if (others.isNotEmpty) ...[
-          Text(
-            'Diğer Öneriler',
-            style: AppTextStyles.titleLarge.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            'Senin için uygun olabilecek diğer seçenekler',
-            style: AppTextStyles.bodySmall.copyWith(
-              color: AppColors.textSecondary,
-            ),
-          ),
-          const SizedBox(height: 16),
+              if (index == currentIndex) {
+                return const SizedBox(height: 24);
+              }
+              currentIndex++;
+            }
 
-          ...others.asMap().entries.map(
-            (entry) =>
-                _OtherCard(rec: entry.value, rank: entry.key + 4),
-          ),
-        ],
+            // Others section
+            if (others.isNotEmpty) {
+              if (index == currentIndex) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Diğer Öneriler',
+                      style: AppTextStyles.titleLarge.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Senin için uygun olabilecek diğer seçenekler',
+                      style: AppTextStyles.bodySmall.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                  ],
+                );
+              }
+              currentIndex++;
 
-        const SizedBox(height: 16),
+              if (index >= currentIndex && index < currentIndex + others.length) {
+                final otherIndex = index - currentIndex;
+                final rec = others[otherIndex];
+                return _OtherCard(
+                  rec: rec,
+                  rank: otherIndex + 4,
+                );
+              }
+              currentIndex += others.length;
 
-        // CTA
-        SizedBox(
-          width: double.infinity,
-          height: 54,
-          child: OutlinedButton.icon(
-            onPressed: () => context.go('/recommend'),
-            style: OutlinedButton.styleFrom(
-              foregroundColor: AppColors.primary,
-              side: const BorderSide(color: AppColors.primary, width: 2),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-            ),
-            icon: const Icon(Icons.replay_rounded),
-            label: Text(
-              'Yeniden Dene',
-              style: AppTextStyles.labelLarge.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-        ),
-      ],
+              if (index == currentIndex) {
+                return const SizedBox(height: 32);
+              }
+              currentIndex++;
+            }
+
+            if (index == currentIndex) {
+              return const SizedBox(height: 16);
+            }
+            currentIndex++;
+
+            if (index == currentIndex) {
+              return SizedBox(
+                width: double.infinity,
+                height: 54,
+                child: OutlinedButton.icon(
+                  onPressed: () => context.go('/recommend'),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppColors.primary,
+                    side: const BorderSide(color: AppColors.primary, width: 2),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                  ),
+                  icon: const Icon(Icons.replay_rounded),
+                  label: Text(
+                    'Yeniden Dene',
+                    style: AppTextStyles.labelLarge.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              );
+            }
+
+            return const SizedBox.shrink();
+          },
+        );
+      },
     );
   }
 }
