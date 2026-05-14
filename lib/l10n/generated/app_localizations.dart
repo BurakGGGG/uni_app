@@ -710,6 +710,12 @@ abstract class AppLocalizations {
   /// **'Hesap'**
   String get profileAccount;
 
+  /// No description provided for @profileSettings.
+  ///
+  /// In tr, this message translates to:
+  /// **'Ayarlar'**
+  String get profileSettings;
+
   /// No description provided for @profileNotifications.
   ///
   /// In tr, this message translates to:
