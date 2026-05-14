@@ -87,3 +87,17 @@ taban_puanları_875_bolum.csv
 .claude/
 
 android/build/
+
+# ─── Release Keystore (asla commit etme) ────────────────
+android/key.properties
+android/app/key.properties
+*.jks
+*.keystore
+
+# ─── Build artifacts ────────────────────────────────────
+android/app/build/
+
+# ─── Sensitive env files ────────────────────────────────
+.env
+.env.local
+.env.production
