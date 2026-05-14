@@ -42,7 +42,7 @@ class PlusLockOverlay extends StatelessWidget {
                 child: Container(
                   padding: const EdgeInsets.fromLTRB(18, 18, 18, 16),
                   decoration: BoxDecoration(
-                    color: isDark ? const Color(0xFF141424) : Colors.white,
+                    color: isDark ? AppColors.darkSurfaceVariant : Colors.white,
                     borderRadius: BorderRadius.circular(18),
                     border: Border.all(
                       color:

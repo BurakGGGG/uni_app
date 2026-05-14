@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
@@ -20,7 +19,7 @@ class ComparisonHeroSection extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: isDark
-              ? [const Color(0xFF1A1A2E), const Color(0xFF16213E)]
+              ? [AppColors.darkSurface, const Color(0xFF16213E)]
               : [
                   AppColors.primary.withValues(alpha: 0.04),
                   AppColors.secondary.withValues(alpha: 0.04),
@@ -31,6 +30,7 @@ class ComparisonHeroSection extends StatelessWidget {
         children: [
           // ─── Logo + VS + Logo ──────────────────────────────
           Row(
+            textDirection: Directionality.of(context),
             children: [
               Expanded(child: _UniLogo(
                 uni: result.uniA,
@@ -64,6 +64,7 @@ class ComparisonHeroSection extends StatelessWidget {
 
           // ─── Kategori kazanım sayıları ─────────────────────
           Row(
+            textDirection: Directionality.of(context),
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               _WinChip(
@@ -104,67 +105,108 @@ class _UniLogo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Column(
       children: [
-        Stack(
-          alignment: Alignment.center,
-          children: [
-            // Glow efekti
-            if (isWinner)
-              Container(
-                width: 72,
-                height: 72,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: color.withValues(alpha: 0.3),
-                      blurRadius: 20,
-                      spreadRadius: 2,
-                    ),
-                  ],
+        SizedBox(
+          width: 76,
+          height: 76,
+          child: Stack(
+            clipBehavior: Clip.none,
+            alignment: Alignment.center,
+            children: [
+              // Glow efekti
+              if (isWinner)
+                Container(
+                  width: 76,
+                  height: 76,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(18),
+                    boxShadow: [
+                      BoxShadow(
+                        color: color.withValues(alpha: 0.35),
+                        blurRadius: 20,
+                        spreadRadius: 2,
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            // Logo container
-            Container(
-              width: 64,
-              height: 64,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: color.withValues(alpha: 0.08),
-                border: Border.all(
-                  color: isWinner
-                      ? color
-                      : color.withValues(alpha: 0.2),
-                  width: isWinner ? 3 : 1.5,
-                ),
-              ),
-              child: ClipOval(
-                child: uni.logoUrl.isNotEmpty
-                    ? CachedNetworkImage(
-                        imageUrl: uni.logoUrl,
-                        width: 64,
-                        height: 64,
-                        fit: BoxFit.cover,
-                        errorWidget: (_, e, s) => _FallbackLogo(
-                          name: uni.name,
-                          color: color,
+              // Glow efekti
+              Hero(
+                tag: 'uni_${uni.id}_compare',
+                child: Material(
+                  color: Colors.transparent,
+                  child: Container(
+                    width: 64,
+                    height: 64,
+                    decoration: BoxDecoration(
+                      color: isDark ? Colors.white.withValues(alpha: 0.95) : Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: isWinner
+                            ? color
+                            : (isDark
+                                ? Colors.white.withValues(alpha: 0.15)
+                                : AppColors.borderLight),
+                        width: isWinner ? 2.5 : 1,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.08),
+                          blurRadius: 12,
+                          offset: const Offset(0, 4),
                         ),
-                      )
-                    : _FallbackLogo(name: uni.name, color: color),
-              ),
-            ),
-            // Winner crown
-            if (isWinner)
-              Positioned(
-                top: -2,
-                child: Icon(
-                  Icons.emoji_events_rounded,
-                  size: 20,
-                  color: AppColors.warning,
+                      ],
+                    ),
+                    padding: const EdgeInsets.all(8),
+                    child: Image.asset(
+                      uni.logoAssetPath,
+                      fit: BoxFit.contain,
+                      errorBuilder: (_, _, _) => _FallbackLogo(
+                        name: uni.name,
+                        color: color,
+                      ),
+                    ),
+                  ),
                 ),
               ),
-          ],
+              // Winner badge — sağ alt köşede altın rozet
+              if (isWinner)
+                Positioned(
+                  bottom: -4,
+                  right: -4,
+                  child: Container(
+                    width: 26,
+                    height: 26,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: const LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [Color(0xFFFFD700), Color(0xFFFFA000)],
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFFFFD700).withValues(alpha: 0.4),
+                          blurRadius: 6,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                      border: Border.all(
+                        color: isDark ? AppColors.darkSurface : Colors.white,
+                        width: 2,
+                      ),
+                    ),
+                    alignment: Alignment.center,
+                    child: const Icon(
+                      Icons.emoji_events_rounded,
+                      size: 14,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+            ],
+          ),
         ),
         const SizedBox(height: 8),
         Text(
@@ -258,7 +300,13 @@ class _ScoreStrip extends StatelessWidget {
         ),
         const SizedBox(width: 12),
         // Delta badge
-        Container(
+        Semantics(
+          label: absDelta < 0.05
+              ? 'Berabere'
+              : delta > 0
+                  ? '${result.uniA.name} ${absDelta.toStringAsFixed(1)} puan önde'
+                  : '${result.uniB.name} ${absDelta.toStringAsFixed(1)} puan önde',
+          child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
           decoration: BoxDecoration(
             color: absDelta < 0.05
@@ -282,6 +330,7 @@ class _ScoreStrip extends StatelessWidget {
                   : (delta > 0 ? AppColors.primary : AppColors.secondary),
             ),
           ),
+        ),
         ),
         const SizedBox(width: 12),
         // B skoru

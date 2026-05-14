@@ -1,27 +1,42 @@
 import { onRequest } from 'firebase-functions/v2/https';
 import { defineSecret } from 'firebase-functions/params';
 import * as admin from 'firebase-admin';
+import { logger } from 'firebase-functions';
 
-const WEBHOOK_TOKEN = defineSecret('REVENUECAT_WEBHOOK_TOKEN');
+const REVENUECAT_WEBHOOK_SECRET = defineSecret('REVENUECAT_WEBHOOK_TOKEN');
 const db = admin.firestore();
 
 type Tier = 'free' | 'plus' | 'pro';
 
+/**
+ * RevenueCat webhook handler.
+ *
+ * İyileştirmeler:
+ * - Bölge europe-west1'e taşındı
+ * - CORS kapatıldı (Browser'dan çağrılmamalı)
+ * - Idempotency: Aynı event 2 kez işlenmez (webhookEvents koleksiyonu)
+ * - User validation: Firebase Auth'da uid var mı kontrolü
+ * - Transaction: idempotency mark + subscription write atomik
+ */
 export const revenuecatWebhook = onRequest(
   {
-    region: 'us-central1',
-    secrets: [WEBHOOK_TOKEN],
+    region: 'europe-west1',
+    secrets: [REVENUECAT_WEBHOOK_SECRET],
+    cors: false,  // Browser'dan çağrılmamalı
   },
   async (req, res) => {
+    // 1. Method kontrolü
     if (req.method !== 'POST') {
       res.status(405).send('Method Not Allowed');
       return;
     }
 
-    const expectedToken = WEBHOOK_TOKEN.value();
+    // 2. Authorization header (RevenueCat custom secret)
+    const expectedToken = REVENUECAT_WEBHOOK_SECRET.value();
     const authHeader = req.get('authorization') ?? '';
     const providedToken = authHeader.replace(/^Bearer\s+/i, '').trim();
     if (!expectedToken || providedToken !== expectedToken) {
+      logger.warn('Webhook unauthorized', { authHeader: authHeader.slice(0, 20) });
       res.status(401).send('Unauthorized');
       return;
     }
@@ -30,6 +45,25 @@ export const revenuecatWebhook = onRequest(
     const appUserId = String(event.app_user_id ?? event.appUserId ?? '');
     if (!appUserId) {
       res.status(400).send('Missing app_user_id');
+      return;
+    }
+
+    // 3. Idempotency — aynı event'i 2 kez işleme
+    const eventId = String(event.id ?? `${appUserId}_${Date.now()}`);
+    const eventRef = db.collection('webhookEvents').doc(eventId);
+    const eventSnap = await eventRef.get();
+    if (eventSnap.exists) {
+      logger.info('Duplicate webhook event ignored', { eventId });
+      res.status(200).send('OK (duplicate)');
+      return;
+    }
+
+    // 4. User var mı? (Firebase Auth doğrulama)
+    try {
+      await admin.auth().getUser(appUserId);
+    } catch {
+      logger.warn('Webhook for unknown user', { uid: appUserId });
+      res.status(404).send('User not found');
       return;
     }
 
@@ -53,33 +87,59 @@ export const revenuecatWebhook = onRequest(
       .collection('usageStats')
       .doc('current');
 
-    const beforeSnap = await subRef.get();
-    const previousTier = String(beforeSnap.data()?.tier ?? 'free');
+    // 5. Subscription güncelleme + idempotency mark — transaction
+    await db.runTransaction(async (tx) => {
+      const beforeSnap = await tx.get(subRef);
+      const previousTier = String(beforeSnap.data()?.tier ?? 'free');
 
-    await subRef.set({
-      tier,
-      status,
-      platform: String(event.store ?? event.environment ?? 'unknown'),
-      expiresAt,
-      rcCustomerId: String(event.original_app_user_id ?? appUserId),
-      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-      createdAt: beforeSnap.exists
-        ? (beforeSnap.data()?.createdAt ?? admin.firestore.FieldValue.serverTimestamp())
-        : admin.firestore.FieldValue.serverTimestamp(),
-    }, { merge: true });
+      // Idempotency kaydı
+      tx.set(eventRef, {
+        type: String(event.type ?? 'unknown'),
+        appUserId,
+        receivedAt: admin.firestore.FieldValue.serverTimestamp(),
+        // TTL — 90 gün sonra sil
+        expireAt: admin.firestore.Timestamp.fromMillis(
+          Date.now() + 90 * 24 * 60 * 60 * 1000,
+        ),
+      });
 
-    if (previousTier !== tier) {
-      const today = formatDate(new Date());
-      await usageRef.set({
-        dailyComparisons: 0,
-        dailyAiComparisons: 0,
-        dailyAiRecommendations: 0,
-        lastResetDate: today,
-      }, { merge: true });
-    }
+      // Subscription güncelle
+      tx.set(
+        subRef,
+        {
+          tier,
+          status,
+          platform: String(event.store ?? event.environment ?? 'unknown'),
+          expiresAt,
+          rcCustomerId: String(event.original_app_user_id ?? appUserId),
+          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+          source: 'revenuecat_webhook',
+          lastEventType: String(event.type ?? 'unknown'),
+          createdAt: beforeSnap.exists
+            ? (beforeSnap.data()?.createdAt ?? admin.firestore.FieldValue.serverTimestamp())
+            : admin.firestore.FieldValue.serverTimestamp(),
+        },
+        { merge: true },
+      );
+
+      // Tier değiştiyse usage stats sıfırla
+      if (previousTier !== tier) {
+        const today = formatDate(new Date());
+        tx.set(
+          usageRef,
+          {
+            dailyComparisons: 0,
+            dailyAiComparisons: 0,
+            dailyAiRecommendations: 0,
+            lastResetDate: today,
+          },
+          { merge: true },
+        );
+      }
+    });
 
     res.status(200).json({ ok: true });
-  }
+  },
 );
 
 function determineTier(entitlementIds: string[]): Tier {

@@ -1,12 +1,20 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/ai_comparison_summary_service.dart';
 import '../../data/city_comparison_repository.dart';
 import '../../data/comparison_repository.dart';
+import '../../data/comparison_history_repository.dart';
+import '../../data/comparison_notes_repository.dart';
 import '../../data/department_comparison_repository.dart';
 import '../../domain/models/city_comparison.dart';
+import '../../domain/models/comparison_history_entry.dart';
+import '../../domain/models/comparison_note.dart';
 import '../../domain/models/comparison_result.dart';
 import '../../domain/models/department_comparison.dart';
+import '../../domain/models/triple_comparison_result.dart';
 import '../../domain/services/comparison_gate_service.dart';
 import '../../../monetization/data/ad_service.dart';
 import '../../../monetization/data/usage_stats_repository.dart';
@@ -17,22 +25,38 @@ import '../../../university/domain/models/department_model.dart';
 import '../../../university/domain/models/university_model.dart';
 import '../../../places/data/place_repository.dart';
 import '../../../../services/analytics_service.dart';
+import 'package:flutter/foundation.dart';
+
+void _comparisonKeepAliveFiveMinutes(Ref ref) {
+  final link = ref.keepAlive();
+  final timer = Timer(const Duration(minutes: 5), link.close);
+  ref.onDispose(timer.cancel);
+}
 
 // ─── Sprint 4 — Karşılaştırma Seçim State ─────────────────
 
 class ComparisonSelection {
   final String? uniIdA;
   final String? uniIdB;
-  const ComparisonSelection({this.uniIdA, this.uniIdB});
+  final String? uniIdC; // Üçlü karşılaştırma için 3. uni (Pro feature)
+  const ComparisonSelection({this.uniIdA, this.uniIdB, this.uniIdC});
 
-  ComparisonSelection copyWith({String? uniIdA, String? uniIdB}) {
+  ComparisonSelection copyWith({
+    String? uniIdA,
+    String? uniIdB,
+    String? uniIdC,
+    bool clearC = false,
+  }) {
     return ComparisonSelection(
       uniIdA: uniIdA ?? this.uniIdA,
       uniIdB: uniIdB ?? this.uniIdB,
+      uniIdC: clearC ? null : (uniIdC ?? this.uniIdC),
     );
   }
 
   bool get bothSelected => uniIdA != null && uniIdB != null;
+  bool get allThreeSelected =>
+      uniIdA != null && uniIdB != null && uniIdC != null;
 }
 
 class ComparisonSelectionNotifier extends Notifier<ComparisonSelection> {
@@ -41,11 +65,14 @@ class ComparisonSelectionNotifier extends Notifier<ComparisonSelection> {
 
   void selectA(String id) => state = state.copyWith(uniIdA: id);
   void selectB(String id) => state = state.copyWith(uniIdB: id);
+  void selectC(String id) => state = state.copyWith(uniIdC: id);
+  void removeC() => state = state.copyWith(clearC: true);
 
   void swap() {
     state = ComparisonSelection(
       uniIdA: state.uniIdB,
       uniIdB: state.uniIdA,
+      uniIdC: state.uniIdC,
     );
   }
 
@@ -158,37 +185,108 @@ final comparisonGateControllerProvider = Provider<ComparisonGateController>((ref
 });
 
 final comparisonGateDecisionProvider =
-    FutureProvider<ComparisonGateDecision?>((ref) async {
+    FutureProvider.autoDispose<ComparisonGateDecision?>((ref) async {
+  _comparisonKeepAliveFiveMinutes(ref);
   final selection = ref.watch(comparisonSelectionProvider);
   if (!selection.bothSelected) return null;
   if (selection.uniIdA == selection.uniIdB) return null;
 
+  final idA = selection.uniIdA!;
+  final idB = selection.uniIdB!;
+
   return ref.read(comparisonGateControllerProvider).guardPair(
-        ComparisonPair(idA: selection.uniIdA!, idB: selection.uniIdB!),
+        ComparisonPair(idA: idA, idB: idB),
       );
 });
 
-final _comparisonResultCache = <String, ComparisonResult?>{};
-
 /// Karşılaştırma sonucu — her iki uni seçildiğinde otomatik tetiklenir
-final comparisonResultProvider = FutureProvider<ComparisonResult?>((ref) async {
+final comparisonResultProvider =
+    FutureProvider.autoDispose<ComparisonResult?>((ref) async {
+  _comparisonKeepAliveFiveMinutes(ref);
   final selection = ref.watch(comparisonSelectionProvider);
   if (!selection.bothSelected) return null;
   if (selection.uniIdA == selection.uniIdB) return null;
-  final key = _pairKey(selection.uniIdA!, selection.uniIdB!);
+
+  final idA = selection.uniIdA!;
+  final idB = selection.uniIdB!;
 
   final gateDecision = await ref.watch(comparisonGateDecisionProvider.future);
   if (gateDecision == null || !gateDecision.isAllowed) return null;
 
   try {
-    final result = await ref.read(comparisonRepositoryProvider).compare(
-          selection.uniIdA!,
-          selection.uniIdB!,
-        );
-    _comparisonResultCache[key] = result;
+    final result = await ref.read(comparisonRepositoryProvider).compare(idA, idB);
+    if (result != null) {
+      // Plus/Pro ise geçmişe ekle (misafir/free sessizce no-op)
+      unawaited(_recordHistoryIfEligible(
+        ref,
+        type: ComparisonHistoryType.university,
+        entityAId: result.uniA.id,
+        entityBId: result.uniB.id,
+        entityAName: result.uniA.name,
+        entityBName: result.uniB.name,
+        // Üniversite logoları: önce local asset path'i deniyoruz, yoksa
+        // (boş string ise) network logoUrl'i kullan.
+        entityALogo: result.uniA.logoAssetPath,
+        entityBLogo: result.uniB.logoAssetPath,
+      ));
+    }
     return result;
-  } catch (_) {
-    return _comparisonResultCache[key];
+  } catch (e, st) {
+    debugPrint('[comparisonResultProvider] compare failed: $e');
+    FirebaseCrashlytics.instance.recordError(
+      e,
+      st,
+      reason: 'comparisonResultProvider failed',
+      fatal: false,
+    );
+    rethrow;
+  }
+});
+
+// ─── Üçlü Karşılaştırma (Pro) ─────────────────────────────────────
+
+/// Pro tier kullanıcı üçlü karşılaştırma yapabilir mi? UI gating için.
+final canCompareTripleProvider = Provider<bool>((ref) {
+  final tier = ref.watch(subscriptionTierProvider);
+  return tier.when(
+    data: (t) => canCompareTriple(t),
+    loading: () => false,
+    error: (_, _) => false,
+  );
+});
+
+/// 3 üniversite seçildiğinde otomatik tetiklenir. Selection.uniIdC null ise
+/// null döner. Pro değilse de null döner.
+final tripleComparisonResultProvider =
+    FutureProvider.autoDispose<TripleComparisonResult?>((ref) async {
+  _comparisonKeepAliveFiveMinutes(ref);
+  final selection = ref.watch(comparisonSelectionProvider);
+  if (!selection.allThreeSelected) return null;
+  if (!ref.watch(canCompareTripleProvider)) return null;
+
+  final idA = selection.uniIdA!;
+  final idB = selection.uniIdB!;
+  final idC = selection.uniIdC!;
+  // Aynı ID'leri reddet (model de fırlatır ama erken çık)
+  if ({idA, idB, idC}.length != 3) return null;
+
+  try {
+    final result =
+        await ref.read(comparisonRepositoryProvider).compareThree(idA, idB, idC);
+    if (result != null) {
+      // Üçlü karşılaştırmayı geçmişe kaydetme şimdilik desteklenmiyor —
+      // mevcut history schema'sı ikili çift için tasarlandı. Future work.
+    }
+    return result;
+  } catch (e, st) {
+    debugPrint('[tripleComparisonResultProvider] compareThree failed: $e');
+    FirebaseCrashlytics.instance.recordError(
+      e,
+      st,
+      reason: 'tripleComparisonResultProvider failed',
+      fatal: false,
+    );
+    rethrow;
   }
 });
 
@@ -200,6 +298,17 @@ class ComparisonPair {
     required this.idA,
     required this.idB,
   });
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ComparisonPair &&
+          runtimeType == other.runtimeType &&
+          idA == other.idA &&
+          idB == other.idB;
+
+  @override
+  int get hashCode => idA.hashCode ^ idB.hashCode;
 }
 
 final departmentComparisonRepositoryProvider =
@@ -215,42 +324,140 @@ final cityComparisonRepositoryProvider = Provider<CityComparisonRepository>((ref
   );
 });
 
+// ─── Karşılaştırma Geçmişi ────────────────────────────────────────
+
+final comparisonHistoryRepositoryProvider =
+    Provider<ComparisonHistoryRepository>((ref) {
+  return ComparisonHistoryRepository();
+});
+
+/// Plus/Pro kullanıcı geçmişi kullanabilir mi? (UI gating için)
+final canUseComparisonHistoryProvider = Provider<bool>((ref) {
+  final tier = ref.watch(subscriptionTierProvider);
+  return tier.when(
+    data: (t) => canUseComparisonHistory(t),
+    loading: () => false,
+    error: (_, _) => false,
+  );
+});
+
+/// Geçmiş listesi — real-time stream. Misafir/free kullanıcı için boş döner
+/// (UI hep paywall kartı gösterecek).
+final comparisonHistoryProvider =
+    StreamProvider<List<ComparisonHistoryEntry>>((ref) {
+  final canUse = ref.watch(canUseComparisonHistoryProvider);
+  if (!canUse) return Stream.value(const <ComparisonHistoryEntry>[]);
+  return ref.watch(comparisonHistoryRepositoryProvider).watchHistory();
+});
+
+/// Helper: Karşılaştırma başarılıysa ve kullanıcı Plus/Pro ise geçmişe kaydeder.
+/// Tier yetersizse veya misafirse sessizce no-op döner (asıl akış bozulmaz).
+Future<void> _recordHistoryIfEligible(
+  Ref ref, {
+  required ComparisonHistoryType type,
+  required String entityAId,
+  required String entityBId,
+  required String entityAName,
+  required String entityBName,
+  String? entityALogo,
+  String? entityBLogo,
+}) async {
+  if (!ref.read(canUseComparisonHistoryProvider)) return;
+  await ref.read(comparisonHistoryRepositoryProvider).recordComparison(
+        type: type,
+        entityAId: entityAId,
+        entityBId: entityBId,
+        entityAName: entityAName,
+        entityBName: entityBName,
+        entityALogo: entityALogo,
+        entityBLogo: entityBLogo,
+      );
+}
+
 final departmentComparisonResultProvider =
-    FutureProvider.family<DepartmentComparisonResult?, ComparisonPair>(
+    FutureProvider.autoDispose.family<DepartmentComparisonResult?, ComparisonPair>(
         (ref, pair) async {
+  _comparisonKeepAliveFiveMinutes(ref);
   if (pair.idA == pair.idB) return null;
   final key = _pairKey(pair.idA, pair.idB);
   try {
-    final result = await ref.read(departmentComparisonRepositoryProvider).compare(
+    final result = await ref
+        .read(departmentComparisonRepositoryProvider)
+        .compare(
           pair.idA,
           pair.idB,
-        );
-    _departmentResultCache[key] = result;
+        )
+        .timeout(const Duration(seconds: 10));
+    if (result != null) {
+      // Bölümler için: bağlı oldukları üniversitenin logosu (varsa).
+      // department.universityId üzerinden lookup.
+      String? logoForDept(DepartmentModel dept) {
+        final uniId = dept.universityId;
+        if (uniId.isEmpty) return null;
+        return 'assets/logos/$uniId.png';
+      }
+      unawaited(_recordHistoryIfEligible(
+        ref,
+        type: ComparisonHistoryType.department,
+        entityAId: result.deptA.id,
+        entityBId: result.deptB.id,
+        entityAName: result.deptA.name,
+        entityBName: result.deptB.name,
+        entityALogo: logoForDept(result.deptA),
+        entityBLogo: logoForDept(result.deptB),
+      ));
+    }
     return result;
-  } catch (_) {
-    return _departmentResultCache[key];
+  } catch (e, st) {
+    debugPrint('[DepartmentComparison] compare failed for $key: $e');
+    FirebaseCrashlytics.instance.recordError(
+      e,
+      st,
+      reason: 'departmentComparisonResultProvider failed',
+      fatal: false,
+    );
+    return null;
   }
 });
-
-final _departmentResultCache = <String, DepartmentComparisonResult?>{};
 
 final cityComparisonResultProvider =
-    FutureProvider.family<CityComparisonResult?, ComparisonPair>((ref, pair) async {
+    FutureProvider.autoDispose.family<CityComparisonResult?, ComparisonPair>(
+        (ref, pair) async {
+  _comparisonKeepAliveFiveMinutes(ref);
   if (pair.idA == pair.idB) return null;
   final key = _pairKey(pair.idA, pair.idB);
   try {
-    final result = await ref.read(cityComparisonRepositoryProvider).compare(
+    final result = await ref
+        .read(cityComparisonRepositoryProvider)
+        .compare(
           pair.idA,
           pair.idB,
-        );
-    _cityResultCache[key] = result;
+        )
+        .timeout(const Duration(seconds: 10));
+    if (result != null) {
+      unawaited(_recordHistoryIfEligible(
+        ref,
+        type: ComparisonHistoryType.city,
+        entityAId: result.cityA.id,
+        entityBId: result.cityB.id,
+        entityAName: result.cityA.name,
+        entityBName: result.cityB.name,
+        entityALogo: result.cityA.logoAssetPath,
+        entityBLogo: result.cityB.logoAssetPath,
+      ));
+    }
     return result;
-  } catch (_) {
-    return _cityResultCache[key];
+  } catch (e, st) {
+    debugPrint('[CityComparison] compare failed for $key: $e');
+    FirebaseCrashlytics.instance.recordError(
+      e,
+      st,
+      reason: 'cityComparisonResultProvider failed',
+      fatal: false,
+    );
+    return null;
   }
 });
-
-final _cityResultCache = <String, CityComparisonResult?>{};
 
 class DepartmentPickerFilter {
   final String? universityId;
@@ -312,20 +519,22 @@ final departmentPickerFilterProvider =
 );
 
 final departmentPickerUniversitiesProvider =
-    FutureProvider<List<UniversityModel>>((ref) async {
+    FutureProvider.autoDispose<List<UniversityModel>>((ref) async {
+  _comparisonKeepAliveFiveMinutes(ref);
   final repository = UniversityRepository();
   return repository.getAllUniversities();
 });
 
 final departmentPickerDepartmentsProvider =
-    FutureProvider<List<DepartmentModel>>((ref) async {
+    FutureProvider.autoDispose<List<DepartmentModel>>((ref) async {
+  _comparisonKeepAliveFiveMinutes(ref);
   final filter = ref.watch(departmentPickerFilterProvider);
   final repository = UniversityRepository();
 
   List<DepartmentModel> departments;
-  if (filter.universityId != null && filter.universityId!.isNotEmpty) {
-    departments =
-        await repository.getDepartmentsByUniversity(filter.universityId!);
+  final uniId = filter.universityId;
+  if (uniId != null && uniId.isNotEmpty) {
+    departments = await repository.getDepartmentsByUniversity(uniId);
   } else {
     final universities = await repository.getAllUniversities();
     final departmentLists = await Future.wait(
@@ -336,10 +545,11 @@ final departmentPickerDepartmentsProvider =
 
   final normalizedQuery = filter.query.trim().toLowerCase();
   final filtered = departments.where((d) {
-    final scoreType = (d.scoreData?.scoreType ?? d.scoreType ?? '').trim();
-    final matchesScoreType = filter.scoreType == null ||
-        filter.scoreType!.isEmpty ||
-        scoreType == filter.scoreType;
+    final scoreType = d.effectiveScoreType ?? '';
+    final filterScore = filter.scoreType;
+    final matchesScoreType = filterScore == null ||
+        filterScore.isEmpty ||
+        scoreType == filterScore;
 
     final matchesQuery = normalizedQuery.isEmpty ||
         d.name.toLowerCase().contains(normalizedQuery) ||
@@ -349,8 +559,8 @@ final departmentPickerDepartmentsProvider =
   }).toList();
 
   filtered.sort((a, b) {
-    final aScore = a.baseScore ?? a.scoreData?.baseScore ?? 0;
-    final bScore = b.baseScore ?? b.scoreData?.baseScore ?? 0;
+    final aScore = a.effectiveBaseScore ?? 0;
+    final bScore = b.effectiveBaseScore ?? 0;
     if (aScore != bScore) return bScore.compareTo(aScore);
     return a.name.compareTo(b.name);
   });
@@ -359,10 +569,11 @@ final departmentPickerDepartmentsProvider =
 });
 
 final departmentPickerAvailableScoreTypesProvider =
-    FutureProvider<List<String>>((ref) async {
+    FutureProvider.autoDispose<List<String>>((ref) async {
+  _comparisonKeepAliveFiveMinutes(ref);
   final departments = await ref.watch(departmentPickerDepartmentsProvider.future);
   final scoreTypes = departments
-      .map((d) => (d.scoreData?.scoreType ?? d.scoreType ?? '').trim())
+      .map((d) => (d.effectiveScoreType ?? '').trim())
       .where((s) => s.isNotEmpty)
       .toSet()
       .toList()
@@ -383,25 +594,104 @@ final aiComparisonSummaryServiceProvider = Provider<AiComparisonSummaryService>(
   return AiComparisonSummaryService();
 });
 
-final _aiSummaryCache = <String, AiComparisonSummaryResult>{};
+/// Regenerate tetikleyicisi — her increment'te provider yeniden çalışır.
+final _aiRegenerateTriggerProvider = StateProvider.autoDispose<int>((ref) => 0);
 
-final aiComparisonSummaryProvider = FutureProvider<AiComparisonSummaryResult?>((ref) async {
+/// Regenerate modunda mı?
+final _aiRegenerateActiveProvider = StateProvider.autoDispose<bool>((ref) => false);
+
+/// Bu session'da regenerate hakkı kullanılmış cache key'lerini tutar.
+/// UI bu set'i kontrol ederek butonu gizler — server zaten kalıcı tutuyor,
+/// bu sadece UX için (kullanıcı buton kayboldu/kullanılmaz görsün).
+final regenerateUsedPairsProvider =
+    StateProvider<Set<String>>((ref) => <String>{});
+
+/// Regenerate sonucu UI'a tek seferlik feedback mesajı.
+/// UI listen ile yakalayıp snackbar gösterir ve null'a resetler.
+class RegenerateFeedback {
+  final String message;
+  final bool isError;
+  // Aynı mesajın art arda tetiklenmesini ayırt etmek için (ScaffoldMessenger
+  // aynı objeyi 2. kez göstermeyebilir). Her instance benzersiz tag taşır.
+  final int tag;
+  const RegenerateFeedback({
+    required this.message,
+    required this.isError,
+    required this.tag,
+  });
+}
+
+final regenerateFeedbackProvider =
+    StateProvider<RegenerateFeedback?>((ref) => null);
+
+final aiComparisonSummaryProvider =
+    FutureProvider.autoDispose<AiComparisonSummaryResult?>((ref) async {
+  _comparisonKeepAliveFiveMinutes(ref);
   final canUseAi = ref.watch(canUseAiComparisonProvider);
   if (!canUseAi) return null;
+
+  // Regenerate trigger'ı dinle — değişince provider yeniden çalışır
+  ref.watch(_aiRegenerateTriggerProvider);
+  final regenerate = ref.read(_aiRegenerateActiveProvider);
 
   final result = await ref.watch(comparisonResultProvider.future);
   if (result == null) return null;
 
+  final pairKey = _pairKey(result.uniA.id, result.uniB.id);
   final service = ref.read(aiComparisonSummaryServiceProvider);
-  final key = _pairKey(result.uniA.id, result.uniB.id);
   try {
-    final summary = await service.summarizeUniversityComparison(result);
-    _aiSummaryCache[key] = summary;
+    final summary = await service.summarizeUniversityComparison(
+      result,
+      regenerate: regenerate,
+    );
+    if (regenerate) {
+      // Regenerate başarılı — flag'i sıfırla, set'e ekle (UI butonu gizlesin),
+      // kullanıcıya feedback ver.
+      ref.read(_aiRegenerateActiveProvider.notifier).state = false;
+      ref.read(regenerateUsedPairsProvider.notifier).update((set) => {...set, pairKey});
+      ref.read(regenerateFeedbackProvider.notifier).state = RegenerateFeedback(
+        message: 'Özet yeniden üretildi',
+        isError: false,
+        tag: DateTime.now().microsecondsSinceEpoch,
+      );
+    }
     return summary;
-  } catch (_) {
-    return _aiSummaryCache[key];
+  } on AiSummaryRegenerateAlreadyUsed {
+    // Server reddetti — kullanıcı bu çift için zaten regenerate yapmış.
+    // Flag'i sıfırla, set'e ekle, kullanıcıya feedback ver, eski özeti
+    // (cache'den) almak için non-regenerate istek yap.
+    ref.read(_aiRegenerateActiveProvider.notifier).state = false;
+    ref.read(regenerateUsedPairsProvider.notifier).update((set) => {...set, pairKey});
+    ref.read(regenerateFeedbackProvider.notifier).state = RegenerateFeedback(
+      message: 'Bu karşılaştırma için yeniden üretme hakkını zaten kullandın.',
+      isError: true,
+      tag: DateTime.now().microsecondsSinceEpoch,
+    );
+    return service.summarizeUniversityComparison(result, regenerate: false);
+  } on AiSummaryQuotaExceeded {
+    // UI bu durumu özel olarak işleyecek (limit_reached state)
+    rethrow;
+  } on AiSummaryFailure catch (e) {
+    debugPrint('[aiComparisonSummaryProvider] failed: ${e.userMessage}');
+    rethrow;
+  } catch (e, st) {
+    debugPrint('[aiComparisonSummaryProvider] unknown error: $e');
+    FirebaseCrashlytics.instance.recordError(
+      e,
+      st,
+      reason: 'aiComparisonSummaryProvider unknown error',
+      fatal: false,
+    );
+    rethrow;
   }
 });
+
+/// Regenerate tetikleme fonksiyonu — UI'dan çağrılır.
+void triggerAiRegenerate(WidgetRef ref) {
+  ref.read(_aiRegenerateActiveProvider.notifier).state = true;
+  ref.read(_aiRegenerateTriggerProvider.notifier).state++;
+}
+
 
 class RatingTrendPoint {
   final DateTime month;
@@ -462,16 +752,33 @@ final canUseProComparisonChartsProvider = Provider<bool>((ref) {
   );
 });
 
-final _ratingTrendCache = <String, List<RatingTrendPoint>>{};
-final _heatMapCache = <String, List<CategoryHeatMapCell>>{};
-final _scatterCache = <String, DepartmentScatterData>{};
+// ─── 4.6: Tipli Trend State ────────────────────────────────────────
+sealed class TrendDataState {
+  const TrendDataState();
+}
+
+class TrendDataSuccess extends TrendDataState {
+  final List<RatingTrendPoint> points;
+  const TrendDataSuccess(this.points);
+}
+
+class TrendDataInsufficient extends TrendDataState {
+  /// "Trend için yeterli yorum yok" durumu
+  final int reviewCount;
+  const TrendDataInsufficient(this.reviewCount);
+}
+
+class TrendDataError extends TrendDataState {
+  final String userMessage;
+  const TrendDataError(this.userMessage);
+}
 
 final ratingTrendProvider =
-    FutureProvider.family<List<RatingTrendPoint>, ComparisonPair>(
+    FutureProvider.autoDispose.family<TrendDataState, ComparisonPair>(
   (ref, pair) async {
+    _comparisonKeepAliveFiveMinutes(ref);
     final canUse = ref.watch(canUseProComparisonChartsProvider);
-    if (!canUse) return const [];
-    final key = _pairKey(pair.idA, pair.idB);
+    if (!canUse) return const TrendDataInsufficient(0);
 
     final firestore = FirebaseFirestore.instance;
     final now = DateTime.now();
@@ -525,20 +832,32 @@ final ratingTrendProvider =
           avgRatingB: monthlyB[month] ?? 0,
         );
       });
-      _ratingTrendCache[key] = output;
-      return output;
-    } catch (_) {
-      return _ratingTrendCache[key] ?? const [];
+
+      // Tüm aylar sıfırsa → yeterli yorum yok
+      if (output.every((p) => p.avgRatingA == 0 && p.avgRatingB == 0)) {
+        return const TrendDataInsufficient(0);
+      }
+
+      return TrendDataSuccess(output);
+    } catch (e, st) {
+      debugPrint('[ratingTrendProvider] aggregation failed: $e');
+      FirebaseCrashlytics.instance.recordError(
+        e,
+        st,
+        reason: 'ratingTrendProvider Firestore aggregation failed',
+        fatal: false,
+      );
+      return const TrendDataError('Trend verisi şu anda yüklenemiyor.');
     }
   },
 );
 
 final categoryHeatMapProvider =
-    FutureProvider.family<List<CategoryHeatMapCell>, ComparisonPair>(
+    FutureProvider.autoDispose.family<List<CategoryHeatMapCell>, ComparisonPair>(
   (ref, pair) async {
+    _comparisonKeepAliveFiveMinutes(ref);
     final canUse = ref.watch(canUseProComparisonChartsProvider);
     if (!canUse) return const [];
-    final key = _pairKey(pair.idA, pair.idB);
 
     try {
       final repo = UniversityRepository();
@@ -548,7 +867,7 @@ final categoryHeatMapProvider =
       ]);
       final uniA = results[0];
       final uniB = results[1];
-      if (uniA == null || uniB == null) return _heatMapCache[key] ?? const [];
+      if (uniA == null || uniB == null) return const [];
 
       final categories = <String>{
         ...uniA.categoryRatings.keys,
@@ -556,7 +875,7 @@ final categoryHeatMapProvider =
       }.toList()
         ..sort();
 
-      final output = categories
+      return categories
           .map(
             (category) => CategoryHeatMapCell(
               category: category,
@@ -565,19 +884,24 @@ final categoryHeatMapProvider =
             ),
           )
           .toList();
-      _heatMapCache[key] = output;
-      return output;
-    } catch (_) {
-      return _heatMapCache[key] ?? const [];
+    } catch (e, st) {
+      debugPrint('[categoryHeatMapProvider] failed: $e');
+      FirebaseCrashlytics.instance.recordError(
+        e,
+        st,
+        reason: 'categoryHeatMapProvider failed',
+        fatal: false,
+      );
+      return const [];
     }
   },
 );
 
 final departmentScatterProvider =
-    FutureProvider.family<DepartmentScatterData, ComparisonPair>(
+    FutureProvider.autoDispose.family<DepartmentScatterData, ComparisonPair>(
   (ref, pair) async {
+    _comparisonKeepAliveFiveMinutes(ref);
     final canUse = ref.watch(canUseProComparisonChartsProvider);
-    final key = _pairKey(pair.idA, pair.idB);
     if (!canUse) {
       return const DepartmentScatterData(pointsA: [], pointsB: []);
     }
@@ -589,38 +913,78 @@ final departmentScatterProvider =
         repo.getDepartmentsByUniversity(pair.idB),
       ]);
 
-    List<DepartmentScatterPoint> mapPoints(
-      List<DepartmentModel> departments,
-      String universityId,
-    ) {
-      return departments
-          .where((d) {
-            final baseScore = d.baseScore ?? d.scoreData?.baseScore;
-            final ranking = d.ranking ?? d.scoreData?.ranking;
-            return baseScore != null &&
-                ranking != null &&
-                baseScore > 0 &&
-                ranking > 0;
-          })
-          .map((d) => DepartmentScatterPoint(
+      List<DepartmentScatterPoint> mapPoints(
+        List<DepartmentModel> departments,
+        String universityId,
+      ) {
+        return departments
+            .map((d) {
+              final baseScore = d.effectiveBaseScore;
+              final ranking = d.effectiveRanking;
+              if (baseScore == null ||
+                  ranking == null ||
+                  baseScore <= 0 ||
+                  ranking <= 0) {
+                return null;
+              }
+              return DepartmentScatterPoint(
                 departmentId: d.id,
                 departmentName: d.name,
-                baseScore: d.baseScore ?? d.scoreData!.baseScore,
-                ranking: d.ranking ?? d.scoreData!.ranking,
+                baseScore: baseScore,
+                ranking: ranking,
                 universityId: universityId,
-              ))
-          .toList();
-    }
+              );
+            })
+            .whereType<DepartmentScatterPoint>()
+            .toList();
+      }
 
-      final output = DepartmentScatterData(
+      return DepartmentScatterData(
         pointsA: mapPoints(departmentLists[0], pair.idA),
         pointsB: mapPoints(departmentLists[1], pair.idB),
       );
-      _scatterCache[key] = output;
-      return output;
-    } catch (_) {
-      return _scatterCache[key] ?? const DepartmentScatterData(pointsA: [], pointsB: []);
+    } catch (e, st) {
+      debugPrint('[departmentScatterProvider] failed: $e');
+      FirebaseCrashlytics.instance.recordError(
+        e,
+        st,
+        reason: 'departmentScatterProvider failed',
+        fatal: false,
+      );
+      return const DepartmentScatterData(pointsA: [], pointsB: []);
     }
+  },
+);
+
+// ─── Karşılaştırma Notları (Pro Tier) ─────────────────────────────
+
+final comparisonNotesRepositoryProvider =
+    Provider<ComparisonNotesRepository>((ref) {
+  return ComparisonNotesRepository();
+});
+
+/// Pro kullanıcı karşılaştırma notlarını kullanabilir mi? (UI gating için)
+final canUseComparisonNotesProvider = Provider<bool>((ref) {
+  final tier = ref.watch(subscriptionTierProvider);
+  return tier.when(
+    data: (t) => canUseComparisonNotes(t),
+    loading: () => false,
+    error: (_, _) => false,
+  );
+});
+
+/// Belirli bir karşılaştırma çifti için notlar — real-time stream.
+/// Non-Pro kullanıcı için boş döner.
+final comparisonNotesForPairProvider = StreamProvider.autoDispose
+    .family<List<ComparisonNote>, ({String type, String idA, String idB})>(
+  (ref, params) {
+    final canUse = ref.watch(canUseComparisonNotesProvider);
+    if (!canUse) return Stream.value(const <ComparisonNote>[]);
+    return ref.watch(comparisonNotesRepositoryProvider).watchNotesForPair(
+          comparisonType: params.type,
+          entityAId: params.idA,
+          entityBId: params.idB,
+        );
   },
 );
 

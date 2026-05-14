@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 import '../../university/data/university_repository.dart';
 import '../../university/domain/models/department_model.dart';
 import '../domain/models/department_comparison.dart';
@@ -21,13 +23,35 @@ class DepartmentComparisonRepository {
       throw ArgumentError('Aynı bölüm karşılaştırılamaz');
     }
 
-    final results = await Future.wait([
-      _readDepartment(departmentIdA),
-      _readDepartment(departmentIdB),
-    ]);
+    final DepartmentModel? deptA;
+    final DepartmentModel? deptB;
 
-    final deptA = results[0];
-    final deptB = results[1];
+    if (_getDepartmentById != null) {
+      final results = await Future.wait([
+        _readDepartment(departmentIdA),
+        _readDepartment(departmentIdB),
+      ]);
+      deptA = results[0];
+      deptB = results[1];
+    } else {
+      final snap = await FirebaseFirestore.instance
+          .collection('departments')
+          .where(FieldPath.documentId, whereIn: [departmentIdA, departmentIdB])
+          .get();
+      if (snap.docs.length < 2) return null;
+      DocumentSnapshot<Map<String, dynamic>>? docA;
+      DocumentSnapshot<Map<String, dynamic>>? docB;
+      for (final d in snap.docs) {
+        if (d.id == departmentIdA) docA = d;
+        if (d.id == departmentIdB) docB = d;
+      }
+      final dataA = docA?.data();
+      final dataB = docB?.data();
+      if (dataA == null || dataB == null) return null;
+      deptA = DepartmentModel.fromMap(dataA, departmentIdA);
+      deptB = DepartmentModel.fromMap(dataB, departmentIdB);
+    }
+
     if (deptA == null || deptB == null) return null;
 
     final baseA = deptA.baseScore ?? deptA.scoreData?.baseScore ?? 0;

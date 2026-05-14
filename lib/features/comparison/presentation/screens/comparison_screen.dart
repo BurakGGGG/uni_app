@@ -26,6 +26,19 @@ class ComparisonScreen extends ConsumerWidget {
     final gateLocked = ref.watch(comparisonAdGateLockedProvider);
     final gateBusy = ref.watch(comparisonAdGateBusyProvider);
 
+    // Gate kararını dinle — izin verilmediyse locked overlay'i göster
+    final gateDecision = ref.watch(comparisonGateDecisionProvider);
+    gateDecision.whenData((decision) {
+      if (decision != null && !decision.isAllowed) {
+        // Sadece henüz locked değilse güncelle (rebuild döngüsünü kır)
+        Future.microtask(() {
+          if (ref.read(comparisonAdGateLockedProvider) != true) {
+            ref.read(comparisonAdGateLockedProvider.notifier).state = true;
+          }
+        });
+      }
+    });
+
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
@@ -55,8 +68,10 @@ class ComparisonScreen extends ConsumerWidget {
                             shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(8)),
                           ),
-                          onPressed: () =>
-                              ref.read(comparisonSelectionProvider.notifier).reset(),
+                          onPressed: () {
+                              ref.read(comparisonSelectionProvider.notifier).reset();
+                              ref.read(comparisonAdGateLockedProvider.notifier).state = false;
+                            },
                         ),
                       if (selection.bothSelected) ...[
                         IconButton(
@@ -107,18 +122,30 @@ class ComparisonScreen extends ConsumerWidget {
         ),
       ),
       bottomNavigationBar: selection.bothSelected && resultAsync.valueOrNull != null
-          ? _ComparisonFloatingActionBar(
-              result: resultAsync.value!,
-              onShare: () => ComparisonShareCard.shareCard(context, resultAsync.value!),
-              onFavorite: () => _showFavoriteModal(
-                context: context,
-                ref: ref,
-                result: resultAsync.value!,
+          ? SafeArea(
+              top: false,
+              child: Padding(
+                padding: EdgeInsets.only(
+                  left: 16,
+                  right: 16,
+                  bottom: 16 + MediaQuery.of(context).viewPadding.bottom,
+                ),
+                child: _ComparisonFloatingActionBar(
+                  result: resultAsync.value!,
+                  onShare: () => ComparisonShareCard.shareCard(context, resultAsync.value!),
+                  onFavorite: () => _showFavoriteModal(
+                    context: context,
+                    ref: ref,
+                    result: resultAsync.value!,
+                  ),
+                  onRecompare: () {
+                    ref.read(comparisonSelectionProvider.notifier).reset();
+                    ref.read(comparisonAdGateLockedProvider.notifier).state = false;
+                    ref.invalidate(comparisonResultProvider);
+                  },
+                ),
               ),
-              onRecompare: () {
-                ref.read(comparisonSelectionProvider.notifier).reset();
-                ref.invalidate(comparisonResultProvider);
-              },
+
             )
           : null,
     );
@@ -159,149 +186,191 @@ Future<void> _showAdGateModal({
   await showModalBottomSheet<void>(
     context: context,
     isScrollControlled: true,
+    isDismissible: false,
+    enableDrag: false,
     backgroundColor: Colors.transparent,
     builder: (context) {
-      return SafeArea(
-        child: Container(
-          margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
-          decoration: BoxDecoration(
-            color: isDark ? const Color(0xFF141424) : Colors.white,
-            borderRadius: BorderRadius.circular(18),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.18),
-                blurRadius: 24,
-                offset: const Offset(0, 8),
-              ),
-            ],
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    width: 44,
-                    height: 44,
-                    decoration: BoxDecoration(
-                      color: AppColors.primary.withValues(alpha: 0.12),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(Icons.lock_rounded, color: AppColors.primary),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      'Günlük limit doldu',
-                      style: AppTextStyles.titleMedium.copyWith(
-                        fontWeight: FontWeight.w800,
-                        color: isDark ? Colors.white : AppColors.textPrimary,
-                      ),
-                    ),
-                  ),
-                  IconButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    icon: Icon(
-                      Icons.close_rounded,
-                      color: (isDark ? Colors.white : AppColors.textPrimary)
-                          .withValues(alpha: 0.8),
-                    ),
+      return Consumer(
+        builder: (context, ref, _) {
+          final isGuest = ref.watch(authStateProvider).valueOrNull == null;
+
+          return SafeArea(
+            child: Container(
+              margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+              padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
+              decoration: BoxDecoration(
+                color: isDark ? AppColors.darkSurfaceVariant : Colors.white,
+                borderRadius: BorderRadius.circular(22),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.18),
+                    blurRadius: 24,
+                    offset: const Offset(0, 8),
                   ),
                 ],
               ),
-              const SizedBox(height: 8),
-              Text(
-                'Devam etmek için kısa bir reklam izleyebilir veya Plus’a geçebilirsin.',
-                style: AppTextStyles.bodyMedium.copyWith(
-                  color: isDark ? Colors.white70 : AppColors.textSecondary,
-                ),
-              ),
-              const SizedBox(height: 16),
-              Consumer(
-                builder: (context, ref, _) {
-                  final busy = ref.watch(comparisonAdGateBusyProvider);
-                  return Column(
-                    children: [
-                      SizedBox(
-                        width: double.infinity,
-                        child: FilledButton.icon(
-                          onPressed: busy
-                              ? null
-                              : () async {
-                                  ref
-                                      .read(comparisonAdGateBusyProvider.notifier)
-                                      .state = true;
-                                  // UI-only: Kişi A'nın AdService entegrasyonu sonrası burası gerçek akışa bağlanacak.
-                                  await Future<void>.delayed(
-                                      const Duration(milliseconds: 900));
-                                  if (context.mounted) {
-                                    Navigator.of(context).pop();
-                                  }
-                                  ref
-                                      .read(comparisonAdGateBusyProvider.notifier)
-                                      .state = false;
-                                  ref
-                                      .read(comparisonAdGateLockedProvider.notifier)
-                                      .state = false;
-                                },
-                          icon: busy
-                              ? const SizedBox(
-                                  width: 16,
-                                  height: 16,
-                                  child: CircularProgressIndicator(strokeWidth: 2),
-                                )
-                              : const Icon(Icons.smart_display_rounded, size: 18),
-                          label: Text(busy ? 'Yükleniyor…' : 'Reklamı İzle'),
-                          style: FilledButton.styleFrom(
-                            backgroundColor: AppColors.primary,
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 16, vertical: 14),
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(14)),
-                            textStyle: AppTextStyles.labelLarge
-                                .copyWith(fontWeight: FontWeight.w800),
-                          ),
-                        ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // ─── İkon ─────────────────────────────
+                  Container(
+                    width: 56,
+                    height: 56,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          AppColors.primary.withValues(alpha: 0.15),
+                          AppColors.secondary.withValues(alpha: 0.10),
+                        ],
                       ),
-                      const SizedBox(height: 10),
-                      SizedBox(
-                        width: double.infinity,
-                        child: OutlinedButton.icon(
-                          onPressed: busy
-                              ? null
-                              : () {
-                                  // TODO: paywall route - mevcut router akışına bağlanacak
-                                  Navigator.of(context).pop();
-                                },
-                          icon: const Icon(Icons.rocket_launch_rounded, size: 18),
-                          label: const Text('Plus’a Geç'),
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor:
-                                isDark ? Colors.white : AppColors.textPrimary,
-                            side: BorderSide(
-                              color: (isDark ? Colors.white : AppColors.textPrimary)
-                                  .withValues(alpha: 0.16),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      isGuest
+                          ? Icons.play_circle_outline_rounded
+                          : Icons.lock_outline_rounded,
+                      color: AppColors.primary,
+                      size: 30,
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+
+                  // ─── Başlık ────────────────────────────
+                  Text(
+                    isGuest
+                        ? 'Reklam ile Karşılaştır'
+                        : 'Ücretsiz hakkın bitti',
+                    textAlign: TextAlign.center,
+                    style: AppTextStyles.titleMedium.copyWith(
+                      fontWeight: FontWeight.w900,
+                      color: isDark ? Colors.white : AppColors.textPrimary,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+
+                  // ─── Açıklama ──────────────────────────
+                  Text(
+                    isGuest
+                        ? 'Karşılaştırma yapmak için kısa bir reklam izlemen gerekiyor. '
+                          'Giriş yap veya Plus\'a geçerek sınırsız karşılaştırma yapabilirsin.'
+                        : 'Günlük 1 ücretsiz karşılaştırma hakkını kullandın. '
+                          'Devam etmek için kısa bir reklam izleyebilir veya '
+                          'Plus\'a geçerek sınırsız karşılaştırma yapabilirsin.',
+                    textAlign: TextAlign.center,
+                    style: AppTextStyles.bodySmall.copyWith(
+                      color: isDark ? Colors.white60 : AppColors.textSecondary,
+                      height: 1.4,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+
+                  // ─── Butonlar ──────────────────────────
+                  Consumer(
+                    builder: (context, ref2, _) {
+                      final busy = ref2.watch(comparisonAdGateBusyProvider);
+                      return Column(
+                        children: [
+                          // Reklam butonu
+                          SizedBox(
+                            width: double.infinity,
+                            child: FilledButton.icon(
+                              onPressed: busy
+                                  ? null
+                                  : () async {
+                                      ref2
+                                          .read(comparisonAdGateBusyProvider.notifier)
+                                          .state = true;
+                                      // Reklam hazırlama süresi
+                                      await Future<void>.delayed(
+                                          const Duration(milliseconds: 900));
+                                      if (context.mounted) {
+                                        Navigator.of(context).pop();
+                                      }
+                                      ref2
+                                          .read(comparisonAdGateBusyProvider.notifier)
+                                          .state = false;
+                                      ref2
+                                          .read(comparisonAdGateLockedProvider.notifier)
+                                          .state = false;
+                                    },
+                              icon: busy
+                                  ? const SizedBox(
+                                      width: 16,
+                                      height: 16,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: Colors.white70,
+                                      ),
+                                    )
+                                  : const Icon(Icons.smart_display_rounded, size: 18),
+                              label: Text(
+                                busy ? 'Reklam hazırlanıyor…' : 'Reklamı İzle ve Devam Et',
+                              ),
+                              style: FilledButton.styleFrom(
+                                backgroundColor: AppColors.primary,
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 16, vertical: 14),
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(14)),
+                                textStyle: AppTextStyles.labelLarge
+                                    .copyWith(fontWeight: FontWeight.w800),
+                              ),
                             ),
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 16, vertical: 14),
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(14)),
-                            textStyle: AppTextStyles.labelLarge
-                                .copyWith(fontWeight: FontWeight.w800),
                           ),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                    ],
-                  );
-                },
+                          const SizedBox(height: 10),
+
+                          // Plus'a Geç butonu
+                          SizedBox(
+                            width: double.infinity,
+                            child: OutlinedButton.icon(
+                              onPressed: busy
+                                  ? null
+                                  : () {
+                                      Navigator.of(context).pop();
+                                    },
+                              icon: const Icon(Icons.rocket_launch_rounded, size: 18),
+                              label: const Text('Plus\'a Geç — Sınırsız'),
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor:
+                                    isDark ? Colors.white : AppColors.textPrimary,
+                                side: BorderSide(
+                                  color: (isDark ? Colors.white : AppColors.textPrimary)
+                                      .withValues(alpha: 0.16),
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 16, vertical: 14),
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(14)),
+                                textStyle: AppTextStyles.labelLarge
+                                    .copyWith(fontWeight: FontWeight.w800),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+
+                          // Kapat butonu
+                          TextButton(
+                            onPressed: busy
+                                ? null
+                                : () => Navigator.of(context).pop(),
+                            child: Text(
+                              'Şimdilik Vazgeç',
+                              style: AppTextStyles.labelMedium.copyWith(
+                                color: isDark ? Colors.white38 : AppColors.textTertiary,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ],
+                      );
+                    },
+                  ),
+                ],
               ),
-            ],
-          ),
-        ),
+            ),
+          );
+        },
       );
     },
   );
@@ -334,7 +403,7 @@ Future<void> _showFavoriteModal({
           margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
           decoration: BoxDecoration(
-            color: isDark ? const Color(0xFF141424) : Colors.white,
+            color: isDark ? AppColors.darkSurfaceVariant : Colors.white,
             borderRadius: BorderRadius.circular(18),
             boxShadow: [
               BoxShadow(
@@ -562,7 +631,7 @@ class _ActionPill extends StatelessWidget {
   }
 }
 
-class _ComparisonAdGateOverlay extends StatelessWidget {
+class _ComparisonAdGateOverlay extends ConsumerWidget {
   final bool isBusy;
   final VoidCallback onCtaPressed;
 
@@ -572,8 +641,10 @@ class _ComparisonAdGateOverlay extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isGuest = ref.watch(authStateProvider).valueOrNull == null;
+
     return AnimatedOpacity(
       duration: const Duration(milliseconds: 220),
       opacity: 1,
@@ -605,7 +676,7 @@ class _ComparisonAdGateOverlay extends StatelessWidget {
               margin: const EdgeInsets.symmetric(horizontal: 24),
               padding: const EdgeInsets.fromLTRB(18, 18, 18, 16),
               decoration: BoxDecoration(
-                color: isDark ? const Color(0xFF141424) : Colors.white,
+                color: isDark ? AppColors.darkSurfaceVariant : Colors.white,
                 borderRadius: BorderRadius.circular(18),
                 border: Border.all(
                   color: (isDark ? Colors.white : Colors.black)
@@ -629,11 +700,18 @@ class _ComparisonAdGateOverlay extends StatelessWidget {
                       color: AppColors.primary.withValues(alpha: 0.12),
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(Icons.lock_rounded, color: AppColors.primary),
+                    child: Icon(
+                      isGuest
+                          ? Icons.play_circle_outline_rounded
+                          : Icons.lock_rounded,
+                      color: AppColors.primary,
+                    ),
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    'Devam etmek için kilidi aç',
+                    isGuest
+                        ? 'Reklam izleyerek devam et'
+                        : 'Devam etmek için kilidi aç',
                     textAlign: TextAlign.center,
                     style: AppTextStyles.titleMedium.copyWith(
                       fontWeight: FontWeight.w900,
@@ -642,7 +720,9 @@ class _ComparisonAdGateOverlay extends StatelessWidget {
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    'Günlük karşılaştırma hakkın doldu.',
+                    isGuest
+                        ? 'Karşılaştırma için kısa bir reklam izlemen gerekiyor.'
+                        : 'Günlük karşılaştırma hakkın doldu.',
                     textAlign: TextAlign.center,
                     style: AppTextStyles.bodySmall.copyWith(
                       color: isDark ? Colors.white70 : AppColors.textSecondary,
@@ -732,16 +812,37 @@ class _ResultView extends StatelessWidget {
         ComparisonHeader(result: result),
         const SizedBox(height: 24),
         _SectionTitle('Kategori Puanları'),
-        ...result.categoryComparisons.values.map(
-          (c) => ComparisonCategoryRow(
-            comparison: c,
-            uniAId: result.uniA.id,
-            uniBId: result.uniB.id,
-          ),
-        ),
+            if (result.categoryComparisons.isEmpty)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                child: EmptyStateWidget(
+                  illustration: Container(
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withValues(alpha: 0.06),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.rate_review_rounded, size: 32, color: AppColors.primary),
+                  ),
+                  title: 'Yeterli değerlendirme yok',
+                  description:
+                      'Bu iki üniversite için henüz kategori puanı oluşturacak yorum bulunmuyor.',
+                ),
+              )
+            else
+              ...result.categoryComparisons.values.map(
+                (c) => ComparisonCategoryRow(
+                  comparison: c,
+                  uniAId: result.uniA.id,
+                  uniBId: result.uniB.id,
+                ),
+              ),
         const SizedBox(height: 24),
         _SectionTitle('Genel Görünüm'),
-        ComparisonRadarChart(result: result),
+            if (result.categoryComparisons.isEmpty)
+              const SizedBox.shrink()
+            else
+              ComparisonRadarChart(result: result),
         const SizedBox(height: 24),
         _SectionTitle('Genel İstatistikler'),
         ComparisonStatsTable(result: result),

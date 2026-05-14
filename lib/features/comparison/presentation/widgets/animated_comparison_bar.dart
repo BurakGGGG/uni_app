@@ -87,12 +87,14 @@ class _AnimatedComparisonBarState extends State<AnimatedComparisonBar>
               // Başlık satırı
               Row(
                 children: [
-                  // A puanı
-                  _ScoreBadge(
-                    score: c.valueA,
-                    color: AppColors.primary,
-                    isWinner: aWins,
-                    hasData: aHasData,
+                  // A puanı — Flexible ile sub-pixel taşmaları engellenir
+                  Flexible(
+                    child: _ScoreBadge(
+                      score: c.valueA,
+                      color: AppColors.primary,
+                      isWinner: aWins,
+                      hasData: aHasData,
+                    ),
                   ),
                   const SizedBox(width: 8),
                   Expanded(
@@ -101,6 +103,8 @@ class _AnimatedComparisonBarState extends State<AnimatedComparisonBar>
                         Text(
                           c.categoryName,
                           textAlign: TextAlign.center,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                           style: AppTextStyles.labelMedium.copyWith(
                             fontWeight: FontWeight.w700,
                             color: isDark ? Colors.white : AppColors.textPrimary,
@@ -109,6 +113,8 @@ class _AnimatedComparisonBarState extends State<AnimatedComparisonBar>
                         if (c.absDelta > 0.05)
                           Text(
                             '${c.absDelta.toStringAsFixed(1)} fark',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                             style: AppTextStyles.labelSmall.copyWith(
                               color: AppColors.textTertiary,
                               fontSize: 10,
@@ -119,11 +125,13 @@ class _AnimatedComparisonBarState extends State<AnimatedComparisonBar>
                   ),
                   const SizedBox(width: 8),
                   // B puanı
-                  _ScoreBadge(
-                    score: c.valueB,
-                    color: AppColors.secondary,
-                    isWinner: bWins,
-                    hasData: bHasData,
+                  Flexible(
+                    child: _ScoreBadge(
+                      score: c.valueB,
+                      color: AppColors.secondary,
+                      isWinner: bWins,
+                      hasData: bHasData,
+                    ),
                   ),
                 ],
               ),
@@ -299,9 +307,13 @@ class _NoDataRow extends StatelessWidget {
         children: [
           const Icon(Icons.info_outline, size: 16, color: AppColors.textTertiary),
           const SizedBox(width: 8),
-          Text(
-            '$categoryName: Henüz yeterli yorum yok',
-            style: AppTextStyles.bodySmall.copyWith(color: AppColors.textTertiary),
+          Expanded(
+            child: Text(
+              '$categoryName: Henüz yeterli yorum yok',
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: AppTextStyles.bodySmall.copyWith(color: AppColors.textTertiary),
+            ),
           ),
         ],
       ),

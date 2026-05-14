@@ -84,6 +84,9 @@ export { aggregatePlaceRatings } from './places/aggregate_place_ratings';
 // Sprint 4 — Department yorumları aggregation
 export { aggregateDepartmentRatings } from './aggregations/aggregate_department_ratings';
 
+// Sprint 11 (Karşılaştırma 6.4) — Place sayım denormalizasyonu
+export { recomputePlaceCount } from './aggregations/recompute_place_count';
+
 // Sprint 4 — Bildirimler
 export { onReviewLiked } from './notifications/on_review_liked';
 export { onReviewModerated } from './notifications/on_review_moderated';
@@ -100,3 +103,6 @@ export { resetAiQuotaDaily } from './usage/reset_ai_quota';
 
 // Sprint 9 — RevenueCat webhook sync
 export { revenuecatWebhook } from './revenuecat/webhook';
+
+// Sprint 10 — Cleanup functions
+export { cleanupAiSummaryLogs } from './cleanup/ai_logs_cleanup';

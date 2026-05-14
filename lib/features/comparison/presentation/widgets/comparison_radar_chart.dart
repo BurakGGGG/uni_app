@@ -42,7 +42,11 @@ class _ComparisonRadarChartState extends State<ComparisonRadarChart>
       return const SizedBox.shrink();
     }
 
-    return Container(
+    return Semantics(
+      label: _buildSemanticLabel(result, cats),
+      image: true,
+      excludeSemantics: true,
+      child: Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -109,11 +113,32 @@ class _ComparisonRadarChartState extends State<ComparisonRadarChart>
                     const BorderSide(color: AppColors.borderLight, width: 0.5),
                 getTitle: (index, angle) {
                   final name = cats[index].categoryName;
-                  // Uzun isimleri kısalt
-                  final short =
-                      name.length > 10 ? '${name.substring(0, 9)}…' : name;
+                  // Uzun isimleri satır ortasından böl
+                  String displayName;
+                  if (name.length <= 12) {
+                    displayName = name;
+                  } else {
+                    // Ortaya yakın bir boşluktan böl
+                    final mid = name.length ~/ 2;
+                    final spaceAfter = name.indexOf(' ', mid);
+                    final spaceBefore = name.lastIndexOf(' ', mid);
+                    int splitAt;
+                    if (spaceAfter != -1 && spaceBefore != -1) {
+                      splitAt = (spaceAfter - mid).abs() < (spaceBefore - mid).abs()
+                          ? spaceAfter
+                          : spaceBefore;
+                    } else {
+                      splitAt = spaceAfter != -1 ? spaceAfter : spaceBefore;
+                    }
+                    if (splitAt > 0 && splitAt < name.length - 1) {
+                      displayName =
+                          '${name.substring(0, splitAt)}\n${name.substring(splitAt + 1)}';
+                    } else {
+                      displayName = name;
+                    }
+                  }
                   return RadarChartTitle(
-                    text: short,
+                    text: displayName,
                     angle: angle,
                     positionPercentageOffset: 0.15,
                   );
@@ -147,7 +172,29 @@ class _ComparisonRadarChartState extends State<ComparisonRadarChart>
           ),
         ],
       ),
+    ),
     );
+  }
+
+  String _buildSemanticLabel(
+    ComparisonResult result,
+    List<CategoryComparison> cats,
+  ) {
+    final buffer = StringBuffer();
+    buffer.write('${result.uniA.name} ve ${result.uniB.name} kategori karşılaştırması. ');
+    for (final cat in cats) {
+      buffer.write('${cat.categoryName}: ');
+      buffer.write('${result.uniA.name} ${cat.valueA.toStringAsFixed(1)}, ');
+      buffer.write('${result.uniB.name} ${cat.valueB.toStringAsFixed(1)}. ');
+      if (cat.winnerId == result.uniA.id) {
+        buffer.write('${result.uniA.name} kazandı. ');
+      } else if (cat.winnerId == result.uniB.id) {
+        buffer.write('${result.uniB.name} kazandı. ');
+      } else {
+        buffer.write('Berabere. ');
+      }
+    }
+    return buffer.toString();
   }
 }
 

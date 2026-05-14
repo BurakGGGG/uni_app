@@ -165,9 +165,29 @@ class UniversityRepository {
         return depts.firstWhere((d) => d.id == deptId);
       } catch (_) {}
     }
-    final doc = await _firestore.collection('departments').doc(deptId).get();
-    if (!doc.exists || doc.data() == null) return null;
-    return DepartmentModel.fromMap(doc.data()!, doc.id);
+
+    // Network'te takılma olursa cache'e düş ve timeout ile hızlı dön.
+    try {
+      final doc = await _firestore
+          .collection('departments')
+          .doc(deptId)
+          .get(const GetOptions(source: Source.serverAndCache))
+          .timeout(const Duration(seconds: 6));
+      if (!doc.exists || doc.data() == null) return null;
+      return DepartmentModel.fromMap(doc.data()!, doc.id);
+    } catch (_) {
+      try {
+        final cachedDoc = await _firestore
+            .collection('departments')
+            .doc(deptId)
+            .get(const GetOptions(source: Source.cache))
+            .timeout(const Duration(seconds: 3));
+        if (!cachedDoc.exists || cachedDoc.data() == null) return null;
+        return DepartmentModel.fromMap(cachedDoc.data()!, cachedDoc.id);
+      } catch (_) {
+        return null;
+      }
+    }
   }
 
   // ─── Arama ────────────────────────────────────────────────────

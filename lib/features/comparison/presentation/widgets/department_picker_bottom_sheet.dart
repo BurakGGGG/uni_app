@@ -18,18 +18,22 @@ class DepartmentPickResult {
 /// 1) Üniversite seç
 /// 2) Bölüm seç (seçilen üniversiteye göre)
 class DepartmentPickerBottomSheet {
-  static Future<DepartmentPickResult?> show(BuildContext context) {
+  static Future<DepartmentPickResult?> show(
+    BuildContext context, {
+    String? departmentNameFilter,
+  }) {
     return showModalBottomSheet<DepartmentPickResult?>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => const _Shell(),
+      builder: (_) => _Shell(departmentNameFilter: departmentNameFilter),
     );
   }
 }
 
 class _Shell extends StatelessWidget {
-  const _Shell();
+  final String? departmentNameFilter;
+  const _Shell({this.departmentNameFilter});
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +49,7 @@ class _Shell extends StatelessWidget {
           maxChildSize: 0.95,
           expand: false,
           builder: (_, scrollController) =>
-              _Body(scrollController: scrollController),
+              _Body(scrollController: scrollController, departmentNameFilter: departmentNameFilter),
         ),
       ),
     );
@@ -54,7 +58,8 @@ class _Shell extends StatelessWidget {
 
 class _Body extends ConsumerStatefulWidget {
   final ScrollController scrollController;
-  const _Body({required this.scrollController});
+  final String? departmentNameFilter;
+  const _Body({required this.scrollController, this.departmentNameFilter});
 
   @override
   ConsumerState<_Body> createState() => _BodyState();
@@ -118,12 +123,24 @@ class _BodyState extends ConsumerState<_Body> {
                 },
               ),
               Expanded(
-                child: Text(
-                  _selectedUni == null ? 'Üniversite Seç' : 'Bölüm Seç',
-                  style: AppTextStyles.titleLarge.copyWith(
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: -0.3,
-                  ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      _selectedUni == null ? 'Üniversite Seç' : 'Bölüm Seç',
+                      style: AppTextStyles.titleLarge.copyWith(
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: -0.3,
+                      ),
+                    ),
+                    if (widget.departmentNameFilter != null && _selectedUni == null)
+                      Text(
+                        '${widget.departmentNameFilter} bölümü olan üniversiteler',
+                        style: AppTextStyles.labelSmall.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                  ],
                 ),
               ),
             ],
@@ -169,11 +186,13 @@ class _BodyState extends ConsumerState<_Body> {
                   query: _uniQuery,
                   scrollController: widget.scrollController,
                   onSelect: (uni) => setState(() => _selectedUni = uni),
+                  departmentNameFilter: widget.departmentNameFilter,
                 )
               : _DeptList(
                   uni: _selectedUni!,
                   query: _deptQuery,
                   scrollController: widget.scrollController,
+                  departmentNameFilter: widget.departmentNameFilter,
                 ),
         ),
       ],
@@ -256,10 +275,12 @@ class _UniList extends ConsumerWidget {
   final String query;
   final ScrollController scrollController;
   final ValueChanged<UniversityModel> onSelect;
+  final String? departmentNameFilter;
   const _UniList({
     required this.query,
     required this.scrollController,
     required this.onSelect,
+    this.departmentNameFilter,
   });
 
   @override
@@ -270,18 +291,41 @@ class _UniList extends ConsumerWidget {
       error: (e, _) => Center(child: Text('Hata: $e')),
       data: (unis) {
         final q = query.trim().toLowerCase();
-        final filtered = q.isEmpty
+        var filtered = q.isEmpty
             ? unis
             : unis
                 .where((u) =>
                     u.name.toLowerCase().contains(q) ||
                     u.aliases.any((a) => a.toLowerCase().contains(q)))
                 .toList();
+
+        // Bölüm adı filtresi: sadece bu bölüme sahip üniversiteleri göster
+        if (departmentNameFilter != null && departmentNameFilter!.isNotEmpty) {
+          final filterName = departmentNameFilter!.toLowerCase();
+          final filteredByDept = <UniversityModel>[];
+          for (final uni in filtered) {
+            final deptsAsync = ref.watch(departmentsByUniversityProvider(uni.id));
+            final hasDept = deptsAsync.whenOrNull(
+              data: (depts) => depts.any(
+                (d) => d.name.toLowerCase() == filterName,
+              ),
+            );
+            if (hasDept == true) {
+              filteredByDept.add(uni);
+            }
+          }
+          filtered = filteredByDept;
+        }
+
         if (filtered.isEmpty) {
-          return const _Empty(
+          return _Empty(
             icon: Icons.search_off_rounded,
-            title: 'Sonuç bulunamadı',
-            subtitle: 'Farklı bir arama deneyebilirsin.',
+            title: departmentNameFilter != null
+                ? 'Bu bölüme sahip üniversite bulunamadı'
+                : 'Sonuç bulunamadı',
+            subtitle: departmentNameFilter != null
+                ? '"$departmentNameFilter" bölümü olan başka üniversite yok.'
+                : 'Farklı bir arama deneyebilirsin.',
           );
         }
         return ListView.separated(
@@ -378,10 +422,12 @@ class _DeptList extends ConsumerWidget {
   final UniversityModel uni;
   final String query;
   final ScrollController scrollController;
+  final String? departmentNameFilter;
   const _DeptList({
     required this.uni,
     required this.query,
     required this.scrollController,
+    this.departmentNameFilter,
   });
 
   @override
@@ -399,12 +445,18 @@ class _DeptList extends ConsumerWidget {
           );
         }
 
-        final list = [...depts]..sort((a, b) {
+        var list = [...depts]..sort((a, b) {
           final ba = a.baseScore ?? a.scoreData?.baseScore ?? 0;
           final bb = b.baseScore ?? b.scoreData?.baseScore ?? 0;
           if (ba != bb) return bb.compareTo(ba);
           return a.name.compareTo(b.name);
         });
+
+        // Bölüm adı filtresi: sadece eşleşen bölümleri göster
+        if (departmentNameFilter != null && departmentNameFilter!.isNotEmpty) {
+          final filterName = departmentNameFilter!.toLowerCase();
+          list = list.where((d) => d.name.toLowerCase() == filterName).toList();
+        }
 
         final q = query.trim().toLowerCase();
         final filtered = q.isEmpty
