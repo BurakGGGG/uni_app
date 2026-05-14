@@ -13,6 +13,7 @@ import '../../../auth/presentation/providers/auth_providers.dart';
 import 'review_actions_menu.dart';
 import 'like_button.dart';
 import '../screens/photo_gallery_screen.dart';
+import '../../../../l10n/generated/app_localizations.dart';
 
 /// Sprint 3 — Kişi B (Task B1)
 /// Tüm yorum gösterimlerinde kullanılacak ortak ReviewCard widget'ı.
@@ -52,6 +53,7 @@ class ReviewCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final loc = AppLocalizations.of(context);
     return RepaintBoundary(
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -69,9 +71,9 @@ class ReviewCard extends ConsumerWidget {
                 if (showTargetInfo) const SizedBox(height: 10),
 
                 // Onay bekliyor banner'ı (sadece sahibine ve onaylanmamışsa)
-                if (!review.isApproved && showActions) _buildPendingApprovalBanner(),
+                if (!review.isApproved && showActions) _buildPendingApprovalBanner(loc),
                 if (!review.isApproved && showActions) const SizedBox(height: 12),
-                _buildHeader(context, ref),
+                _buildHeader(context, ref, loc),
                 const SizedBox(height: 12),
                 _buildComment(),
                 if (!compact && (review.pros.isNotEmpty || review.cons.isNotEmpty)) ...[
@@ -94,6 +96,7 @@ class ReviewCard extends ConsumerWidget {
 
   // ─── YENİ — Hedef Header (üni/bölüm/mekan adı) ─────────────────
   Widget _buildTargetHeader(WidgetRef ref) {
+    // Internal: l10n applied in _buildHeader; target labels are data-driven
     switch (review.type) {
       case ReviewType.university:
         final uniAsync = ref.watch(universityDetailProvider(review.targetId));
@@ -174,11 +177,11 @@ class ReviewCard extends ConsumerWidget {
 
   // ─── Header: avatar + isim + üni + rating + menu ──────────────────
 
-  Widget _buildHeader(BuildContext context, WidgetRef ref) {
+  Widget _buildHeader(BuildContext context, WidgetRef ref, AppLocalizations loc) {
     final currentUser = ref.watch(authStateProvider).value;
     final isOwner = currentUser != null && currentUser.uid == review.userId;
     final displayActions = showActions || isOwner;
-    final displayName = review.isAnonymous ? 'Anonim Öğrenci' : review.userName;
+    final displayName = review.isAnonymous ? loc.reviewAnonymousStudent : review.userName;
     final displayUni = review.isAnonymous ? null : review.userUniversity;
     final photoUrl = review.isAnonymous ? null : review.userPhotoUrl;
 
@@ -449,7 +452,7 @@ class ReviewCard extends ConsumerWidget {
 
   // ─── Onay Bekliyor Banner'ı ──────────────────────────────────────────
 
-  Widget _buildPendingApprovalBanner() {
+  Widget _buildPendingApprovalBanner(AppLocalizations loc) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(12),
@@ -467,7 +470,7 @@ class ReviewCard extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Yayınlanmadı',
+                  loc.reviewPendingTitle,
                   style: AppTextStyles.labelLarge.copyWith(
                     color: AppColors.warning,
                     fontWeight: FontWeight.w700,
@@ -475,8 +478,7 @@ class ReviewCard extends ConsumerWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  'Yorumun moderasyon aşamasında. '
-                  'Uygunsuz içerik tespit edildiyse düzenleyerek tekrar gönderebilirsin.',
+                  loc.reviewPendingDesc,
                   style: AppTextStyles.bodySmall.copyWith(
                     color: AppColors.warning,
                     height: 1.4,
@@ -573,6 +575,7 @@ class _CommentExpandableState extends State<_CommentExpandable> {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
     final isTooLong = widget.text.length > _maxChars;
     final displayText = isTooLong && !_expanded
         ? '${widget.text.substring(0, _maxChars)}...'
@@ -594,7 +597,7 @@ class _CommentExpandableState extends State<_CommentExpandable> {
             child: Padding(
               padding: const EdgeInsets.only(top: 4),
               child: Text(
-                _expanded ? 'Daha az göster' : 'Devamını oku',
+                _expanded ? loc.reviewShowLess : loc.reviewReadMore,
                 style: AppTextStyles.labelMedium.copyWith(
                   color: AppColors.primary,
                   fontWeight: FontWeight.w600,

@@ -168,5 +168,40 @@
   "editProfileSave": "Save",
   "editProfileSaving": "Saving...",
   "editProfileSuccess": "Profile updated successfully",
-  "editProfileError": "An error occurred while updating profile"
+  "editProfileError": "An error occurred while updating profile",
+
+  "universityNotFound": "University not found",
+  "errorDepartmentsLoad": "Failed to load departments.",
+  "noDepartmentsFound": "No departments found.",
+  "errorPlacesLoad": "Failed to load places.",
+  "noPlacesFound": "No places found.",
+  "errorReviewsLoad": "Failed to load reviews.",
+  "reviewLoginRequired": "You need to sign in to write reviews.",
+  "reviewEduRequiredTitle": "Verification Required",
+  "reviewEduRequiredDesc": "Only verified university students can write reviews (.edu.tr).",
+
+  "reviewAnonymousStudent": "Anonymous Student",
+  "reviewLoading": "Loading...",
+  "reviewUniversityFallback": "University",
+  "reviewDepartmentFallback": "Department",
+  "reviewPlaceFallback": "Place",
+  "reviewUniversityReview": "University Review",
+  "reviewDepartmentReview": "Department Review",
+  "reviewPlaceReview": "Place Review",
+  "reviewPendingTitle": "Not Published",
+  "reviewPendingDesc": "Your review is under moderation. If inappropriate content was detected, you can edit and resubmit.",
+  "reviewShowLess": "Show less",
+  "reviewReadMore": "Read more",
+
+  "recommendIntroTitle": "Preference Assistant",
+  "recommendIntroSubtitle": "I'll ask you a few short questions,\nlet's find your dream university together.",
+  "recommendIntroDuration": "~4 minutes",
+  "recommendIntroMedals": "Gold / Silver / Bronze",
+  "recommendIntroSuggestions": "8 suggestions",
+  "recommendIntroBetaTitle": "Beta — Development Phase",
+  "recommendIntroBetaDesc": "This assistant is still under development. Suggestions are for guidance only, not final decisions. Always do your own research for final preferences.",
+  "recommendIntroStart": "Let's Start",
+  "recommendIntroDurationNote": "Takes approximately 4 minutes",
+
+  "aiSummaryLimitReachedSimple": "You've used your daily AI summary quota. Try again tomorrow."
 }

@@ -204,5 +204,31 @@
   "errorReviewsLoad": "Yorumlar yüklenirken hata oluştu.",
   "reviewLoginRequired": "Yorum yazabilmek için önce hesabınıza giriş yapmanız gerekiyor.",
   "reviewEduRequiredTitle": "Doğrulama Gerekli",
-  "reviewEduRequiredDesc": "Sadece onaylı üniversite öğrencileri değerlendirme yapabilir (.edu.tr)."
+  "reviewEduRequiredDesc": "Sadece onaylı üniversite öğrencileri değerlendirme yapabilir (.edu.tr).",
+
+  "reviewAnonymousStudent": "Anonim Öğrenci",
+  "reviewLoading": "Yükleniyor...",
+  "reviewUniversityFallback": "Üniversite",
+  "reviewDepartmentFallback": "Bölüm",
+  "reviewPlaceFallback": "Mekan",
+  "reviewUniversityReview": "Üniversite Yorumu",
+  "reviewDepartmentReview": "Bölüm Yorumu",
+  "reviewPlaceReview": "Mekan Yorumu",
+  "reviewPendingTitle": "Yayınlanmadı",
+  "reviewPendingDesc": "Yorumun moderasyon aşamasında. Uygunsuz içerik tespit edildiyse düzenleyerek tekrar gönderebilirsin.",
+  "reviewShowLess": "Daha az göster",
+  "reviewReadMore": "Devamını oku",
+
+  "recommendIntroTitle": "Tercih Asistanı",
+  "recommendIntroSubtitle": "Sana birkaç kısa soru soracağım,\nhayalindeki üniversiteyi birlikte bulalım.",
+  "recommendIntroDuration": "~4 dakika",
+  "recommendIntroMedals": "Altın / Gümüş / Bronz",
+  "recommendIntroSuggestions": "8 öneri",
+  "recommendIntroBetaTitle": "Beta — Geliştirme Aşaması",
+  "recommendIntroBetaDesc": "Bu asistan henüz geliştirilme aşamasında. Öneriler kesin tercih kararı için değil, yönlendirme amaçlıdır. Final tercihinde mutlaka kendi araştırmanı yap.",
+  "recommendIntroStart": "Başlayalım",
+  "recommendIntroDurationNote": "Yaklaşık 4 dakika sürer",
+
+  "aiSummaryLimitReachedSimple": "Günlük AI özet hakkın doldu, yarın tekrar dene."
 }
+

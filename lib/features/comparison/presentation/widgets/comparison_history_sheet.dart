@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../core/theme/app_colors.dart';
@@ -401,10 +402,12 @@ class _LogoCircle extends StatelessWidget {
       return Icon(fallbackIcon, size: 18, color: accentColor);
     }
     if (src.startsWith('http://') || src.startsWith('https://')) {
-      return Image.network(
-        src,
+      return CachedNetworkImage(
+        imageUrl: src,
         fit: BoxFit.cover,
-        errorBuilder: (_, _, _) =>
+        memCacheWidth: 96,
+        placeholder: (_, _) => Container(color: AppColors.surfaceVariant),
+        errorWidget: (_, _, _) =>
             Icon(fallbackIcon, size: 18, color: accentColor),
       );
     }

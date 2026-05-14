@@ -7,6 +7,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import '../domain/user_model.dart';
 import '../../notifications/data/fcm_service.dart';
 import '../../../services/revenuecat_service.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 
 /// Auth işlemlerini yöneten repository
 class AuthRepository {
@@ -59,9 +60,11 @@ class AuthRepository {
       await FCMService().registerToken();
 
       return userModel;
-    } on FirebaseAuthException catch (e) {
+    } on FirebaseAuthException catch (e, st) {
+      FirebaseCrashlytics.instance.recordError(e, st, reason: 'signInWithGoogle_auth_error', fatal: false);
       throw _handleAuthError(e);
-    } catch (e) {
+    } catch (e, st) {
+      FirebaseCrashlytics.instance.recordError(e, st, reason: 'signInWithGoogle_unknown_error', fatal: false);
       // Eğer profil kaydedilemezse auth'tan çık ki inconsistent state olmasın
       await signOut();
       throw 'Giriş yapılamadı. Lütfen internet bağlantınızı kontrol edip tekrar deneyin.';
@@ -98,9 +101,11 @@ class AuthRepository {
       unawaited(RevenueCatService().login(user.uid));
 
       return userModel;
-    } on FirebaseAuthException catch (e) {
+    } on FirebaseAuthException catch (e, st) {
+      FirebaseCrashlytics.instance.recordError(e, st, reason: 'registerWithEmail_auth_error', information: ['email: $email'], fatal: false);
       throw _handleAuthError(e);
-    } catch (e) {
+    } catch (e, st) {
+      FirebaseCrashlytics.instance.recordError(e, st, reason: 'registerWithEmail_unknown_error', information: ['email: $email'], fatal: false);
       // Eğer profil veritabanına yazılamazsa, Auth tarafında oluşan hesabı sil ki 
       // kullanıcı tekrar kayıt olmaya çalıştığında email-already-in-use hatası almasın.
       try {

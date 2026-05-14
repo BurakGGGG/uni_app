@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 
 import '../features/monetization/domain/enums/subscription_tier.dart';
 import '../features/monetization/domain/models/subscription_model.dart';
@@ -181,7 +182,7 @@ class RevenueCatService {
         billing: billing,
       );
       return true;
-    } catch (e) {
+    } catch (e, st) {
       final errorCode = e is PlatformException
           ? PurchasesErrorHelper.getErrorCode(e)
           : PurchasesErrorCode.unknownError;
@@ -190,6 +191,13 @@ class RevenueCatService {
         return false;
       }
       debugPrint('[RevenueCat] Purchase error: $e');
+      FirebaseCrashlytics.instance.recordError(
+        e,
+        st,
+        reason: 'revenuecat_purchasePackage_error',
+        information: ['package: ${package.identifier}'],
+        fatal: false,
+      );
       return false;
     }
   }
@@ -202,8 +210,9 @@ class RevenueCatService {
       final tier = _tierFromCustomerInfo(info);
       debugPrint('[RevenueCat] Restore result: $tier');
       return tier;
-    } catch (e) {
+    } catch (e, st) {
       debugPrint('[RevenueCat] Restore error: $e');
+      FirebaseCrashlytics.instance.recordError(e, st, reason: 'revenuecat_restorePurchases_error', fatal: false);
       return SubscriptionTier.free;
     }
   }
