@@ -142,10 +142,16 @@ class AppColors {
   static const Color lockOverlay = Color(0x88000000);
 
   // ─── Dark Mode Surfaces ────────────────────────────────────────
+  /// Ana dark arka plan (Scaffold)
   static const Color darkBackground = Color(0xFF0F0F1A);
+  /// Kart / container yüzeyi (dark)
   static const Color darkSurface = Color(0xFF1A1A2E);
+  /// Alternatif surface — inputlar, iç içe kartlar (dark)
   static const Color darkSurfaceVariant = Color(0xFF141424);
+  /// Elevated surface — modal, bottom sheet (dark)
   static const Color darkSurfaceElevated = Color(0xFF22223F);
+  /// İkinci kademe elevated surface — iç kartlar, sekmeler (dark)
+  static const Color darkSurface2 = Color(0xFF1F1F36);
 
   // ─── Dark Mode Overlays (Alpha) ────────────────────────────────
   static Color darkOverlay06 = Colors.white.withValues(alpha: 0.06);
@@ -153,6 +159,10 @@ class AppColors {
   static Color darkOverlay12 = Colors.white.withValues(alpha: 0.12);
   static Color darkOverlay22 = Colors.white.withValues(alpha: 0.22);
   static Color darkOverlay60 = Colors.white.withValues(alpha: 0.60);
+
+  // ─── Shimmer Dark Variants ────────────────────────────────────
+  static const Color shimmerBaseDark = Color(0xFF2A2A40);
+  static const Color shimmerHighlightDark = Color(0xFF35355A);
 
   // ─── Brand Accents ─────────────────────────────────────────────
   static const Color gold = Color(0xFFD4A017);
@@ -180,28 +190,56 @@ class AppColors {
   static const Color loserMuted = Color(0xFFD1D5DB);
   static const Color tieColor = Color(0xFFF59E0B);
 
-  /// Tema (dark/light) duyarlı surface seçici
+  // ═══════════════════════════════════════════════════════════════
+  //  Semantic Surface Helpers (Dark/Light Adaptive)
+  // ═══════════════════════════════════════════════════════════════
+
+  /// Tema duyarlı surface seçici — kart / container arka planları
   static Color surfaceFor(BuildContext context) {
     return Theme.of(context).brightness == Brightness.dark
         ? darkSurface
         : surface;
   }
 
+  /// Tema duyarlı arka plan seçici — Scaffold / sayfa arka planı
   static Color backgroundFor(BuildContext context) {
     return Theme.of(context).brightness == Brightness.dark
         ? darkBackground
         : background;
   }
 
+  /// Tema duyarlı metin rengi — surface üzerindeki birincil metin
+  static Color textOnSurfaceFor(BuildContext context) {
+    return Theme.of(context).brightness == Brightness.dark
+        ? Colors.white.withValues(alpha: 0.92)
+        : textPrimary;
+  }
+
+  /// Tema duyarlı divider rengi
+  static Color dividerFor(BuildContext context) {
+    return Theme.of(context).brightness == Brightness.dark
+        ? Colors.white.withValues(alpha: 0.08)
+        : divider;
+  }
+
+  /// Tema duyarlı border rengi
+  static Color borderFor(BuildContext context) {
+    return Theme.of(context).brightness == Brightness.dark
+        ? Colors.white.withValues(alpha: 0.12)
+        : border;
+  }
+
+  /// Tema duyarlı shimmer base rengi — skeleton loading
   static Color shimmerBaseFor(BuildContext context) {
     return Theme.of(context).brightness == Brightness.dark
-        ? darkSurfaceVariant
+        ? shimmerBaseDark
         : shimmerBase;
   }
 
+  /// Tema duyarlı shimmer highlight rengi — skeleton loading
   static Color shimmerHighlightFor(BuildContext context) {
     return Theme.of(context).brightness == Brightness.dark
-        ? darkSurfaceElevated
+        ? shimmerHighlightDark
         : shimmerHighlight;
   }
 
