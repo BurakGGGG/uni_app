@@ -183,13 +183,13 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
-  String get authSignIn => 'Giriş Yap';
+  String get authSignIn => 'Giriş yap';
 
   @override
-  String get authSignUp => 'Kayıt Ol';
+  String get authSignUp => 'Kayıt ol';
 
   @override
-  String get authEmailLabel => 'E-posta adresi';
+  String get authEmailLabel => 'E-posta';
 
   @override
   String get authEmailHint => 'ornek@universite.edu.tr';
@@ -201,7 +201,7 @@ class AppLocalizationsTr extends AppLocalizations {
   String get authPasswordHint => 'En az 6 karakter';
 
   @override
-  String get authForgotPassword => 'Şifremi Unuttum';
+  String get authForgotPassword => 'Şifremi unuttum';
 
   @override
   String get authGoogleContinue => 'Google ile Giriş Yap';
@@ -225,7 +225,7 @@ class AppLocalizationsTr extends AppLocalizations {
   String get authEmailRequired => 'E-posta adresi gerekli';
 
   @override
-  String get authEmailInvalid => 'Geçerli bir e-posta adresi girin';
+  String get authEmailInvalid => 'Geçerli bir e-posta gir';
 
   @override
   String get authContinueWithAccount => 'Hesabına giriş yaparak devam et';
@@ -321,7 +321,7 @@ class AppLocalizationsTr extends AppLocalizations {
   String get profileTitle => 'Hesabım';
 
   @override
-  String get profileEditProfile => 'Profili Düzenle';
+  String get profileEditProfile => 'Profili düzenle';
 
   @override
   String get profileEditSubtitle => 'Fotoğraf, isim, üniversite';
@@ -530,4 +530,116 @@ class AppLocalizationsTr extends AppLocalizations {
   @override
   String get reviewEduRequiredDesc =>
       'Sadece onaylı üniversite öğrencileri değerlendirme yapabilir (.edu.tr).';
+
+  @override
+  String get commonRetry => 'Tekrar dene';
+
+  @override
+  String get commonError => 'Bir hata oluştu';
+
+  @override
+  String get commonLoading => 'Yükleniyor...';
+
+  @override
+  String get commonCancel => 'İptal';
+
+  @override
+  String get commonSave => 'Kaydet';
+
+  @override
+  String get commonDelete => 'Sil';
+
+  @override
+  String get commonClose => 'Kapat';
+
+  @override
+  String get commonShare => 'Paylaş';
+
+  @override
+  String get commonEdit => 'Düzenle';
+
+  @override
+  String get commonContinue => 'Devam et';
+
+  @override
+  String get authSignOut => 'Çıkış yap';
+
+  @override
+  String get authPasswordTooShort => 'Şifre en az 6 karakter olmalı';
+
+  @override
+  String get homeTabExplore => 'Keşfet';
+
+  @override
+  String get homeTabCompare => 'Karşılaştır';
+
+  @override
+  String get homeTabFavorites => 'Favoriler';
+
+  @override
+  String get homeTabProfile => 'Profil';
+
+  @override
+  String get comparisonTitleUni => 'Üniversite karşılaştır';
+
+  @override
+  String get comparisonTitleDept => 'Bölüm karşılaştır';
+
+  @override
+  String get comparisonTitleCity => 'Şehir karşılaştır';
+
+  @override
+  String get comparisonNoteAdd => 'Not ekle';
+
+  @override
+  String get comparisonNoteEmpty => 'Henüz notun yok';
+
+  @override
+  String get comparisonNoteMaxLength => 'En fazla 500 karakter';
+
+  @override
+  String get comparisonProUpsell =>
+      '3. üniversite eklemek için Pro\'ya yükselt';
+
+  @override
+  String get paywallContinueFree => 'Ücretsiz devam et';
+
+  @override
+  String paywallSavePercent(int percent) {
+    return 'TASARRUF $percent%';
+  }
+
+  @override
+  String get paywallMonthly => 'Aylık';
+
+  @override
+  String get paywallYearly => 'Yıllık';
+
+  @override
+  String get paywallRestore => 'Satın alımları geri yükle';
+
+  @override
+  String get reviewWrite => 'Yorum yaz';
+
+  @override
+  String get reviewAnonymous => 'Anonim';
+
+  @override
+  String get reviewRatingRequired => 'Puan vermeden yorum gönderilemez';
+
+  @override
+  String get profilePremium => 'Premium üyelik';
+
+  @override
+  String get profileLanguage => 'Dil';
+
+  @override
+  String get profileDeleteAccount => 'Hesabımı sil';
+
+  @override
+  String get favoritesEmpty => 'Favori yok';
+
+  @override
+  String get favoritesEmptyHint =>
+      'Beğendiğin üniversiteleri buradan takip et.';
 }

@@ -412,6 +412,7 @@ class _LogoCircle extends StatelessWidget {
       return Image.asset(
         src,
         fit: BoxFit.cover,
+        semanticLabel: 'Üniversite logosu',
         errorBuilder: (_, _, _) =>
             Icon(fallbackIcon, size: 18, color: accentColor),
       );

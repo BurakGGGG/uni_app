@@ -431,19 +431,19 @@ abstract class AppLocalizations {
   /// No description provided for @authSignIn.
   ///
   /// In tr, this message translates to:
-  /// **'Giriş Yap'**
+  /// **'Giriş yap'**
   String get authSignIn;
 
   /// No description provided for @authSignUp.
   ///
   /// In tr, this message translates to:
-  /// **'Kayıt Ol'**
+  /// **'Kayıt ol'**
   String get authSignUp;
 
   /// No description provided for @authEmailLabel.
   ///
   /// In tr, this message translates to:
-  /// **'E-posta adresi'**
+  /// **'E-posta'**
   String get authEmailLabel;
 
   /// No description provided for @authEmailHint.
@@ -467,7 +467,7 @@ abstract class AppLocalizations {
   /// No description provided for @authForgotPassword.
   ///
   /// In tr, this message translates to:
-  /// **'Şifremi Unuttum'**
+  /// **'Şifremi unuttum'**
   String get authForgotPassword;
 
   /// No description provided for @authGoogleContinue.
@@ -515,7 +515,7 @@ abstract class AppLocalizations {
   /// No description provided for @authEmailInvalid.
   ///
   /// In tr, this message translates to:
-  /// **'Geçerli bir e-posta adresi girin'**
+  /// **'Geçerli bir e-posta gir'**
   String get authEmailInvalid;
 
   /// No description provided for @authContinueWithAccount.
@@ -695,7 +695,7 @@ abstract class AppLocalizations {
   /// No description provided for @profileEditProfile.
   ///
   /// In tr, this message translates to:
-  /// **'Profili Düzenle'**
+  /// **'Profili düzenle'**
   String get profileEditProfile;
 
   /// No description provided for @profileEditSubtitle.
@@ -1081,6 +1081,222 @@ abstract class AppLocalizations {
   /// In tr, this message translates to:
   /// **'Sadece onaylı üniversite öğrencileri değerlendirme yapabilir (.edu.tr).'**
   String get reviewEduRequiredDesc;
+
+  /// No description provided for @commonRetry.
+  ///
+  /// In tr, this message translates to:
+  /// **'Tekrar dene'**
+  String get commonRetry;
+
+  /// No description provided for @commonError.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bir hata oluştu'**
+  String get commonError;
+
+  /// No description provided for @commonLoading.
+  ///
+  /// In tr, this message translates to:
+  /// **'Yükleniyor...'**
+  String get commonLoading;
+
+  /// No description provided for @commonCancel.
+  ///
+  /// In tr, this message translates to:
+  /// **'İptal'**
+  String get commonCancel;
+
+  /// No description provided for @commonSave.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kaydet'**
+  String get commonSave;
+
+  /// No description provided for @commonDelete.
+  ///
+  /// In tr, this message translates to:
+  /// **'Sil'**
+  String get commonDelete;
+
+  /// No description provided for @commonClose.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kapat'**
+  String get commonClose;
+
+  /// No description provided for @commonShare.
+  ///
+  /// In tr, this message translates to:
+  /// **'Paylaş'**
+  String get commonShare;
+
+  /// No description provided for @commonEdit.
+  ///
+  /// In tr, this message translates to:
+  /// **'Düzenle'**
+  String get commonEdit;
+
+  /// No description provided for @commonContinue.
+  ///
+  /// In tr, this message translates to:
+  /// **'Devam et'**
+  String get commonContinue;
+
+  /// No description provided for @authSignOut.
+  ///
+  /// In tr, this message translates to:
+  /// **'Çıkış yap'**
+  String get authSignOut;
+
+  /// No description provided for @authPasswordTooShort.
+  ///
+  /// In tr, this message translates to:
+  /// **'Şifre en az 6 karakter olmalı'**
+  String get authPasswordTooShort;
+
+  /// No description provided for @homeTabExplore.
+  ///
+  /// In tr, this message translates to:
+  /// **'Keşfet'**
+  String get homeTabExplore;
+
+  /// No description provided for @homeTabCompare.
+  ///
+  /// In tr, this message translates to:
+  /// **'Karşılaştır'**
+  String get homeTabCompare;
+
+  /// No description provided for @homeTabFavorites.
+  ///
+  /// In tr, this message translates to:
+  /// **'Favoriler'**
+  String get homeTabFavorites;
+
+  /// No description provided for @homeTabProfile.
+  ///
+  /// In tr, this message translates to:
+  /// **'Profil'**
+  String get homeTabProfile;
+
+  /// No description provided for @comparisonTitleUni.
+  ///
+  /// In tr, this message translates to:
+  /// **'Üniversite karşılaştır'**
+  String get comparisonTitleUni;
+
+  /// No description provided for @comparisonTitleDept.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bölüm karşılaştır'**
+  String get comparisonTitleDept;
+
+  /// No description provided for @comparisonTitleCity.
+  ///
+  /// In tr, this message translates to:
+  /// **'Şehir karşılaştır'**
+  String get comparisonTitleCity;
+
+  /// No description provided for @comparisonNoteAdd.
+  ///
+  /// In tr, this message translates to:
+  /// **'Not ekle'**
+  String get comparisonNoteAdd;
+
+  /// No description provided for @comparisonNoteEmpty.
+  ///
+  /// In tr, this message translates to:
+  /// **'Henüz notun yok'**
+  String get comparisonNoteEmpty;
+
+  /// No description provided for @comparisonNoteMaxLength.
+  ///
+  /// In tr, this message translates to:
+  /// **'En fazla 500 karakter'**
+  String get comparisonNoteMaxLength;
+
+  /// No description provided for @comparisonProUpsell.
+  ///
+  /// In tr, this message translates to:
+  /// **'3. üniversite eklemek için Pro\'ya yükselt'**
+  String get comparisonProUpsell;
+
+  /// No description provided for @paywallContinueFree.
+  ///
+  /// In tr, this message translates to:
+  /// **'Ücretsiz devam et'**
+  String get paywallContinueFree;
+
+  /// No description provided for @paywallSavePercent.
+  ///
+  /// In tr, this message translates to:
+  /// **'TASARRUF {percent}%'**
+  String paywallSavePercent(int percent);
+
+  /// No description provided for @paywallMonthly.
+  ///
+  /// In tr, this message translates to:
+  /// **'Aylık'**
+  String get paywallMonthly;
+
+  /// No description provided for @paywallYearly.
+  ///
+  /// In tr, this message translates to:
+  /// **'Yıllık'**
+  String get paywallYearly;
+
+  /// No description provided for @paywallRestore.
+  ///
+  /// In tr, this message translates to:
+  /// **'Satın alımları geri yükle'**
+  String get paywallRestore;
+
+  /// No description provided for @reviewWrite.
+  ///
+  /// In tr, this message translates to:
+  /// **'Yorum yaz'**
+  String get reviewWrite;
+
+  /// No description provided for @reviewAnonymous.
+  ///
+  /// In tr, this message translates to:
+  /// **'Anonim'**
+  String get reviewAnonymous;
+
+  /// No description provided for @reviewRatingRequired.
+  ///
+  /// In tr, this message translates to:
+  /// **'Puan vermeden yorum gönderilemez'**
+  String get reviewRatingRequired;
+
+  /// No description provided for @profilePremium.
+  ///
+  /// In tr, this message translates to:
+  /// **'Premium üyelik'**
+  String get profilePremium;
+
+  /// No description provided for @profileLanguage.
+  ///
+  /// In tr, this message translates to:
+  /// **'Dil'**
+  String get profileLanguage;
+
+  /// No description provided for @profileDeleteAccount.
+  ///
+  /// In tr, this message translates to:
+  /// **'Hesabımı sil'**
+  String get profileDeleteAccount;
+
+  /// No description provided for @favoritesEmpty.
+  ///
+  /// In tr, this message translates to:
+  /// **'Favori yok'**
+  String get favoritesEmpty;
+
+  /// No description provided for @favoritesEmptyHint.
+  ///
+  /// In tr, this message translates to:
+  /// **'Beğendiğin üniversiteleri buradan takip et.'**
+  String get favoritesEmptyHint;
 }
 
 class _AppLocalizationsDelegate

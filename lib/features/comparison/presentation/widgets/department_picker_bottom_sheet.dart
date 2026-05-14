@@ -243,6 +243,7 @@ class _SelectedUniStrip extends StatelessWidget {
             child: Image.asset(
               uni.logoAssetPath,
               fit: BoxFit.contain,
+              semanticLabel: 'Üniversite logosu',
               errorBuilder: (_, _, _) =>
                   Icon(Icons.account_balance_rounded, color: brand, size: 20),
             ),
@@ -386,6 +387,7 @@ class _UniTile extends StatelessWidget {
                 child: Image.asset(
                   uni.logoAssetPath,
                   fit: BoxFit.contain,
+                  semanticLabel: 'Üniversite logosu',
                   errorBuilder: (_, _, _) =>
                       Icon(Icons.account_balance_rounded, color: brand, size: 20),
                 ),

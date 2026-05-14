@@ -86,14 +86,23 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
             // ─── Sonuçlar ────────────────────────────────────────
             Expanded(
               child: searchResultsAsync.when(
-                loading: () => const Center(child: CircularProgressIndicator()),
-                error: (e, st) => Center(child: Text('Hata: $e')),
+                loading: () => const Center(
+                  child: SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  ),
+                ),
+                error: (e, st) => ErrorState(
+                  message: 'Arama yapılırken bir hata oluştu.',
+                  onRetry: () => ref.invalidate(searchResultsProvider),
+                ),
                 data: (results) {
                   if (results.isEmpty) {
-                    return EmptyStateWidget(
+                    return EmptyState(
                       icon: Icons.search_off_rounded,
                       title: 'Sonuç bulunamadı',
-                      description: '"$query" aramasına uygun üniversite yok.',
+                      message: '"$query" aramasına uygun üniversite yok.',
                     );
                   }
 

@@ -80,6 +80,7 @@ class UniCard extends StatelessWidget {
                     child: Image.asset(
                       logoAssetPath!,
                       fit: BoxFit.contain,
+                      semanticLabel: 'Üniversite logosu',
                       errorBuilder: (context, error, stackTrace) => const Icon(Icons.school, size: 24, color: Colors.grey),
                     ),
                   ),

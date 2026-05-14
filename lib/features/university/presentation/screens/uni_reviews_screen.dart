@@ -26,55 +26,60 @@ class UniReviewsScreen extends ConsumerWidget {
         data: (uni) {
           if (uni == null) return const Center(child: Text('Üniversite bulunamadı'));
 
-          return ListView(
-            padding: const EdgeInsets.only(bottom: 80),
-            children: [
-              // Kategori puanları butonuyla detail sayfasında açılıyor.
+          return Builder(
+            builder: (context) {
+              final children = [
+                // Değerlendir butonu
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: Consumer(
+                    builder: (context, ref, _) {
+                      final currentUserAsync = ref.watch(currentUserProvider);
+                      return currentUserAsync.when(
+                        data: (profile) {
+                          final canReview = profile != null &&
+                              profile.universityId == universityId &&
+                              profile.isVerifiedStudent;
 
-              // Değerlendir butonu
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                child: Consumer(
-                  builder: (context, ref, _) {
-                    final currentUserAsync = ref.watch(currentUserProvider);
-                    return currentUserAsync.when(
-                      data: (profile) {
-                        final canReview = profile != null &&
-                            profile.universityId == universityId &&
-                            profile.isVerifiedStudent;
-
-                        return SizedBox(
-                          width: double.infinity,
-                          child: canReview
-                            ? ElevatedButton.icon(
-                                onPressed: () => context.push('/write-review/university/$universityId'),
-                                icon: const Icon(Icons.add_comment_rounded, size: 18),
-                                label: const Text('Bu Üniversiteyi Değerlendir'),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppColors.primary,
-                                  foregroundColor: Colors.white,
-                                  padding: const EdgeInsets.symmetric(vertical: 14),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(AppConstants.radiusMd),
+                          return SizedBox(
+                            width: double.infinity,
+                            child: canReview
+                              ? ElevatedButton.icon(
+                                  onPressed: () => context.push('/write-review/university/$universityId'),
+                                  icon: const Icon(Icons.add_comment_rounded, size: 18),
+                                  label: const Text('Bu Üniversiteyi Değerlendir'),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: AppColors.primary,
+                                    foregroundColor: Colors.white,
+                                    padding: const EdgeInsets.symmetric(vertical: 14),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(AppConstants.radiusMd),
+                                    ),
                                   ),
-                                ),
-                              )
-                            : const SizedBox.shrink(),
-                        );
-                      },
-                      loading: () => const SizedBox(height: 48),
-                      error: (err, stack) => const SizedBox.shrink(),
-                    );
-                  },
+                                )
+                              : const SizedBox.shrink(),
+                          );
+                        },
+                        loading: () => const SizedBox(height: 48),
+                        error: (err, stack) => const SizedBox.shrink(),
+                      );
+                    },
+                  ),
                 ),
-              ),
 
-              // Yorum listesi
-              ReviewList(
-                targetId: universityId,
-                type: ReviewType.university,
-              ),
-            ],
+                // Yorum listesi
+                ReviewList(
+                  targetId: universityId,
+                  type: ReviewType.university,
+                ),
+              ];
+
+              return ListView.builder(
+                padding: const EdgeInsets.only(bottom: 80),
+                itemCount: children.length,
+                itemBuilder: (context, index) => children[index],
+              );
+            },
           );
         },
       ),

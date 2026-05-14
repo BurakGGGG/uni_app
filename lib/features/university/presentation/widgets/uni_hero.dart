@@ -119,6 +119,7 @@ class UniHero extends ConsumerWidget {
                             child: Image.asset(
                               uni.logoAssetPath,
                               fit: BoxFit.contain,
+                              semanticLabel: 'Üniversite logosu',
                               errorBuilder: (context, error, stackTrace) => const Icon(
                                 Icons.school_rounded,
                                 size: 40,
@@ -169,8 +170,8 @@ class UniHero extends ConsumerWidget {
         customBorder: const CircleBorder(),
         onTap: onTap,
         child: SizedBox(
-          width: 44,
-          height: 44,
+          width: 48,
+          height: 48,
           child: Icon(icon, color: iconColor, size: 22),
         ),
       ),

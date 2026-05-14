@@ -79,16 +79,18 @@ class PlaceList extends ConsumerWidget {
 
     return SizedBox(
       height: 44,
-      child: ListView(
+      child: ListView.builder(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-        children: [
-          _buildFilterChip(ref, null, 'Tümü', all.length, filter),
-          ...types.map((t) {
-            final count = all.where((p) => p.type == t).length;
-            return _buildFilterChip(ref, t, t.label, count, filter);
-          }),
-        ],
+        itemCount: types.length + 1,
+        itemBuilder: (context, index) {
+          if (index == 0) {
+            return _buildFilterChip(ref, null, 'Tümü', all.length, filter);
+          }
+          final t = types[index - 1];
+          final count = all.where((p) => p.type == t).length;
+          return _buildFilterChip(ref, t, t.label, count, filter);
+        },
       ),
     );
   }

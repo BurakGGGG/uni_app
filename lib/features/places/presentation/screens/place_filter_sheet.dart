@@ -62,21 +62,27 @@ class PlaceFilterSheet extends ConsumerWidget {
           ),
         ),
         Expanded(
-          child: ListView(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            children: [
-              const _SectionTitle('Mekan Tipi'),
-              _TypeFilters(filter: filter, notifier: notifier),
-              const SizedBox(height: 24),
-              const _SectionTitle('Fiyat Seviyesi'),
-              const SizedBox(height: 8),
-              _PriceFilters(filter: filter, notifier: notifier),
-              const SizedBox(height: 24),
-              const _SectionTitle('Özellikler'),
-              const SizedBox(height: 8),
-              _AmenityFilters(filter: filter, notifier: notifier),
-              const SizedBox(height: 32),
-            ],
+          child: Builder(
+            builder: (context) {
+              final children = [
+                const _SectionTitle('Mekan Tipi'),
+                _TypeFilters(filter: filter, notifier: notifier),
+                const SizedBox(height: 24),
+                const _SectionTitle('Fiyat Seviyesi'),
+                const SizedBox(height: 8),
+                _PriceFilters(filter: filter, notifier: notifier),
+                const SizedBox(height: 24),
+                const _SectionTitle('Özellikler'),
+                const SizedBox(height: 8),
+                _AmenityFilters(filter: filter, notifier: notifier),
+                const SizedBox(height: 32),
+              ];
+              return ListView.builder(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                itemCount: children.length,
+                itemBuilder: (context, index) => children[index],
+              );
+            },
           ),
         ),
         Container(
