@@ -12,6 +12,8 @@ import 'core/constants/app_constants.dart';
 import 'core/providers/shared_preferences_provider.dart';
 import 'router/app_router.dart';
 import 'features/notifications/data/fcm_service.dart';
+import 'dart:ui';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'l10n/generated/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'core/providers/theme_provider.dart';
@@ -37,6 +39,15 @@ void main() async {
   ]);
   
   final prefs = results[1] as SharedPreferences;
+
+  // Global Crashlytics handler
+  FlutterError.onError = (errorDetails) {
+    FirebaseCrashlytics.instance.recordFlutterFatalError(errorDetails);
+  };
+  PlatformDispatcher.instance.onError = (error, stack) {
+    FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+    return true;
+  };
 
   // Firestore offline persistence'i maksimum önbellekleme için yapılandır
   FirebaseFirestore.instance.settings = const Settings(
