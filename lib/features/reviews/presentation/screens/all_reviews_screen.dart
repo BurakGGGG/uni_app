@@ -74,7 +74,7 @@ class AllReviewsScreen extends ConsumerWidget {
           // Yorum listesi
           Expanded(
             child: reviewsAsync.when(
-              loading: () => const Center(child: CircularProgressIndicator()),
+              loading: () => const ListSkeleton(itemCount: 5),
               error: (e, st) => Center(
                 child: Padding(
                   padding: const EdgeInsets.all(24),
@@ -293,118 +293,120 @@ class _FilterBottomSheet extends ConsumerWidget {
             ),
             const Divider(color: AppColors.borderLight, height: 1),
             Expanded(
-              child: ListView(
-                controller: scrollController,
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                children: [
-                  // Tip Filtresi
-                  Text('Yorum Tipi', style: AppTextStyles.titleMedium),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      _TypeOption(
-                        icon: Icons.school_rounded,
-                        label: 'Üniversite',
-                        isSelected: filter.reviewType == ReviewType.university,
-                        onTap: () {
-                          final current = filter.reviewType;
-                          ref.read(allReviewsFilterProvider.notifier).setReviewType(
-                                current == ReviewType.university
-                                    ? null
-                                    : ReviewType.university,
-                              );
-                        },
-                      ),
-                      const SizedBox(width: 10),
-                      _TypeOption(
-                        icon: Icons.menu_book_rounded,
-                        label: 'Bölüm',
-                        isSelected: filter.reviewType == ReviewType.department,
-                        onTap: () {
-                          final current = filter.reviewType;
-                          ref.read(allReviewsFilterProvider.notifier).setReviewType(
-                                current == ReviewType.department
-                                    ? null
-                                    : ReviewType.department,
-                              );
-                        },
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 24),
+              child: Builder(
+                builder: (context) {
+                  final baseCount = 8;
+                  final uniCount = universitiesAsync.valueOrNull?.length ?? 1;
 
-                  // Sıralama
-                  Text('Sıralama', style: AppTextStyles.titleMedium),
-                  const SizedBox(height: 12),
-                  Wrap(
-                    spacing: 8,
-                    children: [
-                      ChoiceChip(
-                        label: const Text('En Yeni'),
-                        selected: filter.sort == ReviewSort.newest,
-                        onSelected: (v) {
-                          if (v) {
-                            ref.read(allReviewsFilterProvider.notifier)
-                                .setSort(ReviewSort.newest);
-                          }
-                        },
-                      ),
-                      ChoiceChip(
-                        label: const Text('En Beğenilen'),
-                        selected: filter.sort == ReviewSort.mostLiked,
-                        onSelected: (v) {
-                          if (v) {
-                            ref.read(allReviewsFilterProvider.notifier)
-                                .setSort(ReviewSort.mostLiked);
-                          }
-                        },
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 24),
-
-                  // Üniversite Filtresi
-                  Text('Üniversite', style: AppTextStyles.titleMedium),
-                  const SizedBox(height: 12),
-                  universitiesAsync.when(
-                    data: (universities) {
-                      return Column(
-                        children: [
-                          ...universities.map(
-                            (uni) => RadioListTile<String?>(
-                              value: uni.id,
-                              // ignore: deprecated_member_use
-                              groupValue: filter.universityId,
-                              // ignore: deprecated_member_use
-                              onChanged: (val) => ref
-                                  .read(allReviewsFilterProvider.notifier)
-                                  .setUniversity(val),
-                              title: Text(
-                                uni.name,
-                                style: AppTextStyles.bodyMedium,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              subtitle: Text(
-                                '${uni.type} • ${uni.reviewCount} yorum',
-                                style: AppTextStyles.labelSmall,
-                              ),
-                              dense: true,
-                              activeColor: AppColors.primary,
-                              contentPadding: EdgeInsets.zero,
+                  return ListView.builder(
+                    controller: scrollController,
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                    itemCount: baseCount + uniCount,
+                    itemBuilder: (context, index) {
+                      if (index == 0) return Text('Yorum Tipi', style: AppTextStyles.titleMedium);
+                      if (index == 1) return const SizedBox(height: 12);
+                      if (index == 2) {
+                        return Row(
+                          children: [
+                            _TypeOption(
+                              icon: Icons.school_rounded,
+                              label: 'Üniversite',
+                              isSelected: filter.reviewType == ReviewType.university,
+                              onTap: () {
+                                final current = filter.reviewType;
+                                ref.read(allReviewsFilterProvider.notifier).setReviewType(
+                                      current == ReviewType.university ? null : ReviewType.university,
+                                    );
+                              },
                             ),
-                          ),
-                        ],
+                            const SizedBox(width: 10),
+                            _TypeOption(
+                              icon: Icons.menu_book_rounded,
+                              label: 'Bölüm',
+                              isSelected: filter.reviewType == ReviewType.department,
+                              onTap: () {
+                                final current = filter.reviewType;
+                                ref.read(allReviewsFilterProvider.notifier).setReviewType(
+                                      current == ReviewType.department ? null : ReviewType.department,
+                                    );
+                              },
+                            ),
+                          ],
+                        );
+                      }
+                      if (index == 3) return const SizedBox(height: 24);
+                      if (index == 4) return Text('Sıralama', style: AppTextStyles.titleMedium);
+                      if (index == 5) return const SizedBox(height: 12);
+                      if (index == 6) {
+                        return Wrap(
+                          spacing: 8,
+                          children: [
+                            ChoiceChip(
+                              label: const Text('En Yeni'),
+                              selected: filter.sort == ReviewSort.newest,
+                              onSelected: (v) {
+                                if (v) ref.read(allReviewsFilterProvider.notifier).setSort(ReviewSort.newest);
+                              },
+                            ),
+                            ChoiceChip(
+                              label: const Text('En Beğenilen'),
+                              selected: filter.sort == ReviewSort.mostLiked,
+                              onSelected: (v) {
+                                if (v) ref.read(allReviewsFilterProvider.notifier).setSort(ReviewSort.mostLiked);
+                              },
+                            ),
+                          ],
+                        );
+                      }
+                      if (index == 7) {
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const SizedBox(height: 24),
+                            Text('Üniversite', style: AppTextStyles.titleMedium),
+                            const SizedBox(height: 12),
+                          ],
+                        );
+                      }
+
+                      // Üniversite Listesi kısmı
+                      return universitiesAsync.when(
+                        data: (universities) {
+                          final uniIndex = index - baseCount;
+                          final uni = universities[uniIndex];
+                          return RadioListTile<String?>(
+                            value: uni.id,
+                            // ignore: deprecated_member_use
+                            groupValue: filter.universityId,
+                            // ignore: deprecated_member_use
+                            onChanged: (val) => ref
+                                .read(allReviewsFilterProvider.notifier)
+                                .setUniversity(val),
+                            title: Text(
+                              uni.name,
+                              style: AppTextStyles.bodyMedium,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            subtitle: Text(
+                              '${uni.type} • ${uni.reviewCount} yorum',
+                              style: AppTextStyles.labelSmall,
+                            ),
+                            dense: true,
+                            activeColor: AppColors.primary,
+                            contentPadding: EdgeInsets.zero,
+                          );
+                        },
+                        loading: () => const Padding(
+                          padding: EdgeInsets.all(20),
+                          child: Center(child: CircularProgressIndicator()),
+                        ),
+                        error: (e, _) =>
+                            Text('Üniversiteler yüklenemedi', style: AppTextStyles.bodySmall),
                       );
                     },
-                    loading: () => const Padding(
-                      padding: EdgeInsets.all(20),
-                      child: Center(child: CircularProgressIndicator()),
-                    ),
-                    error: (e, _) =>
-                        Text('Üniversiteler yüklenemedi', style: AppTextStyles.bodySmall),
-                  ),
-                ],
+                  );
+                },
               ),
             ),
             // Footer

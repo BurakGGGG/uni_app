@@ -1,6 +1,9 @@
 {
   "@@locale": "en",
   "comparisonHubTitle": "Compare",
+  "@comparisonHubTitle": {
+    "description": "Karşılaştırma hub ekranı başlığı"
+  },
   "comparisonUniversity": "Compare Universities",
   "comparisonUniversityDesc": "Compare two universities side by side",
   "comparisonDepartment": "Compare Departments",
@@ -22,11 +25,19 @@
   "tabChart": "Chart",
   "tabStats": "Stats",
   "emptyStateTitle": "Select two {entityType}",
+  "@emptyStateTitle": {
+    "placeholders": {
+      "entityType": { "type": "String", "example": "üniversite" }
+    }
+  },
   "loadingComparison": "Loading comparison…",
   "errorComparison": "Failed to load comparison",
   "aiSummaryTitle": "AI Analysis",
   "aiSummaryProRequired": "AI Analysis is a Pro feature. Upgrade to unlock detailed summaries.",
   "aiSummaryLimitReached": "You've used your daily {limit} AI summaries. Try again tomorrow.",
+  "@aiSummaryLimitReached": {
+    "placeholders": { "limit": { "type": "int", "example": "5" } }
+  },
   "aiSummaryActive": "Pro analysis active",
   "aiSummaryRegenerate": "Regenerate",
   "watchAdToContinue": "Watch Ad to Continue",
@@ -55,6 +66,12 @@
   "offline": "No internet connection",
   "offlineDescription": "Connect to the internet to make comparisons.",
   "shareSubject": "{uniA} vs {uniB} — Comparison",
+  "@shareSubject": {
+    "placeholders": {
+      "uniA": { "type": "String" },
+      "uniB": { "type": "String" }
+    }
+  },
   "authSignIn": "Sign in",
   "authSignUp": "Sign up",
   "authEmailLabel": "Email",
@@ -99,11 +116,7 @@
   "authVerifyEmailTitle": "Verify your email",
   "authVerifyEmailBody": "We sent a verification link to {email}.",
   "@authVerifyEmailBody": {
-    "placeholders": {
-      "email": {
-        "type": "String"
-      }
-    }
+    "placeholders": { "email": { "type": "String" } }
   },
   "profileTitle": "Account",
   "profileEditProfile": "Edit profile",
@@ -129,11 +142,7 @@
   "profileMembershipPlan": "Membership Plan",
   "profileMembershipUsing": "You are using the {plan} plan",
   "@profileMembershipUsing": {
-    "placeholders": {
-      "plan": {
-        "type": "String"
-      }
-    }
+    "placeholders": { "plan": { "type": "String" } }
   },
   "profilePlanDetails": "Plan Details",
   "profileViewPlans": "View Plans & Upgrade",
@@ -149,11 +158,7 @@
   "profileStatMembership": "Member",
   "profileStatDays": "{days} days",
   "@profileStatDays": {
-    "placeholders": {
-      "days": {
-        "type": "int"
-      }
-    }
+    "placeholders": { "days": { "type": "int" } }
   },
   "profileAboutDescription": "ÜniSeç is a mobile app that helps you discover, compare, and share your experiences about universities in Turkey.",
   "profileAboutCopyright": "© 2026 ÜniSeç Team",
@@ -166,11 +171,7 @@
   "editProfileUniversity": "University",
   "editProfileUniversityError": "Failed to load universities: {error}",
   "@editProfileUniversityError": {
-    "placeholders": {
-      "error": {
-        "type": "String"
-      }
-    }
+    "placeholders": { "error": { "type": "String" } }
   },
   "editProfileDepartment": "Department",
   "editProfileDepartmentHint": "e.g. Computer Engineering",
@@ -182,6 +183,45 @@
   "editProfileSaving": "Saving...",
   "editProfileSuccess": "Profile updated successfully",
   "editProfileError": "An error occurred while updating profile",
+  "errorGeneral": "Error: {error}",
+  "@errorGeneral": {
+    "placeholders": { "error": { "type": "String" } }
+  },
+  "universityNotFound": "University not found",
+  "errorDepartmentsLoad": "An error occurred while loading departments.",
+  "noDepartmentsFound": "No departments found.",
+  "errorPlacesLoad": "An error occurred while loading places.",
+  "noPlacesFound": "No places found.",
+  "errorReviewsLoad": "An error occurred while loading reviews.",
+  "reviewLoginRequired": "You must log in to your account first to write a review.",
+  "reviewEduRequiredTitle": "Verification Required",
+  "reviewEduRequiredDesc": "Only verified university students can write reviews (.edu.tr).",
+
+  "reviewAnonymousStudent": "Anonymous Student",
+  "reviewLoading": "Loading...",
+  "reviewUniversityFallback": "University",
+  "reviewDepartmentFallback": "Department",
+  "reviewPlaceFallback": "Place",
+  "reviewUniversityReview": "University Review",
+  "reviewDepartmentReview": "Department Review",
+  "reviewPlaceReview": "Place Review",
+  "reviewPendingTitle": "Not Published",
+  "reviewPendingDesc": "Your review is under moderation. If inappropriate content was detected, you can edit and resubmit.",
+  "reviewShowLess": "Show less",
+  "reviewReadMore": "Read more",
+
+  "recommendIntroTitle": "Preference Assistant",
+  "recommendIntroSubtitle": "I'll ask you a few short questions,\nlet's find your dream university together.",
+  "recommendIntroDuration": "~4 minutes",
+  "recommendIntroMedals": "Gold / Silver / Bronze",
+  "recommendIntroSuggestions": "8 suggestions",
+  "recommendIntroBetaTitle": "Beta — Development Phase",
+  "recommendIntroBetaDesc": "This assistant is still under development. Suggestions are for guidance only, not final decisions. Always do your own research for final preferences.",
+  "recommendIntroStart": "Let's Start",
+  "recommendIntroDurationNote": "Takes approximately 4 minutes",
+
+  "aiSummaryLimitReachedSimple": "You've used your daily AI summary quota. Try again tomorrow.",
+
   "commonRetry": "Try again",
   "commonError": "Something went wrong",
   "commonLoading": "Loading...",
@@ -207,6 +247,9 @@
   "comparisonProUpsell": "Upgrade to Pro to add a 3rd university",
   "paywallContinueFree": "Continue for free",
   "paywallSavePercent": "SAVE {percent}%",
+  "@paywallSavePercent": {
+    "placeholders": { "percent": { "type": "int" } }
+  },
   "paywallMonthly": "Monthly",
   "paywallYearly": "Yearly",
   "paywallRestore": "Restore purchases",
@@ -217,58 +260,5 @@
   "profileLanguage": "Language",
   "profileDeleteAccount": "Delete account",
   "favoritesEmpty": "No favorites",
-  "favoritesEmptyHint": "Track universities you like here.",
-  "@paywallSavePercent": {
-    "placeholders": {
-      "percent": {
-        "type": "int"
-      }
-    }
-  },
-  "reviewLoginRequired": "You must log in to your account first to write a review.",
-  "errorPlacesLoad": "An error occurred while loading places.",
-  "universityNotFound": "University not found",
-  "noDepartmentsFound": "No departments found.",
-  "reviewEduRequiredDesc": "Only verified university students can write reviews (.edu.tr).",
-  "reviewEduRequiredTitle": "Verification Required",
-  "errorDepartmentsLoad": "An error occurred while loading departments.",
-  "noPlacesFound": "No places found.",
-  "errorGeneral": "Error: {error}",
-  "errorReviewsLoad": "An error occurred while loading reviews.",
-  "@comparisonHubTitle": {
-    "description": "Karşılaştırma hub ekranı başlığı"
-  },
-  "@errorGeneral": {
-    "placeholders": {
-      "error": {
-        "type": "String"
-      }
-    }
-  },
-  "@shareSubject": {
-    "placeholders": {
-      "uniA": {
-        "type": "String"
-      },
-      "uniB": {
-        "type": "String"
-      }
-    }
-  },
-  "@emptyStateTitle": {
-    "placeholders": {
-      "entityType": {
-        "type": "String",
-        "example": "üniversite"
-      }
-    }
-  },
-  "@aiSummaryLimitReached": {
-    "placeholders": {
-      "limit": {
-        "type": "int",
-        "example": "5"
-      }
-    }
-  }
+  "favoritesEmptyHint": "Track universities you like here."
 }

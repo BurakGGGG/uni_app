@@ -3,6 +3,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/shimmer_box.dart';
 import '../../../recommendation/presentation/widgets/typewriter_text.dart';
+import '../../../../l10n/generated/app_localizations.dart';
 
 class ComparisonAiSummaryCard extends StatelessWidget {
   final bool loading;
@@ -30,6 +31,7 @@ class ComparisonAiSummaryCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final blocked = !canUseAi && !loading;
+    final loc = AppLocalizations.of(context);
 
     return Container(
       width: double.infinity,
@@ -57,8 +59,8 @@ class ComparisonAiSummaryCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 8),
-              const Text(
-                'AI Analizi',
+              Text(
+                loc.aiSummaryTitle,
                 style: TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.w800,
@@ -117,8 +119,8 @@ class ComparisonAiSummaryCard extends StatelessWidget {
               TextButton.icon(
                 onPressed: onRetry,
                 icon: const Icon(Icons.refresh_rounded, color: Colors.white, size: 18),
-                label: const Text(
-                  'Tekrar dene',
+                label: Text(
+                  loc.retry,
                   style: TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.w700,
@@ -136,7 +138,7 @@ class ComparisonAiSummaryCard extends StatelessWidget {
           ] else if (blocked && isLimitReached) ...[
             // 5.4 — Yazım düzeltmesi
             Text(
-              'Günlük AI özet hakkın doldu, yarın tekrar dene.',
+              loc.aiSummaryLimitReachedSimple,
               style: AppTextStyles.bodyMedium.copyWith(
                 color: Colors.white,
                 height: 1.45,
@@ -146,7 +148,7 @@ class ComparisonAiSummaryCard extends StatelessWidget {
           ] else if (blocked) ...[
             // 5.4 — Yazım düzeltmesi
             Text(
-              'AI Analizi Pro pakette aktif. Pro\'ya geçerek detaylı özeti açabilirsin.',
+              loc.aiSummaryProRequired,
               style: AppTextStyles.bodyMedium.copyWith(
                 color: Colors.white,
                 height: 1.45,
@@ -169,7 +171,7 @@ class ComparisonAiSummaryCard extends StatelessWidget {
             Row(
               children: [
                 Text(
-                  'Pro analizi aktif',
+                  loc.aiSummaryActive,
                   style: AppTextStyles.labelSmall.copyWith(
                     color: isDark
                         ? Colors.white.withValues(alpha: 0.9)
@@ -182,8 +184,8 @@ class ComparisonAiSummaryCard extends StatelessWidget {
                   TextButton.icon(
                     onPressed: onRegenerate,
                     icon: const Icon(Icons.refresh, color: Colors.white, size: 16),
-                    label: const Text(
-                      'Yeniden üret',
+                    label: Text(
+                      loc.aiSummaryRegenerate,
                       style: TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.w700,

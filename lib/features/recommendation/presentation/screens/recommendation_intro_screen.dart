@@ -4,12 +4,14 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../providers/recommendation_providers.dart';
+import '../../../../l10n/generated/app_localizations.dart';
 
 class RecommendationIntroScreen extends ConsumerWidget {
   const RecommendationIntroScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final loc = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -53,7 +55,7 @@ class RecommendationIntroScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 40),
               Text(
-                'Tercih Asistanı',
+                loc.recommendIntroTitle,
                 style: AppTextStyles.headlineMedium.copyWith(
                   fontWeight: FontWeight.bold,
                   letterSpacing: -0.5,
@@ -61,7 +63,7 @@ class RecommendationIntroScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 12),
               Text(
-                'Sana birkaç kısa soru soracağım,\nhayalindeki üniversiteyi birlikte bulalım.',
+                loc.recommendIntroSubtitle,
                 textAlign: TextAlign.center,
                 style: AppTextStyles.bodyLarge.copyWith(
                   color: AppColors.textSecondary,
@@ -75,12 +77,12 @@ class RecommendationIntroScreen extends ConsumerWidget {
                 runSpacing: 8,
                 alignment: WrapAlignment.center,
                 children: [
-                  _FeatureChip(icon: Icons.speed_rounded, label: '~4 dakika'),
+                  _FeatureChip(icon: Icons.speed_rounded, label: loc.recommendIntroDuration),
                   _FeatureChip(
                     icon: Icons.emoji_events_rounded,
-                    label: 'Altın / Gümüş / Bronz',
+                    label: loc.recommendIntroMedals,
                   ),
-                  _FeatureChip(icon: Icons.school_rounded, label: '8 öneri'),
+                  _FeatureChip(icon: Icons.school_rounded, label: loc.recommendIntroSuggestions),
                 ],
               ),
               const SizedBox(height: 24),
@@ -115,7 +117,7 @@ class RecommendationIntroScreen extends ConsumerWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Beta — Geliştirme Aşaması',
+                            loc.recommendIntroBetaTitle,
                             style: AppTextStyles.labelSmall.copyWith(
                               color: AppColors.warning,
                               fontWeight: FontWeight.w800,
@@ -124,10 +126,7 @@ class RecommendationIntroScreen extends ConsumerWidget {
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            'Bu asistan henüz geliştirilme aşamasında. Öneriler '
-                            'kesin tercih kararı için değil, yönlendirme '
-                            'amaçlıdır. Final tercihinde mutlaka kendi '
-                            'araştırmanı yap.',
+                            loc.recommendIntroBetaDesc,
                             style: AppTextStyles.bodySmall.copyWith(
                               color: AppColors.textSecondary,
                               height: 1.4,
@@ -169,13 +168,13 @@ class RecommendationIntroScreen extends ConsumerWidget {
                     ),
                     child: Container(
                       alignment: Alignment.center,
-                      child: const Row(
+                      child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Icon(Icons.rocket_launch_rounded, size: 22),
                           SizedBox(width: 10),
                           Text(
-                            'Başlayalım',
+                            loc.recommendIntroStart,
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 17,
@@ -190,7 +189,7 @@ class RecommendationIntroScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 16),
               Text(
-                'Yaklaşık 4 dakika sürer',
+                loc.recommendIntroDurationNote,
                 style: AppTextStyles.labelSmall.copyWith(
                   color: AppColors.textTertiary,
                 ),

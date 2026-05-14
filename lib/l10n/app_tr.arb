@@ -27,10 +27,7 @@
   "emptyStateTitle": "İki {entityType} seç",
   "@emptyStateTitle": {
     "placeholders": {
-      "entityType": {
-        "type": "String",
-        "example": "üniversite"
-      }
+      "entityType": { "type": "String", "example": "üniversite" }
     }
   },
   "loadingComparison": "Karşılaştırma yükleniyor…",
@@ -39,12 +36,7 @@
   "aiSummaryProRequired": "AI Analizi Pro pakette aktif. Pro'ya geçerek detaylı özeti açabilirsin.",
   "aiSummaryLimitReached": "Günlük {limit} AI özet hakkın doldu, yarın tekrar dene.",
   "@aiSummaryLimitReached": {
-    "placeholders": {
-      "limit": {
-        "type": "int",
-        "example": "5"
-      }
-    }
+    "placeholders": { "limit": { "type": "int", "example": "5" } }
   },
   "aiSummaryActive": "Pro analizi aktif",
   "aiSummaryRegenerate": "Yeniden Üret",
@@ -76,12 +68,8 @@
   "shareSubject": "{uniA} vs {uniB} — Karşılaştırma",
   "@shareSubject": {
     "placeholders": {
-      "uniA": {
-        "type": "String"
-      },
-      "uniB": {
-        "type": "String"
-      }
+      "uniA": { "type": "String" },
+      "uniB": { "type": "String" }
     }
   },
   "authSignIn": "Giriş yap",
@@ -128,11 +116,7 @@
   "authVerifyEmailTitle": "E-postanı doğrula",
   "authVerifyEmailBody": "{email} adresine doğrulama linki gönderdik.",
   "@authVerifyEmailBody": {
-    "placeholders": {
-      "email": {
-        "type": "String"
-      }
-    }
+    "placeholders": { "email": { "type": "String" } }
   },
   "profileTitle": "Hesabım",
   "profileEditProfile": "Profili düzenle",
@@ -158,11 +142,7 @@
   "profileMembershipPlan": "Üyelik Planı",
   "profileMembershipUsing": "{plan} planını kullanıyorsun",
   "@profileMembershipUsing": {
-    "placeholders": {
-      "plan": {
-        "type": "String"
-      }
-    }
+    "placeholders": { "plan": { "type": "String" } }
   },
   "profilePlanDetails": "Plan Detayları",
   "profileViewPlans": "Planları Gör ve Yükselt",
@@ -178,11 +158,7 @@
   "profileStatMembership": "Üyelik",
   "profileStatDays": "{days} gün",
   "@profileStatDays": {
-    "placeholders": {
-      "days": {
-        "type": "int"
-      }
-    }
+    "placeholders": { "days": { "type": "int" } }
   },
   "profileAboutDescription": "ÜniSeç, Türkiye'deki üniversiteleri keşfetmeni, karşılaştırmanı ve deneyimlerini paylaşmanı sağlayan bir mobil uygulamadır.",
   "profileAboutCopyright": "© 2026 ÜniSeç Ekibi",
@@ -195,11 +171,7 @@
   "editProfileUniversity": "Üniversite",
   "editProfileUniversityError": "Üniversiteler yüklenemedi: {error}",
   "@editProfileUniversityError": {
-    "placeholders": {
-      "error": {
-        "type": "String"
-      }
-    }
+    "placeholders": { "error": { "type": "String" } }
   },
   "editProfileDepartment": "Bölüm",
   "editProfileDepartmentHint": "Örn: Bilgisayar Mühendisliği",
@@ -213,11 +185,7 @@
   "editProfileError": "Profil güncellenirken hata oluştu",
   "errorGeneral": "Hata: {error}",
   "@errorGeneral": {
-    "placeholders": {
-      "error": {
-        "type": "String"
-      }
-    }
+    "placeholders": { "error": { "type": "String" } }
   },
   "universityNotFound": "Üniversite bulunamadı",
   "errorDepartmentsLoad": "Bölümler yüklenirken hata oluştu.",
@@ -228,6 +196,32 @@
   "reviewLoginRequired": "Yorum yazabilmek için önce hesabınıza giriş yapmanız gerekiyor.",
   "reviewEduRequiredTitle": "Doğrulama Gerekli",
   "reviewEduRequiredDesc": "Sadece onaylı üniversite öğrencileri değerlendirme yapabilir (.edu.tr).",
+
+  "reviewAnonymousStudent": "Anonim Öğrenci",
+  "reviewLoading": "Yükleniyor...",
+  "reviewUniversityFallback": "Üniversite",
+  "reviewDepartmentFallback": "Bölüm",
+  "reviewPlaceFallback": "Mekan",
+  "reviewUniversityReview": "Üniversite Yorumu",
+  "reviewDepartmentReview": "Bölüm Yorumu",
+  "reviewPlaceReview": "Mekan Yorumu",
+  "reviewPendingTitle": "Yayınlanmadı",
+  "reviewPendingDesc": "Yorumun moderasyon aşamasında. Uygunsuz içerik tespit edildiyse düzenleyerek tekrar gönderebilirsin.",
+  "reviewShowLess": "Daha az göster",
+  "reviewReadMore": "Devamını oku",
+
+  "recommendIntroTitle": "Tercih Asistanı",
+  "recommendIntroSubtitle": "Sana birkaç kısa soru soracağım,\nhayalindeki üniversiteyi birlikte bulalım.",
+  "recommendIntroDuration": "~4 dakika",
+  "recommendIntroMedals": "Altın / Gümüş / Bronz",
+  "recommendIntroSuggestions": "8 öneri",
+  "recommendIntroBetaTitle": "Beta — Geliştirme Aşaması",
+  "recommendIntroBetaDesc": "Bu asistan henüz geliştirilme aşamasında. Öneriler kesin tercih kararı için değil, yönlendirme amaçlıdır. Final tercihinde mutlaka kendi araştırmanı yap.",
+  "recommendIntroStart": "Başlayalım",
+  "recommendIntroDurationNote": "Yaklaşık 4 dakika sürer",
+
+  "aiSummaryLimitReachedSimple": "Günlük AI özet hakkın doldu, yarın tekrar dene.",
+
   "commonRetry": "Tekrar dene",
   "commonError": "Bir hata oluştu",
   "commonLoading": "Yükleniyor...",
@@ -253,6 +247,9 @@
   "comparisonProUpsell": "3. üniversite eklemek için Pro'ya yükselt",
   "paywallContinueFree": "Ücretsiz devam et",
   "paywallSavePercent": "TASARRUF {percent}%",
+  "@paywallSavePercent": {
+    "placeholders": { "percent": { "type": "int" } }
+  },
   "paywallMonthly": "Aylık",
   "paywallYearly": "Yıllık",
   "paywallRestore": "Satın alımları geri yükle",
@@ -263,12 +260,5 @@
   "profileLanguage": "Dil",
   "profileDeleteAccount": "Hesabımı sil",
   "favoritesEmpty": "Favori yok",
-  "favoritesEmptyHint": "Beğendiğin üniversiteleri buradan takip et.",
-  "@paywallSavePercent": {
-    "placeholders": {
-      "percent": {
-        "type": "int"
-      }
-    }
-  }
+  "favoritesEmptyHint": "Beğendiğin üniversiteleri buradan takip et."
 }

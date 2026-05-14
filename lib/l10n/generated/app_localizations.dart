@@ -1082,6 +1082,138 @@ abstract class AppLocalizations {
   /// **'Sadece onaylı üniversite öğrencileri değerlendirme yapabilir (.edu.tr).'**
   String get reviewEduRequiredDesc;
 
+  /// No description provided for @reviewAnonymousStudent.
+  ///
+  /// In tr, this message translates to:
+  /// **'Anonim Öğrenci'**
+  String get reviewAnonymousStudent;
+
+  /// No description provided for @reviewLoading.
+  ///
+  /// In tr, this message translates to:
+  /// **'Yükleniyor...'**
+  String get reviewLoading;
+
+  /// No description provided for @reviewUniversityFallback.
+  ///
+  /// In tr, this message translates to:
+  /// **'Üniversite'**
+  String get reviewUniversityFallback;
+
+  /// No description provided for @reviewDepartmentFallback.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bölüm'**
+  String get reviewDepartmentFallback;
+
+  /// No description provided for @reviewPlaceFallback.
+  ///
+  /// In tr, this message translates to:
+  /// **'Mekan'**
+  String get reviewPlaceFallback;
+
+  /// No description provided for @reviewUniversityReview.
+  ///
+  /// In tr, this message translates to:
+  /// **'Üniversite Yorumu'**
+  String get reviewUniversityReview;
+
+  /// No description provided for @reviewDepartmentReview.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bölüm Yorumu'**
+  String get reviewDepartmentReview;
+
+  /// No description provided for @reviewPlaceReview.
+  ///
+  /// In tr, this message translates to:
+  /// **'Mekan Yorumu'**
+  String get reviewPlaceReview;
+
+  /// No description provided for @reviewPendingTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Yayınlanmadı'**
+  String get reviewPendingTitle;
+
+  /// No description provided for @reviewPendingDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'Yorumun moderasyon aşamasında. Uygunsuz içerik tespit edildiyse düzenleyerek tekrar gönderebilirsin.'**
+  String get reviewPendingDesc;
+
+  /// No description provided for @reviewShowLess.
+  ///
+  /// In tr, this message translates to:
+  /// **'Daha az göster'**
+  String get reviewShowLess;
+
+  /// No description provided for @reviewReadMore.
+  ///
+  /// In tr, this message translates to:
+  /// **'Devamını oku'**
+  String get reviewReadMore;
+
+  /// No description provided for @recommendIntroTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Tercih Asistanı'**
+  String get recommendIntroTitle;
+
+  /// No description provided for @recommendIntroSubtitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Sana birkaç kısa soru soracağım,\nhayalindeki üniversiteyi birlikte bulalım.'**
+  String get recommendIntroSubtitle;
+
+  /// No description provided for @recommendIntroDuration.
+  ///
+  /// In tr, this message translates to:
+  /// **'~4 dakika'**
+  String get recommendIntroDuration;
+
+  /// No description provided for @recommendIntroMedals.
+  ///
+  /// In tr, this message translates to:
+  /// **'Altın / Gümüş / Bronz'**
+  String get recommendIntroMedals;
+
+  /// No description provided for @recommendIntroSuggestions.
+  ///
+  /// In tr, this message translates to:
+  /// **'8 öneri'**
+  String get recommendIntroSuggestions;
+
+  /// No description provided for @recommendIntroBetaTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Beta — Geliştirme Aşaması'**
+  String get recommendIntroBetaTitle;
+
+  /// No description provided for @recommendIntroBetaDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bu asistan henüz geliştirilme aşamasında. Öneriler kesin tercih kararı için değil, yönlendirme amaçlıdır. Final tercihinde mutlaka kendi araştırmanı yap.'**
+  String get recommendIntroBetaDesc;
+
+  /// No description provided for @recommendIntroStart.
+  ///
+  /// In tr, this message translates to:
+  /// **'Başlayalım'**
+  String get recommendIntroStart;
+
+  /// No description provided for @recommendIntroDurationNote.
+  ///
+  /// In tr, this message translates to:
+  /// **'Yaklaşık 4 dakika sürer'**
+  String get recommendIntroDurationNote;
+
+  /// No description provided for @aiSummaryLimitReachedSimple.
+  ///
+  /// In tr, this message translates to:
+  /// **'Günlük AI özet hakkın doldu, yarın tekrar dene.'**
+  String get aiSummaryLimitReachedSimple;
+
   /// No description provided for @commonRetry.
   ///
   /// In tr, this message translates to:

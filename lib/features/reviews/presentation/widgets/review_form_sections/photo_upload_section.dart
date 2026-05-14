@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../../../../../core/constants/app_constants.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_text_styles.dart';
@@ -169,58 +170,68 @@ class _PhotoUploadSectionState extends State<PhotoUploadSection> {
         const SizedBox(height: 12),
         SizedBox(
           height: 100,
-          child: ListView(
+          child: ListView.builder(
             scrollDirection: Axis.horizontal,
-            children: [
-              // + Ekle butonu
-              if (_canAddMore)
-                GestureDetector(
-                  onTap: _showPickerOptions,
-                  child: Container(
-                    width: 100,
-                    height: 100,
-                    margin: const EdgeInsets.only(right: 12),
-                    decoration: BoxDecoration(
-                      color: AppColors.primary.withAlpha(15),
-                      borderRadius: BorderRadius.circular(AppConstants.radiusMd),
-                      border: Border.all(
-                        color: AppColors.primary.withAlpha(60),
-                        style: BorderStyle.solid,
+            itemCount: (_canAddMore ? 1 : 0) + widget.uploadedUrls.length + widget.localPhotos.length,
+            itemBuilder: (context, index) {
+              if (_canAddMore) {
+                if (index == 0) {
+                  return GestureDetector(
+                    onTap: _showPickerOptions,
+                    child: Container(
+                      width: 100,
+                      height: 100,
+                      margin: const EdgeInsets.only(right: 12),
+                      decoration: BoxDecoration(
+                        color: AppColors.primary.withAlpha(15),
+                        borderRadius: BorderRadius.circular(AppConstants.radiusMd),
+                        border: Border.all(
+                          color: AppColors.primary.withAlpha(60),
+                          style: BorderStyle.solid,
+                        ),
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.add_a_photo_rounded, color: AppColors.primary, size: 28),
+                          const SizedBox(height: 4),
+                          Text(
+                            'Ekle',
+                            style: AppTextStyles.bodySmall.copyWith(
+                              color: AppColors.primary,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.add_a_photo_rounded, color: AppColors.primary, size: 28),
-                        const SizedBox(height: 4),
-                        Text(
-                          'Ekle',
-                          style: AppTextStyles.bodySmall.copyWith(
-                            color: AppColors.primary,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
+                  );
+                }
+                index--;
+              }
+
+              if (index < widget.uploadedUrls.length) {
+                return _buildPhotoTile(
+                  child: CachedNetworkImage(
+                    imageUrl: widget.uploadedUrls[index],
+                    fit: BoxFit.cover,
+                    memCacheWidth: 200, // 200px for thumbnail cache
+                    placeholder: (_, _) => Container(color: AppColors.surfaceVariant),
+                    errorWidget: (_, _, _) => Container(
+                      color: AppColors.surfaceVariant,
+                      child: const Icon(Icons.error_outline, color: AppColors.textTertiary),
                     ),
                   ),
-                ),
-
-              // Mevcut yüklü fotoğraflar (düzenleme modu)
-              ...widget.uploadedUrls.asMap().entries.map((entry) {
-                return _buildPhotoTile(
-                  child: Image.network(entry.value, fit: BoxFit.cover),
-                  onRemove: () => widget.onRemove(entry.key, false),
+                  onRemove: () => widget.onRemove(index, false),
                 );
-              }),
+              }
+              index -= widget.uploadedUrls.length;
 
-              // Yeni eklenen yerel fotoğraflar
-              ...widget.localPhotos.asMap().entries.map((entry) {
-                return _buildPhotoTile(
-                  child: Image.file(entry.value, fit: BoxFit.cover),
-                  onRemove: () => widget.onRemove(entry.key, true),
-                );
-              }),
-            ],
+              return _buildPhotoTile(
+                child: Image.file(widget.localPhotos[index], fit: BoxFit.cover),
+                onRemove: () => widget.onRemove(index, true),
+              );
+            },
           ),
         ),
       ],

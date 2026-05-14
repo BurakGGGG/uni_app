@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/utils/snackbar_helper.dart';
-import '../../../../core/widgets/state_widgets.dart';
+import '../../../../core/widgets/widgets.dart';
 import '../../../auth/presentation/providers/auth_providers.dart';
 import '../../domain/models/review_model.dart';
 import '../providers/review_providers.dart';
@@ -77,18 +77,20 @@ class MyReviewsScreen extends ConsumerWidget {
                 const SizedBox(height: 12),
                 SizedBox(
                   height: 40,
-                  child: ListView(
+                  child: ListView.separated(
                     scrollDirection: Axis.horizontal,
                     padding: const EdgeInsets.symmetric(horizontal: 16),
-                    children: [
-                      _buildFilterChip(ref, null, 'Tümü', filterType),
-                      const SizedBox(width: 8),
-                      _buildFilterChip(ref, ReviewType.university, 'Üniversiteler', filterType),
-                      const SizedBox(width: 8),
-                      _buildFilterChip(ref, ReviewType.department, 'Bölümler', filterType),
-                      const SizedBox(width: 8),
-                      _buildFilterChip(ref, ReviewType.place, 'Mekanlar', filterType),
-                    ],
+                    itemCount: 4,
+                    separatorBuilder: (context, index) => const SizedBox(width: 8),
+                    itemBuilder: (context, index) {
+                      switch (index) {
+                        case 0: return _buildFilterChip(ref, null, 'Tümü', filterType);
+                        case 1: return _buildFilterChip(ref, ReviewType.university, 'Üniversiteler', filterType);
+                        case 2: return _buildFilterChip(ref, ReviewType.department, 'Bölümler', filterType);
+                        case 3: return _buildFilterChip(ref, ReviewType.place, 'Mekanlar', filterType);
+                        default: return const SizedBox.shrink();
+                      }
+                    },
                   ),
                 ),
                 Expanded(
@@ -136,7 +138,7 @@ class MyReviewsScreen extends ConsumerWidget {
               ],
             );
           },
-          loading: () => const Center(child: CircularProgressIndicator()),
+          loading: () => const ListSkeleton(itemCount: 4),
           error: (e, _) => ErrorStateWidget(
             message: e.toString(),
             onRetry: () => ref.invalidate(userReviewsProvider(user.uid)),
