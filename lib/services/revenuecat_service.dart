@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io' show Platform;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
@@ -13,6 +14,12 @@ import 'analytics_service.dart';
 ///
 /// Uygulama başlatılırken `RevenueCatService().init()` çağrılır.
 /// Kullanıcı login/logout olduğunda `login()` / `logout()` çağrılır.
+///
+/// API key'leri build zamanında inject edilir:
+/// ```
+/// flutter run --dart-define=REVENUECAT_API_KEY_ANDROID=goog_xxx
+/// flutter run --dart-define=REVENUECAT_API_KEY_IOS=appl_xxx
+/// ```
 class RevenueCatService {
   static final RevenueCatService _instance = RevenueCatService._();
   factory RevenueCatService() => _instance;
@@ -23,19 +30,35 @@ class RevenueCatService {
 
   bool _initialized = false;
 
-  // ─── Platform API Key'leri ──────────────────────────────────
-  // TODO: Gerçek API key'leri .env veya dart-define ile al
-  static const _androidApiKey = 'goog_YOUR_ANDROID_API_KEY';
-  static const _iosApiKey = 'appl_YOUR_IOS_API_KEY';
+  // ─── Platform API Key'leri (dart-define ile inject) ──────────
+  static const _androidApiKey = String.fromEnvironment(
+    'REVENUECAT_API_KEY_ANDROID',
+    defaultValue: '',
+  );
+  static const _iosApiKey = String.fromEnvironment(
+    'REVENUECAT_API_KEY_IOS',
+    defaultValue: '',
+  );
+
+  /// Platform'a göre doğru API key'i döndürür.
+  /// Debug modda key eksikse assert ile uyarır.
+  static String get _publicApiKey {
+    if (!kIsWeb && Platform.isIOS) {
+      assert(_iosApiKey.isNotEmpty,
+          'REVENUECAT_API_KEY_IOS --dart-define ile geçilmeli');
+      return _iosApiKey;
+    }
+    assert(_androidApiKey.isNotEmpty,
+        'REVENUECAT_API_KEY_ANDROID --dart-define ile geçilmeli');
+    return _androidApiKey;
+  }
 
   /// SDK'yı başlat — main.dart'ta bir kez çağrılır.
   Future<void> init() async {
     if (_initialized) return;
     _initialized = true;
 
-    final apiKey = defaultTargetPlatform == TargetPlatform.iOS
-        ? _iosApiKey
-        : _androidApiKey;
+    final apiKey = _publicApiKey;
 
     await Purchases.configure(
       PurchasesConfiguration(apiKey)

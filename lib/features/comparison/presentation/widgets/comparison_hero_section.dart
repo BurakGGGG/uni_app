@@ -19,7 +19,7 @@ class ComparisonHeroSection extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: isDark
-              ? [AppColors.darkSurface, const Color(0xFF16213E)]
+              ? [AppColors.darkSurface, AppColors.darkSurface2]
               : [
                   AppColors.primary.withValues(alpha: 0.04),
                   AppColors.secondary.withValues(alpha: 0.04),
@@ -183,11 +183,11 @@ class _UniLogo extends StatelessWidget {
                       gradient: const LinearGradient(
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
-                        colors: [Color(0xFFFFD700), Color(0xFFFFA000)],
+                        colors: [AppColors.gold, Color(0xFFFFA000)],
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: const Color(0xFFFFD700).withValues(alpha: 0.4),
+                          color: AppColors.gold.withValues(alpha: 0.4),
                           blurRadius: 6,
                           offset: const Offset(0, 2),
                         ),
