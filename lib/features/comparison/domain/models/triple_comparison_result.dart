@@ -45,6 +45,23 @@ class TripleComparisonResult {
   int get categoriesTied =>
       categoryComparisons.values.where((c) => c.winnerId == null).length;
 
+  /// Skor normalization (0-5 → 0-100 ölçek için, bar chart/grafik görselleri)
+  static double normalizeScore(double raw, {double max = 5.0}) {
+    if (raw <= 0) return 0;
+    return ((raw / max) * 100).clamp(0, 100);
+  }
+
+  /// 3 skor için sıralama: en yüksek 1. olur (leaderboard UI için)
+  List<MapEntry<String, double>> rankedScores() {
+    final entries = [
+      MapEntry(uniA.id, uniA.avgRating),
+      MapEntry(uniB.id, uniB.avgRating),
+      MapEntry(uniC.id, uniC.avgRating),
+    ];
+    entries.sort((a, b) => b.value.compareTo(a.value));
+    return entries;
+  }
+
   /// Tek satırlık özet (ekran başlığı için)
   String get summaryText {
     final winner = overallWinnerId;

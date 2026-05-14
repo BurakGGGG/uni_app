@@ -4,6 +4,7 @@ import 'package:purchases_flutter/purchases_flutter.dart';
 import '../../../../services/revenuecat_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../../core/widgets/state_widgets.dart';
 import '../../domain/models/subscription_model.dart';
 import '../../domain/enums/subscription_tier.dart';
 
@@ -25,6 +26,8 @@ class _PaywallScreenState extends State<PaywallScreen>
   bool _isYearly = true;
   bool _isPurchasing = false;
   bool _isRestoring = false;
+  bool _isLoadingOfferings = true;
+  bool _loadError = false;
   Offerings? _offerings;
 
   late AnimationController _fadeController;
@@ -130,9 +133,25 @@ class _PaywallScreenState extends State<PaywallScreen>
 
   // ─── RevenueCat (korunuyor) ───────────────────────────────────────
   Future<void> _loadOfferings() async {
-    final offerings = await _revenueCatService.getOfferings();
-    if (!mounted) return;
-    setState(() => _offerings = offerings);
+    setState(() {
+      _isLoadingOfferings = true;
+      _loadError = false;
+    });
+    try {
+      final offerings = await _revenueCatService.getOfferings();
+      if (!mounted) return;
+      setState(() {
+        _offerings = offerings;
+        _isLoadingOfferings = false;
+        _loadError = offerings == null;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _isLoadingOfferings = false;
+        _loadError = true;
+      });
+    }
   }
 
   Package? _resolvePackage() {
@@ -269,14 +288,35 @@ class _PaywallScreenState extends State<PaywallScreen>
                     ),
                     if (!isFree) ...[
                       const SizedBox(height: 18),
-                      _PricingCards(
-                        plan: _currentPlan,
-                        isYearly: _isYearly,
-                        onSelect: (v) => setState(() => _isYearly = v),
-                        color: activeColor,
-                        gradient: activeGradient,
-                        isDark: isDark,
-                      ),
+                      // ─── Offerings yükleme hatası: in-card error ───
+                      if (_loadError && !_isLoadingOfferings)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          child: ErrorStateWidget(
+                            message: 'İnternet bağlantını kontrol et ve tekrar dene.',
+                            onRetry: _loadOfferings,
+                          ),
+                        )
+                      else if (_isLoadingOfferings)
+                        const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 24),
+                          child: Center(
+                            child: SizedBox(
+                              width: 24,
+                              height: 24,
+                              child: CircularProgressIndicator(strokeWidth: 2.5),
+                            ),
+                          ),
+                        )
+                      else
+                        _PricingCards(
+                          plan: _currentPlan,
+                          isYearly: _isYearly,
+                          onSelect: (v) => setState(() => _isYearly = v),
+                          color: activeColor,
+                          gradient: activeGradient,
+                          isDark: isDark,
+                        ),
                     ],
                     const Spacer(),
                     _CtaButton(
