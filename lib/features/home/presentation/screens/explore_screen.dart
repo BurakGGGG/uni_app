@@ -173,16 +173,20 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
             const SizedBox(height: 4),
             Expanded(
               child: allUnisAsync.when(
-                loading: () => const Center(child: CircularProgressIndicator()),
-                error: (e, st) => Center(child: Text('Hata: $e')),
+                loading: () => const ListSkeleton(itemCount: 6),
+                error: (e, st) => ErrorState(
+                  title: 'Üniversiteler yüklenemedi',
+                  message: 'Lütfen internet bağlantını kontrol et.',
+                  onRetry: () => ref.invalidate(allUniversitiesProvider),
+                ),
                 data: (universities) {
                   final filtered = _applyFilters(universities, filters);
 
                   if (filtered.isEmpty) {
-                    return const EmptyStateWidget(
+                    return const EmptyState(
                       icon: Icons.search_off_rounded,
                       title: 'Sonuç bulunamadı',
-                      description: 'Farklı bir filtre kombinasyonu deneyin.',
+                      message: 'Farklı bir filtre kombinasyonu deneyin.',
                     );
                   }
 
@@ -353,8 +357,8 @@ class _FilterBottomSheet extends ConsumerWidget {
                   Text('Şehirler', style: AppTextStyles.titleMedium),
                   const SizedBox(height: 12),
                   citiesAsync.when(
-                    loading: () => const Center(child: CircularProgressIndicator()),
-                    error: (e, st) => Text('Hata: $e'),
+                    loading: () => const CircularProgressIndicator(),
+                    error: (e, st) => const Text('Şehirler yüklenemedi'),
                     data: (cities) {
                       return Wrap(
                         spacing: 8,
