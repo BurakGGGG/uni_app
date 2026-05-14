@@ -254,7 +254,7 @@ class _PaywallScreenState extends State<PaywallScreen>
     final activeColor = _activeColor(_selectedTier);
 
     return Scaffold(
-      backgroundColor: isDark ? const Color(0xFF0F0F1A) : AppColors.background,
+      backgroundColor: isDark ? AppColors.darkBackground : AppColors.background,
       body: SafeArea(
         child: Stack(
           children: [
@@ -1057,7 +1057,7 @@ class _PurchaseSuccessDialogState extends State<_PurchaseSuccessDialog>
         padding: const EdgeInsets.fromLTRB(18, 20, 18, 16),
         decoration: BoxDecoration(
           color: Theme.of(context).brightness == Brightness.dark
-              ? const Color(0xFF161628)
+              ? AppColors.darkSurfaceVariant
               : Colors.white,
           borderRadius: BorderRadius.circular(20),
         ),

@@ -95,8 +95,8 @@ class _BlurLockedOverlay extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final tierColor = requiredTier == SubscriptionTier.pro
-        ? const Color(0xFFD4A017) // Altın
-        : const Color(0xFF6C63FF); // Mor
+        ? AppColors.tierPro // Altın
+        : AppColors.tierPlus; // Mor
 
     return GestureDetector(
       onTap: onTap,
@@ -200,8 +200,8 @@ class _DefaultLockedWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final tierColor = requiredTier == SubscriptionTier.pro
-        ? const Color(0xFFD4A017)
-        : const Color(0xFF6C63FF);
+        ? AppColors.tierPro
+        : AppColors.tierPlus;
 
     return GestureDetector(
       onTap: onTap,
