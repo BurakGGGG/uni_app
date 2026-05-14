@@ -74,7 +74,7 @@ class ComparisonScreen extends ConsumerWidget {
               const SizedBox(height: 24),
               const ComparisonUniPicker(),
               const SizedBox(height: 24),
-              _buildBody(context, selection, resultAsync),
+              _buildBody(context, ref, selection, resultAsync),
             ],
           ),
         ),
@@ -84,6 +84,7 @@ class ComparisonScreen extends ConsumerWidget {
 
   Widget _buildBody(
     BuildContext context,
+    WidgetRef ref,
     ComparisonSelection selection,
     AsyncValue<ComparisonResult?> resultAsync,
   ) {
@@ -96,7 +97,10 @@ class ComparisonScreen extends ConsumerWidget {
         padding: EdgeInsets.symmetric(vertical: 40),
         child: Center(child: CircularProgressIndicator()),
       ),
-      error: (e, _) => Center(child: Text('Hata: $e')),
+      error: (e, _) => ErrorStateWidget(
+        message: 'Karşılaştırma yüklenemedi. Tekrar denemek için aşağıdaki butona tıkla.',
+        onRetry: () => ref.invalidate(comparisonResultProvider),
+      ),
       data: (result) {
         if (result == null) return const _EmptyState();
         return _ResultView(result: result);

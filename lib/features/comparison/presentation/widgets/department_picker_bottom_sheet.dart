@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
-import '../../../../core/widgets/app_search_bar.dart';
+import '../../../../core/widgets/widgets.dart';
 import '../../../university/domain/models/department_model.dart';
 import '../../../university/domain/models/university_model.dart';
 import '../../../university/presentation/providers/university_providers.dart';
@@ -288,7 +288,7 @@ class _UniList extends ConsumerWidget {
     final unisAsync = ref.watch(allUniversitiesProvider);
     return unisAsync.when(
       loading: () => const Center(child: CircularProgressIndicator(color: AppColors.primary)),
-      error: (e, _) => Center(child: Text('Hata: $e')),
+      error: (e, _) => const ErrorStateWidget(message: 'Üniversiteler yüklenirken bir hata oluştu.'),
       data: (unis) {
         final q = query.trim().toLowerCase();
         var filtered = q.isEmpty
@@ -318,12 +318,12 @@ class _UniList extends ConsumerWidget {
         }
 
         if (filtered.isEmpty) {
-          return _Empty(
+          return EmptyStateWidget(
             icon: Icons.search_off_rounded,
             title: departmentNameFilter != null
                 ? 'Bu bölüme sahip üniversite bulunamadı'
                 : 'Sonuç bulunamadı',
-            subtitle: departmentNameFilter != null
+            description: departmentNameFilter != null
                 ? '"$departmentNameFilter" bölümü olan başka üniversite yok.'
                 : 'Farklı bir arama deneyebilirsin.',
           );
@@ -435,13 +435,13 @@ class _DeptList extends ConsumerWidget {
     final deptsAsync = ref.watch(departmentsByUniversityProvider(uni.id));
     return deptsAsync.when(
       loading: () => const Center(child: CircularProgressIndicator(color: AppColors.primary)),
-      error: (e, _) => Center(child: Text('Hata: $e')),
+      error: (e, _) => const ErrorStateWidget(message: 'Bölümler yüklenirken bir hata oluştu.'),
       data: (depts) {
         if (depts.isEmpty) {
-          return const _Empty(
+          return const EmptyStateWidget(
             icon: Icons.school_outlined,
             title: 'Bölüm bulunamadı',
-            subtitle: 'Bu üniversite için kayıtlı bölüm yok.',
+            description: 'Bu üniversite için kayıtlı bölüm yok.',
           );
         }
 
@@ -468,10 +468,10 @@ class _DeptList extends ConsumerWidget {
                 .toList();
 
         if (filtered.isEmpty) {
-          return const _Empty(
+          return const EmptyStateWidget(
             icon: Icons.search_off_rounded,
             title: 'Sonuç bulunamadı',
-            subtitle: 'Farklı bir arama deneyebilirsin.',
+            description: 'Farklı bir arama deneyebilirsin.',
           );
         }
 
@@ -656,48 +656,6 @@ class _Stat extends StatelessWidget {
           ),
         ),
       ],
-    );
-  }
-}
-
-class _Empty extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final String subtitle;
-  const _Empty({required this.icon, required this.title, required this.subtitle});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              width: 72,
-              height: 72,
-              decoration: BoxDecoration(
-                color: AppColors.surfaceVariant,
-                shape: BoxShape.circle,
-              ),
-              child: Icon(icon, size: 32, color: AppColors.textTertiary),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              title,
-              style: AppTextStyles.titleMedium.copyWith(fontWeight: FontWeight.w700),
-            ),
-            const SizedBox(height: 6),
-            Text(
-              subtitle,
-              textAlign: TextAlign.center,
-              style:
-                  AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary, height: 1.4),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

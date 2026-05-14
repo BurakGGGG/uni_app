@@ -517,9 +517,9 @@ class _PaywallView extends StatelessWidget {
                     ),
                   ),
                   icon: const Icon(Icons.workspace_premium_rounded),
-                  label: const Text(
+                  label: Text(
                     'Plus / Pro\'ya Geç',
-                    style: TextStyle(fontWeight: FontWeight.w800),
+                    style: AppTextStyles.labelLarge.copyWith(fontWeight: FontWeight.w800),
                   ),
                 ),
               ],

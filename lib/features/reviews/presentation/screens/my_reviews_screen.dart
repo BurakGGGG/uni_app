@@ -93,7 +93,11 @@ class MyReviewsScreen extends ConsumerWidget {
                 ),
                 Expanded(
                   child: filteredReviews.isEmpty 
-                    ? const Center(child: Text('Bu kategoriye ait yorumunuz bulunmuyor.'))
+                    ? const EmptyStateWidget(
+                        icon: Icons.filter_list_off_rounded,
+                        title: 'Yorum bulunamadı',
+                        description: 'Bu kategoriye ait yorumunuz bulunmuyor.',
+                      )
                     : ListView.builder(
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     itemCount: filteredReviews.length,
@@ -143,25 +147,14 @@ class MyReviewsScreen extends ConsumerWidget {
   }
   
   Widget _buildEmptyState(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.rate_review_outlined, size: 64, color: AppColors.textTertiary),
-          const SizedBox(height: 16),
-          Text('Henüz bir yorum yapmadınız.', style: AppTextStyles.titleMedium),
-          const SizedBox(height: 8),
-          Text(
-            'Okuduğunuz veya incelediğiniz bölümleri\ndeğerlendirerek diğer öğrencilere yardımcı olun.',
-            textAlign: TextAlign.center,
-            style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary),
-          ),
-          const SizedBox(height: 24),
-          FilledButton(
-            onPressed: () => context.go('/'),
-            child: const Text('Üniversiteleri Keşfet'),
-          ),
-        ],
+    return EmptyStateWidget(
+      icon: Icons.rate_review_outlined,
+      title: 'Henüz yorumun yok',
+      description: 'Üniversiteni değerlendir ve diğer öğrencilere yardımcı ol.',
+      action: ElevatedButton.icon(
+        onPressed: () => context.push('/write-review'),
+        icon: const Icon(Icons.edit_rounded, size: 18),
+        label: const Text('Yorum Yaz'),
       ),
     );
   }
