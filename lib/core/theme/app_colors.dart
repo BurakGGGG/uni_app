@@ -193,6 +193,18 @@ class AppColors {
         : background;
   }
 
+  static Color shimmerBaseFor(BuildContext context) {
+    return Theme.of(context).brightness == Brightness.dark
+        ? darkSurfaceVariant
+        : shimmerBase;
+  }
+
+  static Color shimmerHighlightFor(BuildContext context) {
+    return Theme.of(context).brightness == Brightness.dark
+        ? darkSurfaceElevated
+        : shimmerHighlight;
+  }
+
   /// Rating değerine göre renk döndürür (1-5 arası)
   static Color ratingColor(double rating) {
     if (rating >= 4.5) return ratingExcellent;

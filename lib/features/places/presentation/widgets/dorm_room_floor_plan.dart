@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/constants/app_constants.dart';
+import 'dorm_room_colors.dart';
 
 /// Kadı Burhaneddin KYK Yurdu oda krokisi (vektörel, CustomPaint)
 /// Yukarıdan bakış (top-down) oda planı.
@@ -13,9 +14,9 @@ class DormRoomFloorPlan extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: AppColors.surfaceFor(context),
         borderRadius: BorderRadius.circular(AppConstants.radiusLg),
-        border: Border.all(color: const Color(0xFF0D47A1).withValues(alpha: 0.18)),
+        border: Border.all(color: AppColors.info.withValues(alpha: 0.18)),
         boxShadow: AppColors.softShadow,
       ),
       child: Column(
@@ -27,8 +28,8 @@ class DormRoomFloorPlan extends StatelessWidget {
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  const Color(0xFFE3F2FD),
-                  AppColors.surface,
+                  AppColors.infoLight,
+                  AppColors.surfaceFor(context),
                 ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
@@ -42,11 +43,11 @@ class DormRoomFloorPlan extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(6),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF0D47A1).withValues(alpha: 0.1),
+                    color: AppColors.info.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: const Icon(Icons.map_rounded, size: 18,
-                      color: Color(0xFF0D47A1)),
+                      color: AppColors.info),
                 ),
                 const SizedBox(width: 10),
                 Expanded(
@@ -56,7 +57,7 @@ class DormRoomFloorPlan extends StatelessWidget {
                       Text('Oda Krokisi',
                           style: AppTextStyles.titleSmall.copyWith(
                             fontWeight: FontWeight.w700,
-                            color: const Color(0xFF0D47A1),
+                            color: AppColors.info,
                           )),
                       const SizedBox(height: 2),
                       Text('3 Kişilik KYK Odası • Yukarıdan Görünüm',
@@ -88,11 +89,11 @@ class DormRoomFloorPlan extends StatelessWidget {
               spacing: 12,
               runSpacing: 6,
               children: [
-                _legendItem(const Color(0xFFFFEDD5), 'Yatak'),
-                _legendItem(const Color(0xFFE0F2FE), 'Banyo/WC'),
-                _legendItem(const Color(0xFFF3E8FF), 'Dolap'),
-                _legendItem(const Color(0xFFDCFCE7), 'Masalar'),
-                _legendItem(const Color(0xFFF1F5F9), 'K = Komodin'),
+                _legendItem(DormRoomZoneType.bed.fillColor, DormRoomZoneType.bed.label),
+                _legendItem(DormRoomZoneType.bathroom.fillColor, 'Banyo/WC'),
+                _legendItem(DormRoomZoneType.wardrobe.fillColor, DormRoomZoneType.wardrobe.label),
+                _legendItem(DormRoomZoneType.desk.fillColor, 'Masalar'),
+                _legendItem(DormRoomZoneType.common.fillColor, 'K = Komodin'),
               ],
             ),
           ),
@@ -102,16 +103,16 @@ class DormRoomFloorPlan extends StatelessWidget {
             margin: const EdgeInsets.fromLTRB(12, 4, 12, 12),
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: const Color(0xFFFFF8E1),
+              color: AppColors.warningLight,
               borderRadius: BorderRadius.circular(AppConstants.radiusMd),
               border: Border.all(
-                  color: const Color(0xFFFFD54F).withValues(alpha: 0.5)),
+                  color: AppColors.warning.withValues(alpha: 0.5)),
             ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Icon(Icons.info_outline_rounded,
-                    size: 16, color: Color(0xFFF9A825)),
+                    size: 16, color: AppColors.warning),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
@@ -120,7 +121,7 @@ class DormRoomFloorPlan extends StatelessWidget {
                     'Bu yurda yerleşirseniz benzer bir düzende '
                     '3 kişilik odada kalabilirsiniz.',
                     style: AppTextStyles.labelSmall.copyWith(
-                      color: const Color(0xFF6D4C00),
+                      color: AppColors.textPrimary,
                       height: 1.4,
                     ),
                   ),
@@ -177,7 +178,7 @@ class _RoomFloorPlanPainter extends CustomPainter {
 
     // ── Duvarlar ──
     final wallPaint = Paint()
-      ..color = const Color(0xFF1E293B) // Koyu lacivert/gri duvar
+      ..color = AppColors.textPrimary // Duvar rengi tema duyarlı olabilir
       ..style = PaintingStyle.stroke
       ..strokeWidth = wallThickness
       ..strokeJoin = StrokeJoin.round;
@@ -185,7 +186,7 @@ class _RoomFloorPlanPainter extends CustomPainter {
     final roomRect = Rect.fromLTRB(roomLeft, roomTop, roomRight, roomBottom);
 
     // Zemin
-    final floorPaint = Paint()..color = const Color(0xFFF8FAFC);
+    final floorPaint = Paint()..color = AppColors.background;
     canvas.drawRect(roomRect, floorPaint);
 
     // Duvarları çiz
@@ -203,12 +204,12 @@ class _RoomFloorPlanPainter extends CustomPainter {
 
     // ── DOLAP (sol üst) ──
     _drawBox(canvas, lx(0.0), ly(0.0), lx(0.26), ly(0.35),
-        const Color(0xFFF3E8FF), const Color(0xFFD8B4FE), 'Dolap',
+        DormRoomZoneType.wardrobe.fillColor, DormRoomZoneType.wardrobe.borderColor, DormRoomZoneType.wardrobe.label,
         vertical: true, fontSize: 11);
 
     // ── MASALAR (sol alt) ──
     _drawBox(canvas, lx(0.0), ly(0.42), lx(0.26), ly(1.0),
-        const Color(0xFFDCFCE7), const Color(0xFF86EFAC), 'Masalar',
+        DormRoomZoneType.desk.fillColor, DormRoomZoneType.desk.borderColor, 'Masalar',
         vertical: true, fontSize: 11);
 
     // ── SANDALYELER ──
@@ -218,26 +219,26 @@ class _RoomFloorPlanPainter extends CustomPainter {
 
     // ── BANYO (sağ üst) ──
     _drawBox(canvas, lx(0.55), ly(0.0), lx(1.0), ly(0.20),
-        const Color(0xFFE0F2FE), const Color(0xFF7DD3FC), 'Banyo', fontSize: 11);
+        DormRoomZoneType.bathroom.fillColor, DormRoomZoneType.bathroom.borderColor, 'Banyo', fontSize: 11);
 
     // ── WC (banyonun altı) ──
     _drawBox(canvas, lx(0.55), ly(0.20), lx(1.0), ly(0.40),
-        const Color(0xFFE0F2FE), const Color(0xFF7DD3FC), 'WC', fontSize: 11);
+        DormRoomZoneType.bathroom.fillColor, DormRoomZoneType.bathroom.borderColor, 'WC', fontSize: 11);
 
     // ── YATAK 1 & K1 ──
     _drawBed(canvas, lx(0.52), ly(0.46), lx(0.88), ly(0.56), 'Yatak 1');
     _drawBox(canvas, lx(0.83), ly(0.56), lx(0.98), ly(0.61),
-        const Color(0xFFF1F5F9), const Color(0xFFCBD5E1), 'K1', fontSize: 9);
+        DormRoomZoneType.common.fillColor, DormRoomZoneType.common.borderColor, 'K1', fontSize: 9);
 
     // ── YATAK 2 & K2 ──
     _drawBed(canvas, lx(0.52), ly(0.64), lx(0.88), ly(0.74), 'Yatak 2');
     _drawBox(canvas, lx(0.83), ly(0.74), lx(0.98), ly(0.79),
-        const Color(0xFFF1F5F9), const Color(0xFFCBD5E1), 'K2', fontSize: 9);
+        DormRoomZoneType.common.fillColor, DormRoomZoneType.common.borderColor, 'K2', fontSize: 9);
 
     // ── YATAK 3 & K3 ──
     _drawBed(canvas, lx(0.52), ly(0.82), lx(0.88), ly(0.92), 'Yatak 3');
     _drawBox(canvas, lx(0.83), ly(0.92), lx(0.98), ly(0.97),
-        const Color(0xFFF1F5F9), const Color(0xFFCBD5E1), 'K3', fontSize: 9);
+        DormRoomZoneType.common.fillColor, DormRoomZoneType.common.borderColor, 'K3', fontSize: 9);
   }
 
   void _drawBox(Canvas canvas, double l, double t, double r, double b,
@@ -256,9 +257,9 @@ class _RoomFloorPlanPainter extends CustomPainter {
 
     if (vertical) {
       _drawVerticalLabel(
-          canvas, (l + r) / 2, (t + b) / 2, label, fontSize, const Color(0xFF334155));
+          canvas, (l + r) / 2, (t + b) / 2, label, fontSize, AppColors.textPrimary);
     } else {
-      _drawLabel(canvas, (l + r) / 2, (t + b) / 2, label, fontSize, const Color(0xFF334155));
+      _drawLabel(canvas, (l + r) / 2, (t + b) / 2, label, fontSize, AppColors.textPrimary);
     }
   }
 
@@ -267,11 +268,11 @@ class _RoomFloorPlanPainter extends CustomPainter {
     final rrect = RRect.fromRectAndRadius(rect, const Radius.circular(6));
 
     // Yatak gövdesi
-    canvas.drawRRect(rrect, Paint()..color = const Color(0xFFFFEDD5));
+    canvas.drawRRect(rrect, Paint()..color = DormRoomZoneType.bed.fillColor);
     canvas.drawRRect(
         rrect,
         Paint()
-          ..color = const Color(0xFFFDBA74)
+          ..color = DormRoomZoneType.bed.borderColor
           ..style = PaintingStyle.stroke
           ..strokeWidth = 1.5);
 
@@ -285,17 +286,17 @@ class _RoomFloorPlanPainter extends CustomPainter {
         (t + b) / 2 + pillowH / 2);
 
     final pillowRRect = RRect.fromRectAndRadius(pillowRect, const Radius.circular(4));
-    canvas.drawRRect(pillowRRect, Paint()..color = Colors.white);
+    canvas.drawRRect(pillowRRect, Paint()..color = AppColors.surface);
     canvas.drawRRect(
         pillowRRect,
         Paint()
-          ..color = const Color(0xFFE2E8F0)
+          ..color = AppColors.border
           ..style = PaintingStyle.stroke
           ..strokeWidth = 1.0);
 
     // Yatak yazısı
     _drawLabel(
-        canvas, (l + r) / 2 + pillowW / 2, (t + b) / 2, label, 10, const Color(0xFF334155));
+        canvas, (l + r) / 2 + pillowW / 2, (t + b) / 2, label, 10, AppColors.textPrimary);
   }
 
   void _drawChair(Canvas canvas, double cx, double cy) {
@@ -304,11 +305,11 @@ class _RoomFloorPlanPainter extends CustomPainter {
     final rect = Rect.fromCenter(center: Offset(cx, cy), width: chairW, height: chairH);
     final rrect = RRect.fromRectAndRadius(rect, const Radius.circular(4));
 
-    canvas.drawRRect(rrect, Paint()..color = const Color(0xFFF1F5F9));
+    canvas.drawRRect(rrect, Paint()..color = DormRoomZoneType.desk.fillColor);
     canvas.drawRRect(
         rrect,
         Paint()
-          ..color = const Color(0xFF94A3B8)
+          ..color = DormRoomZoneType.desk.borderColor
           ..style = PaintingStyle.stroke
           ..strokeWidth = 1.5);
 
@@ -317,7 +318,7 @@ class _RoomFloorPlanPainter extends CustomPainter {
         Offset(cx + chairW / 2 - 2, cy - chairH / 2 + 2),
         Offset(cx + chairW / 2 - 2, cy + chairH / 2 - 2),
         Paint()
-          ..color = const Color(0xFF94A3B8)
+          ..color = DormRoomZoneType.desk.borderColor
           ..strokeWidth = 2.0
           ..strokeCap = StrokeCap.round);
   }
@@ -329,7 +330,7 @@ class _RoomFloorPlanPainter extends CustomPainter {
         Offset(x1, y1),
         Offset(x2, y2),
         Paint()
-          ..color = const Color(0xFFF8FAFC)
+          ..color = AppColors.background
           ..strokeWidth = thickness + 2.0);
 
     // Kapı kanadı (içeri doğru açılmış gibi)
@@ -337,7 +338,7 @@ class _RoomFloorPlanPainter extends CustomPainter {
         Offset(x1, y1),
         Offset(x1 + doorWidth * 0.7, y1 + doorWidth * 0.7),
         Paint()
-          ..color = const Color(0xFF8D6E63)
+          ..color = DormRoomZoneType.door.borderColor
           ..strokeWidth = 3.0
           ..strokeCap = StrokeCap.round);
   }
@@ -348,7 +349,7 @@ class _RoomFloorPlanPainter extends CustomPainter {
         Offset(x1, y1),
         Offset(x2, y2),
         Paint()
-          ..color = const Color(0xFFF8FAFC)
+          ..color = AppColors.background
           ..strokeWidth = thickness + 2.0);
 
     // Cam
@@ -356,7 +357,7 @@ class _RoomFloorPlanPainter extends CustomPainter {
         Offset(x1, y1),
         Offset(x2, y2),
         Paint()
-          ..color = const Color(0xFF60A5FA)
+          ..color = DormRoomZoneType.window.borderColor
           ..strokeWidth = thickness * 0.8
           ..strokeCap = StrokeCap.round);
   }
