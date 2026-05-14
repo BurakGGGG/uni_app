@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/utils/snackbar_helper.dart';
+import '../../../../core/widgets/state_widgets.dart';
 import '../../../auth/presentation/providers/auth_providers.dart';
 import '../../domain/models/review_model.dart';
 import '../providers/review_providers.dart';
@@ -132,7 +133,10 @@ class MyReviewsScreen extends ConsumerWidget {
             );
           },
           loading: () => const Center(child: CircularProgressIndicator()),
-          error: (e, _) => Center(child: Text('Hata: $e')),
+          error: (e, _) => ErrorStateWidget(
+            message: e.toString(),
+            onRetry: () => ref.invalidate(userReviewsProvider(user.uid)),
+          ),
         ),
       ),
     );
