@@ -38,15 +38,21 @@ class UniPlacesScreen extends ConsumerWidget {
           ),
         ],
       ),
-      body: ListView(
-        padding: const EdgeInsets.only(top: 12, bottom: 80),
-        children: [
-          PlaceList(
-            universityId: universityId,
-            showTypeFilter: true,
-            shrinkWrap: true,
-          ),
-        ],
+      body: Builder(
+        builder: (context) {
+          final children = [
+            PlaceList(
+              universityId: universityId,
+              showTypeFilter: true,
+              shrinkWrap: true,
+            ),
+          ];
+          return ListView.builder(
+            padding: const EdgeInsets.only(top: 12, bottom: 80),
+            itemCount: children.length,
+            itemBuilder: (context, index) => children[index],
+          );
+        },
       ),
     );
   }

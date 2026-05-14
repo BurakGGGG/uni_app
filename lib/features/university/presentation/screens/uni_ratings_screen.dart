@@ -21,7 +21,7 @@ class UniRatingsScreen extends ConsumerWidget {
         title: const Text('Kategori Puanları'),
       ),
       body: uniAsync.when(
-        loading: () => const ListSkeleton(itemCount: 4),
+        loading: () => const ListSkeleton(itemCount: 5, itemHeight: 72),
         error: (e, st) => ErrorState(
           title: 'Bilgiler yüklenemedi',
           message: 'Lütfen internet bağlantını kontrol et.',

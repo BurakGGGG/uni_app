@@ -461,6 +461,7 @@ class _PopularUniCard extends ConsumerWidget {
                       child: Image.asset(
                         university.logoAssetPath,
                         fit: BoxFit.contain,
+                        semanticLabel: 'Üniversite logosu',
                         errorBuilder: (context, error, stackTrace) => Container(
                           decoration: BoxDecoration(
                             color: color.withValues(alpha: 0.12),

@@ -63,11 +63,23 @@ class ProfileScreen extends ConsumerWidget {
                   if (user == null) return _buildGuestProfile(context);
                   return currentUser.when(
                     data: (profile) => _buildUserCard(context, ref, profile, user),
-                    loading: () => const CircularProgressIndicator(),
+                    loading: () => const Column(
+                      children: [
+                        CardSkeleton(height: 120),
+                        SizedBox(height: 16),
+                        ListSkeleton(itemCount: 4, itemHeight: 56),
+                      ],
+                    ),
                     error: (e, st) => _buildUserCard(context, ref, null, user),
                   );
                 },
-                loading: () => const CircularProgressIndicator(),
+                loading: () => const Column(
+                  children: [
+                    CardSkeleton(height: 120),
+                    SizedBox(height: 16),
+                    ListSkeleton(itemCount: 4, itemHeight: 56),
+                  ],
+                ),
                 error: (e, st) => _buildGuestProfile(context),
               ),
 

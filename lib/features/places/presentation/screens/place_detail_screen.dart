@@ -91,6 +91,7 @@ class _PlaceDetailScreenState extends ConsumerState<PlaceDetailScreen> {
       backgroundColor: AppColors.surface,
       foregroundColor: AppColors.textPrimary,
       leading: IconButton(
+        tooltip: 'Geri dön',
         onPressed: () => context.pop(),
         icon: Container(
           padding: const EdgeInsets.all(6),

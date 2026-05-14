@@ -83,6 +83,7 @@ class UniversityLogoBox extends StatelessWidget {
             child: Image.asset(
               _logoAssetPath,
               fit: BoxFit.contain,
+              semanticLabel: 'Üniversite logosu',
               errorBuilder: (_, _, _) => Center(
                 child: Text(
                   universityName.isNotEmpty

@@ -184,13 +184,13 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get authSignIn => 'Sign In';
+  String get authSignIn => 'Sign in';
 
   @override
-  String get authSignUp => 'Sign Up';
+  String get authSignUp => 'Sign up';
 
   @override
-  String get authEmailLabel => 'Email address';
+  String get authEmailLabel => 'Email';
 
   @override
   String get authEmailHint => 'example@university.edu';
@@ -202,7 +202,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get authPasswordHint => 'At least 6 characters';
 
   @override
-  String get authForgotPassword => 'Forgot Password';
+  String get authForgotPassword => 'Forgot password';
 
   @override
   String get authGoogleContinue => 'Sign In with Google';
@@ -226,7 +226,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get authEmailRequired => 'Email address is required';
 
   @override
-  String get authEmailInvalid => 'Enter a valid email address';
+  String get authEmailInvalid => 'Enter a valid email';
 
   @override
   String get authContinueWithAccount => 'Sign in to your account to continue';
@@ -320,10 +320,10 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get profileTitle => 'My Account';
+  String get profileTitle => 'Account';
 
   @override
-  String get profileEditProfile => 'Edit Profile';
+  String get profileEditProfile => 'Edit profile';
 
   @override
   String get profileEditSubtitle => 'Photo, name, university';
@@ -499,29 +499,31 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String errorGeneral(String error) {
-    return 'Hata: $error';
+    return 'Error: $error';
   }
 
   @override
   String get universityNotFound => 'University not found';
 
   @override
-  String get errorDepartmentsLoad => 'Failed to load departments.';
+  String get errorDepartmentsLoad =>
+      'An error occurred while loading departments.';
 
   @override
   String get noDepartmentsFound => 'No departments found.';
 
   @override
-  String get errorPlacesLoad => 'Failed to load places.';
+  String get errorPlacesLoad => 'An error occurred while loading places.';
 
   @override
   String get noPlacesFound => 'No places found.';
 
   @override
-  String get errorReviewsLoad => 'Failed to load reviews.';
+  String get errorReviewsLoad => 'An error occurred while loading reviews.';
 
   @override
-  String get reviewLoginRequired => 'You need to sign in to write reviews.';
+  String get reviewLoginRequired =>
+      'You must log in to your account first to write a review.';
 
   @override
   String get reviewEduRequiredTitle => 'Verification Required';
@@ -599,4 +601,114 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get aiSummaryLimitReachedSimple =>
       'You\'ve used your daily AI summary quota. Try again tomorrow.';
+
+  @override
+  String get commonRetry => 'Try again';
+
+  @override
+  String get commonError => 'Something went wrong';
+
+  @override
+  String get commonLoading => 'Loading...';
+
+  @override
+  String get commonCancel => 'Cancel';
+
+  @override
+  String get commonSave => 'Save';
+
+  @override
+  String get commonDelete => 'Delete';
+
+  @override
+  String get commonClose => 'Close';
+
+  @override
+  String get commonShare => 'Share';
+
+  @override
+  String get commonEdit => 'Edit';
+
+  @override
+  String get commonContinue => 'Continue';
+
+  @override
+  String get authSignOut => 'Sign out';
+
+  @override
+  String get authPasswordTooShort => 'Password must be at least 6 characters';
+
+  @override
+  String get homeTabExplore => 'Explore';
+
+  @override
+  String get homeTabCompare => 'Compare';
+
+  @override
+  String get homeTabFavorites => 'Favorites';
+
+  @override
+  String get homeTabProfile => 'Profile';
+
+  @override
+  String get comparisonTitleUni => 'Compare universities';
+
+  @override
+  String get comparisonTitleDept => 'Compare departments';
+
+  @override
+  String get comparisonTitleCity => 'Compare cities';
+
+  @override
+  String get comparisonNoteAdd => 'Add note';
+
+  @override
+  String get comparisonNoteEmpty => 'No notes yet';
+
+  @override
+  String get comparisonNoteMaxLength => 'Maximum 500 characters';
+
+  @override
+  String get comparisonProUpsell => 'Upgrade to Pro to add a 3rd university';
+
+  @override
+  String get paywallContinueFree => 'Continue for free';
+
+  @override
+  String paywallSavePercent(int percent) {
+    return 'SAVE $percent%';
+  }
+
+  @override
+  String get paywallMonthly => 'Monthly';
+
+  @override
+  String get paywallYearly => 'Yearly';
+
+  @override
+  String get paywallRestore => 'Restore purchases';
+
+  @override
+  String get reviewWrite => 'Write a review';
+
+  @override
+  String get reviewAnonymous => 'Anonymous';
+
+  @override
+  String get reviewRatingRequired => 'Cannot submit without a rating';
+
+  @override
+  String get profilePremium => 'Premium membership';
+
+  @override
+  String get profileLanguage => 'Language';
+
+  @override
+  String get profileDeleteAccount => 'Delete account';
+
+  @override
+  String get favoritesEmpty => 'No favorites';
+
+  @override
+  String get favoritesEmptyHint => 'Track universities you like here.';
 }

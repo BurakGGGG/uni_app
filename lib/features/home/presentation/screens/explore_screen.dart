@@ -132,20 +132,26 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                   Expanded(
                     child: SizedBox(
                       height: 44,
-                      child: ListView(
-                        scrollDirection: Axis.horizontal,
-                        children: [
-                          _QuickFilterChip(
-                            label: 'Devlet',
-                            isSelected: filters.selectedTypes.contains('Devlet'),
-                            onSelected: (_) => ref.read(exploreFilterProvider.notifier).toggleType('Devlet'),
-                          ),
-                          _QuickFilterChip(
-                            label: 'Vakıf',
-                            isSelected: filters.selectedTypes.contains('Vakıf'),
-                            onSelected: (_) => ref.read(exploreFilterProvider.notifier).toggleType('Vakıf'),
-                          ),
-                        ],
+                      child: Builder(
+                        builder: (context) {
+                          final children = [
+                            _QuickFilterChip(
+                              label: 'Devlet',
+                              isSelected: filters.selectedTypes.contains('Devlet'),
+                              onSelected: (_) => ref.read(exploreFilterProvider.notifier).toggleType('Devlet'),
+                            ),
+                            _QuickFilterChip(
+                              label: 'Vakıf',
+                              isSelected: filters.selectedTypes.contains('Vakıf'),
+                              onSelected: (_) => ref.read(exploreFilterProvider.notifier).toggleType('Vakıf'),
+                            ),
+                          ];
+                          return ListView.builder(
+                            scrollDirection: Axis.horizontal,
+                            itemCount: children.length,
+                            itemBuilder: (context, index) => children[index],
+                          );
+                        },
                       ),
                     ),
                   ),
@@ -173,7 +179,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
             const SizedBox(height: 4),
             Expanded(
               child: allUnisAsync.when(
-                loading: () => const ListSkeleton(itemCount: 6),
+                loading: () => const ListSkeleton(itemCount: 8),
                 error: (e, st) => ErrorState(
                   title: 'Üniversiteler yüklenemedi',
                   message: 'Lütfen internet bağlantını kontrol et.',
@@ -328,52 +334,58 @@ class _FilterBottomSheet extends ConsumerWidget {
 
             // Content
             Expanded(
-              child: ListView(
-                controller: scrollController,
-                padding: const EdgeInsets.all(20),
-                children: [
-                  // Tür Filtresi
-                  Text('Üniversite Türü', style: AppTextStyles.titleMedium),
-                  const SizedBox(height: 12),
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: [
-                      _FilterOption(
-                        label: 'Devlet',
-                        isSelected: filters.selectedTypes.contains('Devlet'),
-                        onTap: () => ref.read(exploreFilterProvider.notifier).toggleType('Devlet'),
-                      ),
-                      _FilterOption(
-                        label: 'Vakıf',
-                        isSelected: filters.selectedTypes.contains('Vakıf'),
-                        onTap: () => ref.read(exploreFilterProvider.notifier).toggleType('Vakıf'),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 32),
+              child: Builder(
+                builder: (context) {
+                  final children = [
+                    // Tür Filtresi
+                    Text('Üniversite Türü', style: AppTextStyles.titleMedium),
+                    const SizedBox(height: 12),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: [
+                        _FilterOption(
+                          label: 'Devlet',
+                          isSelected: filters.selectedTypes.contains('Devlet'),
+                          onTap: () => ref.read(exploreFilterProvider.notifier).toggleType('Devlet'),
+                        ),
+                        _FilterOption(
+                          label: 'Vakıf',
+                          isSelected: filters.selectedTypes.contains('Vakıf'),
+                          onTap: () => ref.read(exploreFilterProvider.notifier).toggleType('Vakıf'),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 32),
 
-                  // Şehir Filtresi
-                  Text('Şehirler', style: AppTextStyles.titleMedium),
-                  const SizedBox(height: 12),
-                  citiesAsync.when(
-                    loading: () => const CircularProgressIndicator(),
-                    error: (e, st) => const Text('Şehirler yüklenemedi'),
-                    data: (cities) {
-                      return Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        children: cities.map((city) {
-                          return _FilterOption(
-                            label: city.name,
-                            isSelected: filters.selectedCities.contains(city.id),
-                            onTap: () => ref.read(exploreFilterProvider.notifier).toggleCity(city.id),
-                          );
-                        }).toList(),
-                      );
-                    },
-                  ),
-                ],
+                    // Şehir Filtresi
+                    Text('Şehirler', style: AppTextStyles.titleMedium),
+                    const SizedBox(height: 12),
+                    citiesAsync.when(
+                      loading: () => const CircularProgressIndicator(),
+                      error: (e, st) => const Text('Şehirler yüklenemedi'),
+                      data: (cities) {
+                        return Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: cities.map((city) {
+                            return _FilterOption(
+                              label: city.name,
+                              isSelected: filters.selectedCities.contains(city.id),
+                              onTap: () => ref.read(exploreFilterProvider.notifier).toggleCity(city.id),
+                            );
+                          }).toList(),
+                        );
+                      },
+                    ),
+                  ];
+                  return ListView.builder(
+                    controller: scrollController,
+                    padding: const EdgeInsets.all(20),
+                    itemCount: children.length,
+                    itemBuilder: (context, index) => children[index],
+                  );
+                },
               ),
             ),
 
