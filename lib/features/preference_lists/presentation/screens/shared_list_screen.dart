@@ -158,7 +158,7 @@ class SharedListScreen extends ConsumerWidget {
                           horizontal: 10, vertical: 5),
                       decoration: BoxDecoration(
                         color: AppColors.surfaceVariant,
-                        borderRadius: BorderRadius.circular(10),
+                        borderRadius: BorderRadius.circular(12),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
@@ -461,7 +461,7 @@ class _NotFoundView extends StatelessWidget {
                   backgroundColor: AppColors.primary,
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
+                    borderRadius: BorderRadius.circular(12),
                   ),
                   elevation: 0,
                 ),

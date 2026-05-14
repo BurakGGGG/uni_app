@@ -95,19 +95,22 @@ class CityUniversitiesScreen extends ConsumerWidget {
             // ─── Üniversite Listesi ──────────────────────────────────
             unisAsync.when(
               loading: () => const SliverFillRemaining(
-                child: Center(child: CircularProgressIndicator()),
+                child: ListSkeleton(itemCount: 5),
               ),
               error: (e, st) => SliverFillRemaining(
-                child: Center(child: Text('Hata: $e')),
+                child: ErrorState(
+                  title: 'Üniversiteler yüklenemedi',
+                  message: 'Lütfen internet bağlantını kontrol et.',
+                  onRetry: () => ref.invalidate(universitiesByCityProvider(cityId)),
+                ),
               ),
               data: (universities) {
                 if (universities.isEmpty) {
                   return const SliverFillRemaining(
-                    child: EmptyStateWidget(
+                    child: EmptyState(
                       icon: Icons.school_outlined,
                       title: 'Üniversite bulunamadı',
-                      description:
-                          'Bu şehirde henüz üniversite eklenmemiş.',
+                      message: 'Bu şehirde henüz üniversite eklenmemiş.',
                     ),
                   );
                 }

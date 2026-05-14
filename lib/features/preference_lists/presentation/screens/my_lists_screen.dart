@@ -115,7 +115,7 @@ class MyListsScreen extends ConsumerWidget {
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
                 color: AppColors.errorLight,
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(12),
               ),
               child: const Icon(
                 Icons.delete_outline_rounded,
@@ -211,7 +211,7 @@ class _ListCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(10),
+                    padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
                       color: AppColors.primary.withValues(alpha: 0.10),
                       borderRadius: BorderRadius.circular(12),
@@ -324,7 +324,7 @@ class _ListActionsButton extends StatelessWidget {
     return GestureDetector(
       onTap: () => _showBottomSheet(context),
       child: Container(
-        padding: const EdgeInsets.all(6),
+        padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
           color: AppColors.textTertiary.withValues(alpha: 0.08),
           borderRadius: BorderRadius.circular(8),
@@ -413,7 +413,7 @@ class _ListActionsButton extends StatelessWidget {
                     onPressed: () => Navigator.pop(ctx),
                     style: TextButton.styleFrom(
                       foregroundColor: AppColors.textSecondary,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(
                           AppConstants.radiusMd,
@@ -461,7 +461,7 @@ class _ActionTile extends StatelessWidget {
           child: Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(10),
+                padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
                   color: iconBgColor,
                   borderRadius: BorderRadius.circular(12),
@@ -518,7 +518,7 @@ class _StatusChip extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.10),
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
