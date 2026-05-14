@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 
 import '../domain/models/comparison_note.dart';
@@ -28,6 +29,12 @@ class ComparisonNotesRepository {
   }
 
   /// Yeni not ekle. Misafir kullanıcıda sessizce no-op döner.
+  ///
+  /// Validation:
+  /// - Boş not kabul edilmez
+  /// - 500 karakter sınırı uygulanır
+  /// - Aynı karşılaştırma + aynı içerik 3 saniye içinde tekrar yazılırsa
+  ///   sessizce drop edilir (idempotency, hızlı tap-tap koruması)
   Future<void> addNote({
     required String comparisonType,
     required String entityAId,
@@ -40,15 +47,52 @@ class ComparisonNotesRepository {
     final ref = _refForCurrentUser();
     if (ref == null) return;
 
+    // ─── Validation ──────────────────────────────────────────────
+    final trimmed = note.trim();
+    if (trimmed.isEmpty) {
+      debugPrint('[ComparisonNotes] empty note rejected');
+      return; // UI zaten engelliyor, ekstra güvenlik
+    }
+    if (trimmed.length > 500) {
+      debugPrint('[ComparisonNotes] note too long: ${trimmed.length}');
+      return; // UI zaten engelliyor, ekstra güvenlik
+    }
+
+    // ─── Idempotency — aynı karşılaştırma + aynı içerik → tekilleştir
+    final idempotencyKey =
+        '${entityAId}_${entityBId}_${trimmed.hashCode}';
+
+    // Aynı içerik 3 saniye içinde tekrar yazılırsa skip
+    // Not: composite index yoksa sorgu hata verir → sessizce devam et
+    try {
+      final recent = await ref
+          .where('idempotencyKey', isEqualTo: idempotencyKey)
+          .where('createdAt',
+              isGreaterThan: Timestamp.fromDate(
+                  DateTime.now().subtract(const Duration(seconds: 3))))
+          .limit(1)
+          .get();
+
+      if (recent.docs.isNotEmpty) {
+        debugPrint('[ComparisonNotes] duplicate note skipped (idempotency)');
+        return; // duplicate, sessizce drop
+      }
+    } catch (e) {
+      // Composite index eksikse sorgu başarısız olur — idempotency'yi atla,
+      // not kaydını engelleme
+      debugPrint('[ComparisonNotes] idempotency check skipped: $e');
+    }
+
     try {
       await ref.add({
         'comparisonType': comparisonType,
         'entityAId': entityAId,
         'entityBId': entityBId,
-        'note': note,
+        'note': trimmed,
         'pros': pros,
         'cons': cons,
         'rating': rating,
+        'idempotencyKey': idempotencyKey,
         'createdAt': FieldValue.serverTimestamp(),
         'updatedAt': FieldValue.serverTimestamp(),
       });
@@ -60,8 +104,15 @@ class ComparisonNotesRepository {
           await all.docs[i].reference.delete();
         }
       }
-    } catch (e) {
+    } catch (e, st) {
       debugPrint('[ComparisonNotes] addNote failed: $e');
+      FirebaseCrashlytics.instance.recordError(e, st,
+          reason: 'comparison_note_add_failed',
+          information: [
+            'userId: ${_auth.currentUser?.uid}',
+            'noteLen: ${trimmed.length}',
+          ]);
+      // rethrow kaldırıldı — hata UI'ı kırmasın, Crashlytics'e loglanır
     }
   }
 

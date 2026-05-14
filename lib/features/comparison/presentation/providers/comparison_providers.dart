@@ -283,8 +283,13 @@ final tripleComparisonResultProvider =
     FirebaseCrashlytics.instance.recordError(
       e,
       st,
-      reason: 'tripleComparisonResultProvider failed',
+      reason: 'triple_comparison_failed',
       fatal: false,
+      information: [
+        'uniA: $idA',
+        'uniB: $idB',
+        'uniC: $idC',
+      ],
     );
     rethrow;
   }

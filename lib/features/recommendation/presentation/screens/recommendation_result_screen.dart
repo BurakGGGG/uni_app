@@ -102,9 +102,12 @@ class RecommendationResultScreen extends ConsumerWidget {
                   elevation: 0,
                 ),
                 icon: const Icon(Icons.replay_rounded),
-                label: const Text(
+                label: Text(
                   'Yeniden Dene',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  style: AppTextStyles.labelLarge.copyWith(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
                 ),
               ),
             ),
@@ -164,9 +167,12 @@ class RecommendationResultScreen extends ConsumerWidget {
                   elevation: 0,
                 ),
                 icon: const Icon(Icons.replay_rounded),
-                label: const Text(
+                label: Text(
                   'Yeniden Başla',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  style: AppTextStyles.labelLarge.copyWith(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
                 ),
               ),
             ),
@@ -279,9 +285,11 @@ class RecommendationResultScreen extends ConsumerWidget {
               ),
             ),
             icon: const Icon(Icons.replay_rounded),
-            label: const Text(
+            label: Text(
               'Yeniden Dene',
-              style: TextStyle(fontWeight: FontWeight.bold),
+              style: AppTextStyles.labelLarge.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
         ),
@@ -346,7 +354,7 @@ class _MedalCard extends StatelessWidget {
                       child: Center(
                         child: Text(
                           medalData.emoji,
-                          style: const TextStyle(fontSize: 24),
+                          style: AppTextStyles.headlineSmall,
                         ),
                       ),
                     ),
@@ -388,10 +396,9 @@ class _MedalCard extends StatelessWidget {
                       ),
                       child: Text(
                         '%${rec.normalizedScore.toInt()}',
-                        style: TextStyle(
+                        style: AppTextStyles.labelLarge.copyWith(
                           color: medalData.color,
                           fontWeight: FontWeight.bold,
-                          fontSize: 16,
                         ),
                       ),
                     ),
@@ -545,10 +552,9 @@ class _OtherCard extends StatelessWidget {
                       child: Center(
                         child: Text(
                           '#$rank',
-                          style: TextStyle(
+                          style: AppTextStyles.labelLarge.copyWith(
                             color: AppColors.primary,
                             fontWeight: FontWeight.bold,
-                            fontSize: 14,
                           ),
                         ),
                       ),
@@ -588,10 +594,9 @@ class _OtherCard extends StatelessWidget {
                       ),
                       child: Text(
                         '%${rec.normalizedScore.toInt()}',
-                        style: const TextStyle(
+                        style: AppTextStyles.labelLarge.copyWith(
                           color: AppColors.accent,
                           fontWeight: FontWeight.bold,
-                          fontSize: 13,
                         ),
                       ),
                     ),
@@ -660,10 +665,9 @@ class _AiSummaryCard extends StatelessWidget {
               const SizedBox(width: 8),
               Text(
                 hasAi ? 'Akıllı Öneri Özeti' : 'Analiz Sonucu',
-                style: const TextStyle(
+                style: AppTextStyles.labelLarge.copyWith(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
-                  fontSize: 15,
                   letterSpacing: 0.2,
                 ),
               ),
