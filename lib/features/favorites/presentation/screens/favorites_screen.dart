@@ -80,8 +80,12 @@ class _FavoritesScreenState extends ConsumerState<FavoritesScreen> {
     final allUnisAsync = ref.watch(allUniversitiesProvider);
 
     return favoritesAsync.when(
-      loading: () => const Center(child: CircularProgressIndicator()),
-      error: (e, st) => Center(child: Text('Hata: $e')),
+      loading: () => const ListSkeleton(itemCount: 6),
+      error: (e, st) => ErrorState(
+        title: 'Favoriler yüklenemedi',
+        message: 'Lütfen internet bağlantını kontrol et.',
+        onRetry: () => ref.invalidate(favoritesProvider),
+      ),
       data: (favoriteIds) {
         // _removingIds dışındaki favorileri göster
         final visibleIds = favoriteIds
@@ -93,8 +97,12 @@ class _FavoritesScreenState extends ConsumerState<FavoritesScreen> {
         }
 
         return allUnisAsync.when(
-          loading: () => const Center(child: CircularProgressIndicator()),
-          error: (e, st) => Center(child: Text('Hata: $e')),
+          loading: () => const ListSkeleton(itemCount: 6),
+          error: (e, st) => ErrorState(
+            title: 'Üniversiteler yüklenemedi',
+            message: 'Lütfen internet bağlantını kontrol et.',
+            onRetry: () => ref.invalidate(allUniversitiesProvider),
+          ),
           data: (allUnis) {
             final favoriteUnis = allUnis
                 .where((uni) => visibleIds.contains(uni.id))
@@ -185,48 +193,16 @@ class _FavoritesScreenState extends ConsumerState<FavoritesScreen> {
   }
 
   Widget _buildEmptyState(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(40),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              width: 100,
-              height: 100,
-              decoration: BoxDecoration(
-                color: AppColors.error.withValues(alpha: 0.08),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                Icons.favorite_rounded,
-                size: 48,
-                color: AppColors.error.withValues(alpha: 0.4),
-              ),
-            ),
-            const SizedBox(height: 24),
-            Text(
-              'Henüz favorin yok',
-              style: AppTextStyles.titleLarge,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'İlgilendiğin üniversiteleri favorilerine ekleyerek\nburadan kolayca takip edebilirsin.',
-              textAlign: TextAlign.center,
-              style: AppTextStyles.bodySmall.copyWith(
-                color: AppColors.textTertiary,
-              ),
-            ),
-            const SizedBox(height: 28),
-            SizedBox(
-              width: 200,
-              child: GradientButton(
-                text: 'Keşfet\'e Git',
-                icon: Icons.explore_rounded,
-                onPressed: () => context.go('/explore'),
-              ),
-            ),
-          ],
+    return EmptyState(
+      icon: Icons.favorite_border_rounded,
+      title: 'Henüz favorin yok',
+      message: 'İlgilendiğin üniversiteleri favorilerine ekleyerek buradan kolayca takip edebilirsin.',
+      action: SizedBox(
+        width: 200,
+        child: GradientButton(
+          text: 'Keşfet\'e Git',
+          icon: Icons.explore_rounded,
+          onPressed: () => context.go('/explore'),
         ),
       ),
     );

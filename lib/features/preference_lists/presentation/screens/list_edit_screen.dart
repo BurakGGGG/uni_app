@@ -350,7 +350,7 @@ class _ListEditScreenState extends ConsumerState<ListEditScreen> {
                       ? AppColors.textTertiary
                       : Colors.white,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
+                    borderRadius: BorderRadius.circular(12),
                   ),
                   elevation: 0,
                 ),
@@ -381,9 +381,9 @@ class _ListEditScreenState extends ConsumerState<ListEditScreen> {
                       side: BorderSide(
                         color: AppColors.error.withValues(alpha: 0.28),
                       ),
-                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
+                        borderRadius: BorderRadius.circular(12),
                       ),
                     ),
                     icon: _isDeleting
@@ -406,9 +406,9 @@ class _ListEditScreenState extends ConsumerState<ListEditScreen> {
                     style: FilledButton.styleFrom(
                       backgroundColor: AppColors.primary,
                       foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
+                        borderRadius: BorderRadius.circular(12),
                       ),
                     ),
                     icon: _isSaving
@@ -486,9 +486,9 @@ class _ActionBar extends StatelessWidget {
             style: OutlinedButton.styleFrom(
               foregroundColor: AppColors.textPrimary,
               side: BorderSide(color: AppColors.borderLight),
-              padding: const EdgeInsets.symmetric(vertical: 14),
+              padding: const EdgeInsets.symmetric(vertical: 12),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: BorderRadius.circular(12),
               ),
             ),
             icon: const Icon(Icons.sort_rounded, size: 18),
@@ -505,9 +505,9 @@ class _ActionBar extends StatelessWidget {
             style: OutlinedButton.styleFrom(
               foregroundColor: AppColors.textSecondary,
               side: BorderSide(color: AppColors.borderLight),
-              padding: const EdgeInsets.symmetric(vertical: 14),
+              padding: const EdgeInsets.symmetric(vertical: 12),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: BorderRadius.circular(12),
               ),
             ),
             icon: const Icon(Icons.undo_rounded, size: 18),
@@ -540,7 +540,7 @@ class _ListSummaryCard extends StatelessWidget {
     }
 
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(16),
@@ -576,7 +576,7 @@ class _ListSummaryCard extends StatelessWidget {
                   color: list.isPublic
                       ? AppColors.success.withValues(alpha: 0.10)
                       : AppColors.surfaceVariant,
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(12),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,

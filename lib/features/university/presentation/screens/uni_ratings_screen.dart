@@ -5,6 +5,8 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../providers/university_providers.dart';
 import '../../../reviews/presentation/widgets/category_ratings_chart.dart';
 
+import '../../../../core/widgets/widgets.dart';
+
 class UniRatingsScreen extends ConsumerWidget {
   final String universityId;
 
@@ -19,8 +21,12 @@ class UniRatingsScreen extends ConsumerWidget {
         title: const Text('Kategori Puanları'),
       ),
       body: uniAsync.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, st) => Center(child: Text('Hata: $e')),
+        loading: () => const ListSkeleton(itemCount: 4),
+        error: (e, st) => ErrorState(
+          title: 'Bilgiler yüklenemedi',
+          message: 'Lütfen internet bağlantını kontrol et.',
+          onRetry: () => ref.invalidate(universityDetailProvider(universityId)),
+        ),
         data: (uni) {
           if (uni == null) return const Center(child: Text('Üniversite bulunamadı'));
 
