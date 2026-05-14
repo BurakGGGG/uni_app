@@ -9,7 +9,6 @@ import '../../domain/enums/subscription_tier.dart';
 import '../../domain/models/subscription_model.dart';
 import '../../domain/models/usage_stats_model.dart';
 import '../../../auth/presentation/providers/auth_providers.dart';
-import '../../../../core/providers/shared_preferences_provider.dart';
 
 // ═══════════════════════════════════════════════════════════════
 //  Repository Providers
@@ -20,8 +19,7 @@ final subscriptionRepositoryProvider = Provider<SubscriptionRepository>((ref) {
 });
 
 final usageStatsRepositoryProvider = Provider<UsageStatsRepository>((ref) {
-  final prefs = ref.watch(sharedPreferencesProvider);
-  return UsageStatsRepository(prefs: prefs);
+  return UsageStatsRepository();
 });
 
 // ═══════════════════════════════════════════════════════════════

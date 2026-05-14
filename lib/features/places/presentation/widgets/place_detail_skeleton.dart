@@ -9,8 +9,8 @@ class PlaceDetailSkeleton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Shimmer.fromColors(
-      baseColor: AppColors.surfaceVariant,
-      highlightColor: AppColors.surface,
+      baseColor: AppColors.shimmerBaseFor(context),
+      highlightColor: AppColors.shimmerHighlightFor(context),
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -19,7 +19,7 @@ class PlaceDetailSkeleton extends StatelessWidget {
             Container(
               height: 220,
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: AppColors.shimmerBaseFor(context),
                 borderRadius: BorderRadius.circular(AppConstants.radiusLg),
               ),
             ),
@@ -27,19 +27,19 @@ class PlaceDetailSkeleton extends StatelessWidget {
             Container(
               width: 80, height: 24,
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: AppColors.shimmerBaseFor(context),
                 borderRadius: BorderRadius.circular(8),
               ),
             ),
             const SizedBox(height: 12),
-            Container(width: double.infinity, height: 28, color: Colors.white),
+            Container(width: double.infinity, height: 28, color: AppColors.shimmerBaseFor(context)),
             const SizedBox(height: 8),
-            Container(width: 200, height: 16, color: Colors.white),
+            Container(width: 200, height: 16, color: AppColors.shimmerBaseFor(context)),
             const SizedBox(height: 24),
             Container(
               height: 100,
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: AppColors.shimmerBaseFor(context),
                 borderRadius: BorderRadius.circular(AppConstants.radiusLg),
               ),
             ),
@@ -47,7 +47,7 @@ class PlaceDetailSkeleton extends StatelessWidget {
             Container(
               height: 60,
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: AppColors.shimmerBaseFor(context),
                 borderRadius: BorderRadius.circular(AppConstants.radiusLg),
               ),
             ),
