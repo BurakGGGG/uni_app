@@ -330,6 +330,9 @@ class AppLocalizationsTr extends AppLocalizations {
   String get profileAccount => 'Hesap';
 
   @override
+  String get profileSettings => 'Ayarlar';
+
+  @override
   String get profileNotifications => 'Bildirimler';
 
   @override

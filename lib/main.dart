@@ -12,8 +12,10 @@ import 'core/constants/app_constants.dart';
 import 'core/providers/shared_preferences_provider.dart';
 import 'router/app_router.dart';
 import 'features/notifications/data/fcm_service.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'l10n/generated/app_localizations.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'core/providers/theme_provider.dart';
+import 'core/providers/locale_provider.dart';
 
 import 'firebase_options.dart';
 
@@ -99,11 +101,16 @@ class _UniSecAppState extends ConsumerState<UniSecApp> {
   @override
   Widget build(BuildContext context) {
     final router = ref.watch(routerProvider);
+    final themeMode = ref.watch(themeProvider);
+    final locale = ref.watch(localeProvider);
 
     return MaterialApp.router(
       title: AppConstants.appName,
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
+      themeMode: themeMode,
+      locale: locale,
       routerConfig: router,
       localizationsDelegates: const [
         AppLocalizations.delegate,
