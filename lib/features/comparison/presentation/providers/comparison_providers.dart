@@ -526,51 +526,71 @@ final departmentPickerFilterProvider =
 final departmentPickerUniversitiesProvider =
     FutureProvider.autoDispose<List<UniversityModel>>((ref) async {
   _comparisonKeepAliveFiveMinutes(ref);
-  final repository = UniversityRepository();
-  return repository.getAllUniversities();
+  try {
+    final repository = UniversityRepository();
+    return await repository.getAllUniversities();
+  } catch (e, st) {
+    debugPrint('[departmentPickerUniversities] failed: $e');
+    FirebaseCrashlytics.instance.recordError(
+      e, st,
+      reason: 'departmentPickerUniversitiesProvider failed',
+      fatal: false,
+    );
+    rethrow;
+  }
 });
 
 final departmentPickerDepartmentsProvider =
     FutureProvider.autoDispose<List<DepartmentModel>>((ref) async {
   _comparisonKeepAliveFiveMinutes(ref);
-  final filter = ref.watch(departmentPickerFilterProvider);
-  final repository = UniversityRepository();
+  try {
+    final filter = ref.watch(departmentPickerFilterProvider);
+    final repository = UniversityRepository();
 
-  List<DepartmentModel> departments;
-  final uniId = filter.universityId;
-  if (uniId != null && uniId.isNotEmpty) {
-    departments = await repository.getDepartmentsByUniversity(uniId);
-  } else {
-    final universities = await repository.getAllUniversities();
-    final departmentLists = await Future.wait(
-      universities.map((u) => repository.getDepartmentsByUniversity(u.id)),
+    List<DepartmentModel> departments;
+    final uniId = filter.universityId;
+    if (uniId != null && uniId.isNotEmpty) {
+      departments = await repository.getDepartmentsByUniversity(uniId);
+    } else {
+      final universities = await repository.getAllUniversities();
+      final departmentLists = await Future.wait(
+        universities.map((u) => repository.getDepartmentsByUniversity(u.id)),
+      );
+      departments = departmentLists.expand((e) => e).toList();
+    }
+
+    final normalizedQuery = filter.query.trim().toLowerCase();
+    final filtered = departments.where((d) {
+      final scoreType = d.effectiveScoreType ?? '';
+      final filterScore = filter.scoreType;
+      final matchesScoreType = filterScore == null ||
+          filterScore.isEmpty ||
+          scoreType == filterScore;
+
+      final matchesQuery = normalizedQuery.isEmpty ||
+          d.name.toLowerCase().contains(normalizedQuery) ||
+          d.faculty.toLowerCase().contains(normalizedQuery);
+
+      return matchesScoreType && matchesQuery;
+    }).toList();
+
+    filtered.sort((a, b) {
+      final aScore = a.effectiveBaseScore ?? 0;
+      final bScore = b.effectiveBaseScore ?? 0;
+      if (aScore != bScore) return bScore.compareTo(aScore);
+      return a.name.compareTo(b.name);
+    });
+
+    return filtered;
+  } catch (e, st) {
+    debugPrint('[departmentPickerDepartments] failed: $e');
+    FirebaseCrashlytics.instance.recordError(
+      e, st,
+      reason: 'departmentPickerDepartmentsProvider failed',
+      fatal: false,
     );
-    departments = departmentLists.expand((e) => e).toList();
+    rethrow;
   }
-
-  final normalizedQuery = filter.query.trim().toLowerCase();
-  final filtered = departments.where((d) {
-    final scoreType = d.effectiveScoreType ?? '';
-    final filterScore = filter.scoreType;
-    final matchesScoreType = filterScore == null ||
-        filterScore.isEmpty ||
-        scoreType == filterScore;
-
-    final matchesQuery = normalizedQuery.isEmpty ||
-        d.name.toLowerCase().contains(normalizedQuery) ||
-        d.faculty.toLowerCase().contains(normalizedQuery);
-
-    return matchesScoreType && matchesQuery;
-  }).toList();
-
-  filtered.sort((a, b) {
-    final aScore = a.effectiveBaseScore ?? 0;
-    final bScore = b.effectiveBaseScore ?? 0;
-    if (aScore != bScore) return bScore.compareTo(aScore);
-    return a.name.compareTo(b.name);
-  });
-
-  return filtered;
 });
 
 final departmentPickerAvailableScoreTypesProvider =

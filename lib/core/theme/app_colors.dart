@@ -144,6 +144,7 @@ class AppColors {
   // ─── Dark Mode Surfaces ────────────────────────────────────────
   static const Color darkBackground = Color(0xFF0F0F1A);
   static const Color darkSurface = Color(0xFF1A1A2E);
+  static const Color darkSurface2 = Color(0xFF1F1F36);
   static const Color darkSurfaceVariant = Color(0xFF141424);
   static const Color darkSurfaceElevated = Color(0xFF22223F);
 

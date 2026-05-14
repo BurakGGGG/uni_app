@@ -91,7 +91,7 @@ class _ComparisonHubScreenState extends ConsumerState<ComparisonHubScreen>
     final currentTier = tierAsync.valueOrNull ?? SubscriptionTier.free;
 
     return Scaffold(
-      backgroundColor: isDark ? const Color(0xFF0F0F1A) : AppColors.background,
+      backgroundColor: isDark ? AppColors.darkBackground : AppColors.background,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
