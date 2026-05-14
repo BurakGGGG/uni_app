@@ -40,7 +40,10 @@
   "aiSummaryLimitReached": "Günlük {limit} AI özet hakkın doldu, yarın tekrar dene.",
   "@aiSummaryLimitReached": {
     "placeholders": {
-      "limit": {"type": "int", "example": "5"}
+      "limit": {
+        "type": "int",
+        "example": "5"
+      }
     }
   },
   "aiSummaryActive": "Pro analizi aktif",
@@ -73,18 +76,21 @@
   "shareSubject": "{uniA} vs {uniB} — Karşılaştırma",
   "@shareSubject": {
     "placeholders": {
-      "uniA": {"type": "String"},
-      "uniB": {"type": "String"}
+      "uniA": {
+        "type": "String"
+      },
+      "uniB": {
+        "type": "String"
+      }
     }
   },
-
-  "authSignIn": "Giriş Yap",
-  "authSignUp": "Kayıt Ol",
-  "authEmailLabel": "E-posta adresi",
+  "authSignIn": "Giriş yap",
+  "authSignUp": "Kayıt ol",
+  "authEmailLabel": "E-posta",
   "authEmailHint": "ornek@universite.edu.tr",
   "authPasswordLabel": "Şifre",
   "authPasswordHint": "En az 6 karakter",
-  "authForgotPassword": "Şifremi Unuttum",
+  "authForgotPassword": "Şifremi unuttum",
   "authGoogleContinue": "Google ile Giriş Yap",
   "authNoAccount": "Hesabın yok mu? ",
   "authHaveAccount": "Zaten hesabın var mı? ",
@@ -92,7 +98,7 @@
   "authHidePassword": "Şifreyi gizle",
   "authPasswordRequired": "Şifre gerekli",
   "authEmailRequired": "E-posta adresi gerekli",
-  "authEmailInvalid": "Geçerli bir e-posta adresi girin",
+  "authEmailInvalid": "Geçerli bir e-posta gir",
   "authContinueWithAccount": "Hesabına giriş yaparak devam et",
   "authOrDivider": "veya",
   "authGuestContinue": "Misafir olarak devam et",
@@ -122,11 +128,14 @@
   "authVerifyEmailTitle": "E-postanı doğrula",
   "authVerifyEmailBody": "{email} adresine doğrulama linki gönderdik.",
   "@authVerifyEmailBody": {
-    "placeholders": { "email": { "type": "String" } }
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
   },
-
   "profileTitle": "Hesabım",
-  "profileEditProfile": "Profili Düzenle",
+  "profileEditProfile": "Profili düzenle",
   "profileEditSubtitle": "Fotoğraf, isim, üniversite",
   "profileAccount": "Hesap",
   "profileNotifications": "Bildirimler",
@@ -149,7 +158,11 @@
   "profileMembershipPlan": "Üyelik Planı",
   "profileMembershipUsing": "{plan} planını kullanıyorsun",
   "@profileMembershipUsing": {
-    "placeholders": { "plan": { "type": "String" } }
+    "placeholders": {
+      "plan": {
+        "type": "String"
+      }
+    }
   },
   "profilePlanDetails": "Plan Detayları",
   "profileViewPlans": "Planları Gör ve Yükselt",
@@ -165,12 +178,15 @@
   "profileStatMembership": "Üyelik",
   "profileStatDays": "{days} gün",
   "@profileStatDays": {
-    "placeholders": { "days": { "type": "int" } }
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
   },
   "profileAboutDescription": "ÜniSeç, Türkiye'deki üniversiteleri keşfetmeni, karşılaştırmanı ve deneyimlerini paylaşmanı sağlayan bir mobil uygulamadır.",
   "profileAboutCopyright": "© 2026 ÜniSeç Ekibi",
   "profileUser": "Kullanıcı",
-
   "editProfileTitle": "Profili Düzenle",
   "editProfileCamera": "Kamera",
   "editProfileGallery": "Galeri",
@@ -179,7 +195,11 @@
   "editProfileUniversity": "Üniversite",
   "editProfileUniversityError": "Üniversiteler yüklenemedi: {error}",
   "@editProfileUniversityError": {
-    "placeholders": { "error": { "type": "String" } }
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
   },
   "editProfileDepartment": "Bölüm",
   "editProfileDepartmentHint": "Örn: Bilgisayar Mühendisliği",
@@ -191,10 +211,13 @@
   "editProfileSaving": "Kaydediliyor...",
   "editProfileSuccess": "Profil başarıyla güncellendi",
   "editProfileError": "Profil güncellenirken hata oluştu",
-
   "errorGeneral": "Hata: {error}",
   "@errorGeneral": {
-    "placeholders": { "error": { "type": "String" } }
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
   },
   "universityNotFound": "Üniversite bulunamadı",
   "errorDepartmentsLoad": "Bölümler yüklenirken hata oluştu.",
@@ -204,5 +227,48 @@
   "errorReviewsLoad": "Yorumlar yüklenirken hata oluştu.",
   "reviewLoginRequired": "Yorum yazabilmek için önce hesabınıza giriş yapmanız gerekiyor.",
   "reviewEduRequiredTitle": "Doğrulama Gerekli",
-  "reviewEduRequiredDesc": "Sadece onaylı üniversite öğrencileri değerlendirme yapabilir (.edu.tr)."
+  "reviewEduRequiredDesc": "Sadece onaylı üniversite öğrencileri değerlendirme yapabilir (.edu.tr).",
+  "commonRetry": "Tekrar dene",
+  "commonError": "Bir hata oluştu",
+  "commonLoading": "Yükleniyor...",
+  "commonCancel": "İptal",
+  "commonSave": "Kaydet",
+  "commonDelete": "Sil",
+  "commonClose": "Kapat",
+  "commonShare": "Paylaş",
+  "commonEdit": "Düzenle",
+  "commonContinue": "Devam et",
+  "authSignOut": "Çıkış yap",
+  "authPasswordTooShort": "Şifre en az 6 karakter olmalı",
+  "homeTabExplore": "Keşfet",
+  "homeTabCompare": "Karşılaştır",
+  "homeTabFavorites": "Favoriler",
+  "homeTabProfile": "Profil",
+  "comparisonTitleUni": "Üniversite karşılaştır",
+  "comparisonTitleDept": "Bölüm karşılaştır",
+  "comparisonTitleCity": "Şehir karşılaştır",
+  "comparisonNoteAdd": "Not ekle",
+  "comparisonNoteEmpty": "Henüz notun yok",
+  "comparisonNoteMaxLength": "En fazla 500 karakter",
+  "comparisonProUpsell": "3. üniversite eklemek için Pro'ya yükselt",
+  "paywallContinueFree": "Ücretsiz devam et",
+  "paywallSavePercent": "TASARRUF {percent}%",
+  "paywallMonthly": "Aylık",
+  "paywallYearly": "Yıllık",
+  "paywallRestore": "Satın alımları geri yükle",
+  "reviewWrite": "Yorum yaz",
+  "reviewAnonymous": "Anonim",
+  "reviewRatingRequired": "Puan vermeden yorum gönderilemez",
+  "profilePremium": "Premium üyelik",
+  "profileLanguage": "Dil",
+  "profileDeleteAccount": "Hesabımı sil",
+  "favoritesEmpty": "Favori yok",
+  "favoritesEmptyHint": "Beğendiğin üniversiteleri buradan takip et.",
+  "@paywallSavePercent": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  }
 }

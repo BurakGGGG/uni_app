@@ -55,14 +55,13 @@
   "offline": "No internet connection",
   "offlineDescription": "Connect to the internet to make comparisons.",
   "shareSubject": "{uniA} vs {uniB} — Comparison",
-
-  "authSignIn": "Sign In",
-  "authSignUp": "Sign Up",
-  "authEmailLabel": "Email address",
+  "authSignIn": "Sign in",
+  "authSignUp": "Sign up",
+  "authEmailLabel": "Email",
   "authEmailHint": "example@university.edu",
   "authPasswordLabel": "Password",
   "authPasswordHint": "At least 6 characters",
-  "authForgotPassword": "Forgot Password",
+  "authForgotPassword": "Forgot password",
   "authGoogleContinue": "Sign In with Google",
   "authNoAccount": "Don't have an account? ",
   "authHaveAccount": "Already have an account? ",
@@ -70,7 +69,7 @@
   "authHidePassword": "Hide password",
   "authPasswordRequired": "Password is required",
   "authEmailRequired": "Email address is required",
-  "authEmailInvalid": "Enter a valid email address",
+  "authEmailInvalid": "Enter a valid email",
   "authContinueWithAccount": "Sign in to your account to continue",
   "authOrDivider": "or",
   "authGuestContinue": "Continue as guest",
@@ -100,11 +99,14 @@
   "authVerifyEmailTitle": "Verify your email",
   "authVerifyEmailBody": "We sent a verification link to {email}.",
   "@authVerifyEmailBody": {
-    "placeholders": { "email": { "type": "String" } }
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
   },
-
-  "profileTitle": "My Account",
-  "profileEditProfile": "Edit Profile",
+  "profileTitle": "Account",
+  "profileEditProfile": "Edit profile",
   "profileEditSubtitle": "Photo, name, university",
   "profileAccount": "Account",
   "profileNotifications": "Notifications",
@@ -127,7 +129,11 @@
   "profileMembershipPlan": "Membership Plan",
   "profileMembershipUsing": "You are using the {plan} plan",
   "@profileMembershipUsing": {
-    "placeholders": { "plan": { "type": "String" } }
+    "placeholders": {
+      "plan": {
+        "type": "String"
+      }
+    }
   },
   "profilePlanDetails": "Plan Details",
   "profileViewPlans": "View Plans & Upgrade",
@@ -143,12 +149,15 @@
   "profileStatMembership": "Member",
   "profileStatDays": "{days} days",
   "@profileStatDays": {
-    "placeholders": { "days": { "type": "int" } }
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
   },
   "profileAboutDescription": "ÜniSeç is a mobile app that helps you discover, compare, and share your experiences about universities in Turkey.",
   "profileAboutCopyright": "© 2026 ÜniSeç Team",
   "profileUser": "User",
-
   "editProfileTitle": "Edit Profile",
   "editProfileCamera": "Camera",
   "editProfileGallery": "Gallery",
@@ -157,7 +166,11 @@
   "editProfileUniversity": "University",
   "editProfileUniversityError": "Failed to load universities: {error}",
   "@editProfileUniversityError": {
-    "placeholders": { "error": { "type": "String" } }
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
   },
   "editProfileDepartment": "Department",
   "editProfileDepartmentHint": "e.g. Computer Engineering",
@@ -168,5 +181,94 @@
   "editProfileSave": "Save",
   "editProfileSaving": "Saving...",
   "editProfileSuccess": "Profile updated successfully",
-  "editProfileError": "An error occurred while updating profile"
+  "editProfileError": "An error occurred while updating profile",
+  "commonRetry": "Try again",
+  "commonError": "Something went wrong",
+  "commonLoading": "Loading...",
+  "commonCancel": "Cancel",
+  "commonSave": "Save",
+  "commonDelete": "Delete",
+  "commonClose": "Close",
+  "commonShare": "Share",
+  "commonEdit": "Edit",
+  "commonContinue": "Continue",
+  "authSignOut": "Sign out",
+  "authPasswordTooShort": "Password must be at least 6 characters",
+  "homeTabExplore": "Explore",
+  "homeTabCompare": "Compare",
+  "homeTabFavorites": "Favorites",
+  "homeTabProfile": "Profile",
+  "comparisonTitleUni": "Compare universities",
+  "comparisonTitleDept": "Compare departments",
+  "comparisonTitleCity": "Compare cities",
+  "comparisonNoteAdd": "Add note",
+  "comparisonNoteEmpty": "No notes yet",
+  "comparisonNoteMaxLength": "Maximum 500 characters",
+  "comparisonProUpsell": "Upgrade to Pro to add a 3rd university",
+  "paywallContinueFree": "Continue for free",
+  "paywallSavePercent": "SAVE {percent}%",
+  "paywallMonthly": "Monthly",
+  "paywallYearly": "Yearly",
+  "paywallRestore": "Restore purchases",
+  "reviewWrite": "Write a review",
+  "reviewAnonymous": "Anonymous",
+  "reviewRatingRequired": "Cannot submit without a rating",
+  "profilePremium": "Premium membership",
+  "profileLanguage": "Language",
+  "profileDeleteAccount": "Delete account",
+  "favoritesEmpty": "No favorites",
+  "favoritesEmptyHint": "Track universities you like here.",
+  "@paywallSavePercent": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "reviewLoginRequired": "You must log in to your account first to write a review.",
+  "errorPlacesLoad": "An error occurred while loading places.",
+  "universityNotFound": "University not found",
+  "noDepartmentsFound": "No departments found.",
+  "reviewEduRequiredDesc": "Only verified university students can write reviews (.edu.tr).",
+  "reviewEduRequiredTitle": "Verification Required",
+  "errorDepartmentsLoad": "An error occurred while loading departments.",
+  "noPlacesFound": "No places found.",
+  "errorGeneral": "Error: {error}",
+  "errorReviewsLoad": "An error occurred while loading reviews.",
+  "@comparisonHubTitle": {
+    "description": "Karşılaştırma hub ekranı başlığı"
+  },
+  "@errorGeneral": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "@shareSubject": {
+    "placeholders": {
+      "uniA": {
+        "type": "String"
+      },
+      "uniB": {
+        "type": "String"
+      }
+    }
+  },
+  "@emptyStateTitle": {
+    "placeholders": {
+      "entityType": {
+        "type": "String",
+        "example": "üniversite"
+      }
+    }
+  },
+  "@aiSummaryLimitReached": {
+    "placeholders": {
+      "limit": {
+        "type": "int",
+        "example": "5"
+      }
+    }
+  }
 }
