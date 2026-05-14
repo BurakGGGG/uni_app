@@ -332,6 +332,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get profileAccount => 'Account';
 
   @override
+  String get profileSettings => 'Settings';
+
+  @override
   String get profileNotifications => 'Notifications';
 
   @override
