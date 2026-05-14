@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../l10n/generated/app_localizations.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../core/theme/app_colors.dart';
@@ -34,10 +35,10 @@ class UniversityDetailScreen extends ConsumerWidget {
       backgroundColor: AppColors.background,
       body: uniAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text('Hata: $e')),
+        error: (e, _) => Center(child: Text(AppLocalizations.of(context).errorGeneral(e.toString()))),
         data: (uni) {
           if (uni == null) {
-            return const Center(child: Text('Üniversite bulunamadı'));
+            return Center(child: Text(AppLocalizations.of(context).universityNotFound));
           }
           return _Body(uni: uni);
         },
@@ -259,9 +260,9 @@ class _DepartmentsPreview extends StatelessWidget {
   Widget build(BuildContext context) {
     return deptsAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (error, stackTrace) => const Text('Bölümler yüklenirken hata oluştu.'),
+      error: (error, stackTrace) => Text(AppLocalizations.of(context).errorDepartmentsLoad),
       data: (depts) {
-        if (depts.isEmpty) return const Text('Bölüm bulunamadı.', style: TextStyle(color: AppColors.textSecondary));
+        if (depts.isEmpty) return Text(AppLocalizations.of(context).noDepartmentsFound, style: const TextStyle(color: AppColors.textSecondary));
         
         final previewDepts = depts.take(3).toList();
         return Column(
@@ -303,9 +304,9 @@ class _PlacesPreview extends StatelessWidget {
   Widget build(BuildContext context) {
     return placesAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (error, stackTrace) => const Text('Mekanlar yüklenirken hata oluştu.'),
+      error: (error, stackTrace) => Text(AppLocalizations.of(context).errorPlacesLoad),
       data: (places) {
-        if (places.isEmpty) return const Text('Mekan bulunamadı.', style: TextStyle(color: AppColors.textSecondary));
+        if (places.isEmpty) return Text(AppLocalizations.of(context).noPlacesFound, style: const TextStyle(color: AppColors.textSecondary));
         
         final previewPlaces = places.take(4).toList();
         return SizedBox(
@@ -340,7 +341,7 @@ class _ReviewsPreview extends StatelessWidget {
   Widget build(BuildContext context) {
     return reviewsAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (error, stackTrace) => const Text('Yorumlar yüklenirken hata oluştu.'),
+      error: (error, stackTrace) => Text(AppLocalizations.of(context).errorReviewsLoad),
       data: (reviews) {
         if (reviews.isEmpty) return const SizedBox();
         
@@ -378,9 +379,9 @@ void _showReviewInfoSheet(BuildContext context, {required dynamic user}) {
   if (user == null) {
     icon = Icons.login_rounded;
     iconColor = AppColors.primary;
-    title = 'Giriş Yapın';
-    description = 'Yorum yazabilmek için önce hesabınıza giriş yapmanız gerekiyor.';
-    buttonText = 'Giriş Yap';
+    title = AppLocalizations.of(context).authSignIn;
+    description = AppLocalizations.of(context).reviewLoginRequired;
+    buttonText = AppLocalizations.of(context).authSignIn;
     onButtonPressed = () {
       Navigator.pop(context);
       GoRouter.of(context).push('/login');
@@ -388,8 +389,8 @@ void _showReviewInfoSheet(BuildContext context, {required dynamic user}) {
   } else {
     icon = Icons.verified_user_rounded;
     iconColor = AppColors.warning;
-    title = 'Doğrulama Gerekli';
-    description = 'Sadece onaylı üniversite öğrencileri değerlendirme yapabilir (.edu.tr).';
+    title = AppLocalizations.of(context).reviewEduRequiredTitle;
+    description = AppLocalizations.of(context).reviewEduRequiredDesc;
     buttonText = null;
     onButtonPressed = null;
   }

@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/widgets.dart';
+import '../../../../l10n/generated/app_localizations.dart';
 import '../providers/auth_providers.dart';
 
 /// Kayıt ekranı
@@ -94,6 +95,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   }
 
   void _showEduVerificationDialog() {
+    final loc = AppLocalizations.of(context);
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -102,7 +104,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
           children: [
             const Icon(Icons.verified_rounded, color: AppColors.success),
             const SizedBox(width: 8),
-            Text('edu.tr Doğrulama', style: AppTextStyles.headlineSmall),
+            Text(loc.authEduVerifyTitle, style: AppTextStyles.headlineSmall),
           ],
         ),
         content: Column(
@@ -110,7 +112,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Doğrulama linki e-posta adresine gönderildi:',
+              loc.authEduVerifyLinkSent,
               style: AppTextStyles.bodyMedium,
             ),
             const SizedBox(height: 8),
@@ -129,7 +131,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
             ),
             const SizedBox(height: 16),
             Text(
-              'E-postanı doğruladıktan sonra yorum yazabileceksin.',
+              loc.authEduVerifyAfter,
               style: AppTextStyles.bodySmall,
             ),
           ],
@@ -145,7 +147,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                 context.go('/profile');
               }
             },
-            child: const Text('Tamam'),
+            child: Text(loc.authOk),
           ),
         ],
       ),
@@ -154,6 +156,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
+
     return Scaffold(
       backgroundColor: AppColors.background,
       body: Stack(
@@ -171,6 +175,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
                     // ─── Geri butonu ─────────────────────────────────
                     IconButton(
+                      tooltip: loc.authGoBack,
                       onPressed: () {
                         if (context.canPop()) {
                           context.pop();
@@ -195,11 +200,11 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                     const SizedBox(height: 24),
 
                     // ─── Başlık ─────────────────────────────────────
-                    Text('Kayıt Ol', style: AppTextStyles.displaySmall)
+                    Text(loc.authSignUp, style: AppTextStyles.displaySmall)
                         .animate().fadeIn(duration: 400.ms),
                     const SizedBox(height: 6),
                     Text(
-                      'Yeni hesap oluştur ve keşfetmeye başla',
+                      loc.authRegisterTitle,
                       style: AppTextStyles.bodySmall,
                     ).animate().fadeIn(delay: 100.ms, duration: 400.ms),
 
@@ -210,16 +215,16 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                       controller: _nameController,
                       textInputAction: TextInputAction.next,
                       textCapitalization: TextCapitalization.words,
-                      decoration: const InputDecoration(
-                        hintText: 'Ad Soyad',
-                        prefixIcon: Icon(Icons.person_outlined),
+                      decoration: InputDecoration(
+                        hintText: loc.authFullName,
+                        prefixIcon: const Icon(Icons.person_outlined),
                       ),
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return 'Ad Soyad gerekli';
+                          return loc.authFullNameRequired;
                         }
                         if (value.trim().length < 2) {
-                          return 'Ad Soyad en az 2 karakter olmalı';
+                          return loc.authFullNameTooShort;
                         }
                         return null;
                       },
@@ -233,16 +238,16 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                       keyboardType: TextInputType.emailAddress,
                       textInputAction: TextInputAction.next,
                       onChanged: _checkEduEmail,
-                      decoration: const InputDecoration(
-                        hintText: 'E-posta adresi',
-                        prefixIcon: Icon(Icons.email_outlined),
+                      decoration: InputDecoration(
+                        hintText: loc.authEmailLabel,
+                        prefixIcon: const Icon(Icons.email_outlined),
                       ),
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return 'E-posta adresi gerekli';
+                          return loc.authEmailRequired;
                         }
                         if (!value.contains('@') || !value.contains('.')) {
-                          return 'Geçerli bir e-posta adresi girin';
+                          return loc.authEmailInvalid;
                         }
                         return null;
                       },
@@ -270,7 +275,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                             const SizedBox(width: 8),
                             Expanded(
                               child: Text(
-                                'edu.tr hesabı algılandı! Doğrulama sonrası yorum yazabileceksin.',
+                                loc.authEduDetected,
                                 style: AppTextStyles.labelSmall.copyWith(
                                   color: AppColors.success,
                                 ),
@@ -288,9 +293,12 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                       obscureText: _obscurePassword,
                       textInputAction: TextInputAction.next,
                       decoration: InputDecoration(
-                        hintText: 'Şifre',
+                        hintText: loc.authPasswordLabel,
                         prefixIcon: const Icon(Icons.lock_outlined),
                         suffixIcon: IconButton(
+                          tooltip: _obscurePassword
+                              ? loc.authShowPassword
+                              : loc.authHidePassword,
                           onPressed: () {
                             setState(() => _obscurePassword = !_obscurePassword);
                           },
@@ -303,15 +311,15 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                         ),
                       ),
                       validator: (value) {
-                        if (value == null || value.isEmpty) return 'Şifre gerekli';
+                        if (value == null || value.isEmpty) return loc.authPasswordRequired;
                         if (value.length < 8) {
-                          return 'Şifre en az 8 karakter olmalı';
+                          return loc.authPasswordMin8;
                         }
                         if (!RegExp(r'[A-Z]').hasMatch(value)) {
-                          return 'Şifre en az bir büyük harf içermeli';
+                          return loc.authPasswordUppercase;
                         }
                         if (!RegExp(r'[0-9]').hasMatch(value)) {
-                          return 'Şifre en az bir rakam içermeli';
+                          return loc.authPasswordDigit;
                         }
                         return null;
                       },
@@ -326,9 +334,12 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                       textInputAction: TextInputAction.done,
                       onFieldSubmitted: (_) => _register(),
                       decoration: InputDecoration(
-                        hintText: 'Şifre Tekrar',
+                        hintText: loc.authPasswordConfirm,
                         prefixIcon: const Icon(Icons.lock_outlined),
                         suffixIcon: IconButton(
+                          tooltip: _obscureConfirm
+                              ? loc.authShowPassword
+                              : loc.authHidePassword,
                           onPressed: () {
                             setState(() => _obscureConfirm = !_obscureConfirm);
                           },
@@ -342,10 +353,10 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Şifre tekrarı gerekli';
+                          return loc.authPasswordConfirmRequired;
                         }
                         if (value != _passwordController.text) {
-                          return 'Şifreler eşleşmiyor';
+                          return loc.authPasswordMismatch;
                         }
                         return null;
                       },
@@ -355,7 +366,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
                     // ─── Kayıt Ol butonu ─────────────────────────────
                     GradientButton(
-                      text: 'Kayıt Ol',
+                      text: loc.authSignUp,
                       onPressed: _isLoading ? null : _register,
                       icon: Icons.person_add_rounded,
                     ).animate().fadeIn(delay: 400.ms, duration: 400.ms),
@@ -368,7 +379,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            'Zaten hesabın var mı? ',
+                            loc.authHaveAccount,
                             style: AppTextStyles.bodySmall,
                           ),
                           GestureDetector(
@@ -380,7 +391,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                               context.go(loginPath);
                             },
                             child: Text(
-                              'Giriş Yap',
+                              loc.authSignIn,
                               style: AppTextStyles.labelLarge.copyWith(
                                 color: AppColors.primary,
                               ),
@@ -427,12 +438,12 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                           ),
                           const SizedBox(height: 20),
                           Text(
-                            'Hesap oluşturuluyor...',
+                            loc.authCreatingAccount,
                             style: AppTextStyles.titleMedium,
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            'Lütfen bekleyin',
+                            loc.authPleaseWait,
                             style: AppTextStyles.bodySmall,
                           ),
                         ],

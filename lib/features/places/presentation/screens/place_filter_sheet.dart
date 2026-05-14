@@ -21,9 +21,9 @@ class PlaceFilterSheet extends ConsumerWidget {
         maxChildSize: 0.9,
         expand: false,
         builder: (_, controller) => Container(
-          decoration: const BoxDecoration(
-            color: AppColors.surface,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          decoration: BoxDecoration(
+            color: AppColors.surfaceFor(context),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
           ),
           child: PlaceFilterSheet(universityId: uniId),
         ),
@@ -81,9 +81,9 @@ class PlaceFilterSheet extends ConsumerWidget {
         ),
         Container(
           padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
-          decoration: const BoxDecoration(
-            color: AppColors.surface,
-            border: Border(top: BorderSide(color: AppColors.borderLight)),
+          decoration: BoxDecoration(
+            color: AppColors.surfaceFor(context),
+            border: const Border(top: BorderSide(color: AppColors.borderLight)),
           ),
           child: ElevatedButton(
             onPressed: () => Navigator.pop(context),

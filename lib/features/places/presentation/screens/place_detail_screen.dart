@@ -150,7 +150,7 @@ class _PlaceDetailScreenState extends ConsumerState<PlaceDetailScreen> {
                           decoration: BoxDecoration(
                             color: i == _currentImageIndex
                                 ? Colors.white
-                                : Colors.white54,
+                                : Colors.white.withValues(alpha: 0.7),
                             borderRadius: BorderRadius.circular(4),
                           ),
                         ),

@@ -5,6 +5,7 @@ import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:go_router/go_router.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../../../core/providers/shared_preferences_provider.dart';
+import '../../../../core/theme/app_colors.dart';
 import '../../../auth/presentation/providers/auth_providers.dart';
 import '../../../university/presentation/providers/university_providers.dart';
 
@@ -152,19 +153,19 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF1A1A2E),
+      backgroundColor: AppColors.darkBackground,
       body: Stack(
         children: [
           // ─── Gradient arka plan efekti ─────────────────────────
           Positioned.fill(
             child: Container(
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 gradient: RadialGradient(
-                  center: Alignment(0, -0.2),
+                  center: const Alignment(0, -0.2),
                   radius: 1.2,
                   colors: [
-                    Color(0xFF252547), // Ortada hafif açık
-                    Color(0xFF1A1A2E), // Kenarlarda koyu
+                    AppColors.darkSurfaceElevated, // Ortada hafif açık
+                    AppColors.darkBackground, // Kenarlarda koyu
                   ],
                 ),
               ),
@@ -186,12 +187,12 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                     boxShadow: [
                       BoxShadow(
                         color:
-                            const Color(0xFF6C63FF).withValues(alpha: glowOpacity),
+                            AppColors.primary.withValues(alpha: glowOpacity),
                         blurRadius: 80,
                         spreadRadius: 20,
                       ),
                       BoxShadow(
-                        color: const Color(0xFFFF6584)
+                        color: AppColors.secondary
                             .withValues(alpha: glowOpacity * 0.5),
                         blurRadius: 60,
                         spreadRadius: 10,
@@ -272,17 +273,17 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
             left: 0,
             right: 0,
             child: FadeTransition(
-              opacity: _loadingFade,
-              child: const Center(
-                child: SizedBox(
-                  width: 22,
-                  height: 22,
-                  child: CircularProgressIndicator(
-                    color: Color(0xFF6C63FF),
-                    strokeWidth: 2.0,
-                  ),
-                ),
-              ),
+               opacity: _loadingFade,
+               child: Center(
+                 child: SizedBox(
+                   width: 22,
+                   height: 22,
+                   child: CircularProgressIndicator(
+                     color: AppColors.primary,
+                     strokeWidth: 2.0,
+                   ),
+                 ),
+               ),
             ),
           ),
 

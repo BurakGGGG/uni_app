@@ -8,6 +8,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/widgets/widgets.dart';
+import '../../../../l10n/generated/app_localizations.dart';
 import '../providers/auth_providers.dart';
 
 /// Giriş ekranı
@@ -106,6 +107,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   }
 
   void _showForgotPassword() {
+    final loc = AppLocalizations.of(context);
     final resetController = TextEditingController();
 
     showModalBottomSheet(
@@ -119,24 +121,24 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Şifre Sıfırlama', style: AppTextStyles.headlineMedium),
+            Text(loc.authResetPasswordTitle, style: AppTextStyles.headlineMedium),
             const SizedBox(height: 8),
             Text(
-              'E-posta adresini gir, şifre sıfırlama linki gönderelim.',
+              loc.authResetPasswordDesc,
               style: AppTextStyles.bodySmall,
             ),
             const SizedBox(height: 20),
             TextField(
               controller: resetController,
               keyboardType: TextInputType.emailAddress,
-              decoration: const InputDecoration(
-                hintText: 'E-posta adresi',
-                prefixIcon: Icon(Icons.email_outlined),
+              decoration: InputDecoration(
+                hintText: loc.authEmailLabel,
+                prefixIcon: const Icon(Icons.email_outlined),
               ),
             ),
             const SizedBox(height: 16),
             GradientButton(
-              text: 'Sıfırlama Linki Gönder',
+              text: loc.authResetPasswordSend,
               icon: Icons.send_rounded,
               onPressed: () async {
                 if (resetController.text.trim().isNotEmpty) {
@@ -147,8 +149,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       .resetPassword(resetController.text.trim());
                   navigator.pop();
                   messenger.showSnackBar(
-                    const SnackBar(
-                      content: Text('Şifre sıfırlama linki gönderildi!'),
+                    SnackBar(
+                      content: Text(loc.authResetPasswordSent),
                     ),
                   );
                 }
@@ -162,6 +164,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
+
     return Scaffold(
       backgroundColor: AppColors.background,
       body: Stack(
@@ -217,13 +221,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     const SizedBox(height: 40),
 
                     // ─── Giriş Yap başlığı ─────────────────────────
-                    Text('Giriş Yap', style: AppTextStyles.headlineLarge)
+                    Text(loc.authSignIn, style: AppTextStyles.headlineLarge)
                         .animate()
                         .fadeIn(delay: 200.ms, duration: 400.ms),
 
                     const SizedBox(height: 6),
                     Text(
-                      'Hesabına giriş yaparak devam et',
+                      loc.authContinueWithAccount,
                       style: AppTextStyles.bodySmall,
                     ).animate().fadeIn(delay: 250.ms, duration: 400.ms),
 
@@ -231,7 +235,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
                     // ─── Google ile giriş ────────────────────────────
                     _SocialLoginButton(
-                      text: 'Google ile Giriş Yap',
+                      text: loc.authGoogleContinue,
                       svgPath: 'assets/icons/google_logo.svg',
                       onPressed: _isLoading ? null : _loginWithGoogle,
                     ).animate().fadeIn(delay: 300.ms, duration: 400.ms),
@@ -245,7 +249,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 16),
                           child: Text(
-                            'veya',
+                            loc.authOrDivider,
                             style: AppTextStyles.labelSmall,
                           ),
                         ),
@@ -260,16 +264,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       controller: _emailController,
                       keyboardType: TextInputType.emailAddress,
                       textInputAction: TextInputAction.next,
-                      decoration: const InputDecoration(
-                        hintText: 'E-posta adresi',
-                        prefixIcon: Icon(Icons.email_outlined),
+                      decoration: InputDecoration(
+                        hintText: loc.authEmailLabel,
+                        prefixIcon: const Icon(Icons.email_outlined),
                       ),
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return 'E-posta adresi gerekli';
+                          return loc.authEmailRequired;
                         }
                         if (!value.contains('@')) {
-                          return 'Geçerli bir e-posta adresi girin';
+                          return loc.authEmailInvalid;
                         }
                         return null;
                       },
@@ -284,9 +288,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       textInputAction: TextInputAction.done,
                       onFieldSubmitted: (_) => _loginWithEmail(),
                       decoration: InputDecoration(
-                        hintText: 'Şifre',
+                        hintText: loc.authPasswordLabel,
                         prefixIcon: const Icon(Icons.lock_outlined),
                         suffixIcon: IconButton(
+                          tooltip: _obscurePassword
+                              ? loc.authShowPassword
+                              : loc.authHidePassword,
                           onPressed: () {
                             setState(() => _obscurePassword = !_obscurePassword);
                           },
@@ -300,7 +307,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Şifre gerekli';
+                          return loc.authPasswordRequired;
                         }
                         return null;
                       },
@@ -314,7 +321,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       child: TextButton(
                         onPressed: _showForgotPassword,
                         child: Text(
-                          'Şifremi Unuttum',
+                          loc.authForgotPassword,
                           style: AppTextStyles.labelMedium.copyWith(
                             color: AppColors.primary,
                           ),
@@ -326,7 +333,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
                     // ─── Giriş Yap butonu ────────────────────────────
                     GradientButton(
-                      text: 'Giriş Yap',
+                      text: loc.authSignIn,
                       onPressed: _isLoading ? null : _loginWithEmail,
                       icon: Icons.login_rounded,
                     ).animate().fadeIn(delay: 500.ms, duration: 400.ms),
@@ -339,7 +346,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            'Hesabın yok mu? ',
+                            loc.authNoAccount,
                             style: AppTextStyles.bodySmall,
                           ),
                           GestureDetector(
@@ -351,7 +358,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               context.go(registerPath);
                             },
                             child: Text(
-                              'Kayıt Ol',
+                              loc.authSignUp,
                               style: AppTextStyles.labelLarge.copyWith(
                                 color: AppColors.primary,
                               ),
@@ -368,7 +375,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       child: TextButton(
                         onPressed: () => context.go('/'),
                         child: Text(
-                          'Misafir olarak devam et',
+                          loc.authGuestContinue,
                           style: AppTextStyles.labelMedium.copyWith(
                             color: AppColors.textTertiary,
                           ),
@@ -413,12 +420,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           ),
                           const SizedBox(height: 20),
                           Text(
-                            'Giriş yapılıyor...',
+                            loc.authLoggingIn,
                             style: AppTextStyles.titleMedium,
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            'Lütfen bekleyin',
+                            loc.authPleaseWait,
                             style: AppTextStyles.bodySmall,
                           ),
                         ],

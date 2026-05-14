@@ -21,15 +21,15 @@ class DormInfoCard extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            isKyk ? const Color(0xFFE3F2FD) : const Color(0xFFFFF3E0),
-            AppColors.surface,
+            isKyk ? AppColors.infoLight : AppColors.warningLight,
+            AppColors.surfaceFor(context),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(AppConstants.radiusLg),
         border: Border.all(
-          color: (isKyk ? const Color(0xFF0D47A1) : const Color(0xFFE65100))
+          color: (isKyk ? AppColors.info : AppColors.warning)
               .withValues(alpha: 0.18),
         ),
       ),
@@ -39,11 +39,11 @@ class DormInfoCard extends StatelessWidget {
           Row(
             children: [
               Icon(Icons.bed_rounded, size: 20,
-                color: isKyk ? const Color(0xFF0D47A1) : const Color(0xFFE65100)),
+                color: isKyk ? AppColors.info : AppColors.warning),
               const SizedBox(width: 8),
               Text('Yurt Bilgileri', style: AppTextStyles.titleMedium.copyWith(
                 fontWeight: FontWeight.w700,
-                color: isKyk ? const Color(0xFF0D47A1) : const Color(0xFFE65100),
+                color: isKyk ? AppColors.info : AppColors.warning,
               )),
             ],
           ),
@@ -55,7 +55,7 @@ class DormInfoCard extends StatelessWidget {
                   icon: Icons.business_rounded,
                   label: 'Tür',
                   value: place.dormType ?? '-',
-                  color: isKyk ? const Color(0xFF0D47A1) : const Color(0xFFE65100),
+                  color: isKyk ? AppColors.info : AppColors.warning,
                 ),
               ),
               const SizedBox(width: 12),
@@ -98,9 +98,9 @@ class DormInfoCard extends StatelessWidget {
 
   ({IconData icon, Color color}) _getGenderInfo(String gender) {
     if (gender.contains('kız')) {
-      return (icon: Icons.female_rounded, color: const Color(0xFFEC4899));
+      return (icon: Icons.female_rounded, color: AppColors.secondary);
     } else if (gender.contains('erkek')) {
-      return (icon: Icons.male_rounded, color: const Color(0xFF3B82F6));
+      return (icon: Icons.male_rounded, color: AppColors.info);
     } else if (gender.contains('karma')) {
       return (icon: Icons.people_outline_rounded, color: AppColors.success);
     }
