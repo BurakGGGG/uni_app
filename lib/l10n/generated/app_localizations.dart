@@ -427,6 +427,660 @@ abstract class AppLocalizations {
   /// In tr, this message translates to:
   /// **'{uniA} vs {uniB} — Karşılaştırma'**
   String shareSubject(String uniA, String uniB);
+
+  /// No description provided for @authSignIn.
+  ///
+  /// In tr, this message translates to:
+  /// **'Giriş Yap'**
+  String get authSignIn;
+
+  /// No description provided for @authSignUp.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kayıt Ol'**
+  String get authSignUp;
+
+  /// No description provided for @authEmailLabel.
+  ///
+  /// In tr, this message translates to:
+  /// **'E-posta adresi'**
+  String get authEmailLabel;
+
+  /// No description provided for @authEmailHint.
+  ///
+  /// In tr, this message translates to:
+  /// **'ornek@universite.edu.tr'**
+  String get authEmailHint;
+
+  /// No description provided for @authPasswordLabel.
+  ///
+  /// In tr, this message translates to:
+  /// **'Şifre'**
+  String get authPasswordLabel;
+
+  /// No description provided for @authPasswordHint.
+  ///
+  /// In tr, this message translates to:
+  /// **'En az 6 karakter'**
+  String get authPasswordHint;
+
+  /// No description provided for @authForgotPassword.
+  ///
+  /// In tr, this message translates to:
+  /// **'Şifremi Unuttum'**
+  String get authForgotPassword;
+
+  /// No description provided for @authGoogleContinue.
+  ///
+  /// In tr, this message translates to:
+  /// **'Google ile Giriş Yap'**
+  String get authGoogleContinue;
+
+  /// No description provided for @authNoAccount.
+  ///
+  /// In tr, this message translates to:
+  /// **'Hesabın yok mu? '**
+  String get authNoAccount;
+
+  /// No description provided for @authHaveAccount.
+  ///
+  /// In tr, this message translates to:
+  /// **'Zaten hesabın var mı? '**
+  String get authHaveAccount;
+
+  /// No description provided for @authShowPassword.
+  ///
+  /// In tr, this message translates to:
+  /// **'Şifreyi göster'**
+  String get authShowPassword;
+
+  /// No description provided for @authHidePassword.
+  ///
+  /// In tr, this message translates to:
+  /// **'Şifreyi gizle'**
+  String get authHidePassword;
+
+  /// No description provided for @authPasswordRequired.
+  ///
+  /// In tr, this message translates to:
+  /// **'Şifre gerekli'**
+  String get authPasswordRequired;
+
+  /// No description provided for @authEmailRequired.
+  ///
+  /// In tr, this message translates to:
+  /// **'E-posta adresi gerekli'**
+  String get authEmailRequired;
+
+  /// No description provided for @authEmailInvalid.
+  ///
+  /// In tr, this message translates to:
+  /// **'Geçerli bir e-posta adresi girin'**
+  String get authEmailInvalid;
+
+  /// No description provided for @authContinueWithAccount.
+  ///
+  /// In tr, this message translates to:
+  /// **'Hesabına giriş yaparak devam et'**
+  String get authContinueWithAccount;
+
+  /// No description provided for @authOrDivider.
+  ///
+  /// In tr, this message translates to:
+  /// **'veya'**
+  String get authOrDivider;
+
+  /// No description provided for @authGuestContinue.
+  ///
+  /// In tr, this message translates to:
+  /// **'Misafir olarak devam et'**
+  String get authGuestContinue;
+
+  /// No description provided for @authLoggingIn.
+  ///
+  /// In tr, this message translates to:
+  /// **'Giriş yapılıyor...'**
+  String get authLoggingIn;
+
+  /// No description provided for @authPleaseWait.
+  ///
+  /// In tr, this message translates to:
+  /// **'Lütfen bekleyin'**
+  String get authPleaseWait;
+
+  /// No description provided for @authResetPasswordTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Şifre Sıfırlama'**
+  String get authResetPasswordTitle;
+
+  /// No description provided for @authResetPasswordDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'E-posta adresini gir, şifre sıfırlama linki gönderelim.'**
+  String get authResetPasswordDesc;
+
+  /// No description provided for @authResetPasswordSend.
+  ///
+  /// In tr, this message translates to:
+  /// **'Sıfırlama Linki Gönder'**
+  String get authResetPasswordSend;
+
+  /// No description provided for @authResetPasswordSent.
+  ///
+  /// In tr, this message translates to:
+  /// **'Şifre sıfırlama linki gönderildi!'**
+  String get authResetPasswordSent;
+
+  /// No description provided for @authRegisterTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Yeni hesap oluştur ve keşfetmeye başla'**
+  String get authRegisterTitle;
+
+  /// No description provided for @authFullName.
+  ///
+  /// In tr, this message translates to:
+  /// **'Ad Soyad'**
+  String get authFullName;
+
+  /// No description provided for @authFullNameRequired.
+  ///
+  /// In tr, this message translates to:
+  /// **'Ad Soyad gerekli'**
+  String get authFullNameRequired;
+
+  /// No description provided for @authFullNameTooShort.
+  ///
+  /// In tr, this message translates to:
+  /// **'Ad Soyad en az 2 karakter olmalı'**
+  String get authFullNameTooShort;
+
+  /// No description provided for @authPasswordConfirm.
+  ///
+  /// In tr, this message translates to:
+  /// **'Şifre Tekrar'**
+  String get authPasswordConfirm;
+
+  /// No description provided for @authPasswordConfirmRequired.
+  ///
+  /// In tr, this message translates to:
+  /// **'Şifre tekrarı gerekli'**
+  String get authPasswordConfirmRequired;
+
+  /// No description provided for @authPasswordMismatch.
+  ///
+  /// In tr, this message translates to:
+  /// **'Şifreler eşleşmiyor'**
+  String get authPasswordMismatch;
+
+  /// No description provided for @authPasswordMin8.
+  ///
+  /// In tr, this message translates to:
+  /// **'Şifre en az 8 karakter olmalı'**
+  String get authPasswordMin8;
+
+  /// No description provided for @authPasswordUppercase.
+  ///
+  /// In tr, this message translates to:
+  /// **'Şifre en az bir büyük harf içermeli'**
+  String get authPasswordUppercase;
+
+  /// No description provided for @authPasswordDigit.
+  ///
+  /// In tr, this message translates to:
+  /// **'Şifre en az bir rakam içermeli'**
+  String get authPasswordDigit;
+
+  /// No description provided for @authCreatingAccount.
+  ///
+  /// In tr, this message translates to:
+  /// **'Hesap oluşturuluyor...'**
+  String get authCreatingAccount;
+
+  /// No description provided for @authEduDetected.
+  ///
+  /// In tr, this message translates to:
+  /// **'edu.tr hesabı algılandı! Doğrulama sonrası yorum yazabileceksin.'**
+  String get authEduDetected;
+
+  /// No description provided for @authEduVerifyTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'edu.tr Doğrulama'**
+  String get authEduVerifyTitle;
+
+  /// No description provided for @authEduVerifyLinkSent.
+  ///
+  /// In tr, this message translates to:
+  /// **'Doğrulama linki e-posta adresine gönderildi:'**
+  String get authEduVerifyLinkSent;
+
+  /// No description provided for @authEduVerifyAfter.
+  ///
+  /// In tr, this message translates to:
+  /// **'E-postanı doğruladıktan sonra yorum yazabileceksin.'**
+  String get authEduVerifyAfter;
+
+  /// No description provided for @authOk.
+  ///
+  /// In tr, this message translates to:
+  /// **'Tamam'**
+  String get authOk;
+
+  /// No description provided for @authGoBack.
+  ///
+  /// In tr, this message translates to:
+  /// **'Geri dön'**
+  String get authGoBack;
+
+  /// No description provided for @authVerifyEmailTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'E-postanı doğrula'**
+  String get authVerifyEmailTitle;
+
+  /// No description provided for @authVerifyEmailBody.
+  ///
+  /// In tr, this message translates to:
+  /// **'{email} adresine doğrulama linki gönderdik.'**
+  String authVerifyEmailBody(String email);
+
+  /// No description provided for @profileTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Hesabım'**
+  String get profileTitle;
+
+  /// No description provided for @profileEditProfile.
+  ///
+  /// In tr, this message translates to:
+  /// **'Profili Düzenle'**
+  String get profileEditProfile;
+
+  /// No description provided for @profileEditSubtitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Fotoğraf, isim, üniversite'**
+  String get profileEditSubtitle;
+
+  /// No description provided for @profileAccount.
+  ///
+  /// In tr, this message translates to:
+  /// **'Hesap'**
+  String get profileAccount;
+
+  /// No description provided for @profileNotifications.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bildirimler'**
+  String get profileNotifications;
+
+  /// No description provided for @profileNotificationsSubtitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Yorum, favori bildirimleri'**
+  String get profileNotificationsSubtitle;
+
+  /// No description provided for @profileSecurity.
+  ///
+  /// In tr, this message translates to:
+  /// **'Güvenlik'**
+  String get profileSecurity;
+
+  /// No description provided for @profileSecuritySubtitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Şifre değiştir'**
+  String get profileSecuritySubtitle;
+
+  /// No description provided for @profilePasswordChanged.
+  ///
+  /// In tr, this message translates to:
+  /// **'Şifre başarıyla değiştirildi'**
+  String get profilePasswordChanged;
+
+  /// No description provided for @profileApp.
+  ///
+  /// In tr, this message translates to:
+  /// **'Uygulama'**
+  String get profileApp;
+
+  /// No description provided for @profileAbout.
+  ///
+  /// In tr, this message translates to:
+  /// **'Hakkında'**
+  String get profileAbout;
+
+  /// No description provided for @profileRateApp.
+  ///
+  /// In tr, this message translates to:
+  /// **'Uygulamayı Puanla'**
+  String get profileRateApp;
+
+  /// No description provided for @profileRateAppSubtitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Google Play\'de değerlendir'**
+  String get profileRateAppSubtitle;
+
+  /// No description provided for @profileShareApp.
+  ///
+  /// In tr, this message translates to:
+  /// **'Arkadaşına Öner'**
+  String get profileShareApp;
+
+  /// No description provided for @profileShareAppSubtitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Linki paylaş'**
+  String get profileShareAppSubtitle;
+
+  /// No description provided for @profileShareText.
+  ///
+  /// In tr, this message translates to:
+  /// **'ÜniSeç - Hayalindeki üniversiteyi keşfet! 🎓\nhttps://play.google.com/store/apps/details?id=com.unisec.app'**
+  String get profileShareText;
+
+  /// No description provided for @profilePrivacyPolicy.
+  ///
+  /// In tr, this message translates to:
+  /// **'Gizlilik Politikası'**
+  String get profilePrivacyPolicy;
+
+  /// No description provided for @privacyPolicyComingSoon.
+  ///
+  /// In tr, this message translates to:
+  /// **'Gizlilik politikası yakında yayınlanacak'**
+  String get privacyPolicyComingSoon;
+
+  /// No description provided for @profileSignOut.
+  ///
+  /// In tr, this message translates to:
+  /// **'Çıkış Yap'**
+  String get profileSignOut;
+
+  /// No description provided for @profileSignOutConfirm.
+  ///
+  /// In tr, this message translates to:
+  /// **'Hesabınızdan çıkış yapmak istediğinize emin misiniz?'**
+  String get profileSignOutConfirm;
+
+  /// No description provided for @profileCancel.
+  ///
+  /// In tr, this message translates to:
+  /// **'İptal'**
+  String get profileCancel;
+
+  /// No description provided for @profileMembershipPlan.
+  ///
+  /// In tr, this message translates to:
+  /// **'Üyelik Planı'**
+  String get profileMembershipPlan;
+
+  /// No description provided for @profileMembershipUsing.
+  ///
+  /// In tr, this message translates to:
+  /// **'{plan} planını kullanıyorsun'**
+  String profileMembershipUsing(String plan);
+
+  /// No description provided for @profilePlanDetails.
+  ///
+  /// In tr, this message translates to:
+  /// **'Plan Detayları'**
+  String get profilePlanDetails;
+
+  /// No description provided for @profileViewPlans.
+  ///
+  /// In tr, this message translates to:
+  /// **'Planları Gör ve Yükselt'**
+  String get profileViewPlans;
+
+  /// No description provided for @profileGuestWelcome.
+  ///
+  /// In tr, this message translates to:
+  /// **'Hoş Geldin!'**
+  String get profileGuestWelcome;
+
+  /// No description provided for @profileGuestSubtitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Yorum yapmak ve favori eklemek için\ngiriş yapman gerekiyor.'**
+  String get profileGuestSubtitle;
+
+  /// No description provided for @profileVerifiedStudent.
+  ///
+  /// In tr, this message translates to:
+  /// **'Doğrulanmış Öğrenci'**
+  String get profileVerifiedStudent;
+
+  /// No description provided for @profileVerificationPending.
+  ///
+  /// In tr, this message translates to:
+  /// **'Doğrulama Bekleniyor'**
+  String get profileVerificationPending;
+
+  /// No description provided for @profileVerified.
+  ///
+  /// In tr, this message translates to:
+  /// **'Hesabınız doğrulandı!'**
+  String get profileVerified;
+
+  /// No description provided for @profileNotVerified.
+  ///
+  /// In tr, this message translates to:
+  /// **'Henüz doğrulanmamış. Lütfen mailinize gelen linke tıklayın.'**
+  String get profileNotVerified;
+
+  /// No description provided for @profileRefresh.
+  ///
+  /// In tr, this message translates to:
+  /// **'Yenile'**
+  String get profileRefresh;
+
+  /// No description provided for @profileStatReview.
+  ///
+  /// In tr, this message translates to:
+  /// **'Yorum'**
+  String get profileStatReview;
+
+  /// No description provided for @profileStatFavorite.
+  ///
+  /// In tr, this message translates to:
+  /// **'Favori'**
+  String get profileStatFavorite;
+
+  /// No description provided for @profileStatMembership.
+  ///
+  /// In tr, this message translates to:
+  /// **'Üyelik'**
+  String get profileStatMembership;
+
+  /// No description provided for @profileStatDays.
+  ///
+  /// In tr, this message translates to:
+  /// **'{days} gün'**
+  String profileStatDays(int days);
+
+  /// No description provided for @profileAboutDescription.
+  ///
+  /// In tr, this message translates to:
+  /// **'ÜniSeç, Türkiye\'deki üniversiteleri keşfetmeni, karşılaştırmanı ve deneyimlerini paylaşmanı sağlayan bir mobil uygulamadır.'**
+  String get profileAboutDescription;
+
+  /// No description provided for @profileAboutCopyright.
+  ///
+  /// In tr, this message translates to:
+  /// **'© 2026 ÜniSeç Ekibi'**
+  String get profileAboutCopyright;
+
+  /// No description provided for @profileUser.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kullanıcı'**
+  String get profileUser;
+
+  /// No description provided for @editProfileTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Profili Düzenle'**
+  String get editProfileTitle;
+
+  /// No description provided for @editProfileCamera.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kamera'**
+  String get editProfileCamera;
+
+  /// No description provided for @editProfileGallery.
+  ///
+  /// In tr, this message translates to:
+  /// **'Galeri'**
+  String get editProfileGallery;
+
+  /// No description provided for @editProfileFullName.
+  ///
+  /// In tr, this message translates to:
+  /// **'Ad Soyad'**
+  String get editProfileFullName;
+
+  /// No description provided for @editProfileFullNameRequired.
+  ///
+  /// In tr, this message translates to:
+  /// **'Ad Soyad gerekli'**
+  String get editProfileFullNameRequired;
+
+  /// No description provided for @editProfileUniversity.
+  ///
+  /// In tr, this message translates to:
+  /// **'Üniversite'**
+  String get editProfileUniversity;
+
+  /// No description provided for @editProfileUniversityError.
+  ///
+  /// In tr, this message translates to:
+  /// **'Üniversiteler yüklenemedi: {error}'**
+  String editProfileUniversityError(String error);
+
+  /// No description provided for @editProfileDepartment.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bölüm'**
+  String get editProfileDepartment;
+
+  /// No description provided for @editProfileDepartmentHint.
+  ///
+  /// In tr, this message translates to:
+  /// **'Örn: Bilgisayar Mühendisliği'**
+  String get editProfileDepartmentHint;
+
+  /// No description provided for @editProfileBio.
+  ///
+  /// In tr, this message translates to:
+  /// **'Hakkımda (Opsiyonel)'**
+  String get editProfileBio;
+
+  /// No description provided for @editProfileBioHint.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kendinden kısaca bahset...'**
+  String get editProfileBioHint;
+
+  /// No description provided for @editProfileBioProfanity.
+  ///
+  /// In tr, this message translates to:
+  /// **'Uygunsuz içerik tespit edildi'**
+  String get editProfileBioProfanity;
+
+  /// No description provided for @editProfileGrade.
+  ///
+  /// In tr, this message translates to:
+  /// **'Sınıf'**
+  String get editProfileGrade;
+
+  /// No description provided for @editProfileSave.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kaydet'**
+  String get editProfileSave;
+
+  /// No description provided for @editProfileSaving.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kaydediliyor...'**
+  String get editProfileSaving;
+
+  /// No description provided for @editProfileSuccess.
+  ///
+  /// In tr, this message translates to:
+  /// **'Profil başarıyla güncellendi'**
+  String get editProfileSuccess;
+
+  /// No description provided for @editProfileError.
+  ///
+  /// In tr, this message translates to:
+  /// **'Profil güncellenirken hata oluştu'**
+  String get editProfileError;
+
+  /// No description provided for @errorGeneral.
+  ///
+  /// In tr, this message translates to:
+  /// **'Hata: {error}'**
+  String errorGeneral(String error);
+
+  /// No description provided for @universityNotFound.
+  ///
+  /// In tr, this message translates to:
+  /// **'Üniversite bulunamadı'**
+  String get universityNotFound;
+
+  /// No description provided for @errorDepartmentsLoad.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bölümler yüklenirken hata oluştu.'**
+  String get errorDepartmentsLoad;
+
+  /// No description provided for @noDepartmentsFound.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bölüm bulunamadı.'**
+  String get noDepartmentsFound;
+
+  /// No description provided for @errorPlacesLoad.
+  ///
+  /// In tr, this message translates to:
+  /// **'Mekanlar yüklenirken hata oluştu.'**
+  String get errorPlacesLoad;
+
+  /// No description provided for @noPlacesFound.
+  ///
+  /// In tr, this message translates to:
+  /// **'Mekan bulunamadı.'**
+  String get noPlacesFound;
+
+  /// No description provided for @errorReviewsLoad.
+  ///
+  /// In tr, this message translates to:
+  /// **'Yorumlar yüklenirken hata oluştu.'**
+  String get errorReviewsLoad;
+
+  /// No description provided for @reviewLoginRequired.
+  ///
+  /// In tr, this message translates to:
+  /// **'Yorum yazabilmek için önce hesabınıza giriş yapmanız gerekiyor.'**
+  String get reviewLoginRequired;
+
+  /// No description provided for @reviewEduRequiredTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Doğrulama Gerekli'**
+  String get reviewEduRequiredTitle;
+
+  /// No description provided for @reviewEduRequiredDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'Sadece onaylı üniversite öğrencileri değerlendirme yapabilir (.edu.tr).'**
+  String get reviewEduRequiredDesc;
 }
 
 class _AppLocalizationsDelegate

@@ -181,4 +181,353 @@ class AppLocalizationsTr extends AppLocalizations {
   String shareSubject(String uniA, String uniB) {
     return '$uniA vs $uniB — Karşılaştırma';
   }
+
+  @override
+  String get authSignIn => 'Giriş Yap';
+
+  @override
+  String get authSignUp => 'Kayıt Ol';
+
+  @override
+  String get authEmailLabel => 'E-posta adresi';
+
+  @override
+  String get authEmailHint => 'ornek@universite.edu.tr';
+
+  @override
+  String get authPasswordLabel => 'Şifre';
+
+  @override
+  String get authPasswordHint => 'En az 6 karakter';
+
+  @override
+  String get authForgotPassword => 'Şifremi Unuttum';
+
+  @override
+  String get authGoogleContinue => 'Google ile Giriş Yap';
+
+  @override
+  String get authNoAccount => 'Hesabın yok mu? ';
+
+  @override
+  String get authHaveAccount => 'Zaten hesabın var mı? ';
+
+  @override
+  String get authShowPassword => 'Şifreyi göster';
+
+  @override
+  String get authHidePassword => 'Şifreyi gizle';
+
+  @override
+  String get authPasswordRequired => 'Şifre gerekli';
+
+  @override
+  String get authEmailRequired => 'E-posta adresi gerekli';
+
+  @override
+  String get authEmailInvalid => 'Geçerli bir e-posta adresi girin';
+
+  @override
+  String get authContinueWithAccount => 'Hesabına giriş yaparak devam et';
+
+  @override
+  String get authOrDivider => 'veya';
+
+  @override
+  String get authGuestContinue => 'Misafir olarak devam et';
+
+  @override
+  String get authLoggingIn => 'Giriş yapılıyor...';
+
+  @override
+  String get authPleaseWait => 'Lütfen bekleyin';
+
+  @override
+  String get authResetPasswordTitle => 'Şifre Sıfırlama';
+
+  @override
+  String get authResetPasswordDesc =>
+      'E-posta adresini gir, şifre sıfırlama linki gönderelim.';
+
+  @override
+  String get authResetPasswordSend => 'Sıfırlama Linki Gönder';
+
+  @override
+  String get authResetPasswordSent => 'Şifre sıfırlama linki gönderildi!';
+
+  @override
+  String get authRegisterTitle => 'Yeni hesap oluştur ve keşfetmeye başla';
+
+  @override
+  String get authFullName => 'Ad Soyad';
+
+  @override
+  String get authFullNameRequired => 'Ad Soyad gerekli';
+
+  @override
+  String get authFullNameTooShort => 'Ad Soyad en az 2 karakter olmalı';
+
+  @override
+  String get authPasswordConfirm => 'Şifre Tekrar';
+
+  @override
+  String get authPasswordConfirmRequired => 'Şifre tekrarı gerekli';
+
+  @override
+  String get authPasswordMismatch => 'Şifreler eşleşmiyor';
+
+  @override
+  String get authPasswordMin8 => 'Şifre en az 8 karakter olmalı';
+
+  @override
+  String get authPasswordUppercase => 'Şifre en az bir büyük harf içermeli';
+
+  @override
+  String get authPasswordDigit => 'Şifre en az bir rakam içermeli';
+
+  @override
+  String get authCreatingAccount => 'Hesap oluşturuluyor...';
+
+  @override
+  String get authEduDetected =>
+      'edu.tr hesabı algılandı! Doğrulama sonrası yorum yazabileceksin.';
+
+  @override
+  String get authEduVerifyTitle => 'edu.tr Doğrulama';
+
+  @override
+  String get authEduVerifyLinkSent =>
+      'Doğrulama linki e-posta adresine gönderildi:';
+
+  @override
+  String get authEduVerifyAfter =>
+      'E-postanı doğruladıktan sonra yorum yazabileceksin.';
+
+  @override
+  String get authOk => 'Tamam';
+
+  @override
+  String get authGoBack => 'Geri dön';
+
+  @override
+  String get authVerifyEmailTitle => 'E-postanı doğrula';
+
+  @override
+  String authVerifyEmailBody(String email) {
+    return '$email adresine doğrulama linki gönderdik.';
+  }
+
+  @override
+  String get profileTitle => 'Hesabım';
+
+  @override
+  String get profileEditProfile => 'Profili Düzenle';
+
+  @override
+  String get profileEditSubtitle => 'Fotoğraf, isim, üniversite';
+
+  @override
+  String get profileAccount => 'Hesap';
+
+  @override
+  String get profileNotifications => 'Bildirimler';
+
+  @override
+  String get profileNotificationsSubtitle => 'Yorum, favori bildirimleri';
+
+  @override
+  String get profileSecurity => 'Güvenlik';
+
+  @override
+  String get profileSecuritySubtitle => 'Şifre değiştir';
+
+  @override
+  String get profilePasswordChanged => 'Şifre başarıyla değiştirildi';
+
+  @override
+  String get profileApp => 'Uygulama';
+
+  @override
+  String get profileAbout => 'Hakkında';
+
+  @override
+  String get profileRateApp => 'Uygulamayı Puanla';
+
+  @override
+  String get profileRateAppSubtitle => 'Google Play\'de değerlendir';
+
+  @override
+  String get profileShareApp => 'Arkadaşına Öner';
+
+  @override
+  String get profileShareAppSubtitle => 'Linki paylaş';
+
+  @override
+  String get profileShareText =>
+      'ÜniSeç - Hayalindeki üniversiteyi keşfet! 🎓\nhttps://play.google.com/store/apps/details?id=com.unisec.app';
+
+  @override
+  String get profilePrivacyPolicy => 'Gizlilik Politikası';
+
+  @override
+  String get privacyPolicyComingSoon =>
+      'Gizlilik politikası yakında yayınlanacak';
+
+  @override
+  String get profileSignOut => 'Çıkış Yap';
+
+  @override
+  String get profileSignOutConfirm =>
+      'Hesabınızdan çıkış yapmak istediğinize emin misiniz?';
+
+  @override
+  String get profileCancel => 'İptal';
+
+  @override
+  String get profileMembershipPlan => 'Üyelik Planı';
+
+  @override
+  String profileMembershipUsing(String plan) {
+    return '$plan planını kullanıyorsun';
+  }
+
+  @override
+  String get profilePlanDetails => 'Plan Detayları';
+
+  @override
+  String get profileViewPlans => 'Planları Gör ve Yükselt';
+
+  @override
+  String get profileGuestWelcome => 'Hoş Geldin!';
+
+  @override
+  String get profileGuestSubtitle =>
+      'Yorum yapmak ve favori eklemek için\ngiriş yapman gerekiyor.';
+
+  @override
+  String get profileVerifiedStudent => 'Doğrulanmış Öğrenci';
+
+  @override
+  String get profileVerificationPending => 'Doğrulama Bekleniyor';
+
+  @override
+  String get profileVerified => 'Hesabınız doğrulandı!';
+
+  @override
+  String get profileNotVerified =>
+      'Henüz doğrulanmamış. Lütfen mailinize gelen linke tıklayın.';
+
+  @override
+  String get profileRefresh => 'Yenile';
+
+  @override
+  String get profileStatReview => 'Yorum';
+
+  @override
+  String get profileStatFavorite => 'Favori';
+
+  @override
+  String get profileStatMembership => 'Üyelik';
+
+  @override
+  String profileStatDays(int days) {
+    return '$days gün';
+  }
+
+  @override
+  String get profileAboutDescription =>
+      'ÜniSeç, Türkiye\'deki üniversiteleri keşfetmeni, karşılaştırmanı ve deneyimlerini paylaşmanı sağlayan bir mobil uygulamadır.';
+
+  @override
+  String get profileAboutCopyright => '© 2026 ÜniSeç Ekibi';
+
+  @override
+  String get profileUser => 'Kullanıcı';
+
+  @override
+  String get editProfileTitle => 'Profili Düzenle';
+
+  @override
+  String get editProfileCamera => 'Kamera';
+
+  @override
+  String get editProfileGallery => 'Galeri';
+
+  @override
+  String get editProfileFullName => 'Ad Soyad';
+
+  @override
+  String get editProfileFullNameRequired => 'Ad Soyad gerekli';
+
+  @override
+  String get editProfileUniversity => 'Üniversite';
+
+  @override
+  String editProfileUniversityError(String error) {
+    return 'Üniversiteler yüklenemedi: $error';
+  }
+
+  @override
+  String get editProfileDepartment => 'Bölüm';
+
+  @override
+  String get editProfileDepartmentHint => 'Örn: Bilgisayar Mühendisliği';
+
+  @override
+  String get editProfileBio => 'Hakkımda (Opsiyonel)';
+
+  @override
+  String get editProfileBioHint => 'Kendinden kısaca bahset...';
+
+  @override
+  String get editProfileBioProfanity => 'Uygunsuz içerik tespit edildi';
+
+  @override
+  String get editProfileGrade => 'Sınıf';
+
+  @override
+  String get editProfileSave => 'Kaydet';
+
+  @override
+  String get editProfileSaving => 'Kaydediliyor...';
+
+  @override
+  String get editProfileSuccess => 'Profil başarıyla güncellendi';
+
+  @override
+  String get editProfileError => 'Profil güncellenirken hata oluştu';
+
+  @override
+  String errorGeneral(String error) {
+    return 'Hata: $error';
+  }
+
+  @override
+  String get universityNotFound => 'Üniversite bulunamadı';
+
+  @override
+  String get errorDepartmentsLoad => 'Bölümler yüklenirken hata oluştu.';
+
+  @override
+  String get noDepartmentsFound => 'Bölüm bulunamadı.';
+
+  @override
+  String get errorPlacesLoad => 'Mekanlar yüklenirken hata oluştu.';
+
+  @override
+  String get noPlacesFound => 'Mekan bulunamadı.';
+
+  @override
+  String get errorReviewsLoad => 'Yorumlar yüklenirken hata oluştu.';
+
+  @override
+  String get reviewLoginRequired =>
+      'Yorum yazabilmek için önce hesabınıza giriş yapmanız gerekiyor.';
+
+  @override
+  String get reviewEduRequiredTitle => 'Doğrulama Gerekli';
+
+  @override
+  String get reviewEduRequiredDesc =>
+      'Sadece onaylı üniversite öğrencileri değerlendirme yapabilir (.edu.tr).';
 }

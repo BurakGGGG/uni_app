@@ -10,6 +10,7 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/utils/snackbar_helper.dart';
 import '../../../../core/utils/profanity_filter.dart';
 import '../../../../core/widgets/widgets.dart';
+import '../../../../l10n/generated/app_localizations.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../../auth/presentation/providers/auth_providers.dart';
 import '../../../university/presentation/providers/university_providers.dart';
@@ -94,6 +95,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   }
 
   void _showImagePicker() {
+    final loc = AppLocalizations.of(context);
     showModalBottomSheet(
       context: context,
       builder: (ctx) => SafeArea(
@@ -104,7 +106,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
             children: [
               ListTile(
                 leading: const Icon(Icons.camera_alt_rounded, color: AppColors.primary),
-                title: const Text('Kamera'),
+                title: Text(loc.editProfileCamera),
                 onTap: () {
                   Navigator.pop(ctx);
                   _pickImage(ImageSource.camera);
@@ -112,7 +114,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
               ),
               ListTile(
                 leading: const Icon(Icons.photo_library_rounded, color: AppColors.secondary),
-                title: const Text('Galeri'),
+                title: Text(loc.editProfileGallery),
                 onTap: () {
                   Navigator.pop(ctx);
                   _pickImage(ImageSource.gallery);
@@ -155,12 +157,12 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       ref.invalidate(currentUserProvider);
 
       if (mounted) {
-        showAppSnackBar(context, message: 'Profil başarıyla güncellendi', isSuccess: true);
+        showAppSnackBar(context, message: AppLocalizations.of(context).editProfileSuccess, isSuccess: true);
         context.pop();
       }
     } catch (e) {
       if (mounted) {
-        showAppSnackBar(context, message: 'Profil güncellenirken hata oluştu', isError: true);
+        showAppSnackBar(context, message: AppLocalizations.of(context).editProfileError, isError: true);
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -175,7 +177,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
       appBar: AppBar(
-        title: const Text('Profili Düzenle'),
+        title: Text(AppLocalizations.of(context).editProfileTitle),
       ),
       body: Stack(
         children: [
@@ -235,13 +237,13 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                     controller: _nameController,
                     textCapitalization: TextCapitalization.words,
                     onChanged: (_) => setState(() => _hasChanges = true),
-                    decoration: const InputDecoration(
-                      labelText: 'Ad Soyad',
-                      prefixIcon: Icon(Icons.person_outlined),
+                    decoration: InputDecoration(
+                      labelText: AppLocalizations.of(context).editProfileFullName,
+                      prefixIcon: const Icon(Icons.person_outlined),
                     ),
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
-                        return 'Ad Soyad gerekli';
+                        return AppLocalizations.of(context).editProfileFullNameRequired;
                       }
                       return null;
                     },
@@ -261,9 +263,9 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                       return DropdownButtonFormField<UniversityModel>(
                         initialValue: selectedUniModel,
                         isExpanded: true,
-                        decoration: const InputDecoration(
-                          labelText: 'Üniversite',
-                          prefixIcon: Icon(Icons.school_outlined),
+                        decoration: InputDecoration(
+                          labelText: AppLocalizations.of(context).editProfileUniversity,
+                          prefixIcon: const Icon(Icons.school_outlined),
                         ),
                         items: unis.map((uni) {
                           return DropdownMenuItem(value: uni, child: Text(uni.name, overflow: TextOverflow.ellipsis));
@@ -278,7 +280,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                       );
                     },
                     loading: () => const Center(child: CircularProgressIndicator()),
-                    error: (e, st) => Text('Üniversiteler yüklenemedi: $e'),
+                    error: (e, st) => Text(AppLocalizations.of(context).editProfileUniversityError(e.toString())),
                   ).animate().fadeIn(delay: 200.ms, duration: 400.ms),
 
                   const SizedBox(height: 20),
@@ -287,10 +289,10 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                   TextFormField(
                     initialValue: _selectedDepartment,
                     textCapitalization: TextCapitalization.words,
-                    decoration: const InputDecoration(
-                      labelText: 'Bölüm',
-                      prefixIcon: Icon(Icons.menu_book_outlined),
-                      hintText: 'Örn: Bilgisayar Mühendisliği',
+                    decoration: InputDecoration(
+                      labelText: AppLocalizations.of(context).editProfileDepartment,
+                      prefixIcon: const Icon(Icons.menu_book_outlined),
+                      hintText: AppLocalizations.of(context).editProfileDepartmentHint,
                     ),
                     onChanged: (value) {
                       setState(() {
@@ -309,14 +311,14 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                     maxLines: 3,
                     maxLength: 150,
                     decoration: InputDecoration(
-                      labelText: 'Hakkımda (Opsiyonel)',
+                      labelText: AppLocalizations.of(context).editProfileBio,
                       alignLabelWithHint: true,
                       prefixIcon: const Padding(
                         padding: EdgeInsets.only(bottom: 40),
                         child: Icon(Icons.info_outline_rounded),
                       ),
-                      hintText: 'Kendinden kısaca bahset...',
-                      errorText: _bioHasProfanity ? 'Uygunsuz içerik tespit edildi' : null,
+                      hintText: AppLocalizations.of(context).editProfileBioHint,
+                      errorText: _bioHasProfanity ? AppLocalizations.of(context).editProfileBioProfanity : null,
                       errorStyle: const TextStyle(color: AppColors.error),
                     ),
                     onChanged: (value) {
@@ -329,7 +331,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                     },
                     validator: (value) {
                       if (value != null && ProfanityFilter.containsProfanity(value)) {
-                        return 'Uygunsuz içerik tespit edildi';
+                        return AppLocalizations.of(context).editProfileBioProfanity;
                       }
                       return null;
                     },
@@ -340,9 +342,9 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                   // ─── Sınıf ────────────────────────────────────────
                   DropdownButtonFormField<int>(
                     initialValue: _selectedGrade,
-                    decoration: const InputDecoration(
-                      labelText: 'Sınıf',
-                      prefixIcon: Icon(Icons.grade_outlined),
+                    decoration: InputDecoration(
+                      labelText: AppLocalizations.of(context).editProfileGrade,
+                      prefixIcon: const Icon(Icons.grade_outlined),
                     ),
                     items: _grades.map((g) {
                       return DropdownMenuItem(
@@ -362,7 +364,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
 
                   // ─── Kaydet ───────────────────────────────────────
                   GradientButton(
-                    text: 'Kaydet',
+                    text: AppLocalizations.of(context).editProfileSave,
                     icon: Icons.check_rounded,
                     onPressed: (_hasChanges && !_isLoading && !_bioHasProfanity) ? _saveProfile : null,
                   ).animate().fadeIn(delay: 500.ms, duration: 400.ms),
@@ -396,7 +398,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                             valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
                           ),
                           const SizedBox(height: 20),
-                          Text('Kaydediliyor...', style: AppTextStyles.titleMedium),
+                          Text(AppLocalizations.of(context).editProfileSaving, style: AppTextStyles.titleMedium),
                         ],
                       ),
                     ),

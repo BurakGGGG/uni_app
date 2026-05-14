@@ -11,6 +11,7 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/widgets/widgets.dart';
 import '../../../../core/utils/snackbar_helper.dart';
+import '../../../../l10n/generated/app_localizations.dart';
 import '../../../auth/presentation/providers/auth_providers.dart';
 import '../../../auth/domain/user_model.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -35,6 +36,7 @@ class ProfileScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(authStateProvider);
     final currentUser = ref.watch(currentUserProvider);
+    final loc = AppLocalizations.of(context);
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -48,7 +50,7 @@ class ProfileScreen extends ConsumerWidget {
               // ─── Başlık ───────────────────────────────────────
               Row(
                 children: [
-                  Text('Hesabım', style: AppTextStyles.headlineLarge),
+                  Text(loc.profileTitle, style: AppTextStyles.headlineLarge),
                   const Spacer(),
                 ],
               ),
@@ -92,30 +94,30 @@ class ProfileScreen extends ConsumerWidget {
                 data: (user) {
                   if (user == null) return const SizedBox.shrink();
                   return _SettingsSection(
-                    title: 'Hesap',
+                    title: loc.profileAccount,
                     items: [
                       _SettingsItem(
                         icon: Icons.edit_rounded,
-                        title: 'Profili Düzenle',
-                        subtitle: 'Fotoğraf, isim, üniversite',
+                        title: loc.profileEditProfile,
+                        subtitle: loc.profileEditSubtitle,
                         onTap: () => context.push('/edit-profile'),
                       ),
-                      _buildMembershipSettingsItem(context, ref),
+                      _buildMembershipSettingsItem(context, ref, loc),
                       _SettingsItem(
                         icon: Icons.notifications_outlined,
-                        title: 'Bildirimler',
-                        subtitle: 'Yorum, favori bildirimleri',
+                        title: loc.profileNotifications,
+                        subtitle: loc.profileNotificationsSubtitle,
                         onTap: () => context.push('/notification-settings'),
                       ),
                       if (!user.providerData.any((p) => p.providerId == 'google.com'))
                         _SettingsItem(
                           icon: Icons.security_rounded,
-                          title: 'Güvenlik',
-                          subtitle: 'Şifre değiştir',
+                          title: loc.profileSecurity,
+                          subtitle: loc.profileSecuritySubtitle,
                           onTap: () async {
                             final result = await ChangePasswordDialog.show(context);
                             if (result == true && context.mounted) {
-                              showAppSnackBar(context, message: 'Şifre başarıyla değiştirildi', isSuccess: true);
+                              showAppSnackBar(context, message: loc.profilePasswordChanged, isSuccess: true);
                             }
                           },
                         ),
@@ -130,11 +132,11 @@ class ProfileScreen extends ConsumerWidget {
 
               // ─── Uygulama Ayarları ─────────────────────────────
               _SettingsSection(
-                title: 'Uygulama',
+                title: loc.profileApp,
                 items: [
                   _SettingsItem(
                     icon: Icons.info_outline_rounded,
-                    title: 'Hakkında',
+                    title: loc.profileAbout,
                     subtitle: '${AppConstants.appName} v${AppConstants.appVersion}',
                     onTap: () {
                       showAboutDialog(
@@ -152,21 +154,17 @@ class ProfileScreen extends ConsumerWidget {
                         ),
                         children: [
                           const SizedBox(height: 16),
-                          const Text(
-                            'ÜniSeç, Türkiye\'deki üniversiteleri keşfetmeni, '
-                            'karşılaştırmanı ve deneyimlerini paylaşmanı sağlayan '
-                            'bir mobil uygulamadır.',
-                          ),
+                          Text(loc.profileAboutDescription),
                           const SizedBox(height: 8),
-                          const Text('© 2026 ÜniSeç Ekibi'),
+                          Text(loc.profileAboutCopyright),
                         ],
                       );
                     },
                   ),
                   _SettingsItem(
                     icon: Icons.star_outline_rounded,
-                    title: 'Uygulamayı Puanla',
-                    subtitle: 'Google Play\'de değerlendir',
+                    title: loc.profileRateApp,
+                    subtitle: loc.profileRateAppSubtitle,
                     onTap: () async {
                       final inAppReview = InAppReview.instance;
                       if (await inAppReview.isAvailable()) {
@@ -182,24 +180,22 @@ class ProfileScreen extends ConsumerWidget {
                   ),
                   _SettingsItem(
                     icon: Icons.share_outlined,
-                    title: 'Arkadaşına Öner',
-                    subtitle: 'Linki paylaş',
+                    title: loc.profileShareApp,
+                    subtitle: loc.profileShareAppSubtitle,
                     onTap: () {
-                      Share.share(
-                        'ÜniSeç - Hayalindeki üniversiteyi keşfet! 🎓\nhttps://play.google.com/store/apps/details?id=com.unisec.app',
-                      );
+                      Share.share(loc.profileShareText);
                     },
                   ),
                   _SettingsItem(
                     icon: Icons.privacy_tip_outlined,
-                    title: 'Gizlilik Politikası',
+                    title: loc.profilePrivacyPolicy,
                     onTap: () async {
                       final url = Uri.parse('https://unisec.app/privacy');
                       if (await canLaunchUrl(url)) {
                         await launchUrl(url, mode: LaunchMode.externalApplication);
                       } else {
                         if (context.mounted) {
-                          showAppSnackBar(context, message: 'Gizlilik politikası yakında yayınlanacak');
+                          showAppSnackBar(context, message: loc.privacyPolicyComingSoon);
                         }
                       }
                     },
@@ -362,13 +358,13 @@ class ProfileScreen extends ConsumerWidget {
                         final confirmed = await showDialog<bool>(
                           context: context,
                           builder: (ctx) => AlertDialog(
-                            title: const Text('Çıkış Yap'),
-                            content: const Text('Hesabınızdan çıkış yapmak istediğinize emin misiniz?'),
+                            title: Text(loc.profileSignOut),
+                            content: Text(loc.profileSignOutConfirm),
                             actions: [
-                              TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('İptal')),
+                              TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(loc.profileCancel)),
                               TextButton(
                                 onPressed: () => Navigator.pop(ctx, true),
-                                child: const Text('Çıkış Yap', style: TextStyle(color: AppColors.error)),
+                                child: Text(loc.profileSignOut, style: const TextStyle(color: AppColors.error)),
                               ),
                             ],
                           ),
@@ -386,7 +382,7 @@ class ProfileScreen extends ConsumerWidget {
                       },
                       icon: const Icon(Icons.logout_rounded, color: AppColors.error),
                       label: Text(
-                        'Çıkış Yap',
+                        loc.profileSignOut,
                         style: AppTextStyles.labelLarge.copyWith(color: AppColors.error),
                       ),
                       style: OutlinedButton.styleFrom(
@@ -408,18 +404,18 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
-  _SettingsItem _buildMembershipSettingsItem(BuildContext context, WidgetRef ref) {
+  _SettingsItem _buildMembershipSettingsItem(BuildContext context, WidgetRef ref, AppLocalizations loc) {
     final tier = ref.watch(subscriptionTierProvider).valueOrNull ?? SubscriptionTier.free;
 
     return _SettingsItem(
       icon: Icons.workspace_premium_rounded,
-      title: 'Üyelik Planı',
-      subtitle: '${tier.label} planını kullanıyorsun',
-      onTap: () => _showPlanDetails(context, tier),
+      title: loc.profileMembershipPlan,
+      subtitle: loc.profileMembershipUsing(tier.label),
+      onTap: () => _showPlanDetails(context, tier, loc),
     );
   }
 
-  void _showPlanDetails(BuildContext context, SubscriptionTier currentTier) {
+  void _showPlanDetails(BuildContext context, SubscriptionTier currentTier, AppLocalizations loc) {
     final plans = [
       (
         tier: SubscriptionTier.free,
@@ -462,7 +458,7 @@ class ProfileScreen extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Plan Detayları',
+                loc.profilePlanDetails,
                 style: AppTextStyles.titleLarge.copyWith(fontWeight: FontWeight.w800),
               ),
               const SizedBox(height: 16),
@@ -519,7 +515,7 @@ class ProfileScreen extends ConsumerWidget {
                     Navigator.pop(ctx);
                     context.push('/compare/paywall');
                   },
-                  child: const Text('Planları Gör ve Yükselt'),
+                  child: Text(loc.profileViewPlans),
                 ),
               ),
             ],
@@ -532,6 +528,7 @@ class ProfileScreen extends ConsumerWidget {
   // ─── Misafir Profili ──────────────────────────────────────────
 
   Widget _buildGuestProfile(BuildContext context) {
+    final loc = AppLocalizations.of(context);
     return Container(
       padding: const EdgeInsets.all(28),
       decoration: BoxDecoration(
@@ -558,16 +555,16 @@ class ProfileScreen extends ConsumerWidget {
             child: const Icon(Icons.person_rounded, size: 40, color: Colors.white),
           ),
           const SizedBox(height: 16),
-          Text('Hoş Geldin!', style: AppTextStyles.headlineMedium),
+          Text(loc.profileGuestWelcome, style: AppTextStyles.headlineMedium),
           const SizedBox(height: 6),
           Text(
-            'Yorum yapmak ve favori eklemek için\ngiriş yapman gerekiyor.',
+            loc.profileGuestSubtitle,
             style: AppTextStyles.bodySmall,
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 24),
           GradientButton(
-            text: 'Giriş Yap',
+            text: loc.authSignIn,
             icon: Icons.login_rounded,
             onPressed: () => context.go('/login'),
           ),
@@ -578,7 +575,7 @@ class ProfileScreen extends ConsumerWidget {
             child: OutlinedButton.icon(
               onPressed: () => context.go('/register'),
               icon: const Icon(Icons.person_add_outlined),
-              label: const Text('Kayıt Ol'),
+              label: Text(loc.authSignUp),
             ),
           ),
         ],
@@ -589,7 +586,8 @@ class ProfileScreen extends ConsumerWidget {
   // ─── Kullanıcı Kartı ──────────────────────────────────────────
 
   Widget _buildUserCard(BuildContext context, WidgetRef ref, UserModel? profile, dynamic firebaseUser) {
-    final displayName = profile?.displayName ?? firebaseUser.displayName ?? 'Kullanıcı';
+    final loc = AppLocalizations.of(context);
+    final displayName = profile?.displayName ?? firebaseUser.displayName ?? loc.profileUser;
     final email = profile?.email ?? firebaseUser.email ?? '';
     final photoUrl = profile?.photoUrl ?? firebaseUser.photoURL;
     final isEdu = email.toLowerCase().endsWith('.edu.tr');
@@ -694,7 +692,7 @@ class ProfileScreen extends ConsumerWidget {
                   const Icon(Icons.verified_rounded, color: AppColors.success, size: 18),
                   const SizedBox(width: 6),
                   Text(
-                    'Doğrulanmış Öğrenci',
+                    loc.profileVerifiedStudent,
                     style: AppTextStyles.labelMedium.copyWith(
                       color: AppColors.success,
                       fontWeight: FontWeight.w600,
@@ -718,7 +716,7 @@ class ProfileScreen extends ConsumerWidget {
                   const SizedBox(width: 6),
                   Expanded(
                     child: Text(
-                      'Doğrulama Bekleniyor',
+                      loc.profileVerificationPending,
                       style: AppTextStyles.labelMedium.copyWith(
                         color: AppColors.warning,
                         fontWeight: FontWeight.w600,
@@ -731,7 +729,7 @@ class ProfileScreen extends ConsumerWidget {
                       if (context.mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: Text(success ? 'Hesabınız doğrulandı!' : 'Henüz doğrulanmamış. Lütfen mailinize gelen linke tıklayın.'),
+                            content: Text(success ? loc.profileVerified : loc.profileNotVerified),
                             backgroundColor: success ? AppColors.success : AppColors.warning,
                           ),
                         );
@@ -747,7 +745,7 @@ class ProfileScreen extends ConsumerWidget {
                       minimumSize: Size.zero,
                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     ),
-                    child: Text('Yenile', style: AppTextStyles.labelMedium.copyWith(color: AppColors.primary, fontWeight: FontWeight.bold)),
+                    child: Text(loc.profileRefresh, style: AppTextStyles.labelMedium.copyWith(color: AppColors.primary, fontWeight: FontWeight.bold)),
                   ),
                 ],
               ),
@@ -760,13 +758,15 @@ class ProfileScreen extends ConsumerWidget {
   // ─── İstatistikler ────────────────────────────────────────────
 
   Widget _buildStats(BuildContext context, WidgetRef ref, UserModel? profile) {
+    final loc = AppLocalizations.of(context);
     final favoritesCount = ref.watch(favoritesProvider).value?.length ?? 0;
+    final memberDays = DateTime.now().difference(profile?.createdAt ?? DateTime.now()).inDays;
 
     return Row(
       children: [
         _StatCard(
           icon: Icons.rate_review_rounded,
-          label: 'Yorum',
+          label: loc.profileStatReview,
           value: '${profile?.reviewCount ?? 0}',
           color: AppColors.primary,
           onTap: () => context.push('/my-reviews'),
@@ -774,7 +774,7 @@ class ProfileScreen extends ConsumerWidget {
         const SizedBox(width: 12),
         _StatCard(
           icon: Icons.favorite_rounded,
-          label: 'Favori',
+          label: loc.profileStatFavorite,
           value: '$favoritesCount',
           color: AppColors.error,
           onTap: () => context.push('/favorites'),
@@ -782,8 +782,8 @@ class ProfileScreen extends ConsumerWidget {
         const SizedBox(width: 12),
         _StatCard(
           icon: Icons.cake_rounded,
-          label: 'Üyelik',
-          value: '${DateTime.now().difference(profile?.createdAt ?? DateTime.now()).inDays} gün',
+          label: loc.profileStatMembership,
+          value: loc.profileStatDays(memberDays),
           color: AppColors.warning,
         ),
       ],
