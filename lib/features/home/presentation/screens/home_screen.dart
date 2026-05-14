@@ -16,6 +16,7 @@ import '../../../reviews/presentation/widgets/review_card.dart';
 import '../../../reviews/domain/models/review_model.dart';
 import '../../../notifications/presentation/widgets/notification_bell.dart';
 import '../../../university/presentation/widgets/city_card.dart';
+import '../widgets/home_list_skeleton.dart';
 
 /// Ana Sayfa ekranı
 class HomeScreen extends ConsumerWidget {
@@ -133,8 +134,12 @@ class HomeScreen extends ConsumerWidget {
                   SizedBox(
                     height: 200,
                     child: ref.watch(popularUniversitiesProvider).when(
-                      loading: () => const Center(child: CircularProgressIndicator()),
-                      error: (e, st) => Center(child: Text('Hata: $e')),
+                      loading: () => const HomeListSkeleton(),
+                      error: (e, st) => ErrorStateWidget(
+                        message: 'Üniversiteler yüklenemedi',
+                        onRetry: () => ref.invalidate(popularUniversitiesProvider),
+                        compact: true,
+                      ),
                       data: (popular) {
                         return ListView.builder(
                           scrollDirection: Axis.horizontal,
@@ -172,8 +177,12 @@ class HomeScreen extends ConsumerWidget {
                   SizedBox(
                     height: 200,
                     child: citiesAsync.when(
-                      loading: () => const Center(child: CircularProgressIndicator()),
-                      error: (e, st) => Center(child: Text('$e')),
+                      loading: () => const HomeListSkeleton(),
+                      error: (e, st) => ErrorStateWidget(
+                        message: 'Şehirler yüklenemedi',
+                        onRetry: () => ref.invalidate(citiesProvider),
+                        compact: true,
+                      ),
                       data: (cities) {
                         return ListView.builder(
                           scrollDirection: Axis.horizontal,
@@ -205,15 +214,14 @@ class HomeScreen extends ConsumerWidget {
 
             ref.watch(recentReviewsProvider).when(
               loading: () => const SliverToBoxAdapter(
-                child: Center(
-                  child: Padding(
-                    padding: EdgeInsets.all(20),
-                    child: CircularProgressIndicator(),
-                  ),
-                ),
+                child: HomeListSkeleton(itemCount: 2, height: 150, scrollDirection: Axis.vertical),
               ),
               error: (e, st) => SliverToBoxAdapter(
-                child: Center(child: Text('Yorumlar yüklenemedi: $e')),
+                child: ErrorStateWidget(
+                  message: 'Yorumlar yüklenemedi',
+                  onRetry: () => ref.invalidate(recentReviewsProvider),
+                  compact: true,
+                ),
               ),
               data: (reviews) {
                 if (reviews.isEmpty) {

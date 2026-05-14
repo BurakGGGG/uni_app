@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../domain/models/usage_stats_model.dart';
 
@@ -13,15 +12,12 @@ import '../domain/models/usage_stats_model.dart';
 class UsageStatsRepository {
   final FirebaseFirestore _firestore;
   final FirebaseAuth _auth;
-  final SharedPreferences? _prefs;
 
   UsageStatsRepository({
     FirebaseFirestore? firestore,
     FirebaseAuth? auth,
-    SharedPreferences? prefs,
   })  : _firestore = firestore ?? FirebaseFirestore.instance,
-        _auth = auth ?? FirebaseAuth.instance,
-        _prefs = prefs;
+        _auth = auth ?? FirebaseAuth.instance;
 
   /// Kullanıcının usageStats doküman referansı.
   DocumentReference<Map<String, dynamic>>? get _docRef {

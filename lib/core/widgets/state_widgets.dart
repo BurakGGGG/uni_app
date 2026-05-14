@@ -71,54 +71,62 @@ class EmptyStateWidget extends StatelessWidget {
 class ErrorStateWidget extends StatelessWidget {
   final String? message;
   final VoidCallback? onRetry;
+  final bool compact;
 
   const ErrorStateWidget({
     super.key,
     this.message,
     this.onRetry,
+    this.compact = false,
   });
 
   @override
   Widget build(BuildContext context) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(AppConstants.spacingXxxl),
+        padding: EdgeInsets.all(compact ? AppConstants.spacingMd : AppConstants.spacingXxxl),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              width: 80,
-              height: 80,
+              width: compact ? 48 : 80,
+              height: compact ? 48 : 80,
               decoration: BoxDecoration(
                 color: AppColors.error.withValues(alpha: 0.08),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.error_outline_rounded,
-                size: 36,
+                size: compact ? 24 : 36,
                 color: AppColors.error,
               ),
             ),
-            const SizedBox(height: AppConstants.spacingXl),
+            SizedBox(height: compact ? AppConstants.spacingMd : AppConstants.spacingXl),
             Text(
               'Bir hata oluştu',
-              style: AppTextStyles.headlineSmall,
+              style: compact ? AppTextStyles.titleMedium : AppTextStyles.headlineSmall,
               textAlign: TextAlign.center,
             ),
             if (message != null) ...[
-              const SizedBox(height: AppConstants.spacingSm),
+              SizedBox(height: compact ? 4 : AppConstants.spacingSm),
               Text(
                 message!,
-                style: AppTextStyles.emptyState,
+                style: compact 
+                  ? AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary)
+                  : AppTextStyles.emptyState,
                 textAlign: TextAlign.center,
               ),
             ],
             if (onRetry != null) ...[
-              const SizedBox(height: AppConstants.spacingXl),
+              SizedBox(height: compact ? AppConstants.spacingMd : AppConstants.spacingXl),
               OutlinedButton.icon(
                 onPressed: onRetry,
-                icon: const Icon(Icons.refresh_rounded),
+                icon: Icon(Icons.refresh_rounded, size: compact ? 16 : 20),
                 label: const Text('Tekrar Dene'),
+                style: compact ? OutlinedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  textStyle: AppTextStyles.labelMedium,
+                ) : null,
               ),
             ],
           ],
