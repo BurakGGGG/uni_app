@@ -162,6 +162,7 @@ class _UniLogo extends StatelessWidget {
                     child: Image.asset(
                       uni.logoAssetPath,
                       fit: BoxFit.contain,
+                      semanticLabel: 'Üniversite logosu',
                       errorBuilder: (_, _, _) => _FallbackLogo(
                         name: uni.name,
                         color: color,

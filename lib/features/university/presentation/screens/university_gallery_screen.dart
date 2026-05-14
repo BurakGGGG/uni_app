@@ -91,17 +91,23 @@ class _UniversityGalleryScreenState extends ConsumerState<UniversityGalleryScree
               Container(
                 height: 50,
                 padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: ListView(
-                  scrollDirection: Axis.horizontal,
-                  children: [
-                    _buildFilterChip('Tümü', null),
-                    const SizedBox(width: 8),
-                    _buildFilterChip('Üniversite', ReviewType.university),
-                    const SizedBox(width: 8),
-                    _buildFilterChip('Bölüm', ReviewType.department),
-                    const SizedBox(width: 8),
-                    _buildFilterChip('Mekan', ReviewType.place),
-                  ],
+                child: Builder(
+                  builder: (context) {
+                    final children = [
+                      _buildFilterChip('Tümü', null),
+                      const SizedBox(width: 8),
+                      _buildFilterChip('Üniversite', ReviewType.university),
+                      const SizedBox(width: 8),
+                      _buildFilterChip('Bölüm', ReviewType.department),
+                      const SizedBox(width: 8),
+                      _buildFilterChip('Mekan', ReviewType.place),
+                    ];
+                    return ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: children.length,
+                      itemBuilder: (context, index) => children[index],
+                    );
+                  },
                 ),
               ),
               const SizedBox(height: 8),

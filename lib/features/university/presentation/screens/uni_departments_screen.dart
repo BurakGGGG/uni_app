@@ -36,25 +36,31 @@ class UniDepartmentsScreen extends ConsumerWidget {
           final lisans = departments.where((d) => d.type == 'Lisans').toList();
           final onlisans = departments.where((d) => d.type == 'Önlisans').toList();
 
-          return ListView(
-            padding: const EdgeInsets.symmetric(vertical: 12),
-            children: [
-              if (lisans.isNotEmpty) ...[
-                _SectionTitle(title: 'Lisans (${lisans.length})'),
-                ...lisans.asMap().entries.map((e) => _DepartmentCard(
-                  department: e.value,
-                  onTap: () => context.push('/department/${e.value.id}'),
-                )),
-              ],
-              if (onlisans.isNotEmpty) ...[
-                _SectionTitle(title: 'Önlisans (${onlisans.length})'),
-                ...onlisans.asMap().entries.map((e) => _DepartmentCard(
-                  department: e.value,
-                  onTap: () => context.push('/department/${e.value.id}'),
-                )),
-              ],
-              const SizedBox(height: 80),
-            ],
+          return Builder(
+            builder: (context) {
+              final children = <Widget>[];
+              if (lisans.isNotEmpty) {
+                children.add(_SectionTitle(title: 'Lisans (${lisans.length})'));
+                children.addAll(lisans.map((d) => _DepartmentCard(
+                  department: d,
+                  onTap: () => context.push('/department/${d.id}'),
+                )));
+              }
+              if (onlisans.isNotEmpty) {
+                children.add(_SectionTitle(title: 'Önlisans (${onlisans.length})'));
+                children.addAll(onlisans.map((d) => _DepartmentCard(
+                  department: d,
+                  onTap: () => context.push('/department/${d.id}'),
+                )));
+              }
+              children.add(const SizedBox(height: 80));
+
+              return ListView.builder(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                itemCount: children.length,
+                itemBuilder: (context, index) => children[index],
+              );
+            },
           );
         },
       ),
