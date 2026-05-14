@@ -171,4 +171,47 @@ class AppTextStyles {
         color: AppColors.textTertiary,
         height: 1.6,
       );
+
+  // ─── Error / Empty State Texts ─────────────────────────────────
+  /// Hata başlığı — ErrorStateWidget içinde kullanılır
+  static TextStyle get errorTitle => GoogleFonts.poppins(
+        fontSize: 17,
+        fontWeight: FontWeight.w700,
+        color: AppColors.error,
+        height: 1.3,
+      );
+
+  /// Hata açıklama metni — ErrorStateWidget içinde kullanılır
+  static TextStyle get errorBody => GoogleFonts.inter(
+        fontSize: 14,
+        fontWeight: FontWeight.w400,
+        color: AppColors.textSecondary,
+        height: 1.5,
+      );
+
+  /// Boş state başlığı — EmptyStateWidget içinde kullanılır
+  static TextStyle get emptyTitle => GoogleFonts.poppins(
+        fontSize: 17,
+        fontWeight: FontWeight.w700,
+        color: AppColors.textPrimary,
+        height: 1.3,
+      );
+
+  /// Boş state açıklama metni — EmptyStateWidget içinde kullanılır
+  static TextStyle get emptyBody => GoogleFonts.inter(
+        fontSize: 14,
+        fontWeight: FontWeight.w400,
+        color: AppColors.textTertiary,
+        height: 1.5,
+      );
+
+  // ─── Caption ───────────────────────────────────────────────────
+  /// En küçük metin — timestamp, meta bilgi vb.
+  static TextStyle get caption => GoogleFonts.inter(
+        fontSize: 10,
+        fontWeight: FontWeight.w400,
+        color: AppColors.textTertiary,
+        height: 1.4,
+        letterSpacing: 0.2,
+      );
 }

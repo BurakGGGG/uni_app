@@ -159,7 +159,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     final loc = AppLocalizations.of(context);
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.backgroundFor(context),
       body: Stack(
         children: [
           // ─── Ana İçerik ────────────────────────────────────────
@@ -189,7 +189,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                       },
                       icon: const Icon(Icons.arrow_back_rounded),
                       style: IconButton.styleFrom(
-                        backgroundColor: AppColors.surface,
+                        backgroundColor: AppColors.surfaceFor(context),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                           side: const BorderSide(color: AppColors.borderLight),
@@ -200,7 +200,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                     const SizedBox(height: 24),
 
                     // ─── Başlık ─────────────────────────────────────
-                    Text(loc.authSignUp, style: AppTextStyles.displaySmall)
+                    Text(loc.authSignUp, style: AppTextStyles.displaySmall.copyWith(color: AppColors.textOnSurfaceFor(context)))
                         .animate().fadeIn(duration: 400.ms),
                     const SizedBox(height: 6),
                     Text(
@@ -419,7 +419,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                     child: Container(
                       padding: const EdgeInsets.all(32),
                       decoration: BoxDecoration(
-                        color: AppColors.surface,
+                        color: AppColors.surfaceFor(context),
                         borderRadius: BorderRadius.circular(20),
                         boxShadow: AppColors.cardShadow,
                       ),
@@ -439,7 +439,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                           const SizedBox(height: 20),
                           Text(
                             loc.authCreatingAccount,
-                            style: AppTextStyles.titleMedium,
+                            style: AppTextStyles.titleMedium.copyWith(color: AppColors.textOnSurfaceFor(context)),
                           ),
                           const SizedBox(height: 4),
                           Text(

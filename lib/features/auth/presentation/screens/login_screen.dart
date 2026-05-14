@@ -167,7 +167,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final loc = AppLocalizations.of(context);
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.backgroundFor(context),
       body: Stack(
         children: [
           // ─── Ana İçerik ────────────────────────────────────────
@@ -206,7 +206,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             ),
                           ),
                           const SizedBox(height: 20),
-                          Text(AppConstants.appName, style: AppTextStyles.displayMedium),
+                          Text(AppConstants.appName, style: AppTextStyles.displayMedium.copyWith(color: AppColors.textOnSurfaceFor(context))),
                           const SizedBox(height: 4),
                           Text(
                             AppConstants.appTagline,
@@ -221,7 +221,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     const SizedBox(height: 40),
 
                     // ─── Giriş Yap başlığı ─────────────────────────
-                    Text(loc.authSignIn, style: AppTextStyles.headlineLarge)
+                    Text(loc.authSignIn, style: AppTextStyles.headlineLarge.copyWith(color: AppColors.textOnSurfaceFor(context)))
                         .animate()
                         .fadeIn(delay: 200.ms, duration: 400.ms),
 
@@ -245,7 +245,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     // ─── Ayırıcı ─────────────────────────────────────
                     Row(
                       children: [
-                        const Expanded(child: Divider(color: AppColors.border)),
+                        Expanded(child: Divider(color: AppColors.dividerFor(context))),
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 16),
                           child: Text(
@@ -253,7 +253,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             style: AppTextStyles.labelSmall,
                           ),
                         ),
-                        const Expanded(child: Divider(color: AppColors.border)),
+                        Expanded(child: Divider(color: AppColors.dividerFor(context))),
                       ],
                     ).animate().fadeIn(delay: 350.ms, duration: 400.ms),
 
@@ -401,7 +401,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     child: Container(
                       padding: const EdgeInsets.all(32),
                       decoration: BoxDecoration(
-                        color: AppColors.surface,
+                        color: AppColors.surfaceFor(context),
                         borderRadius: BorderRadius.circular(20),
                         boxShadow: AppColors.cardShadow,
                       ),
@@ -421,7 +421,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           const SizedBox(height: 20),
                           Text(
                             loc.authLoggingIn,
-                            style: AppTextStyles.titleMedium,
+                            style: AppTextStyles.titleMedium.copyWith(color: AppColors.textOnSurfaceFor(context)),
                           ),
                           const SizedBox(height: 4),
                           Text(
@@ -461,7 +461,7 @@ class _SocialLoginButton extends StatelessWidget {
       child: OutlinedButton(
         onPressed: onPressed,
         style: OutlinedButton.styleFrom(
-          side: const BorderSide(color: AppColors.border),
+          side: BorderSide(color: AppColors.borderFor(context)),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppConstants.radiusMd),
           ),
@@ -474,7 +474,7 @@ class _SocialLoginButton extends StatelessWidget {
             Text(
               text,
               style: AppTextStyles.labelLarge.copyWith(
-                color: AppColors.textPrimary,
+                color: AppColors.textOnSurfaceFor(context),
               ),
             ),
           ],
