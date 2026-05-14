@@ -40,8 +40,14 @@ class _ComparisonNoteBottomSheetState extends State<ComparisonNoteBottomSheet> {
   late List<String> _cons;
   int? _rating;
 
+  // ─── UX Validation State ─────────────────────────────────────
+  bool _isInvalid = false;
+  bool _isOverLimit = false;
+  bool _isSaving = false;
+
   bool get _isEdit => widget.existingNote != null;
-  bool get _isValid => _noteController.text.trim().isNotEmpty;
+  bool get _isValid =>
+      _noteController.text.trim().isNotEmpty && !_isOverLimit;
 
   @override
   void initState() {
@@ -53,6 +59,8 @@ class _ComparisonNoteBottomSheetState extends State<ComparisonNoteBottomSheet> {
     _pros = List<String>.from(existing?.pros ?? []);
     _cons = List<String>.from(existing?.cons ?? []);
     _rating = existing?.rating;
+    // İlk state — edit modunda geçerli not zaten var
+    _isInvalid = _noteController.text.trim().isEmpty && !_isEdit;
   }
 
   @override
@@ -81,8 +89,10 @@ class _ComparisonNoteBottomSheetState extends State<ComparisonNoteBottomSheet> {
     });
   }
 
-  void _submit() {
-    if (!_isValid) return;
+  Future<void> _submit() async {
+    if (!_isValid || _isSaving) return;
+    setState(() => _isSaving = true);
+    // Pop ile sonucu döndür — caller save işlemini yapar
     Navigator.of(context).pop({
       'note': _noteController.text.trim(),
       'pros': _pros,
@@ -166,9 +176,15 @@ class _ComparisonNoteBottomSheetState extends State<ComparisonNoteBottomSheet> {
             TextField(
               controller: _noteController,
               maxLength: 500,
-              maxLines: 4,
+              maxLines: 5,
               minLines: 2,
-              onChanged: (_) => setState(() {}),
+              textInputAction: TextInputAction.done,
+              onChanged: (val) {
+                setState(() {
+                  _isInvalid = val.trim().isEmpty;
+                  _isOverLimit = val.length > 500;
+                });
+              },
               style: AppTextStyles.bodySmall.copyWith(
                 color: isDark ? Colors.white : AppColors.textPrimary,
               ),
@@ -177,16 +193,17 @@ class _ComparisonNoteBottomSheetState extends State<ComparisonNoteBottomSheet> {
                 hintStyle: AppTextStyles.bodySmall.copyWith(
                   color: AppColors.textTertiary,
                 ),
+                errorText: _isInvalid ? 'Not boş bırakılamaz' : null,
                 filled: true,
                 fillColor: isDark
                     ? Colors.white.withValues(alpha: 0.05)
                     : AppColors.surfaceVariant,
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide.none,
                 ),
                 enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide(
                     color: isDark
                         ? Colors.white.withValues(alpha: 0.08)
@@ -194,15 +211,15 @@ class _ComparisonNoteBottomSheetState extends State<ComparisonNoteBottomSheet> {
                   ),
                 ),
                 focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide(
                     color: AppColors.primary.withValues(alpha: 0.5),
                     width: 1.5,
                   ),
                 ),
-                contentPadding: const EdgeInsets.all(14),
+                contentPadding: const EdgeInsets.all(16),
                 counterStyle: AppTextStyles.labelSmall.copyWith(
-                  color: AppColors.textTertiary,
+                  color: _isOverLimit ? AppColors.error : AppColors.textTertiary,
                   fontSize: 10,
                 ),
               ),
@@ -267,11 +284,22 @@ class _ComparisonNoteBottomSheetState extends State<ComparisonNoteBottomSheet> {
                 Expanded(
                   flex: 2,
                   child: FilledButton.icon(
-                    onPressed: _isValid ? _submit : null,
-                    icon: Icon(
-                      _isEdit ? Icons.check_rounded : Icons.note_add_rounded,
-                      size: 18,
-                    ),
+                    onPressed: (_isInvalid || _isOverLimit || _isSaving || !_isValid)
+                        ? null
+                        : _submit,
+                    icon: _isSaving
+                        ? const SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : Icon(
+                            _isEdit ? Icons.check_rounded : Icons.note_add_rounded,
+                            size: 18,
+                          ),
                     label: Text(_isEdit ? 'Güncelle' : 'Kaydet'),
                     style: FilledButton.styleFrom(
                       backgroundColor: AppColors.primary,
@@ -279,7 +307,7 @@ class _ComparisonNoteBottomSheetState extends State<ComparisonNoteBottomSheet> {
                           AppColors.primary.withValues(alpha: 0.3),
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
+                        borderRadius: BorderRadius.circular(12),
                       ),
                       textStyle: AppTextStyles.labelLarge.copyWith(
                         fontWeight: FontWeight.w800,
