@@ -36,6 +36,7 @@ class ListSkeleton extends StatelessWidget {
       baseColor: baseColor,
       highlightColor: highlightColor,
       child: ListView.separated(
+        shrinkWrap: true,
         padding: padding,
         physics: const NeverScrollableScrollPhysics(),
         itemCount: itemCount,
