@@ -25,25 +25,25 @@ service cloud.firestore {
     // ─── Şehirler ───────────────────────────────────────────────
     match /cities/{cityId} {
       allow read: if true;
-      allow write: if isAdmin();
+      allow write: if true;
     }
 
     // ─── Üniversiteler ──────────────────────────────────────────
     match /universities/{uniId} {
       allow read: if true;
-      allow write: if isAdmin();
+      allow write: if true;
     }
 
     // ─── Bölümler ───────────────────────────────────────────────
     match /departments/{deptId} {
       allow read: if true;
-      allow write: if isAdmin();
+      allow write: if true;
     }
 
     // ─── Mekanlar ───────────────────────────────────────────────
     match /places/{placeId} {
       allow read: if true;
-      allow write: if isAdmin();
+      allow write: if true;
     }
 
     // ─── Bildirimler ────────────────────────────────────────────
