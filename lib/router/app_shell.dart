@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../core/theme/app_colors.dart';
+import '../l10n/generated/app_localizations.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../features/auth/presentation/providers/auth_providers.dart';
@@ -82,8 +83,9 @@ class _AppShellState extends ConsumerState<AppShell>
 
   @override
   Widget build(BuildContext context) {
+    final isDark = AppColors.isDark(context);
     return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: SystemUiOverlayStyle.dark.copyWith(
+      value: (isDark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark).copyWith(
         statusBarColor: Colors.transparent,
       ),
       child: PopScope(
@@ -99,8 +101,8 @@ class _AppShellState extends ConsumerState<AppShell>
           body: widget.navigationShell,
           bottomNavigationBar: Container(
             decoration: BoxDecoration(
-              color: AppColors.surface,
-              boxShadow: AppColors.bottomNavShadow,
+              color: AppColors.surfaceFor(context),
+              boxShadow: AppColors.bottomNavShadowFor(context),
             ),
             child: SafeArea(
               child: Padding(
@@ -132,50 +134,51 @@ class _AppShellState extends ConsumerState<AppShell>
                   labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
                   animationDuration: const Duration(milliseconds: 400),
                   destinations: [
-                    const NavigationDestination(
-                      icon: Icon(Icons.home_outlined),
-                      selectedIcon: Icon(
+                    NavigationDestination(
+                      icon: const Icon(Icons.home_outlined),
+                      selectedIcon: const Icon(
                         Icons.home_rounded,
                         color: AppColors.primary,
                       ),
-                      label: 'Ana Sayfa',
+                      label: AppLocalizations.of(context).homeTabHome,
                     ),
-                    const NavigationDestination(
-                      icon: Icon(Icons.explore_outlined),
-                      selectedIcon: Icon(
+                    NavigationDestination(
+                      icon: const Icon(Icons.explore_outlined),
+                      selectedIcon: const Icon(
                         Icons.explore_rounded,
                         color: AppColors.primary,
                       ),
-                      label: 'Keşfet',
+                      label: AppLocalizations.of(context).homeTabExplore,
                     ),
                     NavigationDestination(
                       icon: SvgPicture.asset(
                         'assets/icons/compare_icon_outline.svg',
                         width: 24,
                         height: 24,
+                        colorFilter: isDark ? ColorFilter.mode(Colors.grey.shade400, BlendMode.srcIn) : null,
                       ),
                       selectedIcon: SvgPicture.asset(
                         'assets/icons/compare_icon.svg',
                         width: 24,
                         height: 24,
                       ),
-                      label: 'Karşılaştır',
+                      label: AppLocalizations.of(context).homeTabCompare,
                     ),
-                    const NavigationDestination(
-                      icon: Icon(Icons.list_alt_outlined),
-                      selectedIcon: Icon(
+                    NavigationDestination(
+                      icon: const Icon(Icons.list_alt_outlined),
+                      selectedIcon: const Icon(
                         Icons.list_alt_rounded,
                         color: AppColors.primary,
                       ),
-                      label: 'Listelerim',
+                      label: AppLocalizations.of(context).homeTabFavorites,
                     ),
-                    const NavigationDestination(
-                      icon: Icon(Icons.person_outline_rounded),
-                      selectedIcon: Icon(
+                    NavigationDestination(
+                      icon: const Icon(Icons.person_outline_rounded),
+                      selectedIcon: const Icon(
                         Icons.person_rounded,
                         color: AppColors.primary,
                       ),
-                      label: 'Profil',
+                      label: AppLocalizations.of(context).homeTabProfile,
                     ),
                   ],
                 ),
