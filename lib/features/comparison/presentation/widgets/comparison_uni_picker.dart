@@ -206,7 +206,7 @@ class ComparisonUniPicker extends ConsumerWidget {
                                           '${uni.type} · ${uni.campusLayout.label}',
                                           style: AppTextStyles.labelSmall
                                               .copyWith(
-                                            color: AppColors.textTertiary,
+                                            color: AppColors.textTertiaryFor(context),
                                             fontSize: 11,
                                           ),
                                         ),
@@ -214,7 +214,7 @@ class ComparisonUniPicker extends ConsumerWidget {
                                     ),
                                   ),
                                   Icon(Icons.chevron_right_rounded,
-                                      color: AppColors.textTertiary),
+                                      color: AppColors.textTertiaryFor(context)),
                                 ],
                               ),
                             ),

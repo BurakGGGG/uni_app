@@ -142,7 +142,7 @@ class _BlurLockedOverlay extends StatelessWidget {
                     Text(
                       _requiredTierTitle(requiredTier),
                       style: theme.textTheme.titleSmall?.copyWith(
-                        color: AppColors.textPrimary,
+                        color: AppColors.textPrimaryFor(context),
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -150,7 +150,7 @@ class _BlurLockedOverlay extends StatelessWidget {
                     Text(
                       _requiredTierDescription(requiredTier),
                       style: theme.textTheme.bodySmall?.copyWith(
-                        color: AppColors.textSecondary,
+                        color: AppColors.textSecondaryFor(context),
                       ),
                       textAlign: TextAlign.center,
                     ),

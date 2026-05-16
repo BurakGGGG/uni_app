@@ -247,7 +247,7 @@ class ComparisonPickerHeader extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 style: AppTextStyles.titleSmall.copyWith(
                   fontWeight: FontWeight.w800,
-                  color: isDark ? Colors.white : AppColors.textPrimary,
+                  color: isDark ? Colors.white : AppColors.textPrimaryFor(context),
                 ),
               ),
             ),
@@ -261,7 +261,7 @@ class ComparisonPickerHeader extends StatelessWidget {
             style: AppTextStyles.bodySmall.copyWith(
               color: isDark
                   ? Colors.white.withValues(alpha: 0.6)
-                  : AppColors.textSecondary,
+                  : AppColors.textSecondaryFor(context),
               height: 1.4,
             ),
           ),
@@ -306,7 +306,7 @@ class ComparisonPickerHint extends StatelessWidget {
               style: AppTextStyles.labelSmall.copyWith(
                 color: isDark
                     ? Colors.white.withValues(alpha: 0.85)
-                    : AppColors.textPrimary,
+                    : AppColors.textPrimaryFor(context),
                 fontWeight: FontWeight.w600,
                 fontSize: 11.5,
                 height: 1.3,

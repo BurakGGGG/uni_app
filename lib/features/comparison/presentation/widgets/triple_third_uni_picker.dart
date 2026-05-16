@@ -144,7 +144,7 @@ class _TripleThirdUniPickerState extends ConsumerState<TripleThirdUniPicker> {
                           child: Text(
                             'Sonuç bulunamadı',
                             style: AppTextStyles.bodySmall.copyWith(
-                              color: AppColors.textTertiary,
+                              color: AppColors.textTertiaryFor(context),
                             ),
                           ),
                         ),
@@ -227,7 +227,7 @@ class _UniRow extends StatelessWidget {
                   Text(
                     '${uni.type} · ${uni.establishedYear}',
                     style: AppTextStyles.labelSmall.copyWith(
-                      color: AppColors.textTertiary,
+                      color: AppColors.textTertiaryFor(context),
                       fontSize: 11,
                     ),
                   ),
@@ -235,7 +235,7 @@ class _UniRow extends StatelessWidget {
               ),
             ),
             Icon(Icons.chevron_right_rounded,
-                color: AppColors.textTertiary),
+                color: AppColors.textTertiaryFor(context)),
           ],
         ),
       ),

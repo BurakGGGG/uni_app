@@ -110,7 +110,7 @@ class _ScatterPlotChartState extends State<ScatterPlotChart> {
                           child: Text(
                             'Taban puan',
                             style: AppTextStyles.labelSmall.copyWith(
-                              color: isDark ? Colors.white70 : AppColors.textSecondary,
+                              color: isDark ? Colors.white70 : AppColors.textSecondaryFor(context),
                               fontWeight: FontWeight.w800,
                             ),
                           ),
@@ -122,7 +122,7 @@ class _ScatterPlotChartState extends State<ScatterPlotChart> {
                             value.toStringAsFixed(0),
                             style: AppTextStyles.labelSmall.copyWith(
                               color:
-                                  isDark ? Colors.white70 : AppColors.textSecondary,
+                                  isDark ? Colors.white70 : AppColors.textSecondaryFor(context),
                             ),
                           ),
                         ),
@@ -133,7 +133,7 @@ class _ScatterPlotChartState extends State<ScatterPlotChart> {
                           child: Text(
                             'Sıralama',
                             style: AppTextStyles.labelSmall.copyWith(
-                              color: isDark ? Colors.white70 : AppColors.textSecondary,
+                              color: isDark ? Colors.white70 : AppColors.textSecondaryFor(context),
                               fontWeight: FontWeight.w800,
                             ),
                           ),
@@ -145,7 +145,7 @@ class _ScatterPlotChartState extends State<ScatterPlotChart> {
                             _formatRank(value),
                             style: AppTextStyles.labelSmall.copyWith(
                               color:
-                                  isDark ? Colors.white70 : AppColors.textSecondary,
+                                  isDark ? Colors.white70 : AppColors.textSecondaryFor(context),
                             ),
                           ),
                         ),
@@ -171,7 +171,7 @@ class _ScatterPlotChartState extends State<ScatterPlotChart> {
                         }
                       },
                       touchTooltipData: ScatterTouchTooltipData(
-                        getTooltipColor: (_) => AppColors.textPrimary,
+                        getTooltipColor: (_) => AppColors.textPrimaryFor(context),
                         getTooltipItems: (spot) {
                           final label = _lookupLabel(spot);
                           return ScatterTooltipItem(
@@ -194,7 +194,7 @@ class _ScatterPlotChartState extends State<ScatterPlotChart> {
                   child: Text(
                     'Veri yok',
                     style: AppTextStyles.bodySmall.copyWith(
-                      color: isDark ? Colors.white70 : AppColors.textSecondary,
+                      color: isDark ? Colors.white70 : AppColors.textSecondaryFor(context),
                     ),
                   ),
                 ),
@@ -209,7 +209,7 @@ class _ScatterPlotChartState extends State<ScatterPlotChart> {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: AppTextStyles.labelSmall.copyWith(
-                  color: isDark ? Colors.white70 : AppColors.textSecondary,
+                  color: isDark ? Colors.white70 : AppColors.textSecondaryFor(context),
                   fontWeight: FontWeight.w800,
                 ),
               ),
@@ -278,7 +278,7 @@ class _ScatterPlotChartState extends State<ScatterPlotChart> {
             title,
             style: AppTextStyles.titleSmall.copyWith(
               fontWeight: FontWeight.w900,
-              color: isDark ? Colors.white : AppColors.textPrimary,
+              color: isDark ? Colors.white : AppColors.textPrimaryFor(context),
             ),
           ),
           const SizedBox(height: 12),
@@ -322,7 +322,7 @@ class _LegendDot extends StatelessWidget {
           label,
           style: AppTextStyles.labelSmall.copyWith(
             fontWeight: FontWeight.w800,
-            color: isDark ? Colors.white70 : AppColors.textSecondary,
+            color: isDark ? Colors.white70 : AppColors.textSecondaryFor(context),
           ),
         ),
       ],

@@ -254,7 +254,7 @@ class _PaywallScreenState extends State<PaywallScreen>
     final activeColor = _activeColor(_selectedTier);
 
     return Scaffold(
-      backgroundColor: isDark ? AppColors.darkBackground : AppColors.background,
+      backgroundColor: AppColors.backgroundFor(context),
       body: SafeArea(
         child: Stack(
           children: [
@@ -546,7 +546,7 @@ class _PaywallHeader extends StatelessWidget {
               style: AppTextStyles.bodySmall.copyWith(
                 color: isDark
                     ? Colors.white.withValues(alpha: 0.65)
-                    : AppColors.textSecondary,
+                    : AppColors.textSecondaryFor(context),
                 height: 1.3,
                 fontSize: 12,
               ),
@@ -631,12 +631,12 @@ class _FeatureRow extends StatelessWidget {
               fontWeight: included ? FontWeight.w700 : FontWeight.w500,
               fontSize: 12.5,
               color: included
-                  ? (isDark ? Colors.white : AppColors.textPrimary)
+                  ? (isDark ? Colors.white : AppColors.textPrimaryFor(context))
                   : (isDark
                       ? Colors.white.withValues(alpha: 0.35)
-                      : AppColors.textTertiary),
+                      : AppColors.textTertiaryFor(context)),
               decoration: included ? null : TextDecoration.lineThrough,
-              decorationColor: AppColors.textTertiary,
+              decorationColor: AppColors.textTertiaryFor(context),
             ),
           ),
         ),
@@ -784,7 +784,7 @@ class _PricingCard extends StatelessWidget {
                 gradient: selected ? gradient : null,
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color: selected ? color : AppColors.textTertiary,
+                  color: selected ? color : AppColors.textTertiaryFor(context),
                   width: 2,
                 ),
               ),
@@ -805,7 +805,7 @@ class _PricingCard extends StatelessWidget {
                       title,
                       style: AppTextStyles.titleLarge.copyWith(
                         fontWeight: FontWeight.w700,
-                        color: isDark ? Colors.white : AppColors.textPrimary,
+                        color: isDark ? Colors.white : AppColors.textPrimaryFor(context),
                       ),
                     ),
                   ),
@@ -816,7 +816,7 @@ class _PricingCard extends StatelessWidget {
                       style: AppTextStyles.labelSmall.copyWith(
                         color: isDark
                             ? Colors.white.withValues(alpha: 0.55)
-                            : AppColors.textTertiary,
+                            : AppColors.textTertiaryFor(context),
                         fontSize: 11,
                       ),
                     ),
@@ -943,13 +943,13 @@ class _SecurityFooter extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        const Icon(Icons.lock_outline_rounded,
-            size: 13, color: AppColors.textTertiary),
+        Icon(Icons.lock_outline_rounded,
+            size: 13, color: AppColors.textTertiaryFor(context)),
         const SizedBox(width: 4),
         Text(
           'Güvenli ödeme • İstediğinde iptal',
           style: AppTextStyles.labelSmall.copyWith(
-            color: AppColors.textTertiary,
+            color: AppColors.textTertiaryFor(context),
             fontSize: 11,
           ),
         ),
@@ -991,7 +991,7 @@ class _FloatingCloseButton extends StatelessWidget {
             child: Icon(
               Icons.close_rounded,
               size: 22,
-              color: isDark ? Colors.white : AppColors.textPrimary,
+              color: isDark ? Colors.white : AppColors.textPrimaryFor(context),
             ),
           ),
         ),
@@ -1119,7 +1119,7 @@ class _PurchaseSuccessDialogState extends State<_PurchaseSuccessDialog>
                   'Planin aktif edildi. Tum ozelliklerin keyfini cikar.',
                   textAlign: TextAlign.center,
                   style: AppTextStyles.bodySmall.copyWith(
-                    color: AppColors.textSecondary,
+                    color: AppColors.textSecondaryFor(context),
                     height: 1.4,
                   ),
                 ),

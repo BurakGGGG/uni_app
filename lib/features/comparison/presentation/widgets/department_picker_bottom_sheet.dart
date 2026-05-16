@@ -39,8 +39,8 @@ class _Shell extends StatelessWidget {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Container(
-        decoration: const BoxDecoration(
-          color: AppColors.surface,
+        decoration: BoxDecoration(
+          color: AppColors.surfaceFor(context),
           borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
         ),
         child: DraggableScrollableSheet(
@@ -97,7 +97,7 @@ class _BodyState extends ConsumerState<_Body> {
           width: 40,
           height: 4,
           decoration: BoxDecoration(
-            color: AppColors.borderLight,
+            color: AppColors.borderLightFor(context),
             borderRadius: BorderRadius.circular(2),
           ),
         ),
@@ -112,7 +112,7 @@ class _BodyState extends ConsumerState<_Body> {
                   _selectedUni == null
                       ? Icons.close_rounded
                       : Icons.arrow_back_rounded,
-                  color: AppColors.textPrimary,
+                  color: AppColors.textPrimaryFor(context),
                 ),
                 onPressed: () {
                   if (_selectedUni == null) {
@@ -137,7 +137,7 @@ class _BodyState extends ConsumerState<_Body> {
                       Text(
                         '${widget.departmentNameFilter} bölümü olan üniversiteler',
                         style: AppTextStyles.labelSmall.copyWith(
-                          color: AppColors.textSecondary,
+                          color: AppColors.textSecondaryFor(context),
                         ),
                       ),
                   ],
@@ -178,7 +178,7 @@ class _BodyState extends ConsumerState<_Body> {
                 ),
         ),
 
-        const Divider(height: 1, color: AppColors.borderLight),
+        Divider(height: 1, color: AppColors.borderLightFor(context)),
 
         Expanded(
           child: _selectedUni == null
@@ -207,7 +207,7 @@ class _ClearBtn extends StatelessWidget {
   Widget build(BuildContext context) {
     return IconButton(
       onPressed: onTap,
-      icon: const Icon(Icons.close_rounded, size: 18, color: AppColors.textTertiary),
+      icon: Icon(Icons.close_rounded, size: 18, color: AppColors.textTertiaryFor(context)),
       padding: EdgeInsets.zero,
       constraints: const BoxConstraints.tightFor(width: 32, height: 32),
     );
@@ -236,9 +236,9 @@ class _SelectedUniStrip extends StatelessWidget {
             height: 38,
             padding: const EdgeInsets.all(4),
             decoration: BoxDecoration(
-              color: AppColors.surface,
+              color: AppColors.surfaceFor(context),
               borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: AppColors.borderLight),
+              border: Border.all(color: AppColors.borderLightFor(context)),
             ),
             child: Image.asset(
               uni.logoAssetPath,
@@ -261,7 +261,7 @@ class _SelectedUniStrip extends StatelessWidget {
                 ),
                 Text(
                   '${uni.type} • ${uni.establishedYear}',
-                  style: AppTextStyles.labelSmall.copyWith(color: AppColors.textSecondary),
+                  style: AppTextStyles.labelSmall.copyWith(color: AppColors.textSecondaryFor(context)),
                 ),
               ],
             ),
@@ -353,7 +353,7 @@ class _UniTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final brand = uni.brandColor ?? AppColors.primary;
     return Material(
-      color: AppColors.surface,
+      color: AppColors.surfaceFor(context),
       borderRadius: BorderRadius.circular(16),
       child: InkWell(
         onTap: onTap,
@@ -361,9 +361,9 @@ class _UniTile extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: AppColors.surface,
+            color: AppColors.surfaceFor(context),
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppColors.borderLight),
+            border: Border.all(color: AppColors.borderLightFor(context)),
           ),
           child: Row(
             children: [
@@ -381,7 +381,7 @@ class _UniTile extends StatelessWidget {
                 height: 44,
                 padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
-                  color: AppColors.surfaceVariant,
+                  color: AppColors.surfaceVariantFor(context),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Image.asset(
@@ -406,12 +406,12 @@ class _UniTile extends StatelessWidget {
                     const SizedBox(height: 2),
                     Text(
                       '${uni.type} • ${uni.establishedYear}',
-                      style: AppTextStyles.labelSmall.copyWith(color: AppColors.textSecondary),
+                      style: AppTextStyles.labelSmall.copyWith(color: AppColors.textSecondaryFor(context)),
                     ),
                   ],
                 ),
               ),
-              Icon(Icons.chevron_right_rounded, color: AppColors.textTertiary),
+              Icon(Icons.chevron_right_rounded, color: AppColors.textTertiaryFor(context)),
             ],
           ),
         ),
@@ -513,7 +513,7 @@ class _DeptCard extends StatelessWidget {
     final scoreType = score?.scoreType ?? dept.scoreType;
 
     return Material(
-      color: AppColors.surface,
+      color: AppColors.surfaceFor(context),
       borderRadius: BorderRadius.circular(16),
       child: InkWell(
         onTap: onTap,
@@ -522,8 +522,8 @@ class _DeptCard extends StatelessWidget {
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppColors.borderLight),
-            color: AppColors.surface,
+            border: Border.all(color: AppColors.borderLightFor(context)),
+            color: AppColors.surfaceFor(context),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -555,7 +555,7 @@ class _DeptCard extends StatelessWidget {
                         Text(
                           dept.faculty,
                           style: AppTextStyles.labelSmall.copyWith(
-                            color: AppColors.textSecondary,
+                            color: AppColors.textSecondaryFor(context),
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -580,7 +580,7 @@ class _DeptCard extends StatelessWidget {
                       ),
                     ),
                     if (ranking != null && ranking > 0) ...[
-                      Container(width: 1, height: 28, color: AppColors.borderLight),
+                      Container(width: 1, height: 28, color: AppColors.borderLightFor(context)),
                       Expanded(
                         child: _Stat(
                           label: 'Sıralama',
@@ -591,7 +591,7 @@ class _DeptCard extends StatelessWidget {
                       ),
                     ],
                     if (quota != null && quota > 0) ...[
-                      Container(width: 1, height: 28, color: AppColors.borderLight),
+                      Container(width: 1, height: 28, color: AppColors.borderLightFor(context)),
                       Expanded(
                         child: _Stat(
                           label: 'Kontenjan',
@@ -644,7 +644,7 @@ class _Stat extends StatelessWidget {
               value,
               style: AppTextStyles.bodyMedium.copyWith(
                 fontWeight: FontWeight.w700,
-                color: AppColors.textPrimary,
+                color: AppColors.textPrimaryFor(context),
               ),
             ),
           ],
@@ -653,7 +653,7 @@ class _Stat extends StatelessWidget {
         Text(
           label,
           style: AppTextStyles.labelSmall.copyWith(
-            color: AppColors.textTertiary,
+            color: AppColors.textTertiaryFor(context),
             fontSize: 10,
           ),
         ),
