@@ -63,13 +63,13 @@ class LikeButton extends ConsumerWidget {
             Icon(
               isLiked ? Icons.thumb_up : Icons.thumb_up_outlined,
               size: 16,
-              color: isLiked ? AppColors.primary : AppColors.textTertiary,
+              color: isLiked ? AppColors.primary : AppColors.textTertiaryFor(context),
             ),
             const SizedBox(width: 4),
             Text(
               '${review.likes}',
               style: AppTextStyles.labelMedium.copyWith(
-                color: isLiked ? AppColors.primary : AppColors.textTertiary,
+                color: isLiked ? AppColors.primary : AppColors.textTertiaryFor(context),
               ),
             ),
           ],

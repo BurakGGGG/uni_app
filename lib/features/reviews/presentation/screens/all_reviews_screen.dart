@@ -50,7 +50,7 @@ class AllReviewsScreen extends ConsumerWidget {
                 Text(
                   'Sıralama:',
                   style: AppTextStyles.labelSmall.copyWith(
-                    color: AppColors.textTertiary,
+                    color: AppColors.textTertiaryFor(context),
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -191,7 +191,7 @@ class AllReviewsScreen extends ConsumerWidget {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: AppColors.surface,
+      backgroundColor: AppColors.surfaceFor(context),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -233,7 +233,7 @@ class _SortChip extends StatelessWidget {
         child: Text(
           label,
           style: AppTextStyles.labelSmall.copyWith(
-            color: selected ? AppColors.primary : AppColors.textSecondary,
+            color: selected ? AppColors.primary : AppColors.textSecondaryFor(context),
             fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
           ),
         ),
@@ -464,14 +464,14 @@ class _TypeOption extends StatelessWidget {
             children: [
               Icon(
                 icon,
-                color: isSelected ? AppColors.primary : AppColors.textSecondary,
+                color: isSelected ? AppColors.primary : AppColors.textSecondaryFor(context),
                 size: 22,
               ),
               const SizedBox(height: 6),
               Text(
                 label,
                 style: AppTextStyles.labelLarge.copyWith(
-                  color: isSelected ? AppColors.primary : AppColors.textPrimary,
+                  color: isSelected ? AppColors.primary : AppColors.textPrimaryFor(context),
                   fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
                 ),
               ),

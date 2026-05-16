@@ -14,7 +14,7 @@ class DepartmentPickerSheet {
     return showModalBottomSheet<PreferenceItem?>(
       context: context,
       isScrollControlled: true,
-      backgroundColor: AppColors.surface,
+      backgroundColor: AppColors.surfaceFor(context),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
       ),
@@ -84,7 +84,7 @@ class _BodyState extends ConsumerState<_Body> {
                   _selectedUni == null
                       ? Icons.close_rounded
                       : Icons.arrow_back_rounded,
-                  color: AppColors.textPrimary,
+                  color: AppColors.textPrimaryFor(context),
                 ),
                 onPressed: () {
                   if (_selectedUni == null) {
@@ -165,7 +165,7 @@ class _ClearBtn extends StatelessWidget {
   Widget build(BuildContext context) {
     return IconButton(
       onPressed: onTap,
-      icon: const Icon(Icons.close_rounded, size: 18, color: AppColors.textTertiary),
+      icon: Icon(Icons.close_rounded, size: 18, color: AppColors.textTertiaryFor(context)),
       padding: EdgeInsets.zero,
       constraints: const BoxConstraints.tightFor(width: 32, height: 32),
     );
@@ -194,7 +194,7 @@ class _SelectedUniStrip extends StatelessWidget {
             height: 38,
             padding: const EdgeInsets.all(4),
             decoration: BoxDecoration(
-              color: AppColors.surface,
+              color: AppColors.surfaceFor(context),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(color: AppColors.borderLight),
             ),
@@ -221,7 +221,7 @@ class _SelectedUniStrip extends StatelessWidget {
                 Text(
                   '${uni.type} • ${uni.establishedYear}',
                   style: AppTextStyles.labelSmall
-                      .copyWith(color: AppColors.textSecondary),
+                      .copyWith(color: AppColors.textSecondaryFor(context)),
                 ),
               ],
             ),
@@ -286,7 +286,7 @@ class _UniTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final brand = uni.brandColor ?? AppColors.primary;
     return Material(
-      color: AppColors.surface,
+      color: AppColors.surfaceFor(context),
       borderRadius: BorderRadius.circular(16),
       child: InkWell(
         onTap: onTap,
@@ -294,7 +294,7 @@ class _UniTile extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: AppColors.surface,
+            color: AppColors.surfaceFor(context),
             borderRadius: BorderRadius.circular(16),
             border: Border.all(color: AppColors.borderLight),
           ),
@@ -314,7 +314,7 @@ class _UniTile extends StatelessWidget {
                 height: 44,
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: AppColors.surfaceVariant,
+                  color: AppColors.surfaceVariantFor(context),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Image.asset(
@@ -342,12 +342,12 @@ class _UniTile extends StatelessWidget {
                     Text(
                       '${uni.type} • ${uni.establishedYear}',
                       style: AppTextStyles.labelSmall
-                          .copyWith(color: AppColors.textSecondary),
+                          .copyWith(color: AppColors.textSecondaryFor(context)),
                     ),
                   ],
                 ),
               ),
-              Icon(Icons.chevron_right_rounded, color: AppColors.textTertiary),
+              Icon(Icons.chevron_right_rounded, color: AppColors.textTertiaryFor(context)),
             ],
           ),
         ),
@@ -464,7 +464,7 @@ class _DeptCard extends StatelessWidget {
     final scoreType = score?.scoreType ?? dept.scoreType;
 
     return Material(
-      color: AppColors.surface,
+      color: AppColors.surfaceFor(context),
       borderRadius: BorderRadius.circular(16),
       child: InkWell(
         onTap: onTap,
@@ -474,7 +474,7 @@ class _DeptCard extends StatelessWidget {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
             border: Border.all(color: AppColors.borderLight),
-            color: AppColors.surface,
+            color: AppColors.surfaceFor(context),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -506,7 +506,7 @@ class _DeptCard extends StatelessWidget {
                         Text(
                           dept.faculty,
                           style: AppTextStyles.labelSmall.copyWith(
-                            color: AppColors.textSecondary,
+                            color: AppColors.textSecondaryFor(context),
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -602,7 +602,7 @@ class _Stat extends StatelessWidget {
               value,
               style: AppTextStyles.bodyMedium.copyWith(
                 fontWeight: FontWeight.w700,
-                color: AppColors.textPrimary,
+                color: AppColors.textPrimaryFor(context),
               ),
             ),
           ],
@@ -611,7 +611,7 @@ class _Stat extends StatelessWidget {
         Text(
           label,
           style: AppTextStyles.labelSmall.copyWith(
-            color: AppColors.textTertiary,
+            color: AppColors.textTertiaryFor(context),
             fontSize: 10,
           ),
         ),
@@ -638,10 +638,10 @@ class _Empty extends StatelessWidget {
               width: 72,
               height: 72,
               decoration: BoxDecoration(
-                color: AppColors.surfaceVariant,
+                color: AppColors.surfaceVariantFor(context),
                 shape: BoxShape.circle,
               ),
-              child: Icon(icon, size: 32, color: AppColors.textTertiary),
+              child: Icon(icon, size: 32, color: AppColors.textTertiaryFor(context)),
             ),
             const SizedBox(height: 16),
             Text(
@@ -654,7 +654,7 @@ class _Empty extends StatelessWidget {
               subtitle,
               textAlign: TextAlign.center,
               style: AppTextStyles.bodySmall
-                  .copyWith(color: AppColors.textSecondary, height: 1.4),
+                  .copyWith(color: AppColors.textSecondaryFor(context), height: 1.4),
             ),
           ],
         ),

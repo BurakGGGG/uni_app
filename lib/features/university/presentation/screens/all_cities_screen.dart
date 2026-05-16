@@ -21,7 +21,7 @@ class AllCitiesScreen extends ConsumerWidget {
     final query = ref.watch(_searchProvider);
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.backgroundFor(context),
       body: citiesAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => Center(child: Text('Hata: $e')),
@@ -42,8 +42,8 @@ class AllCitiesScreen extends ConsumerWidget {
                   pinned: true,
                   stretch: true,
                   expandedHeight: 180,
-                  backgroundColor: AppColors.background,
-                  foregroundColor: AppColors.textPrimary,
+                  backgroundColor: AppColors.backgroundFor(context),
+                  foregroundColor: AppColors.textPrimaryFor(context),
                   surfaceTintColor: Colors.transparent,
                   elevation: 0,
                   leading: IconButton(
@@ -82,7 +82,7 @@ class AllCitiesScreen extends ConsumerWidget {
                         const SizedBox(height: 6),
                         Text(
                           'Farklı bir arama deneyin',
-                          style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary),
+                          style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondaryFor(context)),
                         ),
                       ],
                     ),
@@ -242,7 +242,7 @@ class _SearchBarDelegate extends SliverPersistentHeaderDelegate {
   @override
   Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
     return Container(
-      color: AppColors.background,
+      color: AppColors.backgroundFor(context),
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
       child: child,
     );
@@ -282,13 +282,13 @@ class _SearchFieldState extends State<_SearchField> {
       height: 52,
       padding: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: AppColors.surfaceFor(context),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.borderLight),
+        border: Border.all(color: AppColors.borderLightFor(context)),
       ),
       child: Row(
         children: [
-          const Icon(Icons.search_rounded, color: AppColors.textTertiary),
+          Icon(Icons.search_rounded, color: AppColors.textTertiaryFor(context)),
           const SizedBox(width: 12),
           Expanded(
             child: TextField(
@@ -342,7 +342,7 @@ class _SectionHeader extends StatelessWidget {
                 Text(
                   subtitle,
                   style: AppTextStyles.bodySmall.copyWith(
-                    color: AppColors.textTertiary,
+                    color: AppColors.textTertiaryFor(context),
                   ),
                 ),
               ],

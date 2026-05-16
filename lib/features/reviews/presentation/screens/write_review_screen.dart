@@ -304,7 +304,7 @@ class _WriteReviewScreenState extends ConsumerState<WriteReviewScreen> {
     // Başarı animasyonu overlay
     if (_showSuccess) {
       return Scaffold(
-        backgroundColor: AppColors.background,
+        backgroundColor: AppColors.backgroundFor(context),
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -320,7 +320,7 @@ class _WriteReviewScreenState extends ConsumerState<WriteReviewScreen> {
               const SizedBox(height: 8),
               Text(
                 'Yorumunuz moderasyon sonrası yayınlanacaktır.',
-                style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary),
+                style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondaryFor(context)),
               ).animate().fadeIn(delay: 400.ms, duration: 400.ms),
             ],
           ),
@@ -553,7 +553,7 @@ class _WriteReviewScreenState extends ConsumerState<WriteReviewScreen> {
           margin: const EdgeInsets.symmetric(horizontal: 48),
           padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 28),
           decoration: BoxDecoration(
-            color: AppColors.surface,
+            color: AppColors.surfaceFor(context),
             borderRadius: BorderRadius.circular(AppConstants.radiusXl),
             boxShadow: [
               BoxShadow(
@@ -595,7 +595,7 @@ class _WriteReviewScreenState extends ConsumerState<WriteReviewScreen> {
               const SizedBox(height: 8),
               Text(
                 'Lütfen bekleyin...',
-                style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary),
+                style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondaryFor(context)),
               ),
             ],
           ),
@@ -634,7 +634,7 @@ class _WriteReviewScreenState extends ConsumerState<WriteReviewScreen> {
               ReviewType.department => 'Bu bölümü genel olarak nasıl değerlendirirsiniz?',
               ReviewType.place => 'Bu mekanı genel olarak nasıl değerlendirirsiniz?',
             },
-            style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary),
+            style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondaryFor(context)),
           ),
           const SizedBox(height: 12),
           Row(
@@ -649,7 +649,7 @@ class _WriteReviewScreenState extends ConsumerState<WriteReviewScreen> {
                   padding: const EdgeInsets.only(right: 4),
                   child: Icon(
                     isFilled ? Icons.star_rounded : Icons.star_border_rounded,
-                    color: isFilled ? AppColors.warning : (hasError ? AppColors.error.withAlpha(100) : AppColors.textTertiary),
+                    color: isFilled ? AppColors.warning : (hasError ? AppColors.error.withAlpha(100) : AppColors.textTertiaryFor(context)),
                     size: 40,
                   ),
                 ),
@@ -695,7 +695,7 @@ class _WriteReviewScreenState extends ConsumerState<WriteReviewScreen> {
         const SizedBox(height: 4),
         Text(
           'Deneyimlerinizi diğer öğrencilerle paylaşın (min. 20 karakter)',
-          style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary),
+          style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondaryFor(context)),
         ),
         const SizedBox(height: 12),
         TextFormField(
@@ -742,11 +742,11 @@ class _WriteReviewScreenState extends ConsumerState<WriteReviewScreen> {
               _isAnonymous
                   ? 'Adınız ve fotoğrafınız gizlenecek'
                   : 'Adınız ve fotoğrafınız görünür olacak',
-              style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary),
+              style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondaryFor(context)),
             ),
             secondary: Icon(
               _isAnonymous ? Icons.visibility_off_rounded : Icons.visibility_rounded,
-              color: _isAnonymous ? AppColors.primary : AppColors.textTertiary,
+              color: _isAnonymous ? AppColors.primary : AppColors.textTertiaryFor(context),
             ),
             value: _isAnonymous,
             onChanged: (val) => setState(() => _isAnonymous = val),

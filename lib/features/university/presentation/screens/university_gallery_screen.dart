@@ -37,9 +37,9 @@ class _UniversityGalleryScreenState extends ConsumerState<UniversityGalleryScree
     final photosAsync = ref.watch(universityGalleryPhotosProvider(widget.universityId));
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.backgroundFor(context),
       appBar: AppBar(
-        backgroundColor: AppColors.surface,
+        backgroundColor: AppColors.surfaceFor(context),
         elevation: 0,
         centerTitle: true,
         title: Text(
@@ -47,7 +47,7 @@ class _UniversityGalleryScreenState extends ConsumerState<UniversityGalleryScree
           style: AppTextStyles.titleMedium.copyWith(fontWeight: FontWeight.bold),
         ),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded, color: AppColors.textPrimary),
+          icon: Icon(Icons.arrow_back_rounded, color: AppColors.textPrimaryFor(context)),
           onPressed: () => context.pop(),
         ),
       ),
@@ -69,12 +69,12 @@ class _UniversityGalleryScreenState extends ConsumerState<UniversityGalleryScree
                   const SizedBox(height: 16),
                   Text(
                     'Henüz fotoğraf eklenmemiş',
-                    style: AppTextStyles.titleMedium.copyWith(color: AppColors.textSecondary),
+                    style: AppTextStyles.titleMedium.copyWith(color: AppColors.textSecondaryFor(context)),
                   ),
                   const SizedBox(height: 8),
                   Text(
                     'İlk fotoğrafı sen ekleyebilirsin!',
-                    style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textTertiary),
+                    style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textTertiaryFor(context)),
                   ),
                 ],
               ),
@@ -118,7 +118,7 @@ class _UniversityGalleryScreenState extends ConsumerState<UniversityGalleryScree
                     ? Center(
                         child: Text(
                           'Bu kategoride fotoğraf bulunamadı.',
-                          style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textTertiary),
+                          style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textTertiaryFor(context)),
                         ),
                       )
                     : GridView.builder(
@@ -206,7 +206,7 @@ class _UniversityGalleryScreenState extends ConsumerState<UniversityGalleryScree
       },
       selectedColor: AppColors.primary,
       labelStyle: TextStyle(
-        color: isSelected ? Colors.white : AppColors.textPrimary,
+        color: isSelected ? Colors.white : AppColors.textPrimaryFor(context),
         fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
       ),
     );

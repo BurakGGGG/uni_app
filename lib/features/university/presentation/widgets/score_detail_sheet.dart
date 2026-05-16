@@ -32,8 +32,8 @@ class _ScoreDetailSheet extends StatelessWidget {
       maxChildSize: 0.95,
       builder: (context, scrollController) {
         return Container(
-          decoration: const BoxDecoration(
-            color: AppColors.background,
+          decoration: BoxDecoration(
+            color: AppColors.backgroundFor(context),
             borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
           ),
           child: Column(
@@ -73,7 +73,7 @@ class _ScoreDetailSheet extends StatelessWidget {
                                 Text(
                                   'Taban Puan Detayları',
                                   style: AppTextStyles.bodyMedium.copyWith(
-                                    color: AppColors.textSecondary,
+                                    color: AppColors.textSecondaryFor(context),
                                   ),
                                 ),
                               ],
@@ -176,9 +176,9 @@ class _ScoreDetailSheet extends StatelessWidget {
                       // ── Yıl Yıl Karşılaştırma Tablosu ──
                       Container(
                         decoration: BoxDecoration(
-                          color: AppColors.surface,
+                          color: AppColors.surfaceFor(context),
                           borderRadius: BorderRadius.circular(AppConstants.radiusLg),
-                          border: Border.all(color: AppColors.borderLight),
+                          border: Border.all(color: AppColors.borderLightFor(context)),
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -233,7 +233,7 @@ class _ScoreDetailSheet extends StatelessWidget {
                                       ? AppColors.primary.withValues(alpha: 0.04)
                                       : Colors.transparent,
                                   border: idx < years.length - 1
-                                      ? Border(bottom: BorderSide(color: AppColors.borderLight))
+                                      ? Border(bottom: BorderSide(color: AppColors.borderLightFor(context)))
                                       : null,
                                 ),
                                 child: Row(
@@ -247,7 +247,7 @@ class _ScoreDetailSheet extends StatelessWidget {
                                             year.toString(),
                                             style: AppTextStyles.titleSmall.copyWith(
                                               fontWeight: isCurrentYear ? FontWeight.w700 : FontWeight.w500,
-                                              color: isCurrentYear ? AppColors.primary : AppColors.textPrimary,
+                                              color: isCurrentYear ? AppColors.primary : AppColors.textPrimaryFor(context),
                                             ),
                                           ),
                                           if (isCurrentYear) ...[
@@ -299,7 +299,7 @@ class _ScoreDetailSheet extends StatelessWidget {
                                                       ? AppColors.success
                                                       : delta < 0
                                                           ? AppColors.error
-                                                          : AppColors.textTertiary,
+                                                          : AppColors.textTertiaryFor(context),
                                                 ),
                                                 const SizedBox(width: 2),
                                                 Text(
@@ -309,7 +309,7 @@ class _ScoreDetailSheet extends StatelessWidget {
                                                         ? AppColors.success
                                                         : delta < 0
                                                             ? AppColors.error
-                                                            : AppColors.textTertiary,
+                                                            : AppColors.textTertiaryFor(context),
                                                     fontWeight: FontWeight.w600,
                                                   ),
                                                 ),
@@ -318,7 +318,7 @@ class _ScoreDetailSheet extends StatelessWidget {
                                           : Text(
                                               '—',
                                               style: AppTextStyles.bodyMedium.copyWith(
-                                                color: AppColors.textTertiary,
+                                                color: AppColors.textTertiaryFor(context),
                                               ),
                                             ),
                                     ),
@@ -336,9 +336,9 @@ class _ScoreDetailSheet extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: AppColors.surface,
+                          color: AppColors.surfaceFor(context),
                           borderRadius: BorderRadius.circular(AppConstants.radiusLg),
-                          border: Border.all(color: AppColors.borderLight),
+                          border: Border.all(color: AppColors.borderLightFor(context)),
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -376,7 +376,7 @@ class _ScoreDetailSheet extends StatelessWidget {
                             const SizedBox(height: 8),
                             Text(
                               '${scoreData.placedCount} / ${scoreData.quota} kişi yerleşti',
-                              style: AppTextStyles.labelSmall.copyWith(color: AppColors.textSecondary),
+                              style: AppTextStyles.labelSmall.copyWith(color: AppColors.textSecondaryFor(context)),
                             ),
                           ],
                         ),

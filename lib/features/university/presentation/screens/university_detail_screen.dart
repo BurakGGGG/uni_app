@@ -32,7 +32,7 @@ class UniversityDetailScreen extends ConsumerWidget {
     final uniAsync = ref.watch(universityDetailProvider(universityId));
     
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.backgroundFor(context),
       body: uniAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => Center(child: Text(AppLocalizations.of(context).errorGeneral(e.toString()))),
@@ -148,7 +148,7 @@ class _InfoStripDelegate extends SliverPersistentHeaderDelegate {
   @override
   Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
     return Container(
-      color: AppColors.background,
+      color: AppColors.backgroundFor(context),
       alignment: Alignment.center,
       padding: const EdgeInsets.only(top: 16),
       child: UniInfoStrip(
@@ -239,7 +239,7 @@ class _ActionButtons extends ConsumerWidget {
             label: const Text('Üniversiteyi Değerlendir'),
             style: ElevatedButton.styleFrom(
               backgroundColor: isEduUser ? AppColors.primary : AppColors.surfaceVariant,
-              foregroundColor: isEduUser ? Colors.white : AppColors.textTertiary,
+              foregroundColor: isEduUser ? Colors.white : AppColors.textTertiaryFor(context),
               elevation: 0,
               padding: const EdgeInsets.symmetric(vertical: 14),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -262,7 +262,7 @@ class _DepartmentsPreview extends StatelessWidget {
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (error, stackTrace) => Text(AppLocalizations.of(context).errorDepartmentsLoad),
       data: (depts) {
-        if (depts.isEmpty) return Text(AppLocalizations.of(context).noDepartmentsFound, style: const TextStyle(color: AppColors.textSecondary));
+        if (depts.isEmpty) return Text(AppLocalizations.of(context).noDepartmentsFound, style: TextStyle(color: AppColors.textSecondaryFor(context)));
         
         final previewDepts = depts.take(3).toList();
         return Column(
@@ -273,9 +273,9 @@ class _DepartmentsPreview extends StatelessWidget {
                 margin: const EdgeInsets.only(bottom: 8),
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: AppColors.surface,
+                  color: AppColors.surfaceFor(context),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppColors.borderLight),
+                  border: Border.all(color: AppColors.borderLightFor(context)),
                 ),
                 child: Row(
                   children: [
@@ -284,7 +284,7 @@ class _DepartmentsPreview extends StatelessWidget {
                     Expanded(
                       child: Text(d.name, style: AppTextStyles.labelLarge.copyWith(fontWeight: FontWeight.w600)),
                     ),
-                    const Icon(Icons.arrow_forward_ios_rounded, size: 14, color: AppColors.textTertiary),
+                    Icon(Icons.arrow_forward_ios_rounded, size: 14, color: AppColors.textTertiaryFor(context)),
                   ],
                 ),
               ),
@@ -306,7 +306,7 @@ class _PlacesPreview extends StatelessWidget {
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (error, stackTrace) => Text(AppLocalizations.of(context).errorPlacesLoad),
       data: (places) {
-        if (places.isEmpty) return Text(AppLocalizations.of(context).noPlacesFound, style: const TextStyle(color: AppColors.textSecondary));
+        if (places.isEmpty) return Text(AppLocalizations.of(context).noPlacesFound, style: TextStyle(color: AppColors.textSecondaryFor(context)));
         
         final previewPlaces = places.take(4).toList();
         return SizedBox(
@@ -431,7 +431,7 @@ void _showReviewInfoSheet(BuildContext context, {required dynamic user}) {
               description,
               textAlign: TextAlign.center,
               style: AppTextStyles.bodyMedium.copyWith(
-                color: AppColors.textSecondary,
+                color: AppColors.textSecondaryFor(context),
                 height: 1.5,
               ),
             ),

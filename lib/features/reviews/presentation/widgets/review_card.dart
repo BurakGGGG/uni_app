@@ -18,17 +18,8 @@ import '../../../../l10n/generated/app_localizations.dart';
 /// Sprint 3 — Kişi B (Task B1)
 /// Tüm yorum gösterimlerinde kullanılacak ortak ReviewCard widget'ı.
 class ReviewCard extends ConsumerWidget {
-  // Static decorations — class load time'da bir kez oluşturulur
+  // Static decorations — only things that DON'T need context
   static const _cardBorderRadius = BorderRadius.all(Radius.circular(AppConstants.radiusLg));
-  static const _cardBorder = Border.fromBorderSide(
-    BorderSide(color: AppColors.borderLight),
-  );
-  static const BoxDecoration _cardDecoration = BoxDecoration(
-    color: AppColors.surface,
-    borderRadius: _cardBorderRadius,
-    border: _cardBorder,
-    boxShadow: AppColors.softShadow,
-  );
 
   final ReviewModel review;
   final bool showActions;
@@ -54,10 +45,18 @@ class ReviewCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final loc = AppLocalizations.of(context);
+    final cardDecoration = BoxDecoration(
+      color: AppColors.surfaceFor(context),
+      borderRadius: _cardBorderRadius,
+      border: Border.fromBorderSide(
+        BorderSide(color: AppColors.borderLightFor(context)),
+      ),
+      boxShadow: AppColors.softShadowFor(context),
+    );
     return RepaintBoundary(
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        decoration: _cardDecoration,
+        decoration: cardDecoration,
         child: InkWell(
           onTap: onTap,
           borderRadius: _cardBorderRadius,
@@ -231,7 +230,7 @@ class ReviewCard extends ConsumerWidget {
                 Text(
                   displayUni,
                   style: AppTextStyles.labelSmall.copyWith(
-                    color: AppColors.textTertiary,
+                    color: AppColors.textTertiaryFor(context),
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -404,16 +403,16 @@ class ReviewCard extends ConsumerWidget {
                 placeholder: (_, url) => Container(
                   width: 80,
                   height: 80,
-                  color: AppColors.surfaceVariant,
-                  child: const Icon(Icons.image, color: AppColors.textTertiary),
+                  color: AppColors.surfaceVariantFor(context),
+                  child: Icon(Icons.image, color: AppColors.textTertiaryFor(context)),
                 ),
                 errorWidget: (_, err, stack) => Container(
                   width: 80,
                   height: 80,
-                  color: AppColors.surfaceVariant,
-                  child: const Icon(
+                  color: AppColors.surfaceVariantFor(context),
+                  child: Icon(
                     Icons.broken_image,
-                    color: AppColors.textTertiary,
+                    color: AppColors.textTertiaryFor(context),
                   ),
                 ),
               ),
@@ -433,13 +432,13 @@ class ReviewCard extends ConsumerWidget {
         Icon(
           Icons.access_time_rounded,
           size: 13,
-          color: AppColors.textTertiary,
+          color: AppColors.textTertiaryFor(context),
         ),
         const SizedBox(width: 4),
         Text(
           timeago.format(review.createdAt, locale: 'tr'),
           style: AppTextStyles.labelSmall.copyWith(
-            color: AppColors.textTertiary,
+            color: AppColors.textTertiaryFor(context),
             fontSize: 11,
           ),
         ),
@@ -587,7 +586,7 @@ class _CommentExpandableState extends State<_CommentExpandable> {
         Text(
           displayText,
           style: AppTextStyles.bodyMedium.copyWith(
-            color: AppColors.textPrimary,
+            color: AppColors.textPrimaryFor(context),
             height: 1.5,
           ),
         ),

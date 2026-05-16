@@ -37,7 +37,7 @@ class UniSection extends StatelessWidget {
             Text(
               subtitle!,
               style: AppTextStyles.bodySmall.copyWith(
-                color: AppColors.textSecondary,
+                color: AppColors.textSecondaryFor(context),
               ),
             ),
           ],

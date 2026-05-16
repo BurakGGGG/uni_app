@@ -156,9 +156,9 @@ class DepartmentDetailScreen extends ConsumerWidget {
                       width: double.infinity,
                       padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
-                        color: AppColors.surface,
+                        color: AppColors.surfaceFor(context),
                         borderRadius: BorderRadius.circular(AppConstants.radiusLg),
-                        border: Border.all(color: AppColors.borderLight),
+                        border: Border.all(color: AppColors.borderLightFor(context)),
                       ),
                       child: Row(
                         children: [
@@ -180,7 +180,7 @@ class DepartmentDetailScreen extends ConsumerWidget {
                                   children: [
                                     Text('${dept.scoreData!.year} Taban Puanı', style: AppTextStyles.labelMedium),
                                     const SizedBox(width: 6),
-                                    Icon(Icons.open_in_new_rounded, size: 14, color: AppColors.textTertiary),
+                                    Icon(Icons.open_in_new_rounded, size: 14, color: AppColors.textTertiaryFor(context)),
                                   ],
                                 ),
                                 const SizedBox(height: 2),
@@ -244,9 +244,9 @@ class DepartmentDetailScreen extends ConsumerWidget {
                     width: double.infinity,
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      color: AppColors.surface,
+                      color: AppColors.surfaceFor(context),
                       borderRadius: BorderRadius.circular(AppConstants.radiusLg),
-                      border: Border.all(color: AppColors.borderLight),
+                      border: Border.all(color: AppColors.borderLightFor(context)),
                     ),
                     child: Row(
                       children: [
@@ -320,11 +320,11 @@ class DepartmentDetailScreen extends ConsumerWidget {
                                 icon: const Icon(Icons.add_comment_rounded, size: 18),
                                 label: const Text('Değerlendir'),
                                 style: TextButton.styleFrom(
-                                  foregroundColor: AppColors.textTertiary,
+                                  foregroundColor: AppColors.textTertiaryFor(context),
                                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(AppConstants.radiusMd),
-                                    side: BorderSide(color: AppColors.borderLight),
+                                    side: BorderSide(color: AppColors.borderLightFor(context)),
                                   ),
                                 ),
                               );
@@ -391,9 +391,9 @@ class _InfoTile extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: AppColors.surfaceFor(context),
           borderRadius: BorderRadius.circular(AppConstants.radiusLg),
-          border: Border.all(color: AppColors.borderLight),
+          border: Border.all(color: AppColors.borderLightFor(context)),
         ),
         child: Column(
           children: [
@@ -428,9 +428,9 @@ class _ScoreInfoTile extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: AppColors.surfaceFor(context),
           borderRadius: BorderRadius.circular(AppConstants.radiusLg),
-          border: Border.all(color: AppColors.borderLight),
+          border: Border.all(color: AppColors.borderLightFor(context)),
         ),
         child: Column(
           children: [
@@ -528,7 +528,7 @@ void _showReviewInfoSheet(
               description,
               textAlign: TextAlign.center,
               style: AppTextStyles.bodyMedium.copyWith(
-                color: AppColors.textSecondary,
+                color: AppColors.textSecondaryFor(context),
                 height: 1.5,
               ),
             ),

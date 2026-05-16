@@ -20,7 +20,7 @@ class CategoryRatingsChart extends StatelessWidget {
   Widget build(BuildContext context) {
     // Hiç yorum yoksa empty state göster
     if (reviewCount == 0) {
-      return _buildEmptyState();
+      return _buildEmptyState(context);
     }
 
     // Yorum var ama kategori puanları henüz hesaplanmamışsa, bölümü gizle
@@ -31,9 +31,9 @@ class CategoryRatingsChart extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(AppConstants.spacingLg),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: AppColors.surfaceFor(context),
         borderRadius: BorderRadius.circular(AppConstants.radiusLg),
-        border: Border.all(color: AppColors.borderLight),
+        border: Border.all(color: AppColors.borderLightFor(context)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -47,7 +47,7 @@ class CategoryRatingsChart extends StatelessWidget {
               Text(
                 '$reviewCount değerlendirme',
                 style: AppTextStyles.labelSmall.copyWith(
-                  color: AppColors.textTertiary,
+                  color: AppColors.textTertiaryFor(context),
                 ),
               ),
             ],
@@ -66,17 +66,17 @@ class CategoryRatingsChart extends StatelessWidget {
     );
   }
 
-  Widget _buildEmptyState() {
+  Widget _buildEmptyState(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: AppColors.surfaceFor(context),
         borderRadius: BorderRadius.circular(AppConstants.radiusLg),
-        border: Border.all(color: AppColors.borderLight),
+        border: Border.all(color: AppColors.borderLightFor(context)),
       ),
       child: Column(
         children: [
-          Icon(Icons.insights_outlined, size: 40, color: AppColors.textTertiary),
+          Icon(Icons.insights_outlined, size: 40, color: AppColors.textTertiaryFor(context)),
           const SizedBox(height: 8),
           Text('Henüz yeterli değerlendirme yok', 
             style: AppTextStyles.titleSmall,
@@ -85,7 +85,7 @@ class CategoryRatingsChart extends StatelessWidget {
           const SizedBox(height: 4),
           Text('İlk değerlendiren siz olun!', 
             style: AppTextStyles.bodySmall.copyWith(
-              color: AppColors.textSecondary,
+              color: AppColors.textSecondaryFor(context),
             ),
             textAlign: TextAlign.center,
           ),

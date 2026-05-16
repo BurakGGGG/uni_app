@@ -141,7 +141,7 @@ class _TypeFilters extends StatelessWidget {
           return FilterChip(
             label: Row(mainAxisSize: MainAxisSize.min, children: [
               Icon(t.icon, size: 14,
-                  color: selected ? Colors.white : AppColors.textSecondary),
+                  color: selected ? Colors.white : AppColors.textSecondaryFor(context)),
               const SizedBox(width: 6),
               Text(t.label),
             ]),
@@ -150,7 +150,7 @@ class _TypeFilters extends StatelessWidget {
             backgroundColor: AppColors.surfaceVariant,
             selectedColor: AppColors.primary,
             labelStyle: TextStyle(
-              color: selected ? Colors.white : AppColors.textPrimary,
+              color: selected ? Colors.white : AppColors.textPrimaryFor(context),
               fontWeight: FontWeight.w600,
             ),
             checkmarkColor: Colors.white,
@@ -181,7 +181,7 @@ class _PriceFilters extends StatelessWidget {
           backgroundColor: AppColors.surfaceVariant,
           selectedColor: AppColors.success,
           labelStyle: TextStyle(
-            color: selected ? Colors.white : AppColors.textPrimary,
+            color: selected ? Colors.white : AppColors.textPrimaryFor(context),
             fontWeight: FontWeight.w600,
           ),
           checkmarkColor: Colors.white,
@@ -213,7 +213,7 @@ class _AmenityFilters extends StatelessWidget {
           backgroundColor: AppColors.surfaceVariant,
           selectedColor: AppColors.info,
           labelStyle: TextStyle(
-            color: selected ? Colors.white : AppColors.textPrimary,
+            color: selected ? Colors.white : AppColors.textPrimaryFor(context),
             fontWeight: FontWeight.w600,
           ),
           checkmarkColor: Colors.white,

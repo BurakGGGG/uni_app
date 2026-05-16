@@ -120,9 +120,9 @@ class _ListEditScreenState extends ConsumerState<ListEditScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text(
+            child: Text(
               'Vazgeç',
-              style: TextStyle(color: AppColors.textSecondary),
+              style: TextStyle(color: AppColors.textSecondaryFor(context)),
             ),
           ),
           FilledButton(
@@ -242,7 +242,7 @@ class _ListEditScreenState extends ConsumerState<ListEditScreen> {
     final listAsync = ref.watch(preferenceListProvider(widget.listId));
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.backgroundFor(context),
       body: listAsync.when(
         loading: () => const Center(
           child: CircularProgressIndicator(color: AppColors.primary),
@@ -274,17 +274,17 @@ class _ListEditScreenState extends ConsumerState<ListEditScreen> {
               child: Row(
                 children: [
                   IconButton(
-                    icon: const Icon(
+                    icon: Icon(
                       Icons.arrow_back_rounded,
-                      color: AppColors.textPrimary,
+                      color: AppColors.textPrimaryFor(context),
                     ),
                     onPressed: () => Navigator.pop(context),
                   ),
                   const Spacer(),
                   IconButton(
-                    icon: const Icon(
+                    icon: Icon(
                       Icons.share_rounded,
-                      color: AppColors.textPrimary,
+                      color: AppColors.textPrimaryFor(context),
                     ),
                     onPressed: () => ShareListSheet.show(context, list),
                   ),
@@ -311,7 +311,7 @@ class _ListEditScreenState extends ConsumerState<ListEditScreen> {
                   Text(
                     list.description,
                     style: AppTextStyles.bodyMedium.copyWith(
-                      color: AppColors.textSecondary,
+                      color: AppColors.textSecondaryFor(context),
                       height: 1.4,
                     ),
                   ),
@@ -484,8 +484,8 @@ class _ActionBar extends StatelessWidget {
           child: OutlinedButton.icon(
             onPressed: canSort ? onSort : null,
             style: OutlinedButton.styleFrom(
-              foregroundColor: AppColors.textPrimary,
-              side: BorderSide(color: AppColors.borderLight),
+              foregroundColor: AppColors.textPrimaryFor(context),
+              side: BorderSide(color: AppColors.borderLightFor(context)),
               padding: const EdgeInsets.symmetric(vertical: 12),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
@@ -503,8 +503,8 @@ class _ActionBar extends StatelessWidget {
           child: OutlinedButton.icon(
             onPressed: canUndo ? onUndo : null,
             style: OutlinedButton.styleFrom(
-              foregroundColor: AppColors.textSecondary,
-              side: BorderSide(color: AppColors.borderLight),
+              foregroundColor: AppColors.textSecondaryFor(context),
+              side: BorderSide(color: AppColors.borderLightFor(context)),
               padding: const EdgeInsets.symmetric(vertical: 12),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
@@ -542,10 +542,10 @@ class _ListSummaryCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: AppColors.surfaceFor(context),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.borderLight),
-        boxShadow: AppColors.softShadow,
+        border: Border.all(color: AppColors.borderLightFor(context)),
+        boxShadow: AppColors.softShadowFor(context),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -563,7 +563,7 @@ class _ListSummaryCard extends StatelessWidget {
               Text(
                 '/ $max tercih',
                 style: AppTextStyles.bodySmall.copyWith(
-                  color: AppColors.textSecondary,
+                  color: AppColors.textSecondaryFor(context),
                 ),
               ),
               const Spacer(),
@@ -586,7 +586,7 @@ class _ListSummaryCard extends StatelessWidget {
                       size: 12,
                       color: list.isPublic
                           ? AppColors.success
-                          : AppColors.textTertiary,
+                          : AppColors.textTertiaryFor(context),
                     ),
                     const SizedBox(width: 5),
                     Text(
@@ -594,7 +594,7 @@ class _ListSummaryCard extends StatelessWidget {
                       style: AppTextStyles.labelSmall.copyWith(
                         color: list.isPublic
                             ? AppColors.success
-                            : AppColors.textTertiary,
+                            : AppColors.textTertiaryFor(context),
                         fontWeight: FontWeight.w700,
                       ),
                     ),
@@ -711,7 +711,7 @@ class _EmptyItems extends StatelessWidget {
               'Tercihlerini sürükleyerek veya sıralamaya göre düzenleyebilirsin.',
               textAlign: TextAlign.center,
               style: AppTextStyles.bodyMedium.copyWith(
-                color: AppColors.textSecondary,
+                color: AppColors.textSecondaryFor(context),
                 height: 1.5,
               ),
             ),
@@ -741,13 +741,13 @@ class _ItemCard extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5),
       child: Material(
-        color: AppColors.surface,
+        color: AppColors.surfaceFor(context),
         borderRadius: BorderRadius.circular(16),
         child: Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppColors.borderLight),
-            boxShadow: AppColors.softShadow,
+            border: Border.all(color: AppColors.borderLightFor(context)),
+            boxShadow: AppColors.softShadowFor(context),
           ),
           child: Padding(
             padding: const EdgeInsets.all(12),
@@ -800,7 +800,7 @@ class _ItemCard extends StatelessWidget {
                       Text(
                         item.uniName,
                         style: AppTextStyles.labelSmall.copyWith(
-                          color: AppColors.textSecondary,
+                          color: AppColors.textSecondaryFor(context),
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -843,7 +843,7 @@ class _ItemCard extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 6),
                     child: Icon(
                       Icons.drag_indicator_rounded,
-                      color: AppColors.textTertiary,
+                      color: AppColors.textTertiaryFor(context),
                       size: 22,
                     ),
                   ),
