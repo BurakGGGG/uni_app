@@ -69,7 +69,7 @@ class _HeatMapWidgetState extends State<HeatMapWidget> {
         footer: Text(
           'Hücreye dokun: puanı gör',
           style: AppTextStyles.labelSmall.copyWith(
-            color: isDark ? Colors.white70 : AppColors.textSecondary,
+            color: isDark ? Colors.white70 : AppColors.textSecondaryFor(context),
             fontWeight: FontWeight.w700,
           ),
         ),
@@ -98,7 +98,7 @@ class _HeatMapWidgetState extends State<HeatMapWidget> {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: AppTextStyles.labelSmall.copyWith(
-                      color: isDark ? Colors.white70 : AppColors.textSecondary,
+                      color: isDark ? Colors.white70 : AppColors.textSecondaryFor(context),
                       fontWeight: FontWeight.w800,
                       fontSize: 10,
                     ),
@@ -128,7 +128,7 @@ class _HeatMapWidgetState extends State<HeatMapWidget> {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: AppTextStyles.labelSmall.copyWith(
-              color: isDark ? Colors.white : AppColors.textPrimary,
+              color: isDark ? Colors.white : AppColors.textPrimaryFor(context),
               fontWeight: FontWeight.w900,
             ),
           ),
@@ -222,7 +222,7 @@ class _HeatMapWidgetState extends State<HeatMapWidget> {
         '$label • $cat: ${v.toStringAsFixed(2)}',
         textAlign: TextAlign.center,
         style: AppTextStyles.bodySmall.copyWith(
-          color: isDark ? Colors.white70 : AppColors.textSecondary,
+          color: isDark ? Colors.white70 : AppColors.textSecondaryFor(context),
           fontWeight: FontWeight.w800,
         ),
       ),
@@ -256,7 +256,7 @@ class _HeatMapWidgetState extends State<HeatMapWidget> {
             title,
             style: AppTextStyles.titleSmall.copyWith(
               fontWeight: FontWeight.w900,
-              color: isDark ? Colors.white : AppColors.textPrimary,
+              color: isDark ? Colors.white : AppColors.textPrimaryFor(context),
             ),
           ),
           const SizedBox(height: 12),

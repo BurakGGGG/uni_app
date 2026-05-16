@@ -107,7 +107,7 @@ class _TrendLineChartState extends State<TrendLineChart> {
                             style: AppTextStyles.labelSmall.copyWith(
                               color: isDark
                                   ? Colors.white70
-                                  : AppColors.textSecondary,
+                                  : AppColors.textSecondaryFor(context),
                             ),
                           ),
                         );
@@ -123,7 +123,7 @@ class _TrendLineChartState extends State<TrendLineChart> {
                         style: AppTextStyles.labelSmall.copyWith(
                           color: isDark
                               ? Colors.white70
-                              : AppColors.textSecondary,
+                              : AppColors.textSecondaryFor(context),
                         ),
                       ),
                     ),
@@ -159,7 +159,7 @@ class _TrendLineChartState extends State<TrendLineChart> {
                     }
                   },
                   touchTooltipData: LineTouchTooltipData(
-                    getTooltipColor: (_) => AppColors.textPrimary,
+                    getTooltipColor: (_) => AppColors.textPrimaryFor(context),
                     tooltipRoundedRadius: 10,
                     tooltipPadding:
                         const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
@@ -279,7 +279,7 @@ class _TrendLineChartState extends State<TrendLineChart> {
             title,
             style: AppTextStyles.titleSmall.copyWith(
               fontWeight: FontWeight.w900,
-              color: isDark ? Colors.white : AppColors.textPrimary,
+              color: isDark ? Colors.white : AppColors.textPrimaryFor(context),
             ),
           ),
           const SizedBox(height: 12),
@@ -323,7 +323,7 @@ class _LegendDot extends StatelessWidget {
           label,
           style: AppTextStyles.labelSmall.copyWith(
             fontWeight: FontWeight.w800,
-            color: isDark ? Colors.white70 : AppColors.textSecondary,
+            color: isDark ? Colors.white70 : AppColors.textSecondaryFor(context),
           ),
         ),
       ],

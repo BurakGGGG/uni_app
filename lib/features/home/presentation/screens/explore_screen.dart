@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../l10n/generated/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -52,7 +53,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: AppColors.surface,
+      backgroundColor: AppColors.surfaceFor(context),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -64,9 +65,10 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
   Widget build(BuildContext context) {
     final allUnisAsync = ref.watch(allUniversitiesProvider);
     final filters = ref.watch(exploreFilterProvider);
+    final loc = AppLocalizations.of(context);
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.backgroundFor(context),
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -74,13 +76,13 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
             // ─── Header ──────────────────────────────────────────
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
-              child: Text('Keşfet', style: AppTextStyles.displaySmall),
+              child: Text(loc.exploreTitle, style: AppTextStyles.displaySmall),
             ),
             const SizedBox(height: 4),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Text(
-                'Üniversiteleri keşfet, filtrele ve karşılaştır',
+                loc.exploreSubtitle,
                 style: AppTextStyles.bodySmall,
               ),
             ),
@@ -111,16 +113,16 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                       style: IconButton.styleFrom(
                         backgroundColor: filters.activeFilterCount > 0 
                             ? AppColors.primary.withValues(alpha: 0.12)
-                            : AppColors.surfaceVariant,
+                            : AppColors.surfaceVariantFor(context),
                         foregroundColor: filters.activeFilterCount > 0 
                             ? AppColors.primary
-                            : AppColors.textSecondary,
+                            : AppColors.textSecondaryFor(context),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                           side: BorderSide(
                             color: filters.activeFilterCount > 0 
                                 ? AppColors.primary.withValues(alpha: 0.3)
-                                : AppColors.borderLight,
+                                : AppColors.borderLightFor(context),
                           ),
                         ),
                       ),
@@ -136,14 +138,14 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                         builder: (context) {
                           final children = [
                             _QuickFilterChip(
-                              label: 'Devlet',
-                              isSelected: filters.selectedTypes.contains('Devlet'),
-                              onSelected: (_) => ref.read(exploreFilterProvider.notifier).toggleType('Devlet'),
+                              label: loc.exploreTypeState,
+                              isSelected: filters.selectedTypes.contains(loc.exploreTypeState),
+                              onSelected: (_) => ref.read(exploreFilterProvider.notifier).toggleType(loc.exploreTypeState),
                             ),
                             _QuickFilterChip(
-                              label: 'Vakıf',
-                              isSelected: filters.selectedTypes.contains('Vakıf'),
-                              onSelected: (_) => ref.read(exploreFilterProvider.notifier).toggleType('Vakıf'),
+                              label: loc.exploreTypeFoundation,
+                              isSelected: filters.selectedTypes.contains(loc.exploreTypeFoundation),
+                              onSelected: (_) => ref.read(exploreFilterProvider.notifier).toggleType(loc.exploreTypeFoundation),
                             ),
                           ];
                           return ListView.builder(
@@ -167,7 +169,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                   padding: const EdgeInsets.fromLTRB(20, 12, 20, 4),
                   child: Text(
                     '${filtered.length} üniversite bulundu',
-                    style: AppTextStyles.labelMedium.copyWith(color: AppColors.textTertiary),
+                    style: AppTextStyles.labelMedium.copyWith(color: AppColors.textTertiaryFor(context)),
                   ),
                 );
               },
@@ -189,10 +191,10 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                   final filtered = _applyFilters(universities, filters);
 
                   if (filtered.isEmpty) {
-                    return const EmptyState(
+                    return EmptyState(
                       icon: Icons.search_off_rounded,
-                      title: 'Sonuç bulunamadı',
-                      message: 'Farklı bir filtre kombinasyonu deneyin.',
+                      title: loc.exploreNoResults,
+                      message: loc.exploreNoResultsSub,
                     );
                   }
 
@@ -216,7 +218,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                         badge: Container(
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                           decoration: BoxDecoration(
-                            color: (uni.type == 'Devlet'
+                            color: (uni.type == loc.exploreTypeState
                                     ? AppColors.stateUni
                                     : AppColors.foundationUni)
                                 .withValues(alpha: 0.12),
@@ -225,7 +227,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                           child: Text(
                             uni.type,
                             style: AppTextStyles.labelSmall.copyWith(
-                              color: uni.type == 'Devlet'
+                              color: uni.type == loc.exploreTypeState
                                   ? AppColors.stateUni
                                   : AppColors.foundationUni,
                               fontWeight: FontWeight.w600,
@@ -265,14 +267,14 @@ class _QuickFilterChip extends StatelessWidget {
         label: Text(label),
         selected: isSelected,
         onSelected: onSelected,
-        backgroundColor: AppColors.surface,
+        backgroundColor: AppColors.surfaceFor(context),
         selectedColor: AppColors.primary.withValues(alpha: 0.12),
         labelStyle: AppTextStyles.labelMedium.copyWith(
-          color: isSelected ? AppColors.primary : AppColors.textSecondary,
+          color: isSelected ? AppColors.primary : AppColors.textSecondaryFor(context),
           fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
         ),
         side: BorderSide(
-          color: isSelected ? AppColors.primary.withValues(alpha: 0.3) : AppColors.borderLight,
+          color: isSelected ? AppColors.primary.withValues(alpha: 0.3) : AppColors.borderLightFor(context),
         ),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
@@ -292,6 +294,7 @@ class _FilterBottomSheet extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final filters = ref.watch(exploreFilterProvider);
+    final loc = AppLocalizations.of(context);
     final citiesAsync = ref.watch(citiesProvider);
 
     return DraggableScrollableSheet(
@@ -308,7 +311,7 @@ class _FilterBottomSheet extends ConsumerWidget {
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: AppColors.borderLight,
+                color: AppColors.borderLightFor(context),
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -319,18 +322,18 @@ class _FilterBottomSheet extends ConsumerWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('Filtreler', style: AppTextStyles.titleLarge),
+                  Text(loc.exploreFilters, style: AppTextStyles.titleLarge),
                   TextButton(
                     onPressed: () => ref.read(exploreFilterProvider.notifier).clearFilters(),
                     child: Text(
-                      'Temizle', 
+                      loc.exploreClear, 
                       style: AppTextStyles.labelLarge.copyWith(color: AppColors.primary),
                     ),
                   ),
                 ],
               ),
             ),
-            const Divider(color: AppColors.borderLight),
+            Divider(color: AppColors.borderLightFor(context)),
 
             // Content
             Expanded(
@@ -338,32 +341,32 @@ class _FilterBottomSheet extends ConsumerWidget {
                 builder: (context) {
                   final children = [
                     // Tür Filtresi
-                    Text('Üniversite Türü', style: AppTextStyles.titleMedium),
+                    Text(loc.exploreUniType, style: AppTextStyles.titleMedium),
                     const SizedBox(height: 12),
                     Wrap(
                       spacing: 8,
                       runSpacing: 8,
                       children: [
                         _FilterOption(
-                          label: 'Devlet',
-                          isSelected: filters.selectedTypes.contains('Devlet'),
-                          onTap: () => ref.read(exploreFilterProvider.notifier).toggleType('Devlet'),
+                          label: loc.exploreTypeState,
+                          isSelected: filters.selectedTypes.contains(loc.exploreTypeState),
+                          onTap: () => ref.read(exploreFilterProvider.notifier).toggleType(loc.exploreTypeState),
                         ),
                         _FilterOption(
-                          label: 'Vakıf',
-                          isSelected: filters.selectedTypes.contains('Vakıf'),
-                          onTap: () => ref.read(exploreFilterProvider.notifier).toggleType('Vakıf'),
+                          label: loc.exploreTypeFoundation,
+                          isSelected: filters.selectedTypes.contains(loc.exploreTypeFoundation),
+                          onTap: () => ref.read(exploreFilterProvider.notifier).toggleType(loc.exploreTypeFoundation),
                         ),
                       ],
                     ),
                     const SizedBox(height: 32),
 
                     // Şehir Filtresi
-                    Text('Şehirler', style: AppTextStyles.titleMedium),
+                    Text(loc.exploreCities, style: AppTextStyles.titleMedium),
                     const SizedBox(height: 12),
                     citiesAsync.when(
                       loading: () => const CircularProgressIndicator(),
-                      error: (e, st) => const Text('Şehirler yüklenemedi'),
+                      error: (e, st) => Text(loc.exploreCitiesError),
                       data: (cities) {
                         return Wrap(
                           spacing: 8,
@@ -423,10 +426,10 @@ class _FilterOption extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.primary.withValues(alpha: 0.12) : AppColors.surface,
+          color: isSelected ? AppColors.primary.withValues(alpha: 0.12) : AppColors.surfaceFor(context),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: isSelected ? AppColors.primary : AppColors.borderLight,
+            color: isSelected ? AppColors.primary : AppColors.borderLightFor(context),
           ),
         ),
         child: Row(
@@ -439,7 +442,7 @@ class _FilterOption extends StatelessWidget {
             Text(
               label,
               style: AppTextStyles.labelMedium.copyWith(
-                color: isSelected ? AppColors.primary : AppColors.textPrimary,
+                color: isSelected ? AppColors.primary : AppColors.textPrimaryFor(context),
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
               ),
             ),

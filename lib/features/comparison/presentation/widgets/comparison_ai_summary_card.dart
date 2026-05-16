@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/shimmer_box.dart';
-import '../../../recommendation/presentation/widgets/typewriter_text.dart';
+import '../../../../core/widgets/typewriter_text.dart';
 import '../../../../l10n/generated/app_localizations.dart';
 
 class ComparisonAiSummaryCard extends StatelessWidget {

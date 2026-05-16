@@ -103,7 +103,7 @@ class _NotificationSettingsScreenState
                 child: Text(
                   'ÜniSeç bildirimleri sadece etkileşim ve bilgilendirme amaçlıdır. Reklam veya pazarlama bildirimi göndermiyoruz.',
                   style: AppTextStyles.bodySmall.copyWith(
-                    color: AppColors.textSecondary,
+                    color: AppColors.textSecondaryFor(context),
                   ),
                 ),
               ),
@@ -164,7 +164,7 @@ class _NotificationSettingsScreenState
       child: Text(
         title,
         style: AppTextStyles.labelSmall.copyWith(
-          color: AppColors.textSecondary,
+          color: AppColors.textSecondaryFor(context),
           fontWeight: FontWeight.w700,
           letterSpacing: 1.0,
         ),
@@ -212,7 +212,7 @@ class _SettingTile extends StatelessWidget {
         subtitle: Text(
           subtitle,
           style:
-              AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary),
+              AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondaryFor(context)),
         ),
         value: value,
         onChanged: onChanged,

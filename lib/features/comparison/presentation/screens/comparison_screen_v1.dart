@@ -22,7 +22,7 @@ class ComparisonScreen extends ConsumerWidget {
     final resultAsync = ref.watch(comparisonResultProvider);
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.backgroundFor(context),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),

@@ -181,7 +181,7 @@ class _PlacesEmptyState extends StatelessWidget {
           Text(
             'Bu üniversitenin mekan verileri henüz eklenmedi. Bölümler ve Yorumlar sekmelerini inceleyebilirsin.',
             style: AppTextStyles.bodySmall
-                .copyWith(color: AppColors.textSecondary),
+                .copyWith(color: AppColors.textSecondaryFor(context)),
             textAlign: TextAlign.center,
           ),
         ],

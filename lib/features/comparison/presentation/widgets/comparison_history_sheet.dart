@@ -156,7 +156,7 @@ class _HistoryList extends ConsumerWidget {
             'Geçmiş yüklenemedi: $e',
             textAlign: TextAlign.center,
             style: AppTextStyles.bodySmall.copyWith(
-              color: AppColors.textTertiary,
+              color: AppColors.textTertiaryFor(context),
             ),
           ),
         ),
@@ -245,7 +245,7 @@ class _HistoryTile extends ConsumerWidget {
                     Text(
                       '${_typeLabel(entry.type)} · ${dateFormat.format(entry.createdAt)}',
                       style: AppTextStyles.labelSmall.copyWith(
-                        color: AppColors.textTertiary,
+                        color: AppColors.textTertiaryFor(context),
                         fontSize: 11,
                       ),
                     ),
@@ -253,7 +253,7 @@ class _HistoryTile extends ConsumerWidget {
                 ),
               ),
               Icon(Icons.chevron_right_rounded,
-                  color: AppColors.textTertiary),
+                  color: AppColors.textTertiaryFor(context)),
             ],
           ),
         ),
@@ -454,7 +454,7 @@ class _EmptyHistory extends StatelessWidget {
             'İlk karşılaştırmanı yaptığında burada görünecek.',
             textAlign: TextAlign.center,
             style: AppTextStyles.bodySmall.copyWith(
-              color: AppColors.textSecondary,
+              color: AppColors.textSecondaryFor(context),
             ),
           ),
         ],
@@ -562,7 +562,7 @@ class _FeatureBullet extends StatelessWidget {
             child: Text(
               text,
               style: AppTextStyles.bodySmall.copyWith(
-                color: AppColors.textSecondary,
+                color: AppColors.textSecondaryFor(context),
               ),
             ),
           ),

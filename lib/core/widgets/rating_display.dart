@@ -34,7 +34,7 @@ class RatingDisplay extends StatelessWidget {
           Text(
             value.toStringAsFixed(1),
             style: AppTextStyles.labelMedium.copyWith(
-              color: AppColors.textPrimary,
+              color: AppColors.textPrimaryFor(context),
               fontWeight: FontWeight.w700,
             ),
           ),
@@ -96,10 +96,10 @@ class RatingCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(AppConstants.spacingLg),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: AppColors.surfaceFor(context),
         borderRadius: BorderRadius.circular(AppConstants.radiusLg),
-        border: Border.all(color: AppColors.borderLight),
-        boxShadow: AppColors.softShadow,
+        border: Border.all(color: AppColors.borderLightFor(context)),
+        boxShadow: AppColors.softShadowFor(context),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

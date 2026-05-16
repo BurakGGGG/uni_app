@@ -1,0 +1,19 @@
+Analyzing uni_app...
+
+warning - lib/features/home/presentation/screens/explore_screen.dart:68:45 - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator. - unnecessary_non_null_assertion
+warning - lib/features/home/presentation/screens/explore_screen.dart:297:45 - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator. - unnecessary_non_null_assertion
+warning - lib/features/home/presentation/screens/home_screen.dart:28:45 - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator. - unnecessary_non_null_assertion
+warning - lib/features/home/presentation/screens/home_screen.dart:298:45 - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator. - unnecessary_non_null_assertion
+warning - lib/features/home/presentation/screens/search_screen.dart:42:45 - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator. - unnecessary_non_null_assertion
+warning - lib/features/profile/presentation/screens/profile_screen.dart:315:31 - The value of the local variable 'idToken' isn't used. Try removing the variable or using it. - unused_local_variable
+warning - lib/features/profile/presentation/screens/profile_screen.dart:318:39 - Dead code. Try removing the code, or fixing the code before it so that it can be reached. - dead_code
+warning - lib/router/app_shell.dart:142:58 - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator. - unnecessary_non_null_assertion
+warning - lib/router/app_shell.dart:150:58 - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator. - unnecessary_non_null_assertion
+warning - lib/router/app_shell.dart:163:58 - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator. - unnecessary_non_null_assertion
+warning - lib/router/app_shell.dart:171:58 - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator. - unnecessary_non_null_assertion
+warning - lib/router/app_shell.dart:179:58 - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator. - unnecessary_non_null_assertion
+warning - lib/scripts/seed_data_service.dart:27:11 - The value of the local variable 'token' isn't used. Try removing the variable or using it. - unused_local_variable
+warning - lib/scripts/seed_data_service.dart:203:16 - The declaration '_seedPlaces' isn't referenced. Try removing the declaration of '_seedPlaces'. - unused_element
+   info - lib/features/home/presentation/screens/search_screen.dart:119:35 - Use interpolation to compose strings and values. Try using string interpolation to build the composite string. - prefer_interpolation_to_compose_strings
+
+15 issues found.

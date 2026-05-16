@@ -217,7 +217,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                             decoration: BoxDecoration(
                               color: AppColors.primary,
                               shape: BoxShape.circle,
-                              border: Border.all(color: AppColors.background, width: 3),
+                              border: Border.all(color: AppColors.backgroundFor(context), width: 3),
                             ),
                             child: const Icon(
                               Icons.camera_alt_rounded,
@@ -386,9 +386,9 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                     child: Container(
                       padding: const EdgeInsets.all(32),
                       decoration: BoxDecoration(
-                        color: AppColors.surface,
+                        color: AppColors.surfaceFor(context),
                         borderRadius: BorderRadius.circular(20),
-                        boxShadow: AppColors.cardShadow,
+                        boxShadow: AppColors.cardShadowFor(context),
                       ),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,

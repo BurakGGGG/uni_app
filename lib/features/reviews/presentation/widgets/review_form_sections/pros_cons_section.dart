@@ -45,14 +45,14 @@ class ProsConsSection extends StatelessWidget {
             const Spacer(),
             Text(
               '${selectedItems.length} seçildi',
-              style: AppTextStyles.bodySmall.copyWith(color: AppColors.textTertiary),
+              style: AppTextStyles.bodySmall.copyWith(color: AppColors.textTertiaryFor(context)),
             ),
           ],
         ),
         const SizedBox(height: 4),
         Text(
           'Hazır seçeneklerden seçin veya kendi ekleyin',
-          style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary),
+          style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondaryFor(context)),
         ),
         const SizedBox(height: 12),
         Wrap(
@@ -66,7 +66,7 @@ class ProsConsSection extends StatelessWidget {
                 label: Text(
                   item,
                   style: AppTextStyles.bodySmall.copyWith(
-                    color: isSelected ? Colors.white : AppColors.textPrimary,
+                    color: isSelected ? Colors.white : AppColors.textPrimaryFor(context),
                     fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
                   ),
                 ),
@@ -74,7 +74,7 @@ class ProsConsSection extends StatelessWidget {
                 onSelected: (_) => onToggle(item),
                 selectedColor: color,
                 checkmarkColor: Colors.white,
-                backgroundColor: AppColors.surface,
+                backgroundColor: AppColors.surfaceFor(context),
                 side: BorderSide(
                   color: isSelected ? color : AppColors.borderLight,
                 ),
@@ -145,13 +145,13 @@ class ProsConsSection extends StatelessWidget {
           textCapitalization: TextCapitalization.sentences,
           decoration: InputDecoration(
             hintText: 'Örn: Renkli kütüphane',
-            hintStyle: AppTextStyles.bodyMedium.copyWith(color: AppColors.textTertiary),
+            hintStyle: AppTextStyles.bodyMedium.copyWith(color: AppColors.textTertiaryFor(context)),
           ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: Text('İptal', style: TextStyle(color: AppColors.textSecondary)),
+            child: Text('İptal', style: TextStyle(color: AppColors.textSecondaryFor(context))),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(ctx, controller.text.trim()),

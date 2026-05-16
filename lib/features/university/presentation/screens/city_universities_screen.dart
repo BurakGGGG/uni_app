@@ -26,7 +26,7 @@ class CityUniversitiesScreen extends ConsumerWidget {
     final filter = ref.watch(_cityUniFilterProvider(cityId));
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.backgroundFor(context),
       body: RefreshIndicator(
         color: AppColors.primary,
         onRefresh: () async {
@@ -258,7 +258,7 @@ class _CityHeroAppBar extends StatelessWidget {
         child: SizedBox(
           height: 32,
           child: CustomPaint(
-            painter: _WavePainter(color: AppColors.background),
+            painter: _WavePainter(color: AppColors.backgroundFor(context)),
             size: Size.infinite,
           ),
         ),
@@ -441,7 +441,7 @@ class _FilterPill extends StatelessWidget {
         child: Text(
           label,
           style: AppTextStyles.labelMedium.copyWith(
-            color: selected ? Colors.white : AppColors.textSecondary,
+            color: selected ? Colors.white : AppColors.textSecondaryFor(context),
             fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
           ),
         ),

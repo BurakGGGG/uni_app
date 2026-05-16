@@ -62,7 +62,7 @@ class DormRoomFloorPlan extends StatelessWidget {
                       const SizedBox(height: 2),
                       Text('3 Kişilik KYK Odası • Yukarıdan Görünüm',
                           style: AppTextStyles.labelSmall.copyWith(
-                            color: AppColors.textTertiary,
+                            color: AppColors.textTertiaryFor(context),
                           )),
                     ],
                   ),
@@ -121,7 +121,7 @@ class DormRoomFloorPlan extends StatelessWidget {
                     'Bu yurda yerleşirseniz benzer bir düzende '
                     '3 kişilik odada kalabilirsiniz.',
                     style: AppTextStyles.labelSmall.copyWith(
-                      color: AppColors.textPrimary,
+                      color: AppColors.textPrimaryFor(context),
                       height: 1.4,
                     ),
                   ),

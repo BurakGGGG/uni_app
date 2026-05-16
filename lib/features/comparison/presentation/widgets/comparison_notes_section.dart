@@ -99,7 +99,7 @@ class _NotesContent extends ConsumerWidget {
                 'Notlarım',
                 style: AppTextStyles.labelMedium.copyWith(
                   fontWeight: FontWeight.w800,
-                  color: isDark ? Colors.white : AppColors.textPrimary,
+                  color: isDark ? Colors.white : AppColors.textPrimaryFor(context),
                 ),
               ),
               const Spacer(),
@@ -140,7 +140,7 @@ class _NotesContent extends ConsumerWidget {
               child: Text(
                 'Notlar yüklenemedi.',
                 style: AppTextStyles.bodySmall.copyWith(
-                  color: AppColors.textTertiary,
+                  color: AppColors.textTertiaryFor(context),
                 ),
               ),
             ),
@@ -291,7 +291,7 @@ class _NotesContent extends ConsumerWidget {
         content: Text(
           'Bu not kalıcı olarak silinecek. Devam edilsin mi?',
           style: AppTextStyles.bodySmall.copyWith(
-            color: AppColors.textSecondary,
+            color: AppColors.textSecondaryFor(context),
           ),
           textAlign: TextAlign.center,
         ),
@@ -302,7 +302,7 @@ class _NotesContent extends ConsumerWidget {
             child: Text(
               'İptal',
               style: AppTextStyles.labelMedium.copyWith(
-                color: AppColors.textSecondary,
+                color: AppColors.textSecondaryFor(context),
               ),
             ),
           ),
@@ -331,7 +331,7 @@ class _NotesContent extends ConsumerWidget {
         ..hideCurrentSnackBar()
         ..showSnackBar(SnackBar(
           content: const Text('Not silindi'),
-          backgroundColor: AppColors.textSecondary,
+          backgroundColor: AppColors.textSecondaryFor(context),
           behavior: SnackBarBehavior.floating,
           margin: const EdgeInsets.all(16),
           shape: RoundedRectangleBorder(
@@ -364,7 +364,7 @@ class _EmptyNotesState extends StatelessWidget {
           Text(
             'Henüz not yok',
             style: AppTextStyles.labelMedium.copyWith(
-              color: AppColors.textTertiary,
+              color: AppColors.textTertiaryFor(context),
               fontWeight: FontWeight.w600,
             ),
           ),

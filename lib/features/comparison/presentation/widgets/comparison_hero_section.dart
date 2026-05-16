@@ -56,7 +56,7 @@ class ComparisonHeroSection extends StatelessWidget {
             result.summaryText,
             textAlign: TextAlign.center,
             style: AppTextStyles.bodySmall.copyWith(
-              color: AppColors.textSecondary,
+              color: AppColors.textSecondaryFor(context),
               fontStyle: FontStyle.italic,
             ),
           ),
@@ -74,7 +74,7 @@ class ComparisonHeroSection extends StatelessWidget {
               ),
               _WinChip(
                 label: '${result.categoriesTied} berabere',
-                color: AppColors.textTertiary,
+                color: AppColors.textTertiaryFor(context),
                 name: '',
               ),
               _WinChip(
@@ -409,7 +409,7 @@ class _WinChip extends StatelessWidget {
               )),
         Text(label,
             style: AppTextStyles.labelSmall.copyWith(
-              color: AppColors.textSecondary,
+              color: AppColors.textSecondaryFor(context),
               fontSize: 10,
             )),
       ],

@@ -10,7 +10,7 @@ class CreateListSheet {
     return showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: AppColors.surface,
+      backgroundColor: AppColors.surfaceFor(context),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
       ),
@@ -89,7 +89,7 @@ class _BodyState extends ConsumerState<_Body> {
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: AppColors.borderLight,
+                color: AppColors.borderLightFor(context),
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -125,7 +125,7 @@ class _BodyState extends ConsumerState<_Body> {
                     Text(
                       'Liste adını ve açıklamasını gir',
                       style: AppTextStyles.labelSmall.copyWith(
-                        color: AppColors.textSecondary,
+                        color: AppColors.textSecondaryFor(context),
                       ),
                     ),
                   ],
@@ -180,7 +180,7 @@ class _BodyState extends ConsumerState<_Body> {
               subtitle: Text(
                 'Bağlantıyı paylaştığın herkes listeyi görebilir',
                 style: AppTextStyles.labelSmall
-                    .copyWith(color: AppColors.textSecondary),
+                    .copyWith(color: AppColors.textSecondaryFor(context)),
               ),
               value: _isPublic,
               activeTrackColor: AppColors.primary,
@@ -262,7 +262,7 @@ class _Label extends StatelessWidget {
       child: RichText(
         text: TextSpan(
           style: AppTextStyles.labelSmall.copyWith(
-            color: AppColors.textSecondary,
+            color: AppColors.textSecondaryFor(context),
             fontWeight: FontWeight.w600,
           ),
           children: [
@@ -308,7 +308,7 @@ class _Field extends StatelessWidget {
       decoration: InputDecoration(
         hintText: hintText,
         hintStyle: AppTextStyles.bodyMedium.copyWith(
-          color: AppColors.textTertiary,
+          color: AppColors.textTertiaryFor(context),
         ),
         filled: true,
         fillColor: AppColors.surfaceVariant.withValues(alpha: 0.7),
@@ -321,7 +321,7 @@ class _Field extends StatelessWidget {
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: AppColors.borderLight),
+          borderSide: BorderSide(color: AppColors.borderLightFor(context)),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),

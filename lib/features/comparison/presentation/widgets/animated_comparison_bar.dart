@@ -107,7 +107,7 @@ class _AnimatedComparisonBarState extends State<AnimatedComparisonBar>
                           overflow: TextOverflow.ellipsis,
                           style: AppTextStyles.labelMedium.copyWith(
                             fontWeight: FontWeight.w700,
-                            color: isDark ? Colors.white : AppColors.textPrimary,
+                            color: isDark ? Colors.white : AppColors.textPrimaryFor(context),
                           ),
                         ),
                         if (c.absDelta > 0.05)
@@ -116,7 +116,7 @@ class _AnimatedComparisonBarState extends State<AnimatedComparisonBar>
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: AppTextStyles.labelSmall.copyWith(
-                              color: AppColors.textTertiary,
+                              color: AppColors.textTertiaryFor(context),
                               fontSize: 10,
                             ),
                           ),
@@ -305,14 +305,14 @@ class _NoDataRow extends StatelessWidget {
       ),
       child: Row(
         children: [
-          const Icon(Icons.info_outline, size: 16, color: AppColors.textTertiary),
+          Icon(Icons.info_outline, size: 16, color: AppColors.textTertiaryFor(context)),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
               '$categoryName: Henüz yeterli yorum yok',
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
-              style: AppTextStyles.bodySmall.copyWith(color: AppColors.textTertiary),
+              style: AppTextStyles.bodySmall.copyWith(color: AppColors.textTertiaryFor(context)),
             ),
           ),
         ],

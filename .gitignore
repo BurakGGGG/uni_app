@@ -101,3 +101,4 @@ android/app/build/
 .env
 .env.local
 .env.production
+android/.kotlin/

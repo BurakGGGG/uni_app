@@ -25,8 +25,8 @@ class _Shell extends StatelessWidget {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Container(
-        decoration: const BoxDecoration(
-          color: AppColors.surface,
+        decoration: BoxDecoration(
+          color: AppColors.surfaceFor(context),
           borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
         ),
         child: DraggableScrollableSheet(
@@ -70,7 +70,7 @@ class _BodyState extends ConsumerState<_Body> {
           width: 40,
           height: 4,
           decoration: BoxDecoration(
-            color: AppColors.borderLight,
+            color: AppColors.borderLightFor(context),
             borderRadius: BorderRadius.circular(2),
           ),
         ),
@@ -79,7 +79,7 @@ class _BodyState extends ConsumerState<_Body> {
           child: Row(
             children: [
               IconButton(
-                icon: const Icon(Icons.close_rounded, color: AppColors.textPrimary),
+                icon: Icon(Icons.close_rounded, color: AppColors.textPrimaryFor(context)),
                 onPressed: () => Navigator.pop(context),
               ),
               Expanded(
@@ -106,15 +106,15 @@ class _BodyState extends ConsumerState<_Body> {
                       _searchCtrl.clear();
                       setState(() => _query = '');
                     },
-                    icon: const Icon(Icons.close_rounded,
-                        size: 18, color: AppColors.textTertiary),
+                    icon: Icon(Icons.close_rounded,
+                        size: 18, color: AppColors.textTertiaryFor(context)),
                     padding: EdgeInsets.zero,
                     constraints: const BoxConstraints.tightFor(width: 32, height: 32),
                   )
                 : null,
           ),
         ),
-        const Divider(height: 1, color: AppColors.borderLight),
+        Divider(height: 1, color: AppColors.borderLightFor(context)),
         Expanded(
           child: citiesAsync.when(
             loading: () => const Center(
@@ -163,7 +163,7 @@ class _CityTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: AppColors.surface,
+      color: AppColors.surfaceFor(context),
       borderRadius: BorderRadius.circular(16),
       child: InkWell(
         onTap: onTap,
@@ -172,7 +172,7 @@ class _CityTile extends StatelessWidget {
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppColors.borderLight),
+            border: Border.all(color: AppColors.borderLightFor(context)),
           ),
           child: Row(
             children: [
@@ -202,13 +202,13 @@ class _CityTile extends StatelessWidget {
                     Text(
                       'Plaka: ${city.plateCode} • Üni: ${city.appUniversityCount}',
                       style: AppTextStyles.labelSmall.copyWith(
-                        color: AppColors.textSecondary,
+                        color: AppColors.textSecondaryFor(context),
                       ),
                     ),
                   ],
                 ),
               ),
-              Icon(Icons.chevron_right_rounded, color: AppColors.textTertiary),
+              Icon(Icons.chevron_right_rounded, color: AppColors.textTertiaryFor(context)),
             ],
           ),
         ),

@@ -166,14 +166,14 @@ class MyReviewsScreen extends ConsumerWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.lock_outline_rounded, size: 64, color: AppColors.textTertiary),
+          Icon(Icons.lock_outline_rounded, size: 64, color: AppColors.textTertiaryFor(context)),
           const SizedBox(height: 16),
           Text('Giriş Yapmanız Gerekiyor', style: AppTextStyles.titleMedium),
           const SizedBox(height: 8),
           Text(
             'Yorumlarınızı görebilmek için\nlütfen giriş yapın.',
             textAlign: TextAlign.center,
-            style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary),
+            style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondaryFor(context)),
           ),
           const SizedBox(height: 24),
           FilledButton(

@@ -190,7 +190,7 @@ class _ChangePasswordDialogState extends State<ChangePasswordDialog> {
                       _obscureCurrent
                           ? Icons.visibility_outlined
                           : Icons.visibility_off_outlined,
-                      color: AppColors.textTertiary,
+                      color: AppColors.textTertiaryFor(context),
                     ),
                     onPressed: () =>
                         setState(() => _obscureCurrent = !_obscureCurrent),
@@ -221,7 +221,7 @@ class _ChangePasswordDialogState extends State<ChangePasswordDialog> {
                       _obscureNew
                           ? Icons.visibility_outlined
                           : Icons.visibility_off_outlined,
-                      color: AppColors.textTertiary,
+                      color: AppColors.textTertiaryFor(context),
                     ),
                     onPressed: () =>
                         setState(() => _obscureNew = !_obscureNew),
@@ -246,7 +246,7 @@ class _ChangePasswordDialogState extends State<ChangePasswordDialog> {
                       _obscureConfirm
                           ? Icons.visibility_outlined
                           : Icons.visibility_off_outlined,
-                      color: AppColors.textTertiary,
+                      color: AppColors.textTertiaryFor(context),
                     ),
                     onPressed: () =>
                         setState(() => _obscureConfirm = !_obscureConfirm),

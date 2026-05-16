@@ -67,7 +67,7 @@ class ComparisonNoteCard extends StatelessWidget {
           Text(
             note.note,
             style: AppTextStyles.bodySmall.copyWith(
-              color: isDark ? Colors.white.withValues(alpha: 0.9) : AppColors.textPrimary,
+              color: isDark ? Colors.white.withValues(alpha: 0.9) : AppColors.textPrimaryFor(context),
               height: 1.5,
             ),
           ),
@@ -109,7 +109,7 @@ class ComparisonNoteCard extends StatelessWidget {
           Text(
             _formatRelativeTime(note.updatedAt),
             style: AppTextStyles.labelSmall.copyWith(
-              color: AppColors.textTertiary,
+              color: AppColors.textTertiaryFor(context),
               fontSize: 10,
             ),
           ),
@@ -146,7 +146,7 @@ class _RatingStars extends StatelessWidget {
         return Icon(
           filled ? Icons.star_rounded : Icons.star_outline_rounded,
           size: 16,
-          color: filled ? AppColors.tierPro : AppColors.textTertiary,
+          color: filled ? AppColors.tierPro : AppColors.textTertiaryFor(context),
         );
       }),
     );
@@ -224,7 +224,7 @@ class _ActionButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final color = isDestructive
         ? AppColors.error
-        : (isDark ? Colors.white54 : AppColors.textTertiary);
+        : (isDark ? Colors.white54 : AppColors.textTertiaryFor(context));
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(8),

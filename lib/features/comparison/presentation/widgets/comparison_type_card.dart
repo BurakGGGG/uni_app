@@ -165,7 +165,7 @@ class _ComparisonTypeCardState extends State<ComparisonTypeCard>
                         Text(
                           widget.description,
                           style: AppTextStyles.bodySmall.copyWith(
-                            color: AppColors.textSecondary,
+                            color: AppColors.textSecondaryFor(context),
                             height: 1.3,
                           ),
                         ),

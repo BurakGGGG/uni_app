@@ -22,7 +22,7 @@ class UniInfoStrip extends StatelessWidget {
       margin: const EdgeInsets.symmetric(horizontal: 20),
       padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 12),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: AppColors.surfaceFor(context),
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(

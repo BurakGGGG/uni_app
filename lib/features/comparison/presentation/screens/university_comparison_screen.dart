@@ -87,7 +87,7 @@ class _UniversityComparisonScreenState
     final loc = AppLocalizations.of(context);
 
     return Scaffold(
-      backgroundColor: isDark ? AppColors.darkBackground : AppColors.background,
+      backgroundColor: AppColors.backgroundFor(context),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -95,7 +95,7 @@ class _UniversityComparisonScreenState
           loc.comparisonUniversity,
           style: AppTextStyles.titleMedium.copyWith(
             fontWeight: FontWeight.w700,
-            color: isDark ? Colors.white : AppColors.textPrimary,
+            color: isDark ? Colors.white : AppColors.textPrimaryFor(context),
           ),
         ),
         actions: [
@@ -273,7 +273,7 @@ class _UniversityComparisonScreenState
         content: Text(
           'Mevcut karşılaştırma sıfırlansın mı? Yeni üniversiteler seçebilirsiniz.',
           style: AppTextStyles.bodySmall.copyWith(
-            color: AppColors.textSecondary,
+            color: AppColors.textSecondaryFor(context),
           ),
           textAlign: TextAlign.center,
         ),
@@ -284,7 +284,7 @@ class _UniversityComparisonScreenState
             child: Text(
               'İptal',
               style: AppTextStyles.labelMedium.copyWith(
-                color: AppColors.textSecondary,
+                color: AppColors.textSecondaryFor(context),
               ),
             ),
           ),
@@ -737,7 +737,7 @@ class _BigInfoCard extends StatelessWidget {
           Text(
             '$reviewCount yorum',
             style: AppTextStyles.labelSmall.copyWith(
-              color: AppColors.textTertiary,
+              color: AppColors.textTertiaryFor(context),
             ),
           ),
           const SizedBox(height: 8),
@@ -753,7 +753,7 @@ class _BigInfoCard extends StatelessWidget {
           Text(
             '$type • $year',
             style: AppTextStyles.labelSmall.copyWith(
-              color: AppColors.textTertiary,
+              color: AppColors.textTertiaryFor(context),
               fontSize: 10,
             ),
           ),
@@ -799,7 +799,7 @@ class _SummaryCard extends StatelessWidget {
               Text('Karşılaştırma Özeti',
                   style: AppTextStyles.labelMedium.copyWith(
                     fontWeight: FontWeight.w700,
-                    color: isDark ? Colors.white : AppColors.textPrimary,
+                    color: isDark ? Colors.white : AppColors.textPrimaryFor(context),
                   )),
             ],
           ),
@@ -807,7 +807,7 @@ class _SummaryCard extends StatelessWidget {
           Text(
             result.summaryText,
             style: AppTextStyles.bodySmall.copyWith(
-              color: AppColors.textSecondary,
+              color: AppColors.textSecondaryFor(context),
               height: 1.5,
             ),
           ),
@@ -904,11 +904,11 @@ class _QuickStat extends StatelessWidget {
         ),
         child: Column(
           children: [
-            Icon(icon, size: 18, color: AppColors.textTertiary),
+            Icon(icon, size: 18, color: AppColors.textTertiaryFor(context)),
             const SizedBox(height: 6),
             Text(label,
                 style: AppTextStyles.labelSmall.copyWith(
-                  color: AppColors.textTertiary, fontSize: 10)),
+                  color: AppColors.textTertiaryFor(context), fontSize: 10)),
             const SizedBox(height: 4),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -921,7 +921,7 @@ class _QuickStat extends StatelessWidget {
                     )),
                 Text(' / ',
                     style: TextStyle(
-                      color: AppColors.textTertiary, fontSize: 11)),
+                      color: AppColors.textTertiaryFor(context), fontSize: 11)),
                 Text(valueB,
                     style: TextStyle(
                       color: AppColors.secondary,
@@ -1128,7 +1128,7 @@ class _ProNotesPaywallSheet extends StatelessWidget {
                   ? 'Pro üyelere özel premium bir deneyim seni bekliyor!'
                   : 'Giriş yap ve Pro üye olarak bu özelliğin kilidini aç!',
               style: AppTextStyles.bodyMedium.copyWith(
-                color: AppColors.textSecondary,
+                color: AppColors.textSecondaryFor(context),
                 height: 1.4,
               ),
               textAlign: TextAlign.center,
@@ -1235,7 +1235,7 @@ class _ProNotesPaywallSheet extends StatelessWidget {
               child: Text(
                 'Şimdilik geç',
                 style: AppTextStyles.labelMedium.copyWith(
-                  color: AppColors.textTertiary,
+                  color: AppColors.textTertiaryFor(context),
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -1275,7 +1275,7 @@ class _FeatureRow extends StatelessWidget {
           child: Text(
             text,
             style: AppTextStyles.bodySmall.copyWith(
-              color: isDark ? Colors.white.withValues(alpha: 0.85) : AppColors.textPrimary,
+              color: isDark ? Colors.white.withValues(alpha: 0.85) : AppColors.textPrimaryFor(context),
               fontWeight: FontWeight.w600,
               height: 1.3,
             ),
@@ -1583,7 +1583,7 @@ class _PodiumSpot extends StatelessWidget {
               fontWeight: isFirst ? FontWeight.w900 : FontWeight.w700,
               fontSize: isFirst ? 12 : 11,
               height: 1.2,
-              color: isDark ? Colors.white : AppColors.textPrimary,
+              color: isDark ? Colors.white : AppColors.textPrimaryFor(context),
             ),
           ),
         ),
@@ -1615,7 +1615,7 @@ class _PodiumSpot extends StatelessWidget {
         Text(
           '${ranked.uni.reviewCount} yorum',
           style: AppTextStyles.labelSmall.copyWith(
-            color: AppColors.textTertiary,
+            color: AppColors.textTertiaryFor(context),
             fontSize: 10,
           ),
         ),
@@ -1667,7 +1667,7 @@ class _TripleScoreChips extends StatelessWidget {
           _ScoreChip(
             name: 'Berabere',
             wins: tied,
-            color: AppColors.textTertiary,
+            color: AppColors.textTertiaryFor(context),
             isDark: isDark,
             icon: Icons.balance_rounded,
           ),
@@ -1833,7 +1833,7 @@ class _StatRow extends StatelessWidget {
             child: Text(
               label,
               style: AppTextStyles.labelSmall.copyWith(
-                color: AppColors.textTertiary,
+                color: AppColors.textTertiaryFor(context),
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -1982,7 +1982,7 @@ class _AnimatedTripleCategoryBarState
                       child: Text(
                         'BERABERE',
                         style: AppTextStyles.labelSmall.copyWith(
-                          color: AppColors.textTertiary,
+                          color: AppColors.textTertiaryFor(context),
                           fontWeight: FontWeight.w800,
                           fontSize: 9,
                           letterSpacing: 0.4,

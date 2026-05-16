@@ -1292,6 +1292,12 @@ abstract class AppLocalizations {
   /// **'Şifre en az 6 karakter olmalı'**
   String get authPasswordTooShort;
 
+  /// No description provided for @homeTabHome.
+  ///
+  /// In tr, this message translates to:
+  /// **'Ana Sayfa'**
+  String get homeTabHome;
+
   /// No description provided for @homeTabExplore.
   ///
   /// In tr, this message translates to:
@@ -1307,7 +1313,7 @@ abstract class AppLocalizations {
   /// No description provided for @homeTabFavorites.
   ///
   /// In tr, this message translates to:
-  /// **'Favoriler'**
+  /// **'Listelerim'**
   String get homeTabFavorites;
 
   /// No description provided for @homeTabProfile.
@@ -1435,6 +1441,222 @@ abstract class AppLocalizations {
   /// In tr, this message translates to:
   /// **'Beğendiğin üniversiteleri buradan takip et.'**
   String get favoritesEmptyHint;
+
+  /// No description provided for @profileTheme.
+  ///
+  /// In tr, this message translates to:
+  /// **'Tema'**
+  String get profileTheme;
+
+  /// No description provided for @themeSystem.
+  ///
+  /// In tr, this message translates to:
+  /// **'Sistem'**
+  String get themeSystem;
+
+  /// No description provided for @themeLight.
+  ///
+  /// In tr, this message translates to:
+  /// **'Açık'**
+  String get themeLight;
+
+  /// No description provided for @themeDark.
+  ///
+  /// In tr, this message translates to:
+  /// **'Koyu'**
+  String get themeDark;
+
+  /// No description provided for @themeSelection.
+  ///
+  /// In tr, this message translates to:
+  /// **'Tema Seçimi'**
+  String get themeSelection;
+
+  /// No description provided for @languageSelection.
+  ///
+  /// In tr, this message translates to:
+  /// **'Dil Seçimi'**
+  String get languageSelection;
+
+  /// No description provided for @turkish.
+  ///
+  /// In tr, this message translates to:
+  /// **'Türkçe'**
+  String get turkish;
+
+  /// No description provided for @english.
+  ///
+  /// In tr, this message translates to:
+  /// **'English'**
+  String get english;
+
+  /// No description provided for @homeGreeting.
+  ///
+  /// In tr, this message translates to:
+  /// **'Merhaba! 👋'**
+  String get homeGreeting;
+
+  /// No description provided for @homePopularUniversities.
+  ///
+  /// In tr, this message translates to:
+  /// **'Popüler Üniversiteler'**
+  String get homePopularUniversities;
+
+  /// No description provided for @homeSeeAll.
+  ///
+  /// In tr, this message translates to:
+  /// **'Tümünü Gör'**
+  String get homeSeeAll;
+
+  /// No description provided for @homeCities.
+  ///
+  /// In tr, this message translates to:
+  /// **'Şehirler'**
+  String get homeCities;
+
+  /// No description provided for @homeCitiesLoadError.
+  ///
+  /// In tr, this message translates to:
+  /// **'Şehirler yüklenemedi'**
+  String get homeCitiesLoadError;
+
+  /// No description provided for @homeRecentReviews.
+  ///
+  /// In tr, this message translates to:
+  /// **'Son Yorumlar'**
+  String get homeRecentReviews;
+
+  /// No description provided for @homeNoReviews.
+  ///
+  /// In tr, this message translates to:
+  /// **'Henüz yorum yok'**
+  String get homeNoReviews;
+
+  /// No description provided for @homeFirstReview.
+  ///
+  /// In tr, this message translates to:
+  /// **'İlk yorumu yazan siz olun!'**
+  String get homeFirstReview;
+
+  /// No description provided for @homeAssistantTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Tercih Asistanı'**
+  String get homeAssistantTitle;
+
+  /// No description provided for @homeAssistantSubtitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Hayalindeki üniversiteyi\nbirlikte bulalım!'**
+  String get homeAssistantSubtitle;
+
+  /// No description provided for @homeStart.
+  ///
+  /// In tr, this message translates to:
+  /// **'Başla'**
+  String get homeStart;
+
+  /// No description provided for @exploreTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Keşfet'**
+  String get exploreTitle;
+
+  /// No description provided for @exploreSubtitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Üniversiteleri keşfet, filtrele ve karşılaştır'**
+  String get exploreSubtitle;
+
+  /// No description provided for @exploreSearchHint.
+  ///
+  /// In tr, this message translates to:
+  /// **'Üniversite ara...'**
+  String get exploreSearchHint;
+
+  /// No description provided for @exploreTypeState.
+  ///
+  /// In tr, this message translates to:
+  /// **'Devlet'**
+  String get exploreTypeState;
+
+  /// No description provided for @exploreTypeFoundation.
+  ///
+  /// In tr, this message translates to:
+  /// **'Vakıf'**
+  String get exploreTypeFoundation;
+
+  /// No description provided for @exploreFilters.
+  ///
+  /// In tr, this message translates to:
+  /// **'Filtreler'**
+  String get exploreFilters;
+
+  /// No description provided for @exploreClear.
+  ///
+  /// In tr, this message translates to:
+  /// **'Temizle'**
+  String get exploreClear;
+
+  /// No description provided for @exploreUniType.
+  ///
+  /// In tr, this message translates to:
+  /// **'Üniversite Türü'**
+  String get exploreUniType;
+
+  /// No description provided for @exploreCities.
+  ///
+  /// In tr, this message translates to:
+  /// **'Şehirler'**
+  String get exploreCities;
+
+  /// No description provided for @exploreCitiesError.
+  ///
+  /// In tr, this message translates to:
+  /// **'Şehirler yüklenemedi'**
+  String get exploreCitiesError;
+
+  /// No description provided for @exploreNoResults.
+  ///
+  /// In tr, this message translates to:
+  /// **'Sonuç bulunamadı'**
+  String get exploreNoResults;
+
+  /// No description provided for @exploreNoResultsSub.
+  ///
+  /// In tr, this message translates to:
+  /// **'Filtrelerinizi değiştirerek tekrar deneyin.'**
+  String get exploreNoResultsSub;
+
+  /// No description provided for @searchError.
+  ///
+  /// In tr, this message translates to:
+  /// **'Arama yapılırken bir hata oluştu.'**
+  String get searchError;
+
+  /// No description provided for @searchNoResults.
+  ///
+  /// In tr, this message translates to:
+  /// **'Sonuç bulunamadı'**
+  String get searchNoResults;
+
+  /// No description provided for @searchNoResultsSub.
+  ///
+  /// In tr, this message translates to:
+  /// **'\"{query}\" aramasına uygun üniversite yok.'**
+  String searchNoResultsSub(Object query);
+
+  /// No description provided for @searchCampus.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kampüslü'**
+  String get searchCampus;
+
+  /// No description provided for @searchEst.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kuruluş: {year}'**
+  String searchEst(Object year);
 }
 
 class _AppLocalizationsDelegate

@@ -66,9 +66,9 @@ class ComparisonStatsTable extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: AppColors.surfaceFor(context),
         borderRadius: BorderRadius.circular(AppConstants.radiusLg),
-        border: Border.all(color: AppColors.borderLight),
+        border: Border.all(color: AppColors.borderLightFor(context)),
       ),
       child: Column(
         children: List.generate(rows.length, (i) {
@@ -77,8 +77,8 @@ class ComparisonStatsTable extends StatelessWidget {
           return Container(
             decoration: BoxDecoration(
               border: !isLast
-                  ? const Border(
-                      bottom: BorderSide(color: AppColors.borderLight))
+                  ? Border(
+                      bottom: BorderSide(color: AppColors.borderLightFor(context)))
                   : null,
             ),
             child: Padding(
@@ -103,7 +103,7 @@ class ComparisonStatsTable extends StatelessWidget {
                       r.label,
                       textAlign: TextAlign.center,
                       style: AppTextStyles.labelSmall.copyWith(
-                        color: AppColors.textTertiary,
+                        color: AppColors.textTertiaryFor(context),
                       ),
                     ),
                   ),

@@ -88,7 +88,7 @@ class _DepartmentComparisonScreenState
       showBlurPreview: true,
       onLocked: () => context.push('/compare/paywall'),
       child: Scaffold(
-      backgroundColor: isDark ? AppColors.darkBackground : AppColors.background,
+      backgroundColor: AppColors.backgroundFor(context),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -96,7 +96,7 @@ class _DepartmentComparisonScreenState
           loc.comparisonDepartment,
           style: AppTextStyles.titleMedium.copyWith(
             fontWeight: FontWeight.w800,
-            color: isDark ? Colors.white : AppColors.textPrimary,
+            color: isDark ? Colors.white : AppColors.textPrimaryFor(context),
           ),
         ),
         actions: [
@@ -332,7 +332,7 @@ class _HintCard extends StatelessWidget {
             child: Text(
               'İki taraftan da birer bölüm seçince karşılaştırma sonuçları burada gözükecek.',
               style: AppTextStyles.bodyMedium.copyWith(
-                color: isDark ? Colors.white70 : AppColors.textSecondary,
+                color: isDark ? Colors.white70 : AppColors.textSecondaryFor(context),
                 height: 1.3,
               ),
             ),
@@ -367,7 +367,7 @@ class _ErrorCard extends StatelessWidget {
             child: Text(
               message,
               style: AppTextStyles.bodyMedium.copyWith(
-                color: isDark ? Colors.white70 : AppColors.textSecondary,
+                color: isDark ? Colors.white70 : AppColors.textSecondaryFor(context),
               ),
             ),
           ),
@@ -453,7 +453,7 @@ class _PickCard extends StatelessWidget {
                 fontWeight: FontWeight.w900,
                 fontSize: 12,
                 height: 1.2,
-                color: isDark ? Colors.white : AppColors.textPrimary,
+                color: isDark ? Colors.white : AppColors.textPrimaryFor(context),
               ),
             ),
             const SizedBox(height: 2),
@@ -510,13 +510,13 @@ class _MetaPill extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icon,
-              size: 14, color: isDark ? Colors.white70 : AppColors.textSecondary),
+              size: 14, color: isDark ? Colors.white70 : AppColors.textSecondaryFor(context)),
           const SizedBox(width: 6),
           Text(
             label,
             style: AppTextStyles.labelSmall.copyWith(
               fontWeight: FontWeight.w800,
-              color: isDark ? Colors.white : AppColors.textPrimary,
+              color: isDark ? Colors.white : AppColors.textPrimaryFor(context),
             ),
           ),
         ],
@@ -634,7 +634,7 @@ class _MismatchBanner extends StatelessWidget {
             child: Text(
               'Puan türleri farklı görünüyor. Karşılaştırma yanıltıcı olabilir.',
               style: AppTextStyles.bodySmall.copyWith(
-                color: isDark ? Colors.white70 : AppColors.textSecondary,
+                color: isDark ? Colors.white70 : AppColors.textSecondaryFor(context),
                 fontWeight: FontWeight.w700,
               ),
             ),
@@ -690,7 +690,7 @@ class _BigCompareCard extends StatelessWidget {
                   title,
                   style: AppTextStyles.titleSmall.copyWith(
                     fontWeight: FontWeight.w900,
-                    color: isDark ? Colors.white : AppColors.textPrimary,
+                    color: isDark ? Colors.white : AppColors.textPrimaryFor(context),
                   ),
                 ),
               ),
@@ -703,7 +703,7 @@ class _BigCompareCard extends StatelessWidget {
               Expanded(
                 child: _SideValue(label: leftLabel, value: leftValue, color: AppColors.primary),
               ),
-              Container(width: 1, height: 44, color: AppColors.borderLight),
+              Container(width: 1, height: 44, color: AppColors.borderLightFor(context)),
               Expanded(
                 child: _SideValue(label: rightLabel, value: rightValue, color: AppColors.secondary),
               ),
@@ -728,7 +728,7 @@ class _SideValue extends StatelessWidget {
         Text(
           label,
           style: AppTextStyles.labelSmall.copyWith(
-            color: AppColors.textTertiary,
+            color: AppColors.textTertiaryFor(context),
             fontWeight: FontWeight.w800,
           ),
         ),
@@ -837,7 +837,7 @@ class _BarCompareCard extends StatelessWidget {
                   title,
                   style: AppTextStyles.titleSmall.copyWith(
                     fontWeight: FontWeight.w900,
-                    color: isDark ? Colors.white : AppColors.textPrimary,
+                    color: isDark ? Colors.white : AppColors.textPrimaryFor(context),
                   ),
                 ),
               ),
@@ -907,7 +907,7 @@ class _BarSide extends StatelessWidget {
                 text,
                 style: AppTextStyles.bodyMedium.copyWith(
                   fontWeight: FontWeight.w900,
-                  color: isDark ? Colors.white : AppColors.textPrimary,
+                  color: isDark ? Colors.white : AppColors.textPrimaryFor(context),
                 ),
               ),
             ),
@@ -964,7 +964,7 @@ class _InfoRowCard extends StatelessWidget {
             'Bilgiler',
             style: AppTextStyles.titleSmall.copyWith(
               fontWeight: FontWeight.w900,
-              color: isDark ? Colors.white : AppColors.textPrimary,
+              color: isDark ? Colors.white : AppColors.textPrimaryFor(context),
             ),
           ),
           const SizedBox(height: 12),
@@ -1006,7 +1006,7 @@ class _InfoRow extends StatelessWidget {
             label,
             textAlign: TextAlign.center,
             style: AppTextStyles.labelSmall.copyWith(
-              color: AppColors.textTertiary,
+              color: AppColors.textTertiaryFor(context),
               fontWeight: FontWeight.w800,
             ),
           ),

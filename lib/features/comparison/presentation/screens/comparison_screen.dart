@@ -40,7 +40,7 @@ class ComparisonScreen extends ConsumerWidget {
     });
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.backgroundFor(context),
       body: SafeArea(
         child: Stack(
           children: [
@@ -243,7 +243,7 @@ Future<void> _showAdGateModal({
                     textAlign: TextAlign.center,
                     style: AppTextStyles.titleMedium.copyWith(
                       fontWeight: FontWeight.w900,
-                      color: isDark ? Colors.white : AppColors.textPrimary,
+                      color: isDark ? Colors.white : AppColors.textPrimaryFor(context),
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -258,7 +258,7 @@ Future<void> _showAdGateModal({
                           'Plus\'a geçerek sınırsız karşılaştırma yapabilirsin.',
                     textAlign: TextAlign.center,
                     style: AppTextStyles.bodySmall.copyWith(
-                      color: isDark ? Colors.white60 : AppColors.textSecondary,
+                      color: isDark ? Colors.white60 : AppColors.textSecondaryFor(context),
                       height: 1.4,
                     ),
                   ),
@@ -333,9 +333,9 @@ Future<void> _showAdGateModal({
                               label: const Text('Plus\'a Geç — Sınırsız'),
                               style: OutlinedButton.styleFrom(
                                 foregroundColor:
-                                    isDark ? Colors.white : AppColors.textPrimary,
+                                    isDark ? Colors.white : AppColors.textPrimaryFor(context),
                                 side: BorderSide(
-                                  color: (isDark ? Colors.white : AppColors.textPrimary)
+                                  color: (isDark ? Colors.white : AppColors.textPrimaryFor(context))
                                       .withValues(alpha: 0.16),
                                 ),
                                 padding: const EdgeInsets.symmetric(
@@ -357,7 +357,7 @@ Future<void> _showAdGateModal({
                             child: Text(
                               'Şimdilik Vazgeç',
                               style: AppTextStyles.labelMedium.copyWith(
-                                color: isDark ? Colors.white38 : AppColors.textTertiary,
+                                color: isDark ? Colors.white38 : AppColors.textTertiaryFor(context),
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
@@ -421,7 +421,7 @@ Future<void> _showFavoriteModal({
                 'Favorilere ekle',
                 style: AppTextStyles.titleMedium.copyWith(
                   fontWeight: FontWeight.w800,
-                  color: isDark ? Colors.white : AppColors.textPrimary,
+                  color: isDark ? Colors.white : AppColors.textPrimaryFor(context),
                 ),
               ),
               const SizedBox(height: 8),
@@ -495,14 +495,14 @@ class _FavoriteChoiceTile extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   style: AppTextStyles.bodyMedium.copyWith(
                     fontWeight: FontWeight.w700,
-                    color: isDark ? Colors.white : AppColors.textPrimary,
+                    color: isDark ? Colors.white : AppColors.textPrimaryFor(context),
                   ),
                 ),
               ),
               const SizedBox(width: 12),
               Icon(
                 isFavorite ? Icons.favorite_rounded : Icons.favorite_border_rounded,
-                color: isFavorite ? AppColors.error : AppColors.textTertiary,
+                color: isFavorite ? AppColors.error : AppColors.textTertiaryFor(context),
               ),
             ],
           ),
@@ -610,7 +610,7 @@ class _ActionPill extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(icon, size: 18, color: isDark ? Colors.white : AppColors.textPrimary),
+              Icon(icon, size: 18, color: isDark ? Colors.white : AppColors.textPrimaryFor(context)),
               const SizedBox(width: 8),
               Flexible(
                 child: Text(
@@ -619,7 +619,7 @@ class _ActionPill extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   style: AppTextStyles.labelMedium.copyWith(
                     fontWeight: FontWeight.w800,
-                    color: isDark ? Colors.white : AppColors.textPrimary,
+                    color: isDark ? Colors.white : AppColors.textPrimaryFor(context),
                   ),
                 ),
               ),
@@ -715,7 +715,7 @@ class _ComparisonAdGateOverlay extends ConsumerWidget {
                     textAlign: TextAlign.center,
                     style: AppTextStyles.titleMedium.copyWith(
                       fontWeight: FontWeight.w900,
-                      color: isDark ? Colors.white : AppColors.textPrimary,
+                      color: isDark ? Colors.white : AppColors.textPrimaryFor(context),
                     ),
                   ),
                   const SizedBox(height: 6),
@@ -725,7 +725,7 @@ class _ComparisonAdGateOverlay extends ConsumerWidget {
                         : 'Günlük karşılaştırma hakkın doldu.',
                     textAlign: TextAlign.center,
                     style: AppTextStyles.bodySmall.copyWith(
-                      color: isDark ? Colors.white70 : AppColors.textSecondary,
+                      color: isDark ? Colors.white70 : AppColors.textSecondaryFor(context),
                     ),
                   ),
                   const SizedBox(height: 14),

@@ -40,7 +40,7 @@ class NotificationBell extends ConsumerWidget {
               unread > 0
                   ? Icons.notifications_active_rounded
                   : Icons.notifications_outlined,
-              color: AppColors.textPrimary,
+              color: AppColors.textPrimaryFor(context),
               size: 24,
             ),
             if (unread > 0)
@@ -55,7 +55,7 @@ class NotificationBell extends ConsumerWidget {
                   decoration: BoxDecoration(
                     color: const Color(0xFFEF4444),
                     borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: AppColors.surface, width: 1.5),
+                    border: Border.all(color: AppColors.surfaceFor(context), width: 1.5),
                   ),
                   alignment: Alignment.center,
                   child: Text(

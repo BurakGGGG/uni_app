@@ -35,7 +35,7 @@ class _PlaceDetailScreenState extends ConsumerState<PlaceDetailScreen> {
     final placeAsync = ref.watch(placeWatchProvider(widget.placeId));
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.backgroundFor(context),
       body: placeAsync.when(
         loading: () => const PlaceDetailSkeleton(),
         error: (e, _) => Center(child: Text('Hata: $e')),
@@ -89,7 +89,7 @@ class _PlaceDetailScreenState extends ConsumerState<PlaceDetailScreen> {
       expandedHeight: hasImages ? 240 : 0,
       pinned: true,
       backgroundColor: AppColors.surface,
-      foregroundColor: AppColors.textPrimary,
+      foregroundColor: AppColors.textPrimaryFor(context),
       leading: IconButton(
         tooltip: 'Geri dön',
         onPressed: () => context.pop(),
@@ -124,7 +124,7 @@ class _PlaceDetailScreenState extends ConsumerState<PlaceDetailScreen> {
                       imageUrl: place.imageUrls[i],
                       fit: BoxFit.cover,
                       placeholder: (_, url) =>
-                          Container(color: AppColors.surfaceVariant),
+                          Container(color: AppColors.surfaceVariantFor(context)),
                       errorWidget: (_, url, error) => Container(
                         color: AppColors.primary.withValues(alpha: 0.12),
                         child: Icon(place.type.icon,
@@ -220,10 +220,10 @@ class _PlaceDetailScreenState extends ConsumerState<PlaceDetailScreen> {
             const SizedBox(height: 8),
             Row(
               children: [
-                Icon(Icons.location_on_outlined, size: 16, color: AppColors.textSecondary),
+                Icon(Icons.location_on_outlined, size: 16, color: AppColors.textSecondaryFor(context)),
                 const SizedBox(width: 6),
                 Expanded(child: Text(place.address,
-                  style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary))),
+                  style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondaryFor(context)))),
               ],
             ),
           ],
@@ -244,11 +244,11 @@ class _PlaceDetailScreenState extends ConsumerState<PlaceDetailScreen> {
             style: AppTextStyles.titleMedium.copyWith(fontWeight: FontWeight.w700)),
           const SizedBox(width: 4),
           Text('(${place.reviewCount} yorum)',
-            style: AppTextStyles.labelMedium.copyWith(color: AppColors.textSecondary)),
+            style: AppTextStyles.labelMedium.copyWith(color: AppColors.textSecondaryFor(context))),
         ] else
           Text('Henüz değerlendirilmedi',
             style: AppTextStyles.labelMedium.copyWith(
-              color: AppColors.textTertiary, fontStyle: FontStyle.italic)),
+              color: AppColors.textTertiaryFor(context), fontStyle: FontStyle.italic)),
         if (place.externalRating != null) ...[
           const SizedBox(width: 12),
           Container(
@@ -306,7 +306,7 @@ class _PlaceDetailScreenState extends ConsumerState<PlaceDetailScreen> {
               Icon(Icons.schedule_rounded, size: 16, color: AppColors.primary),
               const SizedBox(width: 8),
               Text('$openHoursLabel: ',
-                style: AppTextStyles.labelMedium.copyWith(color: AppColors.textSecondary)),
+                style: AppTextStyles.labelMedium.copyWith(color: AppColors.textSecondaryFor(context))),
               Expanded(
                 child: Text(place.openHours!,
                   style: AppTextStyles.labelMedium.copyWith(fontWeight: FontWeight.w600)),
@@ -413,7 +413,7 @@ class _PlaceDetailScreenState extends ConsumerState<PlaceDetailScreen> {
               PopupMenuItem(value: ReviewSort.mostLiked, child: Text('En beğenilen')),
             ],
             child: Row(children: [
-              Icon(Icons.sort_rounded, size: 16, color: AppColors.textSecondary),
+              Icon(Icons.sort_rounded, size: 16, color: AppColors.textSecondaryFor(context)),
               const SizedBox(width: 4),
               Text(
                 ref.watch(reviewSortProvider) == ReviewSort.newest

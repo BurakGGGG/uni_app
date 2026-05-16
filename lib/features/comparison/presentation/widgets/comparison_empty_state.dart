@@ -71,7 +71,7 @@ class ComparisonEmptyState extends StatelessWidget {
               title,
               textAlign: TextAlign.center,
               style: AppTextStyles.titleMedium.copyWith(
-                color: isDark ? Colors.white : AppColors.textPrimary,
+                color: isDark ? Colors.white : AppColors.textPrimaryFor(context),
                 fontWeight: FontWeight.w800,
               ),
             ),
@@ -84,7 +84,7 @@ class ComparisonEmptyState extends StatelessWidget {
               style: AppTextStyles.bodyMedium.copyWith(
                 color: isDark
                     ? Colors.white.withValues(alpha: 0.7)
-                    : AppColors.textSecondary,
+                    : AppColors.textSecondaryFor(context),
                 height: 1.5,
               ),
             ),

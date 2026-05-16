@@ -44,14 +44,14 @@ class OfflineBanner extends StatelessWidget {
                   'İnternet bağlantısı yok',
                   style: AppTextStyles.labelMedium.copyWith(
                     fontWeight: FontWeight.w800,
-                    color: isDark ? Colors.white : AppColors.textPrimary,
+                    color: isDark ? Colors.white : AppColors.textPrimaryFor(context),
                   ),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   'Karşılaştırma için internet gerekiyor.',
                   style: AppTextStyles.bodySmall.copyWith(
-                    color: isDark ? Colors.white70 : AppColors.textSecondary,
+                    color: isDark ? Colors.white70 : AppColors.textSecondaryFor(context),
                   ),
                 ),
               ],

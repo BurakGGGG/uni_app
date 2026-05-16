@@ -84,7 +84,7 @@ class _CityComparisonScreenState extends ConsumerState<CityComparisonScreen> {
       showBlurPreview: true,
       onLocked: () => context.push('/compare/paywall'),
       child: Scaffold(
-      backgroundColor: isDark ? AppColors.darkBackground : AppColors.background,
+      backgroundColor: AppColors.backgroundFor(context),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -92,7 +92,7 @@ class _CityComparisonScreenState extends ConsumerState<CityComparisonScreen> {
           loc.comparisonCity,
           style: AppTextStyles.titleMedium.copyWith(
             fontWeight: FontWeight.w800,
-            color: isDark ? Colors.white : AppColors.textPrimary,
+            color: isDark ? Colors.white : AppColors.textPrimaryFor(context),
           ),
         ),
         actions: [
@@ -276,7 +276,7 @@ class _HintCard extends StatelessWidget {
             child: Text(
               'İki şehir seçince karşılaştırma sonuçları burada gözükecek.',
               style: AppTextStyles.bodyMedium.copyWith(
-                color: isDark ? Colors.white70 : AppColors.textSecondary,
+                color: isDark ? Colors.white70 : AppColors.textSecondaryFor(context),
                 height: 1.3,
               ),
             ),
@@ -311,7 +311,7 @@ class _ErrorCard extends StatelessWidget {
             child: Text(
               message,
               style: AppTextStyles.bodyMedium.copyWith(
-                color: isDark ? Colors.white70 : AppColors.textSecondary,
+                color: isDark ? Colors.white70 : AppColors.textSecondaryFor(context),
               ),
             ),
           ),
@@ -388,7 +388,7 @@ class _CityPickCard extends StatelessWidget {
                 fontWeight: FontWeight.w900,
                 fontSize: 13,
                 height: 1.2,
-                color: isDark ? Colors.white : AppColors.textPrimary,
+                color: isDark ? Colors.white : AppColors.textPrimaryFor(context),
               ),
             ),
             const SizedBox(height: 8),
@@ -432,13 +432,13 @@ class _MetaPill extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icon,
-              size: 14, color: isDark ? Colors.white70 : AppColors.textSecondary),
+              size: 14, color: isDark ? Colors.white70 : AppColors.textSecondaryFor(context)),
           const SizedBox(width: 6),
           Text(
             label,
             style: AppTextStyles.labelSmall.copyWith(
               fontWeight: FontWeight.w800,
-              color: isDark ? Colors.white : AppColors.textPrimary,
+              color: isDark ? Colors.white : AppColors.textPrimaryFor(context),
             ),
           ),
         ],
@@ -493,7 +493,7 @@ class _CityResultView extends StatelessWidget {
               Container(
                 width: 1,
                 height: 100,
-                color: AppColors.borderLight,
+                color: AppColors.borderLightFor(context),
               ),
               Expanded(
                 child: Column(
@@ -699,7 +699,7 @@ class _Card extends StatelessWidget {
             title,
             style: AppTextStyles.titleSmall.copyWith(
               fontWeight: FontWeight.w900,
-              color: isDark ? Colors.white : AppColors.textPrimary,
+              color: isDark ? Colors.white : AppColors.textPrimaryFor(context),
             ),
           ),
           const SizedBox(height: 12),
@@ -739,7 +739,7 @@ class _InfoRow extends StatelessWidget {
             label,
             textAlign: TextAlign.center,
             style: AppTextStyles.labelSmall.copyWith(
-              color: AppColors.textTertiary,
+              color: AppColors.textTertiaryFor(context),
               fontWeight: FontWeight.w800,
             ),
           ),

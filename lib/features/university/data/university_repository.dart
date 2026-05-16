@@ -158,6 +158,17 @@ class UniversityRepository {
     return departments;
   }
 
+  Future<List<DepartmentModel>> getAllDepartments() async {
+    // Tüm bölümleri çekmek için (Score Calculator gibi yerlerde kullanılır)
+    final snapshot = await _firestore
+        .collection('departments')
+        .get(const GetOptions(source: Source.serverAndCache));
+    
+    return snapshot.docs
+        .map((doc) => DepartmentModel.fromMap(doc.data(), doc.id))
+        .toList();
+  }
+
   Future<DepartmentModel?> getDepartment(String deptId) async {
     // Önce cache'den bak
     for (final depts in _departmentsCache.values) {

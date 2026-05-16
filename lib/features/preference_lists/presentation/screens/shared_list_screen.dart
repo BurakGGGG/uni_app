@@ -19,7 +19,7 @@ class SharedListScreen extends ConsumerWidget {
     final isLoggedIn = ref.watch(authStateProvider).value != null;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.backgroundFor(context),
       body: SafeArea(
         child: listAsync.when(
           loading: () => const Center(
@@ -47,8 +47,8 @@ class SharedListScreen extends ConsumerWidget {
             child: Row(
               children: [
                 IconButton(
-                  icon: const Icon(Icons.arrow_back_rounded,
-                      color: AppColors.textPrimary),
+                  icon: Icon(Icons.arrow_back_rounded,
+                      color: AppColors.textPrimaryFor(context)),
                   onPressed: () {
                     if (context.canPop()) {
                       context.pop();
@@ -109,7 +109,7 @@ class SharedListScreen extends ConsumerWidget {
                   Text(
                     list.description,
                     style: AppTextStyles.bodyMedium.copyWith(
-                      color: AppColors.textSecondary,
+                      color: AppColors.textSecondaryFor(context),
                       height: 1.4,
                     ),
                   ),
@@ -138,7 +138,7 @@ class SharedListScreen extends ConsumerWidget {
                           Text(
                             'Liste sahibi',
                             style: AppTextStyles.labelSmall.copyWith(
-                              color: AppColors.textSecondary,
+                              color: AppColors.textSecondaryFor(context),
                             ),
                           ),
                         ],
@@ -154,13 +154,13 @@ class SharedListScreen extends ConsumerWidget {
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(Icons.format_list_numbered_rounded,
-                              size: 14, color: AppColors.textSecondary),
+                          Icon(Icons.format_list_numbered_rounded,
+                              size: 14, color: AppColors.textSecondaryFor(context)),
                           const SizedBox(width: 4),
                           Text(
                             '${list.items.length} tercih',
                             style: AppTextStyles.labelSmall.copyWith(
-                              color: AppColors.textSecondary,
+                              color: AppColors.textSecondaryFor(context),
                               fontWeight: FontWeight.w700,
                             ),
                           ),
@@ -207,7 +207,7 @@ class _SharedItemCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: AppColors.surfaceFor(context),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.borderLight),
         boxShadow: AppColors.softShadow,
@@ -260,7 +260,7 @@ class _SharedItemCard extends StatelessWidget {
                 Text(
                   item.uniName,
                   style: AppTextStyles.labelSmall.copyWith(
-                    color: AppColors.textSecondary,
+                    color: AppColors.textSecondaryFor(context),
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -376,10 +376,10 @@ class _EmptyView extends StatelessWidget {
                 color: AppColors.surfaceVariant,
                 shape: BoxShape.circle,
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.inbox_rounded,
                 size: 36,
-                color: AppColors.textTertiary,
+                color: AppColors.textTertiaryFor(context),
               ),
             ),
             const SizedBox(height: 16),
@@ -393,7 +393,7 @@ class _EmptyView extends StatelessWidget {
             Text(
               'Bu listede henüz tercih yok.',
               style: AppTextStyles.bodyMedium.copyWith(
-                color: AppColors.textSecondary,
+                color: AppColors.textSecondaryFor(context),
               ),
             ),
           ],
@@ -439,7 +439,7 @@ class _NotFoundView extends StatelessWidget {
               'Bu liste silinmiş veya gizli olarak işaretlenmiş olabilir.',
               textAlign: TextAlign.center,
               style: AppTextStyles.bodyMedium.copyWith(
-                color: AppColors.textSecondary,
+                color: AppColors.textSecondaryFor(context),
                 height: 1.5,
               ),
             ),
