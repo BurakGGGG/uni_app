@@ -211,7 +211,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           Text(
                             AppConstants.appTagline,
                             style: AppTextStyles.bodyMedium.copyWith(
-                              color: AppColors.textSecondary,
+                              color: AppColors.textSecondaryFor(context),
                             ),
                           ),
                         ],
@@ -301,7 +301,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             _obscurePassword
                                 ? Icons.visibility_outlined
                                 : Icons.visibility_off_outlined,
-                            color: AppColors.textTertiary,
+                            color: AppColors.textTertiaryFor(context),
                           ),
                         ),
                       ),
@@ -377,7 +377,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         child: Text(
                           loc.authGuestContinue,
                           style: AppTextStyles.labelMedium.copyWith(
-                            color: AppColors.textTertiary,
+                            color: AppColors.textTertiaryFor(context),
                           ),
                         ),
                       ),

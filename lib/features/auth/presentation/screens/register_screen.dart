@@ -306,7 +306,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                             _obscurePassword
                                 ? Icons.visibility_outlined
                                 : Icons.visibility_off_outlined,
-                            color: AppColors.textTertiary,
+                            color: AppColors.textTertiaryFor(context),
                           ),
                         ),
                       ),
@@ -347,7 +347,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                             _obscureConfirm
                                 ? Icons.visibility_outlined
                                 : Icons.visibility_off_outlined,
-                            color: AppColors.textTertiary,
+                            color: AppColors.textTertiaryFor(context),
                           ),
                         ),
                       ),

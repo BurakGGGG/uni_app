@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../l10n/generated/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:async';
@@ -38,6 +39,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
   Widget build(BuildContext context) {
     final searchResultsAsync = ref.watch(searchResultsProvider);
     final query = ref.watch(searchQueryProvider);
+    final loc = AppLocalizations.of(context);
 
     return Scaffold(
       body: SafeArea(
@@ -50,7 +52,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                 children: [
                   IconButton(
                     onPressed: () => context.pop(),
-                    icon: const Icon(Icons.arrow_back_rounded, color: AppColors.textPrimary),
+                    icon: Icon(Icons.arrow_back_rounded, color: AppColors.textPrimaryFor(context)),
                     padding: EdgeInsets.zero,
                     constraints: const BoxConstraints(),
                   ),
@@ -59,7 +61,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                     child: AppSearchBar(
                       controller: _searchController,
                       autofocus: true,
-                      hintText: 'Üniversite ara...',
+                      hintText: loc.exploreSearchHint,
                       onChanged: (value) {
                         if (_debounce?.isActive ?? false) _debounce!.cancel();
                         _debounce = Timer(const Duration(milliseconds: 300), () {
@@ -94,15 +96,15 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                   ),
                 ),
                 error: (e, st) => ErrorState(
-                  message: 'Arama yapılırken bir hata oluştu.',
+                  message: loc.searchError,
                   onRetry: () => ref.invalidate(searchResultsProvider),
                 ),
                 data: (results) {
                   if (results.isEmpty) {
                     return EmptyState(
                       icon: Icons.search_off_rounded,
-                      title: 'Sonuç bulunamadı',
-                      message: '"$query" aramasına uygun üniversite yok.',
+                      title: loc.searchNoResults,
+                      message: loc.searchNoResultsSub(query),
                     );
                   }
 
@@ -114,12 +116,12 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                       final uni = results[index];
                       return UniCard(
                         title: uni.name,
-                        subtitle: '${uni.type} • Kuruluş: ${uni.establishedYear}',
+                        subtitle: "${uni.type == 'Devlet' ? loc.exploreTypeState : loc.exploreTypeFoundation} • ${loc.searchEst(uni.establishedYear.toString())}",
                         rating: uni.avgRating,
                         reviewCount: uni.reviewCount,
                         tags: [
-                          if (uni.hasCampus) 'Kampüslü',
-                          uni.type,
+                          if (uni.hasCampus) loc.searchCampus,
+                          uni.type == 'Devlet' ? loc.exploreTypeState : loc.exploreTypeFoundation,
                         ],
                         brandPrimaryColor: uni.brandColor,
                         logoAssetPath: uni.logoAssetPath,
@@ -132,7 +134,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: Text(
-                            uni.type,
+                            uni.type == 'Devlet' ? loc.exploreTypeState : loc.exploreTypeFoundation,
                             style: AppTextStyles.labelSmall.copyWith(
                               color: uni.type == 'Devlet' ? AppColors.stateUni : AppColors.foundationUni,
                               fontWeight: FontWeight.w600,

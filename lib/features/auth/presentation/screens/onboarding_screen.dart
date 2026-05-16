@@ -71,7 +71,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.backgroundFor(context),
       body: SafeArea(
         child: Column(
           children: [
@@ -85,7 +85,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   child: Text(
                     'Atla',
                     style: AppTextStyles.labelLarge.copyWith(
-                      color: AppColors.textTertiary,
+                      color: AppColors.textTertiaryFor(context),
                     ),
                   ),
                 ),
@@ -220,7 +220,7 @@ class _OnboardingPage extends StatelessWidget {
           Text(
             data.description,
             style: AppTextStyles.bodyLarge.copyWith(
-              color: AppColors.textSecondary,
+              color: AppColors.textSecondaryFor(context),
               height: 1.6,
             ),
             textAlign: TextAlign.center,

@@ -23,7 +23,7 @@ class PublicProfileScreen extends ConsumerWidget {
     final profileAsync = ref.watch(publicProfileProvider(userId));
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.backgroundFor(context),
       appBar: AppBar(
         title: const Text('Profil'),
       ),
@@ -91,10 +91,10 @@ class _ProfileContent extends ConsumerWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: AppColors.surfaceFor(context),
         borderRadius: BorderRadius.circular(AppConstants.radiusLg),
-        border: Border.all(color: AppColors.borderLight),
-        boxShadow: AppColors.softShadow,
+        border: Border.all(color: AppColors.borderLightFor(context)),
+        boxShadow: AppColors.softShadowFor(context),
       ),
       child: Column(
         children: [
@@ -186,14 +186,14 @@ class _ProfileContent extends ConsumerWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(Icons.school_rounded,
-                    size: 14, color: AppColors.textTertiary),
+                Icon(Icons.school_rounded,
+                    size: 14, color: AppColors.textTertiaryFor(context)),
                 const SizedBox(width: 4),
                 Flexible(
                   child: Text(
                     profile.university!,
                     style: AppTextStyles.bodyMedium
-                        .copyWith(color: AppColors.textSecondary),
+                        .copyWith(color: AppColors.textSecondaryFor(context)),
                     textAlign: TextAlign.center,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -206,7 +206,7 @@ class _ProfileContent extends ConsumerWidget {
             Text(
               profile.department!,
               style: AppTextStyles.bodySmall
-                  .copyWith(color: AppColors.textTertiary),
+                  .copyWith(color: AppColors.textTertiaryFor(context)),
               textAlign: TextAlign.center,
             ),
           if (profile.grade != null)
@@ -215,7 +215,7 @@ class _ProfileContent extends ConsumerWidget {
               child: Text(
                 _gradeLabel(profile.grade!),
                 style: AppTextStyles.labelSmall
-                    .copyWith(color: AppColors.textTertiary),
+                    .copyWith(color: AppColors.textTertiaryFor(context)),
               ),
             ),
 
@@ -244,13 +244,13 @@ class _ProfileContent extends ConsumerWidget {
               width: double.infinity,
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: AppColors.surfaceVariant,
+                color: AppColors.surfaceVariantFor(context),
                 borderRadius: BorderRadius.circular(AppConstants.radiusMd),
               ),
               child: Text(
                 profile.bio!,
                 style: AppTextStyles.bodySmall
-                    .copyWith(color: AppColors.textSecondary),
+                    .copyWith(color: AppColors.textSecondaryFor(context)),
                 textAlign: TextAlign.center,
               ),
             ),
@@ -302,7 +302,7 @@ class _ProfileContent extends ConsumerWidget {
             width: double.infinity,
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: AppColors.surfaceVariant,
+              color: AppColors.surfaceVariantFor(context),
               borderRadius: BorderRadius.circular(AppConstants.radiusMd),
             ),
             child: Column(
@@ -313,7 +313,7 @@ class _ProfileContent extends ConsumerWidget {
                 Text(
                   'Henüz yorum yapmamış',
                   style: AppTextStyles.bodyMedium
-                      .copyWith(color: AppColors.textTertiary),
+                      .copyWith(color: AppColors.textTertiaryFor(context)),
                 ),
               ],
             ),
@@ -388,9 +388,9 @@ class _StatCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: AppColors.surfaceFor(context),
         borderRadius: BorderRadius.circular(AppConstants.radiusMd),
-        border: Border.all(color: AppColors.borderLight),
+        border: Border.all(color: AppColors.borderLightFor(context)),
       ),
       child: Column(
         children: [
@@ -404,7 +404,7 @@ class _StatCard extends StatelessWidget {
           Text(
             label,
             style: AppTextStyles.labelSmall
-                .copyWith(color: AppColors.textTertiary),
+                .copyWith(color: AppColors.textTertiaryFor(context)),
           ),
         ],
       ),

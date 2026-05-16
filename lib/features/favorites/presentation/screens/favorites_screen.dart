@@ -50,7 +50,7 @@ class _FavoritesScreenState extends ConsumerState<FavoritesScreen> {
           Text(
             'Giriş Yapmalısın',
             style: AppTextStyles.titleMedium
-                .copyWith(color: AppColors.textSecondary),
+                .copyWith(color: AppColors.textSecondaryFor(context)),
           ),
           const SizedBox(height: 8),
           Padding(
@@ -59,7 +59,7 @@ class _FavoritesScreenState extends ConsumerState<FavoritesScreen> {
               'Favori üniversitelerini kaydetmek için giriş yapmalısın.',
               textAlign: TextAlign.center,
               style: AppTextStyles.bodyMedium
-                  .copyWith(color: AppColors.textTertiary),
+                  .copyWith(color: AppColors.textTertiaryFor(context)),
             ),
           ),
           const SizedBox(height: 24),
