@@ -642,13 +642,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get authPasswordTooShort => 'Password must be at least 6 characters';
 
   @override
+  String get homeTabHome => 'Home';
+
+  @override
   String get homeTabExplore => 'Explore';
 
   @override
   String get homeTabCompare => 'Compare';
 
   @override
-  String get homeTabFavorites => 'Favorites';
+  String get homeTabFavorites => 'My Lists';
 
   @override
   String get homeTabProfile => 'Profile';
@@ -714,4 +717,117 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get favoritesEmptyHint => 'Track universities you like here.';
+
+  @override
+  String get profileTheme => 'Theme';
+
+  @override
+  String get themeSystem => 'System';
+
+  @override
+  String get themeLight => 'Light';
+
+  @override
+  String get themeDark => 'Dark';
+
+  @override
+  String get themeSelection => 'Theme Selection';
+
+  @override
+  String get languageSelection => 'Language Selection';
+
+  @override
+  String get turkish => 'Türkçe';
+
+  @override
+  String get english => 'English';
+
+  @override
+  String get homeGreeting => 'Hello! 👋';
+
+  @override
+  String get homePopularUniversities => 'Popular Universities';
+
+  @override
+  String get homeSeeAll => 'See All';
+
+  @override
+  String get homeCities => 'Cities';
+
+  @override
+  String get homeCitiesLoadError => 'Failed to load cities';
+
+  @override
+  String get homeRecentReviews => 'Recent Reviews';
+
+  @override
+  String get homeNoReviews => 'No reviews yet';
+
+  @override
+  String get homeFirstReview => 'Be the first to write a review!';
+
+  @override
+  String get homeAssistantTitle => 'Preference Assistant';
+
+  @override
+  String get homeAssistantSubtitle =>
+      'Let\'s find your dream\nuniversity together!';
+
+  @override
+  String get homeStart => 'Start';
+
+  @override
+  String get exploreTitle => 'Explore';
+
+  @override
+  String get exploreSubtitle => 'Explore, filter and compare universities';
+
+  @override
+  String get exploreSearchHint => 'Search universities...';
+
+  @override
+  String get exploreTypeState => 'State';
+
+  @override
+  String get exploreTypeFoundation => 'Foundation';
+
+  @override
+  String get exploreFilters => 'Filters';
+
+  @override
+  String get exploreClear => 'Clear';
+
+  @override
+  String get exploreUniType => 'University Type';
+
+  @override
+  String get exploreCities => 'Cities';
+
+  @override
+  String get exploreCitiesError => 'Failed to load cities';
+
+  @override
+  String get exploreNoResults => 'No results found';
+
+  @override
+  String get exploreNoResultsSub => 'Try changing your filters.';
+
+  @override
+  String get searchError => 'An error occurred while searching.';
+
+  @override
+  String get searchNoResults => 'No results found';
+
+  @override
+  String searchNoResultsSub(Object query) {
+    return 'No university matching \"$query\".';
+  }
+
+  @override
+  String get searchCampus => 'Has Campus';
+
+  @override
+  String searchEst(Object year) {
+    return 'Established: $year';
+  }
 }

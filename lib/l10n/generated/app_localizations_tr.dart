@@ -641,13 +641,16 @@ class AppLocalizationsTr extends AppLocalizations {
   String get authPasswordTooShort => 'Şifre en az 6 karakter olmalı';
 
   @override
+  String get homeTabHome => 'Ana Sayfa';
+
+  @override
   String get homeTabExplore => 'Keşfet';
 
   @override
   String get homeTabCompare => 'Karşılaştır';
 
   @override
-  String get homeTabFavorites => 'Favoriler';
+  String get homeTabFavorites => 'Listelerim';
 
   @override
   String get homeTabProfile => 'Profil';
@@ -715,4 +718,119 @@ class AppLocalizationsTr extends AppLocalizations {
   @override
   String get favoritesEmptyHint =>
       'Beğendiğin üniversiteleri buradan takip et.';
+
+  @override
+  String get profileTheme => 'Tema';
+
+  @override
+  String get themeSystem => 'Sistem';
+
+  @override
+  String get themeLight => 'Açık';
+
+  @override
+  String get themeDark => 'Koyu';
+
+  @override
+  String get themeSelection => 'Tema Seçimi';
+
+  @override
+  String get languageSelection => 'Dil Seçimi';
+
+  @override
+  String get turkish => 'Türkçe';
+
+  @override
+  String get english => 'English';
+
+  @override
+  String get homeGreeting => 'Merhaba! 👋';
+
+  @override
+  String get homePopularUniversities => 'Popüler Üniversiteler';
+
+  @override
+  String get homeSeeAll => 'Tümünü Gör';
+
+  @override
+  String get homeCities => 'Şehirler';
+
+  @override
+  String get homeCitiesLoadError => 'Şehirler yüklenemedi';
+
+  @override
+  String get homeRecentReviews => 'Son Yorumlar';
+
+  @override
+  String get homeNoReviews => 'Henüz yorum yok';
+
+  @override
+  String get homeFirstReview => 'İlk yorumu yazan siz olun!';
+
+  @override
+  String get homeAssistantTitle => 'Tercih Asistanı';
+
+  @override
+  String get homeAssistantSubtitle =>
+      'Hayalindeki üniversiteyi\nbirlikte bulalım!';
+
+  @override
+  String get homeStart => 'Başla';
+
+  @override
+  String get exploreTitle => 'Keşfet';
+
+  @override
+  String get exploreSubtitle =>
+      'Üniversiteleri keşfet, filtrele ve karşılaştır';
+
+  @override
+  String get exploreSearchHint => 'Üniversite ara...';
+
+  @override
+  String get exploreTypeState => 'Devlet';
+
+  @override
+  String get exploreTypeFoundation => 'Vakıf';
+
+  @override
+  String get exploreFilters => 'Filtreler';
+
+  @override
+  String get exploreClear => 'Temizle';
+
+  @override
+  String get exploreUniType => 'Üniversite Türü';
+
+  @override
+  String get exploreCities => 'Şehirler';
+
+  @override
+  String get exploreCitiesError => 'Şehirler yüklenemedi';
+
+  @override
+  String get exploreNoResults => 'Sonuç bulunamadı';
+
+  @override
+  String get exploreNoResultsSub =>
+      'Filtrelerinizi değiştirerek tekrar deneyin.';
+
+  @override
+  String get searchError => 'Arama yapılırken bir hata oluştu.';
+
+  @override
+  String get searchNoResults => 'Sonuç bulunamadı';
+
+  @override
+  String searchNoResultsSub(Object query) {
+    return '\"$query\" aramasına uygun üniversite yok.';
+  }
+
+  @override
+  String get searchCampus => 'Kampüslü';
+
+  @override
+  String searchEst(Object year) {
+    return 'Kuruluş: $year';
+  }
 }

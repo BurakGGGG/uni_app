@@ -40,10 +40,10 @@ class UniCard extends StatelessWidget {
     return Container(
       margin: margin ?? const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: AppColors.surfaceFor(context),
         borderRadius: BorderRadius.circular(AppConstants.radiusLg),
-        border: Border.all(color: AppColors.borderLight),
-        boxShadow: AppColors.softShadow,
+        border: Border.all(color: AppColors.borderLightFor(context)),
+        boxShadow: AppColors.softShadowFor(context),
       ),
       child: Material(
         color: Colors.transparent,
@@ -73,9 +73,9 @@ class UniCard extends StatelessWidget {
                     height: 40,
                     padding: const EdgeInsets.all(4),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: AppColors.isDark(context) ? AppColors.darkSurface2 : Colors.white,
                       borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: AppColors.borderLight),
+                      border: Border.all(color: AppColors.borderLightFor(context)),
                     ),
                     child: Image.asset(
                       logoAssetPath!,
@@ -170,9 +170,9 @@ class UniCard extends StatelessWidget {
               borderRadius: BorderRadius.circular(AppConstants.radiusMd),
               color: AppColors.surfaceVariant,
             ),
-            child: const Icon(
+            child: Icon(
               Icons.school_rounded,
-              color: AppColors.textTertiary,
+              color: AppColors.textTertiaryFor(context),
               size: 28,
             ),
           ),
@@ -186,7 +186,7 @@ class UniCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(AppConstants.radiusMd),
         color: AppColors.surfaceVariant,
       ),
-      child: const Icon(
+      child: Icon(
         Icons.school_rounded,
         color: AppColors.textTertiary,
         size: 28,
