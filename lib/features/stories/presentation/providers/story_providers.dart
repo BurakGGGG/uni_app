@@ -22,17 +22,25 @@ final storiesFallbackProvider = FutureProvider<List<StoryModel>>((ref) {
 
 /// Aktif story listesini döndüren birleşik provider
 /// Stream başarılıysa onu, değilse fallback'i kullanır
+/// Liste eski→yeni sıradadır (Instagram gibi)
 final activeStoriesProvider = Provider<AsyncValue<List<StoryModel>>>((ref) {
   final stream = ref.watch(storiesStreamProvider);
 
   // Stream data varsa onu kullan
   if (stream.hasValue) {
-    return stream;
+    // Firestore yeni→eski verir, ters çevirip eski→yeni yap
+    final reversed = stream.value!.reversed.toList();
+    return AsyncValue.data(reversed);
   }
 
   // Stream hata verdiyse fallback'e bak
   if (stream.hasError) {
-    return ref.watch(storiesFallbackProvider);
+    final fallback = ref.watch(storiesFallbackProvider);
+    if (fallback.hasValue) {
+      final reversed = fallback.value!.reversed.toList();
+      return AsyncValue.data(reversed);
+    }
+    return fallback;
   }
 
   // Hâlâ yükleniyor
