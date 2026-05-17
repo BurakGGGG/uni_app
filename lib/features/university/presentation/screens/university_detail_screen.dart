@@ -14,9 +14,9 @@ import '../../../auth/presentation/providers/auth_providers.dart';
 import '../../../reviews/presentation/providers/review_providers.dart';
 import '../../../reviews/domain/models/review_model.dart';
 import '../../../reviews/presentation/widgets/review_card.dart';
-import '../../../places/presentation/providers/place_providers.dart';
-import '../../../places/domain/models/place_model.dart';
-import '../../../places/presentation/widgets/place_card.dart';
+
+
+
 import '../../domain/models/department_model.dart';
 
 import '../widgets/uni_hero.dart';
@@ -54,7 +54,7 @@ class _Body extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final deptsAsync = ref.watch(departmentsByUniversityProvider(uni.id));
-    final placesAsync = ref.watch(placesByUniversityProvider(uni.id));
+
     final reviewsAsync = ref.watch(sortedReviewsProvider(
       SortedReviewsParams(targetId: uni.id, type: ReviewType.university),
     ));
@@ -63,7 +63,7 @@ class _Body extends ConsumerWidget {
       onRefresh: () async {
         ref.invalidate(universityDetailProvider(uni.id));
         ref.invalidate(departmentsByUniversityProvider(uni.id));
-        ref.invalidate(placesByUniversityProvider(uni.id));
+
       },
       child: CustomScrollView(
         slivers: [
@@ -96,13 +96,11 @@ class _Body extends ConsumerWidget {
                   child: _DepartmentsPreview(deptsAsync: deptsAsync),
                 ),
                 
-                // Mekanlar section
+                // Mekanlar section (Yakında)
                 UniSection(
                   title: 'Mekanlar',
-                  subtitle: '${placesAsync.value?.length ?? 0} mekan — En yüksek puanlı 4 tanesi',
-                  ctaText: 'Tüm mekanları gör',
-                  onCtaTap: () => context.push('/university/${uni.id}/places'),
-                  child: _PlacesPreview(placesAsync: placesAsync),
+                  subtitle: 'Yakında sizlerin önerileriyle!',
+                  child: _PlacesComingSoon(),
                 ),
                 
                 // Yorumlar section
@@ -296,39 +294,44 @@ class _DepartmentsPreview extends StatelessWidget {
   }
 }
 
-class _PlacesPreview extends StatelessWidget {
-  final AsyncValue<List<PlaceModel>> placesAsync;
-  const _PlacesPreview({required this.placesAsync});
-
+class _PlacesComingSoon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return placesAsync.when(
-      loading: () => const Center(child: CircularProgressIndicator()),
-      error: (error, stackTrace) => Text(AppLocalizations.of(context).errorPlacesLoad),
-      data: (places) {
-        if (places.isEmpty) return Text(AppLocalizations.of(context).noPlacesFound, style: TextStyle(color: AppColors.textSecondaryFor(context)));
-        
-        final previewPlaces = places.take(4).toList();
-        return SizedBox(
-          height: 180, // or approximate PlaceCard height
-          child: ListView.separated(
-            scrollDirection: Axis.horizontal,
-            itemCount: previewPlaces.length,
-            separatorBuilder: (context, index) => const SizedBox(width: 12),
-            itemBuilder: (context, index) {
-              final p = previewPlaces[index];
-              return SizedBox(
-                width: 260,
-                child: PlaceCard(
-                  place: p,
-                  margin: EdgeInsets.zero,
-                  onTap: () => context.push('/place/${p.id}'),
-                ),
-              );
-            },
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 20),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceFor(context),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.borderLightFor(context)),
+      ),
+      child: Column(
+        children: [
+          Container(
+            width: 64,
+            height: 64,
+            decoration: BoxDecoration(
+              color: AppColors.primary.withValues(alpha: 0.1),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(Icons.coffee_rounded, color: AppColors.primary, size: 32),
           ),
-        );
-      },
+          const SizedBox(height: 16),
+          Text(
+            'Kafeler Yakında!',
+            style: AppTextStyles.titleMedium.copyWith(fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Bu bölüme yakında kafeler ve mekanlar eklenecek.\nSizlerin önerileriyle bu listeyi oluşturacağız! 🎉',
+            textAlign: TextAlign.center,
+            style: AppTextStyles.bodyMedium.copyWith(
+              color: AppColors.textSecondaryFor(context),
+              height: 1.5,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

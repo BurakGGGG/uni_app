@@ -69,7 +69,7 @@ class _ScoreCalculatorScreenState extends ConsumerState<ScoreCalculatorScreen> {
             Wrap(
               spacing: 8,
               runSpacing: 8,
-              children: [2022, 2023, 2024].map((year) {
+              children: [2022, 2023, 2024, 2025].map((year) {
                 final isSelected = input.selectedYear == year;
                 return ChoiceChip(
                   label: Text(year.toString()),

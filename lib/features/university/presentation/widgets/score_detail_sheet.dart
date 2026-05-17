@@ -146,7 +146,7 @@ class _ScoreDetailSheet extends StatelessWidget {
                                 _StatPill(
                                   icon: Icons.emoji_events_rounded,
                                   label: 'Sıralama',
-                                  value: _formatRank(scoreData.ranking),
+                                  value: scoreData.ranking > 0 ? _formatRank(scoreData.ranking) : '—',
                                 ),
                                 const SizedBox(width: 8),
                                 _StatPill(
@@ -278,7 +278,7 @@ class _ScoreDetailSheet extends StatelessWidget {
                                     Expanded(
                                       flex: 2,
                                       child: Text(
-                                        _formatRank(data.ranking),
+                                        data.ranking > 0 ? _formatRank(data.ranking) : '—',
                                         style: AppTextStyles.bodyMedium,
                                       ),
                                     ),
