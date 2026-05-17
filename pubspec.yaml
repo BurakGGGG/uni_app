@@ -63,6 +63,7 @@ dependencies:
   flutter_native_splash: ^2.4.1
   firebase_crashlytics: ^4.3.10
   connectivity_plus: ^7.1.1
+  image_cropper: ^12.2.1
 
 dev_dependencies:
   flutter_test:
