@@ -212,7 +212,9 @@ class DepartmentDetailScreen extends ConsumerWidget {
                     children: [
                       _ScoreInfoTile(
                         label: 'Başarı Sırası',
-                        value: dept.scoreData!.ranking.toString(),
+                        value: dept.scoreData!.ranking > 0
+                            ? dept.scoreData!.ranking.toString()
+                            : '—',
                         icon: Icons.emoji_events_rounded,
                         color: AppColors.warning,
                       ),

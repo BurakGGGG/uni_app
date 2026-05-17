@@ -5,16 +5,16 @@ import '../../../../core/theme/app_text_styles.dart';
 class UniSection extends StatelessWidget {
   final String title;
   final String? subtitle;
-  final String ctaText;
-  final VoidCallback onCtaTap;
+  final String? ctaText;
+  final VoidCallback? onCtaTap;
   final Widget child;
   
   const UniSection({
     super.key,
     required this.title,
     this.subtitle,
-    required this.ctaText,
-    required this.onCtaTap,
+    this.ctaText,
+    this.onCtaTap,
     required this.child,
   });
 
@@ -43,13 +43,14 @@ class UniSection extends StatelessWidget {
           ],
           const SizedBox(height: 16),
           child,
+          if (ctaText != null && onCtaTap != null) ...[
           const SizedBox(height: 12),
           GestureDetector(
             onTap: onCtaTap,
             child: Row(
               children: [
                 Text(
-                  ctaText,
+                  ctaText!,
                   style: AppTextStyles.labelLarge.copyWith(
                     color: AppColors.primary,
                     fontWeight: FontWeight.w600,
@@ -64,6 +65,7 @@ class UniSection extends StatelessWidget {
               ],
             ),
           ),
+          ],
         ],
       ),
     );
