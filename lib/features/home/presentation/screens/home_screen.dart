@@ -17,6 +17,7 @@ import '../../../reviews/presentation/widgets/review_card.dart';
 import '../../../reviews/domain/models/review_model.dart';
 import '../../../notifications/presentation/widgets/notification_bell.dart';
 import '../../../university/presentation/widgets/city_card.dart';
+import '../../../stories/presentation/widgets/story_ring.dart';
 import '../widgets/home_list_skeleton.dart';
 
 /// Ana Sayfa ekranı
@@ -46,41 +47,37 @@ class HomeScreen extends ConsumerWidget {
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              loc.homeGreeting,
-                              style: AppTextStyles.bodyMedium.copyWith(
-                                color: AppColors.textSecondaryFor(context),
+                            StoryRing(
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    'Üni',
+                                    style: AppTextStyles.displaySmall.copyWith(
+                                      color: AppColors.primary,
+                                      fontFamily: 'SpaceGrotesk',
+                                      fontWeight: FontWeight.w800,
+                                      letterSpacing: -1.2,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 2),
+                                  SvgPicture.asset(
+                                    'assets/icons/compare_icon.svg',
+                                    width: 20,
+                                    height: 20,
+                                  ),
+                                  const SizedBox(width: 1),
+                                  Text(
+                                    'eç',
+                                    style: AppTextStyles.displaySmall.copyWith(
+                                      color: AppColors.primary,
+                                      fontFamily: 'SpaceGrotesk',
+                                      fontWeight: FontWeight.w800,
+                                      letterSpacing: -1.2,
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ),
-                            const SizedBox(height: 4),
-                            Row(
-                              children: [
-                                Text(
-                                  'Üni',
-                                  style: AppTextStyles.displaySmall.copyWith(
-                                    color: AppColors.primary,
-                                    fontFamily: 'SpaceGrotesk',
-                                    fontWeight: FontWeight.w800,
-                                    letterSpacing: -1.2,
-                                  ),
-                                ),
-                                const SizedBox(width: 2),
-                                SvgPicture.asset(
-                                  'assets/icons/compare_icon.svg',
-                                  width: 20,
-                                  height: 20,
-                                ),
-                                const SizedBox(width: 1),
-                                Text(
-                                  'eç',
-                                  style: AppTextStyles.displaySmall.copyWith(
-                                    color: AppColors.primary,
-                                    fontFamily: 'SpaceGrotesk',
-                                    fontWeight: FontWeight.w800,
-                                    letterSpacing: -1.2,
-                                  ),
-                                ),
-                              ],
                             ),
                           ],
                         ),

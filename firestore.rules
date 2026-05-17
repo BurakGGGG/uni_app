@@ -210,6 +210,15 @@ service cloud.firestore {
       allow write: if false;
     }
 
+    // ─── Hikayeler (Admin Story) ────────────────────────────────
+    match /stories/{storyId} {
+      allow read: if true;
+      allow create: if isAuthenticated() &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+      allow update, delete: if isAuthenticated() &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
     // ─── Webhook Events (Idempotency) ───────────────────────────
     // Sadece admin SDK (Cloud Function) yazar, kimse okuyamaz/yazamaz.
     match /webhookEvents/{eventId} {
