@@ -158,14 +158,14 @@ class _PhotoUploadSectionState extends State<PhotoUploadSection> {
             const SizedBox(width: 8),
             Text(
               '($_totalPhotos/${PhotoUploadSection.maxPhotos})',
-              style: AppTextStyles.bodySmall.copyWith(color: AppColors.textTertiary),
+              style: AppTextStyles.bodySmall.copyWith(color: AppColors.textTertiaryFor(context)),
             ),
           ],
         ),
         const SizedBox(height: 4),
         Text(
           'Üniversitenizle ilgili fotoğraf ekleyin (opsiyonel)',
-          style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary),
+          style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondaryFor(context)),
         ),
         const SizedBox(height: 12),
         SizedBox(
@@ -219,7 +219,7 @@ class _PhotoUploadSectionState extends State<PhotoUploadSection> {
                     placeholder: (_, _) => Container(color: AppColors.surfaceVariant),
                     errorWidget: (_, _, _) => Container(
                       color: AppColors.surfaceVariant,
-                      child: const Icon(Icons.error_outline, color: AppColors.textTertiary),
+                      child: Icon(Icons.error_outline, color: AppColors.textTertiaryFor(context)),
                     ),
                   ),
                   onRemove: () => widget.onRemove(index, false),

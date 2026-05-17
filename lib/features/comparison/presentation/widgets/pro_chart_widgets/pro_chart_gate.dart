@@ -99,7 +99,7 @@ class _ProOverlay extends StatelessWidget {
                         textAlign: TextAlign.center,
                         style: AppTextStyles.titleMedium.copyWith(
                           fontWeight: FontWeight.w900,
-                          color: isDark ? Colors.white : AppColors.textPrimary,
+                          color: isDark ? Colors.white : AppColors.textPrimaryFor(context),
                         ),
                       ),
                       const SizedBox(height: 6),
@@ -107,7 +107,7 @@ class _ProOverlay extends StatelessWidget {
                         'Bu grafik Pro paketinde.',
                         textAlign: TextAlign.center,
                         style: AppTextStyles.bodySmall.copyWith(
-                          color: isDark ? Colors.white70 : AppColors.textSecondary,
+                          color: isDark ? Colors.white70 : AppColors.textSecondaryFor(context),
                         ),
                       ),
                     ],

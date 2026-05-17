@@ -243,6 +243,84 @@ class AppColors {
         : shimmerHighlight;
   }
 
+  /// Tema duyarlı birincil metin rengi
+  static Color textPrimaryFor(BuildContext context) {
+    return Theme.of(context).brightness == Brightness.dark
+        ? Colors.white.withValues(alpha: 0.92)
+        : textPrimary;
+  }
+
+  /// Tema duyarlı ikincil metin rengi
+  static Color textSecondaryFor(BuildContext context) {
+    return Theme.of(context).brightness == Brightness.dark
+        ? Colors.white.withValues(alpha: 0.60)
+        : textSecondary;
+  }
+
+  /// Tema duyarlı üçüncül metin rengi
+  static Color textTertiaryFor(BuildContext context) {
+    return Theme.of(context).brightness == Brightness.dark
+        ? Colors.white.withValues(alpha: 0.38)
+        : textTertiary;
+  }
+
+  /// Tema duyarlı surface variant rengi
+  static Color surfaceVariantFor(BuildContext context) {
+    return Theme.of(context).brightness == Brightness.dark
+        ? darkSurfaceVariant
+        : surfaceVariant;
+  }
+
+  /// Tema duyarlı border light rengi
+  static Color borderLightFor(BuildContext context) {
+    return Theme.of(context).brightness == Brightness.dark
+        ? Colors.white.withValues(alpha: 0.10)
+        : borderLight;
+  }
+
+  /// Tema duyarlı kart gölgesi
+  static List<BoxShadow> cardShadowFor(BuildContext context) {
+    return Theme.of(context).brightness == Brightness.dark
+        ? const [] // Dark mode'da gölge yerine border kullanıyoruz
+        : cardShadow;
+  }
+
+  /// Tema duyarlı hafif gölge
+  static List<BoxShadow> softShadowFor(BuildContext context) {
+    return Theme.of(context).brightness == Brightness.dark
+        ? const []
+        : softShadow;
+  }
+
+  /// Tema duyarlı kart gradient
+  static LinearGradient cardGradientFor(BuildContext context) {
+    return Theme.of(context).brightness == Brightness.dark
+        ? const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [darkSurface, darkSurfaceVariant],
+          )
+        : cardGradient;
+  }
+
+  /// Tema duyarlı bottom navigation gölgesi
+  static List<BoxShadow> bottomNavShadowFor(BuildContext context) {
+    return Theme.of(context).brightness == Brightness.dark
+        ? [
+            const BoxShadow(
+              color: Color(0x33000000),
+              blurRadius: 20,
+              offset: Offset(0, -4),
+            ),
+          ]
+        : bottomNavShadow;
+  }
+
+  /// isDark shorthand helper
+  static bool isDark(BuildContext context) {
+    return Theme.of(context).brightness == Brightness.dark;
+  }
+
   /// Rating değerine göre renk döndürür (1-5 arası)
   static Color ratingColor(double rating) {
     if (rating >= 4.5) return ratingExcellent;

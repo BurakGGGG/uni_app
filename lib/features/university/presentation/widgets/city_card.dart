@@ -76,10 +76,10 @@ class _CityCardState extends State<CityCard>
       width: 140,
       margin: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: AppColors.surfaceFor(context),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.borderLight),
-        boxShadow: AppColors.softShadow,
+        border: Border.all(color: AppColors.borderLightFor(context)),
+        boxShadow: AppColors.softShadowFor(context),
       ),
       clipBehavior: Clip.antiAlias,
       child: Stack(
@@ -108,7 +108,7 @@ class _CityCardState extends State<CityCard>
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: AppColors.borderLight),
+                        border: Border.all(color: AppColors.borderLightFor(context)),
                       ),
                       child: CityLogo(city: city, size: 36, withBackground: false),
                     ),
@@ -163,10 +163,10 @@ class _CityCardState extends State<CityCard>
       aspectRatio: 1.0, // Kare
       child: Container(
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: AppColors.surfaceFor(context),
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: AppColors.borderLight),
-          boxShadow: AppColors.softShadow,
+          border: Border.all(color: AppColors.borderLightFor(context)),
+          boxShadow: AppColors.softShadowFor(context),
         ),
         clipBehavior: Clip.antiAlias,
         child: Column(
@@ -212,7 +212,7 @@ class _CityCardState extends State<CityCard>
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: AppColors.borderLight),
+                        border: Border.all(color: AppColors.borderLightFor(context)),
                         boxShadow: [
                           BoxShadow(
                             color: city.brandPrimary.withValues(alpha: 0.1),

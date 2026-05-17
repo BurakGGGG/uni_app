@@ -78,7 +78,7 @@ class PlusLockOverlay extends StatelessWidget {
                         textAlign: TextAlign.center,
                         style: AppTextStyles.titleMedium.copyWith(
                           fontWeight: FontWeight.w900,
-                          color: isDark ? Colors.white : AppColors.textPrimary,
+                          color: isDark ? Colors.white : AppColors.textPrimaryFor(context),
                         ),
                       ),
                       const SizedBox(height: 6),
@@ -86,7 +86,7 @@ class PlusLockOverlay extends StatelessWidget {
                         'Plus veya Pro ile açılır',
                         textAlign: TextAlign.center,
                         style: AppTextStyles.bodySmall.copyWith(
-                          color: isDark ? Colors.white70 : AppColors.textSecondary,
+                          color: isDark ? Colors.white70 : AppColors.textSecondaryFor(context),
                         ),
                       ),
                       const SizedBox(height: 14),

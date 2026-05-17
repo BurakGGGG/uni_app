@@ -47,7 +47,7 @@ class EmptyStateWidget extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               description!,
-              style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary),
+              style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondaryFor(context)),
               textAlign: TextAlign.center,
             ),
           ],
@@ -112,7 +112,7 @@ class ErrorStateWidget extends StatelessWidget {
               Text(
                 message!,
                 style: compact 
-                  ? AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary)
+                  ? AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondaryFor(context))
                   : AppTextStyles.emptyState,
                 textAlign: TextAlign.center,
               ),

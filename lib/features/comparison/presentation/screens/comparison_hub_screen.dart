@@ -91,7 +91,7 @@ class _ComparisonHubScreenState extends ConsumerState<ComparisonHubScreen>
     final currentTier = tierAsync.valueOrNull ?? SubscriptionTier.free;
 
     return Scaffold(
-      backgroundColor: isDark ? AppColors.darkBackground : AppColors.background,
+      backgroundColor: AppColors.backgroundFor(context),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
@@ -209,7 +209,7 @@ class _ComparisonHubScreenState extends ConsumerState<ComparisonHubScreen>
         IconButton(
           icon: Icon(
             Icons.history_rounded,
-            color: isDark ? Colors.white : AppColors.textPrimary,
+            color: isDark ? Colors.white : AppColors.textPrimaryFor(context),
           ),
           tooltip: 'Karşılaştırma geçmişi',
           onPressed: () => ComparisonHistorySheet.show(context),
@@ -226,7 +226,7 @@ class _ComparisonHubScreenState extends ConsumerState<ComparisonHubScreen>
         style: AppTextStyles.bodyMedium.copyWith(
           color: isDark
               ? Colors.white.withValues(alpha: 0.6)
-              : AppColors.textSecondary,
+              : AppColors.textSecondaryFor(context),
         ),
       ),
     );
@@ -288,7 +288,7 @@ class _ComparisonHubScreenState extends ConsumerState<ComparisonHubScreen>
                     Text(
                       'Aboneliğin',
                       style: AppTextStyles.bodySmall.copyWith(
-                        color: AppColors.textSecondary,
+                        color: AppColors.textSecondaryFor(context),
                       ),
                     ),
                   ],

@@ -130,11 +130,11 @@ class _PlaceCardState extends ConsumerState<PlaceCard> {
           const SizedBox(height: 6),
           Row(
             children: [
-              Icon(Icons.location_on_outlined, size: 12, color: AppColors.textTertiary),
+              Icon(Icons.location_on_outlined, size: 12, color: AppColors.textTertiaryFor(context)),
               const SizedBox(width: 4),
               Expanded(
                 child: Text(place.address,
-                  style: AppTextStyles.labelSmall.copyWith(color: AppColors.textTertiary),
+                  style: AppTextStyles.labelSmall.copyWith(color: AppColors.textTertiaryFor(context)),
                   maxLines: 1, overflow: TextOverflow.ellipsis),
               ),
             ],
@@ -200,7 +200,7 @@ class _PlaceCardState extends ConsumerState<PlaceCard> {
     return Text(
       'Henüz değerlendirilmedi',
       style: AppTextStyles.labelSmall.copyWith(
-        color: AppColors.textTertiary,
+        color: AppColors.textTertiaryFor(context),
         fontStyle: FontStyle.italic,
       ),
     );

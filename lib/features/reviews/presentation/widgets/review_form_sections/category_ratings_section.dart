@@ -41,7 +41,7 @@ class CategoryRatingsSection extends StatelessWidget {
         const SizedBox(height: 4),
         Text(
           'Her kategori için 1-5 arası puan verin',
-          style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary),
+          style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondaryFor(context)),
         ),
         const SizedBox(height: 16),
         ...categories.map((category) => _buildCategoryRow(category)),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../l10n/generated/app_localizations.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -24,10 +25,11 @@ class HomeScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final loc = AppLocalizations.of(context);
     final citiesAsync = ref.watch(citiesProvider);
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.backgroundFor(context),
       body: SafeArea(
         child: CustomScrollView(
           slivers: [
@@ -45,9 +47,9 @@ class HomeScreen extends ConsumerWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Merhaba! 👋',
+                              loc.homeGreeting,
                               style: AppTextStyles.bodyMedium.copyWith(
-                                color: AppColors.textSecondary,
+                                color: AppColors.textSecondaryFor(context),
                               ),
                             ),
                             const SizedBox(height: 4),
@@ -87,9 +89,9 @@ class HomeScreen extends ConsumerWidget {
                           width: 44,
                           height: 44,
                           decoration: BoxDecoration(
-                            color: AppColors.surface,
+                            color: AppColors.surfaceFor(context),
                             borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: AppColors.borderLight),
+                            border: Border.all(color: AppColors.borderLightFor(context)),
                           ),
                           child: const NotificationBell(),
                         ),
@@ -126,8 +128,8 @@ class HomeScreen extends ConsumerWidget {
               child: Column(
                 children: [
                   SectionHeader(
-                    title: 'Popüler Üniversiteler',
-                    actionText: 'Tümünü Gör',
+                    title: loc.homePopularUniversities,
+                    actionText: loc.homeSeeAll,
                     padding: const EdgeInsets.fromLTRB(20, 20, 12, 4),
                     onAction: () => context.go('/explore'),
                   ),
@@ -169,8 +171,8 @@ class HomeScreen extends ConsumerWidget {
               child: Column(
                 children: [
                   SectionHeader(
-                    title: 'Şehirler',
-                    actionText: 'Tümünü Gör',
+                    title: loc.homeCities,
+                    actionText: loc.homeSeeAll,
                     padding: const EdgeInsets.fromLTRB(20, 16, 12, 4),
                     onAction: () => context.push('/cities'),
                   ),
@@ -179,7 +181,7 @@ class HomeScreen extends ConsumerWidget {
                     child: citiesAsync.when(
                       loading: () => const HomeListSkeleton(),
                       error: (e, st) => ErrorStateWidget(
-                        message: 'Şehirler yüklenemedi',
+                        message: loc.homeCitiesLoadError,
                         onRetry: () => ref.invalidate(citiesProvider),
                         compact: true,
                       ),
@@ -205,8 +207,8 @@ class HomeScreen extends ConsumerWidget {
             // ─── Son Yorumlar ───────────────────────────────────────
             SliverToBoxAdapter(
               child: SectionHeader(
-                title: 'Son Yorumlar',
-                actionText: 'Tümünü Gör',
+                title: loc.homeRecentReviews,
+                actionText: loc.homeSeeAll,
                 padding: const EdgeInsets.fromLTRB(20, 16, 12, 4),
                 onAction: () => context.push('/all-reviews'),
               ),
@@ -231,11 +233,11 @@ class HomeScreen extends ConsumerWidget {
                         padding: const EdgeInsets.all(40),
                         child: Column(
                           children: [
-                            Icon(Icons.rate_review_outlined, size: 48, color: AppColors.textTertiary),
+                            Icon(Icons.rate_review_outlined, size: 48, color: AppColors.textTertiaryFor(context)),
                             const SizedBox(height: 12),
-                            Text('Henüz yorum yok', style: AppTextStyles.titleMedium),
+                            Text(loc.homeNoReviews, style: AppTextStyles.titleMedium),
                             Text(
-                              'İlk yorumu yazan siz olun!',
+                              loc.homeFirstReview,
                               style: AppTextStyles.bodySmall,
                               textAlign: TextAlign.center,
                             ),
@@ -293,8 +295,9 @@ class _HeroBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
     return GestureDetector(
-      onTap: () => context.push('/recommend'),
+      onTap: () => context.push('/score-calculator'),
       child: Container(
         constraints: const BoxConstraints(minHeight: 140),
         decoration: BoxDecoration(
@@ -338,11 +341,11 @@ class _HeroBanner extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      const Icon(Icons.auto_awesome_rounded,
+                      const Icon(Icons.calculate_rounded,
                           color: Colors.white, size: 14),
                       const SizedBox(width: 6),
                       Text(
-                        'Tercih Asistanı',
+                        'Puan Hesaplayıcı',
                         style: AppTextStyles.labelMedium.copyWith(
                           color: Colors.white.withValues(alpha: 0.9),
                           fontWeight: FontWeight.w500,
@@ -352,7 +355,7 @@ class _HeroBanner extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Hayalindeki üniversiteyi\nbirlikte bulalım!',
+                    'Hedefine Ne Kadar Yakınsın?',
                     style: AppTextStyles.headlineMedium.copyWith(
                       color: Colors.white,
                       height: 1.3,
@@ -369,7 +372,7 @@ class _HeroBanner extends StatelessWidget {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
-                          'Başla',
+                          loc.homeStart,
                           style: AppTextStyles.labelLarge.copyWith(color: Colors.white),
                         ),
                         const SizedBox(width: 4),
@@ -423,7 +426,7 @@ class _PopularUniCard extends ConsumerWidget {
       margin: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(AppConstants.radiusLg),
-        boxShadow: AppColors.softShadow,
+        boxShadow: AppColors.softShadowFor(context),
         gradient: LinearGradient(
           colors: [
             brandColor.withValues(alpha: 0.5),
@@ -437,7 +440,7 @@ class _PopularUniCard extends ConsumerWidget {
         padding: const EdgeInsets.all(2.0), // Çerçeve kalınlığı
         child: Container(
           decoration: BoxDecoration(
-            color: AppColors.surface,
+            color: AppColors.surfaceFor(context),
             borderRadius: BorderRadius.circular(AppConstants.radiusLg - 1.5),
           ),
           child: Material(

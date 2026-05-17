@@ -113,7 +113,7 @@ class NotificationTile extends ConsumerWidget {
                       Text(
                         notification.body,
                         style: AppTextStyles.bodySmall.copyWith(
-                          color: AppColors.textSecondary,
+                          color: AppColors.textSecondaryFor(context),
                         ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
@@ -122,7 +122,7 @@ class NotificationTile extends ConsumerWidget {
                       Text(
                         timeago.format(notification.createdAt, locale: 'tr'),
                         style: AppTextStyles.labelSmall.copyWith(
-                          color: AppColors.textTertiary,
+                          color: AppColors.textTertiaryFor(context),
                         ),
                       ),
                     ],

@@ -77,7 +77,7 @@ class _SectionTitle extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 12, 20, 4),
       child: Text(title, style: AppTextStyles.labelMedium.copyWith(
-        color: AppColors.textTertiary, fontWeight: FontWeight.w600,
+        color: AppColors.textTertiaryFor(context), fontWeight: FontWeight.w600,
       )),
     );
   }
@@ -97,10 +97,10 @@ class _DepartmentCard extends StatelessWidget {
       child: Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: AppColors.surfaceFor(context),
         borderRadius: BorderRadius.circular(AppConstants.radiusLg),
-        border: Border.all(color: AppColors.borderLight),
-        boxShadow: AppColors.softShadow,
+        border: Border.all(color: AppColors.borderLightFor(context)),
+        boxShadow: AppColors.softShadowFor(context),
       ),
       child: Material(
         color: Colors.transparent,
@@ -168,7 +168,7 @@ class _DepartmentCard extends StatelessWidget {
                 // Alt satır: puan rozetleri
                 if (hasScoreData) ...[
                   const SizedBox(height: 10),
-                  Container(height: 1, color: AppColors.borderLight),
+                  Container(height: 1, color: AppColors.borderLightFor(context)),
                   const SizedBox(height: 8),
                   _buildScoreRow(department.scoreData!),
                 ] else if (department.baseScore != null) ...[

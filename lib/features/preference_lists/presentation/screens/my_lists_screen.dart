@@ -22,7 +22,7 @@ class MyListsScreen extends ConsumerWidget {
     final userName = user.displayName?.split(' ').first ?? 'Öğrenci';
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.backgroundFor(context),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => CreateListSheet.show(context, ref),
         backgroundColor: AppColors.primary,
@@ -48,7 +48,7 @@ class MyListsScreen extends ConsumerWidget {
                     Text(
                       'Merhaba $userName,',
                       style: AppTextStyles.bodyMedium.copyWith(
-                        color: AppColors.textSecondary,
+                        color: AppColors.textSecondaryFor(context),
                       ),
                     ),
                     const SizedBox(height: 4),
@@ -134,10 +134,10 @@ class MyListsScreen extends ConsumerWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(c),
-            child: const Text(
+            child: Text(
               'Vazgeç',
               style: TextStyle(
-                color: AppColors.textSecondary,
+                color: AppColors.textSecondaryFor(context),
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -190,7 +190,7 @@ class _ListCard extends StatelessWidget {
     final progress = (filled / max).clamp(0.0, 1.0);
 
     return Material(
-      color: AppColors.surface,
+      color: AppColors.surfaceFor(context),
       borderRadius: BorderRadius.circular(20),
       elevation: 0,
       child: InkWell(
@@ -199,10 +199,10 @@ class _ListCard extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: AppColors.surface,
+            color: AppColors.surfaceFor(context),
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: AppColors.borderLight),
-            boxShadow: AppColors.softShadow,
+            border: Border.all(color: AppColors.borderLightFor(context)),
+            boxShadow: AppColors.softShadowFor(context),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -241,7 +241,7 @@ class _ListCard extends StatelessWidget {
                           Text(
                             list.description,
                             style: AppTextStyles.labelSmall.copyWith(
-                              color: AppColors.textSecondary,
+                              color: AppColors.textSecondaryFor(context),
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -273,7 +273,7 @@ class _ListCard extends StatelessWidget {
                             Text(
                               '/ $max tercih',
                               style: AppTextStyles.bodySmall.copyWith(
-                                color: AppColors.textSecondary,
+                                color: AppColors.textSecondaryFor(context),
                               ),
                             ),
                           ],
@@ -301,7 +301,7 @@ class _ListCard extends StatelessWidget {
                     label: list.isPublic ? 'Açık' : 'Gizli',
                     color: list.isPublic
                         ? AppColors.success
-                        : AppColors.textTertiary,
+                        : AppColors.textTertiaryFor(context),
                   ),
                 ],
               ),
@@ -332,7 +332,7 @@ class _ListActionsButton extends StatelessWidget {
         child: Icon(
           Icons.more_horiz_rounded,
           size: 18,
-          color: AppColors.textTertiary,
+          color: AppColors.textTertiaryFor(context),
         ),
       ),
     );
@@ -344,7 +344,7 @@ class _ListActionsButton extends StatelessWidget {
       backgroundColor: Colors.transparent,
       builder: (ctx) => Container(
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: AppColors.surfaceFor(context),
           borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
           boxShadow: [
             BoxShadow(
@@ -375,7 +375,7 @@ class _ListActionsButton extends StatelessWidget {
                     Icon(
                       Icons.settings_rounded,
                       size: 20,
-                      color: AppColors.textSecondary,
+                      color: AppColors.textSecondaryFor(context),
                     ),
                     const SizedBox(width: 8),
                     Text('İşlemler', style: AppTextStyles.titleMedium),
@@ -412,13 +412,13 @@ class _ListActionsButton extends StatelessWidget {
                   child: TextButton(
                     onPressed: () => Navigator.pop(ctx),
                     style: TextButton.styleFrom(
-                      foregroundColor: AppColors.textSecondary,
+                      foregroundColor: AppColors.textSecondaryFor(context),
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(
                           AppConstants.radiusMd,
                         ),
-                        side: BorderSide(color: AppColors.borderLight),
+                        side: BorderSide(color: AppColors.borderLightFor(context)),
                       ),
                     ),
                     child: const Text('İptal'),
@@ -483,7 +483,7 @@ class _ActionTile extends StatelessWidget {
                     Text(
                       subtitle,
                       style: AppTextStyles.labelSmall.copyWith(
-                        color: AppColors.textSecondary,
+                        color: AppColors.textSecondaryFor(context),
                       ),
                     ),
                   ],
@@ -492,7 +492,7 @@ class _ActionTile extends StatelessWidget {
               Icon(
                 Icons.chevron_right_rounded,
                 size: 20,
-                color: AppColors.textTertiary,
+                color: AppColors.textTertiaryFor(context),
               ),
             ],
           ),
@@ -574,7 +574,7 @@ class _EmptyState extends StatelessWidget {
               'Sağ alttaki "Yeni Liste" butonuna tıklayarak ilk tercih listeni oluşturmaya başla.',
               textAlign: TextAlign.center,
               style: AppTextStyles.bodyMedium.copyWith(
-                color: AppColors.textSecondary,
+                color: AppColors.textSecondaryFor(context),
                 height: 1.5,
               ),
             ),
@@ -591,7 +591,7 @@ class _UnauthenticatedView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.backgroundFor(context),
       body: SafeArea(
         child: Column(
           children: [
@@ -619,13 +619,13 @@ class _UnauthenticatedView extends StatelessWidget {
                         width: 96,
                         height: 96,
                         decoration: BoxDecoration(
-                          color: AppColors.surfaceVariant,
+                          color: AppColors.surfaceVariantFor(context),
                           shape: BoxShape.circle,
                         ),
-                        child: const Icon(
+                        child: Icon(
                           Icons.lock_person_rounded,
                           size: 44,
-                          color: AppColors.textTertiary,
+                          color: AppColors.textTertiaryFor(context),
                         ),
                       ),
                       const SizedBox(height: 20),
@@ -640,7 +640,7 @@ class _UnauthenticatedView extends StatelessWidget {
                         'Listelerini görmek ve yeni tercihler eklemek için önce giriş yapmalısın.',
                         textAlign: TextAlign.center,
                         style: AppTextStyles.bodyMedium.copyWith(
-                          color: AppColors.textSecondary,
+                          color: AppColors.textSecondaryFor(context),
                           height: 1.5,
                         ),
                       ),

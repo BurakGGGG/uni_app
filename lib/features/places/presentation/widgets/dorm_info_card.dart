@@ -77,7 +77,7 @@ class DormInfoCard extends StatelessWidget {
                   icon: Icons.meeting_room_rounded,
                   label: 'Oda Tipi',
                   value: 'Bilinmiyor', // TODO: Add to PlaceModel
-                  color: AppColors.textSecondary,
+                  color: AppColors.textSecondaryFor(context),
                 ),
               ),
               const SizedBox(width: 12),
@@ -86,7 +86,7 @@ class DormInfoCard extends StatelessWidget {
                   icon: Icons.access_time_rounded,
                   label: 'Giriş-Çıkış',
                   value: isKyk ? '06:00 - 23:00' : 'Esnek',
-                  color: AppColors.textSecondary,
+                  color: AppColors.textSecondaryFor(context),
                 ),
               ),
             ],
@@ -138,7 +138,7 @@ class _InfoTile extends StatelessWidget {
               Icon(icon, size: 14, color: color),
               const SizedBox(width: 4),
               Text(label, style: AppTextStyles.labelSmall.copyWith(
-                color: AppColors.textTertiary,
+                color: AppColors.textTertiaryFor(context),
               )),
             ],
           ),

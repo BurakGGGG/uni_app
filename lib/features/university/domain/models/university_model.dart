@@ -90,37 +90,37 @@ class UniversityModel {
   static const Map<String, List<String>> _brandColorFallback = {
     // ── İstanbul ──
     'itu':               ['#1A237E', '#283593'],  // Lacivert
-    'istanbul_uni':      ['#8B0000', '#B22222'],  // Bordo
-    'yildiz_teknik':     ['#1B5E20', '#2E7D32'],  // Koyu yeşil
+    'istanbul_uni':      ['#1B5E20', '#2E7D32'],  // Yeşil
+    'yildiz_teknik':     ['#FFB300', '#0D47A1'],  // Altın ve lacivert
     'marmara':           ['#0D47A1', '#1565C0'],  // Mavi
-    'aydin':             ['#4A148C', '#6A1B9A'],  // Mor
-    'gelisim':           ['#E65100', '#F57C00'],  // Turuncu
-    'medipol':           ['#B71C1C', '#D32F2F'],  // Kırmızı
+    'aydin':             ['#0D47A1', '#1565C0'],  // Lacivert
+    'gelisim':           ['#1A237E', '#283593'],  // Koyu lacivert
+    'medipol':           ['#1A237E', '#757575'],  // Lacivert ve gri
     // ── Ankara ──
-    'odtu':              ['#1A237E', '#0D47A1'],  // Lacivert
-    'hacettepe':         ['#F57F17', '#FBC02D'],  // Sarı-turuncu
-    'ankara_uni':        ['#1B5E20', '#388E3C'],  // Yeşil
-    'gazi':              ['#B71C1C', '#D32F2F'],  // Kırmızı
-    'hacibayram':        ['#4A148C', '#7B1FA2'],  // Mor
+    'odtu':              ['#D32F2F', '#EF5350'],  // Kırmızı beyaz
+    'hacettepe':         ['#D32F2F', '#EF5350'],  // Kırmızı beyaz
+    'ankara_uni':        ['#0D47A1', '#FFB300'],  // Lacivert altın
+    'gazi':              ['#0D47A1', '#4DD0E1'],  // Lacivert açık turkuaz
+    'hacibayram':        ['#212121', '#D32F2F'],  // Siyah kırmızı
     // ── İzmir ──
     'ege':               ['#0D47A1', '#1976D2'],  // Mavi
     'dokuz_eylul':       ['#1A237E', '#303F9F'],  // Lacivert
-    'izmir_demokrasi':   ['#00695C', '#00897B'],  // Teal
-    'izmir_katipcelebi': ['#1565C0', '#42A5F5'],  // Açık mavi
+    'izmir_demokrasi':   ['#795548', '#C62828'],  // Açık kahve kırmızı
+    'izmir_katipcelebi': ['#B71C1C', '#880E4F'],  // Koyu kırmızı
     // ── Antalya ──
     'akdeniz':           ['#E65100', '#FF6D00'],  // Turuncu
     'alanya':            ['#0277BD', '#039BE5'],  // Mavi
     // ── Eskişehir ──
-    'anadolu':           ['#1A237E', '#3949AB'],  // Lacivert
-    'ogu':               ['#B71C1C', '#E53935'],  // Kırmızı
-    'estu':              ['#004D40', '#00796B'],  // Koyu teal
+    'anadolu':           ['#212121', '#424242'],  // Siyah
+    'ogu':               ['#00ACC1', '#0D47A1'],  // Turkuaz lacivert
+    'estu':              ['#800000', '#500000'],  // Bordomsu
     // ── Bursa ──
-    'uludag':            ['#1B5E20', '#43A047'],  // Yeşil
+    'uludag':            ['#00ACC1', '#0D47A1'],  // Turkuaz lacivert
     'btu':               ['#0D47A1', '#1976D2'],  // Mavi
     // ── Çanakkale ──
-    'comu':              ['#BF360C', '#E64A19'],  // Koyu turuncu
+    'comu':              ['#D32F2F', '#212121'],  // Kırmızı siyah beyaz
     // ── Sivas ──
-    'cumhuriyet':        ['#880E4F', '#AD1457'],  // Bordo-pembe
+    'cumhuriyet':        ['#D32F2F', '#B71C1C'],  // Kırmızı koyu kırmızı
     'sivas_btu':         ['#1A237E', '#283593'],  // Lacivert
     // ── Trabzon ──
     'ktu':               ['#1A237E', '#1565C0'],  // Lacivert-mavi
@@ -129,7 +129,7 @@ class UniversityModel {
     'mersin_uni':        ['#E65100', '#FF8F00'],  // Turuncu
     'tarsus':            ['#1A237E', '#1976D2'],  // Mavi
     // ── Çorum ──
-    'hitit':             ['#4E342E', '#6D4C41'],  // Kahve
+    'hitit':             ['#FF8F00', '#1A237E'],  // Turuncu koyu lacivert
     // ── Kayseri ──
     'erciyes':           ['#1A3C8F', '#C41E3A'],  // Mavi → Kırmızı
     // ── Malatya ──
@@ -147,7 +147,7 @@ class UniversityModel {
     // ── Bolu ──
     'ibu':               ['#1B7A3D', '#2E4C8A'],  // Yeşil → Lacivert
     // ── Zonguldak ──
-    'beun':              ['#D42B2B', '#2E7D32'],  // Kırmızı → Yeşil
+    'beun':              ['#D32F2F', '#B71C1C'],  // Kırmızı
     // ── Van ──
     'yyu':               ['#1A5276', '#5DADE2'],  // Koyu mavi → Açık mavi
     // ── Erzurum ──

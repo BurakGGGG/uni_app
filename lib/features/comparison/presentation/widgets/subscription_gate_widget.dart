@@ -146,14 +146,14 @@ class _DefaultLockedView extends StatelessWidget {
                     featureName,
                     style: AppTextStyles.titleSmall.copyWith(
                       fontWeight: FontWeight.w700,
-                      color: isDark ? Colors.white : AppColors.textPrimary,
+                      color: isDark ? Colors.white : AppColors.textPrimaryFor(context),
                     ),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     '$tierLabel veya üstü gerekli',
                     style: AppTextStyles.bodySmall.copyWith(
-                      color: AppColors.textSecondary,
+                      color: AppColors.textSecondaryFor(context),
                     ),
                   ),
                   const SizedBox(height: 16),

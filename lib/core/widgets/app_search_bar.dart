@@ -33,9 +33,9 @@ class AppSearchBar extends StatelessWidget {
     return Container(
       height: 52,
       decoration: BoxDecoration(
-        color: AppColors.surfaceVariant,
+        color: AppColors.surfaceVariantFor(context),
         borderRadius: BorderRadius.circular(AppConstants.radiusLg),
-        border: Border.all(color: AppColors.borderLight),
+        border: Border.all(color: AppColors.borderLightFor(context)),
       ),
       child: Material(
         color: Colors.transparent,
@@ -47,9 +47,9 @@ class AppSearchBar extends StatelessWidget {
             children: [
               const SizedBox(width: 16),
               leading ??
-                  const Icon(
+                  Icon(
                     Icons.search_rounded,
-                    color: AppColors.textTertiary,
+                    color: AppColors.textTertiaryFor(context),
                     size: 22,
                   ),
               const SizedBox(width: 12),

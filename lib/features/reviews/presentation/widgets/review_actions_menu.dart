@@ -40,7 +40,7 @@ class ReviewActionsMenu extends ConsumerWidget {
         child: Icon(
           Icons.more_horiz_rounded,
           size: 18,
-          color: AppColors.textTertiary,
+          color: AppColors.textTertiaryFor(context),
         ),
       ),
     );
@@ -52,7 +52,7 @@ class ReviewActionsMenu extends ConsumerWidget {
       backgroundColor: Colors.transparent,
       builder: (ctx) => Container(
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: AppColors.surfaceFor(context),
           borderRadius: const BorderRadius.vertical(
             top: Radius.circular(24),
           ),
@@ -86,7 +86,7 @@ class ReviewActionsMenu extends ConsumerWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 24),
                 child: Row(
                   children: [
-                    Icon(Icons.settings_rounded, size: 20, color: AppColors.textSecondary),
+                    Icon(Icons.settings_rounded, size: 20, color: AppColors.textSecondaryFor(context)),
                     const SizedBox(width: 8),
                     Text('İşlemler', style: AppTextStyles.titleMedium),
                   ],
@@ -146,11 +146,11 @@ class ReviewActionsMenu extends ConsumerWidget {
                   child: TextButton(
                     onPressed: () => Navigator.pop(ctx),
                     style: TextButton.styleFrom(
-                      foregroundColor: AppColors.textSecondary,
+                      foregroundColor: AppColors.textSecondaryFor(context),
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(AppConstants.radiusMd),
-                        side: BorderSide(color: AppColors.borderLight),
+                        side: BorderSide(color: AppColors.borderLightFor(context)),
                       ),
                     ),
                     child: const Text('İptal'),
@@ -183,7 +183,7 @@ class ReviewActionsMenu extends ConsumerWidget {
         content: Text(
           'Bu yorumu silmek istediğinizden emin misiniz?\nBu işlem geri alınamaz ve tüm beğeniler silinecektir.',
           textAlign: TextAlign.center,
-          style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary),
+          style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondaryFor(context)),
         ),
         actionsAlignment: MainAxisAlignment.center,
         actionsPadding: const EdgeInsets.fromLTRB(24, 0, 24, 20),
@@ -192,12 +192,12 @@ class ReviewActionsMenu extends ConsumerWidget {
             child: OutlinedButton(
               onPressed: () => Navigator.pop(ctx, false),
               style: OutlinedButton.styleFrom(
-                foregroundColor: AppColors.textSecondary,
+                foregroundColor: AppColors.textSecondaryFor(context),
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(AppConstants.radiusMd),
                 ),
-                side: BorderSide(color: AppColors.borderLight),
+                side: BorderSide(color: AppColors.borderLightFor(context)),
               ),
               child: const Text('Vazgeç'),
             ),
@@ -314,7 +314,7 @@ class _ActionTile extends StatelessWidget {
                     Text(
                       subtitle,
                       style: AppTextStyles.labelSmall.copyWith(
-                        color: AppColors.textTertiary,
+                        color: AppColors.textTertiaryFor(context),
                       ),
                     ),
                   ],

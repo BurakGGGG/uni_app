@@ -137,14 +137,14 @@ class _ComparisonNoteBottomSheetState extends State<ComparisonNoteBottomSheet> {
               _isEdit ? 'Notu Düzenle' : 'Not Ekle',
               style: AppTextStyles.titleMedium.copyWith(
                 fontWeight: FontWeight.w800,
-                color: isDark ? Colors.white : AppColors.textPrimary,
+                color: isDark ? Colors.white : AppColors.textPrimaryFor(context),
               ),
             ),
             const SizedBox(height: 4),
             Text(
               'Karşılaştırma hakkındaki düşüncelerini kaydet',
               style: AppTextStyles.bodySmall.copyWith(
-                color: AppColors.textSecondary,
+                color: AppColors.textSecondaryFor(context),
               ),
             ),
             const SizedBox(height: 20),
@@ -154,7 +154,7 @@ class _ComparisonNoteBottomSheetState extends State<ComparisonNoteBottomSheet> {
               'Tercih Puanın',
               style: AppTextStyles.labelMedium.copyWith(
                 fontWeight: FontWeight.w700,
-                color: isDark ? Colors.white : AppColors.textPrimary,
+                color: isDark ? Colors.white : AppColors.textPrimaryFor(context),
               ),
             ),
             const SizedBox(height: 8),
@@ -169,7 +169,7 @@ class _ComparisonNoteBottomSheetState extends State<ComparisonNoteBottomSheet> {
               'Not',
               style: AppTextStyles.labelMedium.copyWith(
                 fontWeight: FontWeight.w700,
-                color: isDark ? Colors.white : AppColors.textPrimary,
+                color: isDark ? Colors.white : AppColors.textPrimaryFor(context),
               ),
             ),
             const SizedBox(height: 8),
@@ -186,12 +186,12 @@ class _ComparisonNoteBottomSheetState extends State<ComparisonNoteBottomSheet> {
                 });
               },
               style: AppTextStyles.bodySmall.copyWith(
-                color: isDark ? Colors.white : AppColors.textPrimary,
+                color: isDark ? Colors.white : AppColors.textPrimaryFor(context),
               ),
               decoration: InputDecoration(
                 hintText: 'Örn: İTÜ bana daha yakın, kampüsü çok güzel...',
                 hintStyle: AppTextStyles.bodySmall.copyWith(
-                  color: AppColors.textTertiary,
+                  color: AppColors.textTertiaryFor(context),
                 ),
                 errorText: _isInvalid ? 'Not boş bırakılamaz' : null,
                 filled: true,
@@ -219,7 +219,7 @@ class _ComparisonNoteBottomSheetState extends State<ComparisonNoteBottomSheet> {
                 ),
                 contentPadding: const EdgeInsets.all(16),
                 counterStyle: AppTextStyles.labelSmall.copyWith(
-                  color: _isOverLimit ? AppColors.error : AppColors.textTertiary,
+                  color: _isOverLimit ? AppColors.error : AppColors.textTertiaryFor(context),
                   fontSize: 10,
                 ),
               ),
@@ -274,7 +274,7 @@ class _ComparisonNoteBottomSheetState extends State<ComparisonNoteBottomSheet> {
                     child: Text(
                       'İptal',
                       style: AppTextStyles.labelMedium.copyWith(
-                        color: AppColors.textSecondary,
+                        color: AppColors.textSecondaryFor(context),
                         fontWeight: FontWeight.w700,
                       ),
                     ),
@@ -354,7 +354,7 @@ class _RatingSelector extends StatelessWidget {
               child: Icon(
                 selected ? Icons.star_rounded : Icons.star_outline_rounded,
                 size: 32,
-                color: selected ? AppColors.tierPro : AppColors.textTertiary,
+                color: selected ? AppColors.tierPro : AppColors.textTertiaryFor(context),
               ),
             ),
           ),
@@ -402,7 +402,7 @@ class _ChipInputSection extends StatelessWidget {
               '$label (${items.length}/$maxItems)',
               style: AppTextStyles.labelMedium.copyWith(
                 fontWeight: FontWeight.w700,
-                color: isDark ? Colors.white : AppColors.textPrimary,
+                color: isDark ? Colors.white : AppColors.textPrimaryFor(context),
               ),
             ),
           ],
@@ -444,12 +444,12 @@ class _ChipInputSection extends StatelessWidget {
                 child: TextField(
                   controller: controller,
                   style: AppTextStyles.bodySmall.copyWith(
-                    color: isDark ? Colors.white : AppColors.textPrimary,
+                    color: isDark ? Colors.white : AppColors.textPrimaryFor(context),
                   ),
                   decoration: InputDecoration(
                     hintText: 'Yeni ${label.toLowerCase().replaceAll('lar', '').replaceAll('ler', '')} ekle...',
                     hintStyle: AppTextStyles.bodySmall.copyWith(
-                      color: AppColors.textTertiary,
+                      color: AppColors.textTertiaryFor(context),
                       fontSize: 12,
                     ),
                     isDense: true,

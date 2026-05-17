@@ -29,14 +29,14 @@ class ComparisonCategoryRow extends StatelessWidget {
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: AppColors.surfaceVariant,
+          color: AppColors.surfaceVariantFor(context),
           borderRadius: BorderRadius.circular(AppConstants.radiusMd),
         ),
         child: Row(children: [
-          const Icon(Icons.info_outline, size: 16, color: AppColors.textTertiary),
+          Icon(Icons.info_outline, size: 16, color: AppColors.textTertiaryFor(context)),
           const SizedBox(width: 8),
           Text('${comparison.categoryName}: Henüz yeterli yorum yok',
-            style: AppTextStyles.bodySmall.copyWith(color: AppColors.textTertiary)),
+            style: AppTextStyles.bodySmall.copyWith(color: AppColors.textTertiaryFor(context))),
         ]),
       );
     }
@@ -46,14 +46,14 @@ class ComparisonCategoryRow extends StatelessWidget {
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: AppColors.surfaceVariant,
+          color: AppColors.surfaceVariantFor(context),
           borderRadius: BorderRadius.circular(AppConstants.radiusMd),
         ),
         child: Row(children: [
-          const Icon(Icons.info_outline, size: 16, color: AppColors.textTertiary),
+          Icon(Icons.info_outline, size: 16, color: AppColors.textTertiaryFor(context)),
           const SizedBox(width: 8),
           Text('${comparison.categoryName}: Henüz yeterli yorum yok',
-            style: AppTextStyles.bodySmall.copyWith(color: AppColors.textTertiary)),
+            style: AppTextStyles.bodySmall.copyWith(color: AppColors.textTertiaryFor(context))),
         ]),
       );
     }
@@ -62,9 +62,9 @@ class ComparisonCategoryRow extends StatelessWidget {
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: AppColors.surfaceFor(context),
         borderRadius: BorderRadius.circular(AppConstants.radiusMd),
-        border: Border.all(color: AppColors.borderLight),
+        border: Border.all(color: AppColors.borderLightFor(context)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -172,7 +172,7 @@ class _Bar extends StatelessWidget {
             Container(
               height: 6,
               decoration: BoxDecoration(
-                color: AppColors.surfaceVariant,
+                color: AppColors.surfaceVariantFor(context),
                 borderRadius: BorderRadius.circular(3),
               ),
             ),
@@ -212,7 +212,7 @@ class _NoDataLabel extends StatelessWidget {
         Text(
           'Yorum yok',
           style: AppTextStyles.labelSmall.copyWith(
-            color: AppColors.textTertiary,
+            color: AppColors.textTertiaryFor(context),
             fontStyle: FontStyle.italic,
           ),
         ),
@@ -220,7 +220,7 @@ class _NoDataLabel extends StatelessWidget {
         Container(
           height: 6,
           decoration: BoxDecoration(
-            color: AppColors.surfaceVariant,
+            color: AppColors.surfaceVariantFor(context),
             borderRadius: BorderRadius.circular(3),
           ),
         ),

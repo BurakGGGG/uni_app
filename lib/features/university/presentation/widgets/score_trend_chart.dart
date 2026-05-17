@@ -43,9 +43,9 @@ class _ScoreTrendChartState extends State<ScoreTrendChart> {
       height: 240,
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: AppColors.surfaceFor(context),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.borderLight),
+        border: Border.all(color: AppColors.borderLightFor(context)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -78,7 +78,7 @@ class _ScoreTrendChartState extends State<ScoreTrendChart> {
                   drawVerticalLine: false,
                   horizontalInterval: (maxVal - minVal) / 3,
                   getDrawingHorizontalLine: (_) => FlLine(
-                    color: AppColors.borderLight,
+                    color: AppColors.borderLightFor(context),
                     strokeWidth: 1,
                     dashArray: [4, 4],
                   ),
@@ -168,7 +168,7 @@ class _ScoreTrendChartState extends State<ScoreTrendChart> {
                     }
                   },
                   touchTooltipData: LineTouchTooltipData(
-                    getTooltipColor: (_) => AppColors.textPrimary,
+                    getTooltipColor: (_) => AppColors.textPrimaryFor(context),
                     tooltipRoundedRadius: 8,
                     tooltipPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     showOnTopOfTheChartBoxArea: true,
@@ -219,7 +219,7 @@ class _ScoreTrendChartState extends State<ScoreTrendChart> {
   Widget _buildToggle() {
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.surfaceVariant,
+        color: AppColors.surfaceVariantFor(context),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
@@ -248,7 +248,7 @@ class _ScoreTrendChartState extends State<ScoreTrendChart> {
         child: Text(
           label,
           style: AppTextStyles.labelSmall.copyWith(
-            color: selected ? Colors.white : AppColors.textTertiary,
+            color: selected ? Colors.white : AppColors.textTertiaryFor(context),
             fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
             fontSize: 10,
           ),
@@ -268,17 +268,17 @@ class _ScoreTrendChartState extends State<ScoreTrendChart> {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: AppColors.surfaceFor(context),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.borderLight),
+        border: Border.all(color: AppColors.borderLightFor(context)),
       ),
       child: Center(
         child: Column(
           children: [
-            const Icon(Icons.show_chart_rounded, size: 32, color: AppColors.textTertiary),
+            Icon(Icons.show_chart_rounded, size: 32, color: AppColors.textTertiaryFor(context)),
             const SizedBox(height: 8),
             Text('Trend verisi henüz yok',
-                style: AppTextStyles.bodySmall.copyWith(color: AppColors.textTertiary)),
+                style: AppTextStyles.bodySmall.copyWith(color: AppColors.textTertiaryFor(context))),
           ],
         ),
       ),

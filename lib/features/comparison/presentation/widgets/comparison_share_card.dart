@@ -49,7 +49,7 @@ class ShareFormatPicker extends StatelessWidget {
             width: 40,
             height: 4,
             decoration: BoxDecoration(
-              color: AppColors.borderLight,
+              color: AppColors.borderLightFor(context),
               borderRadius: BorderRadius.circular(2),
             ),
           ),
@@ -218,7 +218,7 @@ class ComparisonShareCard extends StatelessWidget {
                               textAlign: TextAlign.center,
                               style: AppTextStyles.titleLarge.copyWith(
                                 fontWeight: FontWeight.w900,
-                                color: isDark ? Colors.white : AppColors.textPrimary,
+                                color: isDark ? Colors.white : AppColors.textPrimaryFor(context),
                               ),
                             ),
                             const SizedBox(height: 20),
@@ -244,7 +244,7 @@ class ComparisonShareCard extends StatelessWidget {
                                   child: Text(
                                     'VS',
                                     style: TextStyle(
-                                      color: isDark ? Colors.white : AppColors.textPrimary,
+                                      color: isDark ? Colors.white : AppColors.textPrimaryFor(context),
                                       fontWeight: FontWeight.w900,
                                       fontSize: 14,
                                       letterSpacing: 0.8,
@@ -277,7 +277,7 @@ class ComparisonShareCard extends StatelessWidget {
                                 textAlign: TextAlign.center,
                                 style: AppTextStyles.bodyLarge.copyWith(
                                   height: 1.3,
-                                  color: isDark ? Colors.white70 : AppColors.textSecondary,
+                                  color: isDark ? Colors.white70 : AppColors.textSecondaryFor(context),
                                   fontStyle: FontStyle.italic,
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -468,7 +468,7 @@ class _ShareStatRow extends StatelessWidget {
             label,
             textAlign: TextAlign.center,
             style: AppTextStyles.labelSmall.copyWith(
-              color: AppColors.textTertiary,
+              color: AppColors.textTertiaryFor(context),
               fontSize: 10,
             ),
           ),

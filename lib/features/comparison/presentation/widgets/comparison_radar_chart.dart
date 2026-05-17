@@ -50,9 +50,9 @@ class _ComparisonRadarChartState extends State<ComparisonRadarChart>
       margin: const EdgeInsets.symmetric(horizontal: 16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: AppColors.surfaceFor(context),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.borderLight),
+        border: Border.all(color: AppColors.borderLightFor(context)),
       ),
       child: Column(
         children: [
@@ -101,16 +101,16 @@ class _ComparisonRadarChartState extends State<ComparisonRadarChart>
                 radarBackgroundColor: Colors.transparent,
                 borderData: FlBorderData(show: false),
                 radarBorderData:
-                    const BorderSide(color: AppColors.borderLight, width: 1),
+                    BorderSide(color: AppColors.borderLightFor(context), width: 1),
                 gridBorderData:
-                    const BorderSide(color: AppColors.borderLight, width: 0.5),
+                    BorderSide(color: AppColors.borderLightFor(context), width: 0.5),
                 tickCount: 4,
                 ticksTextStyle: AppTextStyles.labelSmall.copyWith(
-                  color: AppColors.textTertiary,
+                  color: AppColors.textTertiaryFor(context),
                   fontSize: 9,
                 ),
                 tickBorderData:
-                    const BorderSide(color: AppColors.borderLight, width: 0.5),
+                    BorderSide(color: AppColors.borderLightFor(context), width: 0.5),
                 getTitle: (index, angle) {
                   final name = cats[index].categoryName;
                   // Uzun isimleri satır ortasından böl
@@ -144,7 +144,7 @@ class _ComparisonRadarChartState extends State<ComparisonRadarChart>
                   );
                 },
                 titleTextStyle: AppTextStyles.labelSmall.copyWith(
-                  color: AppColors.textSecondary,
+                  color: AppColors.textSecondaryFor(context),
                   fontSize: 10,
                   fontWeight: FontWeight.w600,
                 ),
@@ -220,7 +220,7 @@ class _LegendDot extends StatelessWidget {
         const SizedBox(width: 6),
         Text(label,
             style: AppTextStyles.labelSmall
-                .copyWith(color: AppColors.textSecondary)),
+                .copyWith(color: AppColors.textSecondaryFor(context))),
       ],
     );
   }

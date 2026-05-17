@@ -11,7 +11,7 @@ class ShareListSheet {
   static Future<void> show(BuildContext context, PreferenceListModel list) {
     return showModalBottomSheet(
       context: context,
-      backgroundColor: AppColors.surface,
+      backgroundColor: AppColors.surfaceFor(context),
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
@@ -52,7 +52,7 @@ class _Content extends ConsumerWidget {
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: AppColors.borderLight,
+                color: AppColors.borderLightFor(context),
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -88,7 +88,7 @@ class _Content extends ConsumerWidget {
                     Text(
                       currentList.title,
                       style: AppTextStyles.labelSmall.copyWith(
-                        color: AppColors.textSecondary,
+                        color: AppColors.textSecondaryFor(context),
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -120,7 +120,7 @@ class _Content extends ConsumerWidget {
               subtitle: Text(
                 'Linke sahip herkes listeni görebilir',
                 style: AppTextStyles.labelSmall
-                    .copyWith(color: AppColors.textSecondary),
+                    .copyWith(color: AppColors.textSecondaryFor(context)),
               ),
               value: currentList.isPublic,
               activeTrackColor: AppColors.primary,
@@ -221,13 +221,13 @@ class _Content extends ConsumerWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(Icons.remove_red_eye_rounded,
-                    size: 14, color: AppColors.textTertiary),
+                Icon(Icons.remove_red_eye_rounded,
+                    size: 14, color: AppColors.textTertiaryFor(context)),
                 const SizedBox(width: 5),
                 Text(
                   '${currentList.viewCount} görüntülenme',
                   style: AppTextStyles.labelSmall
-                      .copyWith(color: AppColors.textTertiary),
+                      .copyWith(color: AppColors.textTertiaryFor(context)),
                 ),
               ],
             ),
@@ -241,14 +241,14 @@ class _Content extends ConsumerWidget {
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.lock_outline_rounded,
-                      color: AppColors.textTertiary, size: 20),
+                  Icon(Icons.lock_outline_rounded,
+                      color: AppColors.textTertiaryFor(context), size: 20),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(
                       'Listen şu an gizli. Paylaşmak için yukarıdaki anahtarı aç.',
                       style: AppTextStyles.bodySmall.copyWith(
-                        color: AppColors.textSecondary,
+                        color: AppColors.textSecondaryFor(context),
                         height: 1.4,
                       ),
                     ),

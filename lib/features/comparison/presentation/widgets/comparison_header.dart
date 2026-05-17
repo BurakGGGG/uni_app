@@ -51,7 +51,7 @@ class ComparisonHeader extends StatelessWidget {
           Text(
             result.summaryText,
             style: AppTextStyles.titleSmall.copyWith(
-              color: AppColors.textSecondary,
+              color: AppColors.textSecondaryFor(context),
               fontStyle: FontStyle.italic,
             ),
           ),
@@ -67,7 +67,7 @@ class ComparisonHeader extends StatelessWidget {
               _MiniStat(
                 label: 'Berabere',
                 value: result.categoriesTied.toString(),
-                color: AppColors.textTertiary,
+                color: AppColors.textTertiaryFor(context),
               ),
               _MiniStat(
                 label: 'B önde',
@@ -100,7 +100,7 @@ class _ScoreCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: AppColors.surfaceFor(context),
         borderRadius: BorderRadius.circular(AppConstants.radiusMd),
         border: Border.all(
           color: isWinner ? color : AppColors.borderLight,
@@ -143,7 +143,7 @@ class _Delta extends StatelessWidget {
     final absDelta = delta.abs();
     final color = delta > 0.05
         ? AppColors.primary
-        : (delta < -0.05 ? AppColors.secondary : AppColors.textTertiary);
+        : (delta < -0.05 ? AppColors.secondary : AppColors.textTertiaryFor(context));
     final text = absDelta < 0.05
         ? '='
         : (delta > 0
@@ -180,7 +180,7 @@ class _MiniStat extends StatelessWidget {
         Text(value, style: AppTextStyles.titleLarge.copyWith(
           color: color, fontWeight: FontWeight.w800)),
         Text(label, style: AppTextStyles.labelSmall.copyWith(
-          color: AppColors.textSecondary)),
+          color: AppColors.textSecondaryFor(context))),
       ],
     );
   }
