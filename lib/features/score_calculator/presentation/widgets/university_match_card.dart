@@ -83,16 +83,24 @@ class UniversityMatchCard extends StatelessWidget {
                         children: [
                           Icon(Icons.location_on_rounded, size: 14, color: AppColors.textTertiaryFor(context)),
                           const SizedBox(width: 4),
-                          Text(
-                            match.university.cityId, // TODO: city name
-                            style: AppTextStyles.bodySmall.copyWith(color: AppColors.textTertiaryFor(context)),
+                          Flexible(
+                            child: Text(
+                              match.university.cityId, // TODO: city name
+                              style: AppTextStyles.bodySmall.copyWith(color: AppColors.textTertiaryFor(context)),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
                           const SizedBox(width: 12),
                           Icon(Icons.account_balance_rounded, size: 14, color: AppColors.textTertiaryFor(context)),
                           const SizedBox(width: 4),
-                          Text(
-                            match.university.type,
-                            style: AppTextStyles.bodySmall.copyWith(color: AppColors.textTertiaryFor(context)),
+                          Flexible(
+                            child: Text(
+                              match.university.type,
+                              style: AppTextStyles.bodySmall.copyWith(color: AppColors.textTertiaryFor(context)),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
                         ],
                       ),
@@ -101,26 +109,34 @@ class UniversityMatchCard extends StatelessWidget {
                       // Score info
                       Row(
                         children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                            decoration: BoxDecoration(
-                              color: borderColor.withValues(alpha: 0.1),
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                            child: Text(
-                              'Taban Puan: ${match.departmentBaseScore.toStringAsFixed(2)}',
-                              style: AppTextStyles.labelSmall.copyWith(
-                                color: borderColor,
-                                fontWeight: FontWeight.w600,
+                          Flexible(
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: borderColor.withValues(alpha: 0.1),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Text(
+                                'Taban Puan: ${match.departmentBaseScore.toStringAsFixed(2)}',
+                                style: AppTextStyles.labelSmall.copyWith(
+                                  color: borderColor,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
                           ),
                           if (match.departmentRanking != null) ...[
                             const SizedBox(width: 8),
-                            Text(
-                              'Sıralama: ${match.departmentRanking}',
-                              style: AppTextStyles.labelSmall.copyWith(
-                                color: AppColors.textTertiaryFor(context),
+                            Flexible(
+                              child: Text(
+                                'Sıralama: ${match.departmentRanking}',
+                                style: AppTextStyles.labelSmall.copyWith(
+                                  color: AppColors.textTertiaryFor(context),
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
                           ],
