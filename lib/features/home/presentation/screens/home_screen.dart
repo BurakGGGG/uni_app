@@ -53,27 +53,29 @@ class HomeScreen extends ConsumerWidget {
                                 children: [
                                   Text(
                                     'Üni',
-                                    style: AppTextStyles.displaySmall.copyWith(
+                                    style: AppTextStyles.headlineLarge.copyWith(
                                       color: AppColors.primary,
                                       fontFamily: 'SpaceGrotesk',
                                       fontWeight: FontWeight.w800,
-                                      letterSpacing: -1.2,
+                                      letterSpacing: -1.0,
+                                      fontSize: 28,
                                     ),
                                   ),
-                                  const SizedBox(width: 2),
+                                  const SizedBox(width: 3),
                                   SvgPicture.asset(
                                     'assets/icons/compare_icon.svg',
-                                    width: 20,
-                                    height: 20,
+                                    width: 24,
+                                    height: 24,
                                   ),
-                                  const SizedBox(width: 1),
+                                  const SizedBox(width: 2),
                                   Text(
                                     'eç',
-                                    style: AppTextStyles.displaySmall.copyWith(
+                                    style: AppTextStyles.headlineLarge.copyWith(
                                       color: AppColors.primary,
                                       fontFamily: 'SpaceGrotesk',
                                       fontWeight: FontWeight.w800,
-                                      letterSpacing: -1.2,
+                                      letterSpacing: -1.0,
+                                      fontSize: 28,
                                     ),
                                   ),
                                 ],

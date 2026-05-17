@@ -20,7 +20,8 @@ class StoryRepository {
 
   // ─── Okuma ─────────────────────────────────────────────────────────
 
-  /// Aktif story'leri dinler (en yeniler önce)
+  /// Aktif story'leri dinler (yeni→eski, Firestore index uyumlu)
+  /// Sıralamayı provider katmanında ters çeviriyoruz (eski→yeni)
   Stream<List<StoryModel>> getActiveStories() {
     return _storiesRef
         .where('isActive', isEqualTo: true)
@@ -30,8 +31,7 @@ class StoryRepository {
             .map((doc) => StoryModel.fromMap(doc.data(), doc.id))
             .toList())
         .handleError((error) {
-      // Composite index henüz hazır değilse basit sorguya düş
-      debugPrint('[StoryRepository] Stream error (index building?): $error');
+      debugPrint('[StoryRepository] Stream error: $error');
     });
   }
 
@@ -46,7 +46,6 @@ class StoryRepository {
           .map((doc) => StoryModel.fromMap(doc.data(), doc.id))
           .toList();
     } catch (e) {
-      // Index yoksa sadece isActive filtresiyle dene
       debugPrint('[StoryRepository] Fallback query: $e');
       final snapshot = await _storiesRef
           .where('isActive', isEqualTo: true)
@@ -57,17 +56,6 @@ class StoryRepository {
       stories.sort((a, b) => b.createdAt.compareTo(a.createdAt));
       return stories;
     }
-  }
-
-  /// Tek seferlik okuma — aktif story'ler
-  Future<List<StoryModel>> getActiveStoriesOnce() async {
-    final snapshot = await _storiesRef
-        .where('isActive', isEqualTo: true)
-        .orderBy('createdAt', descending: true)
-        .get();
-    return snapshot.docs
-        .map((doc) => StoryModel.fromMap(doc.data(), doc.id))
-        .toList();
   }
 
   // ─── Yazma (Admin) ────────────────────────────────────────────────
