@@ -6,6 +6,7 @@ import '../../../../core/theme/app_text_styles.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import '../providers/story_providers.dart';
 import '../../domain/models/story_model.dart';
+import '../widgets/story_ring.dart';
 
 /// Tam ekran Story görüntüleyici.
 ///
@@ -13,6 +14,7 @@ import '../../domain/models/story_model.dart';
 /// - Android geri tuşuyla kapatılır
 /// - Sağa/sola dokunarak story'ler arasında gezilir
 /// - Üstte doğrusal ilerleme çubuğu
+/// - Basılı tutunca ilerleme durur
 /// - Kapanışta görülen story'ler işaretlenir
 class StoryViewerScreen extends ConsumerStatefulWidget {
   const StoryViewerScreen({super.key});
@@ -26,6 +28,7 @@ class _StoryViewerScreenState extends ConsumerState<StoryViewerScreen>
   int _currentIndex = 0;
   final List<String> _viewedIds = [];
   late AnimationController _progressController;
+  bool _isPaused = false;
 
   static const _storyDuration = Duration(seconds: 6);
 
@@ -44,7 +47,7 @@ class _StoryViewerScreenState extends ConsumerState<StoryViewerScreen>
 
   @override
   void dispose() {
-    // Görülen story'leri kaydet
+    // Güvenlik: dispose'da da kaydet
     if (_viewedIds.isNotEmpty) {
       ref.read(seenStoryIdsProvider.notifier).markAsSeen(_viewedIds);
     }
@@ -55,6 +58,20 @@ class _StoryViewerScreenState extends ConsumerState<StoryViewerScreen>
   void _startProgress() {
     _progressController.reset();
     _progressController.forward();
+  }
+
+  void _pauseProgress() {
+    if (!_isPaused) {
+      _isPaused = true;
+      _progressController.stop();
+    }
+  }
+
+  void _resumeProgress() {
+    if (_isPaused) {
+      _isPaused = false;
+      _progressController.forward();
+    }
   }
 
   void _nextStory() {
@@ -73,6 +90,9 @@ class _StoryViewerScreenState extends ConsumerState<StoryViewerScreen>
     if (_currentIndex > 0) {
       setState(() => _currentIndex--);
       _startProgress();
+    } else {
+      // İlk story'deyken sola basınca baştan başla
+      _startProgress();
     }
   }
 
@@ -81,6 +101,8 @@ class _StoryViewerScreenState extends ConsumerState<StoryViewerScreen>
       final id = stories[_currentIndex].id;
       if (!_viewedIds.contains(id)) {
         _viewedIds.add(id);
+        // İzlenen story'yi hemen kaydet — griye dönmesi için
+        ref.read(seenStoryIdsProvider.notifier).markSingleAsSeen(id);
       }
     }
   }
@@ -98,7 +120,19 @@ class _StoryViewerScreenState extends ConsumerState<StoryViewerScreen>
             child: CircularProgressIndicator(color: Colors.white),
           ),
           error: (e, _) => Center(
-            child: Text('Hata: $e', style: const TextStyle(color: Colors.white)),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text('Hata: $e',
+                    style: const TextStyle(color: Colors.white)),
+                const SizedBox(height: 16),
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: const Text('Kapat',
+                      style: TextStyle(color: Colors.white)),
+                ),
+              ],
+            ),
           ),
           data: (stories) {
             if (stories.isEmpty) {
@@ -122,6 +156,7 @@ class _StoryViewerScreenState extends ConsumerState<StoryViewerScreen>
             final story = stories[_currentIndex];
 
             return GestureDetector(
+              // Sağa/sola dokunma
               onTapUp: (details) {
                 final screenWidth = MediaQuery.of(context).size.width;
                 if (details.globalPosition.dx < screenWidth / 3) {
@@ -130,6 +165,9 @@ class _StoryViewerScreenState extends ConsumerState<StoryViewerScreen>
                   _nextStory();
                 }
               },
+              // Basılı tutunca durdur
+              onLongPressStart: (_) => _pauseProgress(),
+              onLongPressEnd: (_) => _resumeProgress(),
               child: Stack(
                 fit: StackFit.expand,
                 children: [
@@ -212,7 +250,7 @@ class _StoryViewerScreenState extends ConsumerState<StoryViewerScreen>
                             ),
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(2),
-                              child: AnimatedBuilder(
+                              child: StoryAnimatedBuilder(
                                 animation: _progressController,
                                 builder: (context, child) {
                                   double value;
@@ -339,21 +377,5 @@ class _StoryViewerScreenState extends ConsumerState<StoryViewerScreen>
         ),
       ),
     );
-  }
-}
-
-/// AnimatedBuilder alias — AnimatedWidget gibi kullanılır
-class AnimatedBuilder extends AnimatedWidget {
-  final Widget Function(BuildContext context, Widget? child) builder;
-
-  const AnimatedBuilder({
-    super.key,
-    required Animation<double> animation,
-    required this.builder,
-  }) : super(listenable: animation);
-
-  @override
-  Widget build(BuildContext context) {
-    return builder(context, null);
   }
 }
