@@ -102,3 +102,4 @@ android/app/build/
 .env.local
 .env.production
 android/.kotlin/
+taban_puanlar*/

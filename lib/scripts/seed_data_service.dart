@@ -257,4 +257,45 @@ class SeedDataService {
     if (batchCount > 0) await batch.commit();
     debugPrint('✅ ${places.length} mekan Firestore\'a yüklendi');
   }
+
+  /// Firebase'deki places koleksiyonundan sadece type == "cafe" olanları siler
+  Future<void> deleteCafes() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      throw Exception('Yetkisiz erişim: Lütfen giriş yapın.');
+    }
+
+    // type == 'cafe' olan tüm dokümanları çek
+    final snapshot = await _firestore
+        .collection('places')
+        .where('type', isEqualTo: 'cafe')
+        .get();
+
+    if (snapshot.docs.isEmpty) {
+      debugPrint('ℹ️ Silinecek kafe bulunamadı.');
+      return;
+    }
+
+    debugPrint('🗑️ ${snapshot.docs.length} kafe silinecek...');
+
+    var batch = _firestore.batch();
+    var batchCount = 0;
+
+    for (final doc in snapshot.docs) {
+      batch.delete(doc.reference);
+      batchCount++;
+
+      if (batchCount >= 490) {
+        await batch.commit();
+        batch = _firestore.batch();
+        batchCount = 0;
+      }
+    }
+
+    if (batchCount > 0) {
+      await batch.commit();
+    }
+
+    debugPrint('✅ ${snapshot.docs.length} kafe Firebase\'den silindi.');
+  }
 }
