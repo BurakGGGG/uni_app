@@ -12,6 +12,7 @@ class UserModel {
   final String? department;
   final int? grade;
   final String? bio;
+  final String role;
   final int reviewCount;
   final List<String> fcmTokens;
   final NotificationPreferences notificationPrefs;
@@ -29,6 +30,7 @@ class UserModel {
     this.department,
     this.grade,
     this.bio,
+    this.role = 'user',
     this.reviewCount = 0,
     this.fcmTokens = const [],
     this.notificationPrefs = const NotificationPreferences(),
@@ -49,6 +51,7 @@ class UserModel {
       department: map['department'],
       grade: map['grade'],
       bio: map['bio'],
+      role: map['role'] ?? 'user',
       reviewCount: map['reviewCount'] ?? 0,
       fcmTokens: List<String>.from(map['fcmTokens'] ?? []),
       notificationPrefs: NotificationPreferences.fromMap(
@@ -72,6 +75,7 @@ class UserModel {
       'department': department,
       'grade': grade,
       'bio': bio,
+      'role': role,
       'reviewCount': reviewCount,
       'fcmTokens': fcmTokens,
       'notificationPrefs': notificationPrefs.toMap(),
@@ -91,6 +95,7 @@ class UserModel {
     String? department,
     int? grade,
     String? bio,
+    String? role,
     int? reviewCount,
     List<String>? fcmTokens,
     NotificationPreferences? notificationPrefs,
@@ -107,6 +112,7 @@ class UserModel {
       department: department ?? this.department,
       grade: grade ?? this.grade,
       bio: bio ?? this.bio,
+      role: role ?? this.role,
       reviewCount: reviewCount ?? this.reviewCount,
       fcmTokens: fcmTokens ?? this.fcmTokens,
       notificationPrefs: notificationPrefs ?? this.notificationPrefs,
@@ -117,6 +123,9 @@ class UserModel {
 
   /// edu.tr email kontrolü
   bool get hasEduEmail => email.toLowerCase().endsWith('.edu.tr');
+
+  /// Admin kontrolü
+  bool get isAdmin => role == 'admin';
 
   /// Kullanıcının baş harfi (avatar için)
   String get initials {
