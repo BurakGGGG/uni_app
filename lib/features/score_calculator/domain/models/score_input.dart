@@ -49,7 +49,7 @@ class ScoreInput {
   final int ydtWrong;
 
   const ScoreInput({
-    this.selectedYear = 2025,
+    this.selectedYear = 2024,
     required this.scoreType,
     required this.obpScore,
     required this.selectedDepartment,
