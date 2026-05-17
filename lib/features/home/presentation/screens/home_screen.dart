@@ -296,86 +296,143 @@ class _HeroBanner extends StatelessWidget {
     return GestureDetector(
       onTap: () => context.push('/score-calculator'),
       child: Container(
-        constraints: const BoxConstraints(minHeight: 140),
+        constraints: const BoxConstraints(minHeight: 160),
         decoration: BoxDecoration(
           gradient: AppColors.heroGradient,
-          borderRadius: BorderRadius.circular(AppConstants.radiusXl),
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.primary.withValues(alpha: 0.3),
+              blurRadius: 24,
+              offset: const Offset(0, 8),
+            ),
+          ],
         ),
         clipBehavior: Clip.hardEdge,
         child: Stack(
           children: [
-            // Dekoratif daireler
+            // Modern Glow Effects
             Positioned(
-              right: -20,
-              top: -20,
+              right: -40,
+              top: -40,
               child: Container(
-                width: 120,
-                height: 120,
+                width: 150,
+                height: 150,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.white.withValues(alpha: 0.15),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.white.withValues(alpha: 0.2),
+                      blurRadius: 40,
+                      spreadRadius: 20,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            Positioned(
+              right: 60,
+              bottom: -50,
+              child: Container(
+                width: 100,
+                height: 100,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: Colors.white.withValues(alpha: 0.1),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.secondary.withValues(alpha: 0.3),
+                      blurRadius: 40,
+                      spreadRadius: 20,
+                    ),
+                  ],
                 ),
               ),
             ),
-            Positioned(
-              right: 40,
-              bottom: -30,
-              child: Container(
-                width: 80,
-                height: 80,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.white.withValues(alpha: 0.08),
+            // Pattern Overlay (Optional dots/grid effect)
+            Positioned.fill(
+              child: Opacity(
+                opacity: 0.05,
+                child: CustomPaint(
+                  painter: _GridPatternPainter(),
                 ),
               ),
             ),
-            // İçerik
+            // Content
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
+              padding: const EdgeInsets.all(24.0),
+              child: Row(
                 children: [
-                  Row(
-                    children: [
-                      const Icon(Icons.calculate_rounded,
-                          color: Colors.white, size: 14),
-                      const SizedBox(width: 6),
-                      Text(
-                        'Puan Hesaplayıcı',
-                        style: AppTextStyles.labelMedium.copyWith(
-                          color: Colors.white.withValues(alpha: 0.9),
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Hedefine Ne Kadar Yakınsın?',
-                    style: AppTextStyles.headlineMedium.copyWith(
-                      color: Colors.white,
-                      height: 1.3,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.2),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text(
-                          loc.homeStart,
-                          style: AppTextStyles.labelLarge.copyWith(color: Colors.white),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.2),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.calculate_rounded, color: Colors.white, size: 14),
+                              const SizedBox(width: 6),
+                              Text(
+                                'YKS 2025',
+                                style: AppTextStyles.labelSmall.copyWith(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w700,
+                                  letterSpacing: 0.5,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                        const SizedBox(width: 4),
-                        const Icon(Icons.arrow_forward_rounded,
-                            color: Colors.white, size: 16),
+                        const SizedBox(height: 12),
+                        Text(
+                          'Puanını Hesapla,\nHedefini Belirle!',
+                          style: AppTextStyles.headlineMedium.copyWith(
+                            color: Colors.white,
+                            height: 1.2,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        Row(
+                          children: [
+                            Text(
+                              loc.homeStart,
+                              style: AppTextStyles.labelLarge.copyWith(color: Colors.white),
+                            ),
+                            const SizedBox(width: 8),
+                            Container(
+                              padding: const EdgeInsets.all(4),
+                              decoration: const BoxDecoration(
+                                color: Colors.white,
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(Icons.arrow_forward_rounded, color: AppColors.primary, size: 14),
+                            ),
+                          ],
+                        ),
                       ],
+                    ),
+                  ),
+                  // Icon Graphic
+                  Container(
+                    width: 72,
+                    height: 72,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.15),
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.white.withValues(alpha: 0.3), width: 1.5),
+                    ),
+                    child: const Center(
+                      child: Icon(Icons.analytics_rounded, color: Colors.white, size: 36),
                     ),
                   ),
                 ],
@@ -386,6 +443,24 @@ class _HeroBanner extends StatelessWidget {
       ),
     );
   }
+}
+
+class _GridPatternPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.white
+      ..strokeWidth = 1.0;
+    const spacing = 20.0;
+    for (double i = 0; i < size.width; i += spacing) {
+      for (double j = 0; j < size.height; j += spacing) {
+        canvas.drawCircle(Offset(i, j), 1.0, paint);
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
 class _PopularUniCard extends ConsumerWidget {

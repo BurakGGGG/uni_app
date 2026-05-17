@@ -16,13 +16,6 @@ class ScoreResultScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: AppColors.backgroundFor(context),
-      appBar: AppBar(
-        title: const Text('Sonuçlar'),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.go('/home'),
-        ),
-      ),
       body: resultAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, st) => Center(
@@ -53,10 +46,10 @@ class ScoreResultScreen extends ConsumerWidget {
           return SingleChildScrollView(
             child: Column(
               children: [
-                // Score Hero
+                // Score Hero (Seamless Header)
                 Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.fromLTRB(24, 48, 24, 32),
+                  padding: EdgeInsets.fromLTRB(24, MediaQuery.of(context).padding.top + 16, 24, 32),
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
@@ -80,37 +73,62 @@ class ScoreResultScreen extends ConsumerWidget {
                   ),
                   child: Column(
                     children: [
+                      Row(
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
+                            onPressed: () => context.go('/home'),
+                            padding: EdgeInsets.zero,
+                            constraints: const BoxConstraints(),
+                          ),
+                          const Expanded(
+                            child: Center(
+                              child: Text(
+                                'Sonuçlar',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 24), // To balance the back button
+                        ],
+                      ),
+                      const SizedBox(height: 24),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                         decoration: BoxDecoration(
                           color: Colors.white.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(20),
+                          border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
                         ),
                         child: Text(
                           '${result.scoreType} YERLEŞTİRME PUANI',
                           style: AppTextStyles.labelMedium.copyWith(
                             color: Colors.white,
                             letterSpacing: 1.2,
-                            fontWeight: FontWeight.w600,
+                            fontWeight: FontWeight.w700,
                           ),
                         ),
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 20),
                       Text(
                         result.calculatedScore.toStringAsFixed(3),
                         style: AppTextStyles.displayLarge.copyWith(
                           color: Colors.white,
                           fontWeight: FontWeight.w800,
-                          fontSize: 48,
+                          fontSize: 52,
                         ),
                       ),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 24),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          _ScoreDetailPill(label: 'Ham: ${result.rawScore.toStringAsFixed(2)}'),
-                          const SizedBox(width: 12),
-                          _ScoreDetailPill(label: 'OBP: +${result.obpContribution.toStringAsFixed(2)}'),
+                          _ScoreDetailPill(label: 'Ham Puan\n${result.rawScore.toStringAsFixed(2)}'),
+                          const SizedBox(width: 16),
+                          _ScoreDetailPill(label: 'OBP Katkısı\n+${result.obpContribution.toStringAsFixed(2)}'),
                         ],
                       ),
                     ],
@@ -197,6 +215,7 @@ class _ScoreDetailPill extends StatelessWidget {
       ),
       child: Text(
         label,
+        textAlign: TextAlign.center,
         style: AppTextStyles.labelMedium.copyWith(color: Colors.white, fontWeight: FontWeight.w500),
       ),
     );
