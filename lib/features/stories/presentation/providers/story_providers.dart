@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../core/providers/shared_preferences_provider.dart';
@@ -28,17 +29,15 @@ final activeStoriesProvider = Provider<AsyncValue<List<StoryModel>>>((ref) {
 
   // Stream data varsa onu kullan
   if (stream.hasValue) {
-    // Firestore yeni→eski verir, ters çevirip eski→yeni yap
-    final reversed = stream.value!.reversed.toList();
-    return AsyncValue.data(reversed);
+    // Firestore yeni→eski verir — en yeni story solda
+    return AsyncValue.data(stream.value!);
   }
 
   // Stream hata verdiyse fallback'e bak
   if (stream.hasError) {
     final fallback = ref.watch(storiesFallbackProvider);
     if (fallback.hasValue) {
-      final reversed = fallback.value!.reversed.toList();
-      return AsyncValue.data(reversed);
+      return AsyncValue.data(fallback.value!);
     }
     return fallback;
   }
@@ -115,22 +114,31 @@ class StoryUploadController extends StateNotifier<AsyncValue<void>> {
   /// Yeni story yükle
   Future<bool> uploadStory({
     required File imageFile,
+    required File thumbnailFile,
     required String authorUid,
     required String authorName,
+    String? authorPhotoUrl,
     String? title,
   }) async {
     state = const AsyncValue.loading();
     try {
-      // 1. Görseli Storage'a yükle
-      final imageUrl = await _repository.uploadStoryImage(imageFile);
+      // 1. Görselleri Storage'a yükle (paralel)
+      final results = await Future.wait([
+        _repository.uploadStoryImage(imageFile),
+        _repository.uploadStoryThumbnail(thumbnailFile),
+      ]);
+      final imageUrl = results[0];
+      final thumbnailUrl = results[1];
 
       // 2. Firestore'a story ekle
       final story = StoryModel(
         id: '', // Firestore otomatik oluşturacak
         imageUrl: imageUrl,
+        thumbnailUrl: thumbnailUrl,
         title: title,
         authorUid: authorUid,
         authorName: authorName,
+        authorPhotoUrl: authorPhotoUrl,
         createdAt: DateTime.now(),
         isActive: true,
       );
@@ -139,6 +147,8 @@ class StoryUploadController extends StateNotifier<AsyncValue<void>> {
       state = const AsyncValue.data(null);
       return true;
     } catch (e, st) {
+      debugPrint('[StoryUpload] ❌ Upload failed: $e');
+      debugPrint('[StoryUpload] StackTrace: $st');
       state = AsyncValue.error(e, st);
       return false;
     }

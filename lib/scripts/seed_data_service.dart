@@ -24,7 +24,6 @@ class SeedDataService {
     if (user == null) {
       throw Exception('Yetkisiz erişim: Lütfen giriş yapın.');
     }
-    final token = await user.getIdTokenResult();
     // if (token.claims?['admin'] != true) {
     //   throw Exception('Yetkisiz erişim: Sadece adminler seed datası yükleyebilir.');
     // }
@@ -196,9 +195,6 @@ class SeedDataService {
     if (batchCount > 0) {
       await currentBatch.commit();
     }
-
-    // Mekan verileri (places_seed.json) henüz olmadığı için yoruma alındı.
-    // await _seedPlaces();
   }
 
   Future<void> _seedPlaces() async {

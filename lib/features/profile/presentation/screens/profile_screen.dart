@@ -30,6 +30,8 @@ import '../../../monetization/domain/enums/subscription_tier.dart';
 import '../../../monetization/presentation/providers/subscription_providers.dart';
 import '../../../comparison/presentation/providers/comparison_providers.dart';
 import '../widgets/change_password_dialog.dart';
+import '../../../stories/presentation/widgets/admin_story_upload_sheet.dart';
+import '../../../stories/presentation/widgets/admin_story_management_sheet.dart';
 
 /// Profil ekranı — auth durumuna göre içerik gösterir
 class ProfileScreen extends ConsumerWidget {
@@ -125,6 +127,54 @@ class ProfileScreen extends ConsumerWidget {
               ),
 
               const SizedBox(height: 24),
+
+              // ─── Admin Story Yönetimi (sadece admin) ───────────
+              currentUser.when(
+                data: (profile) {
+                  if (profile == null || !profile.isAdmin) {
+                    return const SizedBox.shrink();
+                  }
+                  return Column(
+                    children: [
+                      _SettingsSection(
+                        title: 'Story Yönetimi',
+                        items: [
+                          _SettingsItem(
+                            icon: Icons.add_photo_alternate_rounded,
+                            title: 'Yeni Story Ekle',
+                            subtitle: 'Görsel ve başlıkla story paylaş',
+                            onTap: () {
+                              showModalBottomSheet(
+                                context: context,
+                                isScrollControlled: true,
+                                backgroundColor: Colors.transparent,
+                                builder: (_) => const AdminStoryUploadSheet(),
+                              );
+                            },
+                          ),
+                          _SettingsItem(
+                            icon: Icons.view_carousel_rounded,
+                            title: 'Aktif Story\'leri Yönet',
+                            subtitle: 'Görüntüle veya sil',
+                            onTap: () {
+                              showModalBottomSheet(
+                                context: context,
+                                isScrollControlled: true,
+                                backgroundColor: Colors.transparent,
+                                builder: (_) =>
+                                    const AdminStoryManagementSheet(),
+                              );
+                            },
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                    ],
+                  );
+                },
+                loading: () => const SizedBox.shrink(),
+                error: (_, _) => const SizedBox.shrink(),
+              ),
 
               // ─── Hesap Ayarları ────────────────────────────────
               authState.when(
