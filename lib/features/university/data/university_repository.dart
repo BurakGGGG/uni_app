@@ -11,6 +11,7 @@ class UniversityRepository {
   List<CityModel>? _citiesCache;
   List<UniversityModel>? _universitiesCache;
   final Map<String, List<DepartmentModel>> _departmentsCache = {};
+  List<DepartmentModel>? _allDepartmentsCache;
   DateTime? _lastFetchTime;
 
   /// Cache geçerli mi? (15 dakika TTL — puan verisi az değişir)
@@ -23,6 +24,7 @@ class UniversityRepository {
     _citiesCache = null;
     _universitiesCache = null;
     _departmentsCache.clear();
+    _allDepartmentsCache = null;
     _lastFetchTime = null;
   }
 
@@ -159,14 +161,22 @@ class UniversityRepository {
   }
 
   Future<List<DepartmentModel>> getAllDepartments() async {
+    if (_allDepartmentsCache != null && _isCacheValid) {
+      return _allDepartmentsCache!;
+    }
+
     // Tüm bölümleri çekmek için (Score Calculator gibi yerlerde kullanılır)
+    // Server yükünü azaltmak için öncelikle cache varsa cache kullanmayı denemek de iyi olabilir ama
+    // source: Source.serverAndCache Firestore mantığında zaten offline'da cache, online'da serverAndCache yapıyor.
     final snapshot = await _firestore
         .collection('departments')
         .get(const GetOptions(source: Source.serverAndCache));
     
-    return snapshot.docs
+    _allDepartmentsCache = snapshot.docs
         .map((doc) => DepartmentModel.fromMap(doc.data(), doc.id))
         .toList();
+        
+    return _allDepartmentsCache!;
   }
 
   Future<DepartmentModel?> getDepartment(String deptId) async {
