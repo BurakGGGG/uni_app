@@ -13,8 +13,6 @@ import '../../../../core/widgets/widgets.dart';
 import '../../../../l10n/generated/app_localizations.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../../auth/presentation/providers/auth_providers.dart';
-import '../../../university/presentation/providers/university_providers.dart';
-import '../../../university/domain/models/university_model.dart';
 
 /// Profil düzenleme ekranı
 class EditProfileScreen extends ConsumerStatefulWidget {
@@ -29,8 +27,6 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   final _nameController = TextEditingController();
   final _imagePicker = ImagePicker();
 
-  String? _selectedUniversity;
-  String? _selectedUniversityId;
   String? _selectedDepartment;
   int? _selectedGrade;
   String? _bio;
@@ -39,8 +35,6 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   bool _isLoading = false;
   bool _hasChanges = false;
   bool _bioHasProfanity = false;
-
-  // Geçici üniversite listesi kaldırıldı, Firestore'dan dinamik alınacak
 
   final _grades = [
     {'value': 0, 'label': 'Hazırlık'},
@@ -63,8 +57,6 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     userAsync.whenData((profile) {
       if (profile != null) {
         _nameController.text = profile.displayName;
-        _selectedUniversity = profile.university;
-        _selectedUniversityId = profile.universityId;
         _selectedDepartment = profile.department;
         _selectedGrade = profile.grade;
         _bio = profile.bio;
@@ -146,8 +138,6 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       await authRepo.updateProfile(
         uid: user.uid,
         displayName: _nameController.text.trim(),
-        university: _selectedUniversity,
-        universityId: _selectedUniversityId,
         department: _selectedDepartment,
         grade: _selectedGrade,
         bio: _bio,
@@ -171,8 +161,6 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final universitiesAsync = ref.watch(allUniversitiesProvider);
-
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
@@ -251,39 +239,8 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
 
                   const SizedBox(height: 20),
 
-                  // ─── Üniversite Seçimi ────────────────────────────
-                  universitiesAsync.when(
-                    data: (unis) {
-                      // Ensure selected university exists in the loaded list, otherwise set to null
-                      final selectedUniModel = unis.cast<UniversityModel?>().firstWhere(
-                        (u) => u?.id == _selectedUniversityId || u?.name == _selectedUniversity,
-                        orElse: () => null,
-                      );
+                  // Üniversite seçimi otomatik atandığı için kaldırıldı
 
-                      return DropdownButtonFormField<UniversityModel>(
-                        initialValue: selectedUniModel,
-                        isExpanded: true,
-                        decoration: InputDecoration(
-                          labelText: AppLocalizations.of(context).editProfileUniversity,
-                          prefixIcon: const Icon(Icons.school_outlined),
-                        ),
-                        items: unis.map((uni) {
-                          return DropdownMenuItem(value: uni, child: Text(uni.name, overflow: TextOverflow.ellipsis));
-                        }).toList(),
-                        onChanged: (uni) {
-                          setState(() {
-                            _selectedUniversity = uni?.name;
-                            _selectedUniversityId = uni?.id;
-                            _hasChanges = true;
-                          });
-                        },
-                      );
-                    },
-                    loading: () => const Center(child: CircularProgressIndicator()),
-                    error: (e, st) => Text(AppLocalizations.of(context).editProfileUniversityError(e.toString())),
-                  ).animate().fadeIn(delay: 200.ms, duration: 400.ms),
-
-                  const SizedBox(height: 20),
 
                   // ─── Bölüm ────────────────────────────────────────
                   TextFormField(

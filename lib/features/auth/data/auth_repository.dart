@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import '../../../core/utils/university_domain_mapper.dart';
 import '../domain/user_model.dart';
 import '../../notifications/data/fcm_service.dart';
 import '../../../services/revenuecat_service.dart';
@@ -230,10 +231,19 @@ class AuthRepository {
     if (refreshedUser.emailVerified &&
         refreshedUser.email != null &&
         refreshedUser.email!.toLowerCase().endsWith('.edu.tr')) {
+      
+      final mappedUniversityId = _getUniversityIdFromEmail(refreshedUser.email!);
+
       // Firestore'u güncelle ki UserModel.isVerifiedStudent senkronize olsun
-      await _firestore.collection('users').doc(refreshedUser.uid).update({
+      final updates = <String, dynamic>{
         'isVerifiedStudent': true,
-      });
+      };
+
+      if (mappedUniversityId != null) {
+        updates['universityId'] = mappedUniversityId;
+      }
+
+      await _firestore.collection('users').doc(refreshedUser.uid).update(updates);
       clearCache(); // Cache'i temizle ki güncel veriyi çeksin
       return true;
     }
@@ -327,13 +337,17 @@ class AuthRepository {
           return UserModel.fromMap(doc.data()!, user.uid);
         } else {
           // Yeni kullanıcı oluştur
-          final isEdu = (user.email ?? '').toLowerCase().endsWith('.edu.tr');
+          final email = user.email ?? '';
+          final isEdu = email.toLowerCase().endsWith('.edu.tr');
+          final mappedUniversityId = isEdu ? _getUniversityIdFromEmail(email) : null;
+
           final newUser = UserModel(
             uid: user.uid,
             displayName: displayName ?? user.displayName ?? '',
-            email: user.email ?? '',
+            email: email,
             photoUrl: user.photoURL,
             isVerifiedStudent: isEdu && user.emailVerified,
+            universityId: mappedUniversityId,
             createdAt: DateTime.now(),
             lastLoginAt: DateTime.now(),
           );
@@ -350,6 +364,12 @@ class AuthRepository {
     // Fallback — buraya hiç düşmemeli
     throw Exception('Firestore bağlantı hatası');
   }
+
+  // Helper method for email to university mapping
+  String? _getUniversityIdFromEmail(String email) {
+    return UniversityDomainMapper.getUniversityId(email);
+  }
+
 
   // ─── Hata Yönetimi ────────────────────────────────────────────
 
