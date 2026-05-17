@@ -224,9 +224,13 @@ class UniCard extends StatelessWidget {
         ),
         if (reviewCount != null) ...[
           const SizedBox(width: 6),
-          Text(
-            '$reviewCount yorum',
-            style: AppTextStyles.labelSmall,
+          Flexible(
+            child: Text(
+              '$reviewCount yorum',
+              style: AppTextStyles.labelSmall,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
         ],
       ],
