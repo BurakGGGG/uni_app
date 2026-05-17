@@ -20,12 +20,22 @@ class _ScoreTrendChartState extends State<ScoreTrendChart> {
 
   @override
   Widget build(BuildContext context) {
-    final years = widget.scoreData.allYearsAscending;
-    if (years.length < 2) {
+    final allYears = widget.scoreData.allYearsAscending;
+    if (allYears.length < 2) {
       return _buildEmptyState();
     }
 
     final isPuan = _mode == _ChartMode.puan;
+
+    // Sıralama modunda ranking=0 olan yılları filtrele
+    final years = isPuan
+        ? allYears
+        : allYears.where((e) => e.value.ranking > 0).toList();
+
+    // Sıralama modunda yeterli veri yoksa boş durum göster
+    if (!isPuan && years.length < 2) {
+      return _buildEmptyState();
+    }
 
     // Veri noktaları
     final spots = <FlSpot>[];
@@ -225,32 +235,40 @@ class _ScoreTrendChartState extends State<ScoreTrendChart> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          _toggleButton('Puan', _ChartMode.puan),
-          _toggleButton('Sıralama', _ChartMode.siralama),
+          _toggleButton('Puan', _ChartMode.puan, enabled: true),
+          _toggleButton('Sıralama', _ChartMode.siralama,
+              enabled: widget.scoreData.allYearsAscending
+                  .where((e) => e.value.ranking > 0)
+                  .length >= 2),
         ],
       ),
     );
   }
 
-  Widget _toggleButton(String label, _ChartMode mode) {
+  Widget _toggleButton(String label, _ChartMode mode, {required bool enabled}) {
     final selected = _mode == mode;
     return GestureDetector(
-      onTap: () => setState(() {
-        _mode = mode;
-        _touchedIndex = null; // toggle'da tooltip'i sıfırla
-      }),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-        decoration: BoxDecoration(
-          color: selected ? AppColors.primary : Colors.transparent,
-          borderRadius: BorderRadius.circular(6),
-        ),
-        child: Text(
-          label,
-          style: AppTextStyles.labelSmall.copyWith(
-            color: selected ? Colors.white : AppColors.textTertiaryFor(context),
-            fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-            fontSize: 10,
+      onTap: enabled
+          ? () => setState(() {
+                _mode = mode;
+                _touchedIndex = null; // toggle'da tooltip'i sıfırla
+              })
+          : null,
+      child: Opacity(
+        opacity: enabled ? 1.0 : 0.4,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+          decoration: BoxDecoration(
+            color: selected ? AppColors.primary : Colors.transparent,
+            borderRadius: BorderRadius.circular(6),
+          ),
+          child: Text(
+            label,
+            style: AppTextStyles.labelSmall.copyWith(
+              color: selected ? Colors.white : AppColors.textTertiaryFor(context),
+              fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+              fontSize: 10,
+            ),
           ),
         ),
       ),

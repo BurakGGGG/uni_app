@@ -199,7 +199,8 @@ class _DepartmentCard extends StatelessWidget {
       runSpacing: 6,
       children: [
         ScoreBadge.baseScore(scoreData.baseScore, small: true),
-        ScoreBadge.ranking(scoreData.ranking, small: true),
+        if (scoreData.ranking > 0)
+          ScoreBadge.ranking(scoreData.ranking, small: true),
         ScoreBadge.quota(scoreData.placedCount, scoreData.quota, small: true),
         if (delta != null && delta.abs() > 0.01)
           ScoreBadge.delta(delta, small: true),

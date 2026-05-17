@@ -1054,6 +1054,28 @@ class _SettingsBottomSheetState extends ConsumerState<_SettingsBottomSheet> {
                       Divider(height: 1, indent: 56, color: AppColors.borderLightFor(context)),
                       _buildSheetActionTile(
                         context,
+                        icon: Icons.delete_sweep_rounded,
+                        iconColor: AppColors.error,
+                        title: 'Kafeleri Sil (Firebase)',
+                        onTap: () async {
+                          Navigator.pop(context);
+                          await seed_data.loadLibrary();
+                          final seedService = seed_data.SeedDataService();
+                          try {
+                            await seedService.deleteCafes();
+                            if (widget.parentContext.mounted) {
+                              showAppSnackBar(widget.parentContext, message: 'Kafeler silindi!', isSuccess: true);
+                            }
+                          } catch (e) {
+                            if (widget.parentContext.mounted) {
+                              showAppSnackBar(widget.parentContext, message: 'Hata: $e', isSuccess: false);
+                            }
+                          }
+                        },
+                      ),
+                      Divider(height: 1, indent: 56, color: AppColors.borderLightFor(context)),
+                      _buildSheetActionTile(
+                        context,
                         icon: Icons.palette_rounded,
                         iconColor: AppColors.secondary,
                         title: 'Marka Renklerini Yükle',
