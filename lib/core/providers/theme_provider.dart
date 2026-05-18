@@ -10,7 +10,7 @@ class ThemeNotifier extends StateNotifier<ThemeMode> {
   final Ref ref;
   static const _themeKey = 'app_theme_mode';
 
-  ThemeNotifier(this.ref) : super(ThemeMode.system) {
+  ThemeNotifier(this.ref) : super(ThemeMode.light) {
     _loadTheme();
   }
 
@@ -20,7 +20,7 @@ class ThemeNotifier extends StateNotifier<ThemeMode> {
     if (themeString != null) {
       state = ThemeMode.values.firstWhere(
         (e) => e.name == themeString,
-        orElse: () => ThemeMode.system,
+        orElse: () => ThemeMode.light,
       );
     }
   }
