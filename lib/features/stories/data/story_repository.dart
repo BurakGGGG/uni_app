@@ -84,4 +84,18 @@ class StoryRepository {
 
     return await uploadTask.ref.getDownloadURL();
   }
+
+  /// Story kapak fotoğrafını Firebase Storage'a yükler (yuvarlak kırpılmış)
+  Future<String> uploadStoryThumbnail(File thumbnailFile) async {
+    final fileName =
+        'stories/thumb_${DateTime.now().millisecondsSinceEpoch}_${thumbnailFile.uri.pathSegments.last}';
+    final ref = _storage.ref().child(fileName);
+
+    final uploadTask = await ref.putFile(
+      thumbnailFile,
+      SettableMetadata(contentType: 'image/jpeg'),
+    );
+
+    return await uploadTask.ref.getDownloadURL();
+  }
 }

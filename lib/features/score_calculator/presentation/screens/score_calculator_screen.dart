@@ -64,135 +64,174 @@ class _ScoreCalculatorScreenState extends ConsumerState<ScoreCalculatorScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Yıl Seçimi
-            Text('1. Yıl Seçimi', style: AppTextStyles.titleMedium),
-            const SizedBox(height: 12),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [2022, 2023, 2024, 2025].map((year) {
-                final isSelected = input.selectedYear == year;
-                return ChoiceChip(
-                  label: Text(year.toString()),
-                  selected: isSelected,
-                  onSelected: (selected) {
-                    if (selected) {
-                      ref.read(scoreInputProvider.notifier).state = 
-                          input.copyWith(selectedYear: year);
-                    }
-                  },
-                );
-              }).toList(),
+            _buildSectionCard(
+              context,
+              title: 'Yıl Seçimi',
+              icon: Icons.calendar_today_rounded,
+              child: Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [2022, 2023, 2024, 2025].map((year) {
+                  final isSelected = input.selectedYear == year;
+                  return ChoiceChip(
+                    label: Text(year.toString(), style: AppTextStyles.labelLarge.copyWith(color: isSelected ? Colors.white : null)),
+                    selected: isSelected,
+                    selectedColor: AppColors.primary,
+                    showCheckmark: false,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    onSelected: (selected) {
+                      if (selected) {
+                        ref.read(scoreInputProvider.notifier).state = 
+                            input.copyWith(selectedYear: year);
+                      }
+                    },
+                  );
+                }).toList(),
+              ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 16),
 
             // Puan Türü Seçimi
-            Text('2. Puan Türü', style: AppTextStyles.titleMedium),
-            const SizedBox(height: 12),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: ['TYT', 'SAY', 'EA', 'SÖZ', 'DİL'].map((type) {
-                final isSelected = input.scoreType == type;
-                return ChoiceChip(
-                  label: Text(type),
-                  selected: isSelected,
-                  onSelected: (selected) {
-                    if (selected) {
-                      ref.read(scoreInputProvider.notifier).state = 
-                          input.copyWith(
-                            scoreType: type,
-                            selectedDepartment: '', // Puan türü değiştiğinde bölümü temizle
-                          );
-                    }
-                  },
-                );
-              }).toList(),
+            _buildSectionCard(
+              context,
+              title: 'Puan Türü',
+              icon: Icons.category_rounded,
+              child: Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: ['TYT', 'SAY', 'EA', 'SÖZ', 'DİL'].map((type) {
+                  final isSelected = input.scoreType == type;
+                  return ChoiceChip(
+                    label: Text(type, style: AppTextStyles.labelLarge.copyWith(color: isSelected ? Colors.white : null)),
+                    selected: isSelected,
+                    selectedColor: AppColors.primary,
+                    showCheckmark: false,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    onSelected: (selected) {
+                      if (selected) {
+                        ref.read(scoreInputProvider.notifier).state = 
+                            input.copyWith(
+                              scoreType: type,
+                              selectedDepartment: '', // Puan türü değiştiğinde bölümü temizle
+                            );
+                      }
+                    },
+                  );
+                }).toList(),
+              ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 16),
 
             // Bölüm Seçimi
-            Text('3. Hedef Bölüm', style: AppTextStyles.titleMedium),
-            const SizedBox(height: 12),
-            InkWell(
-              onTap: () async {
-                if (input.scoreType.isEmpty) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Önce puan türünü seçmelisiniz')),
-                  );
-                  return;
-                }
-                final dept = await DepartmentPickerSheet.show(context);
-                if (dept != null) {
-                  ref.read(scoreInputProvider.notifier).state = 
-                      input.copyWith(selectedDepartment: dept);
-                }
-              },
-              borderRadius: BorderRadius.circular(16),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                decoration: BoxDecoration(
-                  color: AppColors.surfaceFor(context),
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.borderLightFor(context)),
+            _buildSectionCard(
+              context,
+              title: 'Hedef Bölüm',
+              icon: Icons.school_rounded,
+              child: InkWell(
+                onTap: () async {
+                  if (input.scoreType.isEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Önce puan türünü seçmelisiniz')),
+                    );
+                    return;
+                  }
+                  final dept = await DepartmentPickerSheet.show(context);
+                  if (dept != null) {
+                    ref.read(scoreInputProvider.notifier).state = 
+                        input.copyWith(selectedDepartment: dept);
+                  }
+                },
+                borderRadius: BorderRadius.circular(12),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                  decoration: BoxDecoration(
+                    color: AppColors.backgroundFor(context),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: AppColors.borderLightFor(context)),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          input.selectedDepartment.isEmpty 
+                              ? 'Bölüm ara...' 
+                              : input.selectedDepartment,
+                          style: input.selectedDepartment.isEmpty
+                              ? AppTextStyles.bodyMedium.copyWith(color: AppColors.textTertiaryFor(context))
+                              : AppTextStyles.bodyLarge,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      Icon(Icons.search_rounded, color: AppColors.textTertiaryFor(context)),
+                    ],
+                  ),
                 ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      input.selectedDepartment.isEmpty 
-                          ? 'Bölüm ara...' 
-                          : input.selectedDepartment,
-                      style: input.selectedDepartment.isEmpty
-                          ? AppTextStyles.bodyMedium.copyWith(color: AppColors.textTertiaryFor(context))
-                          : AppTextStyles.bodyLarge,
-                    ),
-                    Icon(Icons.search_rounded, color: AppColors.textTertiaryFor(context)),
-                  ],
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // OBP
+            _buildSectionCard(
+              context,
+              title: 'Diploma Notu (OBP)',
+              icon: Icons.workspace_premium_rounded,
+              child: TextFormField(
+                controller: _obpController,
+                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                inputFormatters: [
+                  TextInputFormatter.withFunction((oldValue, newValue) {
+                    // Virgülü noktaya çevir
+                    final text = newValue.text.replaceAll(',', '.');
+                    // Sadece sayı ve noktaya izin ver
+                    if (text.isNotEmpty && !RegExp(r'^\d*\.?\d*$').hasMatch(text)) {
+                      return oldValue;
+                    }
+                    // 100'den büyük olamaz
+                    final parsed = double.tryParse(text);
+                    if (parsed != null && parsed > 100) {
+                      return TextEditingValue(
+                        text: '100',
+                        selection: const TextSelection.collapsed(offset: 3),
+                      );
+                    }
+                    return TextEditingValue(
+                      text: text,
+                      selection: newValue.selection,
+                    );
+                  }),
+                ],
+                style: AppTextStyles.titleMedium,
+                decoration: InputDecoration(
+                  hintText: 'Ör: 85.5',
+                  suffixText: '/ 100',
+                  suffixStyle: AppTextStyles.bodyMedium.copyWith(color: AppColors.textTertiaryFor(context)),
+                  filled: true,
+                  fillColor: AppColors.backgroundFor(context),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: AppColors.borderLightFor(context)),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: AppColors.borderLightFor(context)),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: AppColors.primary, width: 2),
+                  ),
                 ),
               ),
             ),
             const SizedBox(height: 24),
-
-            // OBP
-            Text('4. Diploma Notu (OBP)', style: AppTextStyles.titleMedium),
-            const SizedBox(height: 12),
-            TextFormField(
-              controller: _obpController,
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
-              inputFormatters: [
-                TextInputFormatter.withFunction((oldValue, newValue) {
-                  // Virgülü noktaya çevir
-                  final text = newValue.text.replaceAll(',', '.');
-                  // Sadece sayı ve noktaya izin ver
-                  if (text.isNotEmpty && !RegExp(r'^\d*\.?\d*$').hasMatch(text)) {
-                    return oldValue;
-                  }
-                  // 100'den büyük olamaz
-                  final parsed = double.tryParse(text);
-                  if (parsed != null && parsed > 100) {
-                    return TextEditingValue(
-                      text: '100',
-                      selection: const TextSelection.collapsed(offset: 3),
-                    );
-                  }
-                  return TextEditingValue(
-                    text: text,
-                    selection: newValue.selection,
-                  );
-                }),
-              ],
-              decoration: InputDecoration(
-                hintText: 'Ör: 85.5',
-                suffixText: '/ 100',
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
-              ),
-            ),
-            const SizedBox(height: 32),
 
             // Net Girişi
             if (input.scoreType.isNotEmpty) ...[
-              Text('5. Net Girişi', style: AppTextStyles.titleLarge),
-              const SizedBox(height: 16),
+              Padding(
+                padding: const EdgeInsets.only(left: 8, bottom: 16),
+                child: Text('Net Girişi', style: AppTextStyles.headlineSmall),
+              ),
 
               // TYT Ortak
               _buildSectionHeader('TYT Testleri'),
@@ -399,10 +438,60 @@ class _ScoreCalculatorScreenState extends ConsumerState<ScoreCalculatorScreen> {
 
   Widget _buildSectionHeader(String title) {
     return Padding(
-      padding: const EdgeInsets.only(top: 16, bottom: 8),
-      child: Text(
-        title,
-        style: AppTextStyles.titleMedium.copyWith(color: AppColors.primary),
+      padding: const EdgeInsets.only(top: 16, bottom: 8, left: 4),
+      child: Row(
+        children: [
+          Container(
+            width: 4,
+            height: 16,
+            decoration: BoxDecoration(
+              color: AppColors.primary,
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Text(
+            title,
+            style: AppTextStyles.titleMedium.copyWith(
+              color: AppColors.textPrimaryFor(context),
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSectionCard(BuildContext context, {required String title, required IconData icon, required Widget child}) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceFor(context),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppColors.borderLightFor(context)),
+        boxShadow: AppColors.softShadowFor(context),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(icon, size: 20, color: AppColors.primary),
+              ),
+              const SizedBox(width: 12),
+              Text(title, style: AppTextStyles.titleMedium.copyWith(fontWeight: FontWeight.w700)),
+            ],
+          ),
+          const SizedBox(height: 16),
+          child,
+        ],
       ),
     );
   }

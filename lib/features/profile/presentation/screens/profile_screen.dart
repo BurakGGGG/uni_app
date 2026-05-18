@@ -30,6 +30,8 @@ import '../../../monetization/domain/enums/subscription_tier.dart';
 import '../../../monetization/presentation/providers/subscription_providers.dart';
 import '../../../comparison/presentation/providers/comparison_providers.dart';
 import '../widgets/change_password_dialog.dart';
+import '../../../stories/presentation/widgets/admin_story_upload_sheet.dart';
+import '../../../stories/presentation/widgets/admin_story_management_sheet.dart';
 
 /// Profil ekranı — auth durumuna göre içerik gösterir
 class ProfileScreen extends ConsumerWidget {
@@ -125,6 +127,54 @@ class ProfileScreen extends ConsumerWidget {
               ),
 
               const SizedBox(height: 24),
+
+              // ─── Admin Story Yönetimi (sadece admin) ───────────
+              currentUser.when(
+                data: (profile) {
+                  if (profile == null || !profile.isAdmin) {
+                    return const SizedBox.shrink();
+                  }
+                  return Column(
+                    children: [
+                      _SettingsSection(
+                        title: 'Story Yönetimi',
+                        items: [
+                          _SettingsItem(
+                            icon: Icons.add_photo_alternate_rounded,
+                            title: 'Yeni Story Ekle',
+                            subtitle: 'Görsel ve başlıkla story paylaş',
+                            onTap: () {
+                              showModalBottomSheet(
+                                context: context,
+                                isScrollControlled: true,
+                                backgroundColor: Colors.transparent,
+                                builder: (_) => const AdminStoryUploadSheet(),
+                              );
+                            },
+                          ),
+                          _SettingsItem(
+                            icon: Icons.view_carousel_rounded,
+                            title: 'Aktif Story\'leri Yönet',
+                            subtitle: 'Görüntüle veya sil',
+                            onTap: () {
+                              showModalBottomSheet(
+                                context: context,
+                                isScrollControlled: true,
+                                backgroundColor: Colors.transparent,
+                                builder: (_) =>
+                                    const AdminStoryManagementSheet(),
+                              );
+                            },
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                    ],
+                  );
+                },
+                loading: () => const SizedBox.shrink(),
+                error: (_, _) => const SizedBox.shrink(),
+              ),
 
               // ─── Hesap Ayarları ────────────────────────────────
               authState.when(
@@ -1188,13 +1238,6 @@ class _SettingsBottomSheetState extends ConsumerState<_SettingsBottomSheet> {
         children: [
           _buildThemeChip(
             context, ref,
-            icon: Icons.phone_android_rounded,
-            label: loc.themeSystem,
-            isSelected: current == ThemeMode.system,
-            mode: ThemeMode.system,
-          ),
-          _buildThemeChip(
-            context, ref,
             icon: Icons.light_mode_rounded,
             label: loc.themeLight,
             isSelected: current == ThemeMode.light,
@@ -1250,21 +1293,27 @@ class _SettingsBottomSheetState extends ConsumerState<_SettingsBottomSheet> {
               ),
             ),
             if (showBeta) ...[
-              const SizedBox(width: 4),
+              const SizedBox(width: 6),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
                 decoration: BoxDecoration(
-                  color: isSelected
-                      ? Colors.white.withValues(alpha: 0.25)
-                      : AppColors.warning.withValues(alpha: 0.15),
+                  color: Colors.orange,
                   borderRadius: BorderRadius.circular(4),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.orange.withValues(alpha: 0.4),
+                      blurRadius: 4,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
                 ),
-                child: Text(
-                  'β',
+                child: const Text(
+                  'BETA',
                   style: TextStyle(
                     fontSize: 8,
-                    fontWeight: FontWeight.w800,
-                    color: isSelected ? Colors.white : AppColors.warning,
+                    fontWeight: FontWeight.w900,
+                    color: Colors.white,
+                    letterSpacing: 0.5,
                   ),
                 ),
               ),
