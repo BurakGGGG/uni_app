@@ -1238,13 +1238,6 @@ class _SettingsBottomSheetState extends ConsumerState<_SettingsBottomSheet> {
         children: [
           _buildThemeChip(
             context, ref,
-            icon: Icons.phone_android_rounded,
-            label: loc.themeSystem,
-            isSelected: current == ThemeMode.system,
-            mode: ThemeMode.system,
-          ),
-          _buildThemeChip(
-            context, ref,
             icon: Icons.light_mode_rounded,
             label: loc.themeLight,
             isSelected: current == ThemeMode.light,
@@ -1300,21 +1293,27 @@ class _SettingsBottomSheetState extends ConsumerState<_SettingsBottomSheet> {
               ),
             ),
             if (showBeta) ...[
-              const SizedBox(width: 4),
+              const SizedBox(width: 6),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
                 decoration: BoxDecoration(
-                  color: isSelected
-                      ? Colors.white.withValues(alpha: 0.25)
-                      : AppColors.warning.withValues(alpha: 0.15),
+                  color: Colors.orange,
                   borderRadius: BorderRadius.circular(4),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.orange.withValues(alpha: 0.4),
+                      blurRadius: 4,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
                 ),
-                child: Text(
-                  'β',
+                child: const Text(
+                  'BETA',
                   style: TextStyle(
                     fontSize: 8,
-                    fontWeight: FontWeight.w800,
-                    color: isSelected ? Colors.white : AppColors.warning,
+                    fontWeight: FontWeight.w900,
+                    color: Colors.white,
+                    letterSpacing: 0.5,
                   ),
                 ),
               ),
