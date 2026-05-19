@@ -293,7 +293,7 @@ class _PaywallScreenState extends State<PaywallScreen>
                         Padding(
                           padding: const EdgeInsets.symmetric(vertical: 8),
                           child: ErrorStateWidget(
-                            message: 'İnternet bağlantını kontrol et ve tekrar dene.',
+                            message: 'Paketler yüklenirken bir sorun oluştu. Lütfen tekrar dene.',
                             onRetry: _loadOfferings,
                           ),
                         )

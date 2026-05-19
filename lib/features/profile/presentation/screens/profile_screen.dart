@@ -327,67 +327,76 @@ class ProfileScreen extends ConsumerWidget {
   }
 
   void _showPlanDetails(BuildContext context, SubscriptionTier currentTier, AppLocalizations loc) {
-    final plans = [
-      (
-        tier: SubscriptionTier.free,
+    final plans = {
+      SubscriptionTier.free: (
         title: 'Ücretsiz',
         features: const [
           'Üniversite karşılaştırma (günlük limitli)',
           'Temel keşif ve inceleme özellikleri',
         ],
       ),
-      (
-        tier: SubscriptionTier.plus,
+      SubscriptionTier.plus: (
         title: 'Plus',
         features: const [
           'Bölüm ve şehir karşılaştırmaları',
           'Daha geniş kullanım limitleri',
         ],
       ),
-      (
-        tier: SubscriptionTier.pro,
+      SubscriptionTier.pro: (
         title: 'Pro',
         features: const [
           'Tüm Plus özellikleri',
           'Pro grafikler ve AI destekli özet özellikleri',
         ],
       ),
-    ];
+    };
+
+    final currentPlan = plans[currentTier] ?? plans[SubscriptionTier.free]!;
+    
+    final Color tierColor;
+    switch (currentTier) {
+      case SubscriptionTier.pro:
+        tierColor = AppColors.tierPro;
+        break;
+      case SubscriptionTier.plus:
+        tierColor = AppColors.tierPlus;
+        break;
+      case SubscriptionTier.free:
+        tierColor = AppColors.tierFree;
+        break;
+    }
 
     showModalBottomSheet<void>(
       context: context,
       backgroundColor: Colors.transparent,
+      isScrollControlled: true,
       builder: (ctx) {
-        return Container(
-          decoration: BoxDecoration(
-            color: AppColors.surfaceFor(ctx),
-            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-          ),
-          padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                loc.profilePlanDetails,
-                style: AppTextStyles.titleLarge.copyWith(fontWeight: FontWeight.w800),
-              ),
-              const SizedBox(height: 16),
-              ...plans.map((plan) {
-                final isCurrent = plan.tier == currentTier;
-                return Container(
+        return SafeArea(
+          child: Container(
+            decoration: BoxDecoration(
+              color: AppColors.surfaceFor(ctx),
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+            ),
+            padding: const EdgeInsets.fromLTRB(20, 24, 20, 24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Mevcut Planın',
+                  style: AppTextStyles.titleLarge.copyWith(fontWeight: FontWeight.w800),
+                ),
+                const SizedBox(height: 20),
+                Container(
                   width: double.infinity,
-                  margin: const EdgeInsets.only(bottom: 10),
-                  padding: const EdgeInsets.all(12),
+                  margin: const EdgeInsets.only(bottom: 24),
+                  padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: isCurrent
-                        ? AppColors.primary.withValues(alpha: 0.08)
-                        : AppColors.backgroundFor(ctx),
-                    borderRadius: BorderRadius.circular(12),
+                    color: tierColor.withValues(alpha: 0.08),
+                    borderRadius: BorderRadius.circular(16),
                     border: Border.all(
-                      color: isCurrent
-                          ? AppColors.primary.withValues(alpha: 0.35)
-                          : AppColors.borderLightFor(ctx),
+                      color: tierColor.withValues(alpha: 0.35),
+                      width: 1.5,
                     ),
                   ),
                   child: Column(
@@ -395,41 +404,60 @@ class ProfileScreen extends ConsumerWidget {
                     children: [
                       Row(
                         children: [
+                          Icon(Icons.workspace_premium_rounded, color: tierColor),
+                          const SizedBox(width: 8),
                           Text(
-                            plan.title,
-                            style: AppTextStyles.titleSmall.copyWith(fontWeight: FontWeight.w800),
+                            currentPlan.title,
+                            style: AppTextStyles.titleMedium.copyWith(fontWeight: FontWeight.w800, color: tierColor),
                           ),
-                          const Spacer(),
                         ],
                       ),
-                      const SizedBox(height: 6),
-                      ...plan.features.map(
+                      const SizedBox(height: 16),
+                      ...currentPlan.features.map(
                         (feature) => Padding(
-                          padding: const EdgeInsets.only(bottom: 2),
-                          child: Text(
-                            '• $feature',
-                            style: AppTextStyles.bodySmall.copyWith(
-                              color: AppColors.textSecondaryFor(ctx),
-                            ),
+                          padding: const EdgeInsets.only(bottom: 8),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.only(top: 2),
+                                child: Icon(Icons.check_circle_rounded, size: 16, color: tierColor),
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  feature,
+                                  style: AppTextStyles.bodyMedium.copyWith(
+                                    color: AppColors.textSecondaryFor(ctx),
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ),
                     ],
                   ),
-                );
-              }),
-              const SizedBox(height: 6),
-              SizedBox(
-                width: double.infinity,
-                child: FilledButton(
-                  onPressed: () {
-                    Navigator.pop(ctx);
-                    context.push('/compare/paywall');
-                  },
-                  child: Text(loc.profileViewPlans),
                 ),
-              ),
-            ],
+                SizedBox(
+                  width: double.infinity,
+                  height: 52,
+                  child: FilledButton(
+                    onPressed: () {
+                      Navigator.pop(ctx);
+                      context.push('/compare/paywall');
+                    },
+                    style: FilledButton.styleFrom(
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                    ),
+                    child: Text(
+                      'Tüm Planları ve Detayları Gör',
+                      style: AppTextStyles.titleSmall.copyWith(color: Colors.white, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         );
       },
