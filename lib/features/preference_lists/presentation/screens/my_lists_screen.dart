@@ -19,20 +19,11 @@ class MyListsScreen extends ConsumerWidget {
     if (user == null) return const _UnauthenticatedView();
 
     final listsAsync = ref.watch(myPreferenceListsProvider);
-    final userName = user.displayName?.split(' ').first ?? 'Öğrenci';
 
     return Scaffold(
       backgroundColor: AppColors.backgroundFor(context),
-      floatingActionButton: FloatingActionButton.extended(
+      floatingActionButton: _GradientFab(
         onPressed: () => CreateListSheet.show(context, ref),
-        backgroundColor: AppColors.primary,
-        foregroundColor: Colors.white,
-        elevation: 4,
-        icon: const Icon(Icons.add_rounded),
-        label: const Text(
-          'Yeni Liste',
-          style: TextStyle(fontWeight: FontWeight.w700),
-        ),
       ),
       body: SafeArea(
         child: CustomScrollView(
@@ -42,24 +33,12 @@ class MyListsScreen extends ConsumerWidget {
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(20, 28, 20, 20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Merhaba $userName,',
-                      style: AppTextStyles.bodyMedium.copyWith(
-                        color: AppColors.textSecondaryFor(context),
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Tercih Listelerim',
-                      style: AppTextStyles.headlineMedium.copyWith(
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: -0.5,
-                      ),
-                    ),
-                  ],
+                child: Text(
+                  'Tercih Listelerim',
+                  style: AppTextStyles.headlineMedium.copyWith(
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: -0.5,
+                  ),
                 ),
               ),
             ),
@@ -279,17 +258,7 @@ class _ListCard extends StatelessWidget {
                           ],
                         ),
                         const SizedBox(height: 6),
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(4),
-                          child: LinearProgressIndicator(
-                            value: progress,
-                            minHeight: 6,
-                            backgroundColor: AppColors.surfaceVariant,
-                            valueColor: const AlwaysStoppedAnimation(
-                              AppColors.primary,
-                            ),
-                          ),
-                        ),
+                        _GradientProgressBar(progress: progress),
                       ],
                     ),
                   ),
@@ -673,6 +642,77 @@ class _UnauthenticatedView extends StatelessWidget {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+// ── Gradient FAB ────────────────────────────────────────────────
+class _GradientFab extends StatelessWidget {
+  final VoidCallback onPressed;
+  const _GradientFab({required this.onPressed});
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      borderRadius: BorderRadius.circular(16),
+      elevation: 6,
+      shadowColor: AppColors.primary.withValues(alpha: 0.35),
+      child: InkWell(
+        onTap: onPressed,
+        borderRadius: BorderRadius.circular(16),
+        child: Ink(
+          decoration: BoxDecoration(
+            gradient: AppColors.heroGradient,
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.add_rounded, color: Colors.white, size: 22),
+                SizedBox(width: 8),
+                Text(
+                  'Yeni Liste',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w700,
+                    fontSize: 15,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ── Gradient Progress Bar ───────────────────────────────────────
+class _GradientProgressBar extends StatelessWidget {
+  final double progress;
+  const _GradientProgressBar({required this.progress});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 6,
+      decoration: BoxDecoration(
+        color: AppColors.surfaceVariantFor(context),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: FractionallySizedBox(
+        alignment: Alignment.centerLeft,
+        widthFactor: progress,
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: AppColors.heroGradient,
+            borderRadius: BorderRadius.circular(4),
+          ),
         ),
       ),
     );
