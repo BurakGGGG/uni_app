@@ -575,8 +575,8 @@ final departmentPickerDepartmentsProvider =
     }).toList();
 
     filtered.sort((a, b) {
-      final aScore = a.effectiveBaseScore ?? 0;
-      final bScore = b.effectiveBaseScore ?? 0;
+      final aScore = a.effectiveBaseScore;
+      final bScore = b.effectiveBaseScore;
       if (aScore != bScore) return bScore.compareTo(aScore);
       return a.name.compareTo(b.name);
     });
@@ -946,9 +946,7 @@ final departmentScatterProvider =
             .map((d) {
               final baseScore = d.effectiveBaseScore;
               final ranking = d.effectiveRanking;
-              if (baseScore == null ||
-                  ranking == null ||
-                  baseScore <= 0 ||
+              if (baseScore <= 0 ||
                   ranking <= 0) {
                 return null;
               }

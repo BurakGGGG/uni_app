@@ -17,7 +17,7 @@ final uniqueDepartmentNamesProvider = FutureProvider.autoDispose<List<String>>((
 
   final uniqueNames = <String>{};
   for (final d in allDepts) {
-    if (d.effectiveBaseScore != null && d.effectiveBaseScore! > 0) {
+    if (d.effectiveBaseScore > 0) {
       final deptType = d.effectiveScoreType?.toUpperCase();
       if (deptType != null) {
         // Sadece o puan türünü getir
@@ -44,7 +44,7 @@ final allScoredDepartmentsProvider =
   final allDepts = await repo.getAllDepartments();
 
   return allDepts
-      .where((d) => d.effectiveBaseScore != null && d.effectiveBaseScore! > 0)
+      .where((d) => d.effectiveBaseScore > 0)
       .toList();
 });
 

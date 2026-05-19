@@ -4,26 +4,33 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
-/// JSON'daki puanları Firestore'daki bölüm kayıtlarına merge eder.
+/// JSON'daki puanları Firestore'daki bölüm kayıtlarına yükler.
+/// Önce mevcut departments koleksiyonunu tamamen siler, sonra sıfırdan yazar.
 ///
 /// Kullanım: Profil > Debug > "Bölüm Puanlarını Yükle (Debug)"
 class DepartmentScoresMigration {
   final _db = FirebaseFirestore.instance;
 
+  /// Tüm departments koleksiyonunu silip sıfırdan yükler.
   Future<MigrationReport> run() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) {
       throw Exception('Yetkisiz erişim: Lütfen giriş yapın.');
     }
 
-    // 1. JSON'u oku
+    // ── 1. Mevcut departments'ı sil ──
+    debugPrint('🗑️ Mevcut departments siliniyor...');
+    final deleteCount = await _deleteAllDepartments();
+    debugPrint('✅ $deleteCount eski bölüm silindi');
+
+    // ── 2. JSON'u oku ──
     debugPrint('📂 JSON dosyası okunuyor...');
     final jsonStr = await rootBundle.loadString('assets/data/department_scores.json');
     final data = json.decode(jsonStr) as Map<String, dynamic>;
     final scores = (data['scores'] as List).cast<Map<String, dynamic>>();
-    debugPrint('📥 ${scores.length} bölüm için puan import edilecek');
+    debugPrint('📥 ${scores.length} bölüm yüklenecek');
 
-    // 2. Batch ile Firestore'a yaz — .get() YAPMADAN doğrudan set(merge)
+    // ── 3. Batch ile Firestore'a yaz ──
     var batch = _db.batch();
     var batchCount = 0;
     var batchNumber = 1;
@@ -44,8 +51,7 @@ class DepartmentScoresMigration {
         'previousYears': score['previousYears'] ?? {},
       };
 
-      // Metadata alanları — yeni doküman oluşturulurken adı/fakültesi boş kalmasın diye.
-      // Parser alias kayıtlarda bunları boş bırakır → seed'in mevcut alanları korunsun.
+      // Metadata alanları
       final metadata = <String, dynamic>{};
       void putIfNonEmpty(String key, dynamic value) {
         if (value == null) return;
@@ -62,7 +68,7 @@ class DepartmentScoresMigration {
       putIfNonEmpty('duration', score['duration']);
       putIfNonEmpty('description', score['description']);
 
-      // merge: true → belge varsa günceller, yoksa oluşturur
+      // set ile tam yeni doküman oluştur (merge yok, temiz kayıt)
       batch.set(ref, {
         ...metadata,
         'scoreData': scoreData,
@@ -71,12 +77,11 @@ class DepartmentScoresMigration {
         'ranking': score['ranking'],
         'quota': score['quota'],
         'scoreType': score['scoreType'],
-      }, SetOptions(merge: true));
+      });
 
       batchCount++;
       totalWritten++;
 
-      // Her 490'da bir commit (Firestore limiti 500)
       if (batchCount >= 490) {
         try {
           await batch.commit();
@@ -119,6 +124,31 @@ class DepartmentScoresMigration {
     );
     debugPrint('🎉 Migration tamamlandı: $report');
     return report;
+  }
+
+  /// departments koleksiyonundaki tüm dokümanları siler
+  Future<int> _deleteAllDepartments() async {
+    var totalDeleted = 0;
+
+    // Firestore'da büyük koleksiyonları batch ile sil
+    while (true) {
+      final snapshot = await _db
+          .collection('departments')
+          .limit(490)
+          .get();
+
+      if (snapshot.docs.isEmpty) break;
+
+      final batch = _db.batch();
+      for (final doc in snapshot.docs) {
+        batch.delete(doc.reference);
+      }
+      await batch.commit();
+      totalDeleted += snapshot.docs.length;
+      debugPrint('  🗑️ $totalDeleted silindi...');
+    }
+
+    return totalDeleted;
   }
 }
 

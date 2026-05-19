@@ -3,6 +3,7 @@ import '../../../core/utils/turkish_compare.dart';
 import '../domain/models/city_model.dart';
 import '../domain/models/university_model.dart';
 import '../domain/models/department_model.dart';
+import '../../../core/utils/university_abbreviations.dart';
 
 class UniversityRepository {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -233,6 +234,13 @@ class UniversityRepository {
                turkishNormalize(la).contains(normalizedQuery);
       })) {
         return true;
+      }
+      // 4. Sistem kısaltması (UniversityAbbreviations) eşleşmesi
+      final shortName = UniversityAbbreviations.shorten(uni.name).toLowerCase();
+      if (shortName != uni.name.toLowerCase()) {
+        if (shortName.contains(lowerQuery) || turkishNormalize(shortName).contains(normalizedQuery)) {
+          return true;
+        }
       }
       return false;
     }).toList();

@@ -21,19 +21,24 @@ class DepartmentPickerBottomSheet {
   static Future<DepartmentPickResult?> show(
     BuildContext context, {
     String? departmentNameFilter,
+    String? excludeUniversityId,
   }) {
     return showModalBottomSheet<DepartmentPickResult?>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => _Shell(departmentNameFilter: departmentNameFilter),
+      builder: (_) => _Shell(
+        departmentNameFilter: departmentNameFilter,
+        excludeUniversityId: excludeUniversityId,
+      ),
     );
   }
 }
 
 class _Shell extends StatelessWidget {
   final String? departmentNameFilter;
-  const _Shell({this.departmentNameFilter});
+  final String? excludeUniversityId;
+  const _Shell({this.departmentNameFilter, this.excludeUniversityId});
 
   @override
   Widget build(BuildContext context) {
@@ -48,8 +53,11 @@ class _Shell extends StatelessWidget {
           minChildSize: 0.6,
           maxChildSize: 0.95,
           expand: false,
-          builder: (_, scrollController) =>
-              _Body(scrollController: scrollController, departmentNameFilter: departmentNameFilter),
+          builder: (_, scrollController) => _Body(
+            scrollController: scrollController,
+            departmentNameFilter: departmentNameFilter,
+            excludeUniversityId: excludeUniversityId,
+          ),
         ),
       ),
     );
@@ -59,7 +67,12 @@ class _Shell extends StatelessWidget {
 class _Body extends ConsumerStatefulWidget {
   final ScrollController scrollController;
   final String? departmentNameFilter;
-  const _Body({required this.scrollController, this.departmentNameFilter});
+  final String? excludeUniversityId;
+  const _Body({
+    required this.scrollController,
+    this.departmentNameFilter,
+    this.excludeUniversityId,
+  });
 
   @override
   ConsumerState<_Body> createState() => _BodyState();
@@ -187,6 +200,7 @@ class _BodyState extends ConsumerState<_Body> {
                   scrollController: widget.scrollController,
                   onSelect: (uni) => setState(() => _selectedUni = uni),
                   departmentNameFilter: widget.departmentNameFilter,
+                  excludeUniversityId: widget.excludeUniversityId,
                 )
               : _DeptList(
                   uni: _selectedUni!,
@@ -277,24 +291,30 @@ class _UniList extends ConsumerWidget {
   final ScrollController scrollController;
   final ValueChanged<UniversityModel> onSelect;
   final String? departmentNameFilter;
+  final String? excludeUniversityId;
   const _UniList({
     required this.query,
     required this.scrollController,
     required this.onSelect,
     this.departmentNameFilter,
+    this.excludeUniversityId,
   });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final unisAsync = ref.watch(allUniversitiesProvider);
     return unisAsync.when(
-      loading: () => const Center(child: CircularProgressIndicator(color: AppColors.primary)),
+      loading: () => const _PickerSkeleton(isUniList: true),
       error: (e, _) => const ErrorStateWidget(message: 'Üniversiteler yüklenirken bir hata oluştu.'),
       data: (unis) {
+        // Zaten seçili üniversiteyi hariç tut
+        var pool = excludeUniversityId != null
+            ? unis.where((u) => u.id != excludeUniversityId).toList()
+            : unis;
         final q = query.trim().toLowerCase();
         var filtered = q.isEmpty
-            ? unis
-            : unis
+            ? pool
+            : pool
                 .where((u) =>
                     u.name.toLowerCase().contains(q) ||
                     u.aliases.any((a) => a.toLowerCase().contains(q)))
@@ -304,8 +324,13 @@ class _UniList extends ConsumerWidget {
         if (departmentNameFilter != null && departmentNameFilter!.isNotEmpty) {
           final filterName = departmentNameFilter!.toLowerCase();
           final filteredByDept = <UniversityModel>[];
+          bool anyLoading = false;
+
           for (final uni in filtered) {
             final deptsAsync = ref.watch(departmentsByUniversityProvider(uni.id));
+            if (deptsAsync.isLoading) {
+              anyLoading = true;
+            }
             final hasDept = deptsAsync.whenOrNull(
               data: (depts) => depts.any(
                 (d) => d.name.toLowerCase() == filterName,
@@ -315,6 +340,11 @@ class _UniList extends ConsumerWidget {
               filteredByDept.add(uni);
             }
           }
+          
+          if (anyLoading && filteredByDept.isEmpty) {
+            return const _PickerSkeleton(isUniList: true);
+          }
+          
           filtered = filteredByDept;
         }
 
@@ -436,7 +466,7 @@ class _DeptList extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final deptsAsync = ref.watch(departmentsByUniversityProvider(uni.id));
     return deptsAsync.when(
-      loading: () => const Center(child: CircularProgressIndicator(color: AppColors.primary)),
+      loading: () => const _PickerSkeleton(isUniList: false),
       error: (e, _) => const ErrorStateWidget(message: 'Bölümler yüklenirken bir hata oluştu.'),
       data: (depts) {
         if (depts.isEmpty) {
@@ -662,3 +692,72 @@ class _Stat extends StatelessWidget {
   }
 }
 
+/// Picker yükleme sırasında gösterilen iskelet animasyonu.
+class _PickerSkeleton extends StatefulWidget {
+  final bool isUniList;
+  const _PickerSkeleton({required this.isUniList});
+
+  @override
+  State<_PickerSkeleton> createState() => _PickerSkeletonState();
+}
+
+class _PickerSkeletonState extends State<_PickerSkeleton>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _ctrl;
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1200),
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final count = widget.isUniList ? 8 : 6;
+
+    return AnimatedBuilder(
+      animation: _ctrl,
+      builder: (context, child) {
+        final shimmer = _ctrl.value;
+        return ListView.separated(
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+          itemCount: count,
+          separatorBuilder: (_, i) => const SizedBox(height: 10),
+          itemBuilder: (_, i) {
+            return Container(
+              height: widget.isUniList ? 68 : 88,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16),
+                gradient: LinearGradient(
+                  begin: Alignment(-1.0 + 2.0 * shimmer, 0),
+                  end: Alignment(-0.5 + 2.0 * shimmer, 0),
+                  colors: isDark
+                      ? [
+                          Colors.white.withValues(alpha: 0.04),
+                          Colors.white.withValues(alpha: 0.10),
+                          Colors.white.withValues(alpha: 0.04),
+                        ]
+                      : [
+                          Colors.grey.shade200,
+                          Colors.grey.shade100,
+                          Colors.grey.shade200,
+                        ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+}

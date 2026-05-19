@@ -79,8 +79,13 @@ class _ScoreTrendChartState extends State<ScoreTrendChart> {
           ),
           const SizedBox(height: 14),
           Expanded(
-            child: LineChart(
-              LineChartData(
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 400),
+              switchInCurve: Curves.easeOutCubic,
+              switchOutCurve: Curves.easeInCubic,
+              child: LineChart(
+                key: ValueKey(_mode),
+                LineChartData(
                 minY: minVal - padding,
                 maxY: maxVal + padding,
                 gridData: FlGridData(
@@ -115,7 +120,10 @@ class _ScoreTrendChartState extends State<ScoreTrendChart> {
                     sideTitles: SideTitles(
                       showTitles: true,
                       reservedSize: isPuan ? 44 : 52,
-                      getTitlesWidget: (value, _) {
+                      getTitlesWidget: (value, meta) {
+                        if (value == meta.min || value == meta.max) {
+                          return const SizedBox.shrink();
+                        }
                         final text = isPuan
                             ? value.toStringAsFixed(0)
                             : _formatRanking(value.toInt());
@@ -220,6 +228,7 @@ class _ScoreTrendChartState extends State<ScoreTrendChart> {
               ),
               duration: const Duration(milliseconds: 300),
             ),
+          ),
           ),
         ],
       ),
