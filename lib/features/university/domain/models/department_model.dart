@@ -88,6 +88,12 @@ class DepartmentModel {
       if (lastScoreUpdate != null) 'lastScoreUpdate': Timestamp.fromDate(lastScoreUpdate!),
     };
   }
+
+  /// Legacy alanları veya scoreData'dan çözümlenmiş taban puan.
+  double get effectiveBaseScore => baseScore ?? scoreData?.baseScore ?? 0;
+
+  /// Legacy alanları veya scoreData'dan çözümlenmiş sıralama.
+  int get effectiveRanking => ranking ?? scoreData?.ranking ?? 0;
 }
 
 // ── YENİ Model ────────────────────────────────────────────
