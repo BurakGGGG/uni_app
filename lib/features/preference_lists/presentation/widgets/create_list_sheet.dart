@@ -76,7 +76,7 @@ class _BodyState extends ConsumerState<_Body> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
+    return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -216,32 +216,47 @@ class _BodyState extends ConsumerState<_Body> {
           const SizedBox(height: 24),
           SizedBox(
             height: 52,
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                foregroundColor: Colors.white,
-                elevation: 0,
-                shape: RoundedRectangleBorder(
+            child: GestureDetector(
+              onTap: _busy ? null : _create,
+              child: Container(
+                decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(16),
+                  gradient: !_busy ? AppColors.heroGradient : null,
+                  border: _busy
+                      ? Border.all(color: AppColors.borderLightFor(context))
+                      : null,
+                ),
+                padding: const EdgeInsets.all(2),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: AppColors.surfaceFor(context),
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: Center(
+                    child: _busy
+                        ? const SizedBox(
+                            width: 22,
+                            height: 22,
+                            child: CircularProgressIndicator(
+                              color: AppColors.primary,
+                              strokeWidth: 2.4,
+                            ),
+                          )
+                        : ShaderMask(
+                            shaderCallback: (bounds) =>
+                                AppColors.heroGradient.createShader(bounds),
+                            child: const Text(
+                              'Listeyi Oluştur',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                  ),
                 ),
               ),
-              onPressed: _busy ? null : _create,
-              child: _busy
-                  ? const SizedBox(
-                      width: 22,
-                      height: 22,
-                      child: CircularProgressIndicator(
-                        color: Colors.white,
-                        strokeWidth: 2.4,
-                      ),
-                    )
-                  : const Text(
-                      'Listeyi Oluştur',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
-                    ),
             ),
           ),
         ],

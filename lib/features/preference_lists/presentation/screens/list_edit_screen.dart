@@ -336,35 +336,15 @@ class _ListEditScreenState extends ConsumerState<ListEditScreen> {
         SliverToBoxAdapter(
           child: Padding(
             padding: const EdgeInsets.fromLTRB(20, 4, 20, 12),
-            child: SizedBox(
+            child: _GradientBorderButton(
+              onPressed: isFull
+                  ? null
+                  : () => _addItem(list.copyWith(items: items)),
               height: 50,
-              child: ElevatedButton.icon(
-                onPressed: isFull
-                    ? null
-                    : () => _addItem(list.copyWith(items: items)),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: isFull
-                      ? AppColors.surfaceVariant
-                      : AppColors.primary,
-                  foregroundColor: isFull
-                      ? AppColors.textTertiary
-                      : Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  elevation: 0,
-                ),
-                icon: const Icon(Icons.add_rounded, size: 20),
-                label: Text(
-                  isFull
-                      ? 'Limit dolu (${PreferenceListModel.maxItems})'
-                      : 'Bölüm Ekle',
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 15,
-                  ),
-                ),
-              ),
+              icon: Icons.add_rounded,
+              label: isFull
+                  ? 'Limit dolu (${PreferenceListModel.maxItems})'
+                  : 'Bölüm Ekle',
             ),
           ),
         ),
@@ -401,30 +381,20 @@ class _ListEditScreenState extends ConsumerState<ListEditScreen> {
                 ),
                 const SizedBox(width: 12),
                 Expanded(
-                  child: FilledButton.icon(
+                  child: _GradientBorderButton(
                     onPressed: _isDirty && !_isSaving ? _saveItems : null,
-                    style: FilledButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    icon: _isSaving
-                        ? const SizedBox(
+                    icon: _isSaving ? null : Icons.save_rounded,
+                    label: _isDirty ? 'Kaydet' : 'Kaydedildi',
+                    child: _isSaving
+                        ? SizedBox(
                             width: 16,
                             height: 16,
                             child: CircularProgressIndicator(
                               strokeWidth: 2,
-                              color: Colors.white,
+                              color: AppColors.primary,
                             ),
                           )
-                        : const Icon(Icons.save_rounded, size: 18),
-                    label: Text(
-                      _isDirty ? 'Kaydet' : 'Kaydedildi',
-                      style: const TextStyle(fontWeight: FontWeight.w700),
-                    ),
+                        : null,
                   ),
                 ),
               ],
@@ -604,15 +574,7 @@ class _ListSummaryCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 10),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(4),
-            child: LinearProgressIndicator(
-              value: progress,
-              minHeight: 6,
-              backgroundColor: AppColors.surfaceVariant,
-              valueColor: const AlwaysStoppedAnimation(AppColors.primary),
-            ),
-          ),
+          _GradientProgressBar(progress: progress),
           if (stByCount.isNotEmpty) ...[
             const SizedBox(height: 12),
             Wrap(
@@ -923,6 +885,112 @@ class _MiniStat extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+// ── Gradient Border Button ──────────────────────────────────────
+class _GradientBorderButton extends StatelessWidget {
+  final VoidCallback? onPressed;
+  final IconData? icon;
+  final String? label;
+  final double? height;
+  final Widget? child;
+
+  const _GradientBorderButton({
+    this.onPressed,
+    this.icon,
+    this.label,
+    this.height,
+    this.child,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final enabled = onPressed != null;
+    final gradient = AppColors.heroGradient;
+
+    return GestureDetector(
+      onTap: onPressed,
+      child: Container(
+        height: height ?? 46,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          gradient: enabled ? gradient : null,
+          border: enabled
+              ? null
+              : Border.all(color: AppColors.borderLightFor(context)),
+        ),
+        padding: const EdgeInsets.all(1.8),
+        child: Container(
+          decoration: BoxDecoration(
+            color: AppColors.surfaceFor(context),
+            borderRadius: BorderRadius.circular(10.5),
+          ),
+          child: Center(
+            child: child ??
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (icon != null) ...[
+                      ShaderMask(
+                        shaderCallback: (bounds) =>
+                            gradient.createShader(bounds),
+                        child: Icon(
+                          icon,
+                          size: 20,
+                          color: enabled ? Colors.white : AppColors.textTertiary,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                    ],
+                    if (label != null)
+                      ShaderMask(
+                        shaderCallback: (bounds) =>
+                            gradient.createShader(bounds),
+                        child: Text(
+                          label!,
+                          style: TextStyle(
+                            fontWeight: FontWeight.w700,
+                            fontSize: 15,
+                            color: enabled
+                                ? Colors.white
+                                : AppColors.textTertiary,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ── Gradient Progress Bar ───────────────────────────────────────
+class _GradientProgressBar extends StatelessWidget {
+  final double progress;
+  const _GradientProgressBar({required this.progress});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 6,
+      decoration: BoxDecoration(
+        color: AppColors.surfaceVariantFor(context),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: FractionallySizedBox(
+        alignment: Alignment.centerLeft,
+        widthFactor: progress,
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: AppColors.heroGradient,
+            borderRadius: BorderRadius.circular(4),
+          ),
+        ),
       ),
     );
   }
