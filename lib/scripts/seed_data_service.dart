@@ -197,6 +197,7 @@ class SeedDataService {
     }
   }
 
+  // ignore: unused_element
   Future<void> _seedPlaces() async {
     // 1. Asset'ten JSON oku
     final jsonStr = await rootBundle.loadString('assets/data/places_seed.json');

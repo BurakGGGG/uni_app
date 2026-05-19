@@ -169,7 +169,7 @@ class ScoreCalculatorEngine {
       return deptScoreType == input.scoreType;
     }).where((d) {
       final bs = d.effectiveBaseScore;
-      return bs != null && bs > 0;
+      return bs > 0;
     }).toList();
 
     // 2) Üniversite lookup map
@@ -181,7 +181,7 @@ class ScoreCalculatorEngine {
       final uni = uniMap[dept.universityId];
       if (uni == null) continue;
 
-      final depBaseScore = dept.effectiveBaseScore!;
+      final depBaseScore = dept.effectiveBaseScore;
       final diff = placementScore - depBaseScore;
 
       MatchCategory category;
