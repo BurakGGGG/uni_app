@@ -9,17 +9,106 @@ import '../../domain/models/department_model.dart';
 import '../widgets/score_badge.dart';
 
 /// Tüm bölümlerin tam listesi — /university/:uniId/departments
-class UniDepartmentsScreen extends ConsumerWidget {
+class UniDepartmentsScreen extends ConsumerStatefulWidget {
   final String universityId;
 
   const UniDepartmentsScreen({super.key, required this.universityId});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final deptsAsync = ref.watch(departmentsByUniversityProvider(universityId));
+  ConsumerState<UniDepartmentsScreen> createState() => _UniDepartmentsScreenState();
+}
+
+class _UniDepartmentsScreenState extends ConsumerState<UniDepartmentsScreen> {
+  final _searchController = TextEditingController();
+  String _searchQuery = '';
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  static String _normalizeTurkish(String input) {
+    const from = 'çÇğĞıİöÖşŞüÜ';
+    const to   = 'cCgGiIoOsSuU';
+    var result = input;
+    for (var i = 0; i < from.length; i++) {
+      result = result.replaceAll(from[i], to[i]);
+    }
+    return result.toLowerCase();
+  }
+
+  List<DepartmentModel> _filterDepartments(List<DepartmentModel> departments) {
+    if (_searchQuery.isEmpty) return departments;
+    final query = _normalizeTurkish(_searchQuery);
+    return departments.where((d) => _normalizeTurkish(d.name).contains(query)).toList();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final deptsAsync = ref.watch(departmentsByUniversityProvider(widget.universityId));
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Bölümler')),
+      appBar: AppBar(
+        title: const Text('Bölümler'),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(60),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+            child: TextField(
+              controller: _searchController,
+              onChanged: (value) => setState(() => _searchQuery = value),
+              style: AppTextStyles.bodyMedium.copyWith(
+                color: AppColors.textPrimaryFor(context),
+              ),
+              decoration: InputDecoration(
+                hintText: 'Bölüm ara...',
+                hintStyle: AppTextStyles.bodyMedium.copyWith(
+                  color: AppColors.textTertiaryFor(context),
+                ),
+                prefixIcon: Icon(
+                  Icons.search_rounded,
+                  color: AppColors.textTertiaryFor(context),
+                  size: 22,
+                ),
+                suffixIcon: _searchQuery.isNotEmpty
+                    ? GestureDetector(
+                        onTap: () {
+                          _searchController.clear();
+                          setState(() => _searchQuery = '');
+                        },
+                        child: Icon(
+                          Icons.close_rounded,
+                          color: AppColors.textTertiaryFor(context),
+                          size: 20,
+                        ),
+                      )
+                    : null,
+                filled: true,
+                fillColor: AppColors.surfaceVariantFor(context),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(14),
+                  borderSide: BorderSide.none,
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(14),
+                  borderSide: BorderSide(
+                    color: AppColors.borderLightFor(context),
+                  ),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(14),
+                  borderSide: const BorderSide(
+                    color: AppColors.primary,
+                    width: 1.5,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
       body: deptsAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, st) => Center(child: Text('Bölümler yüklenemedi: $e')),
@@ -33,34 +122,54 @@ class UniDepartmentsScreen extends ConsumerWidget {
             );
           }
 
-          final lisans = departments.where((d) => d.type == 'Lisans').toList();
-          final onlisans = departments.where((d) => d.type == 'Önlisans').toList();
+          final filtered = _filterDepartments(departments);
 
-          return Builder(
-            builder: (context) {
-              final children = <Widget>[];
-              if (lisans.isNotEmpty) {
-                children.add(_SectionTitle(title: 'Lisans (${lisans.length})'));
-                children.addAll(lisans.map((d) => _DepartmentCard(
-                  department: d,
-                  onTap: () => context.push('/department/${d.id}'),
-                )));
-              }
-              if (onlisans.isNotEmpty) {
-                children.add(_SectionTitle(title: 'Önlisans (${onlisans.length})'));
-                children.addAll(onlisans.map((d) => _DepartmentCard(
-                  department: d,
-                  onTap: () => context.push('/department/${d.id}'),
-                )));
-              }
-              children.add(const SizedBox(height: 80));
+          if (filtered.isEmpty) {
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(40),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.search_off_rounded, size: 48, color: AppColors.textTertiaryFor(context)),
+                    const SizedBox(height: 12),
+                    Text(
+                      '"$_searchQuery" ile eşleşen bölüm bulunamadı',
+                      textAlign: TextAlign.center,
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        color: AppColors.textSecondaryFor(context),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }
 
-              return ListView.builder(
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                itemCount: children.length,
-                itemBuilder: (context, index) => children[index],
-              );
-            },
+          final lisans = filtered.where((d) => d.type == 'Lisans').toList();
+          final onlisans = filtered.where((d) => d.type == 'Önlisans').toList();
+
+          final children = <Widget>[];
+          if (lisans.isNotEmpty) {
+            children.add(_SectionTitle(title: 'Lisans (${lisans.length})'));
+            children.addAll(lisans.map((d) => _DepartmentCard(
+              department: d,
+              onTap: () => context.push('/department/${d.id}'),
+            )));
+          }
+          if (onlisans.isNotEmpty) {
+            children.add(_SectionTitle(title: 'Önlisans (${onlisans.length})'));
+            children.addAll(onlisans.map((d) => _DepartmentCard(
+              department: d,
+              onTap: () => context.push('/department/${d.id}'),
+            )));
+          }
+          children.add(const SizedBox(height: 80));
+
+          return ListView.builder(
+            padding: const EdgeInsets.symmetric(vertical: 12),
+            itemCount: children.length,
+            itemBuilder: (context, index) => children[index],
           );
         },
       ),
