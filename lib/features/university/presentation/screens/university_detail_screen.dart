@@ -15,7 +15,9 @@ import '../../../reviews/presentation/providers/review_providers.dart';
 import '../../../reviews/domain/models/review_model.dart';
 import '../../../reviews/presentation/widgets/review_card.dart';
 
-
+import '../../../places/presentation/providers/place_providers.dart';
+import '../../../places/domain/models/place_model.dart';
+import '../../../places/presentation/widgets/place_card.dart';
 
 import '../../domain/models/department_model.dart';
 
@@ -59,11 +61,13 @@ class _Body extends ConsumerWidget {
       SortedReviewsParams(targetId: uni.id, type: ReviewType.university),
     ));
 
+    final placesAsync = ref.watch(placesByUniversityProvider(uni.id));
+
     return RefreshIndicator(
       onRefresh: () async {
         ref.invalidate(universityDetailProvider(uni.id));
         ref.invalidate(departmentsByUniversityProvider(uni.id));
-
+        ref.invalidate(placesByUniversityProvider(uni.id));
       },
       child: CustomScrollView(
         slivers: [
@@ -96,12 +100,8 @@ class _Body extends ConsumerWidget {
                   child: _DepartmentsPreview(deptsAsync: deptsAsync),
                 ),
                 
-                // Mekanlar section (Yakında)
-                UniSection(
-                  title: 'Mekanlar',
-                  subtitle: 'Yakında sizlerin önerileriyle!',
-                  child: _PlacesComingSoon(),
-                ),
+                // Mekanlar section
+                _PlacesSection(uni: uni, placesAsync: placesAsync),
                 
                 // Yorumlar section
                 UniSection(
@@ -294,7 +294,53 @@ class _DepartmentsPreview extends StatelessWidget {
   }
 }
 
-class _PlacesComingSoon extends StatelessWidget {
+class _PlacesSection extends StatelessWidget {
+  final UniversityModel uni;
+  final AsyncValue<List<PlaceModel>> placesAsync;
+  const _PlacesSection({required this.uni, required this.placesAsync});
+
+  @override
+  Widget build(BuildContext context) {
+    return placesAsync.when(
+      loading: () => UniSection(
+        title: 'Mekanlar',
+        subtitle: 'Yükleniyor...',
+        child: const Center(child: CircularProgressIndicator()),
+      ),
+      error: (e, _) => UniSection(
+        title: 'Mekanlar',
+        subtitle: 'Yüklenemedi',
+        child: Text(AppLocalizations.of(context).errorGeneral(e.toString())),
+      ),
+      data: (places) {
+        if (places.isEmpty) {
+          return UniSection(
+            title: 'Mekanlar',
+            subtitle: 'Yakında sizlerin önerileriyle!',
+            child: _PlacesEmptyState(),
+          );
+        }
+
+        final preview = places.take(3).toList();
+        return UniSection(
+          title: 'Mekanlar',
+          subtitle: '${places.length} mekan',
+          ctaText: 'Tüm mekanları gör',
+          onCtaTap: () => context.push('/university/${uni.id}/places'),
+          child: Column(
+            children: preview.map((p) => PlaceCard(
+              place: p,
+              margin: const EdgeInsets.only(bottom: 8),
+              onTap: () => context.push('/place/${p.id}'),
+            )).toList(),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _PlacesEmptyState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
