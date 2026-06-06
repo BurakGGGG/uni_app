@@ -7,7 +7,7 @@
         android:label="ÜniSeç"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
-        <!-- AdMob App ID: Production build icin dart-define ADMOB_APP_ID ile inject edin -->
+        <!-- AdMob App ID: Production build için --dart-define=ADMOB_APP_ID=xxx ile inject edin -->
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
             android:value="${admobAppId}"/>
