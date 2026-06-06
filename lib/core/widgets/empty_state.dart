@@ -35,7 +35,9 @@ class EmptyState extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final padding = compact ? 16.0 : 32.0;
-    return Center(
+    return Semantics(
+      label: message != null ? '$title. $message' : title,
+      child: Center(
       child: Padding(
         padding: EdgeInsets.all(padding),
         child: Column(
@@ -77,6 +79,7 @@ class EmptyState extends StatelessWidget {
           ],
         ),
       ),
+    ),
     );
   }
 }

@@ -28,7 +28,11 @@ class GradientButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final buttonGradient = gradient ?? AppColors.primaryGradient;
 
-    return SizedBox(
+    return Semantics(
+      label: text,
+      button: true,
+      enabled: onPressed != null && !isLoading,
+      child: SizedBox(
       height: height,
       width: isExpanded ? double.infinity : null,
       child: DecoratedBox(
@@ -81,6 +85,7 @@ class GradientButton extends StatelessWidget {
           ),
         ),
       ),
+    ),
     );
   }
 }

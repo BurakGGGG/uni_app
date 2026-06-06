@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart' show ScrollCacheExtent;
 import '../../../../l10n/generated/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -110,7 +111,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
 
                   return ListView.builder(
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    cacheExtent: 1000,
+                    scrollCacheExtent: ScrollCacheExtent.pixels(1000),
                     itemCount: results.length,
                     itemBuilder: (context, index) {
                       final uni = results[index];

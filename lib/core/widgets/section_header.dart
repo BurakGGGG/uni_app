@@ -25,7 +25,10 @@ class SectionHeader extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(title, style: AppTextStyles.headlineSmall),
+          Semantics(
+            header: true,
+            child: Text(title, style: AppTextStyles.headlineSmall),
+          ),
           if (actionText != null)
             TextButton(
               onPressed: onAction,
