@@ -408,8 +408,7 @@ class _ListEditScreenState extends ConsumerState<ListEditScreen> {
             padding: const EdgeInsets.fromLTRB(16, 4, 16, 32),
             sliver: SliverReorderableList(
               itemCount: items.length,
-              onReorder: (oldIndex, newIndex) {
-                if (newIndex > oldIndex) newIndex--;
+              onReorderItem: (oldIndex, newIndex) {
                 setState(() {
                   final reordered = [...items];
                   final item = reordered.removeAt(oldIndex);

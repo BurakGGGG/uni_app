@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart' show ScrollCacheExtent;
 import '../../../../l10n/generated/app_localizations.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -143,7 +144,7 @@ class HomeScreen extends ConsumerWidget {
                         return ListView.builder(
                           scrollDirection: Axis.horizontal,
                           physics: const ClampingScrollPhysics(),
-                          cacheExtent: 200,
+                          scrollCacheExtent: ScrollCacheExtent.pixels(200),
                           padding: const EdgeInsets.symmetric(horizontal: 16),
                           itemCount: popular.length,
                           itemBuilder: (context, index) {
@@ -518,7 +519,10 @@ class _PopularUniCard extends ConsumerWidget {
           child: Material(
             color: Colors.transparent,
             borderRadius: BorderRadius.circular(AppConstants.radiusLg - 1.5),
-            child: InkWell(
+            child: Semantics(
+              label: '${university.name}, ${university.type}${isFavorite ? ', favorilerde' : ''}',
+              button: true,
+              child: InkWell(
               onTap: onTap,
               borderRadius: BorderRadius.circular(AppConstants.radiusLg - 1.5),
               child: Padding(
@@ -582,6 +586,7 @@ class _PopularUniCard extends ConsumerWidget {
                 ),
               ],
             ),
+          ),
           ),
         ),
       ),

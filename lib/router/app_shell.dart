@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../core/theme/app_colors.dart';
+import '../core/widgets/offline_banner.dart';
 import '../l10n/generated/app_localizations.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -98,7 +99,7 @@ class _AppShellState extends ConsumerState<AppShell>
           });
         },
         child: Scaffold(
-          body: widget.navigationShell,
+          body: OfflineBanner(child: widget.navigationShell),
           bottomNavigationBar: Container(
             decoration: BoxDecoration(
               color: AppColors.surfaceFor(context),
