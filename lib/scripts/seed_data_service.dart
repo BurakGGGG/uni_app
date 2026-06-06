@@ -197,6 +197,74 @@ class SeedDataService {
     }
   }
 
+  /// Eski tüm yurt kayıtlarını siler ve güncel KYK verilerini yükler.
+  /// kykyurtlar.com'dan çekilen verilerle places_seed.json güncellenmiş olmalı.
+  Future<void> reseedDorms() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      throw Exception('Yetkisiz erişim: Lütfen giriş yapın.');
+    }
+
+    // 1. Mevcut dorm dokümanlarını sil
+    debugPrint('🗑️ Mevcut yurt kayıtları siliniyor...');
+    final dormSnapshot = await _firestore
+        .collection('places')
+        .where('type', isEqualTo: 'dorm')
+        .get();
+
+    if (dormSnapshot.docs.isNotEmpty) {
+      var delBatch = _firestore.batch();
+      var delCount = 0;
+      for (final doc in dormSnapshot.docs) {
+        delBatch.delete(doc.reference);
+        delCount++;
+        if (delCount >= 490) {
+          await delBatch.commit();
+          delBatch = _firestore.batch();
+          delCount = 0;
+        }
+      }
+      if (delCount > 0) await delBatch.commit();
+      debugPrint('🗑️ ${dormSnapshot.docs.length} eski yurt silindi');
+    }
+
+    // 2. Güncel yurt verilerini JSON'dan oku
+    final jsonStr = await rootBundle.loadString('assets/data/places_seed.json');
+    final data = json.decode(jsonStr) as Map<String, dynamic>;
+    final allPlaces = (data['places'] as List).cast<Map<String, dynamic>>();
+    final dorms = allPlaces.where((p) => p['type'] == 'dorm').toList();
+
+    debugPrint('📥 ${dorms.length} yeni yurt yüklenecek');
+
+    // 3. Yeni yurtları batch ile yaz
+    var batch = _firestore.batch();
+    var batchCount = 0;
+    for (final dorm in dorms) {
+      final dormId = dorm['id'] as String;
+      final ref = _firestore.collection('places').doc(dormId);
+
+      final dormData = {
+        ...dorm,
+        'createdAt': FieldValue.serverTimestamp(),
+        'updatedAt': FieldValue.serverTimestamp(),
+      };
+      dormData.remove('id');
+      dormData.removeWhere((k, v) => v == null);
+
+      batch.set(ref, dormData);
+      batchCount++;
+
+      if (batchCount >= 490) {
+        await batch.commit();
+        batch = _firestore.batch();
+        batchCount = 0;
+        debugPrint('  📤 $batchCount/${ dorms.length} yüklendi...');
+      }
+    }
+    if (batchCount > 0) await batch.commit();
+    debugPrint('✅ ${dorms.length} yurt Firestore\'a yüklendi!');
+  }
+
   // ignore: unused_element
   Future<void> _seedPlaces() async {
     // 1. Asset'ten JSON oku
