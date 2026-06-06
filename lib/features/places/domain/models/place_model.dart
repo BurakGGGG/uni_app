@@ -62,6 +62,7 @@ class PlaceModel {
   final GeoPoint? location;
   final String? priceRange;
   final String? openHours;
+  final String? phone;
   final List<String> amenities;
   
   // Yurt-spesifik
@@ -96,6 +97,7 @@ class PlaceModel {
     this.location,
     this.priceRange,
     this.openHours,
+    this.phone,
     this.amenities = const [],
     this.dormType,
     this.dormGenderType,
@@ -123,6 +125,7 @@ class PlaceModel {
       location: map['location'] as GeoPoint?,
       priceRange: map['priceRange'],
       openHours: map['openHours'],
+      phone: map['phone'],
       amenities: List<String>.from(map['amenities'] ?? []),
       dormType: map['dormType'],
       dormGenderType: map['dormGenderType'],
@@ -154,6 +157,7 @@ class PlaceModel {
       'location': location,
       'priceRange': priceRange,
       'openHours': openHours,
+      if (phone != null) 'phone': phone,
       'amenities': amenities,
       if (dormType != null) 'dormType': dormType,
       if (dormGenderType != null) 'dormGenderType': dormGenderType,
