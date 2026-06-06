@@ -21,14 +21,22 @@ class AdService {
     _mobileAdsInitialized = true;
   }
 
+  /// Ad Unit ID'leri:
+  /// Production: flutter build --dart-define=ADMOB_REWARDED_ANDROID=ca-app-pub-xxx/yyy
+  ///                            --dart-define=ADMOB_REWARDED_IOS=ca-app-pub-xxx/zzz
+  /// Debug: otomatik olarak Google test ID kullanılır.
+  static const _androidRewardedId = String.fromEnvironment(
+    'ADMOB_REWARDED_ANDROID',
+    defaultValue: 'ca-app-pub-3940256099942544/5224354917', // Test ID
+  );
+  static const _iosRewardedId = String.fromEnvironment(
+    'ADMOB_REWARDED_IOS',
+    defaultValue: 'ca-app-pub-3940256099942544/1712485313', // Test ID
+  );
+
   String get _rewardedAdUnitId {
-    // Test ad unit id'leri. Release öncesi gerçek id ile değiştirilmeli.
-    if (Platform.isAndroid) {
-      return 'ca-app-pub-3940256099942544/5224354917';
-    }
-    if (Platform.isIOS) {
-      return 'ca-app-pub-3940256099942544/1712485313';
-    }
+    if (Platform.isAndroid) return _androidRewardedId;
+    if (Platform.isIOS) return _iosRewardedId;
     throw UnsupportedError('Rewarded ad bu platformda desteklenmiyor');
   }
 
