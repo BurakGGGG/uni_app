@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 
 import '../domain/models/comparison_result.dart';
+import '../../../services/rate_limiter.dart';
 
 /// AI özet servisinin döndürebileceği hata türleri
 sealed class AiSummaryFailure implements Exception {
@@ -80,6 +81,13 @@ class AiComparisonSummaryService {
     );
 
     try {
+      // Client-side rate limit kontrolü
+      if (!AppRateLimiters.aiComparison.tryAcquire()) {
+        final wait = AppRateLimiters.aiComparison.retryAfter;
+        debugPrint('[AiSummary] Rate limited, retry after ${wait.inSeconds}s');
+        throw const AiSummaryQuotaExceeded();
+      }
+
       final response = await callable.call<Object?>(payload);
       final raw = response.data;
       if (raw is! Map) {

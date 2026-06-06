@@ -48,9 +48,12 @@ class UniCard extends StatelessWidget {
       child: Material(
         color: Colors.transparent,
         borderRadius: BorderRadius.circular(AppConstants.radiusLg),
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(AppConstants.radiusLg),
+        child: Semantics(
+          label: _buildSemanticLabel(),
+          button: onTap != null,
+          child: InkWell(
+            onTap: onTap,
+            borderRadius: BorderRadius.circular(AppConstants.radiusLg),
           child: Padding(
             padding: const EdgeInsets.all(AppConstants.spacingLg),
             child: Row(
@@ -143,8 +146,22 @@ class UniCard extends StatelessWidget {
             ),
           ),
         ),
+        ),
       ),
     );
+  }
+
+  String _buildSemanticLabel() {
+    final parts = <String>[title];
+    if (subtitle != null) parts.add(subtitle!);
+    if (rating != null) {
+      parts.add('${rating!.toStringAsFixed(1)} puan');
+      if (reviewCount != null) parts.add('$reviewCount yorum');
+    }
+    if (tags?.isNotEmpty ?? false) {
+      parts.add(tags!.take(3).join(', '));
+    }
+    return parts.join(', ');
   }
 
   Widget _buildImage() {

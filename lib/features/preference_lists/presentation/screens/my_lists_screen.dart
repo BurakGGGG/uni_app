@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart' show ScrollCacheExtent;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_constants.dart';
@@ -28,7 +29,7 @@ class MyListsScreen extends ConsumerWidget {
       body: SafeArea(
         child: CustomScrollView(
           physics: const BouncingScrollPhysics(),
-          cacheExtent: 1000,
+          scrollCacheExtent: ScrollCacheExtent.pixels(1000),
           slivers: [
             SliverToBoxAdapter(
               child: Padding(

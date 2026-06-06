@@ -25,25 +25,25 @@ service cloud.firestore {
     // ─── Şehirler ───────────────────────────────────────────────
     match /cities/{cityId} {
       allow read: if true;
-      allow write: if true;
+      allow write: if isAdmin();
     }
 
     // ─── Üniversiteler ──────────────────────────────────────────
     match /universities/{uniId} {
       allow read: if true;
-      allow write: if true;
+      allow write: if isAdmin();
     }
 
     // ─── Bölümler ───────────────────────────────────────────────
     match /departments/{deptId} {
       allow read: if true;
-      allow write: if true;
+      allow write: if isAdmin();
     }
 
     // ─── Mekanlar ───────────────────────────────────────────────
     match /places/{placeId} {
       allow read: if true;
-      allow write: if true;
+      allow write: if isAdmin();
     }
 
     // ─── Bildirimler ────────────────────────────────────────────
@@ -217,6 +217,21 @@ service cloud.firestore {
         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
       allow update, delete: if isAuthenticated() &&
         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // ─── Geri Bildirim (Feedback) ──────────────────────────────
+    // Giriş yapmış kullanıcılar geri bildirim oluşturabilir.
+    // Yalnızca admin tüm geri bildirimleri okuyabilir/yönetebilir.
+    match /feedback/{feedbackId} {
+      allow create: if isAuthenticated() &&
+        request.resource.data.userId == request.auth.uid &&
+        request.resource.data.message is string &&
+        request.resource.data.message.size() >= 10 &&
+        request.resource.data.message.size() <= 1000 &&
+        request.resource.data.type in ['bug', 'suggestion', 'other'];
+      allow read: if isAdmin() ||
+        (isAuthenticated() && resource.data.userId == request.auth.uid);
+      allow update, delete: if isAdmin();
     }
 
     // ─── Webhook Events (Idempotency) ───────────────────────────

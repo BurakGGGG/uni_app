@@ -41,6 +41,12 @@ android {
         versionCode = flutter.versionCode
         versionName = flutter.versionName
         multiDexEnabled = true
+
+        // AdMob App ID: --dart-define=ADMOB_APP_ID=ca-app-pub-xxx~yyy
+        // Varsayılan: Google test App ID (geliştirme ortamı)
+        val admobAppId = project.properties["ADMOB_APP_ID"] as? String
+            ?: "ca-app-pub-3940256099942544~3347511713"
+        manifestPlaceholders["admobAppId"] = admobAppId
     }
 
     signingConfigs {

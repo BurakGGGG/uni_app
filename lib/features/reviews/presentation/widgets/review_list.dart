@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart' show ScrollCacheExtent;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -45,7 +46,7 @@ class ReviewList extends ConsumerWidget {
             return ListView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
-              cacheExtent: 1000,
+              scrollCacheExtent: ScrollCacheExtent.pixels(1000),
               itemCount: reviews.length,
               itemBuilder: (context, i) {
                 final review = reviews[i];

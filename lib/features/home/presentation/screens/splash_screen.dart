@@ -6,6 +6,10 @@ import 'package:go_router/go_router.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../../../core/providers/shared_preferences_provider.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/constants/app_constants.dart';
+import '../../../../core/widgets/force_update_dialog.dart';
+import '../../../../services/force_update_service.dart';
+import '../../../../services/ab_test_service.dart';
 import '../../../auth/presentation/providers/auth_providers.dart';
 import '../../../university/presentation/providers/university_providers.dart';
 
@@ -108,7 +112,11 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
     // 2. Minimum gösterim süresi (Animasyonların tamamlanması için)
     final minSplashDuration = Future.delayed(const Duration(milliseconds: 2500));
 
-    // 3. Veri yükleme görevleri (sadece ana sayfaya gidecekse)
+    // 3. Force Update kontrolü (Remote Config) + A/B Test
+    final forceUpdateFuture = ForceUpdateService().init();
+    ABTestService().init(); // Aynı Remote Config instance'ı paylaşır
+
+    // 4. Veri yükleme görevleri (sadece ana sayfaya gidecekse)
     Future<void> dataLoadFuture = Future.value();
     if (isGoingToHome) {
       // Sadece kritik verileri ön yükle (cold start optimizasyonu)
@@ -119,10 +127,11 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
       ]).catchError((_) => []); // Hata olsa bile devam et
     }
 
-    // 4. İkisini birden bekle ama maksimum 4 saniye timeout koy
+    // 5. Hepsini birden bekle ama maksimum 4 saniye timeout koy
     // Böylece internet yavaşsa bile kullanıcı splash'te takılı kalmaz.
     await Future.wait([
       minSplashDuration,
+      forceUpdateFuture,
       dataLoadFuture,
     ]).timeout(
       const Duration(milliseconds: 4000),
@@ -131,7 +140,15 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
 
     if (!mounted) return;
 
-    // 5. Yönlendirme
+    // 6. Force Update / Maintenance kontrolü
+    final updateStatus = ForceUpdateService().checkForUpdate(AppConstants.appVersion);
+    if (updateStatus.isBlocking) {
+      // Bloklayıcı dialog göster — kullanıcı kapatamaz
+      ForceUpdateDialog.show(context, updateStatus);
+      return; // Navigasyon yapma
+    }
+
+    // 7. Yönlendirme
     if (!hasCompletedOnboarding) {
       context.go('/onboarding');
     } else if (!isLoggedIn) {

@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/auth_repository.dart';
 import '../../domain/user_model.dart';
+import '../../../../services/analytics_service.dart';
 
 /// AuthRepository provider
 final authRepositoryProvider = Provider<AuthRepository>((ref) {
@@ -18,9 +19,22 @@ final currentUserProvider = FutureProvider<UserModel?>((ref) async {
   ref.keepAlive();
   final authState = ref.watch(authStateProvider);
   return authState.when(
-    data: (user) {
-      if (user == null) return null;
-      return ref.read(authRepositoryProvider).getUserProfile(user.uid);
+    data: (user) async {
+      if (user == null) {
+        // Kullanıcı çıkış yaptı — analytics'i temizle
+        await AnalyticsService().clearUserContext();
+        return null;
+      }
+      final profile = await ref.read(authRepositoryProvider).getUserProfile(user.uid);
+      // Crashlytics & Analytics bağlamını ayarla
+      if (profile != null) {
+        await AnalyticsService().setUserContext(
+          userId: profile.uid,
+          tier: 'free', // Tier bilgisi subscription provider'dan gelecek
+          isVerifiedStudent: profile.isVerifiedStudent,
+        );
+      }
+      return profile;
     },
     loading: () => null,
     error: (e, st) => null,

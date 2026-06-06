@@ -32,6 +32,7 @@ import '../../../comparison/presentation/providers/comparison_providers.dart';
 import '../widgets/change_password_dialog.dart';
 import '../../../stories/presentation/widgets/admin_story_upload_sheet.dart';
 import '../../../stories/presentation/widgets/admin_story_management_sheet.dart';
+import '../widgets/feedback_sheet.dart';
 
 /// Profil ekranı — auth durumuna göre içerik gösterir
 class ProfileScreen extends ConsumerWidget {
@@ -1053,6 +1054,26 @@ class _SettingsBottomSheetState extends ConsumerState<_SettingsBottomSheet> {
                       onTap: () {
                         Navigator.pop(context);
                         Share.share(loc.profileShareText);
+                      },
+                    ),
+                    Divider(height: 1, indent: 56, color: AppColors.borderLightFor(context)),
+                    _buildSheetActionTile(
+                      context,
+                      icon: Icons.feedback_rounded,
+                      iconColor: const Color(0xFF8B5CF6),
+                      title: loc.localeName == 'tr' ? 'Geri Bildirim' : 'Feedback',
+                      subtitle: loc.localeName == 'tr'
+                          ? 'Hata bildirin veya öneri gönderin'
+                          : 'Report bugs or send suggestions',
+                      onTap: () {
+                        Navigator.pop(context);
+                        final authState = ref.read(authStateProvider).valueOrNull;
+                        final currentUser = ref.read(currentUserProvider).valueOrNull;
+                        FeedbackSheet.show(
+                          widget.parentContext,
+                          userId: authState?.uid,
+                          userEmail: currentUser?.email ?? authState?.email,
+                        );
                       },
                     ),
                     Divider(height: 1, indent: 56, color: AppColors.borderLightFor(context)),

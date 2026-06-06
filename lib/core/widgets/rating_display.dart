@@ -26,7 +26,9 @@ class RatingDisplay extends StatelessWidget {
     final color = AppColors.ratingColor(value);
 
     if (compact) {
-      return Row(
+      return Semantics(
+        label: '$label ${value.toStringAsFixed(1)} üzerinden ${maxValue.toStringAsFixed(0)}',
+        child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(Icons.star_rounded, size: 14, color: AppColors.ratingStar),
@@ -39,10 +41,13 @@ class RatingDisplay extends StatelessWidget {
             ),
           ),
         ],
+      ),
       );
     }
 
-    return Column(
+    return Semantics(
+      label: '$label: ${value.toStringAsFixed(1)} üzerinden ${maxValue.toStringAsFixed(0)}, yüzde ${(percentage * 100).toInt()}',
+      child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (showLabel)
@@ -74,6 +79,7 @@ class RatingDisplay extends StatelessWidget {
           ),
         ),
       ],
+    ),
     );
   }
 }
