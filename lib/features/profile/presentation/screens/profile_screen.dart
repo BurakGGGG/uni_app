@@ -1175,6 +1175,31 @@ class _SettingsBottomSheetState extends ConsumerState<_SettingsBottomSheet> {
                       Divider(height: 1, indent: 56, color: AppColors.borderLightFor(context)),
                       _buildSheetActionTile(
                         context,
+                        icon: Icons.bed_rounded,
+                        iconColor: AppColors.info,
+                        title: 'Yurtları Güncelle (KYK)',
+                        onTap: () async {
+                          Navigator.pop(context);
+                          await seed_data.loadLibrary();
+                          final seedService = seed_data.SeedDataService();
+                          try {
+                            if (widget.parentContext.mounted) {
+                              showAppSnackBar(widget.parentContext, message: 'Yurtlar güncelleniyor...', isSuccess: true);
+                            }
+                            await seedService.reseedDorms();
+                            if (widget.parentContext.mounted) {
+                              showAppSnackBar(widget.parentContext, message: 'Yurtlar güncellendi!', isSuccess: true);
+                            }
+                          } catch (e) {
+                            if (widget.parentContext.mounted) {
+                              showAppSnackBar(widget.parentContext, message: 'Hata: $e', isSuccess: false);
+                            }
+                          }
+                        },
+                      ),
+                      Divider(height: 1, indent: 56, color: AppColors.borderLightFor(context)),
+                      _buildSheetActionTile(
+                        context,
                         icon: Icons.palette_rounded,
                         iconColor: AppColors.secondary,
                         title: 'Marka Renklerini Yükle',
