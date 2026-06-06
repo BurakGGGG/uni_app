@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/constants/app_constants.dart';
@@ -14,6 +15,7 @@ class DormInfoCard extends StatelessWidget {
     final isKyk = (place.dormType ?? '').toUpperCase().contains('KYK');
     final genderType = place.dormGenderType?.toLowerCase() ?? '';
     final genderInfo = _getGenderInfo(genderType);
+    final accentColor = isKyk ? AppColors.info : AppColors.warning;
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
@@ -29,8 +31,7 @@ class DormInfoCard extends StatelessWidget {
         ),
         borderRadius: BorderRadius.circular(AppConstants.radiusLg),
         border: Border.all(
-          color: (isKyk ? AppColors.info : AppColors.warning)
-              .withValues(alpha: 0.18),
+          color: accentColor.withValues(alpha: 0.18),
         ),
       ),
       child: Column(
@@ -38,12 +39,11 @@ class DormInfoCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(Icons.bed_rounded, size: 20,
-                color: isKyk ? AppColors.info : AppColors.warning),
+              Icon(Icons.bed_rounded, size: 20, color: accentColor),
               const SizedBox(width: 8),
               Text('Yurt Bilgileri', style: AppTextStyles.titleMedium.copyWith(
                 fontWeight: FontWeight.w700,
-                color: isKyk ? AppColors.info : AppColors.warning,
+                color: accentColor,
               )),
             ],
           ),
@@ -55,7 +55,7 @@ class DormInfoCard extends StatelessWidget {
                   icon: Icons.business_rounded,
                   label: 'Tür',
                   value: place.dormType ?? '-',
-                  color: isKyk ? AppColors.info : AppColors.warning,
+                  color: accentColor,
                 ),
               ),
               const SizedBox(width: 12),
@@ -91,6 +91,28 @@ class DormInfoCard extends StatelessWidget {
               ),
             ],
           ),
+          // ── Telefon numarası ──
+          if (place.phone != null && place.phone!.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            _ContactRow(
+              icon: Icons.phone_rounded,
+              label: place.phone!,
+              color: accentColor,
+              onTap: () => _launchPhone(place.phone!),
+            ),
+          ],
+          // ── Adres ──
+          if (place.address.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            _ContactRow(
+              icon: Icons.location_on_rounded,
+              label: place.address,
+              color: AppColors.textSecondaryFor(context),
+              onTap: place.mapUrl != null
+                  ? () => _launchUrl(place.mapUrl!)
+                  : null,
+            ),
+          ],
         ],
       ),
     );
@@ -105,6 +127,21 @@ class DormInfoCard extends StatelessWidget {
       return (icon: Icons.people_outline_rounded, color: AppColors.success);
     }
     return (icon: Icons.help_outline_rounded, color: AppColors.textSecondary);
+  }
+
+  Future<void> _launchPhone(String phone) async {
+    final cleaned = phone.replaceAll(RegExp(r'[^\d+]'), '');
+    final uri = Uri.parse('tel:$cleaned');
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri);
+    }
+  }
+
+  Future<void> _launchUrl(String url) async {
+    final uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    }
   }
 }
 
@@ -148,6 +185,60 @@ class _InfoTile extends StatelessWidget {
             color: color,
           ), maxLines: 2, overflow: TextOverflow.ellipsis),
         ],
+      ),
+    );
+  }
+}
+
+/// Tıklanabilir iletişim satırı (telefon, adres)
+class _ContactRow extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final Color color;
+  final VoidCallback? onTap;
+
+  const _ContactRow({
+    required this.icon,
+    required this.label,
+    required this.color,
+    this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(AppConstants.radiusSm),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(AppConstants.radiusSm),
+          border: Border.all(color: color.withValues(alpha: 0.12)),
+        ),
+        child: Row(
+          children: [
+            Icon(icon, size: 16, color: color),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                label,
+                style: AppTextStyles.bodySmall.copyWith(
+                  color: onTap != null ? color : AppColors.textSecondaryFor(context),
+                  fontWeight: onTap != null ? FontWeight.w600 : FontWeight.w400,
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            if (onTap != null)
+              Icon(
+                Icons.chevron_right_rounded,
+                size: 16,
+                color: color.withValues(alpha: 0.5),
+              ),
+          ],
+        ),
       ),
     );
   }
