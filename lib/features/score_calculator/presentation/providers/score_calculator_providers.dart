@@ -5,34 +5,59 @@ import '../../domain/score_calculator_engine.dart';
 import '../../../university/presentation/providers/university_providers.dart';
 import '../../../university/domain/models/department_model.dart';
 
-/// Seçili puan türüne göre filtrelenmiş unique bölüm isimleri
-final uniqueDepartmentNamesProvider = FutureProvider.autoDispose<List<String>>((ref) async {
-  final input = ref.watch(scoreInputProvider);
-  final scoreType = input.scoreType;
-  
-  if (scoreType.isEmpty) return [];
-
+/// Tüm unique bölüm isimleri (puan türünden bağımsız)
+final uniqueDepartmentNamesProvider =
+    FutureProvider.autoDispose<List<String>>((ref) async {
   final repo = ref.watch(universityRepositoryProvider);
   final allDepts = await repo.getAllDepartments();
 
   final uniqueNames = <String>{};
   for (final d in allDepts) {
     if (d.effectiveBaseScore > 0) {
-      final deptType = d.effectiveScoreType?.toUpperCase();
-      if (deptType != null) {
-        // Sadece o puan türünü getir
-        if (deptType == scoreType) {
-          uniqueNames.add(d.name);
-        }
-      } else {
-        // Puan türü belli değilse şimdilik ekleyelim
-        uniqueNames.add(d.name);
-      }
+      uniqueNames.add(d.name);
     }
   }
 
   final sorted = uniqueNames.toList()..sort();
   return sorted;
+});
+
+/// Seçilen bölüm adına göre puan türlerini belirler
+/// Örn: "Tıp" → ['SAY'],  "Hukuk" → ['EA', 'SÖZ']
+final departmentScoreTypesProvider =
+    FutureProvider.autoDispose<List<String>>((ref) async {
+  final input = ref.watch(scoreInputProvider);
+  if (input.selectedDepartment.isEmpty) return [];
+
+  final repo = ref.read(universityRepositoryProvider);
+  final allDepts = await repo.getAllDepartments();
+
+  final scoreTypes = <String>{};
+  for (final d in allDepts) {
+    if (d.name.toLowerCase().trim() ==
+            input.selectedDepartment.toLowerCase().trim() &&
+        d.effectiveBaseScore > 0) {
+      final st = d.effectiveScoreType?.toUpperCase();
+      if (st != null && st.isNotEmpty) {
+        scoreTypes.add(st);
+      }
+    }
+  }
+
+  // Eğer tek bir puan türü varsa otomatik seç
+  if (scoreTypes.length == 1) {
+    final type = scoreTypes.first;
+    final current = ref.read(scoreInputProvider);
+    if (current.scoreType != type) {
+      // Bir sonraki frame'de state'i güncelle
+      Future.microtask(() {
+        ref.read(scoreInputProvider.notifier).state =
+            current.copyWith(scoreType: type);
+      });
+    }
+  }
+
+  return scoreTypes.toList()..sort();
 });
 
 /// Tüm bölümler (flat list, taban puanı olan) — hesaplama için
@@ -43,9 +68,7 @@ final allScoredDepartmentsProvider =
 
   final allDepts = await repo.getAllDepartments();
 
-  return allDepts
-      .where((d) => d.effectiveBaseScore > 0)
-      .toList();
+  return allDepts.where((d) => d.effectiveBaseScore > 0).toList();
 });
 
 /// Kullanıcının girdiği sınav verileri

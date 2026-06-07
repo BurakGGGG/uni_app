@@ -54,34 +54,7 @@ class ProfileScreen extends ConsumerWidget {
               const SizedBox(height: 10),
 
               // ─── Başlık ───────────────────────────────────────
-              Row(
-                children: [
-                  Text(loc.profileTitle, style: AppTextStyles.headlineLarge),
-                  const Spacer(),
-                  // Ayarlar butonu
-                  Material(
-                    color: AppColors.surfaceFor(context),
-                    shape: const CircleBorder(),
-                    child: InkWell(
-                      customBorder: const CircleBorder(),
-                      onTap: () => _showSettingsSheet(context, ref),
-                      child: Container(
-                        width: 42,
-                        height: 42,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(color: AppColors.borderLightFor(context)),
-                        ),
-                        child: Icon(
-                          Icons.settings_rounded,
-                          color: AppColors.textSecondaryFor(context),
-                          size: 22,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+              Text(loc.profileTitle, style: AppTextStyles.headlineLarge),
 
               const SizedBox(height: 24),
 

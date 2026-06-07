@@ -127,13 +127,26 @@ class UniversityMatchCard extends StatelessWidget {
                               ),
                             ),
                           ),
-                          if (match.departmentRanking != null) ...[
+                          if (match.departmentRanking != null && match.departmentRanking! > 0) ...[
                             const SizedBox(width: 8),
                             Flexible(
                               child: Text(
                                 'Sıralama: ${match.departmentRanking}',
                                 style: AppTextStyles.labelSmall.copyWith(
                                   color: AppColors.textTertiaryFor(context),
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ] else ...[
+                            const SizedBox(width: 8),
+                            Flexible(
+                              child: Text(
+                                'Sıralama: Veri yok',
+                                style: AppTextStyles.labelSmall.copyWith(
+                                  color: AppColors.warning.withValues(alpha: 0.7),
+                                  fontStyle: FontStyle.italic,
                                 ),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,

@@ -193,12 +193,15 @@ class ScoreCalculatorEngine {
         category = MatchCategory.dream;
       }
 
+      // Seçilen yıla göre sıralama verisini çöz
+      final ranking = _resolveRanking(dept, input.selectedYear);
+
       allMatches.add(UniversityMatch(
         department: dept,
         university: uni,
         category: category,
         departmentBaseScore: depBaseScore,
-        departmentRanking: dept.effectiveRanking,
+        departmentRanking: ranking,
         scoreDifference: diff,
       ));
     }
@@ -233,6 +236,28 @@ class ScoreCalculatorEngine {
       target: targetAll.take(3).toList(),
       dream: dreamAll.take(2).toList(),
     );
+  }
+
+  /// Seçilen yıla göre bölümün sıralama verisini çözer.
+  /// scoreData.previousYears içindeki yıl verisine bakar,
+  /// eğer seçilen yıl scoreData'nın kendi yılıysa onu kullanır,
+  /// yoksa legacy ranking alanına düşer.
+  static int? _resolveRanking(DepartmentModel dept, int selectedYear) {
+    final sd = dept.scoreData;
+    if (sd != null) {
+      // Seçilen yıl scoreData'nın kendi yılıysa
+      if (sd.year == selectedYear) {
+        return sd.ranking > 0 ? sd.ranking : null;
+      }
+      // previousYears'da bu yıl var mı?
+      final yearlyScore = sd.previousYears[selectedYear];
+      if (yearlyScore != null) {
+        return yearlyScore.ranking > 0 ? yearlyScore.ranking : null;
+      }
+    }
+    // Legacy ranking fallback
+    final legacy = dept.ranking;
+    return (legacy != null && legacy > 0) ? legacy : null;
   }
 }
 
