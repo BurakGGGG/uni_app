@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../../core/constants/app_constants.dart';
 import '../providers/score_calculator_providers.dart';
 import '../widgets/university_match_card.dart';
 
@@ -13,9 +14,16 @@ class ScoreResultScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final resultAsync = ref.watch(calculationResultProvider);
+    final selectedYear = ref.watch(scoreInputProvider).selectedYear;
+    final isYear2025 = selectedYear == 2025;
 
-    return Scaffold(
-      backgroundColor: AppColors.backgroundFor(context),
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) _showExitDialog(context);
+      },
+      child: Scaffold(
+        backgroundColor: AppColors.backgroundFor(context),
       body: resultAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, st) => Center(
@@ -27,7 +35,7 @@ class ScoreResultScreen extends ConsumerWidget {
               Text('Hesaplama başarısız', style: AppTextStyles.titleMedium),
               const SizedBox(height: 8),
               ElevatedButton(
-                onPressed: () => context.go('/home'),
+                onPressed: () => _showExitDialog(context),
                 child: const Text('Ana Sayfaya Dön'),
               ),
             ],
@@ -37,7 +45,7 @@ class ScoreResultScreen extends ConsumerWidget {
           if (result == null) {
             return Center(
               child: ElevatedButton(
-                onPressed: () => context.go('/home'),
+                onPressed: () => _showExitDialog(context),
                 child: const Text('Geri Dön ve Bilgileri Doldur'),
               ),
             );
@@ -77,7 +85,7 @@ class ScoreResultScreen extends ConsumerWidget {
                         children: [
                           IconButton(
                             icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
-                            onPressed: () => context.go('/home'),
+                            onPressed: () => _showExitDialog(context),
                             padding: EdgeInsets.zero,
                             constraints: const BoxConstraints(),
                           ),
@@ -136,6 +144,36 @@ class ScoreResultScreen extends ConsumerWidget {
                 ),
                 
                 const SizedBox(height: 32),
+
+                // 2025 sıralama uyarısı
+                if (isYear2025)
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+                    child: Container(
+                      padding: const EdgeInsets.all(14),
+                      decoration: BoxDecoration(
+                        color: AppColors.warning.withValues(alpha: 0.08),
+                        borderRadius: BorderRadius.circular(AppConstants.radiusMd),
+                        border: Border.all(color: AppColors.warning.withValues(alpha: 0.3)),
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Icon(Icons.info_outline_rounded, color: AppColors.warning, size: 20),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Text(
+                              '2025 yılı için sıralama verisi henüz mevcut değildir. '
+                              'Kartlarda sıralama bilgisi gösterilmemektedir.',
+                              style: AppTextStyles.bodySmall.copyWith(
+                                color: AppColors.warning, height: 1.4,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
                 
                 // Matches
                 Padding(
@@ -157,7 +195,7 @@ class ScoreResultScreen extends ConsumerWidget {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Puanına uygun ${result.totalMatches} üniversite bölümü bulundu. (Sıralamalar bölümlerin kartlarında belirtilmiştir)',
+                        'Puanına uygun ${result.totalMatches} üniversite bölümü bulundu.',
                         style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondaryFor(context)),
                       ),
                       const SizedBox(height: 24),
@@ -195,6 +233,38 @@ class ScoreResultScreen extends ConsumerWidget {
             ),
           );
         },
+      ),
+      ),
+    );
+  }
+
+  void _showExitDialog(BuildContext context) {
+    showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Ana Sayfaya Dön'),
+        content: const Text(
+          'Ana sayfaya yönlendirileceksiniz. Devam etmek istiyor musunuz?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('İptal'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(ctx, true);
+              context.go('/');
+            },
+            child: Text(
+              'Evet, Dön',
+              style: TextStyle(
+                color: AppColors.primary,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
