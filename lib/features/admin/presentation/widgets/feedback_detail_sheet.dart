@@ -161,15 +161,17 @@ class _FeedbackDetailSheetState extends ConsumerState<FeedbackDetailSheet> {
     if (mounted) { Navigator.pop(context); ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Statü güncellendi: ${status.label}'), behavior: SnackBarBehavior.floating)); }
   }
 
-  Future<void> _doDelete(BuildContext ctx) async {
-    final ok = await showDialog<bool>(context: ctx, builder: (c) => AlertDialog(
+  Future<void> _doDelete(BuildContext context) async {
+    final ok = await showDialog<bool>(context: context, builder: (c) => AlertDialog(
       title: const Text('Feedback Sil'), content: const Text('Bu feedback kalıcı olarak silinecek.'),
       actions: [TextButton(onPressed: () => Navigator.pop(c, false), child: const Text('İptal')),
         FilledButton(onPressed: () => Navigator.pop(c, true), style: FilledButton.styleFrom(backgroundColor: AppColors.error), child: const Text('Sil'))],
     ));
-    if (ok != true || !mounted) return;
+    if (ok != true || !context.mounted) return;
     await ref.read(feedbackActionControllerProvider.notifier).deleteFeedback(widget.feedback.id);
-    if (mounted) { Navigator.pop(ctx); ScaffoldMessenger.of(ctx).showSnackBar(const SnackBar(content: Text('Feedback silindi'), behavior: SnackBarBehavior.floating)); }
+    if (!context.mounted) return;
+    Navigator.pop(context); 
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Feedback silindi'), behavior: SnackBarBehavior.floating)); 
   }
 
   Color get _typeColor => switch (widget.feedback.type) { FeedbackType.bug => AppColors.error, FeedbackType.suggestion => AppColors.warning, FeedbackType.other => AppColors.info };
