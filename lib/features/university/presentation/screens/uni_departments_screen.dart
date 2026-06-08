@@ -29,13 +29,97 @@ class _UniDepartmentsScreenState extends ConsumerState<UniDepartmentsScreen> {
     super.dispose();
   }
 
+  static String _normalizeTurkish(String input) {
+    const from = 'çÇğĞıİöÖşŞüÜ';
+    const to   = 'cCgGiIoOsSuU';
+    var result = input;
+    for (var i = 0; i < from.length; i++) {
+      result = result.replaceAll(from[i], to[i]);
+    }
+    return result.toLowerCase();
+  }
+
+  List<DepartmentModel> _filterDepartments(List<DepartmentModel> departments) {
+    if (_searchQuery.isEmpty) return departments;
+    final query = _normalizeTurkish(_searchQuery);
+    return departments.where((d) =>
+      _normalizeTurkish(d.name).contains(query) ||
+      _normalizeTurkish(d.faculty).contains(query)
+    ).toList();
+  }
+
   @override
   Widget build(BuildContext context) {
     final deptsAsync =
         ref.watch(departmentsByUniversityProvider(widget.universityId));
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Bölümler')),
+      appBar: AppBar(
+        title: const Text('Bölümler'),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(60),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+            child: TextField(
+              controller: _searchController,
+              onChanged: (value) => setState(() => _searchQuery = value),
+              style: AppTextStyles.bodyMedium.copyWith(
+                color: AppColors.textPrimaryFor(context),
+              ),
+              decoration: InputDecoration(
+                hintText: 'Bölüm veya fakülte ara…',
+                hintStyle: AppTextStyles.bodyMedium.copyWith(
+                  color: AppColors.textTertiaryFor(context),
+                ),
+                prefixIcon: Icon(
+                  Icons.search_rounded,
+                  color: AppColors.textTertiaryFor(context),
+                  size: 22,
+                ),
+                suffixIcon: _searchQuery.isNotEmpty
+                    ? IconButton(
+                        icon: Icon(
+                          Icons.close_rounded,
+                          color: AppColors.textTertiaryFor(context),
+                          size: 20,
+                        ),
+                        onPressed: () {
+                          _searchController.clear();
+                          setState(() => _searchQuery = '');
+                        },
+                      )
+                    : null,
+                filled: true,
+                fillColor: AppColors.surfaceVariantFor(context),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
+                border: OutlineInputBorder(
+                  borderRadius:
+                      BorderRadius.circular(AppConstants.radiusMd),
+                  borderSide: BorderSide.none,
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius:
+                      BorderRadius.circular(AppConstants.radiusMd),
+                  borderSide: BorderSide(
+                    color: AppColors.borderLightFor(context),
+                  ),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius:
+                      BorderRadius.circular(AppConstants.radiusMd),
+                  borderSide: const BorderSide(
+                    color: AppColors.primary,
+                    width: 1.5,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
       body: deptsAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, st) => Center(child: Text('Bölümler yüklenemedi: $e')),
@@ -49,15 +133,9 @@ class _UniDepartmentsScreenState extends ConsumerState<UniDepartmentsScreen> {
             );
           }
 
-          // Filtreleme
-          final filtered = _searchQuery.isEmpty
-              ? departments
-              : departments.where((d) {
-                  final q = _searchQuery.toLowerCase();
-                  return d.name.toLowerCase().contains(q) ||
-                      d.faculty.toLowerCase().contains(q);
-                }).toList();
+          final filtered = _filterDepartments(departments);
 
+          // Sonuç sayısı
           final lisans =
               filtered.where((d) => d.type == 'Lisans').toList();
           final onlisans =
@@ -65,67 +143,6 @@ class _UniDepartmentsScreenState extends ConsumerState<UniDepartmentsScreen> {
 
           return Column(
             children: [
-              // ─── Arama Barı ──────────────────────────────────
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
-                child: TextField(
-                  controller: _searchController,
-                  onChanged: (value) =>
-                      setState(() => _searchQuery = value.trim()),
-                  decoration: InputDecoration(
-                    hintText: 'Bölüm veya fakülte ara…',
-                    hintStyle: AppTextStyles.bodyMedium.copyWith(
-                      color: AppColors.textTertiaryFor(context),
-                    ),
-                    prefixIcon: Icon(
-                      Icons.search_rounded,
-                      color: AppColors.textTertiaryFor(context),
-                      size: 22,
-                    ),
-                    suffixIcon: _searchQuery.isNotEmpty
-                        ? IconButton(
-                            icon: Icon(
-                              Icons.close_rounded,
-                              color: AppColors.textTertiaryFor(context),
-                              size: 20,
-                            ),
-                            onPressed: () {
-                              _searchController.clear();
-                              setState(() => _searchQuery = '');
-                            },
-                          )
-                        : null,
-                    filled: true,
-                    fillColor: AppColors.surfaceVariantFor(context),
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 12,
-                    ),
-                    border: OutlineInputBorder(
-                      borderRadius:
-                          BorderRadius.circular(AppConstants.radiusMd),
-                      borderSide: BorderSide.none,
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius:
-                          BorderRadius.circular(AppConstants.radiusMd),
-                      borderSide: BorderSide(
-                        color: AppColors.borderLightFor(context),
-                      ),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius:
-                          BorderRadius.circular(AppConstants.radiusMd),
-                      borderSide: const BorderSide(
-                        color: AppColors.primary,
-                        width: 1.5,
-                      ),
-                    ),
-                  ),
-                  style: AppTextStyles.bodyMedium,
-                ),
-              ),
-
               // Sonuç sayısı
               if (_searchQuery.isNotEmpty)
                 Padding(
@@ -157,7 +174,7 @@ class _UniDepartmentsScreenState extends ConsumerState<UniDepartmentsScreen> {
                               ),
                               const SizedBox(height: 12),
                               Text(
-                                '"$_searchQuery" için sonuç bulunamadı',
+                                '"$_searchQuery" ile eşleşen bölüm bulunamadı',
                                 style: AppTextStyles.bodyMedium.copyWith(
                                   color:
                                       AppColors.textSecondaryFor(context),
