@@ -9,6 +9,8 @@ import '../../../../core/theme/app_text_styles.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import '../providers/story_providers.dart';
 import '../../domain/models/story_model.dart';
+import '../../../admin/data/analytics_service.dart';
+import '../../../admin/domain/models/analytics_event.dart';
 
 /// Tam ekran Story görüntüleyici — fotoğraf + video destekli.
 ///
@@ -121,6 +123,9 @@ class _StoryViewerScreenState extends ConsumerState<StoryViewerScreen>
       if (!_viewedIds.contains(id)) {
         _viewedIds.add(id);
         ref.read(seenStoryIdsProvider.notifier).markSingleAsSeen(id);
+
+        // Analytics: story görüntülendi
+        AnalyticsService.instance.trackEvent(AnalyticsEvent.storyViewed);
       }
     }
   }

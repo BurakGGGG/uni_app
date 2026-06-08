@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../data/analytics_migration_service.dart';
 
 /// Admin Paneli — merkezi yönetim hub'ı.
 ///
@@ -10,6 +11,55 @@ import '../../../../core/theme/app_text_styles.dart';
 /// İlk modül: Story Yönetimi. İleride genişletilecek.
 class AdminPanelScreen extends ConsumerWidget {
   const AdminPanelScreen({super.key});
+
+  void _runMigration(BuildContext context, WidgetRef ref) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Migration Çalıştır'),
+        content: const Text(
+          'Mevcut kullanıcı, yorum, beğeni ve rapor sayıları '
+          'istatistik counter\'larına aktarılacak. Devam edilsin mi?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('İptal'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Çalıştır'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true || !context.mounted) return;
+
+    try {
+      final results = await AnalyticsMigrationService().runMigration();
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Migration tamamlandı! '
+            'Kullanıcı: ${results['totalUsers']}, '
+            'Yorum: ${results['totalReviews']}, '
+            'Beğeni: ${results['totalLikes']}',
+          ),
+          backgroundColor: AppColors.success,
+        ),
+      );
+    } catch (e) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Migration hatası: $e'),
+          backgroundColor: AppColors.error,
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -123,8 +173,29 @@ class AdminPanelScreen extends ConsumerWidget {
             iconColor: const Color(0xFF10B981),
             title: 'İstatistikler',
             description: 'Uygulama kullanım istatistiklerini gör.',
-            isComingSoon: true,
-            onTap: () {},
+            onTap: () => context.push('/admin/stats'),
+          ),
+
+          const SizedBox(height: 24),
+
+          // ─── Araçlar ──────────────────────────────────────────
+          Text(
+            'Araçlar',
+            style: AppTextStyles.titleSmall.copyWith(
+              color: AppColors.textSecondaryFor(context),
+              fontWeight: FontWeight.w600,
+              letterSpacing: 0.5,
+            ),
+          ),
+          const SizedBox(height: 12),
+
+          _AdminModuleCard(
+            icon: Icons.sync_rounded,
+            iconColor: const Color(0xFF0EA5E9),
+            title: 'İstatistik Migration',
+            description:
+                'Mevcut verileri istatistik counter\'larına aktar.',
+            onTap: () => _runMigration(context, ref),
           ),
         ],
       ),
