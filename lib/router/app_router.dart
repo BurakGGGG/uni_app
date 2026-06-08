@@ -46,6 +46,7 @@ import '../features/score_calculator/presentation/screens/score_calculator_scree
 import '../features/score_calculator/presentation/screens/score_result_screen.dart';
 import '../features/admin/presentation/screens/admin_panel_screen.dart';
 import '../features/admin/presentation/screens/admin_story_panel_screen.dart';
+import '../features/admin/presentation/screens/admin_stats_screen.dart';
 import 'app_shell.dart';
 
 /// Uygulama route isimleri
@@ -182,6 +183,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/admin/stories',
         builder: (context, state) => const AdminStoryPanelScreen(),
+      ),
+      GoRoute(
+        path: '/admin/stats',
+        builder: (context, state) => const AdminStatsScreen(),
       ),
 
       // ─── Arama ───────────────────────────────────────────────────

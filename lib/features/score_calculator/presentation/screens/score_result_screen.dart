@@ -6,6 +6,8 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../providers/score_calculator_providers.dart';
 import '../widgets/university_match_card.dart';
+import '../../../admin/data/analytics_service.dart';
+import '../../../admin/domain/models/analytics_event.dart';
 
 
 class ScoreResultScreen extends ConsumerWidget {
@@ -50,6 +52,9 @@ class ScoreResultScreen extends ConsumerWidget {
               ),
             );
           }
+
+          // Analytics: puan hesaplandı (tek seferlik)
+          AnalyticsService.instance.trackEvent(AnalyticsEvent.scoreCalculated);
 
           return SingleChildScrollView(
             child: Column(
