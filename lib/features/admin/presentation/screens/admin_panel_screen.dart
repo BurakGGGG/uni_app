@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../providers/admin_reports_providers.dart';
 import '../../data/analytics_migration_service.dart';
 
 /// Admin Paneli — merkezi yönetim hub'ı.
@@ -157,13 +158,18 @@ class AdminPanelScreen extends ConsumerWidget {
           const SizedBox(height: 12),
 
           // ─── Placeholder modüller (gelecekte eklenecek) ───────
-          _AdminModuleCard(
-            icon: Icons.flag_rounded,
-            iconColor: const Color(0xFFEF4444),
-            title: 'Raporlar',
-            description: 'Kullanıcı raporlarını ve şikayetleri incele.',
-            isComingSoon: true,
-            onTap: () {},
+          Consumer(
+            builder: (context, ref, _) {
+              final pendingCount = ref.watch(pendingReportCountProvider);
+              return _AdminModuleCard(
+                icon: Icons.flag_rounded,
+                iconColor: const Color(0xFFEF4444),
+                title: 'Raporlar',
+                description: 'Kullanıcı raporlarını ve şikayetleri incele.',
+                badgeCount: pendingCount.valueOrNull ?? 0,
+                onTap: () => context.push('/admin/reports'),
+              );
+            },
           ),
 
           const SizedBox(height: 12),
@@ -211,6 +217,7 @@ class _AdminModuleCard extends StatelessWidget {
   final String description;
   final VoidCallback onTap;
   final bool isComingSoon;
+  final int badgeCount;
 
   const _AdminModuleCard({
     required this.icon,
@@ -219,6 +226,7 @@ class _AdminModuleCard extends StatelessWidget {
     required this.description,
     required this.onTap,
     this.isComingSoon = false,
+    this.badgeCount = 0,
   });
 
   @override
@@ -277,6 +285,25 @@ class _AdminModuleCard extends StatelessWidget {
                                 style: AppTextStyles.labelSmall.copyWith(
                                   fontSize: 9,
                                   color: AppColors.textTertiaryFor(context),
+                                ),
+                              ),
+                            ),
+                          ],
+                          if (!isComingSoon && badgeCount > 0) ...[
+                            const SizedBox(width: 8),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 7, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: AppColors.error,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Text(
+                                '$badgeCount',
+                                style: AppTextStyles.labelSmall.copyWith(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.white,
                                 ),
                               ),
                             ),
