@@ -9,6 +9,8 @@ import '../domain/user_model.dart';
 import '../../notifications/data/fcm_service.dart';
 import '../../../services/revenuecat_service.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import '../../admin/data/analytics_service.dart';
+import '../../admin/domain/models/analytics_event.dart';
 
 /// Auth işlemlerini yöneten repository
 class AuthRepository {
@@ -54,6 +56,9 @@ class AuthRepository {
 
       final userModel = await _createOrUpdateUser(user);
 
+      // Analytics: login event
+      AnalyticsService.instance.trackEvent(AnalyticsEvent.login);
+
       // RevenueCat kullanıcı eşlemesini güncelle.
       unawaited(RevenueCatService().login(user.uid));
 
@@ -98,6 +103,9 @@ class AuthRepository {
 
       final userModel = await _createOrUpdateUser(user, displayName: name);
 
+      // Analytics: login event (yeni kayıt da bir giriş sayılır)
+      AnalyticsService.instance.trackEvent(AnalyticsEvent.login);
+
       // RevenueCat kullanıcı eşlemesini güncelle.
       unawaited(RevenueCatService().login(user.uid));
 
@@ -134,6 +142,9 @@ class AuthRepository {
       if (user == null) return null;
 
       final userModel = await _createOrUpdateUser(user);
+
+      // Analytics: login event
+      AnalyticsService.instance.trackEvent(AnalyticsEvent.login);
 
       // RevenueCat kullanıcı eşlemesini güncelle.
       unawaited(RevenueCatService().login(user.uid));
@@ -353,6 +364,10 @@ class AuthRepository {
           );
 
           await userRef.set(newUser.toMap());
+
+          // Analytics: yeni kullanıcı kaydı
+          AnalyticsService.instance.trackEvent(AnalyticsEvent.newUser);
+
           return newUser;
         }
       } catch (e) {

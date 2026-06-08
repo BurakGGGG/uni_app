@@ -239,5 +239,14 @@ service cloud.firestore {
     match /webhookEvents/{eventId} {
       allow read, write: if false;
     }
+
+    // ─── Analytics Counter'ları ─────────────────────────────────
+    // Herhangi bir giriş yapmış kullanıcı event yazabilir (increment).
+    // Sadece admin'ler tüm istatistikleri okuyabilir.
+    // Hem analytics/counters hem analytics/daily_* dokümanlarını kapsar.
+    match /analytics/{docId} {
+      allow read: if isAdmin();
+      allow write: if isAuthenticated();
+    }
   }
 }
