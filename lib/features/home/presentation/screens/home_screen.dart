@@ -5,10 +5,13 @@ import '../../../../l10n/generated/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:showcaseview/showcaseview.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/widgets/widgets.dart';
+import '../../../../core/widgets/app_showcase_tooltip.dart';
+import '../../../../core/services/feature_discovery_service.dart';
 import '../../../university/presentation/providers/university_providers.dart';
 
 import '../../../university/domain/models/university_model.dart';
@@ -22,11 +25,43 @@ import '../../../stories/presentation/widgets/story_bubble_carousel.dart';
 import '../widgets/home_list_skeleton.dart';
 
 /// Ana Sayfa ekranı
-class HomeScreen extends ConsumerWidget {
+class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends ConsumerState<HomeScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _maybeStartShowcase();
+    });
+  }
+
+  void _maybeStartShowcase() {
+    if (!mounted) return;
+    final fd = ref.read(featureDiscoveryProvider);
+    if (!fd.isCompleted(FeatureDiscoveryService.homeCompleted)) {
+      Future.delayed(const Duration(milliseconds: 800), () {
+        if (!mounted) return;
+        ShowcaseView.getNamed('app_tour').startShowCase([
+          AppTourKeys.search,
+          AppTourKeys.story,
+          AppTourKeys.hero,
+          AppTourKeys.notification,
+          AppTourKeys.exploreTab,
+          AppTourKeys.compareTab,
+          AppTourKeys.listsTab,
+        ]);
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
     final citiesAsync = ref.watch(citiesProvider);
 
@@ -77,16 +112,31 @@ class HomeScreen extends ConsumerWidget {
                             ),
                           ],
                         ),
-                        // Bildirim ikonu
-                        Container(
-                          width: 44,
-                          height: 44,
-                          decoration: BoxDecoration(
-                            color: AppColors.surfaceFor(context),
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: AppColors.borderLightFor(context)),
+                        // Bildirim ikonu — Showcase Adım 4
+                        Showcase.withWidget(
+                          key: AppTourKeys.notification,
+                          scope: 'app_tour',
+                          disableMovingAnimation: true,
+                          targetBorderRadius: BorderRadius.circular(12),
+                          targetPadding: const EdgeInsets.all(4),
+                          container: const AppShowcaseTooltip(
+                            title: 'Bildirimler',
+                            description:
+                                'Yeni duyurular, güncellemeler ve sana özel bildirimleri takip et.',
+                            currentStep: 4,
+                            totalSteps: 7,
                           ),
-                          child: const NotificationBell(),
+                          child: Container(
+                            width: 44,
+                            height: 44,
+                            decoration: BoxDecoration(
+                              color: AppColors.surfaceFor(context),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                  color: AppColors.borderLightFor(context)),
+                            ),
+                            child: const NotificationBell(),
+                          ),
                         ),
                       ],
                     ),
@@ -95,29 +145,73 @@ class HomeScreen extends ConsumerWidget {
               ),
             ),
 
-            // ─── Arama Çubuğu ──────────────────────────────────────
+            // ─── Arama Çubuğu — Showcase Adım 1 ────────────────
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                child: AppSearchBar(
-                  readOnly: true,
-                  onTap: () {
-                    context.push('/search');
-                  },
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                child: Showcase.withWidget(
+                  key: AppTourKeys.search,
+                  scope: 'app_tour',
+                  disableMovingAnimation: true,
+                  targetBorderRadius: BorderRadius.circular(16),
+                  targetPadding: const EdgeInsets.all(4),
+                  container: const AppShowcaseTooltip(
+                    title: 'Hızlı Arama',
+                    description:
+                        'Üniversite, bölüm veya şehir ara — istediğin her şeyi anında bul.',
+                    currentStep: 1,
+                    totalSteps: 7,
+                  ),
+                  child: AppSearchBar(
+                    readOnly: true,
+                    onTap: () {
+                      context.push('/search');
+                    },
+                  ),
                 ),
               ),
             ),
 
-            // ─── Story Bubble Carousel ─────────────────────────
-            const SliverToBoxAdapter(
-              child: StoryBubbleCarousel(),
+            // ─── Story Bubble Carousel — Showcase Adım 2 ──────
+            SliverToBoxAdapter(
+              child: Showcase.withWidget(
+                key: AppTourKeys.story,
+                scope: 'app_tour',
+                disableMovingAnimation: true,
+                targetBorderRadius: BorderRadius.circular(16),
+                targetPadding: const EdgeInsets.all(4),
+                container: const AppShowcaseTooltip(
+                  title: 'Hikayeler',
+                  description:
+                      'Üniversitelerden güncel duyuruları ve hikayeleri burada gör.',
+                  currentStep: 2,
+                  totalSteps: 7,
+                ),
+                child: const StoryBubbleCarousel(),
+              ),
             ),
 
-            // ─── Hero Banner ────────────────────────────────────────
+            // ─── Hero Banner — Showcase Adım 2 ──────────────────
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                child: const _HeroBanner(),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                child: Showcase.withWidget(
+                  key: AppTourKeys.hero,
+                  scope: 'app_tour',
+                  disableMovingAnimation: true,
+                  targetBorderRadius: BorderRadius.circular(24),
+                  targetPadding: const EdgeInsets.all(4),
+                  container: const AppShowcaseTooltip(
+                    title: 'Puan Hesaplayıcı',
+                    description:
+                        'YKS puanını hesapla, sana uygun üniversite ve bölümleri keşfet.',
+                    currentStep: 3,
+                    totalSteps: 7,
+                  ),
+                  child: const _HeroBanner(),
+                ),
               ),
             ),
 
@@ -134,31 +228,34 @@ class HomeScreen extends ConsumerWidget {
                   SizedBox(
                     height: 200,
                     child: ref.watch(popularUniversitiesProvider).when(
-                      loading: () => const HomeListSkeleton(),
-                      error: (e, st) => ErrorStateWidget(
-                        message: 'Üniversiteler yüklenemedi',
-                        onRetry: () => ref.invalidate(popularUniversitiesProvider),
-                        compact: true,
-                      ),
-                      data: (popular) {
-                        return ListView.builder(
-                          scrollDirection: Axis.horizontal,
-                          physics: const ClampingScrollPhysics(),
-                          scrollCacheExtent: ScrollCacheExtent.pixels(200),
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          itemCount: popular.length,
-                          itemBuilder: (context, index) {
-                            return RepaintBoundary(
-                              child: _PopularUniCard(
-                                university: popular[index],
-                                index: index,
-                                onTap: () => context.push('/university/${popular[index].id}'),
-                              ),
+                          loading: () => const HomeListSkeleton(),
+                          error: (e, st) => ErrorStateWidget(
+                            message: 'Üniversiteler yüklenemedi',
+                            onRetry: () =>
+                                ref.invalidate(popularUniversitiesProvider),
+                            compact: true,
+                          ),
+                          data: (popular) {
+                            return ListView.builder(
+                              scrollDirection: Axis.horizontal,
+                              physics: const ClampingScrollPhysics(),
+                              scrollCacheExtent: ScrollCacheExtent.pixels(200),
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 16),
+                              itemCount: popular.length,
+                              itemBuilder: (context, index) {
+                                return RepaintBoundary(
+                                  child: _PopularUniCard(
+                                    university: popular[index],
+                                    index: index,
+                                    onTap: () => context.push(
+                                        '/university/${popular[index].id}'),
+                                  ),
+                                );
+                              },
                             );
                           },
-                        );
-                      },
-                    ),
+                        ),
                   ),
                 ],
               ),
@@ -191,7 +288,8 @@ class HomeScreen extends ConsumerWidget {
                           itemBuilder: (context, index) {
                             return CityCard.compact(
                               city: cities[index],
-                              onTap: () => context.push('/city/${cities[index].id}'),
+                              onTap: () =>
+                                  context.push('/city/${cities[index].id}'),
                             );
                           },
                         );
@@ -213,69 +311,79 @@ class HomeScreen extends ConsumerWidget {
             ),
 
             ref.watch(recentReviewsProvider).when(
-              loading: () => const SliverToBoxAdapter(
-                child: HomeListSkeleton(itemCount: 2, height: 150, scrollDirection: Axis.vertical),
-              ),
-              error: (e, st) => SliverToBoxAdapter(
-                child: ErrorStateWidget(
-                  message: 'Yorumlar yüklenemedi',
-                  onRetry: () => ref.invalidate(recentReviewsProvider),
-                  compact: true,
-                ),
-              ),
-              data: (reviews) {
-                if (reviews.isEmpty) {
-                  return SliverToBoxAdapter(
-                    child: Center(
-                      child: Padding(
-                        padding: const EdgeInsets.all(40),
-                        child: Column(
-                          children: [
-                            Icon(Icons.rate_review_outlined, size: 48, color: AppColors.textTertiaryFor(context)),
-                            const SizedBox(height: 12),
-                            Text(loc.homeNoReviews, style: AppTextStyles.titleMedium),
-                            Text(
-                              loc.homeFirstReview,
-                              style: AppTextStyles.bodySmall,
-                              textAlign: TextAlign.center,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  );
-                }
-
-                return SliverList(
-                  delegate: SliverChildBuilderDelegate(
-                    (context, index) {
-                      final review = reviews[index];
-                      return ReviewCard(
-                        review: review,
-                        compact: true,
-                        showReportMenu: false,
-                        showActions: false,
-                        showTargetInfo: true, // YENİ
-                        onTap: () {
-                          switch (review.type) {
-                            case ReviewType.department:
-                              context.push('/department/${review.targetId}');
-                              break;
-                            case ReviewType.place:
-                              context.push('/place/${review.targetId}');
-                              break;
-                            case ReviewType.university:
-                              context.push('/university/${review.targetId}');
-                              break;
-                          }
-                        },
-                      );
-                    },
-                    childCount: reviews.length,
+                  loading: () => const SliverToBoxAdapter(
+                    child: HomeListSkeleton(
+                        itemCount: 2,
+                        height: 150,
+                        scrollDirection: Axis.vertical),
                   ),
-                );
-              },
-            ),
+                  error: (e, st) => SliverToBoxAdapter(
+                    child: ErrorStateWidget(
+                      message: 'Yorumlar yüklenemedi',
+                      onRetry: () => ref.invalidate(recentReviewsProvider),
+                      compact: true,
+                    ),
+                  ),
+                  data: (reviews) {
+                    if (reviews.isEmpty) {
+                      return SliverToBoxAdapter(
+                        child: Center(
+                          child: Padding(
+                            padding: const EdgeInsets.all(40),
+                            child: Column(
+                              children: [
+                                Icon(Icons.rate_review_outlined,
+                                    size: 48,
+                                    color:
+                                        AppColors.textTertiaryFor(context)),
+                                const SizedBox(height: 12),
+                                Text(loc.homeNoReviews,
+                                    style: AppTextStyles.titleMedium),
+                                Text(
+                                  loc.homeFirstReview,
+                                  style: AppTextStyles.bodySmall,
+                                  textAlign: TextAlign.center,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      );
+                    }
+
+                    return SliverList(
+                      delegate: SliverChildBuilderDelegate(
+                        (context, index) {
+                          final review = reviews[index];
+                          return ReviewCard(
+                            review: review,
+                            compact: true,
+                            showReportMenu: false,
+                            showActions: false,
+                            showTargetInfo: true,
+                            onTap: () {
+                              switch (review.type) {
+                                case ReviewType.department:
+                                  context.push(
+                                      '/department/${review.targetId}');
+                                  break;
+                                case ReviewType.place:
+                                  context
+                                      .push('/place/${review.targetId}');
+                                  break;
+                                case ReviewType.university:
+                                  context.push(
+                                      '/university/${review.targetId}');
+                                  break;
+                              }
+                            },
+                          );
+                        },
+                        childCount: reviews.length,
+                      ),
+                    );
+                  },
+                ),
 
             // Bottom padding
             const SliverPadding(padding: EdgeInsets.only(bottom: 100)),
@@ -351,7 +459,7 @@ class _HeroBanner extends StatelessWidget {
                 ),
               ),
             ),
-            // Pattern Overlay (Optional dots/grid effect)
+            // Pattern Overlay
             Positioned.fill(
               child: Opacity(
                 opacity: 0.05,
@@ -371,16 +479,19 @@ class _HeroBanner extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 4),
                           decoration: BoxDecoration(
                             color: Colors.white.withValues(alpha: 0.2),
                             borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
+                            border: Border.all(
+                                color: Colors.white.withValues(alpha: 0.3)),
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              const Icon(Icons.calculate_rounded, color: Colors.white, size: 14),
+                              const Icon(Icons.calculate_rounded,
+                                  color: Colors.white, size: 14),
                               const SizedBox(width: 6),
                               Text(
                                 'YKS 2025',
@@ -407,7 +518,8 @@ class _HeroBanner extends StatelessWidget {
                           children: [
                             Text(
                               loc.homeStart,
-                              style: AppTextStyles.labelLarge.copyWith(color: Colors.white),
+                              style: AppTextStyles.labelLarge
+                                  .copyWith(color: Colors.white),
                             ),
                             const SizedBox(width: 8),
                             Container(
@@ -416,7 +528,8 @@ class _HeroBanner extends StatelessWidget {
                                 color: Colors.white,
                                 shape: BoxShape.circle,
                               ),
-                              child: const Icon(Icons.arrow_forward_rounded, color: AppColors.primary, size: 14),
+                              child: const Icon(Icons.arrow_forward_rounded,
+                                  color: AppColors.primary, size: 14),
                             ),
                           ],
                         ),
@@ -430,10 +543,13 @@ class _HeroBanner extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: Colors.white.withValues(alpha: 0.15),
                       shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white.withValues(alpha: 0.3), width: 1.5),
+                      border: Border.all(
+                          color: Colors.white.withValues(alpha: 0.3),
+                          width: 1.5),
                     ),
                     child: const Center(
-                      child: Icon(Icons.analytics_rounded, color: Colors.white, size: 36),
+                      child: Icon(Icons.analytics_rounded,
+                          color: Colors.white, size: 36),
                     ),
                   ),
                 ],
@@ -478,7 +594,8 @@ class _PopularUniCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isFavorite = ref.watch(
-      favoritesProvider.select((async) => async.value?.contains(university.id) ?? false),
+      favoritesProvider
+          .select((async) => async.value?.contains(university.id) ?? false),
     );
     final colors = [
       AppColors.primary,
@@ -510,87 +627,99 @@ class _PopularUniCard extends ConsumerWidget {
         ),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(2.0), // Çerçeve kalınlığı
+        padding: const EdgeInsets.all(2.0),
         child: Container(
           decoration: BoxDecoration(
             color: AppColors.surfaceFor(context),
-            borderRadius: BorderRadius.circular(AppConstants.radiusLg - 1.5),
+            borderRadius:
+                BorderRadius.circular(AppConstants.radiusLg - 1.5),
           ),
           child: Material(
             color: Colors.transparent,
-            borderRadius: BorderRadius.circular(AppConstants.radiusLg - 1.5),
+            borderRadius:
+                BorderRadius.circular(AppConstants.radiusLg - 1.5),
             child: Semantics(
-              label: '${university.name}, ${university.type}${isFavorite ? ', favorilerde' : ''}',
+              label:
+                  '${university.name}, ${university.type}${isFavorite ? ', favorilerde' : ''}',
               button: true,
               child: InkWell(
-              onTap: onTap,
-              borderRadius: BorderRadius.circular(AppConstants.radiusLg - 1.5),
-              child: Padding(
-                padding: const EdgeInsets.all(AppConstants.spacingLg),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    SizedBox(
-                      width: 52,
-                      height: 52,
-                      child: Image.asset(
-                        university.logoAssetPath,
-                        fit: BoxFit.contain,
-                        semanticLabel: 'Üniversite logosu',
-                        errorBuilder: (context, error, stackTrace) => Container(
-                          decoration: BoxDecoration(
-                            color: color.withValues(alpha: 0.12),
-                            borderRadius: BorderRadius.circular(12),
+                onTap: onTap,
+                borderRadius:
+                    BorderRadius.circular(AppConstants.radiusLg - 1.5),
+                child: Padding(
+                  padding: const EdgeInsets.all(AppConstants.spacingLg),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          SizedBox(
+                            width: 52,
+                            height: 52,
+                            child: Image.asset(
+                              university.logoAssetPath,
+                              fit: BoxFit.contain,
+                              semanticLabel: 'Üniversite logosu',
+                              errorBuilder: (context, error, stackTrace) =>
+                                  Container(
+                                decoration: BoxDecoration(
+                                  color: color.withValues(alpha: 0.12),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Icon(Icons.school_rounded,
+                                    color: color, size: 28),
+                              ),
+                            ),
                           ),
-                          child: Icon(Icons.school_rounded, color: color, size: 28),
-                        ),
+                          if (isFavorite)
+                            const Icon(Icons.favorite_rounded,
+                                color: AppColors.error, size: 18),
+                        ],
                       ),
-                    ),
-                    if (isFavorite)
-                      const Icon(Icons.favorite_rounded, color: AppColors.error, size: 18),
-                  ],
-                ),
-                const Spacer(),
-                // Başlık
-                Text(
-                  university.name,
-                  style: AppTextStyles.titleMedium,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 4),
-                // Tür rozeti
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: (university.type == 'Devlet' ? AppColors.stateUni : AppColors.foundationUni)
-                            .withValues(alpha: 0.12),
-                        borderRadius: BorderRadius.circular(4),
+                      const Spacer(),
+                      // Başlık
+                      Text(
+                        university.name,
+                        style: AppTextStyles.titleMedium,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      child: Text(
-                        university.type,
-                        style: AppTextStyles.labelSmall.copyWith(
-                          color: university.type == 'Devlet' ? AppColors.stateUni : AppColors.foundationUni,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 9,
-                        ),
+                      const SizedBox(height: 4),
+                      // Tür rozeti
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: (university.type == 'Devlet'
+                                      ? AppColors.stateUni
+                                      : AppColors.foundationUni)
+                                  .withValues(alpha: 0.12),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Text(
+                              university.type,
+                              style: AppTextStyles.labelSmall.copyWith(
+                                color: university.type == 'Devlet'
+                                    ? AppColors.stateUni
+                                    : AppColors.foundationUni,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 9,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ],
+              ),
             ),
           ),
-          ),
         ),
-      ),
-      ),
       ),
     );
   }

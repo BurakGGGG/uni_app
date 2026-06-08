@@ -111,7 +111,6 @@ class _ComparisonHubScreenState extends ConsumerState<ComparisonHubScreen>
                   icon: Icons.account_balance_rounded,
                   title: 'Üniversite',
                   description: 'İki üniversiteyi detaylı karşılaştır',
-
                   iconColor: AppColors.primary,
                   isLocked: false,
                   isSelected: _selectedTypeIndex == 0,
@@ -133,7 +132,6 @@ class _ComparisonHubScreenState extends ConsumerState<ComparisonHubScreen>
                     icon: Icons.menu_book_rounded,
                     title: 'Bölüm',
                     description: 'Aynı bölümü farklı üniversitelerde karşılaştır',
-
                     iconColor: AppColors.tierPlus,
                     isLocked: !canDepartment,
                     requiredTier: SubscriptionTier.plus,
@@ -157,7 +155,6 @@ class _ComparisonHubScreenState extends ConsumerState<ComparisonHubScreen>
                     icon: Icons.location_city_rounded,
                     title: 'Şehir',
                     description: 'İki şehrin üniversite ekosistemini karşılaştır',
-
                     iconColor: AppColors.tierPlus,
                     isLocked: !canCity,
                     requiredTier: SubscriptionTier.plus,
