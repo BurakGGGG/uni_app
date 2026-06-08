@@ -51,7 +51,7 @@ class AdminFeedbackRepository {
   }) async {
     await _feedbackRef.doc(feedbackId).update({
       'status': status.firestoreValue,
-      if (adminNote != null) 'adminNote': adminNote,
+      'adminNote': ?adminNote,
       'reviewedBy': adminUserId,
     });
   }

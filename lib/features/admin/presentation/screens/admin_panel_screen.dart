@@ -216,29 +216,24 @@ class _AdminModuleCard extends StatelessWidget {
   final String title;
   final String description;
   final VoidCallback onTap;
-  final bool isComingSoon;
   final int badgeCount;
-
   const _AdminModuleCard({
     required this.icon,
     required this.iconColor,
     required this.title,
     required this.description,
     required this.onTap,
-    this.isComingSoon = false,
     this.badgeCount = 0,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Opacity(
-      opacity: isComingSoon ? 0.5 : 1.0,
-      child: Material(
+      return Material(
         color: AppColors.surfaceFor(context),
         borderRadius: BorderRadius.circular(16),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
-          onTap: isComingSoon ? null : onTap,
+          onTap: onTap,
           borderRadius: BorderRadius.circular(16),
           child: Container(
             padding: const EdgeInsets.all(16),
@@ -270,26 +265,7 @@ class _AdminModuleCard extends StatelessWidget {
                               fontWeight: FontWeight.w600,
                             ),
                           ),
-                          if (isComingSoon) ...[
-                            const SizedBox(width: 8),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 6, vertical: 2),
-                              decoration: BoxDecoration(
-                                color: AppColors.textTertiaryFor(context)
-                                    .withValues(alpha: 0.15),
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                              child: Text(
-                                'Yakında',
-                                style: AppTextStyles.labelSmall.copyWith(
-                                  fontSize: 9,
-                                  color: AppColors.textTertiaryFor(context),
-                                ),
-                              ),
-                            ),
-                          ],
-                          if (!isComingSoon && badgeCount > 0) ...[
+                          if (badgeCount > 0) ...[
                             const SizedBox(width: 8),
                             Container(
                               padding: const EdgeInsets.symmetric(
@@ -320,7 +296,6 @@ class _AdminModuleCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                if (!isComingSoon)
                   Icon(
                     Icons.chevron_right_rounded,
                     color: AppColors.textTertiaryFor(context),
@@ -330,7 +305,6 @@ class _AdminModuleCard extends StatelessWidget {
             ),
           ),
         ),
-      ),
-    );
+      );
   }
 }

@@ -143,7 +143,7 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen>
         return Tab(text: label);
       },
       loading: () => Tab(text: label),
-      error: (_, __) => Tab(text: label),
+      error: (_, _) => Tab(text: label),
     );
   }
 
@@ -162,7 +162,7 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen>
         return Tab(text: label);
       },
       loading: () => Tab(text: label),
-      error: (_, __) => Tab(text: label),
+      error: (_, _) => Tab(text: label),
     );
   }
 
@@ -196,7 +196,7 @@ class _ReportsTab extends StatelessWidget {
     return ListView.separated(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
       itemCount: reports.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 8),
+      separatorBuilder: (_, _) => const SizedBox(height: 8),
       itemBuilder: (context, index) {
         final report = reports[index];
         return ReportTile(report: report, onTap: () => ReportDetailSheet.show(context, report));
@@ -219,7 +219,7 @@ class _FeedbackTab extends StatelessWidget {
     return ListView.separated(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
       itemCount: feedbacks.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 8),
+      separatorBuilder: (_, _) => const SizedBox(height: 8),
       itemBuilder: (context, index) {
         final feedback = feedbacks[index];
         return FeedbackTile(feedback: feedback, onTap: () => FeedbackDetailSheet.show(context, feedback));
@@ -243,7 +243,7 @@ class _BlockedTab extends StatelessWidget {
     return ListView.separated(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
       itemCount: reviews.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 10),
+      separatorBuilder: (_, _) => const SizedBox(height: 10),
       itemBuilder: (context, index) {
         final review = reviews[index];
         return BlockedReviewTile(
