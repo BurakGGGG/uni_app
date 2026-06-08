@@ -1,20 +1,22 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:video_player/video_player.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
 import '../../../../core/theme/app_text_styles.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import '../providers/story_providers.dart';
 import '../../domain/models/story_model.dart';
 
-
-/// Tam ekran Story görüntüleyici.
+/// Tam ekran Story görüntüleyici — fotoğraf + video destekli.
 ///
 /// - Sağ üstte çarpı (X) ile kapatılır
-/// - Android geri tuşuyla kapatılır
 /// - Sağa/sola dokunarak story'ler arasında gezilir
 /// - Üstte doğrusal ilerleme çubuğu
 /// - Basılı tutunca ilerleme durur
+/// - Video: otomatik oynatılır, sessiz başlar, tap ile ses aç/kapa
 /// - Kapanışta görülen story'ler işaretlenir
 class StoryViewerScreen extends ConsumerStatefulWidget {
   final int initialIndex;
@@ -31,9 +33,13 @@ class _StoryViewerScreenState extends ConsumerState<StoryViewerScreen>
   final List<String> _viewedIds = [];
   late AnimationController _progressController;
   bool _isPaused = false;
-  bool _isImageLoaded = false;
+  bool _isMediaLoaded = false;
+  bool _isMuted = true;
 
-  static const _storyDuration = Duration(seconds: 6);
+  // Video player (null ise image story)
+  VideoPlayerController? _videoController;
+
+  static const _imageDuration = Duration(seconds: 6);
 
   @override
   void initState() {
@@ -41,7 +47,7 @@ class _StoryViewerScreenState extends ConsumerState<StoryViewerScreen>
     _currentIndex = widget.initialIndex;
     _progressController = AnimationController(
       vsync: this,
-      duration: _storyDuration,
+      duration: _imageDuration,
     )..addStatusListener((status) {
         if (status == AnimationStatus.completed) {
           _nextStory();
@@ -51,17 +57,17 @@ class _StoryViewerScreenState extends ConsumerState<StoryViewerScreen>
 
   @override
   void dispose() {
-    // Güvenlik: dispose'da da kaydet
     if (_viewedIds.isNotEmpty) {
       ref.read(seenStoryIdsProvider.notifier).markAsSeen(_viewedIds);
     }
     _progressController.dispose();
+    _videoController?.dispose();
     super.dispose();
   }
 
   void _startProgress() {
     _progressController.reset();
-    if (_isImageLoaded && !_isPaused) {
+    if (_isMediaLoaded && !_isPaused) {
       _progressController.forward();
     }
   }
@@ -70,6 +76,7 @@ class _StoryViewerScreenState extends ConsumerState<StoryViewerScreen>
     if (!_isPaused) {
       _isPaused = true;
       _progressController.stop();
+      _videoController?.pause();
     }
   }
 
@@ -77,6 +84,7 @@ class _StoryViewerScreenState extends ConsumerState<StoryViewerScreen>
     if (_isPaused) {
       _isPaused = false;
       _progressController.forward();
+      _videoController?.play();
     }
   }
 
@@ -85,25 +93,24 @@ class _StoryViewerScreenState extends ConsumerState<StoryViewerScreen>
     if (_currentIndex < stories.length - 1) {
       setState(() {
         _currentIndex++;
-        _isImageLoaded = false;
+        _isMediaLoaded = false;
       });
       _markCurrentViewed(stories);
-      _startProgress();
+      _initializeMedia(stories[_currentIndex]);
     } else {
-      // Son story — kapat
       Navigator.of(context).pop();
     }
   }
 
   void _previousStory() {
     if (_currentIndex > 0) {
+      final stories = ref.read(activeStoriesProvider).valueOrNull ?? [];
       setState(() {
         _currentIndex--;
-        _isImageLoaded = false;
+        _isMediaLoaded = false;
       });
-      _startProgress();
+      _initializeMedia(stories[_currentIndex]);
     } else {
-      // İlk story'deyken sola basınca baştan başla
       _startProgress();
     }
   }
@@ -113,10 +120,63 @@ class _StoryViewerScreenState extends ConsumerState<StoryViewerScreen>
       final id = stories[_currentIndex].id;
       if (!_viewedIds.contains(id)) {
         _viewedIds.add(id);
-        // İzlenen story'yi hemen kaydet — griye dönmesi için
         ref.read(seenStoryIdsProvider.notifier).markSingleAsSeen(id);
       }
     }
+  }
+
+  /// Video story için controller'ı başlat, image story için temizle
+  Future<void> _initializeMedia(StoryModel story) async {
+    _videoController?.dispose();
+    _videoController = null;
+
+    if (story.isVideo && story.videoUrl != null) {
+      _progressController.duration = story.mediaDuration;
+
+      try {
+        // Video dosyasını cache'den al veya indir
+        final fileInfo = await DefaultCacheManager().getFileFromCache(story.videoUrl!);
+        File videoFile;
+        
+        if (fileInfo != null) {
+          videoFile = fileInfo.file;
+        } else {
+          // Cache'de yoksa indirir ve kaydeder
+          videoFile = await DefaultCacheManager().getSingleFile(story.videoUrl!);
+        }
+
+        // İndirme süresince kullanıcı başka story'ye geçtiyse işlemi iptal et
+        if (!mounted || _currentIndex != ref.read(activeStoriesProvider).valueOrNull?.indexOf(story)) {
+          return;
+        }
+
+        final controller = VideoPlayerController.file(videoFile);
+        _videoController = controller;
+
+        await controller.initialize();
+        if (!mounted) return;
+        
+        controller.setVolume(_isMuted ? 0.0 : 1.0);
+        controller.play();
+        setState(() => _isMediaLoaded = true);
+        _startProgress();
+      } catch (e) {
+        debugPrint('[StoryViewer] Video init/cache error: $e');
+        if (!mounted) return;
+        // Hata durumunda image gibi davran ki sonsuz yüklemede kalmasın
+        setState(() => _isMediaLoaded = true);
+        _progressController.duration = _imageDuration;
+        _startProgress();
+      }
+    } else {
+      _progressController.duration = _imageDuration;
+      // Image yükleme imageBuilder callback'inde yapılır
+    }
+  }
+
+  void _toggleMute() {
+    setState(() => _isMuted = !_isMuted);
+    _videoController?.setVolume(_isMuted ? 0.0 : 1.0);
   }
 
   @override
@@ -154,13 +214,12 @@ class _StoryViewerScreenState extends ConsumerState<StoryViewerScreen>
               return const SizedBox.shrink();
             }
 
-            // İlk açılışta ilk story'yi görüntülenmiş say
+            // İlk açılışta
             if (_viewedIds.isEmpty) {
               _markCurrentViewed(stories);
-              // Animasyonu BAŞLATMIYORUZ, fotoğraf yüklenince başlayacak
+              _initializeMedia(stories[_currentIndex]);
             }
 
-            // Güvenlik: index sınır dışı kontrolü
             if (_currentIndex >= stories.length) {
               _currentIndex = stories.length - 1;
             }
@@ -168,7 +227,6 @@ class _StoryViewerScreenState extends ConsumerState<StoryViewerScreen>
             final story = stories[_currentIndex];
 
             return GestureDetector(
-              // Sağa/sola dokunma
               onTapUp: (details) {
                 final screenWidth = MediaQuery.of(context).size.width;
                 if (details.globalPosition.dx < screenWidth / 3) {
@@ -177,57 +235,18 @@ class _StoryViewerScreenState extends ConsumerState<StoryViewerScreen>
                   _nextStory();
                 }
               },
-              // Basılı tutunca durdur
               onLongPressStart: (_) => _pauseProgress(),
               onLongPressEnd: (_) => _resumeProgress(),
               child: Stack(
                 fit: StackFit.expand,
                 children: [
-                  // ─── Story Görseli ──────────────────────────
-                  Center(
-                    child: CachedNetworkImage(
-                      imageUrl: story.imageUrl,
-                      fit: BoxFit.contain,
-                      width: double.infinity,
-                      height: double.infinity,
-                      imageBuilder: (context, imageProvider) {
-                        // Fotoğraf yüklendiğinde süreyi başlat/devam ettir
-                        if (!_isImageLoaded) {
-                          WidgetsBinding.instance.addPostFrameCallback((_) {
-                            if (mounted && !_isImageLoaded) {
-                              setState(() {
-                                _isImageLoaded = true;
-                              });
-                              _startProgress();
-                            }
-                          });
-                        }
-                        return Image(
-                          image: imageProvider,
-                          fit: BoxFit.contain,
-                          width: double.infinity,
-                          height: double.infinity,
-                        );
-                      },
-                      placeholder: (context, url) {
-                        return const Center(
-                          child: CircularProgressIndicator(
-                            color: Colors.white,
-                            strokeWidth: 2,
-                          ),
-                        );
-                      },
-                      errorWidget: (context, url, error) => const Center(
-                        child: Icon(
-                          Icons.broken_image_rounded,
-                          color: Colors.white54,
-                          size: 64,
-                        ),
-                      ),
-                    ),
-                  ),
+                  // ─── Medya İçeriği ──────────────────────────
+                  if (story.isVideo)
+                    _buildVideoContent(story)
+                  else
+                    _buildImageContent(story),
 
-                  // ─── Üst Gradyan (bilgi okunabilirliği) ────
+                  // ─── Üst Gradyan ────────────────────────────
                   Positioned(
                     top: 0,
                     left: 0,
@@ -238,16 +257,13 @@ class _StoryViewerScreenState extends ConsumerState<StoryViewerScreen>
                         gradient: LinearGradient(
                           begin: Alignment.topCenter,
                           end: Alignment.bottomCenter,
-                          colors: [
-                            Colors.black54,
-                            Colors.transparent,
-                          ],
+                          colors: [Colors.black54, Colors.transparent],
                         ),
                       ),
                     ),
                   ),
 
-                  // ─── Alt Gradyan (başlık okunabilirliği) ───
+                  // ─── Alt Gradyan (başlık varsa) ────────────
                   if (story.title != null && story.title!.isNotEmpty)
                     Positioned(
                       bottom: 0,
@@ -259,16 +275,13 @@ class _StoryViewerScreenState extends ConsumerState<StoryViewerScreen>
                           gradient: LinearGradient(
                             begin: Alignment.bottomCenter,
                             end: Alignment.topCenter,
-                            colors: [
-                              Colors.black87,
-                              Colors.transparent,
-                            ],
+                            colors: [Colors.black87, Colors.transparent],
                           ),
                         ),
                       ),
                     ),
 
-                  // ─── İlerleme Çubukları ────────────────────
+                  // ─── İlerleme Çubukları ─────────────────────
                   Positioned(
                     top: MediaQuery.of(context).padding.top + 8,
                     left: 12,
@@ -312,14 +325,14 @@ class _StoryViewerScreenState extends ConsumerState<StoryViewerScreen>
                     ),
                   ),
 
-                  // ─── Üst Bilgi Satırı ─────────────────────
+                  // ─── Üst Bilgi Satırı ──────────────────────
                   Positioned(
                     top: MediaQuery.of(context).padding.top + 20,
                     left: 16,
                     right: 16,
                     child: Row(
                       children: [
-                        // Admin / ÜniSeç avatar
+                        // Avatar
                         Container(
                           width: 36,
                           height: 36,
@@ -338,13 +351,11 @@ class _StoryViewerScreenState extends ConsumerState<StoryViewerScreen>
                                   placeholder: (context, url) => Container(
                                     color: Colors.grey[800],
                                   ),
-                                  errorWidget: (context, url, error) => Container(
+                                  errorWidget: (context, url, error) =>
+                                      Container(
                                     color: Colors.grey[800],
-                                    child: const Icon(
-                                      Icons.person,
-                                      color: Colors.white,
-                                      size: 20,
-                                    ),
+                                    child: const Icon(Icons.person,
+                                        color: Colors.white, size: 20),
                                   ),
                                 )
                               : Container(
@@ -359,7 +370,7 @@ class _StoryViewerScreenState extends ConsumerState<StoryViewerScreen>
                                 ),
                         ),
                         const SizedBox(width: 10),
-                        // Admin adı + zaman
+                        // Ad + zaman
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -374,13 +385,29 @@ class _StoryViewerScreenState extends ConsumerState<StoryViewerScreen>
                               ),
                               Text(
                                 timeago.format(story.createdAt, locale: 'tr'),
-                                style: AppTextStyles.labelSmall.copyWith(
-                                  color: Colors.white70,
-                                ),
+                                style: AppTextStyles.labelSmall
+                                    .copyWith(color: Colors.white70),
                               ),
                             ],
                           ),
                         ),
+                        // Video ise ses butonu
+                        if (story.isVideo)
+                          Material(
+                            color: Colors.transparent,
+                            shape: const CircleBorder(),
+                            clipBehavior: Clip.antiAlias,
+                            child: IconButton(
+                              onPressed: _toggleMute,
+                              icon: Icon(
+                                _isMuted
+                                    ? Icons.volume_off_rounded
+                                    : Icons.volume_up_rounded,
+                                color: Colors.white,
+                                size: 24,
+                              ),
+                            ),
+                          ),
                         // Kapatma butonu
                         Material(
                           color: Colors.transparent,
@@ -399,7 +426,7 @@ class _StoryViewerScreenState extends ConsumerState<StoryViewerScreen>
                     ),
                   ),
 
-                  // ─── Alt Başlık ────────────────────────────
+                  // ─── Alt Başlık ─────────────────────────────
                   if (story.title != null && story.title!.isNotEmpty)
                     Positioned(
                       bottom: MediaQuery.of(context).padding.bottom + 32,
@@ -410,10 +437,7 @@ class _StoryViewerScreenState extends ConsumerState<StoryViewerScreen>
                         style: AppTextStyles.headlineMedium.copyWith(
                           color: Colors.white,
                           shadows: [
-                            const Shadow(
-                              color: Colors.black45,
-                              blurRadius: 8,
-                            ),
+                            const Shadow(color: Colors.black45, blurRadius: 8),
                           ],
                         ),
                         textAlign: TextAlign.center,
@@ -429,9 +453,67 @@ class _StoryViewerScreenState extends ConsumerState<StoryViewerScreen>
       ),
     );
   }
+
+  /// Fotoğraf story'si gösterir
+  Widget _buildImageContent(StoryModel story) {
+    return Center(
+      child: CachedNetworkImage(
+        imageUrl: story.imageUrl,
+        fit: BoxFit.contain,
+        width: double.infinity,
+        height: double.infinity,
+        imageBuilder: (context, imageProvider) {
+          if (!_isMediaLoaded) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (mounted && !_isMediaLoaded) {
+                setState(() => _isMediaLoaded = true);
+                _startProgress();
+              }
+            });
+          }
+          return Image(
+            image: imageProvider,
+            fit: BoxFit.contain,
+            width: double.infinity,
+            height: double.infinity,
+          );
+        },
+        placeholder: (context, url) => const Center(
+          child: CircularProgressIndicator(
+            color: Colors.white,
+            strokeWidth: 2,
+          ),
+        ),
+        errorWidget: (context, url, error) => const Center(
+          child: Icon(Icons.broken_image_rounded,
+              color: Colors.white54, size: 64),
+        ),
+      ),
+    );
+  }
+
+  /// Video story'si gösterir
+  Widget _buildVideoContent(StoryModel story) {
+    if (_videoController == null || !_videoController!.value.isInitialized) {
+      return const Center(
+        child: CircularProgressIndicator(
+          color: Colors.white,
+          strokeWidth: 2,
+        ),
+      );
+    }
+
+    final controller = _videoController!;
+    return Center(
+      child: AspectRatio(
+        aspectRatio: controller.value.aspectRatio,
+        child: VideoPlayer(controller),
+      ),
+    );
+  }
 }
 
-/// AnimatedBuilder — AnimatedWidget wrapper (story_ring.dart'tan taşındı)
+/// AnimatedBuilder — AnimatedWidget wrapper
 class _StoryAnimatedBuilder extends AnimatedWidget {
   final Widget Function(BuildContext context) builder;
 

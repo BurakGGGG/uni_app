@@ -30,9 +30,8 @@ import '../../../monetization/domain/enums/subscription_tier.dart';
 import '../../../monetization/presentation/providers/subscription_providers.dart';
 import '../../../comparison/presentation/providers/comparison_providers.dart';
 import '../widgets/change_password_dialog.dart';
-import '../../../stories/presentation/widgets/admin_story_upload_sheet.dart';
-import '../../../stories/presentation/widgets/admin_story_management_sheet.dart';
 import '../widgets/feedback_sheet.dart';
+import '../../../../core/services/feature_discovery_service.dart';
 
 /// Profil ekranı — auth durumuna göre içerik gösterir
 class ProfileScreen extends ConsumerWidget {
@@ -102,7 +101,7 @@ class ProfileScreen extends ConsumerWidget {
 
               const SizedBox(height: 24),
 
-              // ─── Admin Story Yönetimi (sadece admin) ───────────
+              // ─── Admin Paneli (sadece admin) ───────────────────
               currentUser.when(
                 data: (profile) {
                   if (profile == null || !profile.isAdmin) {
@@ -111,34 +110,13 @@ class ProfileScreen extends ConsumerWidget {
                   return Column(
                     children: [
                       _SettingsSection(
-                        title: 'Story Yönetimi',
+                        title: 'Yönetim',
                         items: [
                           _SettingsItem(
-                            icon: Icons.add_photo_alternate_rounded,
-                            title: 'Yeni Story Ekle',
-                            subtitle: 'Görsel ve başlıkla story paylaş',
-                            onTap: () {
-                              showModalBottomSheet(
-                                context: context,
-                                isScrollControlled: true,
-                                backgroundColor: Colors.transparent,
-                                builder: (_) => const AdminStoryUploadSheet(),
-                              );
-                            },
-                          ),
-                          _SettingsItem(
-                            icon: Icons.view_carousel_rounded,
-                            title: 'Aktif Story\'leri Yönet',
-                            subtitle: 'Görüntüle veya sil',
-                            onTap: () {
-                              showModalBottomSheet(
-                                context: context,
-                                isScrollControlled: true,
-                                backgroundColor: Colors.transparent,
-                                builder: (_) =>
-                                    const AdminStoryManagementSheet(),
-                              );
-                            },
+                            icon: Icons.admin_panel_settings_rounded,
+                            title: 'Admin Paneli',
+                            subtitle: 'Story yönetimi ve diğer araçlar',
+                            onTap: () => context.push('/admin'),
                           ),
                         ],
                       ),
@@ -185,11 +163,12 @@ class ProfileScreen extends ConsumerWidget {
               const SizedBox(height: 16),
 
               // ─── Ayarlar (Tek Buton) ─────────────────────────────
-              Container(
-                decoration: BoxDecoration(
-                  color: AppColors.surfaceFor(context),
+              Material(
+                color: AppColors.surfaceFor(context),
+                clipBehavior: Clip.antiAlias,
+                shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(AppConstants.radiusLg),
-                  border: Border.all(color: AppColors.borderLightFor(context)),
+                  side: BorderSide(color: AppColors.borderLightFor(context)),
                 ),
                 child: ListTile(
                   onTap: () => _showSettingsSheet(context, ref),
@@ -964,6 +943,24 @@ class _SettingsBottomSheetState extends ConsumerState<_SettingsBottomSheet> {
                       onTap: () {
                         Navigator.pop(context);
                         GoRouter.of(widget.parentContext).push('/notification-settings');
+                      },
+                    ),
+                    Divider(height: 1, indent: 56, color: AppColors.borderLightFor(context)),
+                    _buildSheetActionTile(
+                      context,
+                      icon: Icons.lightbulb_outline_rounded,
+                      iconColor: AppColors.accent,
+                      title: 'Rehberi Tekrar Gör',
+                      subtitle: 'Uygulama tanıtım turunu tekrar başlat',
+                      onTap: () {
+                        Navigator.pop(context);
+                        ref.read(featureDiscoveryProvider).resetAll();
+                        ScaffoldMessenger.of(widget.parentContext).showSnackBar(
+                          const SnackBar(
+                            content: Text('Rehber sıfırlandı! Sayfaları ziyaret ettiğinde tekrar gösterilecek.'),
+                            behavior: SnackBarBehavior.floating,
+                          ),
+                        );
                       },
                     ),
                     Divider(height: 1, indent: 56, color: AppColors.borderLightFor(context)),

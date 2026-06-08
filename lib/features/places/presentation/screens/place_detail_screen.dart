@@ -32,7 +32,7 @@ class _PlaceDetailScreenState extends ConsumerState<PlaceDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final placeAsync = ref.watch(placeWatchProvider(widget.placeId));
+    final placeAsync = ref.watch(placeDetailProvider(widget.placeId));
 
     return Scaffold(
       backgroundColor: AppColors.backgroundFor(context),
@@ -49,7 +49,14 @@ class _PlaceDetailScreenState extends ConsumerState<PlaceDetailScreen> {
               ),
             );
           }
-          return _buildContent(place);
+          return RefreshIndicator(
+            onRefresh: () async {
+              ref.read(placeRepositoryProvider).clearCache();
+              ref.invalidate(placeDetailProvider(widget.placeId));
+              await ref.read(placeDetailProvider(widget.placeId).future);
+            },
+            child: _buildContent(place),
+          );
         },
       ),
     );
@@ -96,97 +103,104 @@ class _PlaceDetailScreenState extends ConsumerState<PlaceDetailScreen> {
         icon: Container(
           padding: const EdgeInsets.all(6),
           decoration: const BoxDecoration(
-            color: Colors.white70, shape: BoxShape.circle,
+            color: Colors.white70,
+            shape: BoxShape.circle,
           ),
           child: const Icon(Icons.arrow_back_rounded, size: 20),
         ),
       ),
       flexibleSpace: hasImages
-        ? FlexibleSpaceBar(
-            background: Stack(
-              fit: StackFit.expand,
-              children: [
-                PageView.builder(
-                  itemCount: place.imageUrls.length,
-                  onPageChanged: (i) =>
-                      setState(() => _currentImageIndex = i),
-                  itemBuilder: (_, i) => GestureDetector(
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => PhotoGalleryScreen(
-                          imageUrls: place.imageUrls,
-                          initialIndex: i,
+          ? FlexibleSpaceBar(
+              background: Stack(
+                fit: StackFit.expand,
+                children: [
+                  PageView.builder(
+                    itemCount: place.imageUrls.length,
+                    onPageChanged: (i) =>
+                        setState(() => _currentImageIndex = i),
+                    itemBuilder: (_, i) => GestureDetector(
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => PhotoGalleryScreen(
+                            imageUrls: place.imageUrls,
+                            initialIndex: i,
+                          ),
                         ),
                       ),
-                    ),
-                    child: CachedNetworkImage(
-                      imageUrl: place.imageUrls[i],
-                      fit: BoxFit.cover,
-                      placeholder: (_, url) =>
-                          Container(color: AppColors.surfaceVariantFor(context)),
-                      errorWidget: (_, url, error) => Container(
-                        color: AppColors.primary.withValues(alpha: 0.12),
-                        child: Icon(place.type.icon,
-                            size: 80, color: AppColors.primary),
-                      ),
-                    ),
-                  ),
-                ),
-                // Dot indicator (2+ foto varsa)
-                if (place.imageUrls.length > 1)
-                  Positioned(
-                    bottom: 12,
-                    left: 0,
-                    right: 0,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: List.generate(
-                        place.imageUrls.length,
-                        (i) => AnimatedContainer(
-                          duration: const Duration(milliseconds: 250),
-                          width: i == _currentImageIndex ? 20 : 8,
-                          height: 8,
-                          margin: const EdgeInsets.symmetric(horizontal: 3),
-                          decoration: BoxDecoration(
-                            color: i == _currentImageIndex
-                                ? Colors.white
-                                : Colors.white.withValues(alpha: 0.7),
-                            borderRadius: BorderRadius.circular(4),
+                      child: CachedNetworkImage(
+                        imageUrl: place.imageUrls[i],
+                        fit: BoxFit.cover,
+                        placeholder: (_, url) => Container(
+                          color: AppColors.surfaceVariantFor(context),
+                        ),
+                        errorWidget: (_, url, error) => Container(
+                          color: AppColors.primary.withValues(alpha: 0.12),
+                          child: Icon(
+                            place.type.icon,
+                            size: 80,
+                            color: AppColors.primary,
                           ),
                         ),
                       ),
                     ),
                   ),
-                // Foto sayacı
-                if (place.imageUrls.length > 1)
-                  Positioned(
-                    top: 48,
-                    right: 16,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: Colors.black54,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Text(
-                        '${_currentImageIndex + 1}/${place.imageUrls.length}',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 11,
-                          fontWeight: FontWeight.w600,
+                  // Dot indicator (2+ foto varsa)
+                  if (place.imageUrls.length > 1)
+                    Positioned(
+                      bottom: 12,
+                      left: 0,
+                      right: 0,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: List.generate(
+                          place.imageUrls.length,
+                          (i) => AnimatedContainer(
+                            duration: const Duration(milliseconds: 250),
+                            width: i == _currentImageIndex ? 20 : 8,
+                            height: 8,
+                            margin: const EdgeInsets.symmetric(horizontal: 3),
+                            decoration: BoxDecoration(
+                              color: i == _currentImageIndex
+                                  ? Colors.white
+                                  : Colors.white.withValues(alpha: 0.7),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                          ),
                         ),
                       ),
                     ),
-                  ),
-              ],
-            ),
-          )
-        : null,
+                  // Foto sayacı
+                  if (place.imageUrls.length > 1)
+                    Positioned(
+                      top: 48,
+                      right: 16,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.black54,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          '${_currentImageIndex + 1}/${place.imageUrls.length}',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            )
+          : null,
       title: !hasImages
-        ? Text(place.name, style: AppTextStyles.titleMedium)
-        : null,
+          ? Text(place.name, style: AppTextStyles.titleMedium)
+          : null,
     );
   }
 
@@ -202,14 +216,21 @@ class _PlaceDetailScreenState extends ConsumerState<PlaceDetailScreen> {
               if (place.priceRange != null) ...[
                 const SizedBox(width: 8),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: AppColors.success.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: Text(place.priceRange!,
+                  child: Text(
+                    place.priceRange!,
                     style: AppTextStyles.labelMedium.copyWith(
-                      color: AppColors.success, fontWeight: FontWeight.w700)),
+                      color: AppColors.success,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
                 ),
               ],
             ],
@@ -220,10 +241,20 @@ class _PlaceDetailScreenState extends ConsumerState<PlaceDetailScreen> {
             const SizedBox(height: 8),
             Row(
               children: [
-                Icon(Icons.location_on_outlined, size: 16, color: AppColors.textSecondaryFor(context)),
+                Icon(
+                  Icons.location_on_outlined,
+                  size: 16,
+                  color: AppColors.textSecondaryFor(context),
+                ),
                 const SizedBox(width: 6),
-                Expanded(child: Text(place.address,
-                  style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondaryFor(context)))),
+                Expanded(
+                  child: Text(
+                    place.address,
+                    style: AppTextStyles.bodyMedium.copyWith(
+                      color: AppColors.textSecondaryFor(context),
+                    ),
+                  ),
+                ),
               ],
             ),
           ],
@@ -240,15 +271,27 @@ class _PlaceDetailScreenState extends ConsumerState<PlaceDetailScreen> {
         if (place.avgRating > 0) ...[
           Icon(Icons.star_rounded, size: 18, color: AppColors.ratingStar),
           const SizedBox(width: 4),
-          Text(place.avgRating.toStringAsFixed(1),
-            style: AppTextStyles.titleMedium.copyWith(fontWeight: FontWeight.w700)),
+          Text(
+            place.avgRating.toStringAsFixed(1),
+            style: AppTextStyles.titleMedium.copyWith(
+              fontWeight: FontWeight.w700,
+            ),
+          ),
           const SizedBox(width: 4),
-          Text('(${place.reviewCount} yorum)',
-            style: AppTextStyles.labelMedium.copyWith(color: AppColors.textSecondaryFor(context))),
-        ] else
-          Text('Henüz değerlendirilmedi',
+          Text(
+            '(${place.reviewCount} yorum)',
             style: AppTextStyles.labelMedium.copyWith(
-              color: AppColors.textTertiaryFor(context), fontStyle: FontStyle.italic)),
+              color: AppColors.textSecondaryFor(context),
+            ),
+          ),
+        ] else
+          Text(
+            'Henüz değerlendirilmedi',
+            style: AppTextStyles.labelMedium.copyWith(
+              color: AppColors.textTertiaryFor(context),
+              fontStyle: FontStyle.italic,
+            ),
+          ),
         if (place.externalRating != null) ...[
           const SizedBox(width: 12),
           Container(
@@ -257,15 +300,31 @@ class _PlaceDetailScreenState extends ConsumerState<PlaceDetailScreen> {
               color: const Color(0xFFE8F5E9),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Row(mainAxisSize: MainAxisSize.min, children: [
-              Text('Google ', style: AppTextStyles.labelSmall.copyWith(
-                color: const Color(0xFF1B5E20), fontWeight: FontWeight.w700)),
-              Icon(Icons.star_rounded, size: 12, color: const Color(0xFF1B5E20)),
-              const SizedBox(width: 2),
-              Text(place.externalRating!.toStringAsFixed(1),
-                style: AppTextStyles.labelSmall.copyWith(
-                  color: const Color(0xFF1B5E20), fontWeight: FontWeight.w700)),
-            ]),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Google ',
+                  style: AppTextStyles.labelSmall.copyWith(
+                    color: const Color(0xFF1B5E20),
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                Icon(
+                  Icons.star_rounded,
+                  size: 12,
+                  color: const Color(0xFF1B5E20),
+                ),
+                const SizedBox(width: 2),
+                Text(
+                  place.externalRating!.toStringAsFixed(1),
+                  style: AppTextStyles.labelSmall.copyWith(
+                    color: const Color(0xFF1B5E20),
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ],
@@ -275,7 +334,8 @@ class _PlaceDetailScreenState extends ConsumerState<PlaceDetailScreen> {
   // ─── P1-2 / P1-5 FIX: Type'a göre koşullu info section ──────────
   Widget _buildInfoSection(PlaceModel place) {
     // Yurt için openHours gösterme — DormInfoCard zaten üstte
-    final showOpenHours = place.type != PlaceType.dorm && place.openHours != null;
+    final showOpenHours =
+        place.type != PlaceType.dorm && place.openHours != null;
     final openHoursLabel = place.type == PlaceType.library
         ? 'Çalışma Saatleri'
         : 'Açılış Saatleri';
@@ -297,21 +357,37 @@ class _PlaceDetailScreenState extends ConsumerState<PlaceDetailScreen> {
           if (place.description.isNotEmpty) ...[
             Text('Hakkında', style: AppTextStyles.titleSmall),
             const SizedBox(height: 8),
-            Text(place.description,
-              style: AppTextStyles.bodyMedium.copyWith(height: 1.5)),
+            Text(
+              place.description,
+              style: AppTextStyles.bodyMedium.copyWith(height: 1.5),
+            ),
           ],
           if (showOpenHours) ...[
             if (place.description.isNotEmpty) const SizedBox(height: 12),
-            Row(children: [
-              Icon(Icons.schedule_rounded, size: 16, color: AppColors.primary),
-              const SizedBox(width: 8),
-              Text('$openHoursLabel: ',
-                style: AppTextStyles.labelMedium.copyWith(color: AppColors.textSecondaryFor(context))),
-              Expanded(
-                child: Text(place.openHours!,
-                  style: AppTextStyles.labelMedium.copyWith(fontWeight: FontWeight.w600)),
-              ),
-            ]),
+            Row(
+              children: [
+                Icon(
+                  Icons.schedule_rounded,
+                  size: 16,
+                  color: AppColors.primary,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  '$openHoursLabel: ',
+                  style: AppTextStyles.labelMedium.copyWith(
+                    color: AppColors.textSecondaryFor(context),
+                  ),
+                ),
+                Expanded(
+                  child: Text(
+                    place.openHours!,
+                    style: AppTextStyles.labelMedium.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ],
         ],
       ),
@@ -345,7 +421,9 @@ class _PlaceDetailScreenState extends ConsumerState<PlaceDetailScreen> {
               style: OutlinedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 foregroundColor: AppColors.primary,
-                side: BorderSide(color: AppColors.primary.withValues(alpha: 0.5)),
+                side: BorderSide(
+                  color: AppColors.primary.withValues(alpha: 0.5),
+                ),
               ),
             ),
           ),
@@ -354,7 +432,8 @@ class _PlaceDetailScreenState extends ConsumerState<PlaceDetailScreen> {
             child: ElevatedButton.icon(
               onPressed: () {
                 context.push(
-                  '/write-review/place/${place.id}?uni=${place.universityId}&pt=${place.type.firestoreValue}');
+                  '/write-review/place/${place.id}?uni=${place.universityId}&pt=${place.type.firestoreValue}',
+                );
               },
               icon: const Icon(Icons.rate_review_rounded, size: 18),
               label: const Text('Yorum Yaz'),
@@ -406,22 +485,30 @@ class _PlaceDetailScreenState extends ConsumerState<PlaceDetailScreen> {
           const Spacer(),
           PopupMenuButton<ReviewSort>(
             initialValue: ref.watch(reviewSortProvider),
-            onSelected: (s) =>
-                ref.read(reviewSortProvider.notifier).state = s,
+            onSelected: (s) => ref.read(reviewSortProvider.notifier).state = s,
             itemBuilder: (_) => const [
               PopupMenuItem(value: ReviewSort.newest, child: Text('En yeni')),
-              PopupMenuItem(value: ReviewSort.mostLiked, child: Text('En beğenilen')),
-            ],
-            child: Row(children: [
-              Icon(Icons.sort_rounded, size: 16, color: AppColors.textSecondaryFor(context)),
-              const SizedBox(width: 4),
-              Text(
-                ref.watch(reviewSortProvider) == ReviewSort.newest
-                    ? 'En yeni'
-                    : 'En beğenilen',
-                style: AppTextStyles.labelMedium,
+              PopupMenuItem(
+                value: ReviewSort.mostLiked,
+                child: Text('En beğenilen'),
               ),
-            ]),
+            ],
+            child: Row(
+              children: [
+                Icon(
+                  Icons.sort_rounded,
+                  size: 16,
+                  color: AppColors.textSecondaryFor(context),
+                ),
+                const SizedBox(width: 4),
+                Text(
+                  ref.watch(reviewSortProvider) == ReviewSort.newest
+                      ? 'En yeni'
+                      : 'En beğenilen',
+                  style: AppTextStyles.labelMedium,
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -429,9 +516,11 @@ class _PlaceDetailScreenState extends ConsumerState<PlaceDetailScreen> {
   }
 
   Widget _buildReviewsList(PlaceModel place) {
-    final reviewsAsync = ref.watch(sortedReviewsProvider(
-      SortedReviewsParams(targetId: place.id, type: ReviewType.place),
-    ));
+    final reviewsAsync = ref.watch(
+      sortedReviewsProvider(
+        SortedReviewsParams(targetId: place.id, type: ReviewType.place),
+      ),
+    );
     return reviewsAsync.when(
       loading: () => const SliverToBoxAdapter(child: ShimmerList(itemCount: 2)),
       error: (e, _) => SliverToBoxAdapter(

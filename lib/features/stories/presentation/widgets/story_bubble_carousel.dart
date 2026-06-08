@@ -99,7 +99,36 @@ class _StoryBubble extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             // ─── Gradient/Gri Ring + Avatar ───────────────────
-            _buildRingAvatar(context),
+            Stack(
+              children: [
+                _buildRingAvatar(context),
+                // Video badge
+                if (story.isVideo)
+                  Positioned(
+                    bottom: 0,
+                    right: 0,
+                    child: Container(
+                      padding: const EdgeInsets.all(3),
+                      decoration: BoxDecoration(
+                        color: AppColors.surfaceFor(context),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Container(
+                        padding: const EdgeInsets.all(3),
+                        decoration: const BoxDecoration(
+                          color: Color(0xFF8B5CF6),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.videocam_rounded,
+                          color: Colors.white,
+                          size: 10,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
             const SizedBox(height: 6),
             // ─── Etiket ──────────────────────────────────────
             Text(
