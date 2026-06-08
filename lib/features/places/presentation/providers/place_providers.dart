@@ -7,30 +7,24 @@ final placeRepositoryProvider = Provider<PlaceRepository>((ref) {
   return PlaceRepository();
 });
 
-final placesByUniversityProvider = 
-    StreamProvider.family<List<PlaceModel>, String>((ref, uniId) {
-  ref.keepAlive();
-  return ref.read(placeRepositoryProvider).watchPlacesByUniversity(uniId);
-});
+final placesByUniversityProvider = FutureProvider.autoDispose
+    .family<List<PlaceModel>, String>((ref, uniId) async {
+      final link = ref.keepAlive();
+      final timer = Timer(const Duration(minutes: 5), link.close);
+      ref.onDispose(() => timer.cancel());
+
+      return ref.read(placeRepositoryProvider).getPlacesByUniversity(uniId);
+    });
 
 /// Place detail — keepAlive + 5 dakika sonra otomatik dispose
-final placeDetailProvider = 
-    FutureProvider.family<PlaceModel?, String>((ref, placeId) async {
+final placeDetailProvider = FutureProvider.family<PlaceModel?, String>((
+  ref,
+  placeId,
+) async {
   // keepAlive başlat, 5 dk sonra dispose et
   final link = ref.keepAlive();
   final timer = Timer(const Duration(minutes: 5), link.close);
   ref.onDispose(() => timer.cancel());
 
   return ref.read(placeRepositoryProvider).getPlace(placeId);
-});
-
-/// Place watch — keepAlive + 5 dakika sonra otomatik dispose
-final placeWatchProvider = 
-    StreamProvider.family<PlaceModel?, String>((ref, placeId) {
-  // keepAlive başlat, 5 dk sonra dispose et
-  final link = ref.keepAlive();
-  final timer = Timer(const Duration(minutes: 5), link.close);
-  ref.onDispose(() => timer.cancel());
-
-  return ref.read(placeRepositoryProvider).watchPlace(placeId);
 });
