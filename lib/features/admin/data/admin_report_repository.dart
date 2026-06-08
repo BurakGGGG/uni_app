@@ -71,7 +71,7 @@ class AdminReportRepository {
   }) async {
     await _reportsRef.doc(reportId).update({
       'status': status.name,
-      if (adminNote != null) 'adminNote': adminNote,
+      'adminNote': ?adminNote,
       'reviewedBy': adminUserId,
       'reviewedAt': FieldValue.serverTimestamp(),
     });
@@ -155,7 +155,7 @@ class AdminReportRepository {
           ? 'Topluluk kurallarına aykırı bulunan yorumunuz kaldırıldı.'
           : 'Topluluk kurallarına aykırı bulunan yorumunuz gizlendi.',
       'data': {
-        if (adminNote != null) 'adminNote': adminNote,
+        'adminNote': ?adminNote,
       },
       'isRead': false,
       'createdAt': FieldValue.serverTimestamp(),

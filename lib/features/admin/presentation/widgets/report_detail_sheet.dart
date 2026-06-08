@@ -138,7 +138,7 @@ class _ReportDetailSheetState extends ConsumerState<ReportDetailSheet> {
           _infoRow(Icons.notes_rounded, 'Açıklama', widget.report.explanation!),
         reportsAsync.when(
           data: (r) => _infoRow(Icons.stacked_bar_chart_rounded, 'Toplam Şikayet', '${r.length} kişi'),
-          loading: () => const SizedBox.shrink(), error: (_, __) => const SizedBox.shrink()),
+          loading: () => const SizedBox.shrink(), error: (_, _) => const SizedBox.shrink()),
       ]),
     );
   }
@@ -155,8 +155,8 @@ class _ReportDetailSheetState extends ConsumerState<ReportDetailSheet> {
   Widget _buildReviewPreview(AsyncValue<ReviewModel?> reviewAsync) {
     return reviewAsync.when(
       data: (review) {
-        if (review == null) return Container(padding: const EdgeInsets.all(16), decoration: BoxDecoration(color: AppColors.backgroundFor(context), borderRadius: BorderRadius.circular(12)),
-          child: Row(children: [Icon(Icons.delete_outline_rounded, color: AppColors.textTertiaryFor(context)), const SizedBox(width: 12), Text('Bu yorum silinmiş.', style: AppTextStyles.bodySmall.copyWith(color: AppColors.textTertiaryFor(context)))]));
+        if (review == null) { return Container(padding: const EdgeInsets.all(16), decoration: BoxDecoration(color: AppColors.backgroundFor(context), borderRadius: BorderRadius.circular(12)),
+          child: Row(children: [Icon(Icons.delete_outline_rounded, color: AppColors.textTertiaryFor(context)), const SizedBox(width: 12), Text('Bu yorum silinmiş.', style: AppTextStyles.bodySmall.copyWith(color: AppColors.textTertiaryFor(context)))])); }
         return Container(padding: const EdgeInsets.all(14), decoration: BoxDecoration(color: AppColors.backgroundFor(context), borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.borderLightFor(context))),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Row(children: [
@@ -173,35 +173,41 @@ class _ReportDetailSheetState extends ConsumerState<ReportDetailSheet> {
           ]));
       },
       loading: () => const Center(child: Padding(padding: EdgeInsets.all(20), child: CircularProgressIndicator(strokeWidth: 2))),
-      error: (_, __) => Text('Yorum yüklenemedi.', style: AppTextStyles.bodySmall.copyWith(color: AppColors.error)),
+      error: (_, _) => Text('Yorum yüklenemedi.', style: AppTextStyles.bodySmall.copyWith(color: AppColors.error)),
     );
   }
 
   String? get _note => _noteCtrl.text.trim().isNotEmpty ? _noteCtrl.text.trim() : null;
 
-  Future<void> _doHide(BuildContext ctx) async {
+  Future<void> _doHide(BuildContext context) async {
     final review = await ref.read(reviewRepositoryProvider).getReview(widget.report.reviewId);
-    if (!mounted) return;
-    final ok = await _confirm(ctx, 'Yorumu Gizle', 'Yorum kullanıcılardan gizlenecek.', 'Gizle', AppColors.warning);
-    if (ok != true || !mounted) return;
+    if (!context.mounted) return;
+    final ok = await _confirm(context, 'Yorumu Gizle', 'Yorum kullanıcılardan gizlenecek.', 'Gizle', AppColors.warning);
+    if (ok != true || !context.mounted) return;
     await ref.read(reportActionControllerProvider.notifier).hideReview(reportId: widget.report.id, reviewId: widget.report.reviewId, reviewOwnerId: review?.userId ?? '', adminNote: _note);
-    if (mounted) { Navigator.pop(ctx); ScaffoldMessenger.of(ctx).showSnackBar(const SnackBar(content: Text('Yorum gizlendi'), behavior: SnackBarBehavior.floating)); }
+    if (!context.mounted) return;
+    Navigator.pop(context); 
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Yorum gizlendi'), behavior: SnackBarBehavior.floating)); 
   }
 
-  Future<void> _doDelete(BuildContext ctx) async {
+  Future<void> _doDelete(BuildContext context) async {
     final review = await ref.read(reviewRepositoryProvider).getReview(widget.report.reviewId);
-    if (!mounted) return;
-    final ok = await _confirm(ctx, 'Yorumu Kalıcı Sil', 'Bu işlem geri alınamaz!', 'Sil', AppColors.error);
-    if (ok != true || !mounted) return;
+    if (!context.mounted) return;
+    final ok = await _confirm(context, 'Yorumu Kalıcı Sil', 'Bu işlem geri alınamaz!', 'Sil', AppColors.error);
+    if (ok != true || !context.mounted) return;
     await ref.read(reportActionControllerProvider.notifier).deleteReview(reportId: widget.report.id, reviewId: widget.report.reviewId, reviewOwnerId: review?.userId ?? '', photoUrls: review?.imageUrls ?? [], adminNote: _note);
-    if (mounted) { Navigator.pop(ctx); ScaffoldMessenger.of(ctx).showSnackBar(const SnackBar(content: Text('Yorum silindi'), behavior: SnackBarBehavior.floating)); }
+    if (!context.mounted) return;
+    Navigator.pop(context); 
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Yorum silindi'), behavior: SnackBarBehavior.floating)); 
   }
 
-  Future<void> _doDismiss(BuildContext ctx) async {
-    final ok = await _confirm(ctx, 'Şikayeti Reddet', 'Yorum korunacak.', 'Reddet', const Color(0xFF6B7280));
-    if (ok != true || !mounted) return;
+  Future<void> _doDismiss(BuildContext context) async {
+    final ok = await _confirm(context, 'Şikayeti Reddet', 'Yorum korunacak.', 'Reddet', const Color(0xFF6B7280));
+    if (ok != true || !context.mounted) return;
     await ref.read(reportActionControllerProvider.notifier).dismissReport(reportId: widget.report.id, adminNote: _note);
-    if (mounted) { Navigator.pop(ctx); ScaffoldMessenger.of(ctx).showSnackBar(const SnackBar(content: Text('Şikayet reddedildi'), behavior: SnackBarBehavior.floating)); }
+    if (!context.mounted) return;
+    Navigator.pop(context); 
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Şikayet reddedildi'), behavior: SnackBarBehavior.floating)); 
   }
 
   Future<bool?> _confirm(BuildContext ctx, String title, String content, String action, Color color) {
