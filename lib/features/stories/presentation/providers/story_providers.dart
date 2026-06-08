@@ -1,7 +1,9 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:video_compress/video_compress.dart';
 import '../../../../core/providers/shared_preferences_provider.dart';
 import '../../data/story_repository.dart';
 import '../../domain/models/story_model.dart';
@@ -11,8 +13,16 @@ final storyRepositoryProvider = Provider<StoryRepository>((ref) {
   return StoryRepository();
 });
 
-/// Aktif story'leri dinleyen stream provider
-final storiesStreamProvider = StreamProvider<List<StoryModel>>((ref) {
+/// Aktif story'leri tek seferlik okur ve kısa süre cache'ler.
+///
+/// Not: Adı eski invalidation noktalarıyla uyumluluk için korunuyor.
+final storiesStreamProvider = FutureProvider.autoDispose<List<StoryModel>>((
+  ref,
+) async {
+  final link = ref.keepAlive();
+  final timer = Timer(const Duration(minutes: 5), link.close);
+  ref.onDispose(() => timer.cancel());
+
   return ref.watch(storyRepositoryProvider).getActiveStories();
 });
 
@@ -25,25 +35,12 @@ final storiesFallbackProvider = FutureProvider<List<StoryModel>>((ref) {
 /// Stream başarılıysa onu, değilse fallback'i kullanır
 /// Liste eski→yeni sıradadır (Instagram gibi)
 final activeStoriesProvider = Provider<AsyncValue<List<StoryModel>>>((ref) {
-  final stream = ref.watch(storiesStreamProvider);
+  return ref.watch(storiesStreamProvider);
+});
 
-  // Stream data varsa onu kullan
-  if (stream.hasValue) {
-    // Firestore yeni→eski verir — en yeni story solda
-    return AsyncValue.data(stream.value!);
-  }
-
-  // Stream hata verdiyse fallback'e bak
-  if (stream.hasError) {
-    final fallback = ref.watch(storiesFallbackProvider);
-    if (fallback.hasValue) {
-      return AsyncValue.data(fallback.value!);
-    }
-    return fallback;
-  }
-
-  // Hâlâ yükleniyor
-  return const AsyncValue.loading();
+/// Tüm story'leri dinler (aktif + arşiv — admin panel için)
+final allStoriesStreamProvider = StreamProvider<List<StoryModel>>((ref) {
+  return ref.watch(storyRepositoryProvider).getAllStories();
 });
 
 /// Görüntülenmiş story ID'lerini yöneten provider
@@ -84,9 +81,9 @@ class SeenStoryIdsNotifier extends StateNotifier<Set<String>> {
 
 final seenStoryIdsProvider =
     StateNotifierProvider<SeenStoryIdsNotifier, Set<String>>((ref) {
-  final prefs = ref.watch(sharedPreferencesProvider);
-  return SeenStoryIdsNotifier(prefs);
-});
+      final prefs = ref.watch(sharedPreferencesProvider);
+      return SeenStoryIdsNotifier(prefs);
+    });
 
 /// Görülmemiş story var mı? (gradyan mı gri mi belirler)
 final hasUnseenStoriesProvider = Provider<bool>((ref) {
@@ -104,15 +101,14 @@ final hasUnseenStoriesProvider = Provider<bool>((ref) {
   );
 });
 
-/// Story yükleme controller
+/// Story yükleme controller — fotoğraf + video destekli
 class StoryUploadController extends StateNotifier<AsyncValue<void>> {
   final StoryRepository _repository;
 
-  StoryUploadController(this._repository)
-      : super(const AsyncValue.data(null));
+  StoryUploadController(this._repository) : super(const AsyncValue.data(null));
 
-  /// Yeni story yükle
-  Future<bool> uploadStory({
+  /// Yeni fotoğraf story'si yükle
+  Future<bool> uploadImageStory({
     required File imageFile,
     required File thumbnailFile,
     required String authorUid,
@@ -122,7 +118,7 @@ class StoryUploadController extends StateNotifier<AsyncValue<void>> {
   }) async {
     state = const AsyncValue.loading();
     try {
-      // 1. Görselleri Storage'a yükle (paralel)
+      // Görselleri Storage'a yükle (paralel)
       final results = await Future.wait([
         _repository.uploadStoryImage(imageFile),
         _repository.uploadStoryThumbnail(thumbnailFile),
@@ -130,11 +126,11 @@ class StoryUploadController extends StateNotifier<AsyncValue<void>> {
       final imageUrl = results[0];
       final thumbnailUrl = results[1];
 
-      // 2. Firestore'a story ekle
       final story = StoryModel(
-        id: '', // Firestore otomatik oluşturacak
+        id: '',
         imageUrl: imageUrl,
         thumbnailUrl: thumbnailUrl,
+        mediaType: 'image',
         title: title,
         authorUid: authorUid,
         authorName: authorName,
@@ -147,17 +143,100 @@ class StoryUploadController extends StateNotifier<AsyncValue<void>> {
       state = const AsyncValue.data(null);
       return true;
     } catch (e, st) {
-      debugPrint('[StoryUpload] ❌ Upload failed: $e');
-      debugPrint('[StoryUpload] StackTrace: $st');
+      debugPrint('[StoryUpload] Upload failed: $e');
       state = AsyncValue.error(e, st);
       return false;
     }
   }
 
-  /// Story sil (soft delete)
-  Future<void> deleteStory(String storyId) async {
+  /// Yeni video story'si yükle (1080p sıkıştırma)
+  Future<bool> uploadVideoStory({
+    required File videoFile,
+    required File thumbnailFile,
+    required String authorUid,
+    required String authorName,
+    String? authorPhotoUrl,
+    String? title,
+  }) async {
+    state = const AsyncValue.loading();
     try {
-      await _repository.deleteStory(storyId);
+      // 1. Video'yu 1080p'ye sıkıştır
+      debugPrint('[StoryUpload] Compressing video to 1080p...');
+      final compressedInfo = await VideoCompress.compressVideo(
+        videoFile.path,
+        quality: VideoQuality.Res1920x1080Quality,
+        deleteOrigin: false,
+        includeAudio: true,
+      );
+
+      final compressedFile = compressedInfo?.file;
+      if (compressedFile == null) {
+        throw Exception('Video sıkıştırma başarısız oldu');
+      }
+
+      final videoDurationMs = (compressedInfo!.duration ?? 6000).toInt();
+
+      // 2. Paralel upload: sıkıştırılmış video + kapak
+      final results = await Future.wait([
+        _repository.uploadStoryVideo(compressedFile),
+        _repository.uploadStoryThumbnail(thumbnailFile),
+      ]);
+      final videoUrl = results[0];
+      final thumbnailUrl = results[1];
+
+      // 3. Firestore'a story ekle
+      final story = StoryModel(
+        id: '',
+        imageUrl: thumbnailUrl, // poster image = thumbnail
+        thumbnailUrl: thumbnailUrl,
+        videoUrl: videoUrl,
+        mediaType: 'video',
+        mediaDurationMs: videoDurationMs,
+        title: title,
+        authorUid: authorUid,
+        authorName: authorName,
+        authorPhotoUrl: authorPhotoUrl,
+        createdAt: DateTime.now(),
+        isActive: true,
+      );
+
+      await _repository.addStory(story);
+      state = const AsyncValue.data(null);
+      return true;
+    } catch (e, st) {
+      debugPrint('[StoryUpload] Video upload failed: $e');
+      state = AsyncValue.error(e, st);
+      return false;
+    }
+  }
+
+  /// Story arşivle (soft delete)
+  Future<void> archiveStory(String storyId) async {
+    try {
+      await _repository.archiveStory(storyId);
+    } catch (e, st) {
+      state = AsyncValue.error(e, st);
+    }
+  }
+
+  /// Story'yi tekrar aktifleştir
+  Future<void> reactivateStory(String storyId) async {
+    try {
+      await _repository.reactivateStory(storyId);
+    } catch (e, st) {
+      state = AsyncValue.error(e, st);
+    }
+  }
+
+  /// Story'yi kalıcı olarak sil
+  Future<void> permanentlyDeleteStory(StoryModel story) async {
+    try {
+      await _repository.permanentlyDeleteStory(
+        story.id,
+        imageUrl: story.imageUrl,
+        thumbnailUrl: story.thumbnailUrl,
+        videoUrl: story.videoUrl,
+      );
     } catch (e, st) {
       state = AsyncValue.error(e, st);
     }
@@ -166,5 +245,5 @@ class StoryUploadController extends StateNotifier<AsyncValue<void>> {
 
 final storyUploadControllerProvider =
     StateNotifierProvider<StoryUploadController, AsyncValue<void>>((ref) {
-  return StoryUploadController(ref.watch(storyRepositoryProvider));
-});
+      return StoryUploadController(ref.watch(storyRepositoryProvider));
+    });

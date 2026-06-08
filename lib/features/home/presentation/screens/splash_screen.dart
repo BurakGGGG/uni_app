@@ -105,7 +105,15 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
     // 1. Durumu kontrol et
     final prefs = ref.read(sharedPreferencesProvider);
     final hasCompletedOnboarding = prefs.getBool('onboarding_completed') ?? false;
-    final isLoggedIn = FirebaseAuth.instance.currentUser != null;
+    
+    // Auth state'ini asenkron bekle (soğuk başlangıçta senkron currentUser null dönebilir)
+    User? user;
+    try {
+      user = await ref.read(authStateProvider.future).timeout(const Duration(milliseconds: 2000));
+    } catch (_) {
+      user = FirebaseAuth.instance.currentUser; // Fallback
+    }
+    final isLoggedIn = user != null;
 
     final isGoingToHome = hasCompletedOnboarding && isLoggedIn;
 
