@@ -3,6 +3,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 
 import '../domain/models/comparison_history_entry.dart';
+import '../../admin/data/analytics_service.dart';
+import '../../admin/domain/models/analytics_event.dart';
 
 /// Kullanıcı başına en fazla bu kadar geçmiş kaydı tutulur.
 /// Aşıldığında en eski kayıtlar otomatik silinir (FIFO).
@@ -77,6 +79,9 @@ class ComparisonHistoryRepository {
           await all.docs[i].reference.delete();
         }
       }
+
+      // Analytics: karşılaştırma yapıldı
+      AnalyticsService.instance.trackEvent(AnalyticsEvent.comparisonMade);
     } catch (e) {
       // Geçmiş kayıt başarısız olsa bile asıl karşılaştırma akışını bozma
       debugPrint('[ComparisonHistory] record failed: $e');

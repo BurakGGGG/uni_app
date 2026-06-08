@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../notifications/data/fcm_service.dart';
+import '../../admin/data/analytics_service.dart';
+import '../../admin/domain/models/analytics_event.dart';
 
 /// Favori işlemlerini yöneten repository
 class FavoritesRepository {
@@ -31,6 +33,9 @@ class FavoritesRepository {
 
     // YENİ — Topic subscribe
     await FCMService().subscribeToTopic('uni_$universityId');
+
+    // Analytics: favorilere eklendi
+    AnalyticsService.instance.trackEvent(AnalyticsEvent.favoriteAdded);
     
     // YENİ — Eğer kullanıcı `favoriteNewReviewEnabled: false` ise unsubscribe
     final user = await _firestore.collection('users').doc(uid).get();

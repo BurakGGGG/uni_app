@@ -2,6 +2,8 @@ import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import '../domain/models/review_model.dart';
+import '../../admin/data/analytics_service.dart';
+import '../../admin/domain/models/analytics_event.dart';
 
 /// Yorum repository — Sprint 3'te doldurulacak
 ///
@@ -28,6 +30,9 @@ class ReviewRepository {
     await _firestore.collection('users').doc(review.userId).update({
       'reviewCount': FieldValue.increment(1),
     });
+
+    // Analytics: yeni yorum
+    AnalyticsService.instance.trackEvent(AnalyticsEvent.reviewCreated);
   }
 
   Future<void> updateReview(ReviewModel review) async {
@@ -172,6 +177,9 @@ class ReviewRepository {
       batch.update(_firestore.collection('reviews').doc(reviewId), {
         'likes': FieldValue.increment(1),
       });
+
+      // Analytics: beğeni
+      AnalyticsService.instance.trackEvent(AnalyticsEvent.reviewLiked);
     }
 
     await batch.commit();

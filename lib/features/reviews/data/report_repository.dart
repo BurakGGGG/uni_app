@@ -1,4 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../../admin/data/analytics_service.dart';
+import '../../admin/domain/models/analytics_event.dart';
 
 /// Şikayet nedenleri
 enum ReportReason {
@@ -45,6 +47,9 @@ class ReportRepository {
       'explanation': explanation,
       'createdAt': FieldValue.serverTimestamp(),
     });
+
+    // Analytics: rapor gönderildi
+    AnalyticsService.instance.trackEvent(AnalyticsEvent.reportCreated);
   }
 
   /// Bu kullanıcı bu yorumu daha önce şikayet etmiş mi?
