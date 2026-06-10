@@ -1,7 +1,12 @@
 # Firebase için ProGuard kuralları
 -keep class io.flutter.** { *; }
 -keep class com.google.firebase.** { *; }
+-keep class com.google.firebase.auth.** { *; }
+-keep class com.google.android.gms.internal.firebase-auth-api.** { *; }
 -dontwarn com.google.firebase.**
+-dontwarn com.google.android.gms.internal.firebase-auth-api.**
+-keepattributes Signature
+-keepattributes *Annotation*
 -dontwarn io.grpc.**
 
 # Crashlytics

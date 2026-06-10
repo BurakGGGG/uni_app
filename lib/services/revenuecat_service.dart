@@ -10,6 +10,8 @@ import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import '../features/monetization/domain/enums/subscription_tier.dart';
 import '../features/monetization/domain/models/subscription_model.dart';
 import 'analytics_service.dart';
+import '../features/admin/data/analytics_service.dart' as firestore_analytics;
+import '../features/admin/domain/models/analytics_event.dart';
 
 /// RevenueCat SDK entegrasyonu — FCMService singleton pattern'i.
 ///
@@ -42,24 +44,31 @@ class RevenueCatService {
   );
 
   /// Platform'a göre doğru API key'i döndürür.
-  /// Debug modda key eksikse assert ile uyarır.
   static String get _publicApiKey {
-    if (!kIsWeb && Platform.isIOS) {
-      assert(_iosApiKey.isNotEmpty,
-          'REVENUECAT_API_KEY_IOS --dart-define ile geçilmeli');
+    if (kIsWeb) return '';
+    if (Platform.isIOS) {
+      if (_iosApiKey.isEmpty) {
+        debugPrint('⚠️ REVENUECAT_API_KEY_IOS is missing');
+      }
       return _iosApiKey;
     }
-    assert(_androidApiKey.isNotEmpty,
-        'REVENUECAT_API_KEY_ANDROID --dart-define ile geçilmeli');
+    if (_androidApiKey.isEmpty) {
+      debugPrint('⚠️ REVENUECAT_API_KEY_ANDROID is missing');
+    }
     return _androidApiKey;
   }
 
   /// SDK'yı başlat — main.dart'ta bir kez çağrılır.
   Future<void> init() async {
     if (_initialized) return;
-    _initialized = true;
 
     final apiKey = _publicApiKey;
+    if (apiKey.isEmpty) {
+      debugPrint('[RevenueCat] Skipping initialization because API key is empty.');
+      return;
+    }
+
+    _initialized = true;
 
     await Purchases.configure(
       PurchasesConfiguration(apiKey)
@@ -181,6 +190,8 @@ class RevenueCatService {
         tier: tier,
         billing: billing,
       );
+      firestore_analytics.AnalyticsService.instance
+          .trackEvent(AnalyticsEvent.subscriptionPurchased);
       return true;
     } catch (e, st) {
       final errorCode = e is PlatformException

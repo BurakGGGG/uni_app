@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Firebase Auth oturum verisi Android Keystore ile şifrelenir.
+  Cloud backup bu veriyi bozuk geri yükleyebilir → kullanıcı her açılışta çıkış yapmış görünür.
+  https://github.com/firebase/firebase-android-sdk/issues/7651
+-->
+<full-backup-content>
+    <exclude domain="sharedpref" path="com.google.firebase.auth.api.Store." />
+    <exclude domain="sharedpref" path="com.google.firebase.auth.api.crypto." />
+    <exclude domain="sharedpref" path="FirebaseAppHeartBeat" />
+</full-backup-content>
