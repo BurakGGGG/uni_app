@@ -4,37 +4,32 @@
 /// 1. `analytics/counters` → all-time toplamlar
 /// 2. `analytics/daily/{yyyy-MM-dd}` → günlük kırılım
 enum AnalyticsEvent {
-  /// Yeni kullanıcı kaydı
   newUser('totalUsers', 'newUsers'),
-
-  /// Başarılı giriş (her login)
   login('totalLogins', 'logins'),
-
-  /// Yeni yorum oluşturuldu
   reviewCreated('totalReviews', 'reviews'),
-
-  /// Yorum beğenildi
   reviewLiked('totalLikes', 'likes'),
-
-  /// Story görüntülendi
   storyViewed('totalStoryViews', 'storyViews'),
-
-  /// Karşılaştırma yapıldı
   comparisonMade('totalComparisons', 'comparisons'),
-
-  /// Puan hesaplandı
   scoreCalculated('totalScoreCalculations', 'scoreCalculations'),
-
-  /// Favorilere eklendi
   favoriteAdded('totalFavorites', 'favorites'),
+  reportCreated('totalReports', 'reports'),
 
-  /// Rapor/şikayet gönderildi
-  reportCreated('totalReports', 'reports');
+  // Keşif & etkileşim
+  universityViewed('totalUniversityViews', 'universityViews'),
+  departmentViewed('totalDepartmentViews', 'departmentViews'),
+  searchPerformed('totalSearches', 'searches'),
+  preferenceListCreated('totalPreferenceLists', 'preferenceLists'),
+  preferenceListShared('totalPreferenceListShares', 'preferenceListShares'),
+  comparisonShared('totalComparisonShares', 'comparisonShares'),
 
-  /// All-time counter dokümanındaki alan adı
+  // Monetizasyon
+  paywallShown('totalPaywallShown', 'paywallShown'),
+  adWatched('totalAdWatched', 'adWatched'),
+  subscriptionPurchased('totalSubscriptionPurchased', 'subscriptionPurchased'),
+  aiComparisonUsed('totalAiComparisons', 'aiComparisons'),
+  aiRecommendationUsed('totalAiRecommendations', 'aiRecommendations');
+
   final String counterField;
-
-  /// Günlük dokümanındaki alan adı
   final String dailyField;
 
   const AnalyticsEvent(this.counterField, this.dailyField);

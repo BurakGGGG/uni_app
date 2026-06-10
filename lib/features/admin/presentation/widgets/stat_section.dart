@@ -6,54 +6,74 @@ import 'stat_card.dart';
 /// İstatistik kartlarını section başlığı ile gruplandıran widget.
 class StatSection extends StatelessWidget {
   final String title;
+  final IconData icon;
+  final Color accentColor;
   final List<StatCardData> cards;
 
   const StatSection({
     super.key,
     required this.title,
     required this.cards,
+    this.icon = Icons.analytics_outlined,
+    this.accentColor = AppColors.primary,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Section başlığı
-        Padding(
-          padding: const EdgeInsets.only(left: 4, bottom: 12),
-          child: Text(
-            title,
-            style: AppTextStyles.titleSmall.copyWith(
-              color: AppColors.textSecondaryFor(context),
-              fontWeight: FontWeight.w600,
-              letterSpacing: 0.5,
-            ),
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.surfaceFor(context),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: AppColors.borderLightFor(context)),
+      ),
+      padding: const EdgeInsets.fromLTRB(14, 14, 14, 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 28,
+                height: 28,
+                decoration: BoxDecoration(
+                  color: accentColor.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(icon, color: accentColor, size: 15),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                title,
+                style: AppTextStyles.titleSmall.copyWith(
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.textSecondaryFor(context),
+                ),
+              ),
+            ],
           ),
-        ),
-
-        // Kart grid'i (2 sütun)
-        GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            mainAxisSpacing: 12,
-            crossAxisSpacing: 12,
-            childAspectRatio: 1.35,
+          const SizedBox(height: 14),
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final cardWidth = (constraints.maxWidth - 10) / 2;
+              return Wrap(
+                spacing: 10,
+                runSpacing: 10,
+                children: cards.map((card) {
+                  return SizedBox(
+                    width: cardWidth,
+                    child: StatCard(
+                      icon: card.icon,
+                      color: card.color,
+                      label: card.label,
+                      value: card.value,
+                    ),
+                  );
+                }).toList(),
+              );
+            },
           ),
-          itemCount: cards.length,
-          itemBuilder: (context, index) {
-            final card = cards[index];
-            return StatCard(
-              icon: card.icon,
-              color: card.color,
-              label: card.label,
-              value: card.value,
-            );
-          },
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

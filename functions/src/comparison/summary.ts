@@ -138,6 +138,9 @@ export const generateComparisonSummary = onCall(
 
     // Cache hit → erken dönüş
     if (cachedSummary) {
+      await incrementAnalyticsCounter('totalAiComparisons', 'aiComparisons').catch((e) =>
+        logger.warn('Analytics increment failed', { e }),
+      );
       await logSummaryRequest(uid, input, true).catch((e) =>
         logger.warn('Cache hit log failed', { e }),
       );
@@ -197,6 +200,9 @@ export const generateComparisonSummary = onCall(
       logger.info('Regenerate cache write OK', { uid, cacheKey });
     }
 
+    await incrementAnalyticsCounter('totalAiComparisons', 'aiComparisons').catch((e) =>
+      logger.warn('Analytics increment failed', { e }),
+    );
     await logSummaryRequest(uid, input, false).catch((e) =>
       logger.warn('Cache miss log failed', { e }),
     );
@@ -295,6 +301,31 @@ function formatDate(d: Date): string {
   const m = String(d.getMonth() + 1).padStart(2, '0');
   const day = String(d.getDate()).padStart(2, '0');
   return `${y}-${m}-${day}`;
+}
+
+async function incrementAnalyticsCounter(
+  counterField: string,
+  dailyField: string,
+): Promise<void> {
+  const today = formatDate(new Date());
+  const batch = db.batch();
+  batch.set(
+    db.collection('analytics').doc('counters'),
+    {
+      [counterField]: admin.firestore.FieldValue.increment(1),
+      lastUpdated: admin.firestore.FieldValue.serverTimestamp(),
+    },
+    { merge: true },
+  );
+  batch.set(
+    db.collection('analytics').doc(`daily_${today}`),
+    {
+      [dailyField]: admin.firestore.FieldValue.increment(1),
+      date: today,
+    },
+    { merge: true },
+  );
+  await batch.commit();
 }
 
 function makeHash(payload: unknown): string {

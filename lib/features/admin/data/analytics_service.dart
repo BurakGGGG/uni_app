@@ -30,6 +30,65 @@ class AnalyticsService {
     unawaited(_trackEventInternal(event));
   }
 
+  /// Üniversite görüntüleme — counter + top universities sıralaması.
+  void trackUniversityView({
+    required String universityId,
+    required String universityName,
+  }) {
+    unawaited(
+      _trackUniversityViewInternal(
+        universityId: universityId,
+        universityName: universityName,
+      ),
+    );
+  }
+
+  Future<void> _trackUniversityViewInternal({
+    required String universityId,
+    required String universityName,
+  }) async {
+    try {
+      final batch = _firestore.batch();
+      final event = AnalyticsEvent.universityViewed;
+
+      batch.set(
+        _firestore.collection('analytics').doc('counters'),
+        {
+          event.counterField: FieldValue.increment(1),
+          'lastUpdated': FieldValue.serverTimestamp(),
+        },
+        SetOptions(merge: true),
+      );
+
+      batch.set(
+        _firestore.collection('analytics').doc('daily_$_todayString'),
+        {
+          event.dailyField: FieldValue.increment(1),
+          'date': _todayString,
+        },
+        SetOptions(merge: true),
+      );
+
+      batch.set(
+        _firestore
+            .collection('analytics')
+            .doc('topUniversities')
+            .collection('items')
+            .doc(universityId),
+        {
+          'name': universityName,
+          'viewCount': FieldValue.increment(1),
+          'lastViewed': FieldValue.serverTimestamp(),
+        },
+        SetOptions(merge: true),
+      );
+
+      await batch.commit();
+    } catch (e) {
+      debugPrint('[AnalyticsService] trackUniversityView failed: $e');
+    }
+  }
+
   Future<void> _trackEventInternal(AnalyticsEvent event) async {
     try {
       final batch = _firestore.batch();

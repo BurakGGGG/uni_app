@@ -793,16 +793,19 @@ class _SettingsItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      onTap: onTap,
-      leading: Icon(icon, color: AppColors.textSecondaryFor(context), size: 22),
-      title: Text(title, style: AppTextStyles.bodyMedium),
-      subtitle: subtitle != null
-          ? Text(subtitle!, style: AppTextStyles.labelSmall)
-          : null,
-      trailing: Icon(Icons.chevron_right_rounded, color: AppColors.textTertiaryFor(context), size: 20),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppConstants.radiusLg)),
+    return Material(
+      color: Colors.transparent,
+      child: ListTile(
+        onTap: onTap,
+        leading: Icon(icon, color: AppColors.textSecondaryFor(context), size: 22),
+        title: Text(title, style: AppTextStyles.bodyMedium),
+        subtitle: subtitle != null
+            ? Text(subtitle!, style: AppTextStyles.labelSmall)
+            : null,
+        trailing: Icon(Icons.chevron_right_rounded, color: AppColors.textTertiaryFor(context), size: 20),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppConstants.radiusLg)),
+      ),
     );
   }
 }

@@ -20,44 +20,53 @@ class StatCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
       decoration: BoxDecoration(
-        color: AppColors.surfaceFor(context),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.borderLightFor(context)),
-        boxShadow: AppColors.softShadowFor(context),
+        color: color.withValues(alpha: 0.06),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color.withValues(alpha: 0.2)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          // İkon
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Icon(icon, color: color, size: 20),
+          Row(
+            children: [
+              Container(
+                width: 32,
+                height: 32,
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(icon, color: color, size: 16),
+              ),
+              const Spacer(),
+              Icon(
+                Icons.trending_up_rounded,
+                size: 14,
+                color: color.withValues(alpha: 0.5),
+              ),
+            ],
           ),
-          const SizedBox(height: 12),
-
-          // Değer
+          const SizedBox(height: 10),
           Text(
             _formatNumber(value),
-            style: AppTextStyles.headlineMedium.copyWith(
-              fontWeight: FontWeight.w700,
+            style: AppTextStyles.titleLarge.copyWith(
+              fontWeight: FontWeight.w800,
+              color: color,
+              height: 1,
             ),
           ),
-          const SizedBox(height: 2),
-
-          // Etiket
+          const SizedBox(height: 4),
           Text(
             label,
-            style: AppTextStyles.bodySmall.copyWith(
+            style: AppTextStyles.labelSmall.copyWith(
               color: AppColors.textSecondaryFor(context),
+              fontSize: 10,
+              fontWeight: FontWeight.w500,
             ),
-            maxLines: 1,
+            maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),
         ],
@@ -65,7 +74,6 @@ class StatCard extends StatelessWidget {
     );
   }
 
-  /// Sayıyı formatla: 1200 → "1.200"
   String _formatNumber(int n) {
     if (n < 1000) return n.toString();
     final str = n.toString();

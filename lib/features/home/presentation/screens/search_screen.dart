@@ -8,6 +8,8 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/widgets.dart';
 import '../../../university/presentation/providers/university_providers.dart';
+import '../../../admin/data/analytics_service.dart';
+import '../../../admin/domain/models/analytics_event.dart';
 
 class SearchScreen extends ConsumerStatefulWidget {
   const SearchScreen({super.key});
@@ -19,6 +21,7 @@ class SearchScreen extends ConsumerStatefulWidget {
 class _SearchScreenState extends ConsumerState<SearchScreen> {
   final TextEditingController _searchController = TextEditingController();
   Timer? _debounce;
+  String? _lastTrackedQuery;
 
   @override
   void initState() {
@@ -67,6 +70,12 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                         if (_debounce?.isActive ?? false) _debounce!.cancel();
                         _debounce = Timer(const Duration(milliseconds: 300), () {
                           ref.read(searchQueryProvider.notifier).state = value;
+                          if (value.trim().length >= 2 &&
+                              value.trim() != _lastTrackedQuery) {
+                            _lastTrackedQuery = value.trim();
+                            AnalyticsService.instance
+                                .trackEvent(AnalyticsEvent.searchPerformed);
+                          }
                         });
                       },
                       trailing: query.isNotEmpty

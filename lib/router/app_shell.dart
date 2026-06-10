@@ -118,6 +118,9 @@ class _AppShellState extends ConsumerState<AppShell>
   }
 
   Future<void> _checkVerification() async {
+    final authUser = ref.read(authStateProvider).valueOrNull;
+    if (authUser == null) return;
+
     // Zaten doğrulanmış kullanıcı için hiç çağırma
     final profile = ref.read(currentUserProvider).value;
     if (profile != null && profile.isVerifiedStudent) return;

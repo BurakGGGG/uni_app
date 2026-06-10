@@ -13,6 +13,9 @@ import '../../../auth/presentation/providers/auth_providers.dart';
 import '../widgets/score_badge.dart';
 import '../widgets/score_trend_chart.dart';
 import '../widgets/score_detail_sheet.dart';
+import '../../../admin/data/analytics_service.dart';
+import '../../../admin/domain/models/analytics_event.dart';
+import '../../../admin/presentation/widgets/analytics_once_tracker.dart';
 
 class DepartmentDetailScreen extends ConsumerWidget {
   final String departmentId;
@@ -38,7 +41,10 @@ class DepartmentDetailScreen extends ConsumerWidget {
           // Üniversite bilgisini de çek
           final uniAsync = ref.watch(universityDetailProvider(dept.universityId));
 
-          return SingleChildScrollView(
+          return AnalyticsOnceTracker(
+            onTrack: () => AnalyticsService.instance
+                .trackEvent(AnalyticsEvent.departmentViewed),
+            child: SingleChildScrollView(
             padding: const EdgeInsets.all(20),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -367,6 +373,7 @@ class DepartmentDetailScreen extends ConsumerWidget {
                 const SizedBox(height: 40),
               ],
             ),
+          ),
           );
         },
       ),

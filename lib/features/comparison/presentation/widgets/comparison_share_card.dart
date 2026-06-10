@@ -7,6 +7,8 @@ import 'dart:ui';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../domain/models/comparison_result.dart';
+import '../../../admin/data/analytics_service.dart';
+import '../../../admin/domain/models/analytics_event.dart';
 
 enum ShareFormat {
   instagramStory(width: 1080, height: 1920),
@@ -137,6 +139,7 @@ class ComparisonShareCard extends StatelessWidget {
       text:
           '${result.uniA.name} vs ${result.uniB.name} karşılaştırması — ÜniSeç ile yap!\n\n$shareLink',
     );
+    AnalyticsService.instance.trackEvent(AnalyticsEvent.comparisonShared);
   }
 
   @override

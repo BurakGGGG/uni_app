@@ -24,6 +24,8 @@ import '../../domain/models/department_model.dart';
 import '../widgets/uni_hero.dart';
 import '../widgets/uni_info_strip.dart';
 import '../widgets/uni_section.dart';
+import '../../../admin/data/analytics_service.dart';
+import '../../../admin/presentation/widgets/analytics_once_tracker.dart';
 
 class UniversityDetailScreen extends ConsumerWidget {
   final String universityId;
@@ -69,7 +71,12 @@ class _Body extends ConsumerWidget {
 
     final placesAsync = ref.watch(placesByUniversityProvider(uni.id));
 
-    return RefreshIndicator(
+    return AnalyticsOnceTracker(
+      onTrack: () => AnalyticsService.instance.trackUniversityView(
+        universityId: uni.id,
+        universityName: uni.name,
+      ),
+      child: RefreshIndicator(
       onRefresh: () async {
         ref.read(placeRepositoryProvider).clearCache();
         ref.invalidate(universityDetailProvider(uni.id));
@@ -134,6 +141,7 @@ class _Body extends ConsumerWidget {
           ),
         ],
       ),
+    ),
     );
   }
 }
