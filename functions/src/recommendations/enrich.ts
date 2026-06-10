@@ -90,6 +90,9 @@ export const enrichRecommendations = onCall(
         if (cd && cd.summary && Array.isArray(cd.items)) {
           const ageMs = Date.now() - (cd.generatedAt ?? 0);
           if (ageMs < CACHE_TTL_HOURS * 3600 * 1000) {
+            await incrementAnalyticsCounter('totalAiRecommendations', 'aiRecommendations').catch((e) =>
+              console.warn('Analytics increment failed:', e),
+            );
             return {
               summary: cd.summary,
               items: cd.items,
@@ -147,6 +150,10 @@ export const enrichRecommendations = onCall(
       cached: false,
       generatedAt: Date.now(),
     };
+
+    await incrementAnalyticsCounter('totalAiRecommendations', 'aiRecommendations').catch((e) =>
+      console.warn('Analytics increment failed:', e),
+    );
 
     // ── Cache yaz ──
     try {
@@ -278,4 +285,36 @@ function sanitizeTags(raw: Record<string, unknown>): Record<string, string> {
 function makeHash(payload: unknown): string {
   const str = JSON.stringify(payload);
   return crypto.createHash('sha256').update(str).digest('hex').slice(0, 16);
+}
+
+function formatDate(d: Date): string {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
+async function incrementAnalyticsCounter(
+  counterField: string,
+  dailyField: string,
+): Promise<void> {
+  const today = formatDate(new Date());
+  const batch = db.batch();
+  batch.set(
+    db.collection('analytics').doc('counters'),
+    {
+      [counterField]: admin.firestore.FieldValue.increment(1),
+      lastUpdated: admin.firestore.FieldValue.serverTimestamp(),
+    },
+    { merge: true },
+  );
+  batch.set(
+    db.collection('analytics').doc(`daily_${today}`),
+    {
+      [dailyField]: admin.firestore.FieldValue.increment(1),
+      date: today,
+    },
+    { merge: true },
+  );
+  await batch.commit();
 }
