@@ -25,6 +25,8 @@ import '../../../university/domain/models/department_model.dart';
 import '../../../university/domain/models/university_model.dart';
 import '../../../places/data/place_repository.dart';
 import '../../../../services/analytics_service.dart';
+import '../../../admin/data/analytics_service.dart' as firestore_analytics;
+import '../../../admin/domain/models/analytics_event.dart';
 import 'package:flutter/foundation.dart';
 
 void _comparisonKeepAliveFiveMinutes(Ref ref) {
@@ -159,6 +161,8 @@ class ComparisonGateController {
               completed: true,
               dailyComparisonCount: stats.dailyComparisons,
             );
+        firestore_analytics.AnalyticsService.instance
+            .trackEvent(AnalyticsEvent.adWatched);
       }
     } else {
       final stats = await _ref.read(usageStatsRepositoryProvider).getUsageStats();
@@ -170,6 +174,8 @@ class ComparisonGateController {
             trigger: 'daily_limit',
             userTier: tier.name,
           );
+      firestore_analytics.AnalyticsService.instance
+          .trackEvent(AnalyticsEvent.paywallShown);
     }
     return decision;
   }

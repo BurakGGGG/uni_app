@@ -70,6 +70,7 @@ class _StoryViewerScreenState extends ConsumerState<StoryViewerScreen>
   void _startProgress() {
     _progressController.reset();
     if (_isMediaLoaded && !_isPaused) {
+      _videoController?.play();
       _progressController.forward();
     }
   }
@@ -83,10 +84,10 @@ class _StoryViewerScreenState extends ConsumerState<StoryViewerScreen>
   }
 
   void _resumeProgress() {
-    if (_isPaused) {
+    if (_isPaused && _isMediaLoaded) {
       _isPaused = false;
-      _progressController.forward();
       _videoController?.play();
+      _progressController.forward();
     }
   }
 
@@ -136,8 +137,6 @@ class _StoryViewerScreenState extends ConsumerState<StoryViewerScreen>
     _videoController = null;
 
     if (story.isVideo && story.videoUrl != null) {
-      _progressController.duration = story.mediaDuration;
-
       try {
         // Video dosyasını cache'den al veya indir
         final fileInfo = await DefaultCacheManager().getFileFromCache(story.videoUrl!);
@@ -160,9 +159,14 @@ class _StoryViewerScreenState extends ConsumerState<StoryViewerScreen>
 
         await controller.initialize();
         if (!mounted) return;
-        
+
+        final videoDuration = controller.value.duration;
+        _progressController.duration = videoDuration.inMilliseconds > 0
+            ? videoDuration
+            : story.mediaDuration;
+
         controller.setVolume(_isMuted ? 0.0 : 1.0);
-        controller.play();
+        // Fotoğraf story'lerde olduğu gibi süre, medya hazır olunca başlar
         setState(() => _isMediaLoaded = true);
         _startProgress();
       } catch (e) {

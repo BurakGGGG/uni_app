@@ -7,6 +7,13 @@ class AppConstants {
   static const String appTagline = 'Hayalindeki üniversiteyi keşfet';
   static const String appVersion = '1.0.0';
 
+  /// Firebase Google Sign-In web client ID (google-services.json client_type: 3)
+  static const String googleWebClientId =
+      '267910282750-5h0rqqnnckgsahuja1amrua5ai0g5d8r.apps.googleusercontent.com';
+
+  /// Son başarılı giriş yapan kullanıcı (Firebase persistence yedek kontrolü)
+  static const String persistedAuthUidKey = 'persisted_auth_uid';
+
   // ─── Spacing ──────────────────────────────────────────────────────
   static const double spacingXxs = 2;
   static const double spacingXs = 4;

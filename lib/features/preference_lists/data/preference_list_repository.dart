@@ -2,6 +2,8 @@ import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../domain/models/preference_list_model.dart';
+import '../../admin/data/analytics_service.dart';
+import '../../admin/domain/models/analytics_event.dart';
 
 class PreferenceListRepository {
   final FirebaseFirestore _firestore;
@@ -63,6 +65,8 @@ class PreferenceListRepository {
     );
 
     await docRef.set(list.toMap());
+    AnalyticsService.instance
+        .trackEvent(AnalyticsEvent.preferenceListCreated);
     return list;
   }
 

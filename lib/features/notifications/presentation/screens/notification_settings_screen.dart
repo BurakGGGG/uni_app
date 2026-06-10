@@ -199,26 +199,29 @@ class _SettingTile extends StatelessWidget {
         borderRadius: BorderRadius.circular(AppConstants.radiusMd),
         border: Border.all(color: AppColors.borderLight),
       ),
-      child: SwitchListTile(
-        secondary: Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: iconColor.withValues(alpha: 0.12),
-            shape: BoxShape.circle,
+      child: Material(
+        color: Colors.transparent,
+        child: SwitchListTile(
+          secondary: Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: iconColor.withValues(alpha: 0.12),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, color: iconColor, size: 20),
           ),
-          child: Icon(icon, color: iconColor, size: 20),
+          title: Text(title, style: AppTextStyles.titleSmall),
+          subtitle: Text(
+            subtitle,
+            style:
+                AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondaryFor(context)),
+          ),
+          value: value,
+          onChanged: onChanged,
+          activeThumbColor: AppColors.primary,
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
         ),
-        title: Text(title, style: AppTextStyles.titleSmall),
-        subtitle: Text(
-          subtitle,
-          style:
-              AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondaryFor(context)),
-        ),
-        value: value,
-        onChanged: onChanged,
-        activeThumbColor: AppColors.primary,
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
       ),
     );
   }

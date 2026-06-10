@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:go_router/go_router.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import '../../../../core/providers/shared_preferences_provider.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/constants/app_constants.dart';
@@ -11,6 +10,7 @@ import '../../../../core/widgets/force_update_dialog.dart';
 import '../../../../services/force_update_service.dart';
 import '../../../../services/ab_test_service.dart';
 import '../../../auth/presentation/providers/auth_providers.dart';
+import '../../../stories/data/story_prefetch_service.dart';
 import '../../../university/presentation/providers/university_providers.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
@@ -47,24 +47,24 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
     _logoScale = Tween<double>(begin: 0.6, end: 1.0).animate(
       CurvedAnimation(parent: _logoController, curve: Curves.elasticOut),
     );
-    _logoFade = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _logoController, curve: Curves.easeOut),
-    );
+    _logoFade = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _logoController, curve: Curves.easeOut));
 
     // ─── Text animasyonu (400ms → 1000ms) ─────────────────────
     _textController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 600),
     );
-    _textFade = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _textController, curve: Curves.easeOut),
-    );
+    _textFade = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _textController, curve: Curves.easeOut));
     _textSlide = Tween<Offset>(
       begin: const Offset(0, 0.3),
       end: Offset.zero,
-    ).animate(
-      CurvedAnimation(parent: _textController, curve: Curves.easeOut),
-    );
+    ).animate(CurvedAnimation(parent: _textController, curve: Curves.easeOut));
 
     // ─── Loading animasyonu (800ms → 1200ms) ──────────────────
     _loadingController = AnimationController(
@@ -102,65 +102,63 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
   }
 
   Future<void> _navigateToNext() async {
+    // Story listesi + medya dosyalarını hemen arka planda yükle
+    StoryPrefetchService.warmUp(ref);
+
     // 1. Durumu kontrol et
     final prefs = ref.read(sharedPreferencesProvider);
-    final hasCompletedOnboarding = prefs.getBool('onboarding_completed') ?? false;
-    
-    // Auth state'ini asenkron bekle (soğuk başlangıçta senkron currentUser null dönebilir)
-    User? user;
-    try {
-      user = await ref.read(authStateProvider.future).timeout(const Duration(milliseconds: 2000));
-    } catch (_) {
-      user = FirebaseAuth.instance.currentUser; // Fallback
-    }
-    final isLoggedIn = user != null;
+    final hasCompletedOnboarding =
+        prefs.getBool('onboarding_completed') ?? false;
 
-    final isGoingToHome = hasCompletedOnboarding && isLoggedIn;
-
-    // 2. Minimum gösterim süresi (Animasyonların tamamlanması için)
-    final minSplashDuration = Future.delayed(const Duration(milliseconds: 2500));
+    // 2. Paralel görevler: auth restorasyonu + minimum splash süresi
+    final authFuture = ref
+        .read(authRepositoryProvider)
+        .waitForRestoredUser(prefs: prefs);
+    final minSplashDuration = Future.delayed(
+      const Duration(milliseconds: 2500),
+    );
 
     // 3. Force Update kontrolü (Remote Config) + A/B Test
     final forceUpdateFuture = ForceUpdateService().init();
     ABTestService().init(); // Aynı Remote Config instance'ı paylaşır
 
-    // 4. Veri yükleme görevleri (sadece ana sayfaya gidecekse)
-    Future<void> dataLoadFuture = Future.value();
-    if (isGoingToHome) {
-      // Sadece kritik verileri ön yükle (cold start optimizasyonu)
-      // popular ve reviews Home açıldıktan sonra Riverpod lazy-load eder
-      dataLoadFuture = Future.wait([
-        ref.read(citiesProvider.future),     // Home için zorunlu
-        ref.read(currentUserProvider.future), // Profil için zorunlu
-      ]).catchError((_) => []); // Hata olsa bile devam et
-    }
-
-    // 5. Hepsini birden bekle ama maksimum 4 saniye timeout koy
-    // Böylece internet yavaşsa bile kullanıcı splash'te takılı kalmaz.
+    // 4. Auth + splash + force update'i paralel bekle
     await Future.wait([
       minSplashDuration,
+      authFuture,
       forceUpdateFuture,
-      dataLoadFuture,
-    ]).timeout(
-      const Duration(milliseconds: 4000),
-      onTimeout: () => [], // Timeout olursa sessizce geç
-    );
+    ]);
+
+    final user = await authFuture;
+    final isLoggedIn = user != null;
+    final isGoingToHome = hasCompletedOnboarding && isLoggedIn;
+
+    // 5. Veri yükleme (sadece ana sayfaya gidecekse, kalan süre içinde)
+    if (isGoingToHome) {
+      await Future.wait([
+        ref.read(citiesProvider.future),
+        ref.read(currentUserProvider.future),
+      ]).timeout(
+        const Duration(milliseconds: 1500),
+        onTimeout: () => [],
+      ).catchError((_) => []);
+    }
 
     if (!mounted) return;
 
     // 6. Force Update / Maintenance kontrolü
-    final updateStatus = ForceUpdateService().checkForUpdate(AppConstants.appVersion);
+    final updateStatus = ForceUpdateService().checkForUpdate(
+      AppConstants.appVersion,
+    );
     if (updateStatus.isBlocking) {
       // Bloklayıcı dialog göster — kullanıcı kapatamaz
       ForceUpdateDialog.show(context, updateStatus);
       return; // Navigasyon yapma
     }
 
-    // 7. Yönlendirme
+    // 7. Yönlendirme — giriş zorunlu değil, ana sayfa herkese açık
     if (!hasCompletedOnboarding) {
       context.go('/onboarding');
-    } else if (!isLoggedIn) {
-      context.go('/login');
     } else {
       context.go('/');
     }
@@ -211,14 +209,14 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
-                        color:
-                            AppColors.primary.withValues(alpha: glowOpacity),
+                        color: AppColors.primary.withValues(alpha: glowOpacity),
                         blurRadius: 80,
                         spreadRadius: 20,
                       ),
                       BoxShadow(
-                        color: AppColors.secondary
-                            .withValues(alpha: glowOpacity * 0.5),
+                        color: AppColors.secondary.withValues(
+                          alpha: glowOpacity * 0.5,
+                        ),
                         blurRadius: 60,
                         spreadRadius: 10,
                       ),
@@ -298,17 +296,17 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
             left: 0,
             right: 0,
             child: FadeTransition(
-               opacity: _loadingFade,
-               child: Center(
-                 child: SizedBox(
-                   width: 22,
-                   height: 22,
-                   child: CircularProgressIndicator(
-                     color: AppColors.primary,
-                     strokeWidth: 2.0,
-                   ),
-                 ),
-               ),
+              opacity: _loadingFade,
+              child: Center(
+                child: SizedBox(
+                  width: 22,
+                  height: 22,
+                  child: CircularProgressIndicator(
+                    color: AppColors.primary,
+                    strokeWidth: 2.0,
+                  ),
+                ),
+              ),
             ),
           ),
 
