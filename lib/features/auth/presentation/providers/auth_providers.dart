@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/auth_repository.dart';
 import '../../domain/user_model.dart';
@@ -11,7 +14,15 @@ final authRepositoryProvider = Provider<AuthRepository>((ref) {
 
 /// Firebase Auth state stream — giriş/çıkış dinleme
 final authStateProvider = StreamProvider<User?>((ref) {
-  return ref.watch(authRepositoryProvider).authStateChanges;
+  final repository = ref.watch(authRepositoryProvider);
+  return repository.authStateChanges.asyncMap((user) async {
+    if (user != null) {
+      await repository.cacheAuthSession(user.uid);
+    } else if (kDebugMode) {
+      debugPrint('[Auth] authStateChanges → null');
+    }
+    return user;
+  });
 });
 
 /// Mevcut kullanıcı profili (Firestore'dan)

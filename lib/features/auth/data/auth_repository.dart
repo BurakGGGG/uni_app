@@ -4,11 +4,15 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import '../../../core/constants/app_constants.dart';
 import '../../../core/utils/university_domain_mapper.dart';
 import '../domain/user_model.dart';
 import '../../notifications/data/fcm_service.dart';
+import '../../../services/auth_storage_service.dart';
 import '../../../services/revenuecat_service.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../admin/data/analytics_service.dart';
 import '../../admin/domain/models/analytics_event.dart';
 
@@ -29,13 +33,112 @@ class AuthRepository {
     GoogleSignIn? googleSignIn,
   })  : _auth = auth ?? FirebaseAuth.instance,
         _firestore = firestore ?? FirebaseFirestore.instance,
-        _googleSignIn = googleSignIn ?? GoogleSignIn();
+        _googleSignIn = googleSignIn ??
+            GoogleSignIn(
+              serverClientId: AppConstants.googleWebClientId,
+            );
 
   /// Auth state stream — giriş/çıkış dinleme
   Stream<User?> get authStateChanges => _auth.authStateChanges();
 
   /// Mevcut Firebase kullanıcısı
   User? get currentUser => _auth.currentUser;
+
+  /// SharedPreferences'a son giriş yapan kullanıcıyı yazar.
+  Future<void> cacheAuthSession(String uid) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(AppConstants.persistedAuthUidKey, uid);
+  }
+
+  /// Çıkışta veya oturum geçersiz olduğunda önbelleği temizler.
+  Future<void> clearAuthSessionCache() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(AppConstants.persistedAuthUidKey);
+  }
+
+  /// Soğuk başlangıçta kayıtlı oturumun diskten yüklenmesini bekler.
+  ///
+  /// Stream'in ilk `null` değerine güvenilmez; [currentUser] periyodik kontrol
+  /// edilir. Daha önce giriş yapılmışsa bekleme süresi uzatılır.
+  Future<User?> waitForRestoredUser({
+    SharedPreferences? prefs,
+    Duration pollInterval = const Duration(milliseconds: 100),
+  }) async {
+    prefs ??= await SharedPreferences.getInstance();
+    final cachedUid = prefs.getString(AppConstants.persistedAuthUidKey);
+    final maxWait = cachedUid != null
+        ? const Duration(seconds: 4)
+        : const Duration(seconds: 1);
+
+    if (kDebugMode) {
+      debugPrint(
+        '[Auth] Oturum geri yükleniyor... cachedUid=$cachedUid maxWait=${maxWait.inSeconds}s',
+      );
+    }
+
+    final deadline = DateTime.now().add(maxWait);
+    while (DateTime.now().isBefore(deadline)) {
+      final user = _auth.currentUser;
+      if (user != null) {
+        await cacheAuthSession(user.uid);
+        if (kDebugMode) {
+          debugPrint('[Auth] Oturum geri yüklendi: ${user.uid}');
+        }
+        return user;
+      }
+      await Future.delayed(pollInterval);
+    }
+
+    // Google hesabı varsa sessiz yeniden giriş dene (e-posta kullanıcıları için no-op)
+    final silentUser = await _trySilentGoogleReauth();
+    if (silentUser != null) {
+      await cacheAuthSession(silentUser.uid);
+      if (kDebugMode) {
+        debugPrint('[Auth] Google sessiz giriş başarılı: ${silentUser.uid}');
+      }
+      return silentUser;
+    }
+
+    // cachedUid var ama Firebase null → bozuk şifreli native depolama (bilinen SDK sorunu)
+    if (cachedUid != null && _auth.currentUser == null) {
+      if (kDebugMode) {
+        debugPrint(
+          '[Auth] Bozuk native oturum algılandı, temizleniyor...',
+        );
+      }
+      await AuthStorageService.clearFirebaseAuthStorage();
+      await clearAuthSessionCache();
+    } else if (kDebugMode) {
+      debugPrint(
+        '[Auth] Oturum geri yüklenemedi. currentUser=null cachedUid=$cachedUid',
+      );
+    }
+    return _auth.currentUser;
+  }
+
+  /// Firebase persistence bozulduğunda Google hesabından sessiz yeniden giriş dene.
+  Future<User?> _trySilentGoogleReauth() async {
+    try {
+      final googleUser = await _googleSignIn.signInSilently();
+      if (googleUser == null) return null;
+
+      final googleAuth = await googleUser.authentication;
+      final credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+      final userCredential = await _auth.signInWithCredential(credential);
+      return userCredential.user;
+    } catch (e, st) {
+      FirebaseCrashlytics.instance.recordError(
+        e,
+        st,
+        reason: 'silent_google_reauth_failed',
+        fatal: false,
+      );
+      return null;
+    }
+  }
 
   // ─── Google ile Giriş ──────────────────────────────────────────
 
@@ -62,8 +165,10 @@ class AuthRepository {
       // RevenueCat kullanıcı eşlemesini güncelle.
       unawaited(RevenueCatService().login(user.uid));
 
+      await cacheAuthSession(user.uid);
+
       // FCM token kaydet
-      await FCMService().registerToken();
+      unawaited(FCMService().registerToken().catchError((_) {}));
 
       return userModel;
     } on FirebaseAuthException catch (e, st) {
@@ -71,7 +176,18 @@ class AuthRepository {
       throw _handleAuthError(e);
     } catch (e, st) {
       FirebaseCrashlytics.instance.recordError(e, st, reason: 'signInWithGoogle_unknown_error', fatal: false);
-      // Eğer profil kaydedilemezse auth'tan çık ki inconsistent state olmasın
+      final activeUser = _auth.currentUser;
+      if (activeUser != null) {
+        await cacheAuthSession(activeUser.uid);
+        return UserModel(
+          uid: activeUser.uid,
+          displayName: activeUser.displayName ?? '',
+          email: activeUser.email ?? '',
+          photoUrl: activeUser.photoURL,
+          createdAt: DateTime.now(),
+          lastLoginAt: DateTime.now(),
+        );
+      }
       await signOut();
       throw 'Giriş yapılamadı. Lütfen internet bağlantınızı kontrol edip tekrar deneyin.';
     }
@@ -108,6 +224,8 @@ class AuthRepository {
 
       // RevenueCat kullanıcı eşlemesini güncelle.
       unawaited(RevenueCatService().login(user.uid));
+
+      await cacheAuthSession(user.uid);
 
       return userModel;
     } on FirebaseAuthException catch (e, st) {
@@ -149,14 +267,36 @@ class AuthRepository {
       // RevenueCat kullanıcı eşlemesini güncelle.
       unawaited(RevenueCatService().login(user.uid));
 
-      // FCM token kaydet
-      await FCMService().registerToken();
+      await cacheAuthSession(user.uid);
+
+      // Token'ı diske yazmayı zorla — persistence sorunlarını önler
+      await user.getIdToken(true);
+
+      // FCM token kaydet — başarısız olsa bile oturumu kapatma
+      unawaited(FCMService().registerToken().catchError((_) {}));
 
       return userModel;
     } on FirebaseAuthException catch (e) {
       throw _handleAuthError(e);
-    } catch (e) {
-      await signOut();
+    } catch (e, st) {
+      FirebaseCrashlytics.instance.recordError(
+        e,
+        st,
+        reason: 'signInWithEmail_post_auth_error',
+        fatal: false,
+      );
+      final activeUser = _auth.currentUser;
+      if (activeUser != null) {
+        await cacheAuthSession(activeUser.uid);
+        return UserModel(
+          uid: activeUser.uid,
+          displayName: activeUser.displayName ?? '',
+          email: activeUser.email ?? '',
+          photoUrl: activeUser.photoURL,
+          createdAt: DateTime.now(),
+          lastLoginAt: DateTime.now(),
+        );
+      }
       throw 'Giriş yapılamadı. Lütfen internet bağlantınızı kontrol edip tekrar deneyin.';
     }
   }
@@ -181,6 +321,7 @@ class AuthRepository {
 
     _cachedUser = null;
     _lastCacheTime = null;
+    await clearAuthSessionCache();
     await Future.wait([
       _auth.signOut(),
       _googleSignIn.signOut(),
