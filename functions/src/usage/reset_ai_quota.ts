@@ -1,6 +1,5 @@
-import { onSchedule } from 'firebase-functions/v2/scheduler';
+import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
-import { logger } from 'firebase-functions';
 
 const db = admin.firestore();
 const BATCH_SIZE = 400;
@@ -10,22 +9,23 @@ const MAX_BATCHES_PER_RUN = 100;  // 100 * 400 = 40k kullanıcı / run
  * Her gün 00:00'da usageStats günlük AI sayaçlarını sıfırlar.
  *
  * İyileştirmeler:
- * - v2 scheduler API kullanılıyor
+ * - Mevcut production fonksiyon 1st gen olduğu için v1 scheduler API korunur
  * - retryCount: 3 — Hata olursa otomatik retry
  * - MAX_BATCHES_PER_RUN — Tek run'da maksimum 40k kullanıcı (timeout korunur)
  * - collectionGroup query ile direkt usageStats'a erişim (users üzerinden dolaşmak yerine)
  * - Per-batch error logging
  */
-export const resetAiQuotaDaily = onSchedule(
-  {
-    region: 'europe-west1',
-    schedule: 'every day 00:00',
-    timeZone: 'Europe/Istanbul',
-    timeoutSeconds: 540,        // ← 9 dakika tam
-    memory: '512MiB',
-    retryCount: 3,              // ← Hata olursa otomatik retry
-  },
-  async () => {
+export const resetAiQuotaDaily = functions
+  .runWith({
+    timeoutSeconds: 540,
+    memory: '512MB',
+  })
+  .region('europe-west1')
+  .pubsub
+  .schedule('every day 00:00')
+  .timeZone('Europe/Istanbul')
+  .retryConfig({ retryCount: 3 })
+  .onRun(async () => {
     const today = formatDate(new Date());
     let totalReset = 0;
     let lastDoc: admin.firestore.QueryDocumentSnapshot | null = null;
@@ -65,16 +65,15 @@ export const resetAiQuotaDaily = onSchedule(
         lastDoc = snap.docs[snap.docs.length - 1];
         batchIndex += 1;
       } catch (err) {
-        logger.error('Reset batch failed', { batchIndex, err });
+        functions.logger.error('Reset batch failed', { batchIndex, err });
         throw err;  // Retry mekanizmasını tetikle
       }
 
       if (snap.size < BATCH_SIZE) break;
     }
 
-    logger.info(`AI quota reset complete: ${totalReset} users in ${batchIndex} batches`);
-  },
-);
+    functions.logger.info(`AI quota reset complete: ${totalReset} users in ${batchIndex} batches`);
+  });
 
 function formatDate(d: Date): string {
   const y = d.getFullYear();

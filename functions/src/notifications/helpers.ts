@@ -29,7 +29,15 @@ export async function sendNotificationToUser(opts: SendNotificationOptions) {
     return;
   }
   
-  const tokens = (user.fcmTokens || []) as string[];
+  const tokenSnap = await db
+    .collection('users')
+    .doc(opts.userId)
+    .collection('fcmTokens')
+    .get();
+  const tokenDocs = tokenSnap.docs;
+  const tokens = tokenDocs
+    .map((doc) => doc.data().token)
+    .filter((token): token is string => typeof token === 'string' && token.length > 0);
   if (tokens.length === 0) {
     console.log(`[notif] ${opts.userId} has no FCM tokens`);
   }
@@ -89,9 +97,12 @@ export async function sendNotificationToUser(opts: SendNotificationOptions) {
     });
     
     if (invalidTokens.length > 0) {
-      await db.collection('users').doc(opts.userId).update({
-        fcmTokens: admin.firestore.FieldValue.arrayRemove(...invalidTokens),
-      });
+      const invalidTokenSet = new Set(invalidTokens);
+      const batch = db.batch();
+      tokenDocs
+        .filter((doc) => invalidTokenSet.has(String(doc.data().token ?? '')))
+        .forEach((doc) => batch.delete(doc.ref));
+      await batch.commit();
       console.log(`[notif] Removed ${invalidTokens.length} invalid tokens`);
     }
   }

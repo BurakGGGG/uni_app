@@ -28,6 +28,7 @@ export const aggregateUniversityRatings = functions.firestore.onDocumentWritten(
       const reviewsSnapshot = await db
         .collection('reviews')
         .where('universityId', '==', universityId)
+        .where('isApproved', '==', true)
         .get();
 
       let totalRating = 0;
@@ -93,6 +94,12 @@ export { onReviewModerated } from './notifications/on_review_moderated';
 export { onNewReviewForFavorite } from './notifications/on_new_review_for_favorite';
 export { cleanupExpiredNotifications } from './notifications/cleanup_expired';
 export { cleanupStaleTokens } from './notifications/cleanup_stale_tokens';
+export { syncReviewLikeCount } from './reviews/sync_review_like_count';
+
+// Auth/profile hardening
+export { verifyStudentUniversity } from './auth/verify_student';
+export { syncPublicProfile } from './auth/sync_public_profile';
+export { syncUserReviewCount } from './auth/sync_user_review_count';
 
 // Sprint 5 — AI tercih önerisi zenginleştirme (Groq)
 export { enrichRecommendations } from './recommendations/enrich';
