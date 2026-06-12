@@ -113,3 +113,6 @@ export { revenuecatWebhook } from './revenuecat/webhook';
 
 // Sprint 10 — Cleanup functions
 export { cleanupAiSummaryLogs } from './cleanup/ai_logs_cleanup';
+
+// Server-side analytics counters
+export { trackAnalyticsEvent } from './analytics/track_event';

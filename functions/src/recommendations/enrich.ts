@@ -2,6 +2,7 @@ import { onCall, HttpsError } from 'firebase-functions/v2/https';
 import { defineSecret } from 'firebase-functions/params';
 import * as admin from 'firebase-admin';
 import * as crypto from 'crypto';
+import { logger } from 'firebase-functions';
 
 const GROQ_API_KEY = defineSecret('GROQ_API_KEY');
 
@@ -11,9 +12,13 @@ const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
 const GROQ_MODEL = 'llama-3.1-8b-instant';
 const CACHE_COLLECTION = 'recommendationEnrichments';
 const CACHE_TTL_HOURS = 24;
+const CACHE_TTL_MS = CACHE_TTL_HOURS * 3600 * 1000;
 const MAX_INPUT_DEPTS = 8;
 const TOP_FOR_REASONING = 3; // Sadece ilk 3 öneriye kişisel reasoning
 const REQUEST_TIMEOUT_MS = 12000;
+const DAILY_AI_RECOMMENDATION_LIMIT = 10;
+const AI_RECOMMENDATION_RATE_WINDOW_MS = 60 * 1000;
+const AI_RECOMMENDATION_RATE_LIMIT = 12;
 
 // ─── Tipler ────────────────────────────────────────────────────
 interface InputDept {
@@ -51,6 +56,7 @@ export const enrichRecommendations = onCall(
     timeoutSeconds: 30,
     memory: '256MiB',
     cors: true,
+    enforceAppCheck: true,
   },
   async (req): Promise<EnrichResponse> => {
     if (!req.auth) {
@@ -82,31 +88,72 @@ export const enrichRecommendations = onCall(
     const cacheRef = db
       .collection(CACHE_COLLECTION)
       .doc(`${uid}_${cacheHash}`);
+    const usageRef = db.collection('users').doc(uid).collection('usageStats').doc('current');
+    const subscriptionRef = db.collection('subscriptions').doc(uid);
+    const today = formatDate(new Date());
+    const nowMs = Date.now();
+
+    // ── Atomik entitlement + rate limit + quota kontrolü ──
+    let cachedResponse: EnrichResponse | null = null;
+    let needsToCallGroq = false;
 
     try {
-      const cached = await cacheRef.get();
-      if (cached.exists) {
-        const cd = cached.data();
-        if (cd && cd.summary && Array.isArray(cd.items)) {
-          const ageMs = Date.now() - (cd.generatedAt ?? 0);
-          if (ageMs < CACHE_TTL_HOURS * 3600 * 1000) {
-            await incrementAnalyticsCounter('totalAiRecommendations', 'aiRecommendations').catch((e) =>
-              console.warn('Analytics increment failed:', e),
-            );
-            return {
-              summary: cd.summary,
-              items: cd.items,
-              cached: true,
-              generatedAt: cd.generatedAt,
-            };
+      await db.runTransaction(async (tx) => {
+        const subscriptionSnap = await tx.get(subscriptionRef);
+        const usageSnap = await tx.get(usageRef);
+        const cacheSnap = await tx.get(cacheRef);
+
+        const isAdmin = req.auth?.token.admin === true;
+        if (!isAdmin && !hasActiveProSubscription(subscriptionSnap.data())) {
+          throw new HttpsError(
+            'permission-denied',
+            'AI öneri asistanı için Pro abonelik gerekli.',
+          );
+        }
+
+        const usageData = usageSnap.exists ? usageSnap.data() ?? {} : {};
+        const usagePatch: Record<string, unknown> = {
+          ...buildUsageStatsBasePatch(usageData, { today }),
+          ...buildRecommendationRateLimitPatch(usageData, nowMs),
+          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        };
+
+        if (cacheSnap.exists) {
+          const cached = parseCachedResponse(cacheSnap.data(), nowMs);
+          if (cached) {
+            cachedResponse = cached;
+            tx.set(usageRef, usagePatch, { merge: true });
+            return;
           }
         }
-      }
+
+        Object.assign(
+          usagePatch,
+          buildRecommendationQuotaPatch(usageData, { today }),
+        );
+        tx.set(usageRef, usagePatch, { merge: true });
+        needsToCallGroq = true;
+      });
     } catch (e) {
-      console.warn('Cache read failed, continuing:', e);
+      if (e instanceof HttpsError) throw e;
+      logger.error('Recommendation quota transaction failed', { uid, err: String(e) });
+      throw new HttpsError('internal', 'Geçici bir sorun oluştu. Lütfen tekrar dene.');
+    }
+
+    // Cache hit → günlük AI öneri hakkı düşmez.
+    const cached = cachedResponse;
+    if (cached) {
+      await incrementAnalyticsCounter('totalAiRecommendations', 'aiRecommendations').catch((e) =>
+        logger.warn('Analytics increment failed', { e }),
+      );
+      return cached;
     }
 
     // ── Groq çağrısı ──
+    if (!needsToCallGroq) {
+      throw new HttpsError('internal', 'Beklenmeyen durum oluştu.');
+    }
+
     const apiKey = GROQ_API_KEY.value();
     if (!apiKey) {
       throw new HttpsError('failed-precondition', 'GROQ_API_KEY ayarlı değil.');
@@ -118,7 +165,7 @@ export const enrichRecommendations = onCall(
     try {
       llmJson = await callGroq(apiKey, prompt);
     } catch (e) {
-      console.error('Groq call failed:', e);
+      logger.error('Groq call failed', { uid, err: String(e) });
       throw new HttpsError('unavailable', 'AI önerisi şu an alınamıyor.');
     }
 
@@ -152,7 +199,7 @@ export const enrichRecommendations = onCall(
     };
 
     await incrementAnalyticsCounter('totalAiRecommendations', 'aiRecommendations').catch((e) =>
-      console.warn('Analytics increment failed:', e),
+      logger.warn('Analytics increment failed', { e }),
     );
 
     // ── Cache yaz ──
@@ -164,7 +211,7 @@ export const enrichRecommendations = onCall(
         userId: uid,
       });
     } catch (e) {
-      console.warn('Cache write failed:', e);
+      logger.warn('Cache write failed', { uid, e });
     }
 
     return result;
@@ -292,6 +339,182 @@ function formatDate(d: Date): string {
   const m = String(d.getMonth() + 1).padStart(2, '0');
   const day = String(d.getDate()).padStart(2, '0');
   return `${y}-${m}-${day}`;
+}
+
+function parseCachedResponse(
+  data: admin.firestore.DocumentData | undefined,
+  nowMs: number,
+): EnrichResponse | null {
+  if (!data) return null;
+
+  const summary = typeof data.summary === 'string' ? data.summary.trim() : '';
+  const generatedAt = finiteMillis(data.generatedAt);
+  if (!summary || generatedAt <= 0 || nowMs - generatedAt >= CACHE_TTL_MS) {
+    return null;
+  }
+
+  if (!Array.isArray(data.items)) {
+    return null;
+  }
+
+  const items = data.items
+    .map((item: unknown) => parseCachedItem(item))
+    .filter((item: EnrichedItem | null): item is EnrichedItem => item !== null)
+    .slice(0, TOP_FOR_REASONING);
+
+  return {
+    summary: summary.slice(0, 280),
+    items,
+    cached: true,
+    generatedAt,
+  };
+}
+
+function parseCachedItem(item: unknown): EnrichedItem | null {
+  if (!item || typeof item !== 'object') return null;
+  const raw = item as Record<string, unknown>;
+  const departmentId = typeof raw.departmentId === 'string' ? raw.departmentId : '';
+  const universityId = typeof raw.universityId === 'string' ? raw.universityId : '';
+  const reasoning = typeof raw.reasoning === 'string' ? raw.reasoning : '';
+  if (!departmentId || !universityId || !reasoning) return null;
+
+  return {
+    departmentId,
+    universityId,
+    reasoning: reasoning.slice(0, 200),
+  };
+}
+
+function hasActiveProSubscription(
+  data: admin.firestore.DocumentData | undefined,
+): boolean {
+  if (!data) return false;
+
+  const tier = String(data.tier ?? 'free');
+  const status = String(data.status ?? 'expired');
+  if (tier !== 'pro' || (status !== 'active' && status !== 'trial')) {
+    return false;
+  }
+
+  const expiresAtMs = timestampMillis(data.expiresAt);
+  return expiresAtMs <= 0 || expiresAtMs > Date.now();
+}
+
+function buildUsageStatsBasePatch(
+  usageData: admin.firestore.DocumentData,
+  options: { today: string },
+): Record<string, unknown> {
+  const patch: Record<string, unknown> = {};
+
+  const lastResetDate = typeof usageData.lastResetDate === 'string'
+    ? usageData.lastResetDate
+    : '';
+  if (lastResetDate !== options.today) {
+    patch.lastResetDate = options.today;
+    patch.dailyComparisons = 0;
+    patch.dailyAiComparisons = 0;
+  }
+
+  const lastAiResetDate = typeof usageData.lastAiRecommendationResetDate === 'string'
+    ? usageData.lastAiRecommendationResetDate
+    : '';
+  if (lastAiResetDate !== options.today) {
+    patch.lastAiRecommendationResetDate = options.today;
+    patch.dailyAiRecommendations = 0;
+  }
+
+  if (!isValidCounterValue(usageData.totalComparisons)) {
+    patch.totalComparisons = 0;
+  }
+
+  return patch;
+}
+
+function buildRecommendationRateLimitPatch(
+  usageData: admin.firestore.DocumentData,
+  nowMs: number,
+): Record<string, unknown> {
+  const windowStart = finiteMillis(usageData.aiRecommendationWindowStartAt);
+  const windowCount = safeCounter(usageData.aiRecommendationWindowCount);
+  const windowExpired =
+    windowStart <= 0 ||
+    windowStart > nowMs ||
+    nowMs - windowStart >= AI_RECOMMENDATION_RATE_WINDOW_MS;
+
+  if (!windowExpired && windowCount >= AI_RECOMMENDATION_RATE_LIMIT) {
+    throw new HttpsError(
+      'resource-exhausted',
+      'Çok kısa sürede fazla AI önerisi istedin. Biraz sonra tekrar dene.',
+    );
+  }
+
+  const nextWindowStart = windowExpired ? nowMs : windowStart;
+  return {
+    aiRecommendationWindowStartAt: nextWindowStart,
+    aiRecommendationWindowCount: windowExpired ? 1 : windowCount + 1,
+    aiRecommendationWindowResetAt: admin.firestore.Timestamp.fromMillis(
+      nextWindowStart + AI_RECOMMENDATION_RATE_WINDOW_MS,
+    ),
+  };
+}
+
+function buildRecommendationQuotaPatch(
+  usageData: admin.firestore.DocumentData,
+  options: { today: string },
+): Record<string, unknown> {
+  const lastAiResetDate = typeof usageData.lastAiRecommendationResetDate === 'string'
+    ? usageData.lastAiRecommendationResetDate
+    : '';
+  const needsAiReset = lastAiResetDate !== options.today;
+  const dailyAiRecommendations = needsAiReset
+    ? 0
+    : safeCounter(usageData.dailyAiRecommendations);
+
+  if (dailyAiRecommendations >= DAILY_AI_RECOMMENDATION_LIMIT) {
+    throw new HttpsError(
+      'resource-exhausted',
+      `Günlük AI öneri limiti (${DAILY_AI_RECOMMENDATION_LIMIT}) doldu. Yarın tekrar dene.`,
+    );
+  }
+
+  const patch: Record<string, unknown> = {
+    dailyAiRecommendations: dailyAiRecommendations + 1,
+    lastAiRecommendationResetDate: options.today,
+  };
+
+  const lastResetDate = typeof usageData.lastResetDate === 'string'
+    ? usageData.lastResetDate
+    : '';
+  if (lastResetDate !== options.today) {
+    patch.lastResetDate = options.today;
+    patch.dailyComparisons = 0;
+    patch.dailyAiComparisons = 0;
+  }
+
+  return patch;
+}
+
+function safeCounter(value: unknown): number {
+  const n = Number(value);
+  if (!Number.isFinite(n) || n < 0) return 0;
+  return Math.floor(n);
+}
+
+function isValidCounterValue(value: unknown): boolean {
+  return typeof value === 'number' && Number.isFinite(value) && value >= 0;
+}
+
+function finiteMillis(value: unknown): number {
+  const n = Number(value);
+  if (!Number.isFinite(n) || n < 0) return 0;
+  return Math.floor(n);
+}
+
+function timestampMillis(value: unknown): number {
+  if (value instanceof admin.firestore.Timestamp) {
+    return value.toMillis();
+  }
+  return finiteMillis(value);
 }
 
 async function incrementAnalyticsCounter(

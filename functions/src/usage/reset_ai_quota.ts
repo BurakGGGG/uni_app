@@ -51,6 +51,7 @@ export const resetAiQuotaDaily = functions
           doc.ref,
           {
             lastResetDate: today,
+            lastAiRecommendationResetDate: today,
             dailyAiComparisons: 0,
             dailyAiRecommendations: 0,
             dailyComparisons: 0,
