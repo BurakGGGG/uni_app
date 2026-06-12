@@ -8,6 +8,7 @@ export const verifyStudentUniversity = onCall(
   {
     region: 'europe-west1',
     cors: true,
+    enforceAppCheck: true,
   },
   async (req) => {
     if (!req.auth) {

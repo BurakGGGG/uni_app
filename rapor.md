@@ -18,6 +18,14 @@ Tamamlanan kritik/yüksek öncelikli düzeltmeler:
 - Parent `reviews/{reviewId}.likes` client write'a kapatıldı; like sayımı Cloud Function ile server-side senkronlanacak hale getirildi.
 - Yorum create/edit sonrası moderation function temiz içeriği otomatik onaylayacak, uygunsuz içeriği onaysız bırakacak şekilde güncellendi.
 - Üniversite/user review count hesaplamaları onaylı yorumlara göre çalışacak şekilde düzeltildi.
+- AI tercih önerisi enrichment function'ı Pro entitlement kontrolü, atomik günlük quota (10/gün), kısa pencere rate limit (12/dk) ve App Check hazırlık yorumuyla sertleştirildi.
+- AI öneri cache hit'leri günlük kotadan düşmeyecek; gerçek Groq çağrıları transaction içinde hak tüketecek şekilde düzenlendi.
+- Flutter tarafında Firebase App Check aktive edildi; debug build'lerde debug provider, release Android'de Play Integrity, release Apple platformlarında App Attest + DeviceCheck fallback kullanılacak.
+- Callable Cloud Functions için App Check zorunlu hale getirildi: `verifyStudentUniversity`, `generateComparisonSummary`, `enrichRecommendations`.
+- Firestore analytics sayaçları client write'a kapatıldı; event yazımları App Check zorunlu `trackAnalyticsEvent` callable function'ına taşındı.
+- Analytics event adları server-side whitelist'e alındı ve kullanıcı başına kısa pencere rate limit eklendi.
+- `usageStats` başlangıç dokümanı Firestore rules tarafında whitelist/zero-counter validasyonuna alındı.
+- Günlük quota reset job'u ve RevenueCat webhook'u `lastAiRecommendationResetDate` alanıyla AI öneri reset takibini tutarlı hale getirecek şekilde güncellendi.
 - Firestore rules testleri emulator ile çalışır hale getirildi ve kritik exploit senaryoları eklendi.
 
 Son doğrulama çıktıları:
@@ -25,9 +33,10 @@ Son doğrulama çıktıları:
 | Komut | Sonuç |
 | --- | --- |
 | `npm run build` (`functions`) | Başarılı |
-| `npm test` (`rules-tests`) | Başarılı, 17 test geçti |
+| `npm test` (`rules-tests`) | Başarılı, 21 test geçti |
 | `flutter analyze` | Başarılı |
 | `flutter test` | Başarılı, 70 test geçti |
+| `flutter build apk --debug` | Başarılı |
 
 ## 1. Yönetici Özeti
 
@@ -87,8 +96,8 @@ Sınırlamalar:
 | Yüksek | Reviews/moderation | Yorum onayı, beğeni, içerik ve tarih alanları client tarafından manipüle edilebilir | Sahte/uygunsuz içerik, puan ve beğeni manipülasyonu |
 | Yüksek | Users/universityId | Kullanıcı kendi `universityId` alanını değiştirebilir | Başka üniversite adına yorum yazma |
 | Yüksek | Storage stories | Tüm authenticated kullanıcılar story medyası yükleyebilir | Maliyet, içerik güvenliği, bucket kirliliği |
-| Yüksek | Functions AI | Recommendation enrichment için kota/rate limit/App Check yok | AI maliyet kötüye kullanımı |
-| Orta | Analytics | Authenticated kullanıcı arbitrary analytics write yapabiliyor | Sayaç/veri güvenilirliği bozulur |
+| Yüksek | Functions AI | Recommendation enrichment quota/rate limit ve callable App Check enforcement eklendi | Firebase Console provider ayarları/debug token kaydı yapılmazsa client çağrıları reddedilir |
+| Orta | Analytics | Client analytics write kapatıldı; server-side callable endpoint'e taşındı | Debug token/App Check olmadan client event çağrıları reddedilir |
 | Orta | Preference lists | `viewCount` ve liste alanları yeterince doğrulanmıyor | Sayaç manipülasyonu, veri şişmesi |
 | Orta | Admin route | `/admin*` rotalarında client-side role guard yok | Yetkisiz UI erişimi; role açığıyla birleşince kritik |
 | Orta | Android lint | Manifest/style hataları var | Release kalitesi ve bazı cihazlarda runtime uyumsuzluk riski |
@@ -247,13 +256,15 @@ Etki:
 
 ### 4.6 Yüksek: AI recommendation enrichment için server-side kota/rate limit eksik
 
+Güncel durum (2026-06-13): Bu bulgu büyük ölçüde giderildi. `enrichRecommendations` artık Pro entitlement kontrolü, transaction içinde günlük 10 hak, 60 saniyede 12 istek rate limit'i ve cache hit'lerde quota düşmeme davranışıyla çalışacak şekilde güncellendi. Flutter tarafında App Check aktive edildi ve callable function'larda `enforceAppCheck: true` açıldı.
+
 Kanıt:
 
 - `functions/src/recommendations/enrich.ts:47-55`: callable function auth istiyor, CORS açık.
 - `functions/src/recommendations/enrich.ts:61-80`: input sınırlanıyor ve cache key oluşturuluyor.
 - `functions/src/recommendations/enrich.ts:109-123`: cache miss durumunda Groq çağrısı yapılıyor.
 - `functions/src/comparison/summary.ts:54-132`: comparison summary tarafında atomik kota var; recommendation enrichment tarafında benzer kota yok.
-- `functions/src/comparison/summary.ts:40-42`: App Check production için yorum satırında kapalı.
+- Güncel kodda `verifyStudentUniversity`, `generateComparisonSummary` ve `enrichRecommendations` callable function'larında `enforceAppCheck: true` aktif.
 
 Etki:
 
@@ -261,15 +272,17 @@ Authenticated kullanıcı farklı tag/recommendation kombinasyonlarıyla cache m
 
 Önerilen düzeltme:
 
-- Recommendation enrichment için `users/{uid}/usageStats/current` altında günlük kota ekleyin.
-- Transaction ile atomik quota increment uygulayın.
-- UID bazlı ve gerekirse IP/App Check bazlı rate limit ekleyin.
-- Production'da Firebase App Check'i aktif edin.
+- Recommendation enrichment için `users/{uid}/usageStats/current` altında günlük kota ekleyin. (Tamamlandı)
+- Transaction ile atomik quota increment uygulayın. (Tamamlandı)
+- UID bazlı ve gerekirse IP/App Check bazlı rate limit ekleyin. (UID bazlı rate limit tamamlandı)
+- Firebase Console'da App Check provider ayarlarını ve debug token kayıtlarını tamamlayın.
 - Cache key'i kullanıcı inputlarını normalize ederek daha yüksek cache hit oranı verecek şekilde tasarlayın.
 
 ## 5. Orta Risk Bulguları
 
 ### 5.1 Analytics koleksiyonları client tarafından serbest yazılabiliyor
+
+Güncel durum (2026-06-13): Bu bulgu giderildi. `analytics/{docId}` ve `analytics/{docId}/items/{itemId}` write izinleri client'a kapatıldı. Flutter `AnalyticsService` artık `trackAnalyticsEvent` callable function'ını çağırıyor; function App Check, auth, event whitelist ve kullanıcı bazlı rate limit ile yazıyor.
 
 Kanıt:
 
@@ -281,10 +294,10 @@ Her authenticated kullanıcı analytics sayaçlarını veya event dokümanların
 
 Önerilen düzeltme:
 
-- Analytics write işlemlerini Cloud Functions/Admin SDK'a taşıyın.
-- Client sadece whitelist event adıyla callable endpoint çağırmalı.
-- Event adları, hedef ID formatları ve rate limit server-side doğrulanmalı.
-- Counter dokümanları doğrudan client write'a kapatılmalı.
+- Analytics write işlemlerini Cloud Functions/Admin SDK'a taşıyın. (Tamamlandı)
+- Client sadece whitelist event adıyla callable endpoint çağırmalı. (Tamamlandı)
+- Event adları, hedef ID formatları ve rate limit server-side doğrulanmalı. (Tamamlandı)
+- Counter dokümanları doğrudan client write'a kapatılmalı. (Tamamlandı)
 
 ### 5.2 Preference list update ve viewCount kuralları zayıf
 
@@ -688,8 +701,8 @@ Hard overflow kesin değil; Material NavigationBar label'ları sıkıştırabili
 ### İlk 7 gün
 
 1. Functions dependency upgrade planını uygulayın.
-2. Recommendation enrichment için kota/rate limit ekleyin.
-3. Analytics write'larını Cloud Function endpoint'e taşıyın.
+2. Firebase Console App Check provider ayarlarını ve debug token kayıtlarını tamamlayın.
+3. Analytics dashboard için server-side event doğrulama loglarını ve alert'leri izleyin.
 4. Admin route guard ve 403 ekranı ekleyin.
 5. Admin UI responsive taşma risklerini düzeltin.
 6. CI pipeline'a şu gate'leri koyun:
@@ -706,7 +719,7 @@ Hard overflow kesin değil; Material NavigationBar label'ları sıkıştırabili
 
 ### 11.1 Güvenlik ve güvenilirlik özellikleri
 
-- Firebase App Check production'da aktif edilmeli.
+- Firebase App Check Console provider ayarları ve debug token kayıt süreci release checklist'e bağlanmalı.
 - Admin action audit log eklenmeli: kim, neyi, ne zaman onayladı/sildi/güncelledi.
 - Suspicious activity log eklenmeli: fazla upload, fazla AI çağrısı, fazla report, başarısız admin erişimleri.
 - Rate limit sistemi eklenmeli:

@@ -132,6 +132,7 @@ export const revenuecatWebhook = onRequest(
             dailyAiComparisons: 0,
             dailyAiRecommendations: 0,
             lastResetDate: today,
+            lastAiRecommendationResetDate: today,
           },
           { merge: true },
         );

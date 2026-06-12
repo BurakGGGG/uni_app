@@ -37,9 +37,7 @@ export const generateComparisonSummary = onCall(
     memory: '256MiB',
     secrets: [GROQ_API_KEY],
     cors: true,
-    // enforceAppCheck: true,           // DEV: client'ta App Check başlatılana kadar kapalı.
-    //                                  // Production sprint'te tekrar aç + main.dart'ta
-    //                                  // FirebaseAppCheck.instance.activate(...) ekle.
+    enforceAppCheck: true,
   },
   async (req): Promise<SummaryOutput> => {
     if (!req.auth) {

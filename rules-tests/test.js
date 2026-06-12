@@ -268,6 +268,100 @@ describe('Firestore Security Rules - admin custom claims', () => {
   });
 });
 
+describe('Firestore Security Rules - usage stats hardening', () => {
+  it('owner can create a safe initial usage stats doc', async () => {
+    const ctx = authed('user_1');
+
+    await assertSucceeds(
+      ctx
+        .firestore()
+        .collection('users')
+        .doc('user_1')
+        .collection('usageStats')
+        .doc('current')
+        .set({
+          dailyComparisons: 0,
+          dailyAiComparisons: 0,
+          dailyAiRecommendations: 0,
+          lastResetDate: '2026-06-13',
+          totalComparisons: 0,
+        }),
+    );
+  });
+
+  it('owner cannot seed AI quota fields on usage stats create', async () => {
+    const ctx = authed('user_1');
+    const ref = ctx
+      .firestore()
+      .collection('users')
+      .doc('user_1')
+      .collection('usageStats')
+      .doc('current');
+
+    await assertFails(
+      ref.set({
+        dailyComparisons: 0,
+        dailyAiComparisons: 0,
+        dailyAiRecommendations: -999,
+        lastResetDate: '2026-06-13',
+        totalComparisons: 0,
+      }),
+    );
+
+    await assertFails(
+      ref.set({
+        dailyComparisons: 0,
+        dailyAiComparisons: 0,
+        dailyAiRecommendations: 0,
+        lastAiRecommendationResetDate: '2026-06-13',
+        lastResetDate: '2026-06-13',
+        totalComparisons: 0,
+      }),
+    );
+  });
+});
+
+describe('Firestore Security Rules - analytics hardening', () => {
+  it('authenticated users cannot write analytics counters directly', async () => {
+    const ctx = authed('user_1');
+
+    await assertFails(
+      ctx.firestore().collection('analytics').doc('counters').set({
+        totalUsers: 999,
+      }),
+    );
+
+    await assertFails(
+      ctx
+        .firestore()
+        .collection('analytics')
+        .doc('topUniversities')
+        .collection('items')
+        .doc('uni_1')
+        .set({
+          name: 'Tampered University',
+          viewCount: 999,
+        }),
+    );
+  });
+
+  it('custom claim admin can read analytics counters', async () => {
+    await testEnv.withSecurityRulesDisabled(async (context) => {
+      await context.firestore().collection('analytics').doc('counters').set({
+        totalUsers: 10,
+      });
+    });
+
+    const ctx = authed('admin_user', 'admin@example.edu.tr', true, {
+      admin: true,
+    });
+
+    await assertSucceeds(
+      ctx.firestore().collection('analytics').doc('counters').get(),
+    );
+  });
+});
+
 describe('Firestore Security Rules - review moderation hardening', () => {
   beforeEach(async () => {
     await seedUser('user_1', {

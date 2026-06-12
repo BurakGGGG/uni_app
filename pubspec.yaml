@@ -71,6 +71,7 @@ dependencies:
   firebase_remote_config: ^5.5.0
   showcaseview: ^5.0.2
   flutter_cache_manager: ^3.4.1
+  firebase_app_check: ^0.3.2+10
 
 dev_dependencies:
   flutter_test:
