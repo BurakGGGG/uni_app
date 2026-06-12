@@ -36,7 +36,9 @@ final currentUserProvider = FutureProvider<UserModel?>((ref) async {
         await AnalyticsService().clearUserContext();
         return null;
       }
-      final profile = await ref.read(authRepositoryProvider).getUserProfile(user.uid);
+      final profile = await ref
+          .read(authRepositoryProvider)
+          .getUserProfile(user.uid);
       // Crashlytics & Analytics bağlamını ayarla
       if (profile != null) {
         await AnalyticsService().setUserContext(
@@ -50,6 +52,15 @@ final currentUserProvider = FutureProvider<UserModel?>((ref) async {
     loading: () => null,
     error: (e, st) => null,
   );
+});
+
+final currentUserAdminProvider = FutureProvider<bool>((ref) async {
+  final user = await ref.watch(authStateProvider.future);
+  if (user == null) return false;
+
+  return ref
+      .read(authRepositoryProvider)
+      .isCurrentUserAdmin(forceRefresh: true);
 });
 
 /// Auth işlemleri için controller
@@ -82,7 +93,10 @@ class AuthController extends StateNotifier<AsyncValue<void>> {
 
   /// Email/şifre ile kayıt
   Future<void> registerWithEmail(
-      String name, String email, String password) async {
+    String name,
+    String email,
+    String password,
+  ) async {
     state = const AsyncValue.loading();
     try {
       await _repository.registerWithEmail(
@@ -122,5 +136,5 @@ class AuthController extends StateNotifier<AsyncValue<void>> {
 /// AuthController provider
 final authControllerProvider =
     StateNotifierProvider<AuthController, AsyncValue<void>>((ref) {
-  return AuthController(ref.watch(authRepositoryProvider));
-});
+      return AuthController(ref.watch(authRepositoryProvider));
+    });

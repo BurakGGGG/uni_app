@@ -124,7 +124,11 @@ class UserModel {
   /// edu.tr email kontrolü
   bool get hasEduEmail => email.toLowerCase().endsWith('.edu.tr');
 
-  /// Admin kontrolü
+  /// Legacy role alanı. Yetki kontrolü Firebase Auth custom claim üzerinden yapılır.
+  @Deprecated(
+    'Admin authorization is based on Firebase Auth custom claims. '
+    'Use currentUserAdminProvider instead.',
+  )
   bool get isAdmin => role == 'admin';
 
   /// Kullanıcının baş harfi (avatar için)
@@ -137,7 +141,8 @@ class UserModel {
   }
 
   @override
-  String toString() => 'UserModel(uid: $uid, displayName: $displayName, email: $email)';
+  String toString() =>
+      'UserModel(uid: $uid, displayName: $displayName, email: $email)';
 }
 
 /// Bildirim tercihleri
@@ -169,8 +174,4 @@ class NotificationPreferences {
 }
 
 /// Auth durumu
-enum AuthStatus {
-  authenticated,
-  unauthenticated,
-  loading,
-}
+enum AuthStatus { authenticated, unauthenticated, loading }
