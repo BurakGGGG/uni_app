@@ -1,14 +1,13 @@
 import 'dart:async';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/foundation.dart';
-import 'package:intl/intl.dart';
 import '../domain/models/analytics_event.dart';
 
 /// Analytics event tracking servisi (Singleton).
 ///
-/// Her event'te Firestore'da iki doküman güncellenir:
+/// Her event'te Cloud Function üzerinden iki Firestore dokümanı güncellenir:
 /// 1. `analytics/counters` → tüm zamanlar toplamı
-/// 2. `analytics/daily/{yyyy-MM-dd}` → günlük kırılım
+/// 2. `analytics/daily_{yyyy-MM-dd}` → günlük kırılım
 ///
 /// Tüm işlemler fire-and-forget yapılır, ana akış hiçbir zaman
 /// analytics hatası yüzünden bozulmaz.
@@ -17,10 +16,9 @@ class AnalyticsService {
 
   static final AnalyticsService instance = AnalyticsService._();
 
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-
-  /// Bugünün tarih string'i: "2026-06-08"
-  String get _todayString => DateFormat('yyyy-MM-dd').format(DateTime.now());
+  final FirebaseFunctions _functions = FirebaseFunctions.instanceFor(
+    region: 'europe-west1',
+  );
 
   /// Bir analytics event'i kaydet.
   ///
@@ -48,42 +46,11 @@ class AnalyticsService {
     required String universityName,
   }) async {
     try {
-      final batch = _firestore.batch();
-      final event = AnalyticsEvent.universityViewed;
-
-      batch.set(
-        _firestore.collection('analytics').doc('counters'),
-        {
-          event.counterField: FieldValue.increment(1),
-          'lastUpdated': FieldValue.serverTimestamp(),
-        },
-        SetOptions(merge: true),
-      );
-
-      batch.set(
-        _firestore.collection('analytics').doc('daily_$_todayString'),
-        {
-          event.dailyField: FieldValue.increment(1),
-          'date': _todayString,
-        },
-        SetOptions(merge: true),
-      );
-
-      batch.set(
-        _firestore
-            .collection('analytics')
-            .doc('topUniversities')
-            .collection('items')
-            .doc(universityId),
-        {
-          'name': universityName,
-          'viewCount': FieldValue.increment(1),
-          'lastViewed': FieldValue.serverTimestamp(),
-        },
-        SetOptions(merge: true),
-      );
-
-      await batch.commit();
+      await _callTrackAnalytics({
+        'event': AnalyticsEvent.universityViewed.name,
+        'universityId': universityId,
+        'universityName': universityName,
+      });
     } catch (e) {
       debugPrint('[AnalyticsService] trackUniversityView failed: $e');
     }
@@ -91,32 +58,7 @@ class AnalyticsService {
 
   Future<void> _trackEventInternal(AnalyticsEvent event) async {
     try {
-      final batch = _firestore.batch();
-
-      // 1. All-time counter güncelle
-      final counterRef = _firestore.collection('analytics').doc('counters');
-      batch.set(
-        counterRef,
-        {
-          event.counterField: FieldValue.increment(1),
-          'lastUpdated': FieldValue.serverTimestamp(),
-        },
-        SetOptions(merge: true),
-      );
-
-      // 2. Günlük kırılım güncelle
-      final dailyRef =
-          _firestore.collection('analytics').doc('daily_$_todayString');
-      batch.set(
-        dailyRef,
-        {
-          event.dailyField: FieldValue.increment(1),
-          'date': _todayString,
-        },
-        SetOptions(merge: true),
-      );
-
-      await batch.commit();
+      await _callTrackAnalytics({'event': event.name});
     } catch (e) {
       debugPrint('[AnalyticsService] trackEvent(${event.name}) failed: $e');
     }
@@ -129,29 +71,19 @@ class AnalyticsService {
 
   Future<void> _trackEventsInternal(List<AnalyticsEvent> events) async {
     try {
-      final batch = _firestore.batch();
-      final counterRef = _firestore.collection('analytics').doc('counters');
-      final dailyRef =
-          _firestore.collection('analytics').doc('daily_$_todayString');
-
-      final counterUpdates = <String, dynamic>{
-        'lastUpdated': FieldValue.serverTimestamp(),
-      };
-      final dailyUpdates = <String, dynamic>{
-        'date': _todayString,
-      };
-
-      for (final event in events) {
-        counterUpdates[event.counterField] = FieldValue.increment(1);
-        dailyUpdates[event.dailyField] = FieldValue.increment(1);
-      }
-
-      batch.set(counterRef, counterUpdates, SetOptions(merge: true));
-      batch.set(dailyRef, dailyUpdates, SetOptions(merge: true));
-
-      await batch.commit();
+      await _callTrackAnalytics({
+        'events': events.map((event) => event.name).toList(growable: false),
+      });
     } catch (e) {
       debugPrint('[AnalyticsService] trackEvents failed: $e');
     }
+  }
+
+  Future<void> _callTrackAnalytics(Map<String, Object?> payload) async {
+    final callable = _functions.httpsCallable(
+      'trackAnalyticsEvent',
+      options: HttpsCallableOptions(timeout: const Duration(seconds: 10)),
+    );
+    await callable.call<Object?>(payload);
   }
 }
