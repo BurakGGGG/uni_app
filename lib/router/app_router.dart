@@ -179,19 +179,23 @@ final routerProvider = Provider<GoRouter>((ref) {
       // ─── Admin ─────────────────────────────────────────────────────
       GoRoute(
         path: '/admin',
-        builder: (context, state) => const AdminPanelScreen(),
+        builder: (context, state) =>
+            const _AdminRouteGuard(child: AdminPanelScreen()),
       ),
       GoRoute(
         path: '/admin/stories',
-        builder: (context, state) => const AdminStoryPanelScreen(),
+        builder: (context, state) =>
+            const _AdminRouteGuard(child: AdminStoryPanelScreen()),
       ),
       GoRoute(
         path: '/admin/reports',
-        builder: (context, state) => const AdminReportsScreen(),
+        builder: (context, state) =>
+            const _AdminRouteGuard(child: AdminReportsScreen()),
       ),
       GoRoute(
         path: '/admin/stats',
-        builder: (context, state) => const AdminStatsScreen(),
+        builder: (context, state) =>
+            const _AdminRouteGuard(child: AdminStatsScreen()),
       ),
 
       // ─── Arama ───────────────────────────────────────────────────
@@ -480,3 +484,59 @@ final routerProvider = Provider<GoRouter>((ref) {
     ],
   );
 });
+
+class _AdminRouteGuard extends ConsumerWidget {
+  final Widget child;
+
+  const _AdminRouteGuard({required this.child});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isAdminAsync = ref.watch(currentUserAdminProvider);
+
+    return isAdminAsync.when(
+      data: (isAdmin) {
+        if (isAdmin) return child;
+        return Scaffold(
+          appBar: AppBar(),
+          body: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.lock_outline_rounded,
+                    size: 48,
+                    color: Theme.of(context).colorScheme.error,
+                  ),
+                  const SizedBox(height: 12),
+                  const Text(
+                    'Bu alana erişim yetkiniz yok.',
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 16),
+                  FilledButton(
+                    onPressed: () => context.go(AppRoutes.home),
+                    child: const Text('Ana Sayfaya Dön'),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+      loading: () =>
+          const Scaffold(body: Center(child: CircularProgressIndicator())),
+      error: (_, _) => Scaffold(
+        appBar: AppBar(),
+        body: Center(
+          child: FilledButton(
+            onPressed: () => context.go(AppRoutes.home),
+            child: const Text('Ana Sayfaya Dön'),
+          ),
+        ),
+      ),
+    );
+  }
+}

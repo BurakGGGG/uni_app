@@ -23,8 +23,7 @@ class AdminStoryUploadSheet extends ConsumerStatefulWidget {
       _AdminStoryUploadSheetState();
 }
 
-class _AdminStoryUploadSheetState
-    extends ConsumerState<AdminStoryUploadSheet> {
+class _AdminStoryUploadSheetState extends ConsumerState<AdminStoryUploadSheet> {
   File? _coverImage; // Kapak fotoğrafı (circular cropped)
   File? _storyImage; // Tam ekran story görseli (fotoğraf modu)
   File? _storyVideo; // Video dosyası (video modu)
@@ -126,7 +125,8 @@ class _AdminStoryUploadSheetState
     if (!_canUpload) return;
 
     final user = ref.read(currentUserProvider).valueOrNull;
-    if (user == null || !user.isAdmin) return;
+    final isAdmin = ref.read(currentUserAdminProvider).valueOrNull ?? false;
+    if (user == null || !isAdmin) return;
 
     setState(() => _isUploading = true);
 
@@ -340,8 +340,7 @@ class _AdminStoryUploadSheetState
                                   Text(
                                     'Seç',
                                     style: AppTextStyles.labelSmall.copyWith(
-                                      color:
-                                          AppColors.textTertiaryFor(context),
+                                      color: AppColors.textTertiaryFor(context),
                                       fontSize: 10,
                                     ),
                                   ),
@@ -393,9 +392,7 @@ class _AdminStoryUploadSheetState
                   GestureDetector(
                     onTap: _isUploading
                         ? null
-                        : (_isVideoMode
-                            ? _pickStoryVideo
-                            : _pickStoryImage),
+                        : (_isVideoMode ? _pickStoryVideo : _pickStoryImage),
                     child: AnimatedContainer(
                       duration: const Duration(milliseconds: 300),
                       height: 140,
@@ -404,16 +401,12 @@ class _AdminStoryUploadSheetState
                         color: AppColors.surfaceVariantFor(context),
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(
-                          color: (_isVideoMode
-                                      ? _storyVideo
-                                      : _storyImage) !=
-                                  null
+                          color:
+                              (_isVideoMode ? _storyVideo : _storyImage) != null
                               ? AppColors.primary.withValues(alpha: 0.5)
                               : AppColors.borderFor(context),
-                          width: (_isVideoMode
-                                      ? _storyVideo
-                                      : _storyImage) !=
-                                  null
+                          width:
+                              (_isVideoMode ? _storyVideo : _storyImage) != null
                               ? 2
                               : 1,
                         ),
@@ -556,8 +549,9 @@ class _AdminStoryUploadSheetState
                         clipBehavior: Clip.antiAlias,
                         child: Ink(
                           decoration: BoxDecoration(
-                            gradient:
-                                _canUpload ? AppColors.heroGradient : null,
+                            gradient: _canUpload
+                                ? AppColors.heroGradient
+                                : null,
                             color: !_canUpload
                                 ? AppColors.borderFor(context)
                                 : null,
@@ -726,11 +720,13 @@ class _AdminStoryUploadSheetState
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(icon,
-                  size: 16,
-                  color: isSelected
-                      ? Colors.white
-                      : AppColors.textSecondaryFor(context)),
+              Icon(
+                icon,
+                size: 16,
+                color: isSelected
+                    ? Colors.white
+                    : AppColors.textSecondaryFor(context),
+              ),
               const SizedBox(width: 6),
               Text(
                 label,
