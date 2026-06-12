@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
@@ -37,8 +39,17 @@ void main() async {
     // intl DateFormat için Türkçe locale verisini yükle (7.5 — AppFormatters)
     initializeDateFormatting('tr_TR'),
   ]);
-  
+
   final prefs = results[1] as SharedPreferences;
+
+  await FirebaseAppCheck.instance.activate(
+    androidProvider: kDebugMode
+        ? AndroidProvider.debug
+        : AndroidProvider.playIntegrity,
+    appleProvider: kDebugMode
+        ? AppleProvider.debug
+        : AppleProvider.appAttestWithDeviceCheckFallback,
+  );
 
   // Global Crashlytics handler
   FlutterError.onError = (errorDetails) {
@@ -57,9 +68,7 @@ void main() async {
 
   // Status bar stilini ayarla
   SystemChrome.setSystemUIOverlayStyle(
-    SystemUiOverlayStyle.dark.copyWith(
-      statusBarColor: Colors.transparent,
-    ),
+    SystemUiOverlayStyle.dark.copyWith(statusBarColor: Colors.transparent),
   );
 
   // Tercih edilen oryantasyonlar
@@ -73,9 +82,7 @@ void main() async {
 
   runApp(
     ProviderScope(
-      overrides: [
-        sharedPreferencesProvider.overrideWithValue(prefs),
-      ],
+      overrides: [sharedPreferencesProvider.overrideWithValue(prefs)],
       child: const UniSecApp(),
     ),
   );
@@ -96,7 +103,7 @@ class _UniSecAppState extends ConsumerState<UniSecApp> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await FCMService().init();
-      
+
       // Notification tap → router push
       FCMService().onNotificationTap = (data) {
         final route = data['route'] as String?;
@@ -129,10 +136,7 @@ class _UniSecAppState extends ConsumerState<UniSecApp> {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      supportedLocales: const [
-        Locale('tr'),
-        Locale('en'),
-      ],
+      supportedLocales: const [Locale('tr'), Locale('en')],
     );
   }
 }
