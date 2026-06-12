@@ -4,8 +4,7 @@ import * as admin from 'firebase-admin';
 const db = admin.firestore();
 
 /**
- * Haftalık çalışır, 90 günden eski "lastTokenRefresh"li kullanıcıların 
- * fcmTokens listesini temizler.
+ * Haftalık çalışır, 90 günden eski FCM token dokümanlarını temizler.
  */
 export const cleanupStaleTokens = functions
   .region('europe-west1')
@@ -17,14 +16,14 @@ export const cleanupStaleTokens = functions
       Date.now() - 90 * 24 * 60 * 60 * 1000
     );
     
-    const snap = await db.collection('users')
-      .where('lastTokenRefresh', '<', ninetyDaysAgo)
+    const snap = await db.collectionGroup('fcmTokens')
+      .where('updatedAt', '<', ninetyDaysAgo)
       .limit(100)
       .get();
     
     const batch = db.batch();
     for (const doc of snap.docs) {
-      batch.update(doc.ref, { fcmTokens: [] });
+      batch.delete(doc.ref);
     }
     
     await batch.commit();

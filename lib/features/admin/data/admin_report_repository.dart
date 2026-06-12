@@ -10,7 +10,7 @@ class AdminReportRepository {
   final FirebaseFirestore _firestore;
 
   AdminReportRepository({FirebaseFirestore? firestore})
-      : _firestore = firestore ?? FirebaseFirestore.instance;
+    : _firestore = firestore ?? FirebaseFirestore.instance;
 
   CollectionReference<Map<String, dynamic>> get _reportsRef =>
       _firestore.collection('reports');
@@ -23,9 +23,11 @@ class AdminReportRepository {
     return _reportsRef
         .orderBy('createdAt', descending: true)
         .snapshots()
-        .map((snap) => snap.docs
-            .map((d) => AdminReportModel.fromMap(d.data(), d.id))
-            .toList());
+        .map(
+          (snap) => snap.docs
+              .map((d) => AdminReportModel.fromMap(d.data(), d.id))
+              .toList(),
+        );
   }
 
   // ─── Stream: Belirli statüdeki raporları dinle ────────────────────
@@ -34,9 +36,11 @@ class AdminReportRepository {
         .where('status', isEqualTo: status.name)
         .orderBy('createdAt', descending: true)
         .snapshots()
-        .map((snap) => snap.docs
-            .map((d) => AdminReportModel.fromMap(d.data(), d.id))
-            .toList());
+        .map(
+          (snap) => snap.docs
+              .map((d) => AdminReportModel.fromMap(d.data(), d.id))
+              .toList(),
+        );
   }
 
   // ─── Stream: Bekleyen rapor sayısı (badge) ────────────────────────
@@ -57,9 +61,11 @@ class AdminReportRepository {
         .where('reviewId', isEqualTo: reviewId)
         .orderBy('createdAt', descending: true)
         .snapshots()
-        .map((snap) => snap.docs
-            .map((d) => AdminReportModel.fromMap(d.data(), d.id))
-            .toList());
+        .map(
+          (snap) => snap.docs
+              .map((d) => AdminReportModel.fromMap(d.data(), d.id))
+              .toList(),
+        );
   }
 
   // ─── Rapor durumunu güncelle ──────────────────────────────────────
@@ -79,37 +85,23 @@ class AdminReportRepository {
 
   // ─── Şikayet edilen yorumu gizle (isApproved = false) ────────────
   Future<void> hideReportedReview(String reviewId) async {
-    await _reviewsRef.doc(reviewId).update({
-      'isApproved': false,
-    });
+    await _reviewsRef.doc(reviewId).update({'isApproved': false});
   }
 
   // ─── Gizlenen yorumu geri aç (isApproved = true) ─────────────────
   Future<void> unhideReview(String reviewId) async {
-    await _reviewsRef.doc(reviewId).update({
-      'isApproved': true,
-    });
+    await _reviewsRef.doc(reviewId).update({'isApproved': true});
   }
 
   // ─── Şikayet edilen yorumu kalıcı sil ────────────────────────────
   Future<void> deleteReportedReview(
     String reviewId,
-    String userId,
     List<String> photoUrls,
   ) async {
     // 1. Firestore'dan sil
     await _reviewsRef.doc(reviewId).delete();
 
-    // 2. reviewCount azalt
-    try {
-      await _firestore.collection('users').doc(userId).update({
-        'reviewCount': FieldValue.increment(-1),
-      });
-    } catch (e) {
-      debugPrint('[AdminReport] reviewCount azaltma hatası: $e');
-    }
-
-    // 3. Fotoğrafları sil (best effort)
+    // 2. Fotoğrafları sil (best effort)
     for (final url in photoUrls) {
       try {
         await FirebaseStorage.instance.refFromURL(url).delete();
@@ -125,9 +117,11 @@ class AdminReportRepository {
         .where('isApproved', isEqualTo: false)
         .orderBy('updatedAt', descending: true)
         .snapshots()
-        .map((snap) => snap.docs
-            .map((d) => ReviewModel.fromMap(d.data(), d.id))
-            .toList());
+        .map(
+          (snap) => snap.docs
+              .map((d) => ReviewModel.fromMap(d.data(), d.id))
+              .toList(),
+        );
   }
 
   // ─── Belirli bir yoruma ait şikayet sayısını getir ────────────────
@@ -148,15 +142,11 @@ class AdminReportRepository {
     await _firestore.collection('notifications').add({
       'userId': reviewOwnerId,
       'type': 'review_moderated',
-      'title': action == 'deleted'
-          ? 'Yorumunuz silindi'
-          : 'Yorumunuz gizlendi',
+      'title': action == 'deleted' ? 'Yorumunuz silindi' : 'Yorumunuz gizlendi',
       'body': action == 'deleted'
           ? 'Topluluk kurallarına aykırı bulunan yorumunuz kaldırıldı.'
           : 'Topluluk kurallarına aykırı bulunan yorumunuz gizlendi.',
-      'data': {
-        'adminNote': ?adminNote,
-      },
+      'data': {'adminNote': ?adminNote},
       'isRead': false,
       'createdAt': FieldValue.serverTimestamp(),
     });

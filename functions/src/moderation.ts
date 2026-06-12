@@ -1,10 +1,10 @@
-import { onDocumentCreated } from 'firebase-functions/v2/firestore';
+import { onDocumentWritten } from 'firebase-functions/v2/firestore';
 import * as admin from 'firebase-admin';
 import badWords from './bad_words_tr.json';
 
 /**
- * Yeni yorum oluşturulduğunda otomatik küfür filtresi uygular.
- * Küfür tespit edilirse yorumu onaysız olarak işaretler (isApproved: false).
+ * Yeni yorum oluşturulduğunda veya kullanıcı yorumu düzenlediğinde otomatik
+ * küfür filtresi uygular. Temiz içerik onaylanır, uygunsuz içerik onaysız kalır.
  * 
  * Kontrol edilen alanlar: comment, pros[], cons[]
  * 
@@ -47,11 +47,21 @@ function containsBadWord(text: string): boolean {
   return false;
 }
 
-export const moderateNewReview = onDocumentCreated(
+export const moderateNewReview = onDocumentWritten(
   'reviews/{reviewId}',
   async (event) => {
-    const review = event.data?.data();
+    const before = event.data?.before.data();
+    const after = event.data?.after.data();
+    const afterExists = event.data?.after.exists === true;
+
+    if (!afterExists) return;
+
+    const review = after;
     if (!review) return;
+
+    if (before && !hasReviewContentChanged(before, review)) {
+      return;
+    }
 
     // Tüm metin alanlarını birleştir
     const text = [
@@ -61,14 +71,43 @@ export const moderateNewReview = onDocumentCreated(
     ].join(' ');
 
     if (containsBadWord(text)) {
-      await event.data?.ref.update({
+      await event.data?.after.ref.update({
         isApproved: false,
+        moderationStatus: 'auto_flagged',
         moderationReason: 'auto_flagged_language',
         moderatedAt: admin.firestore.FieldValue.serverTimestamp(),
       });
       console.log(`Review ${event.params.reviewId} auto-flagged for inappropriate language.`);
     } else {
-      console.log(`Review ${event.params.reviewId} passed moderation.`);
+      await event.data?.after.ref.update({
+        isApproved: true,
+        moderationStatus: 'approved',
+        moderationReason: admin.firestore.FieldValue.delete(),
+        moderatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
+      console.log(`Review ${event.params.reviewId} approved by auto-moderation.`);
     }
   }
 );
+
+function hasReviewContentChanged(
+  before: admin.firestore.DocumentData,
+  after: admin.firestore.DocumentData,
+): boolean {
+  const fields = [
+    'rating',
+    'categoryRatings',
+    'comment',
+    'pros',
+    'cons',
+    'imageUrls',
+    'isAnonymous',
+  ];
+
+  return fields.some((field) => stableJson(before[field]) !== stableJson(after[field]));
+}
+
+function stableJson(value: unknown): string {
+  if (value === undefined) return 'undefined';
+  return JSON.stringify(value);
+}

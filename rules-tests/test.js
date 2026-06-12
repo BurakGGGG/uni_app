@@ -1,4 +1,9 @@
-const { assertFails, assertSucceeds, initializeTestEnvironment } = require('@firebase/rules-unit-testing');
+const {
+  assertFails,
+  assertSucceeds,
+  initializeTestEnvironment,
+} = require('@firebase/rules-unit-testing');
+const { serverTimestamp } = require('firebase/firestore');
 const { readFileSync } = require('fs');
 const path = require('path');
 
@@ -6,7 +11,7 @@ let testEnv;
 
 before(async () => {
   testEnv = await initializeTestEnvironment({
-    projectId: "unisec-test-rules",
+    projectId: 'unisec-test-rules',
     firestore: {
       rules: readFileSync(path.resolve(__dirname, '../firestore.rules'), 'utf8'),
     },
@@ -21,38 +26,348 @@ beforeEach(async () => {
   await testEnv.clearFirestore();
 });
 
-describe("Firestore Security Rules - Admin Checks", () => {
-  
-  it("Admin CAN write to cities collection", async () => {
-    // Admin claim ile authenticate edilmiş user context oluştur
-    const adminContext = testEnv.authenticatedContext('admin_user', {
-      admin: true
-    });
-    
-    // Test: Şehir oluşturabilmeli
+function authed(
+  uid,
+  email = `${uid}@example.edu.tr`,
+  verified = true,
+  extraClaims = {},
+) {
+  return testEnv.authenticatedContext(uid, {
+    email,
+    email_verified: verified,
+    ...extraClaims,
+  });
+}
+
+function validUserData(email = 'user@example.edu.tr') {
+  return {
+    displayName: 'Test User',
+    email,
+    photoUrl: null,
+    isVerifiedStudent: false,
+    university: null,
+    universityId: null,
+    department: null,
+    grade: null,
+    bio: null,
+    role: 'user',
+    reviewCount: 0,
+    notificationPrefs: {
+      reviewLikedEnabled: true,
+      reviewModeratedEnabled: true,
+      favoriteNewReviewEnabled: true,
+    },
+    createdAt: new Date(),
+    lastLoginAt: new Date(),
+  };
+}
+
+async function seedUser(uid, data = {}) {
+  await testEnv.withSecurityRulesDisabled(async (context) => {
+    await context
+      .firestore()
+      .collection('users')
+      .doc(uid)
+      .set({
+        ...validUserData(`${uid}@example.edu.tr`),
+        ...data,
+      });
+  });
+}
+
+function validReviewData(userId = 'user_1', data = {}) {
+  return {
+    type: 'university',
+    targetId: 'uni_1',
+    universityId: 'uni_1',
+    userId,
+    userName: 'Test User',
+    userPhotoUrl: null,
+    userUniversity: 'Test University',
+    rating: 4,
+    categoryRatings: {
+      genel: 4,
+    },
+    comment: 'Bu universite hakkinda yeterince detayli ve temiz bir yorum.',
+    pros: ['Kampus'],
+    cons: [],
+    imageUrls: [],
+    likes: 0,
+    isAnonymous: false,
+    isApproved: false,
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+    ...data,
+  };
+}
+
+async function seedReview(reviewId = 'review_1', data = {}) {
+  await testEnv.withSecurityRulesDisabled(async (context) => {
+    await context
+      .firestore()
+      .collection('reviews')
+      .doc(reviewId)
+      .set({
+        ...validReviewData('user_1', {
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        }),
+        ...data,
+      });
+  });
+}
+
+describe('Firestore Security Rules - users hardening', () => {
+  it('owner can create a safe user doc', async () => {
+    const ctx = authed('user_1', 'user_1@example.edu.tr');
+
     await assertSucceeds(
-      adminContext.firestore().collection('cities').doc('34').set({ name: 'İstanbul' })
+      ctx
+        .firestore()
+        .collection('users')
+        .doc('user_1')
+        .set(validUserData('user_1@example.edu.tr')),
     );
   });
 
-  it("Normal user CANNOT write to cities collection", async () => {
-    // Normal user (admin claim'i yok)
-    const normalContext = testEnv.authenticatedContext('normal_user', {
-      admin: false
+  it('owner cannot create themselves as admin', async () => {
+    const ctx = authed('user_1', 'user_1@example.edu.tr');
+
+    await assertFails(
+      ctx
+        .firestore()
+        .collection('users')
+        .doc('user_1')
+        .set({
+          ...validUserData('user_1@example.edu.tr'),
+          role: 'admin',
+        }),
+    );
+  });
+
+  it('owner can update safe profile fields', async () => {
+    await seedUser('user_1');
+    const ctx = authed('user_1');
+
+    await assertSucceeds(
+      ctx.firestore().collection('users').doc('user_1').update({
+        displayName: 'Updated User',
+        bio: 'Yeni bio',
+      }),
+    );
+  });
+
+  it('owner cannot update sensitive fields on users doc', async () => {
+    await seedUser('user_1');
+    const ctx = authed('user_1');
+    const ref = ctx.firestore().collection('users').doc('user_1');
+
+    await assertFails(ref.update({ role: 'admin' }));
+    await assertFails(ref.update({ email: 'other@example.edu.tr' }));
+    await assertFails(ref.update({ universityId: 'itu' }));
+    await assertFails(ref.update({ isVerifiedStudent: true }));
+    await assertFails(ref.update({ reviewCount: 999 }));
+    await assertFails(ref.update({ fcmTokens: ['token'] }));
+  });
+
+  it('other users cannot read private user docs', async () => {
+    await seedUser('user_1');
+    await seedUser('user_2');
+    const ctx = authed('user_2');
+
+    await assertFails(
+      ctx.firestore().collection('users').doc('user_1').get(),
+    );
+  });
+
+  it('public profiles are readable but not client writable', async () => {
+    await testEnv.withSecurityRulesDisabled(async (context) => {
+      await context.firestore().collection('publicProfiles').doc('user_1').set({
+        displayName: 'Public User',
+      });
     });
-    
-    // Test: Şehir oluşturamamalı
-    await assertFails(
-      normalContext.firestore().collection('cities').doc('35').set({ name: 'İzmir' })
+
+    const ctx = authed('user_1');
+    await assertSucceeds(
+      ctx.firestore().collection('publicProfiles').doc('user_1').get(),
     );
-  });
-  
-  it("Unauthenticated user CANNOT write to cities collection", async () => {
-    const unauthContext = testEnv.unauthenticatedContext();
-    
     await assertFails(
-      unauthContext.firestore().collection('cities').doc('06').set({ name: 'Ankara' })
+      ctx.firestore().collection('publicProfiles').doc('user_1').set({
+        displayName: 'Tampered',
+      }),
     );
   });
 
+  it('owner can write their FCM token subcollection but not another user token', async () => {
+    await seedUser('user_1');
+    await seedUser('user_2');
+    const ctx = authed('user_1');
+
+    await assertSucceeds(
+      ctx
+        .firestore()
+        .collection('users')
+        .doc('user_1')
+        .collection('fcmTokens')
+        .doc('token_doc')
+        .set({
+          token: 'token-value',
+          platform: 'android',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        }),
+    );
+
+    await assertFails(
+      ctx
+        .firestore()
+        .collection('users')
+        .doc('user_2')
+        .collection('fcmTokens')
+        .doc('token_doc')
+        .set({
+          token: 'token-value',
+          platform: 'android',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        }),
+    );
+  });
+});
+
+describe('Firestore Security Rules - admin custom claims', () => {
+  it('custom claim admin can write admin-managed collections', async () => {
+    await seedUser('admin_user', { role: 'user' });
+    const ctx = authed('admin_user', 'admin@example.edu.tr', true, {
+      admin: true,
+    });
+
+    await assertSucceeds(
+      ctx.firestore().collection('cities').doc('34').set({ name: 'İstanbul' }),
+    );
+  });
+
+  it('legacy role admin without custom claim cannot write admin-managed collections', async () => {
+    await seedUser('legacy_admin_user', { role: 'admin' });
+    const ctx = authed('legacy_admin_user', 'legacy@example.edu.tr');
+
+    await assertFails(
+      ctx.firestore().collection('cities').doc('35').set({ name: 'İzmir' }),
+    );
+  });
+
+  it('custom claim admin can read private user docs', async () => {
+    await seedUser('user_1');
+    const ctx = authed('admin_user', 'admin@example.edu.tr', true, {
+      admin: true,
+    });
+
+    await assertSucceeds(
+      ctx.firestore().collection('users').doc('user_1').get(),
+    );
+  });
+});
+
+describe('Firestore Security Rules - review moderation hardening', () => {
+  beforeEach(async () => {
+    await seedUser('user_1', {
+      displayName: 'Test User',
+      photoUrl: null,
+      university: 'Test University',
+      universityId: 'uni_1',
+    });
+  });
+
+  it('verified owner can create a pending safe review', async () => {
+    const ctx = authed('user_1', 'user_1@example.edu.tr', true);
+
+    await assertSucceeds(
+      ctx.firestore().collection('reviews').doc('review_1').set(
+        validReviewData('user_1'),
+      ),
+    );
+  });
+
+  it('owner cannot create an already approved review', async () => {
+    const ctx = authed('user_1', 'user_1@example.edu.tr', true);
+
+    await assertFails(
+      ctx.firestore().collection('reviews').doc('review_1').set(
+        validReviewData('user_1', { isApproved: true }),
+      ),
+    );
+  });
+
+  it('owner cannot create a review for another university', async () => {
+    const ctx = authed('user_1', 'user_1@example.edu.tr', true);
+
+    await assertFails(
+      ctx.firestore().collection('reviews').doc('review_1').set(
+        validReviewData('user_1', {
+          targetId: 'uni_2',
+          universityId: 'uni_2',
+        }),
+      ),
+    );
+  });
+
+  it('owner can edit content only when review goes back to pending', async () => {
+    await seedReview('review_1', { isApproved: true });
+    const ctx = authed('user_1', 'user_1@example.edu.tr', true);
+
+    await assertSucceeds(
+      ctx.firestore().collection('reviews').doc('review_1').update({
+        comment: 'Duzenlenmis ve yeniden moderasyona girecek temiz yorum.',
+        isApproved: false,
+        updatedAt: serverTimestamp(),
+      }),
+    );
+  });
+
+  it('owner cannot edit immutable or moderation-controlled review fields', async () => {
+    await seedReview('review_1', { isApproved: true });
+    const ctx = authed('user_1', 'user_1@example.edu.tr', true);
+    const ref = ctx.firestore().collection('reviews').doc('review_1');
+
+    await assertFails(ref.update({ likes: 999 }));
+    await assertFails(ref.update({ createdAt: serverTimestamp() }));
+    await assertFails(ref.update({ universityId: 'uni_2' }));
+    await assertFails(ref.update({ isApproved: true }));
+  });
+
+  it('users can like approved reviews but cannot directly update parent likes', async () => {
+    await seedReview('review_1', { isApproved: true });
+    const ctx = authed('user_1', 'user_1@example.edu.tr', true);
+
+    await assertSucceeds(
+      ctx
+        .firestore()
+        .collection('reviews')
+        .doc('review_1')
+        .collection('likes')
+        .doc('user_1')
+        .set({ createdAt: serverTimestamp() }),
+    );
+
+    await assertFails(
+      ctx.firestore().collection('reviews').doc('review_1').update({
+        likes: 1,
+      }),
+    );
+  });
+
+  it('users cannot like pending reviews', async () => {
+    await seedReview('review_1', { isApproved: false });
+    const ctx = authed('user_1', 'user_1@example.edu.tr', true);
+
+    await assertFails(
+      ctx
+        .firestore()
+        .collection('reviews')
+        .doc('review_1')
+        .collection('likes')
+        .doc('user_1')
+        .set({ createdAt: serverTimestamp() }),
+    );
+  });
 });

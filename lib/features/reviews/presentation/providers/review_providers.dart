@@ -17,22 +17,27 @@ final reportRepositoryProvider = Provider<ReportRepository>((_) {
 });
 
 /// Bir yoruma ait detayı getiren sağlayıcı
-final reviewDetailProvider = FutureProvider.family<ReviewModel?, String>((ref, id) {
+final reviewDetailProvider = FutureProvider.family<ReviewModel?, String>((
+  ref,
+  id,
+) {
   return ref.read(reviewRepositoryProvider).getReview(id);
 });
 
 /// Bir üniversiteye ait yorumları dinleyen sağlayıcı
-final universityReviewsProvider = StreamProvider.family<List<ReviewModel>, String>((ref, universityId) {
-  ref.keepAlive();
-  final repository = ref.watch(reviewRepositoryProvider);
-  return repository.getUniversityReviews(universityId);
-});
+final universityReviewsProvider =
+    StreamProvider.family<List<ReviewModel>, String>((ref, universityId) {
+      ref.keepAlive();
+      final repository = ref.watch(reviewRepositoryProvider);
+      return repository.getUniversityReviews(universityId);
+    });
 
 /// Bir bölüme ait yorumları dinleyen sağlayıcı
-final departmentReviewsProvider = StreamProvider.family<List<ReviewModel>, String>((ref, departmentId) {
-  final repository = ref.watch(reviewRepositoryProvider);
-  return repository.getDepartmentReviews(departmentId);
-});
+final departmentReviewsProvider =
+    StreamProvider.family<List<ReviewModel>, String>((ref, departmentId) {
+      final repository = ref.watch(reviewRepositoryProvider);
+      return repository.getDepartmentReviews(departmentId);
+    });
 
 /// Ana sayfada gösterilecek son yorumları dinleyen sağlayıcı
 final recentReviewsProvider = StreamProvider<List<ReviewModel>>((ref) {
@@ -42,28 +47,32 @@ final recentReviewsProvider = StreamProvider<List<ReviewModel>>((ref) {
 });
 
 /// Kullanıcının kendi yaptığı yorumları dinleyen sağlayıcı
-final userReviewsProvider = StreamProvider.family<List<ReviewModel>, String>((ref, userId) {
+final userReviewsProvider = StreamProvider.family<List<ReviewModel>, String>((
+  ref,
+  userId,
+) {
   final repository = ref.watch(reviewRepositoryProvider);
   return repository.getUserReviews(userId);
 });
 
-/// Üniversiteye ait tüm fotoğraflı yorumları (bölüm, mekan, genel) dinleyen ve 
+/// Üniversiteye ait tüm fotoğraflı yorumları (bölüm, mekan, genel) dinleyen ve
 /// düz bir fotoğraf listesine (ReviewPhotoModel) dönüştüren sağlayıcı
-final universityGalleryPhotosProvider = StreamProvider.family<List<ReviewPhotoModel>, String>((ref, universityId) {
-  ref.keepAlive();
-  final repository = ref.watch(reviewRepositoryProvider);
-  return repository.getAllReviewsForUniversity(universityId).map((reviews) {
-    final List<ReviewPhotoModel> photos = [];
-    for (final review in reviews) {
-      if (review.imageUrls.isNotEmpty) {
-        for (final url in review.imageUrls) {
-          photos.add(ReviewPhotoModel(imageUrl: url, review: review));
+final universityGalleryPhotosProvider =
+    StreamProvider.family<List<ReviewPhotoModel>, String>((ref, universityId) {
+      ref.keepAlive();
+      final repository = ref.watch(reviewRepositoryProvider);
+      return repository.getAllReviewsForUniversity(universityId).map((reviews) {
+        final List<ReviewPhotoModel> photos = [];
+        for (final review in reviews) {
+          if (review.imageUrls.isNotEmpty) {
+            for (final url in review.imageUrls) {
+              photos.add(ReviewPhotoModel(imageUrl: url, review: review));
+            }
+          }
         }
-      }
-    }
-    return photos;
-  });
-});
+        return photos;
+      });
+    });
 
 // ─── Sprint 3 — Kişi B: Like Sistemi Provider'ları ─────────────────
 
@@ -135,15 +144,18 @@ class LikeController extends StateNotifier<Map<String, _PendingLike>> {
 
 final likeControllerProvider =
     StateNotifierProvider<LikeController, Map<String, _PendingLike>>((ref) {
-  final controller = LikeController(ref.read(reviewRepositoryProvider));
+      final controller = LikeController(ref.read(reviewRepositoryProvider));
 
-  // Server stream her güncellendiğinde reconcile et
-  ref.listen<AsyncValue<Set<String>>>(userLikedReviewsProvider, (prev, next) {
-    next.whenData((ids) => controller.reconcile(ids));
-  });
+      // Server stream her güncellendiğinde reconcile et
+      ref.listen<AsyncValue<Set<String>>>(userLikedReviewsProvider, (
+        prev,
+        next,
+      ) {
+        next.whenData((ids) => controller.reconcile(ids));
+      });
 
-  return controller;
-});
+      return controller;
+    });
 
 // ─── Sprint 3 — Kişi B: Sort/Filter Provider'ları ──────────────────
 
@@ -171,27 +183,31 @@ class SortedReviewsParams {
 
 /// Sıralama tercihine göre yorumları dinleyen sağlayıcı
 final sortedReviewsProvider =
-    StreamProvider.family<List<ReviewModel>, SortedReviewsParams>(
-  (ref, params) {
-    final sort = ref.watch(reviewSortProvider);
-    final repo = ref.read(reviewRepositoryProvider);
-    final orderBy = sort == ReviewSort.newest ? 'createdAt' : 'likes';
+    StreamProvider.family<List<ReviewModel>, SortedReviewsParams>((
+      ref,
+      params,
+    ) {
+      final sort = ref.watch(reviewSortProvider);
+      final repo = ref.read(reviewRepositoryProvider);
+      final orderBy = sort == ReviewSort.newest ? 'createdAt' : 'likes';
 
-    if (params.type == ReviewType.university) {
-      return repo.getUniversityReviews(params.targetId, orderBy: orderBy);
-    } else if (params.type == ReviewType.place) {
-      return repo.getPlaceReviews(params.targetId, orderBy: orderBy);
-    } else {
-      // department ve place aynı targetId bazlı sorguyu kullanır
-      return repo.getDepartmentReviews(params.targetId, orderBy: orderBy);
-    }
-  },
-);
+      if (params.type == ReviewType.university) {
+        return repo.getUniversityReviews(params.targetId, orderBy: orderBy);
+      } else if (params.type == ReviewType.place) {
+        return repo.getPlaceReviews(params.targetId, orderBy: orderBy);
+      } else {
+        // department ve place aynı targetId bazlı sorguyu kullanır
+        return repo.getDepartmentReviews(params.targetId, orderBy: orderBy);
+      }
+    });
 
 // ─── Sprint 4 — Place Yorumları Provider ────────────────────────────
 
 /// Bir mekana ait yorumları dinleyen sağlayıcı
-final placeReviewsProvider = StreamProvider.family<List<ReviewModel>, String>((ref, placeId) {
+final placeReviewsProvider = StreamProvider.family<List<ReviewModel>, String>((
+  ref,
+  placeId,
+) {
   final repository = ref.watch(reviewRepositoryProvider);
   return repository.getPlaceReviews(placeId);
 });
@@ -203,7 +219,7 @@ class ReviewActionController extends StateNotifier<AsyncValue<void>> {
   Future<void> deleteReview(ReviewModel review) async {
     state = const AsyncValue.loading();
     try {
-      await _repo.deleteReview(review.id, review.userId, review.imageUrls);
+      await _repo.deleteReview(review.id, review.imageUrls);
       state = const AsyncValue.data(null);
     } catch (e, st) {
       state = AsyncValue.error(e, st);
@@ -211,10 +227,10 @@ class ReviewActionController extends StateNotifier<AsyncValue<void>> {
   }
 }
 
-final reviewActionControllerProvider = 
-  StateNotifierProvider<ReviewActionController, AsyncValue<void>>((ref) {
-    return ReviewActionController(ref.read(reviewRepositoryProvider));
-  });
+final reviewActionControllerProvider =
+    StateNotifierProvider<ReviewActionController, AsyncValue<void>>((ref) {
+      return ReviewActionController(ref.read(reviewRepositoryProvider));
+    });
 
 /// Yorum ekleme/silme sonrası kullanıcı profili cache'ini temizler ve provider'ı invalidate eder.
 /// Bu sayede reviewCount UI'da anında güncellenir.
@@ -243,7 +259,9 @@ class AllReviewsFilterState {
     ReviewSort? sort,
   }) {
     return AllReviewsFilterState(
-      universityId: clearUniversityId ? null : (universityId ?? this.universityId),
+      universityId: clearUniversityId
+          ? null
+          : (universityId ?? this.universityId),
       reviewType: clearReviewType ? null : (reviewType ?? this.reviewType),
       sort: sort ?? this.sort,
     );
@@ -260,17 +278,11 @@ class AllReviewsFilterNotifier extends Notifier<AllReviewsFilterState> {
   AllReviewsFilterState build() => const AllReviewsFilterState();
 
   void setUniversity(String? id) {
-    state = state.copyWith(
-      universityId: id,
-      clearUniversityId: id == null,
-    );
+    state = state.copyWith(universityId: id, clearUniversityId: id == null);
   }
 
   void setReviewType(ReviewType? type) {
-    state = state.copyWith(
-      reviewType: type,
-      clearReviewType: type == null,
-    );
+    state = state.copyWith(reviewType: type, clearReviewType: type == null);
   }
 
   void setSort(ReviewSort sort) {
@@ -284,8 +296,8 @@ class AllReviewsFilterNotifier extends Notifier<AllReviewsFilterState> {
 
 final allReviewsFilterProvider =
     NotifierProvider<AllReviewsFilterNotifier, AllReviewsFilterState>(
-  AllReviewsFilterNotifier.new,
-);
+      AllReviewsFilterNotifier.new,
+    );
 
 /// Filtreli tüm yorumlar stream'i
 final allFilteredReviewsProvider = StreamProvider<List<ReviewModel>>((ref) {

@@ -14,8 +14,9 @@ final adminReportRepositoryProvider = Provider<AdminReportRepository>((ref) {
   return AdminReportRepository();
 });
 
-final adminFeedbackRepositoryProvider =
-    Provider<AdminFeedbackRepository>((ref) {
+final adminFeedbackRepositoryProvider = Provider<AdminFeedbackRepository>((
+  ref,
+) {
   return AdminFeedbackRepository();
 });
 
@@ -44,10 +45,10 @@ final blockedReviewsProvider = StreamProvider<List<ReviewModel>>((ref) {
 /// Belirli bir yoruma ait raporları dinle
 final reportsForReviewProvider =
     StreamProvider.family<List<AdminReportModel>, String>((ref, reviewId) {
-  return ref
-      .watch(adminReportRepositoryProvider)
-      .watchReportsForReview(reviewId);
-});
+      return ref
+          .watch(adminReportRepositoryProvider)
+          .watchReportsForReview(reviewId);
+    });
 
 // ═══════════════════════════════════════════════════════════════
 //  Feedback Stream Providers
@@ -74,7 +75,7 @@ class ReportActionController extends StateNotifier<AsyncValue<void>> {
   final String _adminUserId;
 
   ReportActionController(this._repo, this._adminUserId)
-      : super(const AsyncValue.data(null));
+    : super(const AsyncValue.data(null));
 
   /// Yorumu gizle + rapor durumunu güncelle
   Future<void> hideReview({
@@ -117,7 +118,7 @@ class ReportActionController extends StateNotifier<AsyncValue<void>> {
     state = const AsyncValue.loading();
     try {
       // 1. Yorumu sil
-      await _repo.deleteReportedReview(reviewId, reviewOwnerId, photoUrls);
+      await _repo.deleteReportedReview(reviewId, photoUrls);
       // 2. Rapor durumunu güncelle
       await _repo.updateReportStatus(
         reportId,
@@ -170,12 +171,11 @@ class ReportActionController extends StateNotifier<AsyncValue<void>> {
   /// Engellenen yorumu kalıcı sil
   Future<void> permanentlyDeleteReview({
     required String reviewId,
-    required String userId,
     required List<String> photoUrls,
   }) async {
     state = const AsyncValue.loading();
     try {
-      await _repo.deleteReportedReview(reviewId, userId, photoUrls);
+      await _repo.deleteReportedReview(reviewId, photoUrls);
       state = const AsyncValue.data(null);
     } catch (e, st) {
       state = AsyncValue.error(e, st);
@@ -185,11 +185,11 @@ class ReportActionController extends StateNotifier<AsyncValue<void>> {
 
 final reportActionControllerProvider =
     StateNotifierProvider<ReportActionController, AsyncValue<void>>((ref) {
-  final repo = ref.read(adminReportRepositoryProvider);
-  final user = ref.watch(authStateProvider).value;
-  final adminUserId = user?.uid ?? '';
-  return ReportActionController(repo, adminUserId);
-});
+      final repo = ref.read(adminReportRepositoryProvider);
+      final user = ref.watch(authStateProvider).value;
+      final adminUserId = user?.uid ?? '';
+      return ReportActionController(repo, adminUserId);
+    });
 
 // ═══════════════════════════════════════════════════════════════
 //  Feedback Action Controller
@@ -200,7 +200,7 @@ class FeedbackActionController extends StateNotifier<AsyncValue<void>> {
   final String _adminUserId;
 
   FeedbackActionController(this._repo, this._adminUserId)
-      : super(const AsyncValue.data(null));
+    : super(const AsyncValue.data(null));
 
   /// Feedback statüsünü güncelle
   Future<void> updateStatus({
@@ -236,8 +236,8 @@ class FeedbackActionController extends StateNotifier<AsyncValue<void>> {
 
 final feedbackActionControllerProvider =
     StateNotifierProvider<FeedbackActionController, AsyncValue<void>>((ref) {
-  final repo = ref.read(adminFeedbackRepositoryProvider);
-  final user = ref.watch(authStateProvider).value;
-  final adminUserId = user?.uid ?? '';
-  return FeedbackActionController(repo, adminUserId);
-});
+      final repo = ref.read(adminFeedbackRepositoryProvider);
+      final user = ref.watch(authStateProvider).value;
+      final adminUserId = user?.uid ?? '';
+      return FeedbackActionController(repo, adminUserId);
+    });

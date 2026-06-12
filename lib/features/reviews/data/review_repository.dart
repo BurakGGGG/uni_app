@@ -24,11 +24,12 @@ class ReviewRepository {
 
   Future<void> addReview(ReviewModel review) async {
     final docRef = _firestore.collection('reviews').doc();
-    await docRef.set(review.toMap());
-    
-    // Kullanıcının reviewCount alanını artır
-    await _firestore.collection('users').doc(review.userId).update({
-      'reviewCount': FieldValue.increment(1),
+    await docRef.set({
+      ...review.toMap(),
+      'likes': 0,
+      'isApproved': false,
+      'createdAt': FieldValue.serverTimestamp(),
+      'updatedAt': FieldValue.serverTimestamp(),
     });
 
     // Analytics: yeni yorum
@@ -37,22 +38,26 @@ class ReviewRepository {
 
   Future<void> updateReview(ReviewModel review) async {
     await _firestore.collection('reviews').doc(review.id).update({
-      ...review.toMap(),
-      'createdAt': FieldValue.serverTimestamp(),
+      'userName': review.userName,
+      'userPhotoUrl': review.userPhotoUrl,
+      'userUniversity': review.userUniversity,
+      'rating': review.rating,
+      'categoryRatings': review.categoryRatings,
+      'comment': review.comment,
+      'pros': review.pros,
+      'cons': review.cons,
+      'imageUrls': review.imageUrls,
+      'isAnonymous': review.isAnonymous,
+      'isApproved': false,
       'updatedAt': FieldValue.serverTimestamp(),
     });
   }
 
-  Future<void> deleteReview(String reviewId, String userId, List<String> photoUrls) async {
+  Future<void> deleteReview(String reviewId, List<String> photoUrls) async {
     // 1. Firestore'dan sil
     await _firestore.collection('reviews').doc(reviewId).delete();
-    
-    // 2. reviewCount azalt
-    await _firestore.collection('users').doc(userId).update({
-      'reviewCount': FieldValue.increment(-1),
-    });
 
-    // 3. Fotoğrafları sil (best effort)
+    // 2. Fotoğrafları sil (best effort)
     for (final url in photoUrls) {
       try {
         await FirebaseStorage.instance.refFromURL(url).delete();
@@ -63,42 +68,60 @@ class ReviewRepository {
   }
 
   // Üniversiteye ait yorumları getir (sort destekli)
-  Stream<List<ReviewModel>> getUniversityReviews(String universityId, {int limit = 20, String orderBy = 'createdAt'}) {
+  Stream<List<ReviewModel>> getUniversityReviews(
+    String universityId, {
+    int limit = 20,
+    String orderBy = 'createdAt',
+  }) {
     return _reviewsRef
         .where('targetId', isEqualTo: universityId)
         .where('isApproved', isEqualTo: true)
         .orderBy(orderBy, descending: true)
         .limit(limit)
         .snapshots()
-        .map((snapshot) => snapshot.docs
-            .map((doc) => ReviewModel.fromMap(doc.data(), doc.id))
-            .toList());
+        .map(
+          (snapshot) => snapshot.docs
+              .map((doc) => ReviewModel.fromMap(doc.data(), doc.id))
+              .toList(),
+        );
   }
 
   // Tüm yorumları (Bölüm, Mekan, Üniversite karışık) universityId'ye göre getir
-  Stream<List<ReviewModel>> getAllReviewsForUniversity(String universityId, {int limit = 50, String orderBy = 'createdAt'}) {
+  Stream<List<ReviewModel>> getAllReviewsForUniversity(
+    String universityId, {
+    int limit = 50,
+    String orderBy = 'createdAt',
+  }) {
     return _reviewsRef
         .where('universityId', isEqualTo: universityId)
         .where('isApproved', isEqualTo: true)
         .orderBy(orderBy, descending: true)
         .limit(limit)
         .snapshots()
-        .map((snapshot) => snapshot.docs
-            .map((doc) => ReviewModel.fromMap(doc.data(), doc.id))
-            .toList());
+        .map(
+          (snapshot) => snapshot.docs
+              .map((doc) => ReviewModel.fromMap(doc.data(), doc.id))
+              .toList(),
+        );
   }
 
   // Bölüme ait yorumları getir (sort destekli)
-  Stream<List<ReviewModel>> getDepartmentReviews(String departmentId, {int limit = 20, String orderBy = 'createdAt'}) {
+  Stream<List<ReviewModel>> getDepartmentReviews(
+    String departmentId, {
+    int limit = 20,
+    String orderBy = 'createdAt',
+  }) {
     return _reviewsRef
         .where('targetId', isEqualTo: departmentId)
         .where('isApproved', isEqualTo: true)
         .orderBy(orderBy, descending: true)
         .limit(limit)
         .snapshots()
-        .map((snapshot) => snapshot.docs
-            .map((doc) => ReviewModel.fromMap(doc.data(), doc.id))
-            .toList());
+        .map(
+          (snapshot) => snapshot.docs
+              .map((doc) => ReviewModel.fromMap(doc.data(), doc.id))
+              .toList(),
+        );
   }
 
   Stream<List<ReviewModel>> getRecentReviews({int limit = 10}) {
@@ -107,9 +130,11 @@ class ReviewRepository {
         .orderBy('createdAt', descending: true)
         .limit(limit)
         .snapshots()
-        .map((snapshot) => snapshot.docs
-            .map((doc) => ReviewModel.fromMap(doc.data(), doc.id))
-            .toList());
+        .map(
+          (snapshot) => snapshot.docs
+              .map((doc) => ReviewModel.fromMap(doc.data(), doc.id))
+              .toList(),
+        );
   }
 
   Stream<List<ReviewModel>> getUserReviews(String userId) {
@@ -117,13 +142,19 @@ class ReviewRepository {
         .where('userId', isEqualTo: userId)
         .orderBy('createdAt', descending: true)
         .snapshots()
-        .map((snapshot) => snapshot.docs
-            .map((doc) => ReviewModel.fromMap(doc.data(), doc.id))
-            .toList());
+        .map(
+          (snapshot) => snapshot.docs
+              .map((doc) => ReviewModel.fromMap(doc.data(), doc.id))
+              .toList(),
+        );
   }
 
   // Sprint 4 — Mekana ait yorumları getir (sort destekli)
-  Stream<List<ReviewModel>> getPlaceReviews(String placeId, {int limit = 20, String orderBy = 'createdAt'}) {
+  Stream<List<ReviewModel>> getPlaceReviews(
+    String placeId, {
+    int limit = 20,
+    String orderBy = 'createdAt',
+  }) {
     return _reviewsRef
         .where('targetId', isEqualTo: placeId)
         .where('type', isEqualTo: 'place')
@@ -131,9 +162,11 @@ class ReviewRepository {
         .orderBy(orderBy, descending: true)
         .limit(limit)
         .snapshots()
-        .map((snapshot) => snapshot.docs
-            .map((doc) => ReviewModel.fromMap(doc.data(), doc.id))
-            .toList());
+        .map(
+          (snapshot) => snapshot.docs
+              .map((doc) => ReviewModel.fromMap(doc.data(), doc.id))
+              .toList(),
+        );
   }
 
   // Sprint 4 — Mekana ait onaylı yorum sayısı
@@ -150,12 +183,16 @@ class ReviewRepository {
   Future<void> likeReview(String reviewId, String userId) async {
     // İki referans: review altındaki like + user altındaki likedReview
     final reviewLikeRef = _firestore
-        .collection('reviews').doc(reviewId)
-        .collection('likes').doc(userId);
+        .collection('reviews')
+        .doc(reviewId)
+        .collection('likes')
+        .doc(userId);
 
     final userLikedRef = _firestore
-        .collection('users').doc(userId)
-        .collection('likedReviews').doc(reviewId);
+        .collection('users')
+        .doc(userId)
+        .collection('likedReviews')
+        .doc(reviewId);
 
     // Atomik batch
     final batch = _firestore.batch();
@@ -166,17 +203,11 @@ class ReviewRepository {
       // Unlike
       batch.delete(reviewLikeRef);
       batch.delete(userLikedRef);
-      batch.update(_firestore.collection('reviews').doc(reviewId), {
-        'likes': FieldValue.increment(-1),
-      });
     } else {
       // Like
       final ts = FieldValue.serverTimestamp();
       batch.set(reviewLikeRef, {'createdAt': ts});
       batch.set(userLikedRef, {'createdAt': ts, 'reviewId': reviewId});
-      batch.update(_firestore.collection('reviews').doc(reviewId), {
-        'likes': FieldValue.increment(1),
-      });
 
       // Analytics: beğeni
       AnalyticsService.instance.trackEvent(AnalyticsEvent.reviewLiked);
@@ -192,8 +223,10 @@ class ReviewRepository {
     int limit = 50,
     String orderBy = 'createdAt',
   }) {
-    Query<Map<String, dynamic>> query = _reviewsRef
-        .where('isApproved', isEqualTo: true);
+    Query<Map<String, dynamic>> query = _reviewsRef.where(
+      'isApproved',
+      isEqualTo: true,
+    );
 
     if (reviewType != null) {
       query = query.where('type', isEqualTo: reviewType.name);
@@ -205,9 +238,10 @@ class ReviewRepository {
 
     query = query.orderBy(orderBy, descending: true).limit(limit);
 
-    return query.snapshots().map((snapshot) => snapshot.docs
-        .map((doc) => ReviewModel.fromMap(doc.data(), doc.id))
-        .toList());
+    return query.snapshots().map(
+      (snapshot) => snapshot.docs
+          .map((doc) => ReviewModel.fromMap(doc.data(), doc.id))
+          .toList(),
+    );
   }
 }
-

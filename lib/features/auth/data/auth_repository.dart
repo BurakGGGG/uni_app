@@ -2,10 +2,10 @@ import 'dart:async';
 import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import '../../../core/constants/app_constants.dart';
-import '../../../core/utils/university_domain_mapper.dart';
 import '../domain/user_model.dart';
 import '../../notifications/data/fcm_service.dart';
 import '../../../services/auth_storage_service.dart';
@@ -20,6 +20,7 @@ import '../../admin/domain/models/analytics_event.dart';
 class AuthRepository {
   final FirebaseAuth _auth;
   final FirebaseFirestore _firestore;
+  final FirebaseFunctions _functions;
   final GoogleSignIn _googleSignIn;
 
   // In-memory cache
@@ -30,19 +31,29 @@ class AuthRepository {
   AuthRepository({
     FirebaseAuth? auth,
     FirebaseFirestore? firestore,
+    FirebaseFunctions? functions,
     GoogleSignIn? googleSignIn,
-  })  : _auth = auth ?? FirebaseAuth.instance,
-        _firestore = firestore ?? FirebaseFirestore.instance,
-        _googleSignIn = googleSignIn ??
-            GoogleSignIn(
-              serverClientId: AppConstants.googleWebClientId,
-            );
+  }) : _auth = auth ?? FirebaseAuth.instance,
+       _firestore = firestore ?? FirebaseFirestore.instance,
+       _functions =
+           functions ?? FirebaseFunctions.instanceFor(region: 'europe-west1'),
+       _googleSignIn =
+           googleSignIn ??
+           GoogleSignIn(serverClientId: AppConstants.googleWebClientId);
 
   /// Auth state stream — giriş/çıkış dinleme
   Stream<User?> get authStateChanges => _auth.authStateChanges();
 
   /// Mevcut Firebase kullanıcısı
   User? get currentUser => _auth.currentUser;
+
+  Future<bool> isCurrentUserAdmin({bool forceRefresh = false}) async {
+    final user = _auth.currentUser;
+    if (user == null) return false;
+
+    final token = await user.getIdTokenResult(forceRefresh);
+    return token.claims?['admin'] == true;
+  }
 
   /// SharedPreferences'a son giriş yapan kullanıcıyı yazar.
   Future<void> cacheAuthSession(String uid) async {
@@ -102,9 +113,7 @@ class AuthRepository {
     // cachedUid var ama Firebase null → bozuk şifreli native depolama (bilinen SDK sorunu)
     if (cachedUid != null && _auth.currentUser == null) {
       if (kDebugMode) {
-        debugPrint(
-          '[Auth] Bozuk native oturum algılandı, temizleniyor...',
-        );
+        debugPrint('[Auth] Bozuk native oturum algılandı, temizleniyor...');
       }
       await AuthStorageService.clearFirebaseAuthStorage();
       await clearAuthSessionCache();
@@ -172,10 +181,20 @@ class AuthRepository {
 
       return userModel;
     } on FirebaseAuthException catch (e, st) {
-      FirebaseCrashlytics.instance.recordError(e, st, reason: 'signInWithGoogle_auth_error', fatal: false);
+      FirebaseCrashlytics.instance.recordError(
+        e,
+        st,
+        reason: 'signInWithGoogle_auth_error',
+        fatal: false,
+      );
       throw _handleAuthError(e);
     } catch (e, st) {
-      FirebaseCrashlytics.instance.recordError(e, st, reason: 'signInWithGoogle_unknown_error', fatal: false);
+      FirebaseCrashlytics.instance.recordError(
+        e,
+        st,
+        reason: 'signInWithGoogle_unknown_error',
+        fatal: false,
+      );
       final activeUser = _auth.currentUser;
       if (activeUser != null) {
         await cacheAuthSession(activeUser.uid);
@@ -229,16 +248,28 @@ class AuthRepository {
 
       return userModel;
     } on FirebaseAuthException catch (e, st) {
-      FirebaseCrashlytics.instance.recordError(e, st, reason: 'registerWithEmail_auth_error', information: ['email: $email'], fatal: false);
+      FirebaseCrashlytics.instance.recordError(
+        e,
+        st,
+        reason: 'registerWithEmail_auth_error',
+        information: ['email: $email'],
+        fatal: false,
+      );
       throw _handleAuthError(e);
     } catch (e, st) {
-      FirebaseCrashlytics.instance.recordError(e, st, reason: 'registerWithEmail_unknown_error', information: ['email: $email'], fatal: false);
-      // Eğer profil veritabanına yazılamazsa, Auth tarafında oluşan hesabı sil ki 
+      FirebaseCrashlytics.instance.recordError(
+        e,
+        st,
+        reason: 'registerWithEmail_unknown_error',
+        information: ['email: $email'],
+        fatal: false,
+      );
+      // Eğer profil veritabanına yazılamazsa, Auth tarafında oluşan hesabı sil ki
       // kullanıcı tekrar kayıt olmaya çalıştığında email-already-in-use hatası almasın.
       try {
         await _auth.currentUser?.delete();
       } catch (_) {}
-      
+
       await signOut();
       throw 'Kayıt yapılamadı. Lütfen internet bağlantınızı kontrol edip tekrar deneyin.';
     }
@@ -322,16 +353,19 @@ class AuthRepository {
     _cachedUser = null;
     _lastCacheTime = null;
     await clearAuthSessionCache();
-    await Future.wait([
-      _auth.signOut(),
-      _googleSignIn.signOut(),
-    ]);
+    await Future.wait([_auth.signOut(), _googleSignIn.signOut()]);
   }
 
   // ─── Kullanıcı Profili Çekme ──────────────────────────────────
 
-  Future<UserModel?> getUserProfile(String uid, {bool forceRefresh = false}) async {
-    if (!forceRefresh && _cachedUser != null && _cachedUser!.uid == uid && _lastCacheTime != null) {
+  Future<UserModel?> getUserProfile(
+    String uid, {
+    bool forceRefresh = false,
+  }) async {
+    if (!forceRefresh &&
+        _cachedUser != null &&
+        _cachedUser!.uid == uid &&
+        _lastCacheTime != null) {
       if (DateTime.now().difference(_lastCacheTime!) < _cacheTtl) {
         return _cachedUser;
       }
@@ -339,7 +373,7 @@ class AuthRepository {
 
     final doc = await _firestore.collection('users').doc(uid).get();
     if (!doc.exists || doc.data() == null) return null;
-    
+
     _cachedUser = UserModel.fromMap(doc.data()!, uid);
     _lastCacheTime = DateTime.now();
     return _cachedUser;
@@ -353,16 +387,26 @@ class AuthRepository {
   // ─── Public Profil (başka kullanıcının profili) ─────────────────
 
   /// Başka bir kullanıcının herkese açık profil bilgilerini getirir.
-  /// Email ve fcmTokens gibi özel alanları maskeleyerek döner.
   Future<UserModel?> getPublicProfile(String uid) async {
-    final doc = await _firestore.collection('users').doc(uid).get();
-    if (!doc.exists || doc.data() == null) return null;
+    final doc = await _firestore.collection('publicProfiles').doc(uid).get();
+    if (doc.exists && doc.data() != null) {
+      final data = Map<String, dynamic>.from(doc.data()!);
+      data['email'] = '';
+      data['role'] = 'user';
+      data['fcmTokens'] = <String>[];
+      data['lastLoginAt'] = data['createdAt'];
+      return UserModel.fromMap(data, uid);
+    }
 
-    final data = Map<String, dynamic>.from(doc.data()!);
-    // Özel alanları maskele
+    if (_auth.currentUser?.uid != uid) return null;
+
+    final privateDoc = await _firestore.collection('users').doc(uid).get();
+    if (!privateDoc.exists || privateDoc.data() == null) return null;
+
+    final data = Map<String, dynamic>.from(privateDoc.data()!);
     data['email'] = '';
+    data['role'] = 'user';
     data['fcmTokens'] = <String>[];
-
     return UserModel.fromMap(data, uid);
   }
 
@@ -374,7 +418,7 @@ class AuthRepository {
 
     // 1. Firebase Auth kullanıcı nesnesini sunucudan yenile
     await user.reload();
-    
+
     // 2. Token'ı zorla yenile — emailVerified claim'i ancak böyle güncellenir
     final refreshedUser = _auth.currentUser;
     if (refreshedUser == null) return false;
@@ -383,19 +427,7 @@ class AuthRepository {
     if (refreshedUser.emailVerified &&
         refreshedUser.email != null &&
         refreshedUser.email!.toLowerCase().endsWith('.edu.tr')) {
-      
-      final mappedUniversityId = _getUniversityIdFromEmail(refreshedUser.email!);
-
-      // Firestore'u güncelle ki UserModel.isVerifiedStudent senkronize olsun
-      final updates = <String, dynamic>{
-        'isVerifiedStudent': true,
-      };
-
-      if (mappedUniversityId != null) {
-        updates['universityId'] = mappedUniversityId;
-      }
-
-      await _firestore.collection('users').doc(refreshedUser.uid).update(updates);
+      await _functions.httpsCallable('verifyStudentUniversity').call();
       clearCache(); // Cache'i temizle ki güncel veriyi çeksin
       return true;
     }
@@ -416,16 +448,12 @@ class AuthRepository {
   Future<void> updateProfile({
     required String uid,
     String? displayName,
-    String? university,
-    String? universityId,
     String? department,
     int? grade,
     String? bio,
   }) async {
     final updates = <String, dynamic>{};
     if (displayName != null) updates['displayName'] = displayName;
-    if (university != null) updates['university'] = university;
-    if (universityId != null) updates['universityId'] = universityId;
     if (department != null) updates['department'] = department;
     if (grade != null) updates['grade'] = grade;
     if (bio != null) updates['bio'] = bio;
@@ -450,10 +478,7 @@ class AuthRepository {
         .child('$uid.jpg');
 
     // Fotoğrafı yükle
-    await ref.putFile(
-      imageFile,
-      SettableMetadata(contentType: 'image/jpeg'),
-    );
+    await ref.putFile(imageFile, SettableMetadata(contentType: 'image/jpeg'));
 
     // URL al
     final downloadUrl = await ref.getDownloadURL();
@@ -475,36 +500,44 @@ class AuthRepository {
     String? displayName,
   }) async {
     final userRef = _firestore.collection('users').doc(user.uid);
-    
+
     // Firestore bağlantı sorunlarına karşı retry
     for (int attempt = 0; attempt < 2; attempt++) {
       try {
         final doc = await userRef.get();
 
         if (doc.exists) {
-          // Mevcut kullanıcı — lastLoginAt güncelle
-          await userRef.update({
-            'lastLoginAt': FieldValue.serverTimestamp(),
-          });
           return UserModel.fromMap(doc.data()!, user.uid);
         } else {
           // Yeni kullanıcı oluştur
           final email = user.email ?? '';
-          final isEdu = email.toLowerCase().endsWith('.edu.tr');
-          final mappedUniversityId = isEdu ? _getUniversityIdFromEmail(email) : null;
 
           final newUser = UserModel(
             uid: user.uid,
             displayName: displayName ?? user.displayName ?? '',
             email: email,
             photoUrl: user.photoURL,
-            isVerifiedStudent: isEdu && user.emailVerified,
-            universityId: mappedUniversityId,
+            isVerifiedStudent: false,
             createdAt: DateTime.now(),
             lastLoginAt: DateTime.now(),
           );
 
-          await userRef.set(newUser.toMap());
+          await userRef.set({
+            'displayName': newUser.displayName,
+            'email': newUser.email,
+            'photoUrl': newUser.photoUrl,
+            'isVerifiedStudent': false,
+            'university': null,
+            'universityId': null,
+            'department': null,
+            'grade': null,
+            'bio': null,
+            'role': 'user',
+            'reviewCount': 0,
+            'notificationPrefs': newUser.notificationPrefs.toMap(),
+            'createdAt': FieldValue.serverTimestamp(),
+            'lastLoginAt': FieldValue.serverTimestamp(),
+          });
 
           // Analytics: yeni kullanıcı kaydı
           AnalyticsService.instance.trackEvent(AnalyticsEvent.newUser);
@@ -520,12 +553,6 @@ class AuthRepository {
     // Fallback — buraya hiç düşmemeli
     throw Exception('Firestore bağlantı hatası');
   }
-
-  // Helper method for email to university mapping
-  String? _getUniversityIdFromEmail(String email) {
-    return UniversityDomainMapper.getUniversityId(email);
-  }
-
 
   // ─── Hata Yönetimi ────────────────────────────────────────────
 

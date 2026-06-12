@@ -62,7 +62,8 @@ class ProfileScreen extends ConsumerWidget {
                 data: (user) {
                   if (user == null) return _buildGuestProfile(context);
                   return currentUser.when(
-                    data: (profile) => _buildUserCard(context, ref, profile, user),
+                    data: (profile) =>
+                        _buildUserCard(context, ref, profile, user),
                     loading: () => const Column(
                       children: [
                         CardSkeleton(height: 120),
@@ -102,31 +103,33 @@ class ProfileScreen extends ConsumerWidget {
               const SizedBox(height: 24),
 
               // ─── Admin Paneli (sadece admin) ───────────────────
-              currentUser.when(
-                data: (profile) {
-                  if (profile == null || !profile.isAdmin) {
-                    return const SizedBox.shrink();
-                  }
-                  return Column(
-                    children: [
-                      _SettingsSection(
-                        title: 'Yönetim',
-                        items: [
-                          _SettingsItem(
-                            icon: Icons.admin_panel_settings_rounded,
-                            title: 'Admin Paneli',
-                            subtitle: 'Story yönetimi ve diğer araçlar',
-                            onTap: () => context.push('/admin'),
+              ref
+                  .watch(currentUserAdminProvider)
+                  .when(
+                    data: (isAdmin) {
+                      if (!isAdmin) {
+                        return const SizedBox.shrink();
+                      }
+                      return Column(
+                        children: [
+                          _SettingsSection(
+                            title: 'Yönetim',
+                            items: [
+                              _SettingsItem(
+                                icon: Icons.admin_panel_settings_rounded,
+                                title: 'Admin Paneli',
+                                subtitle: 'Story yönetimi ve diğer araçlar',
+                                onTap: () => context.push('/admin'),
+                              ),
+                            ],
                           ),
+                          const SizedBox(height: 16),
                         ],
-                      ),
-                      const SizedBox(height: 16),
-                    ],
-                  );
-                },
-                loading: () => const SizedBox.shrink(),
-                error: (_, _) => const SizedBox.shrink(),
-              ),
+                      );
+                    },
+                    loading: () => const SizedBox.shrink(),
+                    error: (_, _) => const SizedBox.shrink(),
+                  ),
 
               // ─── Hesap Ayarları ────────────────────────────────
               authState.when(
@@ -141,15 +144,24 @@ class ProfileScreen extends ConsumerWidget {
                         subtitle: loc.profileEditSubtitle,
                         onTap: () => context.push('/edit-profile'),
                       ),
-                      _buildMembershipSettingsItem(context, ref, loc),                      if (!user.providerData.any((p) => p.providerId == 'google.com'))
+                      _buildMembershipSettingsItem(context, ref, loc),
+                      if (!user.providerData.any(
+                        (p) => p.providerId == 'google.com',
+                      ))
                         _SettingsItem(
                           icon: Icons.security_rounded,
                           title: loc.profileSecurity,
                           subtitle: loc.profileSecuritySubtitle,
                           onTap: () async {
-                            final result = await ChangePasswordDialog.show(context);
+                            final result = await ChangePasswordDialog.show(
+                              context,
+                            );
                             if (result == true && context.mounted) {
-                              showAppSnackBar(context, message: loc.profilePasswordChanged, isSuccess: true);
+                              showAppSnackBar(
+                                context,
+                                message: loc.profilePasswordChanged,
+                                isSuccess: true,
+                              );
                             }
                           },
                         ),
@@ -179,23 +191,37 @@ class ProfileScreen extends ConsumerWidget {
                       color: AppColors.primary.withValues(alpha: 0.08),
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: const Icon(Icons.settings_rounded, color: AppColors.primary, size: 20),
+                    child: const Icon(
+                      Icons.settings_rounded,
+                      color: AppColors.primary,
+                      size: 20,
+                    ),
                   ),
-                  title: Text(loc.profileSettings, style: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
+                  title: Text(
+                    loc.profileSettings,
+                    style: AppTextStyles.bodyMedium.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                   subtitle: Text(
                     '${loc.profileTheme}, ${loc.profileLanguage}, ${loc.profileNotifications}',
                     style: AppTextStyles.labelSmall,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  trailing: Icon(Icons.chevron_right_rounded, color: AppColors.textTertiaryFor(context), size: 20),
+                  trailing: Icon(
+                    Icons.chevron_right_rounded,
+                    color: AppColors.textTertiaryFor(context),
+                    size: 20,
+                  ),
                   contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppConstants.radiusLg)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(AppConstants.radiusLg),
+                  ),
                 ),
               ),
 
               const SizedBox(height: 16),
-
 
               // ─── Çıkış Yap ─────────────────────────────────────
               authState.when(
@@ -212,17 +238,27 @@ class ProfileScreen extends ConsumerWidget {
                             title: Text(loc.profileSignOut),
                             content: Text(loc.profileSignOutConfirm),
                             actions: [
-                              TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(loc.profileCancel)),
+                              TextButton(
+                                onPressed: () => Navigator.pop(ctx, false),
+                                child: Text(loc.profileCancel),
+                              ),
                               TextButton(
                                 onPressed: () => Navigator.pop(ctx, true),
-                                child: Text(loc.profileSignOut, style: const TextStyle(color: AppColors.error)),
+                                child: Text(
+                                  loc.profileSignOut,
+                                  style: const TextStyle(
+                                    color: AppColors.error,
+                                  ),
+                                ),
                               ),
                             ],
                           ),
                         );
                         if (confirmed == true) {
                           // Comparison state'lerini sıfırla
-                          ref.read(comparisonSelectionProvider.notifier).reset();
+                          ref
+                              .read(comparisonSelectionProvider.notifier)
+                              .reset();
                           ref.invalidate(comparisonResultProvider);
                           ref.invalidate(comparisonGateDecisionProvider);
                           ref.invalidate(comparisonGateControllerProvider);
@@ -231,14 +267,25 @@ class ProfileScreen extends ConsumerWidget {
                           ref.read(authControllerProvider.notifier).signOut();
                         }
                       },
-                      icon: const Icon(Icons.logout_rounded, color: AppColors.error),
+                      icon: const Icon(
+                        Icons.logout_rounded,
+                        color: AppColors.error,
+                      ),
                       label: Text(
                         loc.profileSignOut,
-                        style: AppTextStyles.labelLarge.copyWith(color: AppColors.error),
+                        style: AppTextStyles.labelLarge.copyWith(
+                          color: AppColors.error,
+                        ),
                       ),
                       style: OutlinedButton.styleFrom(
-                        side: BorderSide(color: AppColors.error.withValues(alpha: 0.3)),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppConstants.radiusMd)),
+                        side: BorderSide(
+                          color: AppColors.error.withValues(alpha: 0.3),
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(
+                            AppConstants.radiusMd,
+                          ),
+                        ),
                       ),
                     ),
                   );
@@ -268,8 +315,14 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
-  _SettingsItem _buildMembershipSettingsItem(BuildContext context, WidgetRef ref, AppLocalizations loc) {
-    final tier = ref.watch(subscriptionTierProvider).valueOrNull ?? SubscriptionTier.free;
+  _SettingsItem _buildMembershipSettingsItem(
+    BuildContext context,
+    WidgetRef ref,
+    AppLocalizations loc,
+  ) {
+    final tier =
+        ref.watch(subscriptionTierProvider).valueOrNull ??
+        SubscriptionTier.free;
 
     return _SettingsItem(
       icon: Icons.workspace_premium_rounded,
@@ -279,7 +332,11 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
-  void _showPlanDetails(BuildContext context, SubscriptionTier currentTier, AppLocalizations loc) {
+  void _showPlanDetails(
+    BuildContext context,
+    SubscriptionTier currentTier,
+    AppLocalizations loc,
+  ) {
     final plans = {
       SubscriptionTier.free: (
         title: 'Ücretsiz',
@@ -305,7 +362,7 @@ class ProfileScreen extends ConsumerWidget {
     };
 
     final currentPlan = plans[currentTier] ?? plans[SubscriptionTier.free]!;
-    
+
     final Color tierColor;
     switch (currentTier) {
       case SubscriptionTier.pro:
@@ -328,7 +385,9 @@ class ProfileScreen extends ConsumerWidget {
           child: Container(
             decoration: BoxDecoration(
               color: AppColors.surfaceFor(ctx),
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(24),
+              ),
             ),
             padding: const EdgeInsets.fromLTRB(20, 24, 20, 24),
             child: Column(
@@ -337,7 +396,9 @@ class ProfileScreen extends ConsumerWidget {
               children: [
                 Text(
                   'Mevcut Planın',
-                  style: AppTextStyles.titleLarge.copyWith(fontWeight: FontWeight.w800),
+                  style: AppTextStyles.titleLarge.copyWith(
+                    fontWeight: FontWeight.w800,
+                  ),
                 ),
                 const SizedBox(height: 20),
                 Container(
@@ -357,11 +418,17 @@ class ProfileScreen extends ConsumerWidget {
                     children: [
                       Row(
                         children: [
-                          Icon(Icons.workspace_premium_rounded, color: tierColor),
+                          Icon(
+                            Icons.workspace_premium_rounded,
+                            color: tierColor,
+                          ),
                           const SizedBox(width: 8),
                           Text(
                             currentPlan.title,
-                            style: AppTextStyles.titleMedium.copyWith(fontWeight: FontWeight.w800, color: tierColor),
+                            style: AppTextStyles.titleMedium.copyWith(
+                              fontWeight: FontWeight.w800,
+                              color: tierColor,
+                            ),
                           ),
                         ],
                       ),
@@ -374,7 +441,11 @@ class ProfileScreen extends ConsumerWidget {
                             children: [
                               Padding(
                                 padding: const EdgeInsets.only(top: 2),
-                                child: Icon(Icons.check_circle_rounded, size: 16, color: tierColor),
+                                child: Icon(
+                                  Icons.check_circle_rounded,
+                                  size: 16,
+                                  color: tierColor,
+                                ),
                               ),
                               const SizedBox(width: 8),
                               Expanded(
@@ -401,11 +472,16 @@ class ProfileScreen extends ConsumerWidget {
                       context.push('/compare/paywall');
                     },
                     style: FilledButton.styleFrom(
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
                     ),
                     child: Text(
                       'Tüm Planları ve Detayları Gör',
-                      style: AppTextStyles.titleSmall.copyWith(color: Colors.white, fontWeight: FontWeight.bold),
+                      style: AppTextStyles.titleSmall.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 ),
@@ -444,7 +520,11 @@ class ProfileScreen extends ConsumerWidget {
                 ),
               ],
             ),
-            child: const Icon(Icons.person_rounded, size: 40, color: Colors.white),
+            child: const Icon(
+              Icons.person_rounded,
+              size: 40,
+              color: Colors.white,
+            ),
           ),
           const SizedBox(height: 16),
           Text(loc.profileGuestWelcome, style: AppTextStyles.headlineMedium),
@@ -477,16 +557,26 @@ class ProfileScreen extends ConsumerWidget {
 
   // ─── Kullanıcı Kartı ──────────────────────────────────────────
 
-  Widget _buildUserCard(BuildContext context, WidgetRef ref, UserModel? profile, dynamic firebaseUser) {
+  Widget _buildUserCard(
+    BuildContext context,
+    WidgetRef ref,
+    UserModel? profile,
+    dynamic firebaseUser,
+  ) {
     final loc = AppLocalizations.of(context);
-    final displayName = profile?.displayName ?? firebaseUser.displayName ?? loc.profileUser;
+    final displayName =
+        profile?.displayName ?? firebaseUser.displayName ?? loc.profileUser;
     final email = profile?.email ?? firebaseUser.email ?? '';
     final photoUrl = profile?.photoUrl ?? firebaseUser.photoURL;
     final isEdu = email.toLowerCase().endsWith('.edu.tr');
-    final isVerified = isEdu && ((firebaseUser.emailVerified == true) || (profile?.isVerifiedStudent ?? false));
+    final isVerified =
+        isEdu &&
+        ((firebaseUser.emailVerified == true) ||
+            (profile?.isVerifiedStudent ?? false));
     final university = profile?.university;
     final department = profile?.department;
-    final initials = profile?.initials ?? (displayName.isNotEmpty ? displayName[0] : '?');
+    final initials =
+        profile?.initials ?? (displayName.isNotEmpty ? displayName[0] : '?');
 
     return Container(
       padding: const EdgeInsets.all(20),
@@ -520,12 +610,22 @@ class ProfileScreen extends ConsumerWidget {
                             child: CircularProgressIndicator(strokeWidth: 2),
                           ),
                           errorWidget: (context, url, error) => Center(
-                            child: Text(initials, style: AppTextStyles.titleLarge.copyWith(color: Colors.white)),
+                            child: Text(
+                              initials,
+                              style: AppTextStyles.titleLarge.copyWith(
+                                color: Colors.white,
+                              ),
+                            ),
                           ),
                         ),
                       )
                     : Center(
-                        child: Text(initials, style: AppTextStyles.titleLarge.copyWith(color: Colors.white)),
+                        child: Text(
+                          initials,
+                          style: AppTextStyles.titleLarge.copyWith(
+                            color: Colors.white,
+                          ),
+                        ),
                       ),
               ),
               const SizedBox(width: 16),
@@ -541,13 +641,17 @@ class ProfileScreen extends ConsumerWidget {
                       const SizedBox(height: 4),
                       Text(
                         university,
-                        style: AppTextStyles.labelSmall.copyWith(color: AppColors.primary),
+                        style: AppTextStyles.labelSmall.copyWith(
+                          color: AppColors.primary,
+                        ),
                       ),
                     ],
                     if (department != null) ...[
                       Text(
                         department,
-                        style: AppTextStyles.labelSmall.copyWith(color: AppColors.textTertiaryFor(context)),
+                        style: AppTextStyles.labelSmall.copyWith(
+                          color: AppColors.textTertiaryFor(context),
+                        ),
                       ),
                     ],
                     if (profile?.bio != null && profile!.bio!.isNotEmpty) ...[
@@ -576,12 +680,18 @@ class ProfileScreen extends ConsumerWidget {
               decoration: BoxDecoration(
                 color: AppColors.success.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: AppColors.success.withValues(alpha: 0.15)),
+                border: Border.all(
+                  color: AppColors.success.withValues(alpha: 0.15),
+                ),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.verified_rounded, color: AppColors.success, size: 18),
+                  const Icon(
+                    Icons.verified_rounded,
+                    color: AppColors.success,
+                    size: 18,
+                  ),
                   const SizedBox(width: 6),
                   Text(
                     loc.profileVerifiedStudent,
@@ -600,11 +710,17 @@ class ProfileScreen extends ConsumerWidget {
               decoration: BoxDecoration(
                 color: AppColors.warning.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: AppColors.warning.withValues(alpha: 0.15)),
+                border: Border.all(
+                  color: AppColors.warning.withValues(alpha: 0.15),
+                ),
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.pending_actions_rounded, color: AppColors.warning, size: 18),
+                  const Icon(
+                    Icons.pending_actions_rounded,
+                    color: AppColors.warning,
+                    size: 18,
+                  ),
                   const SizedBox(width: 6),
                   Expanded(
                     child: Text(
@@ -617,12 +733,20 @@ class ProfileScreen extends ConsumerWidget {
                   ),
                   TextButton(
                     onPressed: () async {
-                      final success = await ref.read(authRepositoryProvider).reloadAndCheckVerification();
+                      final success = await ref
+                          .read(authRepositoryProvider)
+                          .reloadAndCheckVerification();
                       if (context.mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: Text(success ? loc.profileVerified : loc.profileNotVerified),
-                            backgroundColor: success ? AppColors.success : AppColors.warning,
+                            content: Text(
+                              success
+                                  ? loc.profileVerified
+                                  : loc.profileNotVerified,
+                            ),
+                            backgroundColor: success
+                                ? AppColors.success
+                                : AppColors.warning,
                           ),
                         );
                         if (success) {
@@ -633,11 +757,20 @@ class ProfileScreen extends ConsumerWidget {
                       }
                     },
                     style: TextButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 4,
+                      ),
                       minimumSize: Size.zero,
                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     ),
-                    child: Text(loc.profileRefresh, style: AppTextStyles.labelMedium.copyWith(color: AppColors.primary, fontWeight: FontWeight.bold)),
+                    child: Text(
+                      loc.profileRefresh,
+                      style: AppTextStyles.labelMedium.copyWith(
+                        color: AppColors.primary,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -652,7 +785,9 @@ class ProfileScreen extends ConsumerWidget {
   Widget _buildStats(BuildContext context, WidgetRef ref, UserModel? profile) {
     final loc = AppLocalizations.of(context);
     final favoritesCount = ref.watch(favoritesProvider).value?.length ?? 0;
-    final memberDays = DateTime.now().difference(profile?.createdAt ?? DateTime.now()).inDays;
+    final memberDays = DateTime.now()
+        .difference(profile?.createdAt ?? DateTime.now())
+        .inDays;
 
     return Row(
       children: [
@@ -797,14 +932,24 @@ class _SettingsItem extends StatelessWidget {
       color: Colors.transparent,
       child: ListTile(
         onTap: onTap,
-        leading: Icon(icon, color: AppColors.textSecondaryFor(context), size: 22),
+        leading: Icon(
+          icon,
+          color: AppColors.textSecondaryFor(context),
+          size: 22,
+        ),
         title: Text(title, style: AppTextStyles.bodyMedium),
         subtitle: subtitle != null
             ? Text(subtitle!, style: AppTextStyles.labelSmall)
             : null,
-        trailing: Icon(Icons.chevron_right_rounded, color: AppColors.textTertiaryFor(context), size: 20),
+        trailing: Icon(
+          Icons.chevron_right_rounded,
+          color: AppColors.textTertiaryFor(context),
+          size: 20,
+        ),
         contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppConstants.radiusLg)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppConstants.radiusLg),
+        ),
       ),
     );
   }
@@ -819,7 +964,8 @@ class _SettingsBottomSheet extends ConsumerStatefulWidget {
   const _SettingsBottomSheet({required this.parentContext});
 
   @override
-  ConsumerState<_SettingsBottomSheet> createState() => _SettingsBottomSheetState();
+  ConsumerState<_SettingsBottomSheet> createState() =>
+      _SettingsBottomSheetState();
 }
 
 class _SettingsBottomSheetState extends ConsumerState<_SettingsBottomSheet> {
@@ -848,7 +994,9 @@ class _SettingsBottomSheetState extends ConsumerState<_SettingsBottomSheet> {
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: AppColors.textTertiaryFor(context).withValues(alpha: 0.3),
+                  color: AppColors.textTertiaryFor(
+                    context,
+                  ).withValues(alpha: 0.3),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -867,7 +1015,11 @@ class _SettingsBottomSheetState extends ConsumerState<_SettingsBottomSheet> {
                         gradient: AppColors.primaryGradient,
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      child: const Icon(Icons.settings_rounded, color: Colors.white, size: 18),
+                      child: const Icon(
+                        Icons.settings_rounded,
+                        color: Colors.white,
+                        size: 18,
+                      ),
                     ),
                     const SizedBox(width: 12),
                     Text(loc.profileSettings, style: AppTextStyles.titleLarge),
@@ -881,7 +1033,11 @@ class _SettingsBottomSheetState extends ConsumerState<_SettingsBottomSheet> {
                           color: AppColors.backgroundFor(context),
                           shape: BoxShape.circle,
                         ),
-                        child: Icon(Icons.close_rounded, size: 18, color: AppColors.textSecondaryFor(context)),
+                        child: Icon(
+                          Icons.close_rounded,
+                          size: 18,
+                          color: AppColors.textSecondaryFor(context),
+                        ),
                       ),
                     ),
                   ],
@@ -908,16 +1064,30 @@ class _SettingsBottomSheetState extends ConsumerState<_SettingsBottomSheet> {
                       icon: Icons.palette_rounded,
                       iconColor: AppColors.primary,
                       title: loc.profileTheme,
-                      trailing: _buildThemeSelector(context, ref, currentTheme, loc),
+                      trailing: _buildThemeSelector(
+                        context,
+                        ref,
+                        currentTheme,
+                        loc,
+                      ),
                     ),
-                    Divider(height: 1, indent: 56, color: AppColors.borderLightFor(context)),
+                    Divider(
+                      height: 1,
+                      indent: 56,
+                      color: AppColors.borderLightFor(context),
+                    ),
                     // ─── Dil Seçimi ──────────────────────────
                     _buildSheetTile(
                       context,
                       icon: Icons.language_rounded,
                       iconColor: AppColors.accent,
                       title: loc.profileLanguage,
-                      trailing: _buildLanguageSelector(context, ref, currentLocale, loc),
+                      trailing: _buildLanguageSelector(
+                        context,
+                        ref,
+                        currentLocale,
+                        loc,
+                      ),
                     ),
                   ],
                 ),
@@ -945,10 +1115,16 @@ class _SettingsBottomSheetState extends ConsumerState<_SettingsBottomSheet> {
                       subtitle: loc.profileNotificationsSubtitle,
                       onTap: () {
                         Navigator.pop(context);
-                        GoRouter.of(widget.parentContext).push('/notification-settings');
+                        GoRouter.of(
+                          widget.parentContext,
+                        ).push('/notification-settings');
                       },
                     ),
-                    Divider(height: 1, indent: 56, color: AppColors.borderLightFor(context)),
+                    Divider(
+                      height: 1,
+                      indent: 56,
+                      color: AppColors.borderLightFor(context),
+                    ),
                     _buildSheetActionTile(
                       context,
                       icon: Icons.lightbulb_outline_rounded,
@@ -960,19 +1136,26 @@ class _SettingsBottomSheetState extends ConsumerState<_SettingsBottomSheet> {
                         ref.read(featureDiscoveryProvider).resetAll();
                         ScaffoldMessenger.of(widget.parentContext).showSnackBar(
                           const SnackBar(
-                            content: Text('Rehber sıfırlandı! Sayfaları ziyaret ettiğinde tekrar gösterilecek.'),
+                            content: Text(
+                              'Rehber sıfırlandı! Sayfaları ziyaret ettiğinde tekrar gösterilecek.',
+                            ),
                             behavior: SnackBarBehavior.floating,
                           ),
                         );
                       },
                     ),
-                    Divider(height: 1, indent: 56, color: AppColors.borderLightFor(context)),
+                    Divider(
+                      height: 1,
+                      indent: 56,
+                      color: AppColors.borderLightFor(context),
+                    ),
                     _buildSheetActionTile(
                       context,
                       icon: Icons.info_outline_rounded,
                       iconColor: AppColors.primary,
                       title: loc.profileAbout,
-                      subtitle: '${AppConstants.appName} v${AppConstants.appVersion}',
+                      subtitle:
+                          '${AppConstants.appName} v${AppConstants.appVersion}',
                       onTap: () {
                         Navigator.pop(context);
                         showAboutDialog(
@@ -986,7 +1169,11 @@ class _SettingsBottomSheetState extends ConsumerState<_SettingsBottomSheet> {
                               gradient: AppColors.primaryGradient,
                               borderRadius: BorderRadius.circular(12),
                             ),
-                            child: const Icon(Icons.school_rounded, color: Colors.white, size: 28),
+                            child: const Icon(
+                              Icons.school_rounded,
+                              color: Colors.white,
+                              size: 28,
+                            ),
                           ),
                           children: [
                             const SizedBox(height: 16),
@@ -997,7 +1184,11 @@ class _SettingsBottomSheetState extends ConsumerState<_SettingsBottomSheet> {
                         );
                       },
                     ),
-                    Divider(height: 1, indent: 56, color: AppColors.borderLightFor(context)),
+                    Divider(
+                      height: 1,
+                      indent: 56,
+                      color: AppColors.borderLightFor(context),
+                    ),
                     _buildSheetActionTile(
                       context,
                       icon: Icons.star_outline_rounded,
@@ -1010,14 +1201,23 @@ class _SettingsBottomSheetState extends ConsumerState<_SettingsBottomSheet> {
                         if (await inAppReview.isAvailable()) {
                           await inAppReview.requestReview();
                         } else {
-                          final url = Uri.parse('https://play.google.com/store/apps/details?id=com.unisec.app');
+                          final url = Uri.parse(
+                            'https://play.google.com/store/apps/details?id=com.unisec.app',
+                          );
                           if (await canLaunchUrl(url)) {
-                            await launchUrl(url, mode: LaunchMode.externalApplication);
+                            await launchUrl(
+                              url,
+                              mode: LaunchMode.externalApplication,
+                            );
                           }
                         }
                       },
                     ),
-                    Divider(height: 1, indent: 56, color: AppColors.borderLightFor(context)),
+                    Divider(
+                      height: 1,
+                      indent: 56,
+                      color: AppColors.borderLightFor(context),
+                    ),
                     _buildSheetActionTile(
                       context,
                       icon: Icons.share_outlined,
@@ -1029,19 +1229,29 @@ class _SettingsBottomSheetState extends ConsumerState<_SettingsBottomSheet> {
                         Share.share(loc.profileShareText);
                       },
                     ),
-                    Divider(height: 1, indent: 56, color: AppColors.borderLightFor(context)),
+                    Divider(
+                      height: 1,
+                      indent: 56,
+                      color: AppColors.borderLightFor(context),
+                    ),
                     _buildSheetActionTile(
                       context,
                       icon: Icons.feedback_rounded,
                       iconColor: const Color(0xFF8B5CF6),
-                      title: loc.localeName == 'tr' ? 'Geri Bildirim' : 'Feedback',
+                      title: loc.localeName == 'tr'
+                          ? 'Geri Bildirim'
+                          : 'Feedback',
                       subtitle: loc.localeName == 'tr'
                           ? 'Hata bildirin veya öneri gönderin'
                           : 'Report bugs or send suggestions',
                       onTap: () {
                         Navigator.pop(context);
-                        final authState = ref.read(authStateProvider).valueOrNull;
-                        final currentUser = ref.read(currentUserProvider).valueOrNull;
+                        final authState = ref
+                            .read(authStateProvider)
+                            .valueOrNull;
+                        final currentUser = ref
+                            .read(currentUserProvider)
+                            .valueOrNull;
                         FeedbackSheet.show(
                           widget.parentContext,
                           userId: authState?.uid,
@@ -1049,7 +1259,11 @@ class _SettingsBottomSheetState extends ConsumerState<_SettingsBottomSheet> {
                         );
                       },
                     ),
-                    Divider(height: 1, indent: 56, color: AppColors.borderLightFor(context)),
+                    Divider(
+                      height: 1,
+                      indent: 56,
+                      color: AppColors.borderLightFor(context),
+                    ),
                     _buildSheetActionTile(
                       context,
                       icon: Icons.privacy_tip_outlined,
@@ -1059,10 +1273,16 @@ class _SettingsBottomSheetState extends ConsumerState<_SettingsBottomSheet> {
                         Navigator.pop(context);
                         final url = Uri.parse('https://unisec.app/privacy');
                         if (await canLaunchUrl(url)) {
-                          await launchUrl(url, mode: LaunchMode.externalApplication);
+                          await launchUrl(
+                            url,
+                            mode: LaunchMode.externalApplication,
+                          );
                         } else {
                           if (widget.parentContext.mounted) {
-                            showAppSnackBar(widget.parentContext, message: loc.privacyPolicyComingSoon);
+                            showAppSnackBar(
+                              widget.parentContext,
+                              message: loc.privacyPolicyComingSoon,
+                            );
                           }
                         }
                       },
@@ -1081,7 +1301,9 @@ class _SettingsBottomSheetState extends ConsumerState<_SettingsBottomSheet> {
                   decoration: BoxDecoration(
                     color: AppColors.backgroundFor(context),
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: AppColors.borderLightFor(context)),
+                    border: Border.all(
+                      color: AppColors.borderLightFor(context),
+                    ),
                   ),
                   child: Column(
                     children: [
@@ -1095,13 +1317,21 @@ class _SettingsBottomSheetState extends ConsumerState<_SettingsBottomSheet> {
                           await prefs.remove('onboarding_completed');
                           if (context.mounted) Navigator.pop(context);
                           if (widget.parentContext.mounted) {
-                            ScaffoldMessenger.of(widget.parentContext).showSnackBar(
-                              const SnackBar(content: Text('Onboarding sıfırlandı.')),
+                            ScaffoldMessenger.of(
+                              widget.parentContext,
+                            ).showSnackBar(
+                              const SnackBar(
+                                content: Text('Onboarding sıfırlandı.'),
+                              ),
                             );
                           }
                         },
                       ),
-                      Divider(height: 1, indent: 56, color: AppColors.borderLightFor(context)),
+                      Divider(
+                        height: 1,
+                        indent: 56,
+                        color: AppColors.borderLightFor(context),
+                      ),
                       _buildSheetActionTile(
                         context,
                         icon: Icons.cloud_upload_rounded,
@@ -1114,16 +1344,28 @@ class _SettingsBottomSheetState extends ConsumerState<_SettingsBottomSheet> {
                           try {
                             await seedService.uploadSeedData();
                             if (widget.parentContext.mounted) {
-                              showAppSnackBar(widget.parentContext, message: 'Seed verisi yüklendi!', isSuccess: true);
+                              showAppSnackBar(
+                                widget.parentContext,
+                                message: 'Seed verisi yüklendi!',
+                                isSuccess: true,
+                              );
                             }
                           } catch (e) {
                             if (widget.parentContext.mounted) {
-                              showAppSnackBar(widget.parentContext, message: 'Hata: $e', isSuccess: false);
+                              showAppSnackBar(
+                                widget.parentContext,
+                                message: 'Hata: $e',
+                                isSuccess: false,
+                              );
                             }
                           }
                         },
                       ),
-                      Divider(height: 1, indent: 56, color: AppColors.borderLightFor(context)),
+                      Divider(
+                        height: 1,
+                        indent: 56,
+                        color: AppColors.borderLightFor(context),
+                      ),
                       _buildSheetActionTile(
                         context,
                         icon: Icons.delete_sweep_rounded,
@@ -1136,16 +1378,28 @@ class _SettingsBottomSheetState extends ConsumerState<_SettingsBottomSheet> {
                           try {
                             await seedService.deleteCafes();
                             if (widget.parentContext.mounted) {
-                              showAppSnackBar(widget.parentContext, message: 'Kafeler silindi!', isSuccess: true);
+                              showAppSnackBar(
+                                widget.parentContext,
+                                message: 'Kafeler silindi!',
+                                isSuccess: true,
+                              );
                             }
                           } catch (e) {
                             if (widget.parentContext.mounted) {
-                              showAppSnackBar(widget.parentContext, message: 'Hata: $e', isSuccess: false);
+                              showAppSnackBar(
+                                widget.parentContext,
+                                message: 'Hata: $e',
+                                isSuccess: false,
+                              );
                             }
                           }
                         },
                       ),
-                      Divider(height: 1, indent: 56, color: AppColors.borderLightFor(context)),
+                      Divider(
+                        height: 1,
+                        indent: 56,
+                        color: AppColors.borderLightFor(context),
+                      ),
                       _buildSheetActionTile(
                         context,
                         icon: Icons.bed_rounded,
@@ -1157,20 +1411,36 @@ class _SettingsBottomSheetState extends ConsumerState<_SettingsBottomSheet> {
                           final seedService = seed_data.SeedDataService();
                           try {
                             if (widget.parentContext.mounted) {
-                              showAppSnackBar(widget.parentContext, message: 'Yurtlar güncelleniyor...', isSuccess: true);
+                              showAppSnackBar(
+                                widget.parentContext,
+                                message: 'Yurtlar güncelleniyor...',
+                                isSuccess: true,
+                              );
                             }
                             await seedService.reseedDorms();
                             if (widget.parentContext.mounted) {
-                              showAppSnackBar(widget.parentContext, message: 'Yurtlar güncellendi!', isSuccess: true);
+                              showAppSnackBar(
+                                widget.parentContext,
+                                message: 'Yurtlar güncellendi!',
+                                isSuccess: true,
+                              );
                             }
                           } catch (e) {
                             if (widget.parentContext.mounted) {
-                              showAppSnackBar(widget.parentContext, message: 'Hata: $e', isSuccess: false);
+                              showAppSnackBar(
+                                widget.parentContext,
+                                message: 'Hata: $e',
+                                isSuccess: false,
+                              );
                             }
                           }
                         },
                       ),
-                      Divider(height: 1, indent: 56, color: AppColors.borderLightFor(context)),
+                      Divider(
+                        height: 1,
+                        indent: 56,
+                        color: AppColors.borderLightFor(context),
+                      ),
                       _buildSheetActionTile(
                         context,
                         icon: Icons.palette_rounded,
@@ -1180,11 +1450,19 @@ class _SettingsBottomSheetState extends ConsumerState<_SettingsBottomSheet> {
                           Navigator.pop(context);
                           await BrandColorsMigration().run();
                           if (widget.parentContext.mounted) {
-                            showAppSnackBar(widget.parentContext, message: 'Marka renkleri yüklendi', isSuccess: true);
+                            showAppSnackBar(
+                              widget.parentContext,
+                              message: 'Marka renkleri yüklendi',
+                              isSuccess: true,
+                            );
                           }
                         },
                       ),
-                      Divider(height: 1, indent: 56, color: AppColors.borderLightFor(context)),
+                      Divider(
+                        height: 1,
+                        indent: 56,
+                        color: AppColors.borderLightFor(context),
+                      ),
                       _buildSheetActionTile(
                         context,
                         icon: Icons.color_lens_rounded,
@@ -1195,11 +1473,19 @@ class _SettingsBottomSheetState extends ConsumerState<_SettingsBottomSheet> {
                           await CityBrandColorsMigration().run();
                           if (widget.parentContext.mounted) {
                             ref.invalidate(citiesProvider);
-                            showAppSnackBar(widget.parentContext, message: 'Şehir renkleri yüklendi', isSuccess: true);
+                            showAppSnackBar(
+                              widget.parentContext,
+                              message: 'Şehir renkleri yüklendi',
+                              isSuccess: true,
+                            );
                           }
                         },
                       ),
-                      Divider(height: 1, indent: 56, color: AppColors.borderLightFor(context)),
+                      Divider(
+                        height: 1,
+                        indent: 56,
+                        color: AppColors.borderLightFor(context),
+                      ),
                       _buildSheetActionTile(
                         context,
                         icon: Icons.gradient_rounded,
@@ -1208,18 +1494,31 @@ class _SettingsBottomSheetState extends ConsumerState<_SettingsBottomSheet> {
                         onTap: () async {
                           Navigator.pop(context);
                           try {
-                            await CityBrandColorsMigration().runUniversityBrandColors();
+                            await CityBrandColorsMigration()
+                                .runUniversityBrandColors();
                             if (widget.parentContext.mounted) {
-                              showAppSnackBar(widget.parentContext, message: 'Gradient renkleri yüklendi!', isSuccess: true);
+                              showAppSnackBar(
+                                widget.parentContext,
+                                message: 'Gradient renkleri yüklendi!',
+                                isSuccess: true,
+                              );
                             }
                           } catch (e) {
                             if (widget.parentContext.mounted) {
-                              showAppSnackBar(widget.parentContext, message: 'Hata: $e', isSuccess: false);
+                              showAppSnackBar(
+                                widget.parentContext,
+                                message: 'Hata: $e',
+                                isSuccess: false,
+                              );
                             }
                           }
                         },
                       ),
-                      Divider(height: 1, indent: 56, color: AppColors.borderLightFor(context)),
+                      Divider(
+                        height: 1,
+                        indent: 56,
+                        color: AppColors.borderLightFor(context),
+                      ),
                       _buildSheetActionTile(
                         context,
                         icon: Icons.auto_graph_rounded,
@@ -1228,18 +1527,31 @@ class _SettingsBottomSheetState extends ConsumerState<_SettingsBottomSheet> {
                         onTap: () async {
                           Navigator.pop(context);
                           try {
-                            final report = await DepartmentScoresMigration().run();
+                            final report = await DepartmentScoresMigration()
+                                .run();
                             if (widget.parentContext.mounted) {
-                              showAppSnackBar(widget.parentContext, message: 'Başarılı: $report', isSuccess: true);
+                              showAppSnackBar(
+                                widget.parentContext,
+                                message: 'Başarılı: $report',
+                                isSuccess: true,
+                              );
                             }
                           } catch (e) {
                             if (widget.parentContext.mounted) {
-                              showAppSnackBar(widget.parentContext, message: 'Hata: $e', isSuccess: false);
+                              showAppSnackBar(
+                                widget.parentContext,
+                                message: 'Hata: $e',
+                                isSuccess: false,
+                              );
                             }
                           }
                         },
                       ),
-                      Divider(height: 1, indent: 56, color: AppColors.borderLightFor(context)),
+                      Divider(
+                        height: 1,
+                        indent: 56,
+                        color: AppColors.borderLightFor(context),
+                      ),
                       _buildSheetActionTile(
                         context,
                         icon: Icons.cleaning_services_rounded,
@@ -1250,11 +1562,19 @@ class _SettingsBottomSheetState extends ConsumerState<_SettingsBottomSheet> {
                           try {
                             await deleteMissingDepartments();
                             if (widget.parentContext.mounted) {
-                              showAppSnackBar(widget.parentContext, message: 'Temizlik başarılı!', isSuccess: true);
+                              showAppSnackBar(
+                                widget.parentContext,
+                                message: 'Temizlik başarılı!',
+                                isSuccess: true,
+                              );
                             }
                           } catch (e) {
                             if (widget.parentContext.mounted) {
-                              showAppSnackBar(widget.parentContext, message: 'Hata: $e', isSuccess: false);
+                              showAppSnackBar(
+                                widget.parentContext,
+                                message: 'Hata: $e',
+                                isSuccess: false,
+                              );
                             }
                           }
                         },
@@ -1273,7 +1593,12 @@ class _SettingsBottomSheetState extends ConsumerState<_SettingsBottomSheet> {
   }
 
   // ─── Tema Seçici ────────────────────────────────────────────────
-  Widget _buildThemeSelector(BuildContext context, WidgetRef ref, ThemeMode current, AppLocalizations loc) {
+  Widget _buildThemeSelector(
+    BuildContext context,
+    WidgetRef ref,
+    ThemeMode current,
+    AppLocalizations loc,
+  ) {
     return Container(
       padding: const EdgeInsets.all(3),
       decoration: BoxDecoration(
@@ -1284,14 +1609,16 @@ class _SettingsBottomSheetState extends ConsumerState<_SettingsBottomSheet> {
         mainAxisSize: MainAxisSize.min,
         children: [
           _buildThemeChip(
-            context, ref,
+            context,
+            ref,
             icon: Icons.light_mode_rounded,
             label: loc.themeLight,
             isSelected: current == ThemeMode.light,
             mode: ThemeMode.light,
           ),
           _buildThemeChip(
-            context, ref,
+            context,
+            ref,
             icon: Icons.dark_mode_rounded,
             label: loc.themeDark,
             isSelected: current == ThemeMode.dark,
@@ -1323,18 +1650,32 @@ class _SettingsBottomSheetState extends ConsumerState<_SettingsBottomSheet> {
           color: isSelected ? AppColors.primary : Colors.transparent,
           borderRadius: BorderRadius.circular(8),
           boxShadow: isSelected
-              ? [BoxShadow(color: AppColors.primary.withValues(alpha: 0.3), blurRadius: 8, offset: const Offset(0, 2))]
+              ? [
+                  BoxShadow(
+                    color: AppColors.primary.withValues(alpha: 0.3),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ]
               : null,
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 14, color: isSelected ? Colors.white : AppColors.textSecondaryFor(context)),
+            Icon(
+              icon,
+              size: 14,
+              color: isSelected
+                  ? Colors.white
+                  : AppColors.textSecondaryFor(context),
+            ),
             const SizedBox(width: 4),
             Text(
               label,
               style: AppTextStyles.labelSmall.copyWith(
-                color: isSelected ? Colors.white : AppColors.textSecondaryFor(context),
+                color: isSelected
+                    ? Colors.white
+                    : AppColors.textSecondaryFor(context),
                 fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
                 fontSize: 10,
               ),
@@ -1372,7 +1713,12 @@ class _SettingsBottomSheetState extends ConsumerState<_SettingsBottomSheet> {
   }
 
   // ─── Dil Seçici ────────────────────────────────────────────────
-  Widget _buildLanguageSelector(BuildContext context, WidgetRef ref, Locale current, AppLocalizations loc) {
+  Widget _buildLanguageSelector(
+    BuildContext context,
+    WidgetRef ref,
+    Locale current,
+    AppLocalizations loc,
+  ) {
     return Container(
       padding: const EdgeInsets.all(3),
       decoration: BoxDecoration(
@@ -1382,14 +1728,32 @@ class _SettingsBottomSheetState extends ConsumerState<_SettingsBottomSheet> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          _buildLangChip(context, ref, label: '🇹🇷 TR', locale: const Locale('tr'), isSelected: current.languageCode == 'tr'),
-          _buildLangChip(context, ref, label: '🇬🇧 EN', locale: const Locale('en'), isSelected: current.languageCode == 'en'),
+          _buildLangChip(
+            context,
+            ref,
+            label: '🇹🇷 TR',
+            locale: const Locale('tr'),
+            isSelected: current.languageCode == 'tr',
+          ),
+          _buildLangChip(
+            context,
+            ref,
+            label: '🇬🇧 EN',
+            locale: const Locale('en'),
+            isSelected: current.languageCode == 'en',
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildLangChip(BuildContext context, WidgetRef ref, {required String label, required Locale locale, required bool isSelected}) {
+  Widget _buildLangChip(
+    BuildContext context,
+    WidgetRef ref, {
+    required String label,
+    required Locale locale,
+    required bool isSelected,
+  }) {
     return GestureDetector(
       onTap: () => ref.read(localeProvider.notifier).setLocale(locale),
       child: AnimatedContainer(
@@ -1399,13 +1763,21 @@ class _SettingsBottomSheetState extends ConsumerState<_SettingsBottomSheet> {
           color: isSelected ? AppColors.primary : Colors.transparent,
           borderRadius: BorderRadius.circular(8),
           boxShadow: isSelected
-              ? [BoxShadow(color: AppColors.primary.withValues(alpha: 0.3), blurRadius: 8, offset: const Offset(0, 2))]
+              ? [
+                  BoxShadow(
+                    color: AppColors.primary.withValues(alpha: 0.3),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ]
               : null,
         ),
         child: Text(
           label,
           style: AppTextStyles.labelSmall.copyWith(
-            color: isSelected ? Colors.white : AppColors.textSecondaryFor(context),
+            color: isSelected
+                ? Colors.white
+                : AppColors.textSecondaryFor(context),
             fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
             fontSize: 11,
           ),
@@ -1496,12 +1868,18 @@ class _SettingsBottomSheetState extends ConsumerState<_SettingsBottomSheet> {
                     if (subtitle != null)
                       Text(
                         subtitle,
-                        style: AppTextStyles.labelSmall.copyWith(color: AppColors.textTertiaryFor(context)),
+                        style: AppTextStyles.labelSmall.copyWith(
+                          color: AppColors.textTertiaryFor(context),
+                        ),
                       ),
                   ],
                 ),
               ),
-              Icon(Icons.chevron_right_rounded, size: 18, color: AppColors.textTertiaryFor(context)),
+              Icon(
+                Icons.chevron_right_rounded,
+                size: 18,
+                color: AppColors.textTertiaryFor(context),
+              ),
             ],
           ),
         ),
@@ -1509,4 +1887,3 @@ class _SettingsBottomSheetState extends ConsumerState<_SettingsBottomSheet> {
     );
   }
 }
-

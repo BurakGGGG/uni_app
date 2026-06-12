@@ -4,28 +4,28 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 enum ReviewType {
   university, // Üniversite yorumu
   department, // Bölüm yorumu
-  place,      // Mekan/kampüs yorumu
+  place, // Mekan/kampüs yorumu
 }
 
 /// Yorum modeli — Sprint 3'ün bel kemiği
 class ReviewModel {
   final String id;
   final ReviewType type;
-  final String targetId;       // Yorumun bağlı olduğu üniversite veya bölüm ID'si
-  final String universityId;   // Bölüm yorumlarında üniversiteyi de bilmek için
+  final String targetId; // Yorumun bağlı olduğu üniversite veya bölüm ID'si
+  final String universityId; // Bölüm yorumlarında üniversiteyi de bilmek için
   final String userId;
   final String userName;
   final String? userPhotoUrl;
   final String? userUniversity; // Yorumcunun üniversitesi
-  final double rating;          // 1.0 - 5.0
+  final double rating; // 1.0 - 5.0
   final Map<String, double> categoryRatings; // Kategori bazlı puanlar
   final String comment;
-  final List<String> pros;      // Artılar
-  final List<String> cons;      // Eksiler
+  final List<String> pros; // Artılar
+  final List<String> cons; // Eksiler
   final List<String> imageUrls; // Yorum fotoğrafları
   final int likes;
   final bool isAnonymous;
-  final bool isApproved;        // Moderasyon durumu
+  final bool isApproved; // Moderasyon durumu
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -46,10 +46,13 @@ class ReviewModel {
     this.imageUrls = const [],
     this.likes = 0,
     this.isAnonymous = false,
-    this.isApproved = true,
+    this.isApproved = false,
     required this.createdAt,
     required this.updatedAt,
-  }) : assert(rating >= 1.0 && rating <= 5.0, 'Rating must be between 1.0 and 5.0');
+  }) : assert(
+         rating >= 1.0 && rating <= 5.0,
+         'Rating must be between 1.0 and 5.0',
+       );
 
   factory ReviewModel.fromMap(Map<String, dynamic> map, String id) {
     return ReviewModel(
@@ -67,8 +70,9 @@ class ReviewModel {
       rating: (map['rating'] as num?)?.toDouble() ?? 0.0,
       categoryRatings: Map<String, double>.from(
         (map['categoryRatings'] as Map<String, dynamic>?)?.map(
-          (key, value) => MapEntry(key, (value as num).toDouble()),
-        ) ?? {},
+              (key, value) => MapEntry(key, (value as num).toDouble()),
+            ) ??
+            {},
       ),
       comment: map['comment'] ?? '',
       pros: List<String>.from(map['pros'] ?? []),
@@ -76,7 +80,7 @@ class ReviewModel {
       imageUrls: List<String>.from(map['imageUrls'] ?? []),
       likes: (map['likes'] as num?)?.toInt() ?? 0,
       isAnonymous: map['isAnonymous'] ?? false,
-      isApproved: map['isApproved'] ?? true,
+      isApproved: map['isApproved'] ?? false,
       createdAt: (map['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
       updatedAt: (map['updatedAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
     );
