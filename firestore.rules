@@ -9,18 +9,186 @@ service cloud.firestore {
     }
 
     function isAdmin() {
-      return isAuthenticated() &&
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+      return isAuthenticated()
+        && request.auth.token.keys().hasAny(['admin'])
+        && request.auth.token.admin == true;
     }
 
-    function isVerifiedStudent() {
+    function hasVerifiedEduEmail() {
       return isAuthenticated() &&
         request.auth.token.email_verified == true &&
         request.auth.token.email.matches('.*\\.edu\\.tr$');
     }
 
+    function isVerifiedStudent() {
+      return hasVerifiedEduEmail();
+    }
+
     function isOwner(userId) {
       return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isSafeUserCreate() {
+      return request.resource.data.keys().hasOnly([
+        'displayName',
+        'email',
+        'photoUrl',
+        'isVerifiedStudent',
+        'university',
+        'universityId',
+        'department',
+        'grade',
+        'bio',
+        'role',
+        'reviewCount',
+        'notificationPrefs',
+        'createdAt',
+        'lastLoginAt'
+      ]) &&
+      request.resource.data.email == request.auth.token.email &&
+      request.resource.data.role == 'user' &&
+      request.resource.data.reviewCount == 0 &&
+      request.resource.data.isVerifiedStudent == false &&
+      request.resource.data.university == null &&
+      request.resource.data.universityId == null;
+    }
+
+    function isSafeUserUpdate() {
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+        'displayName',
+        'photoUrl',
+        'department',
+        'grade',
+        'bio',
+        'notificationPrefs'
+      ]);
+    }
+
+    function currentUserProfile() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    function isValidReviewTypeAndTarget(data) {
+      return (data.type == 'university' ||
+              data.type == 'department' ||
+              data.type == 'place') &&
+        data.targetId is string &&
+        data.targetId.size() > 0 &&
+        data.targetId.size() <= 128 &&
+        data.universityId is string &&
+        data.universityId.size() > 0 &&
+        data.universityId.size() <= 128 &&
+        (data.type != 'university' || data.targetId == data.universityId);
+    }
+
+    function isValidReviewContent(data) {
+      return data.rating is number &&
+        data.rating >= 1 &&
+        data.rating <= 5 &&
+        data.categoryRatings is map &&
+        data.categoryRatings.keys().size() <= 12 &&
+        data.comment is string &&
+        data.comment.size() >= 20 &&
+        data.comment.size() <= 500 &&
+        data.pros is list &&
+        data.pros.size() <= 10 &&
+        data.cons is list &&
+        data.cons.size() <= 10 &&
+        data.imageUrls is list &&
+        data.imageUrls.size() <= 3 &&
+        data.isAnonymous is bool;
+    }
+
+    function isValidReviewAuthorFields(data) {
+      return (
+          (data.isAnonymous == true &&
+            data.userName == 'Anonim Öğrenci' &&
+            data.userPhotoUrl == null) ||
+          (data.isAnonymous == false &&
+            data.userName == currentUserProfile().displayName &&
+            data.userPhotoUrl == currentUserProfile().photoUrl)
+        ) &&
+        data.userUniversity == currentUserProfile().university;
+    }
+
+    function isSafeReviewCreate() {
+      return request.resource.data.keys().hasOnly([
+          'type',
+          'targetId',
+          'universityId',
+          'userId',
+          'userName',
+          'userPhotoUrl',
+          'userUniversity',
+          'rating',
+          'categoryRatings',
+          'comment',
+          'pros',
+          'cons',
+          'imageUrls',
+          'likes',
+          'isAnonymous',
+          'isApproved',
+          'createdAt',
+          'updatedAt'
+        ]) &&
+        request.resource.data.keys().hasAll([
+          'type',
+          'targetId',
+          'universityId',
+          'userId',
+          'userName',
+          'userPhotoUrl',
+          'userUniversity',
+          'rating',
+          'categoryRatings',
+          'comment',
+          'pros',
+          'cons',
+          'imageUrls',
+          'likes',
+          'isAnonymous',
+          'isApproved',
+          'createdAt',
+          'updatedAt'
+        ]) &&
+        request.resource.data.userId == request.auth.uid &&
+        request.resource.data.universityId == currentUserProfile().universityId &&
+        request.resource.data.likes == 0 &&
+        request.resource.data.isApproved == false &&
+        request.resource.data.createdAt == request.time &&
+        request.resource.data.updatedAt == request.time &&
+        isValidReviewTypeAndTarget(request.resource.data) &&
+        isValidReviewContent(request.resource.data) &&
+        isValidReviewAuthorFields(request.resource.data);
+    }
+
+    function isSafeReviewOwnerUpdate() {
+      return isOwner(resource.data.userId) &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'userName',
+          'userPhotoUrl',
+          'userUniversity',
+          'rating',
+          'categoryRatings',
+          'comment',
+          'pros',
+          'cons',
+          'imageUrls',
+          'isAnonymous',
+          'isApproved',
+          'updatedAt'
+        ]) &&
+        request.resource.data.userId == resource.data.userId &&
+        request.resource.data.type == resource.data.type &&
+        request.resource.data.targetId == resource.data.targetId &&
+        request.resource.data.universityId == resource.data.universityId &&
+        request.resource.data.likes == resource.data.likes &&
+        request.resource.data.createdAt == resource.data.createdAt &&
+        request.resource.data.isApproved == false &&
+        request.resource.data.updatedAt == request.time &&
+        isValidReviewContent(request.resource.data) &&
+        isValidReviewAuthorFields(request.resource.data);
     }
 
     // ─── Şehirler ───────────────────────────────────────────────
@@ -62,26 +230,21 @@ service cloud.firestore {
       allow read: if isAdmin() || resource.data.isApproved == true
         || (request.auth != null && request.auth.uid == resource.data.userId);
 
-      allow create: if isVerifiedStudent() &&
-        request.resource.data.userId == request.auth.uid &&
-        request.resource.data.universityId == get(/databases/$(database)/documents/users/$(request.auth.uid)).data.universityId &&
-        // Rating 1-5 arasında olmalı
-        request.resource.data.rating is number &&
-        request.resource.data.rating >= 1 &&
-        request.resource.data.rating <= 5;
+      allow create: if isVerifiedStudent() && isSafeReviewCreate();
 
-      allow update: if isAuthenticated() && (
-        (isOwner(resource.data.userId) &&
-         request.resource.data.userId == resource.data.userId) ||
-        (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likes']))
-      );
+      allow update: if isAdmin() || isSafeReviewOwnerUpdate();
 
       allow delete: if isAdmin() || isOwner(resource.data.userId);
     }
 
     match /reviews/{reviewId}/likes/{userId} {
       allow read: if true;
-      allow create, delete: if isAuthenticated() && request.auth.uid == userId;
+      allow create: if isAuthenticated() &&
+        request.auth.uid == userId &&
+        get(/databases/$(database)/documents/reviews/$(reviewId)).data.isApproved == true &&
+        request.resource.data.keys().hasOnly(['createdAt']) &&
+        request.resource.data.createdAt == request.time;
+      allow delete: if isAuthenticated() && request.auth.uid == userId;
       allow update: if false;
     }
 
@@ -106,14 +269,25 @@ service cloud.firestore {
     }
 
     match /users/{userId} {
-      allow read: if true;
-      allow create: if isOwner(userId);
-      allow update: if isOwner(userId) && (
-        !request.resource.data.diff(resource.data).affectedKeys().hasAny(['isVerifiedStudent']) ||
-        (request.resource.data.isVerifiedStudent == true && request.auth.token.email_verified == true && request.auth.token.email.matches('.*\\.edu\\.tr$')) ||
-        (request.resource.data.isVerifiedStudent == false)
-      );
+      allow read: if isOwner(userId) || isAdmin();
+      allow create: if isOwner(userId) && isSafeUserCreate();
+      allow update: if isOwner(userId) && isSafeUserUpdate();
       allow delete: if isOwner(userId);
+    }
+
+    match /publicProfiles/{userId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    match /users/{userId}/fcmTokens/{tokenId} {
+      allow read: if isOwner(userId) || isAdmin();
+      allow create, update: if isOwner(userId) &&
+        request.resource.data.keys().hasOnly(['token', 'platform', 'createdAt', 'updatedAt']) &&
+        request.resource.data.token is string &&
+        request.resource.data.token.size() > 0 &&
+        request.resource.data.token.size() <= 4096;
+      allow delete: if isOwner(userId) || isAdmin();
     }
 
     match /users/{userId}/favorites/{favId} {
@@ -123,7 +297,12 @@ service cloud.firestore {
 
     match /users/{userId}/likedReviews/{reviewId} {
       allow read: if isOwner(userId);
-      allow create, delete: if isOwner(userId);
+      allow create: if isOwner(userId) &&
+        get(/databases/$(database)/documents/reviews/$(reviewId)).data.isApproved == true &&
+        request.resource.data.keys().hasOnly(['createdAt', 'reviewId']) &&
+        request.resource.data.reviewId == reviewId &&
+        request.resource.data.createdAt == request.time;
+      allow delete: if isOwner(userId);
       allow update: if false;
     }
 
@@ -213,10 +392,8 @@ service cloud.firestore {
     // ─── Hikayeler (Admin Story) ────────────────────────────────
     match /stories/{storyId} {
       allow read: if true;
-      allow create: if isAuthenticated() &&
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
-      allow update, delete: if isAuthenticated() &&
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+      allow create: if isAdmin();
+      allow update, delete: if isAdmin();
     }
 
     // ─── Geri Bildirim (Feedback) ──────────────────────────────
