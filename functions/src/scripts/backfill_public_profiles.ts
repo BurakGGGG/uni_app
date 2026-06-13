@@ -38,8 +38,9 @@ async function main(): Promise<void> {
   let processed = 0;
   let written = 0;
   let lastDoc: FirebaseFirestore.QueryDocumentSnapshot | undefined;
+  let hasMore = true;
 
-  while (true) {
+  while (hasMore) {
     let query: FirebaseFirestore.Query = db
       .collection('users')
       .orderBy(admin.firestore.FieldPath.documentId())
@@ -69,11 +70,10 @@ async function main(): Promise<void> {
 
     processed += usersSnap.size;
     lastDoc = usersSnap.docs[usersSnap.docs.length - 1];
+    hasMore = usersSnap.size === BATCH_SIZE;
     console.log(
       `   İşlenen: ${processed} | Yazılan: ${written}${DRY_RUN ? ' (dry-run)' : ''}`,
     );
-
-    if (usersSnap.size < BATCH_SIZE) break;
   }
 
   console.log('────────────────────────────────────────');
