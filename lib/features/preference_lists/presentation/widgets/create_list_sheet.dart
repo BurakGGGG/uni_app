@@ -66,9 +66,13 @@ class _BodyState extends ConsumerState<_Body> {
           );
       if (!mounted) return;
       Navigator.pop(context);
-      if (list != null) context.push('/my-lists/${list.id}');
+      if (list != null) {
+        context.push('/my-lists/${list.id}');
+      }
     } catch (e) {
-      if (mounted) setState(() => _err = e.toString().replaceAll('Exception: ', ''));
+      if (mounted) {
+        setState(() => _err = e.toString().replaceAll('Exception: ', ''));
+      }
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -161,26 +165,29 @@ class _BodyState extends ConsumerState<_Body> {
           const SizedBox(height: 14),
 
           // Public toggle
-          Container(
-            decoration: BoxDecoration(
-              color: AppColors.surfaceVariant.withValues(alpha: 0.5),
-              borderRadius: BorderRadius.circular(12),
-            ),
+          Material(
+            color: AppColors.surfaceVariant.withValues(alpha: 0.5),
+            borderRadius: BorderRadius.circular(12),
+            clipBehavior: Clip.antiAlias,
             child: SwitchListTile(
-              contentPadding:
-                  const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 14,
+                vertical: 2,
+              ),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
               title: Text(
                 'Herkese açık',
-                style: AppTextStyles.bodyMedium
-                    .copyWith(fontWeight: FontWeight.w600),
+                style: AppTextStyles.bodyMedium.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
               ),
               subtitle: Text(
                 'Bağlantıyı paylaştığın herkes listeyi görebilir',
-                style: AppTextStyles.labelSmall
-                    .copyWith(color: AppColors.textSecondaryFor(context)),
+                style: AppTextStyles.labelSmall.copyWith(
+                  color: AppColors.textSecondaryFor(context),
+                ),
               ),
               value: _isPublic,
               activeTrackColor: AppColors.primary,
@@ -198,14 +205,18 @@ class _BodyState extends ConsumerState<_Body> {
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.error_outline_rounded,
-                      color: AppColors.error, size: 18),
+                  const Icon(
+                    Icons.error_outline_rounded,
+                    color: AppColors.error,
+                    size: 18,
+                  ),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       _err!,
-                      style: AppTextStyles.labelSmall
-                          .copyWith(color: AppColors.error),
+                      style: AppTextStyles.labelSmall.copyWith(
+                        color: AppColors.error,
+                      ),
                     ),
                   ),
                 ],
@@ -328,8 +339,10 @@ class _Field extends StatelessWidget {
         filled: true,
         fillColor: AppColors.surfaceVariant.withValues(alpha: 0.7),
         counterText: '',
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 14,
+          vertical: 14,
+        ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide.none,

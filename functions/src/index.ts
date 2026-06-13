@@ -116,3 +116,6 @@ export { cleanupAiSummaryLogs } from './cleanup/ai_logs_cleanup';
 
 // Server-side analytics counters
 export { trackAnalyticsEvent } from './analytics/track_event';
+
+// Preference lists
+export { incrementPreferenceListView } from './preference_lists/increment_view';

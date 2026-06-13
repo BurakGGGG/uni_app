@@ -24,6 +24,8 @@ Tamamlanan kritik/yüksek öncelikli düzeltmeler:
 - Callable Cloud Functions için App Check zorunlu hale getirildi: `verifyStudentUniversity`, `generateComparisonSummary`, `enrichRecommendations`.
 - Firestore analytics sayaçları client write'a kapatıldı; event yazımları App Check zorunlu `trackAnalyticsEvent` callable function'ına taşındı.
 - Analytics event adları server-side whitelist'e alındı ve kullanıcı başına kısa pencere rate limit eklendi.
+- Preference list `viewCount` client write'a kapatıldı; görüntülenme sayacı App Check zorunlu `incrementPreferenceListView` callable function'ına taşındı.
+- Preference list create/update kuralları schema whitelist, immutable alan koruması, server timestamp zorunluluğu ve item payload doğrulamasıyla sıkılaştırıldı.
 - `usageStats` başlangıç dokümanı Firestore rules tarafında whitelist/zero-counter validasyonuna alındı.
 - Günlük quota reset job'u ve RevenueCat webhook'u `lastAiRecommendationResetDate` alanıyla AI öneri reset takibini tutarlı hale getirecek şekilde güncellendi.
 - Firestore rules testleri emulator ile çalışır hale getirildi ve kritik exploit senaryoları eklendi.
@@ -33,7 +35,7 @@ Son doğrulama çıktıları:
 | Komut | Sonuç |
 | --- | --- |
 | `npm run build` (`functions`) | Başarılı |
-| `npm test` (`rules-tests`) | Başarılı, 21 test geçti |
+| `npm test` (`rules-tests`) | Başarılı, 31 test geçti |
 | `flutter analyze` | Başarılı |
 | `flutter test` | Başarılı, 70 test geçti |
 | `flutter build apk --debug` | Başarılı |
@@ -98,7 +100,7 @@ Sınırlamalar:
 | Yüksek | Storage stories | Tüm authenticated kullanıcılar story medyası yükleyebilir | Maliyet, içerik güvenliği, bucket kirliliği |
 | Yüksek | Functions AI | Recommendation enrichment quota/rate limit ve callable App Check enforcement eklendi | Firebase Console provider ayarları/debug token kaydı yapılmazsa client çağrıları reddedilir |
 | Orta | Analytics | Client analytics write kapatıldı; server-side callable endpoint'e taşındı | Debug token/App Check olmadan client event çağrıları reddedilir |
-| Orta | Preference lists | `viewCount` ve liste alanları yeterince doğrulanmıyor | Sayaç manipülasyonu, veri şişmesi |
+| Orta | Preference lists | `viewCount` client write kapatıldı; liste schema validasyonu eklendi | App Check function deploy edilmeden eski client sayaç artıramaz |
 | Orta | Admin route | `/admin*` rotalarında client-side role guard yok | Yetkisiz UI erişimi; role açığıyla birleşince kritik |
 | Orta | Android lint | Manifest/style hataları var | Release kalitesi ve bazı cihazlarda runtime uyumsuzluk riski |
 | Orta | Dependency | Functions dependency audit açıkları var | Transitive paket açıkları, bakım riski |
@@ -301,6 +303,8 @@ Her authenticated kullanıcı analytics sayaçlarını veya event dokümanların
 
 ### 5.2 Preference list update ve viewCount kuralları zayıf
 
+Güncel durum (2026-06-13): Bu bulgu giderildi. `preferenceLists` create/update kuralları alan whitelist'i, immutable `userId/userName/userPhotoUrl/shareSlug/viewCount/createdAt` koruması, server timestamp zorunluluğu ve 24 item için schema kontrolüyle sıkılaştırıldı. `viewCount` artık Firestore client update ile artırılamıyor; public liste görüntülenmesi App Check zorunlu `incrementPreferenceListView` callable function'ı üzerinden Admin SDK ile artırılıyor.
+
 Kanıt:
 
 - `firestore.rules:94-104`: create sadece `userId` ve `items.size() <= 24` kontrol ediyor.
@@ -315,9 +319,9 @@ Etki:
 
 Önerilen düzeltme:
 
-- Create/update için `title`, `description`, `items`, `isPublic`, `shareSlug`, `updatedAt` alanlarını beyaz listeyle doğrulayın.
-- `viewCount` için `request.resource.data.viewCount == resource.data.viewCount + 1` gibi kısıt koyun veya Cloud Function kullanın.
-- `items` elemanlarının ID/type formatlarını doğrulayın.
+- Create/update için `title`, `description`, `items`, `isPublic`, `shareSlug`, `updatedAt` alanlarını beyaz listeyle doğrulayın. (Tamamlandı)
+- `viewCount` için `request.resource.data.viewCount == resource.data.viewCount + 1` gibi kısıt koyun veya Cloud Function kullanın. (Cloud Function ile tamamlandı)
+- `items` elemanlarının ID/type formatlarını doğrulayın. (Tamamlandı)
 
 ### 5.3 Admin rotalarında client-side guard yok
 
@@ -703,9 +707,10 @@ Hard overflow kesin değil; Material NavigationBar label'ları sıkıştırabili
 1. Functions dependency upgrade planını uygulayın.
 2. Firebase Console App Check provider ayarlarını ve debug token kayıtlarını tamamlayın.
 3. Analytics dashboard için server-side event doğrulama loglarını ve alert'leri izleyin.
-4. Admin route guard ve 403 ekranı ekleyin.
-5. Admin UI responsive taşma risklerini düzeltin.
-6. CI pipeline'a şu gate'leri koyun:
+4. Preference list callable deploy ve Android client rebuild akışını tamamlayın.
+5. Admin route guard ve 403 ekranı ekleyin.
+6. Admin UI responsive taşma risklerini düzeltin.
+7. CI pipeline'a şu gate'leri koyun:
    - `flutter analyze`
    - `flutter test`
    - `npm run build` (`functions`)
@@ -808,6 +813,7 @@ Hard overflow kesin değil; Material NavigationBar label'ları sıkıştırabili
   - Review create `isApproved: true` ile reddedilmeli.
   - Review update `likes`, `createdAt`, `userId`, `universityId` değiştirememeli.
   - Preference list viewCount arbitrary set edilememeli.
+  - Preference list create/update immutable alan ve item schema ihlalleri reddedilmeli.
   - Analytics direct client write reddedilmeli.
 
 - Storage:

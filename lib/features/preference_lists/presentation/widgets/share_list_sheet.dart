@@ -35,7 +35,8 @@ class _Content extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final listsAsync = ref.watch(myPreferenceListsProvider);
-    final currentList = listsAsync.value?.firstWhere(
+    final currentList =
+        listsAsync.value?.firstWhere(
           (l) => l.id == initialList.id,
           orElse: () => initialList,
         ) ??
@@ -103,26 +104,29 @@ class _Content extends ConsumerWidget {
           const SizedBox(height: 20),
 
           // Public/Private toggle
-          Container(
-            decoration: BoxDecoration(
-              color: AppColors.surfaceVariant.withValues(alpha: 0.5),
-              borderRadius: BorderRadius.circular(12),
-            ),
+          Material(
+            color: AppColors.surfaceVariant.withValues(alpha: 0.5),
+            borderRadius: BorderRadius.circular(12),
+            clipBehavior: Clip.antiAlias,
             child: SwitchListTile(
-              contentPadding:
-                  const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 14,
+                vertical: 2,
+              ),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
               title: Text(
                 'Herkese açık',
-                style: AppTextStyles.bodyMedium
-                    .copyWith(fontWeight: FontWeight.w600),
+                style: AppTextStyles.bodyMedium.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
               ),
               subtitle: Text(
                 'Linke sahip herkes listeni görebilir',
-                style: AppTextStyles.labelSmall
-                    .copyWith(color: AppColors.textSecondaryFor(context)),
+                style: AppTextStyles.labelSmall.copyWith(
+                  color: AppColors.textSecondaryFor(context),
+                ),
               ),
               value: currentList.isPublic,
               activeTrackColor: AppColors.primary,
@@ -133,9 +137,9 @@ class _Content extends ConsumerWidget {
                       .update(currentList.copyWith(isPublic: v));
                 } catch (e) {
                   if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Hata: $e')),
-                    );
+                    ScaffoldMessenger.of(
+                      context,
+                    ).showSnackBar(SnackBar(content: Text('Hata: $e')));
                   }
                 }
               },
@@ -175,11 +179,15 @@ class _Content extends ConsumerWidget {
                   ),
                   IconButton(
                     visualDensity: VisualDensity.compact,
-                    icon: const Icon(Icons.copy_rounded,
-                        color: AppColors.primary, size: 18),
+                    icon: const Icon(
+                      Icons.copy_rounded,
+                      color: AppColors.primary,
+                      size: 18,
+                    ),
                     onPressed: () async {
                       await Clipboard.setData(
-                          ClipboardData(text: currentList.publicUrl));
+                        ClipboardData(text: currentList.publicUrl),
+                      );
                       if (context.mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
@@ -211,10 +219,7 @@ class _Content extends ConsumerWidget {
                 icon: const Icon(Icons.ios_share_rounded, size: 20),
                 label: const Text(
                   'Bağlantıyı Paylaş',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 15,
-                  ),
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
                 ),
               ),
             ),
@@ -223,13 +228,17 @@ class _Content extends ConsumerWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.remove_red_eye_rounded,
-                    size: 14, color: AppColors.textTertiaryFor(context)),
+                Icon(
+                  Icons.remove_red_eye_rounded,
+                  size: 14,
+                  color: AppColors.textTertiaryFor(context),
+                ),
                 const SizedBox(width: 5),
                 Text(
                   '${currentList.viewCount} görüntülenme',
-                  style: AppTextStyles.labelSmall
-                      .copyWith(color: AppColors.textTertiaryFor(context)),
+                  style: AppTextStyles.labelSmall.copyWith(
+                    color: AppColors.textTertiaryFor(context),
+                  ),
                 ),
               ],
             ),
@@ -243,8 +252,11 @@ class _Content extends ConsumerWidget {
               ),
               child: Row(
                 children: [
-                  Icon(Icons.lock_outline_rounded,
-                      color: AppColors.textTertiaryFor(context), size: 20),
+                  Icon(
+                    Icons.lock_outline_rounded,
+                    color: AppColors.textTertiaryFor(context),
+                    size: 20,
+                  ),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(
@@ -265,18 +277,21 @@ class _Content extends ConsumerWidget {
   }
 
   void _shareList(BuildContext context, PreferenceListModel list) {
-    final preview = list.items.take(3).map((it) {
-      final order = it.order > 0 ? it.order : (list.items.indexOf(it) + 1);
-      return '$order. ${it.deptName} — ${it.uniName}';
-    }).join('\n');
+    final preview = list.items
+        .take(3)
+        .map((it) {
+          final order = it.order > 0 ? it.order : (list.items.indexOf(it) + 1);
+          return '$order. ${it.deptName} — ${it.uniName}';
+        })
+        .join('\n');
     final extra = list.items.length > 3
         ? '\n…ve ${list.items.length - 3} bölüm daha'
         : '';
-    final text = '"${list.title}" tercih listemi paylaştım 🎓\n\n'
+    final text =
+        '"${list.title}" tercih listemi paylaştım 🎓\n\n'
         '$preview$extra\n\n'
         '${list.publicUrl}';
-    AnalyticsService.instance
-        .trackEvent(AnalyticsEvent.preferenceListShared);
+    AnalyticsService.instance.trackEvent(AnalyticsEvent.preferenceListShared);
     Share.share(text, subject: list.title);
   }
 }
