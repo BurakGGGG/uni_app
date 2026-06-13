@@ -117,6 +117,56 @@ async function seedReview(reviewId = 'review_1', data = {}) {
   });
 }
 
+function validPreferenceItem(data = {}) {
+  return {
+    deptId: 'dept_1',
+    uniId: 'uni_1',
+    order: 1,
+    deptName: 'Bilgisayar Mühendisliği',
+    uniName: 'Test University',
+    scoreType: 'SAY',
+    baseScore: 450.12,
+    ranking: 12000,
+    quota: 80,
+    placedCount: 80,
+    uniBrandHex: '#123ABC',
+    ...data,
+  };
+}
+
+function validPreferenceListData(userId = 'user_1', data = {}) {
+  return {
+    userId,
+    userName: 'Test User',
+    userPhotoUrl: null,
+    title: 'Tercih Listem',
+    description: 'Güvenli tercih listesi',
+    isPublic: false,
+    shareSlug: 'ab23cd45',
+    viewCount: 0,
+    items: [],
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+    ...data,
+  };
+}
+
+async function seedPreferenceList(listId = 'list_1', data = {}) {
+  await testEnv.withSecurityRulesDisabled(async (context) => {
+    await context
+      .firestore()
+      .collection('preferenceLists')
+      .doc(listId)
+      .set({
+        ...validPreferenceListData('user_1', {
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        }),
+        ...data,
+      });
+  });
+}
+
 describe('Firestore Security Rules - users hardening', () => {
   it('owner can create a safe user doc', async () => {
     const ctx = authed('user_1', 'user_1@example.edu.tr');
@@ -358,6 +408,182 @@ describe('Firestore Security Rules - analytics hardening', () => {
 
     await assertSucceeds(
       ctx.firestore().collection('analytics').doc('counters').get(),
+    );
+  });
+});
+
+describe('Firestore Security Rules - preference list hardening', () => {
+  beforeEach(async () => {
+    await seedUser('user_1', {
+      displayName: 'Test User',
+      photoUrl: null,
+    });
+    await seedUser('user_2', {
+      displayName: 'Other User',
+      photoUrl: null,
+    });
+  });
+
+  it('owner can create a safe preference list', async () => {
+    const ctx = authed('user_1');
+
+    await assertSucceeds(
+      ctx
+        .firestore()
+        .collection('preferenceLists')
+        .doc('list_1')
+        .set(validPreferenceListData('user_1')),
+    );
+  });
+
+  it('owner can create a preference list with client timestamps', async () => {
+    const ctx = authed('user_1');
+    const now = new Date();
+
+    await assertSucceeds(
+      ctx
+        .firestore()
+        .collection('preferenceLists')
+        .doc('list_1')
+        .set(validPreferenceListData('user_1', {
+          createdAt: now,
+          updatedAt: now,
+        })),
+    );
+  });
+
+  it('owner cannot create preference list with spoofed or unsafe fields', async () => {
+    const ctx = authed('user_1');
+    const ref = ctx.firestore().collection('preferenceLists').doc('list_1');
+
+    await assertFails(
+      ref.set(validPreferenceListData('user_2')),
+    );
+
+    await assertFails(
+      ref.set(validPreferenceListData('user_1', { userName: '' })),
+    );
+
+    await assertFails(
+      ref.set(validPreferenceListData('user_1', { userPhotoUrl: 'x'.repeat(2049) })),
+    );
+
+    await assertFails(
+      ref.set(validPreferenceListData('user_1', { viewCount: 999 })),
+    );
+
+    await assertFails(
+      ref.set(validPreferenceListData('user_1', { shareSlug: '../bad' })),
+    );
+
+    await assertFails(
+      ref.set(validPreferenceListData('user_1', { adminOnly: true })),
+    );
+  });
+
+  it('owner can update mutable preference list fields only', async () => {
+    await seedPreferenceList();
+    const ctx = authed('user_1');
+
+    await assertSucceeds(
+      ctx.firestore().collection('preferenceLists').doc('list_1').update({
+        title: 'Güncel Tercih Listem',
+        description: 'Güncellendi',
+        isPublic: true,
+        items: [validPreferenceItem()],
+        updatedAt: serverTimestamp(),
+      }),
+    );
+  });
+
+  it('owner can save multiple preference list items', async () => {
+    await seedPreferenceList();
+    const ctx = authed('user_1');
+
+    await assertSucceeds(
+      ctx.firestore().collection('preferenceLists').doc('list_1').update({
+        items: [
+          validPreferenceItem({ deptId: 'dept_1', order: 1 }),
+          validPreferenceItem({ deptId: 'dept_2', order: 2 }),
+          validPreferenceItem({ deptId: 'dept_3', order: 3 }),
+        ],
+        updatedAt: serverTimestamp(),
+      }),
+    );
+  });
+
+  it('owner can update mutable preference list fields with client timestamp', async () => {
+    await seedPreferenceList();
+    const ctx = authed('user_1');
+
+    await assertSucceeds(
+      ctx.firestore().collection('preferenceLists').doc('list_1').update({
+        title: 'Güncel Tercih Listem',
+        updatedAt: new Date(),
+      }),
+    );
+  });
+
+  it('owner cannot update immutable preference list fields', async () => {
+    await seedPreferenceList();
+    const ctx = authed('user_1');
+    const ref = ctx.firestore().collection('preferenceLists').doc('list_1');
+
+    await assertFails(ref.update({ userId: 'user_2' }));
+    await assertFails(ref.update({ userName: 'Fake User' }));
+    await assertFails(ref.update({ shareSlug: 'zz99yy88' }));
+    await assertFails(ref.update({ viewCount: 1 }));
+    await assertFails(ref.update({ createdAt: serverTimestamp() }));
+  });
+
+  it('users cannot directly increment preference list viewCount', async () => {
+    await seedPreferenceList('list_1', { isPublic: true });
+    const ownerCtx = authed('user_1');
+    const otherCtx = authed('user_2');
+
+    await assertFails(
+      ownerCtx.firestore().collection('preferenceLists').doc('list_1').update({
+        viewCount: 1,
+      }),
+    );
+
+    await assertFails(
+      otherCtx.firestore().collection('preferenceLists').doc('list_1').update({
+        viewCount: 1,
+      }),
+    );
+  });
+
+  it('rejects preference list payloads over the OSYM item limit', async () => {
+    await seedPreferenceList();
+    const ctx = authed('user_1');
+    const ref = ctx.firestore().collection('preferenceLists').doc('list_1');
+    const tooManyItems = Array.from({ length: 25 }, (_, index) =>
+      validPreferenceItem({
+        deptId: `dept_${index}`,
+        order: index + 1,
+      }),
+    );
+
+    await assertFails(
+      ref.update({
+        items: tooManyItems,
+        updatedAt: serverTimestamp(),
+      }),
+    );
+  });
+
+  it('public preference lists are readable but private lists stay owner-only', async () => {
+    await seedPreferenceList('public_list', { isPublic: true });
+    await seedPreferenceList('private_list', { isPublic: false });
+    const otherCtx = authed('user_2');
+
+    await assertSucceeds(
+      otherCtx.firestore().collection('preferenceLists').doc('public_list').get(),
+    );
+
+    await assertFails(
+      otherCtx.firestore().collection('preferenceLists').doc('private_list').get(),
     );
   });
 });
