@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart' show ScrollCacheExtent;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../l10n/generated/app_localizations.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/utils/snackbar_helper.dart';
@@ -36,7 +37,7 @@ class ReviewList extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (showSortOptions) _buildSortBar(ref, sort),
+        if (showSortOptions) _buildSortBar(context, ref, sort),
         reviewsAsync.when(
           data: (reviews) {
             if (reviews.isEmpty) return _buildEmptyState();
@@ -87,20 +88,21 @@ class ReviewList extends ConsumerWidget {
     );
   }
 
-  Widget _buildSortBar(WidgetRef ref, ReviewSort current) {
+  Widget _buildSortBar(BuildContext context, WidgetRef ref, ReviewSort current) {
+    final loc = AppLocalizations.of(context);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(
         children: [
           Text(
-            'Sırala:',
+            loc.reviewSortLabel,
             style: AppTextStyles.labelMedium.copyWith(
-              color: AppColors.textSecondary,
+              color: AppColors.textSecondaryFor(context),
             ),
           ),
           const SizedBox(width: 8),
           ChoiceChip(
-            label: const Text('En Yeni'),
+            label: Text(loc.reviewSortNewest),
             selected: current == ReviewSort.newest,
             onSelected: (v) {
               if (v) {
@@ -111,7 +113,7 @@ class ReviewList extends ConsumerWidget {
             labelStyle: AppTextStyles.labelSmall.copyWith(
               color: current == ReviewSort.newest
                   ? AppColors.primary
-                  : AppColors.textSecondary,
+                  : AppColors.textSecondaryFor(context),
               fontWeight: current == ReviewSort.newest
                   ? FontWeight.w600
                   : FontWeight.w400,
@@ -119,12 +121,12 @@ class ReviewList extends ConsumerWidget {
             side: BorderSide(
               color: current == ReviewSort.newest
                   ? AppColors.primary.withValues(alpha: 0.3)
-                  : AppColors.borderLight,
+                  : AppColors.borderLightFor(context),
             ),
           ),
           const SizedBox(width: 8),
           ChoiceChip(
-            label: const Text('En Beğenilen'),
+            label: Text(loc.reviewSortMostLiked),
             selected: current == ReviewSort.mostLiked,
             onSelected: (v) {
               if (v) {
@@ -136,7 +138,7 @@ class ReviewList extends ConsumerWidget {
             labelStyle: AppTextStyles.labelSmall.copyWith(
               color: current == ReviewSort.mostLiked
                   ? AppColors.primary
-                  : AppColors.textSecondary,
+                  : AppColors.textSecondaryFor(context),
               fontWeight: current == ReviewSort.mostLiked
                   ? FontWeight.w600
                   : FontWeight.w400,
@@ -144,7 +146,7 @@ class ReviewList extends ConsumerWidget {
             side: BorderSide(
               color: current == ReviewSort.mostLiked
                   ? AppColors.primary.withValues(alpha: 0.3)
-                  : AppColors.borderLight,
+                  : AppColors.borderLightFor(context),
             ),
           ),
         ],

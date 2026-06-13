@@ -332,13 +332,13 @@ class AppTheme {
       // ─── Colors ─────────────────────────────────────────────────
       colorScheme: const ColorScheme.dark(
         primary: AppColors.primary,
-        primaryContainer: AppColors.primaryLight,
+        primaryContainer: AppColors.primaryDark,
         secondary: AppColors.secondary,
-        secondaryContainer: AppColors.secondaryLight,
+        secondaryContainer: AppColors.secondaryDark,
         tertiary: AppColors.accent,
         surface: AppColors.darkSurface,
         error: AppColors.error,
-        errorContainer: AppColors.errorLight,
+        errorContainer: Color(0xFF93000A),
         onPrimary: AppColors.textOnPrimary,
         onSecondary: AppColors.textOnSecondary,
         onSurface: Colors.white,
@@ -600,7 +600,7 @@ class AppTheme {
         contentTextStyle: GoogleFonts.inter(
           fontSize: 14,
           fontWeight: FontWeight.w400,
-          color: AppColors.textOnPrimary,
+          color: AppColors.textPrimary,
         ),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),

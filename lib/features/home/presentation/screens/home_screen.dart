@@ -506,7 +506,7 @@ class _HeroBanner extends StatelessWidget {
                         ),
                         const SizedBox(height: 12),
                         Text(
-                          'Puanını Hesapla,\nHedefini Belirle!',
+                          loc.homeHeroBannerTitle,
                           style: AppTextStyles.headlineMedium.copyWith(
                             color: Colors.white,
                             height: 1.2,

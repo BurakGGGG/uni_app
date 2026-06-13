@@ -6,6 +6,9 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../../core/widgets/widgets.dart';
+
+import '../widgets/university_detail_skeleton.dart';
 
 import '../providers/university_providers.dart';
 import '../../domain/models/university_model.dart';
@@ -38,9 +41,10 @@ class UniversityDetailScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: AppColors.backgroundFor(context),
       body: uniAsync.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(
-          child: Text(AppLocalizations.of(context).errorGeneral(e.toString())),
+        loading: () => const UniversityDetailSkeleton(),
+        error: (e, _) => ErrorStateWidget(
+          message: AppLocalizations.of(context).errorGeneral(e.toString()),
+          onRetry: () => ref.invalidate(universityDetailProvider(universityId)),
         ),
         data: (uni) {
           if (uni == null) {
@@ -61,6 +65,7 @@ class _Body extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final loc = AppLocalizations.of(context);
     final deptsAsync = ref.watch(departmentsByUniversityProvider(uni.id));
 
     final reviewsAsync = ref.watch(
@@ -112,27 +117,38 @@ class _Body extends ConsumerWidget {
 
                 // Bölümler section
                 UniSection(
-                  title: 'Bölümler',
-                  subtitle:
-                      '${deptsAsync.value?.length ?? 0} bölüm — En çok aranan 3 tanesi',
-                  ctaText: 'Tüm bölümleri gör',
+                  title: loc.uniDetailDepartments,
+                  subtitle: loc.uniDetailDepartmentsSubtitle(deptsAsync.value?.length ?? 0),
+                  ctaText: loc.uniDetailSeeAllDepartments,
                   onCtaTap: () =>
                       context.push('/university/${uni.id}/departments'),
-                  child: _DepartmentsPreview(deptsAsync: deptsAsync),
+                  child: _DepartmentsPreview(
+                    deptsAsync: deptsAsync,
+                    onRetry: () => ref.invalidate(departmentsByUniversityProvider(uni.id)),
+                  ),
                 ),
 
                 // Mekanlar section
-                _PlacesSection(uni: uni, placesAsync: placesAsync),
+                _PlacesSection(
+                  uni: uni,
+                  placesAsync: placesAsync,
+                  onRetry: () => ref.invalidate(placesByUniversityProvider(uni.id)),
+                ),
 
                 // Yorumlar section
                 UniSection(
-                  title: 'Yorumlar',
+                  title: loc.uniDetailReviews,
                   subtitle: uni.reviewCount > 0
-                      ? '${uni.reviewCount} yorum — En çok beğenilen 3 tanesi'
-                      : 'Henüz yorum yok',
-                  ctaText: 'Tüm yorumları gör',
+                      ? loc.uniDetailReviewsSubtitle(uni.reviewCount)
+                      : loc.uniDetailNoReviews,
+                  ctaText: loc.uniDetailSeeAllReviews,
                   onCtaTap: () => context.push('/university/${uni.id}/reviews'),
-                  child: _ReviewsPreview(reviewsAsync: reviewsAsync),
+                  child: _ReviewsPreview(
+                    reviewsAsync: reviewsAsync,
+                    onRetry: () => ref.invalidate(sortedReviewsProvider(
+                      SortedReviewsParams(targetId: uni.id, type: ReviewType.university),
+                    )),
+                  ),
                 ),
 
                 const SizedBox(height: 80),
@@ -199,6 +215,7 @@ class _ActionButtons extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final loc = AppLocalizations.of(context);
     final user = ref.watch(authStateProvider).value;
     final isEduUser =
         user != null && (user.email?.endsWith('.edu.tr') ?? false);
@@ -215,7 +232,7 @@ class _ActionButtons extends ConsumerWidget {
                     'https://maps.google.com/?q=${Uri.encodeComponent(uni.name)}',
                   ),
                   icon: const Icon(Icons.map_rounded, size: 20),
-                  label: const Text('Haritada Aç'),
+                  label: Text(loc.uniDetailOpenMap),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: AppColors.primary,
                     side: BorderSide(
@@ -234,7 +251,7 @@ class _ActionButtons extends ConsumerWidget {
                   onPressed: () =>
                       context.push('/university/${uni.id}/gallery'),
                   icon: const Icon(Icons.photo_library_rounded, size: 20),
-                  label: const Text('Galeri'),
+                  label: Text(loc.uniDetailGallery),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: AppColors.primary,
                     side: BorderSide(
@@ -253,7 +270,7 @@ class _ActionButtons extends ConsumerWidget {
           OutlinedButton.icon(
             onPressed: () => context.push('/university/${uni.id}/ratings'),
             icon: const Icon(Icons.analytics_rounded, size: 20),
-            label: const Text('Kategori Puanları'),
+            label: Text(loc.uniDetailCategoryRatings),
             style: OutlinedButton.styleFrom(
               foregroundColor: AppColors.primary,
               side: BorderSide(color: AppColors.primary.withValues(alpha: 0.3)),
@@ -274,7 +291,7 @@ class _ActionButtons extends ConsumerWidget {
               context.push('/write-review/university/${uni.id}');
             },
             icon: const Icon(Icons.rate_review_rounded, size: 20),
-            label: const Text('Üniversiteyi Değerlendir'),
+            label: Text(loc.uniDetailRateUniversity),
             style: ElevatedButton.styleFrom(
               backgroundColor: isEduUser
                   ? AppColors.primary
@@ -298,14 +315,18 @@ class _ActionButtons extends ConsumerWidget {
 
 class _DepartmentsPreview extends StatelessWidget {
   final AsyncValue<List<DepartmentModel>> deptsAsync;
-  const _DepartmentsPreview({required this.deptsAsync});
+  final VoidCallback? onRetry;
+  const _DepartmentsPreview({required this.deptsAsync, this.onRetry});
 
   @override
   Widget build(BuildContext context) {
     return deptsAsync.when(
-      loading: () => const Center(child: CircularProgressIndicator()),
-      error: (error, stackTrace) =>
-          Text(AppLocalizations.of(context).errorDepartmentsLoad),
+      loading: () => const DepartmentsSkeleton(),
+      error: (error, stackTrace) => ErrorStateWidget(
+        message: AppLocalizations.of(context).errorDepartmentsLoad,
+        onRetry: onRetry,
+        compact: true,
+      ),
       data: (depts) {
         if (depts.isEmpty) {
           return Text(
@@ -366,35 +387,41 @@ class _DepartmentsPreview extends StatelessWidget {
 class _PlacesSection extends StatelessWidget {
   final UniversityModel uni;
   final AsyncValue<List<PlaceModel>> placesAsync;
-  const _PlacesSection({required this.uni, required this.placesAsync});
+  final VoidCallback? onRetry;
+  const _PlacesSection({required this.uni, required this.placesAsync, this.onRetry});
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
     return placesAsync.when(
       loading: () => UniSection(
-        title: 'Mekanlar',
-        subtitle: 'Yükleniyor...',
-        child: const Center(child: CircularProgressIndicator()),
+        title: loc.uniDetailPlaces,
+        subtitle: loc.uniDetailPlacesLoading,
+        child: const PlacesSkeleton(),
       ),
       error: (e, _) => UniSection(
-        title: 'Mekanlar',
-        subtitle: 'Yüklenemedi',
-        child: Text(AppLocalizations.of(context).errorGeneral(e.toString())),
+        title: loc.uniDetailPlaces,
+        subtitle: loc.uniDetailPlacesLoadError,
+        child: ErrorStateWidget(
+          message: loc.errorPlacesLoad,
+          onRetry: onRetry,
+          compact: true,
+        ),
       ),
       data: (places) {
         if (places.isEmpty) {
           return UniSection(
-            title: 'Mekanlar',
-            subtitle: 'Yakında sizlerin önerileriyle!',
+            title: loc.uniDetailPlaces,
+            subtitle: loc.uniDetailPlacesComingSoon,
             child: _PlacesEmptyState(),
           );
         }
 
         final preview = places.take(3).toList();
         return UniSection(
-          title: 'Mekanlar',
-          subtitle: '${places.length} mekan',
-          ctaText: 'Tüm mekanları gör',
+          title: loc.uniDetailPlaces,
+          subtitle: loc.uniDetailPlacesSubtitle(places.length),
+          ctaText: loc.uniDetailSeeAllPlaces,
           onCtaTap: () => context.push('/university/${uni.id}/places'),
           child: Column(
             children: preview
@@ -416,6 +443,7 @@ class _PlacesSection extends StatelessWidget {
 class _PlacesEmptyState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 20),
@@ -441,14 +469,14 @@ class _PlacesEmptyState extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           Text(
-            'Kafeler Yakında!',
+            loc.uniDetailPlacesEmptyTitle,
             style: AppTextStyles.titleMedium.copyWith(
               fontWeight: FontWeight.bold,
             ),
           ),
           const SizedBox(height: 8),
           Text(
-            'Bu bölüme yakında kafeler ve mekanlar eklenecek.\nSizlerin önerileriyle bu listeyi oluşturacağız! 🎉',
+            loc.uniDetailPlacesEmptyDesc,
             textAlign: TextAlign.center,
             style: AppTextStyles.bodyMedium.copyWith(
               color: AppColors.textSecondaryFor(context),
@@ -463,14 +491,18 @@ class _PlacesEmptyState extends StatelessWidget {
 
 class _ReviewsPreview extends StatelessWidget {
   final AsyncValue<List<ReviewModel>> reviewsAsync;
-  const _ReviewsPreview({required this.reviewsAsync});
+  final VoidCallback? onRetry;
+  const _ReviewsPreview({required this.reviewsAsync, this.onRetry});
 
   @override
   Widget build(BuildContext context) {
     return reviewsAsync.when(
-      loading: () => const Center(child: CircularProgressIndicator()),
-      error: (error, stackTrace) =>
-          Text(AppLocalizations.of(context).errorReviewsLoad),
+      loading: () => const ReviewsSkeleton(),
+      error: (error, stackTrace) => ErrorStateWidget(
+        message: AppLocalizations.of(context).errorReviewsLoad,
+        onRetry: onRetry,
+        compact: true,
+      ),
       data: (reviews) {
         if (reviews.isEmpty) return const SizedBox();
 
