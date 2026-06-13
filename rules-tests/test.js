@@ -412,6 +412,7 @@ describe('Firestore Security Rules - analytics hardening', () => {
   });
 });
 
+
 describe('Firestore Security Rules - preference list hardening', () => {
   beforeEach(async () => {
     await seedUser('user_1', {
@@ -587,6 +588,7 @@ describe('Firestore Security Rules - preference list hardening', () => {
     );
   });
 });
+
 
 describe('Firestore Security Rules - review moderation hardening', () => {
   beforeEach(async () => {
