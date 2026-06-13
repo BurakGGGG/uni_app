@@ -24,6 +24,7 @@ Tamamlanan kritik/yüksek öncelikli düzeltmeler:
 - Callable Cloud Functions için App Check zorunlu hale getirildi: `verifyStudentUniversity`, `generateComparisonSummary`, `enrichRecommendations`.
 - Firestore analytics sayaçları client write'a kapatıldı; event yazımları App Check zorunlu `trackAnalyticsEvent` callable function'ına taşındı.
 - Analytics event adları server-side whitelist'e alındı ve kullanıcı başına kısa pencere rate limit eklendi.
+- `trackAnalyticsEvent` callable için accepted/rejected/failed structured log alanları, invalid payload/rate limit/write failure ayrımı ve Cloud Logging alert filtreleri eklendi.
 - Preference list `viewCount` client write'a kapatıldı; görüntülenme sayacı App Check zorunlu `incrementPreferenceListView` callable function'ına taşındı.
 - Preference list create/update kuralları schema whitelist, immutable alan koruması, server timestamp zorunluluğu ve item payload doğrulamasıyla sıkılaştırıldı.
 - `usageStats` başlangıç dokümanı Firestore rules tarafında whitelist/zero-counter validasyonuna alındı.
@@ -284,7 +285,7 @@ Authenticated kullanıcı farklı tag/recommendation kombinasyonlarıyla cache m
 
 ### 5.1 Analytics koleksiyonları client tarafından serbest yazılabiliyor
 
-Güncel durum (2026-06-13): Bu bulgu giderildi. `analytics/{docId}` ve `analytics/{docId}/items/{itemId}` write izinleri client'a kapatıldı. Flutter `AnalyticsService` artık `trackAnalyticsEvent` callable function'ını çağırıyor; function App Check, auth, event whitelist ve kullanıcı bazlı rate limit ile yazıyor.
+Güncel durum (2026-06-14): Bu bulgu giderildi. `analytics/{docId}` ve `analytics/{docId}/items/{itemId}` write izinleri client'a kapatıldı. Flutter `AnalyticsService` artık `trackAnalyticsEvent` callable function'ını çağırıyor; function App Check, auth, event whitelist ve kullanıcı bazlı rate limit ile yazıyor. Ayrıca accepted/rejected/failed sonuçları structured log alanlarıyla ayrıştırıldı ve Cloud Logging alert filtreleri `docs/analytics_observability.md` altında belgelendi.
 
 Kanıt:
 
@@ -298,8 +299,9 @@ Her authenticated kullanıcı analytics sayaçlarını veya event dokümanların
 
 - Analytics write işlemlerini Cloud Functions/Admin SDK'a taşıyın. (Tamamlandı)
 - Client sadece whitelist event adıyla callable endpoint çağırmalı. (Tamamlandı)
-- Event adları, hedef ID formatları ve rate limit server-side doğrulanmalı. (Tamamlandı)
+- Event adları, hedef ID formatları, tek çağrı event limiti ve rate limit server-side doğrulanmalı. (Tamamlandı)
 - Counter dokümanları doğrudan client write'a kapatılmalı. (Tamamlandı)
+- Invalid payload, rate limit ve Firestore write failure için Cloud Logging filtreleri ve önerilen alert eşikleri tanımlanmalı. (Tamamlandı; Console alert policy kurulumu manuel)
 
 ### 5.2 Preference list update ve viewCount kuralları zayıf
 
@@ -510,7 +512,15 @@ Production build yanlışlıkla test AdMob ID ile çıkabilir; gelir kaybı veya
 Sonuç:
 
 - `functions` altında high/critical audit gate temizlendi.
-- Tam `npm audit --omit=dev` hâlâ transitive `uuid <11.1.1` zinciri nedeniyle 9 moderate vulnerability raporluyor:
+- Functions runtime hedefi Node.js 22'ye yükseltildi.
+- `firebase-functions` major upgrade ile `^7.2.5` seviyesine çıkarıldı.
+- `firebase-admin` desteklenen peer aralığındaki en güncel major/minor çizgide `^13.10.0` seviyesine çıkarıldı.
+- `firebase-functions-test` `^3.5.0` seviyesine çıkarıldı.
+- v1 zincir API kullanan 1st gen fonksiyonlarda importlar `firebase-functions/v1` olarak netleştirildi.
+- `firebase deploy --only functions --dry-run` başarılı tamamlandı.
+- `trackAnalyticsEvent` hedefli deploy ile Node.js 22 revizyonuna geçti ve Cloud Logging'de `component="analytics.trackAnalyticsEvent"` structured log akışı doğrulandı.
+- Tam `firebase deploy --only functions`, uzakta kaynakta olmayan `revenuecatWebhook(us-central1)` bulunduğu için silme onayı gerektiriyor; bu orphan function ayrıca ele alınmalı.
+- Güncel lock audit özeti hâlâ transitive `uuid <11.1.1` zinciri nedeniyle 9 moderate vulnerability raporluyor:
   - 0 low
   - 9 moderate
   - 0 high
@@ -518,15 +528,18 @@ Sonuç:
 
 Öne çıkanlar:
 
-- Direct dependency `firebase-admin` ve `firebase-functions` patch/minor seviyede güncellendi.
+- Direct dependency `firebase-admin` ve `firebase-functions` major/minor seviyede güncellendi.
 - High advisory zincirleri `npm audit fix --omit=dev` ile temizlendi.
 - Kalan moderate zincir `uuid`, `google-gax`, `@google-cloud/firestore`, `@google-cloud/storage` ve `firebase-admin` transitive bağımlılıklarından geliyor.
+- `firebase-admin@14.0.0` denendi; ancak mevcut `firebase-functions@7.2.5` ve `firebase-functions-test@3.5.0` peer aralığı admin 14'ü henüz desteklemiyor. Ayrıca Admin SDK 14 namespace API tiplerini kaldırdığı için `admin.firestore()`, `admin.auth()` ve `admin.messaging()` kullanılan kodda geniş modular Admin SDK migrasyonu gerektiriyor.
+- Functions dry-run sırasında Compute Engine API kapalı olduğu için default compute service account lookup uyarısı alındı; Firebase CLI fallback service account ile dry-run'ı tamamladı.
 
 Önerilen düzeltme:
 
-- Kalan moderate `uuid` zinciri için `firebase-admin`/Functions major upgrade planı çıkarın.
-- Functions v2/v7 migration notlarını okuyup test edin.
-- Upgrade sonrası `npm run build`, emulator tests, callable/webhook smoke test ve deploy dry-run çalıştırın.
+- Kalan moderate `uuid` zinciri için Admin SDK 14'e geçiş ayrı modular Admin SDK migration işi olarak planlanmalı.
+- Bu geçişte `firebase-admin/app`, `firebase-admin/firestore`, `firebase-admin/auth` ve `firebase-admin/messaging` importlarına kontrollü dönüşüm yapılmalı.
+- `firebase-functions` ve `firebase-functions-test` paketleri admin 14 peer desteğini yayınladığında peer warning olmadan tekrar denenmeli.
+- O zamana kadar CI'da high/critical audit gate korunmalı; full moderate audit sonucu bakım riski olarak takip edilmeli.
 
 ### 7.5 Functions lint komutu yapılandırmasız (giderildi)
 
@@ -734,9 +747,9 @@ Hard overflow kesin değil; Material NavigationBar label'ları sıkıştırabili
 
 ### İlk 7 gün
 
-1. Functions dependency upgrade planını uygulayın.
+1. Functions dependency upgrade planını uygulayın. (Kısmen tamamlandı; Node 22 + `firebase-functions@7` + `firebase-admin@13.10` uygulandı, Admin SDK 14 modular migration ayrı iş olarak kaldı)
 2. Firebase Console App Check provider ayarlarını ve debug token kayıtlarını tamamlayın.
-3. Analytics dashboard için server-side event doğrulama loglarını ve alert'leri izleyin.
+3. Analytics dashboard için server-side event doğrulama loglarını ve alert'leri izleyin. (Kod ve log filtreleri tamamlandı; Console alert policy kurulumu manuel takip işi)
 4. Preference list callable deploy ve Android client rebuild akışını tamamlayın.
 5. Admin route guard ve 403 ekranı ekleyin. (Tamamlandı)
 6. Admin UI responsive taşma risklerini düzeltin. (Tamamlandı)
