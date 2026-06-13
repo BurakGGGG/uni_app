@@ -1,9 +1,15 @@
-import { onCall, HttpsError } from 'firebase-functions/v2/https';
+import {
+  onCall,
+  HttpsError,
+  type CallableRequest,
+  type FunctionsErrorCode,
+} from 'firebase-functions/v2/https';
 import * as admin from 'firebase-admin';
 import { logger } from 'firebase-functions';
 
 const db = admin.firestore();
 
+const LOG_COMPONENT = 'analytics.trackAnalyticsEvent';
 const MAX_EVENTS_PER_CALL = 10;
 const RATE_LIMIT_WINDOW_MS = 60 * 1000;
 const RATE_LIMIT_MAX_EVENTS = 120;
@@ -40,6 +46,15 @@ interface TrackAnalyticsInput {
   universityName?: unknown;
 }
 
+interface AnalyticsLogContext {
+  component: typeof LOG_COMPONENT;
+  authenticated: boolean;
+  appCheckPresent: boolean;
+  uid?: string;
+  appId?: string;
+  appCheckAlreadyConsumed?: boolean;
+}
+
 export const trackAnalyticsEvent = onCall(
   {
     region: 'europe-west1',
@@ -49,14 +64,23 @@ export const trackAnalyticsEvent = onCall(
     enforceAppCheck: true,
   },
   async (req): Promise<{ ok: true }> => {
+    const logContext = buildLogContext(req);
+
     if (!req.auth) {
-      throw new HttpsError('unauthenticated', 'Giriş gerekli.');
+      rejectAnalytics(
+        'unauthenticated',
+        'Giriş gerekli.',
+        'unauthenticated',
+        logContext,
+      );
     }
 
     const uid = req.auth.uid;
+    const authenticatedLogContext = buildLogContext(req, uid);
     const input = (req.data ?? {}) as TrackAnalyticsInput;
-    const events = parseEvents(input);
-    await enforceRateLimit(uid, events.length);
+    const events = parseEvents(input, authenticatedLogContext);
+    await enforceRateLimit(uid, events.length, authenticatedLogContext);
+    const eventCounts = countEvents(events);
 
     const today = formatDate(new Date());
     const counterUpdates: Record<string, unknown> = {
@@ -67,7 +91,6 @@ export const trackAnalyticsEvent = onCall(
       lastUpdated: admin.firestore.FieldValue.serverTimestamp(),
     };
 
-    const eventCounts = countEvents(events);
     for (const eventName of Object.keys(eventCounts) as AnalyticsEventName[]) {
       const count = eventCounts[eventName];
       const [counterField, dailyField] = analyticsEvents[eventName];
@@ -79,45 +102,101 @@ export const trackAnalyticsEvent = onCall(
     batch.set(db.collection('analytics').doc('counters'), counterUpdates, { merge: true });
     batch.set(db.collection('analytics').doc(`daily_${today}`), dailyUpdates, { merge: true });
 
+    let topUniversityUpdated = false;
     if (events.includes('universityViewed')) {
-      const university = parseUniversity(input);
-      if (university) {
-        batch.set(
-          db.collection('analytics').doc('topUniversities').collection('items').doc(university.id),
-          {
-            name: university.name,
-            viewCount: admin.firestore.FieldValue.increment(1),
-            lastViewed: admin.firestore.FieldValue.serverTimestamp(),
-          },
-          { merge: true },
-        );
-      }
+      const university = parseUniversity(input, authenticatedLogContext);
+      batch.set(
+        db.collection('analytics').doc('topUniversities').collection('items').doc(university.id),
+        {
+          name: university.name,
+          viewCount: admin.firestore.FieldValue.increment(1),
+          lastViewed: admin.firestore.FieldValue.serverTimestamp(),
+        },
+        { merge: true },
+      );
+      topUniversityUpdated = true;
     }
 
     try {
       await batch.commit();
+      logger.info('Analytics event accepted', {
+        ...authenticatedLogContext,
+        outcome: 'accepted',
+        date: today,
+        eventCount: events.length,
+        eventCounts: countsForLog(eventCounts),
+        topUniversityUpdated,
+      });
       return { ok: true };
     } catch (err) {
-      logger.error('Analytics event write failed', { uid, err: String(err) });
+      logger.error('Analytics event write failed', {
+        ...authenticatedLogContext,
+        outcome: 'failed',
+        reason: 'write_failed',
+        date: today,
+        eventCount: events.length,
+        eventCounts: countsForLog(eventCounts),
+        topUniversityUpdated,
+        err: errorForLog(err),
+      });
       throw new HttpsError('internal', 'Analytics kaydı yapılamadı.');
     }
   },
 );
 
-function parseEvents(input: TrackAnalyticsInput): AnalyticsEventName[] {
-  const rawEvents = Array.isArray(input.events) ? input.events : [input.event];
-  const rawNames = rawEvents
-    .filter((value): value is string => typeof value === 'string')
-    .slice(0, MAX_EVENTS_PER_CALL);
+function parseEvents(
+  input: TrackAnalyticsInput,
+  logContext: AnalyticsLogContext,
+): AnalyticsEventName[] {
+  const rawEvents = Array.isArray(input.events)
+    ? input.events
+    : input.event === undefined
+      ? []
+      : [input.event];
 
-  if (rawNames.length === 0) {
-    throw new HttpsError('invalid-argument', 'Analytics event gerekli.');
+  if (rawEvents.length === 0) {
+    rejectAnalytics(
+      'invalid-argument',
+      'Analytics event gerekli.',
+      'missing_event',
+      logContext,
+    );
+  }
+
+  if (rawEvents.length > MAX_EVENTS_PER_CALL) {
+    rejectAnalytics(
+      'invalid-argument',
+      'Tek çağrıda en fazla 10 analytics event gönderilebilir.',
+      'too_many_events',
+      logContext,
+      {
+        rawEventCount: rawEvents.length,
+        maxEventsPerCall: MAX_EVENTS_PER_CALL,
+      },
+    );
   }
 
   const events: AnalyticsEventName[] = [];
-  for (const eventName of rawNames) {
+  for (const rawEvent of rawEvents) {
+    if (typeof rawEvent !== 'string') {
+      rejectAnalytics(
+        'invalid-argument',
+        'Analytics event string olmalı.',
+        'invalid_event_type',
+        logContext,
+        { valueType: valueTypeForLog(rawEvent) },
+      );
+    }
+
+    const eventName = rawEvent.trim();
     if (!isAnalyticsEventName(eventName)) {
-      throw new HttpsError('invalid-argument', 'Geçersiz analytics event.');
+      rejectAnalytics(
+        'invalid-argument',
+        'Geçersiz analytics event.',
+        'invalid_event_name',
+        logContext,
+        { eventName: stringForLog(eventName) },
+      );
     }
     events.push(eventName);
   }
@@ -137,20 +216,53 @@ function countEvents(events: AnalyticsEventName[]): Record<AnalyticsEventName, n
   return counts;
 }
 
-function parseUniversity(input: TrackAnalyticsInput): { id: string; name: string } | null {
+function parseUniversity(
+  input: TrackAnalyticsInput,
+  logContext: AnalyticsLogContext,
+): { id: string; name: string } {
   const id = typeof input.universityId === 'string' ? input.universityId.trim() : '';
   const name = typeof input.universityName === 'string' ? input.universityName.trim() : '';
-  if (!id || !name) return null;
+  if (!id || !name) {
+    rejectAnalytics(
+      'invalid-argument',
+      'Üniversite bilgisi gerekli.',
+      'missing_university_payload',
+      logContext,
+      {
+        hasUniversityId: Boolean(id),
+        hasUniversityName: Boolean(name),
+      },
+    );
+  }
   if (id.length > 80 || name.length > 160) {
-    throw new HttpsError('invalid-argument', 'Üniversite bilgisi geçersiz.');
+    rejectAnalytics(
+      'invalid-argument',
+      'Üniversite bilgisi geçersiz.',
+      'invalid_university_length',
+      logContext,
+      {
+        universityIdLength: id.length,
+        universityNameLength: name.length,
+      },
+    );
   }
   if (!/^[a-zA-Z0-9_-]+$/.test(id)) {
-    throw new HttpsError('invalid-argument', 'Üniversite ID formatı geçersiz.');
+    rejectAnalytics(
+      'invalid-argument',
+      'Üniversite ID formatı geçersiz.',
+      'invalid_university_id_format',
+      logContext,
+      { universityId: stringForLog(id) },
+    );
   }
   return { id, name };
 }
 
-async function enforceRateLimit(uid: string, eventCount: number): Promise<void> {
+async function enforceRateLimit(
+  uid: string,
+  eventCount: number,
+  logContext: AnalyticsLogContext,
+): Promise<void> {
   const ref = db.collection('analyticsRateLimits').doc(uid);
   const nowMs = Date.now();
 
@@ -166,6 +278,17 @@ async function enforceRateLimit(uid: string, eventCount: number): Promise<void> 
     const nextCount = windowExpired ? eventCount : count + eventCount;
 
     if (nextCount > RATE_LIMIT_MAX_EVENTS) {
+      logger.warn('Analytics event rejected', {
+        ...logContext,
+        outcome: 'rejected',
+        reason: 'rate_limited',
+        code: 'resource-exhausted',
+        currentCount: count,
+        eventCount,
+        nextCount,
+        limit: RATE_LIMIT_MAX_EVENTS,
+        windowAgeMs: windowStart > 0 ? nowMs - windowStart : null,
+      });
       throw new HttpsError(
         'resource-exhausted',
         'Çok kısa sürede fazla analytics olayı gönderildi.',
@@ -194,6 +317,60 @@ function safeMillis(value: unknown): number {
   const n = Number(value);
   if (!Number.isFinite(n) || n < 0) return 0;
   return Math.floor(n);
+}
+
+function buildLogContext(
+  req: CallableRequest<unknown>,
+  uid?: string,
+): AnalyticsLogContext {
+  return {
+    component: LOG_COMPONENT,
+    authenticated: Boolean(uid),
+    appCheckPresent: Boolean(req.app),
+    uid,
+    appId: req.app?.appId,
+    appCheckAlreadyConsumed: req.app?.alreadyConsumed,
+  };
+}
+
+function rejectAnalytics(
+  code: FunctionsErrorCode,
+  message: string,
+  reason: string,
+  logContext: AnalyticsLogContext,
+  extra: Record<string, unknown> = {},
+): never {
+  logger.warn('Analytics event rejected', {
+    ...logContext,
+    outcome: 'rejected',
+    reason,
+    code,
+    ...extra,
+  });
+  throw new HttpsError(code, message);
+}
+
+function countsForLog(
+  counts: Record<AnalyticsEventName, number>,
+): Partial<Record<AnalyticsEventName, number>> {
+  return counts;
+}
+
+function errorForLog(err: unknown): string {
+  if (err instanceof Error) {
+    return `${err.name}: ${err.message}`;
+  }
+  return stringForLog(err);
+}
+
+function valueTypeForLog(value: unknown): string {
+  if (value === null) return 'null';
+  if (Array.isArray(value)) return 'array';
+  return typeof value;
+}
+
+function stringForLog(value: unknown): string {
+  return String(value).slice(0, 120);
 }
 
 function formatDate(d: Date): string {
