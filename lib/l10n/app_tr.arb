@@ -330,5 +330,58 @@
   "searchNoResults": "Sonuç bulunamadı",
   "searchNoResultsSub": "\"{query}\" aramasına uygun üniversite yok.",
   "searchCampus": "Kampüslü",
-  "searchEst": "Kuruluş: {year}"
+  "searchEst": "Kuruluş: {year}",
+  "homeHeroBannerTitle": "Puanını Hesapla,\nHedefini Belirle!",
+  "reviewSortLabel": "Sırala:",
+  "reviewSortNewest": "En Yeni",
+  "reviewSortMostLiked": "En Beğenilen",
+  "uniDetailDepartments": "Bölümler",
+  "uniDetailDepartmentsSubtitle": "{count} bölüm — En çok aranan 3 tanesi",
+  "@uniDetailDepartmentsSubtitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "uniDetailSeeAllDepartments": "Tüm bölümleri gör",
+  "uniDetailReviews": "Yorumlar",
+  "uniDetailReviewsSubtitle": "{count} yorum — En çok beğenilen 3 tanesi",
+  "@uniDetailReviewsSubtitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "uniDetailNoReviews": "Henüz yorum yok",
+  "uniDetailSeeAllReviews": "Tüm yorumları gör",
+  "uniDetailPlaces": "Mekanlar",
+  "uniDetailPlacesSubtitle": "{count} mekan",
+  "@uniDetailPlacesSubtitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "uniDetailPlacesComingSoon": "Yakında sizlerin önerileriyle!",
+  "uniDetailSeeAllPlaces": "Tüm mekanları gör",
+  "uniDetailPlacesLoading": "Yükleniyor...",
+  "uniDetailPlacesLoadError": "Yüklenemedi",
+  "uniDetailOpenMap": "Haritada Aç",
+  "uniDetailGallery": "Galeri",
+  "uniDetailCategoryRatings": "Kategori Puanları",
+  "uniDetailRateUniversity": "Üniversiteyi Değerlendir",
+  "uniDetailPlacesEmptyTitle": "Kafeler Yakında!",
+  "uniDetailPlacesEmptyDesc": "Bu bölüme yakında kafeler ve mekanlar eklenecek.\nSizlerin önerileriyle bu listeyi oluşturacağız! 🎉",
+  "exploreFoundCount": "{count} üniversite bulundu",
+  "@exploreFoundCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "exploreShowResults": "Sonuçları Göster"
 }

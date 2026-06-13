@@ -221,7 +221,7 @@ class ReviewCard extends ConsumerWidget {
               Text(
                 displayName,
                 style: compact
-                    ? AppTextStyles.titleSmall
+                    ? AppTextStyles.bodyMedium
                     : AppTextStyles.titleSmall,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,

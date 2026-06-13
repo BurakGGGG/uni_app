@@ -37,11 +37,15 @@ class StatsRatioSection extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 8),
-              Text(
-                'Etkileşim Oranları',
-                style: AppTextStyles.titleSmall.copyWith(
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.textSecondaryFor(context),
+              Expanded(
+                child: Text(
+                  'Etkileşim Oranları',
+                  style: AppTextStyles.titleSmall.copyWith(
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.textSecondaryFor(context),
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ],
@@ -49,10 +53,14 @@ class StatsRatioSection extends StatelessWidget {
           const SizedBox(height: 14),
           LayoutBuilder(
             builder: (context, constraints) {
-              final itemWidth = (constraints.maxWidth - 10) / 2;
+              final columnCount = constraints.maxWidth >= 340 ? 2 : 1;
+              final spacing = 10.0;
+              final itemWidth =
+                  (constraints.maxWidth - spacing * (columnCount - 1)) /
+                  columnCount;
               return Wrap(
-                spacing: 10,
-                runSpacing: 10,
+                spacing: spacing,
+                runSpacing: spacing,
                 children: [
                   _RatioTile(
                     width: itemWidth,
@@ -75,7 +83,8 @@ class StatsRatioSection extends StatelessWidget {
                   _RatioTile(
                     width: itemWidth,
                     label: 'Giriş oranı',
-                    value: '${derived.loginEngagementPercent.toStringAsFixed(0)}%',
+                    value:
+                        '${derived.loginEngagementPercent.toStringAsFixed(0)}%',
                     color: const Color(0xFF3B82F6),
                   ),
                 ],
@@ -121,6 +130,8 @@ class _RatioTile extends StatelessWidget {
                 fontWeight: FontWeight.w800,
                 color: color,
               ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
             const SizedBox(height: 4),
             Text(
@@ -129,6 +140,8 @@ class _RatioTile extends StatelessWidget {
                 fontSize: 10,
                 color: AppColors.textSecondaryFor(context),
               ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
             ),
           ],
         ),

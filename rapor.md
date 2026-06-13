@@ -13,7 +13,7 @@ Tamamlanan kritik/yüksek öncelikli düzeltmeler:
 - FCM tokenları `users/{uid}/fcmTokens/{tokenId}` alt koleksiyonuna taşındı.
 - Admin yetkisi Firestore `role` alanından Firebase Auth custom claim `admin == true` modeline taşındı.
 - Story Storage write/delete işlemleri admin custom claim'e bağlandı ve `application/octet-stream` kabulü kaldırıldı.
-- Admin route'ları client tarafında custom claim guard ile korundu.
+- Admin route'ları client tarafında custom claim guard ile korundu ve 403 erişim reddi ekranı netleştirildi.
 - Review create/update kuralları schema whitelist, pending-first moderation ve immutable alan korumasıyla sıkılaştırıldı.
 - Parent `reviews/{reviewId}.likes` client write'a kapatıldı; like sayımı Cloud Function ile server-side senkronlanacak hale getirildi.
 - Yorum create/edit sonrası moderation function temiz içeriği otomatik onaylayacak, uygunsuz içeriği onaysız bırakacak şekilde güncellendi.
@@ -29,6 +29,7 @@ Tamamlanan kritik/yüksek öncelikli düzeltmeler:
 - `usageStats` başlangıç dokümanı Firestore rules tarafında whitelist/zero-counter validasyonuna alındı.
 - Günlük quota reset job'u ve RevenueCat webhook'u `lastAiRecommendationResetDate` alanıyla AI öneri reset takibini tutarlı hale getirecek şekilde güncellendi.
 - Firestore rules testleri emulator ile çalışır hale getirildi ve kritik exploit senaryoları eklendi.
+- Admin ekranlarındaki story summary, reports summary, stats kartları, detail sheet aksiyonları ve uzun metin satırları responsive davranacak şekilde düzeltildi.
 
 Son doğrulama çıktıları:
 
@@ -37,7 +38,8 @@ Son doğrulama çıktıları:
 | `npm run build` (`functions`) | Başarılı |
 | `npm test` (`rules-tests`) | Başarılı, 31 test geçti |
 | `flutter analyze` | Başarılı |
-| `flutter test` | Başarılı, 70 test geçti |
+| `flutter test` | Başarılı, 74 test geçti |
+| `./gradlew :app:lintDebug` | Başarılı. 0 hata, 15 uyarı |
 | `flutter build apk --debug` | Başarılı |
 
 ## 1. Yönetici Özeti
@@ -52,9 +54,9 @@ Yorum/moderasyon tarafında da yüksek riskli bütünlük sorunları var. Yorum 
 
 Storage tarafında `/stories/{fileName}` yazma izni tüm giriş yapmış kullanıcılara açık. Firestore story dokümanları admin kontrolü yapıyor olsa da medya dosyası yükleme kuralı admin kontrolü yapmadığı için herhangi bir authenticated kullanıcı story bucket alanına 100 MB'a kadar medya yükleyebilir. Bu hem maliyet hem de içerik güvenliği açısından yüksek risklidir.
 
-UI tarafında otomatik Flutter analizinde hata bulunmadı; ancak bazı admin ekranlarında küçük ekran veya yüksek yazı ölçeğinde yatay taşma riski var. Özellikle admin story istatistik satırı ve rapor özet kartı çok sayıda sabit genişlikli öğeyi tek `Row` içinde tutuyor.
+UI tarafında otomatik Flutter analizinde hata bulunmadı. Admin story istatistik satırı, rapor özet kartı, stats kart gridleri, detail sheet aksiyonları ve uzun metin satırlarında tespit edilen başlıca responsive taşma riskleri kod tarafında giderildi. Görsel taşmaları otomatik yakalamak için küçük genişlik ve yüksek text scale widget/golden testleri hâlâ eklenebilir.
 
-Android lint başarısız oldu: 5 hata, 15 uyarı. İlk hata `AndroidManifest.xml` içinde referans verilen `com.yalantis.ucrop.UCropActivity` sınıfının projede/libraries içinde bulunamaması. Ayrıca `styles.xml` dosyalarında minSdk 24 ile uyumsuz API 27/29 attribute kullanımları var.
+Android lint hataları kod tarafında giderildi. `./gradlew :app:lintDebug` artık başarılı çalışıyor; sonuç 0 hata, 15 uyarı. Giderilen ana sorunlar `UCropActivity` dependency görünürlüğü ve minSdk 24 ile uyumsuz API 27/29 style attribute kullanımlarıydı. Kalan uyarılar dependency sürüm güncellemeleri, splash asset tekrarları ve Android geniş ekran/orientation önerileri gibi non-blocking kalite maddeleridir.
 
 ## 2. İnceleme Yöntemi
 
@@ -71,16 +73,14 @@ Android lint başarısız oldu: 5 hata, 15 uyarı. İlk hata `AndroidManifest.xm
 | Komut | Sonuç |
 | --- | --- |
 | `flutter analyze` | Başarılı. `No issues found`. |
-| `flutter test` | Başarılı. 70 test geçti. |
+| `flutter test` | Başarılı. 74 test geçti. |
 | `npm run build` (`functions`) | Başarılı. TypeScript build geçti. |
-| `npm run lint` (`functions`) | Başarısız. ESLint config bulunamadı. |
-| `npm audit --omit=dev --json` (`functions`) | Başarısız. 14 vulnerability: 1 low, 12 moderate, 1 high. |
-| `npm audit --omit=dev --json` (`rules-tests`) | Başarılı. 0 vulnerability. |
+| `npm run lint` (`functions`) | Başarılı. ESLint config eklendi ve hata yok. |
+| `npm audit --omit=dev --audit-level=high` (`functions`) | Başarılı. High/critical açık yok; moderate `uuid` zinciri dependency migration maddesinde takip edilmeli. |
 | `flutter pub outdated` | Birçok paket major sürüm gerisinde. Firebase, go_router, notifications, ads ve permission paketleri özellikle eski. |
-| `npm test` (`rules-tests`) | Başarısız. Script placeholder: `Error: no test specified`. |
-| `npx mocha test.js` (`rules-tests`) | Başarısız. Firestore emulator host/port yapılandırması yok. |
+| `npm test` (`rules-tests`) | Başarılı. Firestore emulator ile 31 test geçti. |
 | `./gradlew :app:assembleDebug` | Başarılı. Debug APK derlendi. |
-| `./gradlew :app:lintDebug` | Başarısız. 5 hata, 15 uyarı. |
+| `./gradlew :app:lintDebug` | Başarılı. 0 hata, 15 uyarı. CI gate'e alındı. |
 
 Sınırlamalar:
 
@@ -101,7 +101,7 @@ Sınırlamalar:
 | Yüksek | Functions AI | Recommendation enrichment quota/rate limit ve callable App Check enforcement eklendi | Firebase Console provider ayarları/debug token kaydı yapılmazsa client çağrıları reddedilir |
 | Orta | Analytics | Client analytics write kapatıldı; server-side callable endpoint'e taşındı | Debug token/App Check olmadan client event çağrıları reddedilir |
 | Orta | Preference lists | `viewCount` client write kapatıldı; liste schema validasyonu eklendi | App Check function deploy edilmeden eski client sayaç artıramaz |
-| Orta | Admin route | `/admin*` rotalarında client-side role guard yok | Yetkisiz UI erişimi; role açığıyla birleşince kritik |
+| Orta (giderildi) | Admin route | `/admin*` rotaları custom claim guard ve 403 ekranıyla kapatıldı | Admin olmayan kullanıcı admin UI'a erişemeden engellenir |
 | Orta | Android lint | Manifest/style hataları var | Release kalitesi ve bazı cihazlarda runtime uyumsuzluk riski |
 | Orta | Dependency | Functions dependency audit açıkları var | Transitive paket açıkları, bakım riski |
 
@@ -323,23 +323,29 @@ Etki:
 - `viewCount` için `request.resource.data.viewCount == resource.data.viewCount + 1` gibi kısıt koyun veya Cloud Function kullanın. (Cloud Function ile tamamlandı)
 - `items` elemanlarının ID/type formatlarını doğrulayın. (Tamamlandı)
 
-### 5.3 Admin rotalarında client-side guard yok
+### 5.3 Admin rotalarında client-side guard yok (giderildi)
 
-Kanıt:
+Önceki kanıt:
 
 - `lib/router/app_router.dart:109-118`: protected routes listesi sadece edit profile, my reviews, write/edit review akışlarını kapsıyor.
 - `lib/router/app_router.dart:179-195`: `/admin`, `/admin/stories`, `/admin/reports`, `/admin/stats` rotaları guard olmadan tanımlı.
 
+Güncel durum:
+
+- `/admin*` rotaları giriş yapmamış kullanıcı için login'e yönlendiriliyor.
+- Giriş yapmış fakat `admin == true` custom claim'i olmayan kullanıcılar admin ekranı render edilmeden 403 erişim reddi ekranı görüyor.
+- `/403` rotası ayrı tanımlandı ve yetki doğrulama hatalarında admin UI güvenli şekilde kapatılıyor.
+
 Etki:
 
-Firestore kuralları doğru olduğunda yetkisiz kullanıcı veri çekemeyebilir; fakat admin ekranlarına route seviyesinde erişim denenebilir. Bu, kullanıcı deneyimi ve saldırı yüzeyinin görünürlüğü açısından zayıf bir durumdur. `role` yetki yükseltme açığıyla birleştiğinde kritik riskin etkisini artırır.
+Bu risk kod tarafında giderildi. Firestore rules yine nihai güvenlik katmanı olarak kalmalı; client guard kullanıcı deneyimini ve görünür saldırı yüzeyini azaltır.
 
 Önerilen düzeltme:
 
-- `/admin*` rotaları için router redirect guard ekleyin.
-- Guard, custom claim veya güvenilir server-derived admin state kullanmalı.
-- Yetkisiz kullanıcılar 403 ekranına veya home'a yönlendirilmeli.
-- Admin menü/entry point'leri role doğrulanmadan gösterilmemeli.
+- `/admin*` rotaları için router/login guard eklendi. (Tamamlandı)
+- Guard, Firebase Auth custom claim `admin == true` kontrolünü kullanıyor. (Tamamlandı)
+- Yetkisiz kullanıcılar 403 ekranına yönlendiriliyor/gösteriliyor. (Tamamlandı)
+- Admin menü/entry point'leri custom claim doğrulanmadan gösterilmiyor. (Tamamlandı)
 
 ### 5.4 Üniversite rating aggregation onaysız yorumları da hesaba katıyor
 
@@ -437,32 +443,33 @@ Admin panel dokümanı silse bile Storage dosyaları silinemeyebilir ve orphan m
 
 ## 7. Android, Build ve Dependency Bulguları
 
-### 7.1 Android lint başarısız
+### 7.1 Android lint hataları giderildi
 
 Sonuç:
 
-- `./gradlew :app:lintDebug` başarısız.
-- 5 hata, 15 uyarı.
+- `./gradlew :app:lintDebug` başarılı.
+- 0 hata, 15 uyarı.
 - HTML rapor: `build/app/reports/lint-results-debug.html`
 - Text rapor: `build/app/intermediates/lint_intermediate_text_report/debug/lintReportDebug/lint-results-debug.txt`
 
-Başlıca hatalar:
+Giderilen hatalar:
 
-- `android/app/src/main/AndroidManifest.xml:59`: `com.yalantis.ucrop.UCropActivity` manifestte referanslı ancak project/libraries içinde bulunamadı.
-- `android/app/src/main/res/values/styles.xml:8`: `android:forceDarkAllowed` API 29 gerektiriyor, minSdk 24.
-- `android/app/src/main/res/values-night/styles.xml:8`: aynı API 29 problemi.
-- `android/app/src/main/res/values/styles.xml:11`: `android:windowLayoutInDisplayCutoutMode` API 27 gerektiriyor, minSdk 24.
-- `android/app/src/main/res/values-night/styles.xml:11`: aynı API 27 problemi.
+- `android/app/src/main/AndroidManifest.xml`: `com.yalantis.ucrop.UCropActivity` için app modülüne doğrudan `com.github.Yalantis:ucrop:2.2.11` dependency'si eklendi.
+- `android/build.gradle.kts`: uCrop artifact çözümü için `jitpack.io` repository'si eklendi.
+- `android/app/src/main/res/values/styles.xml` ve `values-night/styles.xml`: minSdk 24 ile uyumsuz API 27/29 theme item'ları base resource'lardan çıkarıldı.
+- `android/app/src/main/res/values-v27`, `values-night-v27`, `values-v29`, `values-night-v29`: API seviyesine uygun LaunchTheme kaynakları eklendi.
 
-İlgili satırlar:
+Kalan uyarı sınıfları:
 
-- `android/app/src/main/AndroidManifest.xml:57-61`: UCrop activity tanımı.
-- `android/app/src/main/res/values/styles.xml:8-11`: API uyumsuz theme item'ları.
-- `android/app/src/main/res/values-night/styles.xml:8-11`: API uyumsuz theme item'ları.
+- `ApplySharedPref` / `UseKtx`: `MainActivity.kt` içinde SharedPreferences kullanım polish'i.
+- `AndroidGradlePluginVersion` / `GradleDependency`: Gradle/desugar sürüm güncellemeleri.
+- `LockedOrientationActivity` / `DiscouragedApi`: crop activity portrait orientation uyarısı.
+- `ObsoleteSdkInt`, `IconDuplicatesConfig`, `IconLocation`, `IconDuplicates`: splash/background asset düzenleme uyarıları.
 
-Önerilen düzeltme:
+Önerilen takip işi:
 
-- `image_cropper` sürümünün kullandığı UCrop activity path'i doğrulanmalı. Yeni sürüm farklı activity kullanıyorsa manifest güncellenmeli veya manuel activity tanımı kaldırılmalı.
+- Android lint gate CI'da aktif tutulmalı.
+- Kalan 15 warning ayrı polish/maintenance adımı olarak temizlenmeli; şu an pipeline'ı kıran lint error kalmadı.
 - API 27/29 gerektiren style item'ları `values-v27` ve `values-v29` klasörlerine taşınmalı ya da `tools:targetApi` ile doğru şekilde işaretlenmeli.
 - Lint uyarılarındaki duplicate drawable ve densityless bitmap notları temizlenmeli.
 
@@ -502,41 +509,47 @@ Production build yanlışlıkla test AdMob ID ile çıkabilir; gelir kaybı veya
 
 Sonuç:
 
-- `functions` altında `npm audit --omit=dev --json` toplam 14 vulnerability raporladı:
-  - 1 low
-  - 12 moderate
-  - 1 high
+- `functions` altında high/critical audit gate temizlendi.
+- Tam `npm audit --omit=dev` hâlâ transitive `uuid <11.1.1` zinciri nedeniyle 9 moderate vulnerability raporluyor:
+  - 0 low
+  - 9 moderate
+  - 0 high
   - 0 critical
 
 Öne çıkanlar:
 
-- Direct dependency `firebase-admin` eski: `functions/package.json:18`.
-- Direct dependency `firebase-functions` eski: `functions/package.json:19`.
-- High advisory transitive olarak `fast-xml-parser <= 1.1.6` zincirinden geliyor.
-- Diğer transitive zincirde `uuid`, `protobufjs`, `qs`, `express`, `google-gax`, `@google-cloud/firestore`, `@google-cloud/storage` gibi paketler var.
+- Direct dependency `firebase-admin` ve `firebase-functions` patch/minor seviyede güncellendi.
+- High advisory zincirleri `npm audit fix --omit=dev` ile temizlendi.
+- Kalan moderate zincir `uuid`, `google-gax`, `@google-cloud/firestore`, `@google-cloud/storage` ve `firebase-admin` transitive bağımlılıklarından geliyor.
 
 Önerilen düzeltme:
 
-- `firebase-admin` ve `firebase-functions` major upgrade planı çıkarın.
+- Kalan moderate `uuid` zinciri için `firebase-admin`/Functions major upgrade planı çıkarın.
 - Functions v2/v7 migration notlarını okuyup test edin.
 - Upgrade sonrası `npm run build`, emulator tests, callable/webhook smoke test ve deploy dry-run çalıştırın.
 
-### 7.5 Functions lint komutu yapılandırmasız
+### 7.5 Functions lint komutu yapılandırmasız (giderildi)
 
 Kanıt:
 
 - `functions/package.json:4`: lint script `eslint "src/**/*"`.
 - Komut ESLint config bulunamadığı için başarısız.
 
-Etki:
+Önceki etki:
 
 CI'da lint gate çalışmayacak veya sürekli fail verecek. Kod standardı ve potansiyel TypeScript/Node hataları yakalanamaz.
 
+Güncel durum:
+
+- `functions/.eslintrc.js` eklendi.
+- `npm run lint` localde başarılı.
+- `src/scripts/backfill_public_profiles.ts` içindeki constant-condition lint hatası giderildi.
+
 Önerilen düzeltme:
 
-- `.eslintrc.js` veya yeni ESLint flat config ekleyin.
-- TypeScript parser/project ayarını yapın.
-- `npm run lint` CI'a eklenmeden önce localde temiz hale getirin.
+- `.eslintrc.js` veya yeni ESLint flat config ekleyin. (Tamamlandı)
+- TypeScript parser/project ayarını yapın. (Tamamlandı)
+- `npm run lint` CI'a eklenmeden önce localde temiz hale getirin. (Tamamlandı)
 
 ### 7.6 Firestore rules test paketi çalışır durumda değil
 
@@ -578,54 +591,71 @@ Kanıt:
 
 ## 8. UI ve Layout Bulguları
 
-### 8.1 Admin story istatistik satırında yatay taşma riski
+### 8.1 Admin story istatistik satırında yatay taşma riski (giderildi)
 
 Kanıt:
 
 - `lib/features/admin/presentation/screens/admin_story_panel_screen.dart:112-155`: üç `_StatBadge`, sabit spacer'lar, `Spacer` ve medya sayısı `Row` içinde.
 - `lib/features/admin/presentation/screens/admin_story_panel_screen.dart:575-606`: `_StatBadge` içinde width constraint, ellipsis veya wrap yok.
 
-Risk:
+Önceki risk:
 
 320 px genişlik, yüksek text scale, 3+ haneli sayaçlar veya uzun Türkçe label durumunda Row yatay overflow verebilir.
 
+Güncel durum:
+
+- Story summary satırı responsive `_StorySummaryBar` içine taşındı.
+- Sayaçlar ve medya dağılımı `Wrap` ile satır kırabiliyor.
+- Story tile author/time metadata satırı uzun isimlerde ellipsis kullanıyor.
+
 Önerilen düzeltme:
 
-- `Row` yerine `Wrap` veya responsive `LayoutBuilder` kullanın.
-- Küçük genişlikte medya sayısı ikinci satıra alınmalı.
-- Stat badge için minimum/maximum width ve `FittedBox`/ellipsis stratejisi belirlenmeli.
+- `Row` yerine `Wrap` veya responsive `LayoutBuilder` kullanın. (Tamamlandı)
+- Küçük genişlikte medya sayısı ikinci satıra alınmalı. (Tamamlandı)
+- Stat badge için minimum/maximum width ve `FittedBox`/ellipsis stratejisi belirlenmeli. (Tamamlandı)
 
-### 8.2 Reports summary card yatay taşma riski
+### 8.2 Reports summary card yatay taşma riski (giderildi)
 
 Kanıt:
 
 - `lib/features/admin/presentation/widgets/reports_summary_card.dart:35-62`: dört stat badge, spacer ve sağ tarafta iki satırlı sayaç tek Row içinde.
 - `lib/features/admin/presentation/widgets/reports_summary_card.dart:67-80`: badge textleri constraint almıyor.
 
-Risk:
+Önceki risk:
 
 Küçük ekranlarda veya büyük font ayarında taşma olasıdır. Admin panelleri genellikle veri yoğun olduğu için bu satırlar responsive davranmalı.
 
+Güncel durum:
+
+- Reports summary card tek sabit `Row` yerine `LayoutBuilder` + `Wrap` ile çalışıyor.
+- Telefon genişliğinde stat badge'leri iki satıra kırılabiliyor.
+- Summary tab grid'i mevcut parent genişliğine göre 2 veya 3 kolona dönüyor.
+
 Önerilen düzeltme:
 
-- `Wrap` ile satır kırılımı.
-- Tablet/geniş ekran için tek satır, telefon için iki satır.
-- Badge'leri eşit genişlikli grid veya `Expanded` içinde kullanma.
+- `Wrap` ile satır kırılımı. (Tamamlandı)
+- Tablet/geniş ekran için tek satır, telefon için iki satır. (Tamamlandı)
+- Badge'leri eşit genişlikli grid veya `Expanded` içinde kullanma. (Tamamlandı)
 
-### 8.3 Story tile author/time satırı uzun isimlerde taşabilir
+### 8.3 Story tile author/time satırı uzun isimlerde taşabilir (giderildi)
 
 Kanıt:
 
 - `lib/features/admin/presentation/screens/admin_story_panel_screen.dart:337-356`: `story.authorName`, separator ve time textleri tek Row içinde; author text `Flexible` değil ve ellipsis yok.
 
-Risk:
+Önceki risk:
 
 Uzun admin adı, kurum adı veya beklenmeyen displayName geldiğinde tile içinde overflow oluşabilir.
 
+Güncel durum:
+
+- Author/time satırı `Wrap` yapısına alındı.
+- Author adı max width, `maxLines: 1` ve ellipsis ile sınırlandı.
+
 Önerilen düzeltme:
 
-- `story.authorName` için `Flexible` + `maxLines: 1` + `overflow: TextOverflow.ellipsis`.
-- Separator ve time sabit kalmalı.
+- `story.authorName` için `Flexible`/constraint + `maxLines: 1` + `overflow: TextOverflow.ellipsis`. (Tamamlandı)
+- Separator ve time sabit kalmalı. (Tamamlandı)
 
 ### 8.4 Alt navigation 5 hedef ve alwaysShow label ile dar ekranda sıkışabilir
 
@@ -700,7 +730,7 @@ Hard overflow kesin değil; Material NavigationBar label'ları sıkıştırabili
 3. Review moderation'ı update sonrası da çalışır hale getirin.
 4. University aggregation'a `isApproved == true` filtresi ekleyin.
 5. Rules tests'i emulator ile çalışan hale getirin ve kritik exploit senaryolarını test edin.
-6. Android lint hatalarını temizleyin.
+6. Android lint hatalarını temizleyin. (Tamamlandı; 0 hata, 15 uyarı)
 
 ### İlk 7 gün
 
@@ -708,15 +738,15 @@ Hard overflow kesin değil; Material NavigationBar label'ları sıkıştırabili
 2. Firebase Console App Check provider ayarlarını ve debug token kayıtlarını tamamlayın.
 3. Analytics dashboard için server-side event doğrulama loglarını ve alert'leri izleyin.
 4. Preference list callable deploy ve Android client rebuild akışını tamamlayın.
-5. Admin route guard ve 403 ekranı ekleyin.
-6. Admin UI responsive taşma risklerini düzeltin.
-7. CI pipeline'a şu gate'leri koyun:
+5. Admin route guard ve 403 ekranı ekleyin. (Tamamlandı)
+6. Admin UI responsive taşma risklerini düzeltin. (Tamamlandı)
+7. CI pipeline'a şu gate'leri koyun. (Tamamlandı)
    - `flutter analyze`
    - `flutter test`
    - `npm run build` (`functions`)
    - `npm run lint` (`functions`)
-   - `npm audit --omit=dev` (`functions`)
-   - Firestore/Storage rules emulator tests
+   - `npm audit --omit=dev --audit-level=high` (`functions`)
+   - Firestore rules emulator tests
    - `./gradlew :app:lintDebug`
    - `./gradlew :app:assembleDebug`
 

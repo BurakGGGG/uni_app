@@ -7,11 +7,14 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/widgets.dart';
 import '../../../../l10n/generated/app_localizations.dart';
+import '../../../../router/redirect_utils.dart';
 import '../providers/auth_providers.dart';
 
 /// Kayıt ekranı
 class RegisterScreen extends ConsumerStatefulWidget {
-  const RegisterScreen({super.key});
+  final String? from;
+
+  const RegisterScreen({super.key, this.from});
 
   @override
   ConsumerState<RegisterScreen> createState() => _RegisterScreenState();
@@ -61,7 +64,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     setState(() => _isLoading = true);
 
     try {
-      await ref.read(authControllerProvider.notifier).registerWithEmail(
+      await ref
+          .read(authControllerProvider.notifier)
+          .registerWithEmail(
             _nameController.text.trim(),
             _emailController.text.trim(),
             _passwordController.text,
@@ -79,12 +84,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
           _showEduVerificationDialog();
         } else {
           setState(() => _isLoading = false);
-          final from = GoRouterState.of(context).uri.queryParameters['from'];
-          if (from != null && from.isNotEmpty) {
-            context.go(Uri.decodeComponent(from));
-          } else {
-            context.go('/profile');
-          }
+          context.go(localRedirectPathFromParam(widget.from) ?? '/profile');
         }
       }
     } catch (e) {
@@ -111,10 +111,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              loc.authEduVerifyLinkSent,
-              style: AppTextStyles.bodyMedium,
-            ),
+            Text(loc.authEduVerifyLinkSent, style: AppTextStyles.bodyMedium),
             const SizedBox(height: 8),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -130,22 +127,14 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
               ),
             ),
             const SizedBox(height: 16),
-            Text(
-              loc.authEduVerifyAfter,
-              style: AppTextStyles.bodySmall,
-            ),
+            Text(loc.authEduVerifyAfter, style: AppTextStyles.bodySmall),
           ],
         ),
         actions: [
           TextButton(
             onPressed: () {
               Navigator.pop(dialogContext);
-              final from = GoRouterState.of(context).uri.queryParameters['from'];
-              if (from != null && from.isNotEmpty) {
-                context.go(Uri.decodeComponent(from));
-              } else {
-                context.go('/profile');
-              }
+              context.go(localRedirectPathFromParam(widget.from) ?? '/profile');
             },
             child: Text(loc.authOk),
           ),
@@ -180,11 +169,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                         if (context.canPop()) {
                           context.pop();
                         } else {
-                          final from = GoRouterState.of(context).uri.queryParameters['from'];
-                          final loginPath = from != null && from.isNotEmpty 
-                              ? '/login?from=${Uri.encodeComponent(from)}' 
-                              : '/login';
-                          context.go(loginPath);
+                          context.go(routeWithLocalFrom('/login', widget.from));
                         }
                       },
                       icon: const Icon(Icons.arrow_back_rounded),
@@ -200,8 +185,12 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                     const SizedBox(height: 24),
 
                     // ─── Başlık ─────────────────────────────────────
-                    Text(loc.authSignUp, style: AppTextStyles.displaySmall.copyWith(color: AppColors.textOnSurfaceFor(context)))
-                        .animate().fadeIn(duration: 400.ms),
+                    Text(
+                      loc.authSignUp,
+                      style: AppTextStyles.displaySmall.copyWith(
+                        color: AppColors.textOnSurfaceFor(context),
+                      ),
+                    ).animate().fadeIn(duration: 400.ms),
                     const SizedBox(height: 6),
                     Text(
                       loc.authRegisterTitle,
@@ -300,7 +289,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                               ? loc.authShowPassword
                               : loc.authHidePassword,
                           onPressed: () {
-                            setState(() => _obscurePassword = !_obscurePassword);
+                            setState(
+                              () => _obscurePassword = !_obscurePassword,
+                            );
                           },
                           icon: Icon(
                             _obscurePassword
@@ -311,7 +302,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                         ),
                       ),
                       validator: (value) {
-                        if (value == null || value.isEmpty) return loc.authPasswordRequired;
+                        if (value == null || value.isEmpty) {
+                          return loc.authPasswordRequired;
+                        }
                         if (value.length < 8) {
                           return loc.authPasswordMin8;
                         }
@@ -384,11 +377,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                           ),
                           GestureDetector(
                             onTap: () {
-                              final from = GoRouterState.of(context).uri.queryParameters['from'];
-                              final loginPath = from != null && from.isNotEmpty 
-                                  ? '/login?from=${Uri.encodeComponent(from)}' 
-                                  : '/login';
-                              context.go(loginPath);
+                              context.go(
+                                routeWithLocalFrom('/login', widget.from),
+                              );
                             },
                             child: Text(
                               loc.authSignIn,
@@ -439,7 +430,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                           const SizedBox(height: 20),
                           Text(
                             loc.authCreatingAccount,
-                            style: AppTextStyles.titleMedium.copyWith(color: AppColors.textOnSurfaceFor(context)),
+                            style: AppTextStyles.titleMedium.copyWith(
+                              color: AppColors.textOnSurfaceFor(context),
+                            ),
                           ),
                           const SizedBox(height: 4),
                           Text(

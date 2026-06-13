@@ -830,4 +830,88 @@ class AppLocalizationsEn extends AppLocalizations {
   String searchEst(Object year) {
     return 'Established: $year';
   }
+
+  @override
+  String get homeHeroBannerTitle => 'Calculate Your Score,\nSet Your Goal!';
+
+  @override
+  String get reviewSortLabel => 'Sort:';
+
+  @override
+  String get reviewSortNewest => 'Newest';
+
+  @override
+  String get reviewSortMostLiked => 'Most Liked';
+
+  @override
+  String get uniDetailDepartments => 'Departments';
+
+  @override
+  String uniDetailDepartmentsSubtitle(int count) {
+    return '$count departments — Top 3 most searched';
+  }
+
+  @override
+  String get uniDetailSeeAllDepartments => 'See all departments';
+
+  @override
+  String get uniDetailReviews => 'Reviews';
+
+  @override
+  String uniDetailReviewsSubtitle(int count) {
+    return '$count reviews — Top 3 most liked';
+  }
+
+  @override
+  String get uniDetailNoReviews => 'No reviews yet';
+
+  @override
+  String get uniDetailSeeAllReviews => 'See all reviews';
+
+  @override
+  String get uniDetailPlaces => 'Places';
+
+  @override
+  String uniDetailPlacesSubtitle(int count) {
+    return '$count places';
+  }
+
+  @override
+  String get uniDetailPlacesComingSoon => 'Coming soon with your suggestions!';
+
+  @override
+  String get uniDetailSeeAllPlaces => 'See all places';
+
+  @override
+  String get uniDetailPlacesLoading => 'Loading...';
+
+  @override
+  String get uniDetailPlacesLoadError => 'Failed to load';
+
+  @override
+  String get uniDetailOpenMap => 'Open Map';
+
+  @override
+  String get uniDetailGallery => 'Gallery';
+
+  @override
+  String get uniDetailCategoryRatings => 'Category Ratings';
+
+  @override
+  String get uniDetailRateUniversity => 'Rate University';
+
+  @override
+  String get uniDetailPlacesEmptyTitle => 'Cafes Coming Soon!';
+
+  @override
+  String get uniDetailPlacesEmptyDesc =>
+      'Cafes and places will be added to this section soon.\nWe\'ll build this list with your suggestions! 🎉';
+
+  @override
+  String exploreFoundCount(int count) {
+    return '$count universities found';
+  }
+
+  @override
+  String get exploreShowResults => 'Show Results';
 }

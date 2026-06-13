@@ -36,8 +36,7 @@ class BlockedReviewTile extends StatelessWidget {
                 // Avatar
                 CircleAvatar(
                   radius: 16,
-                  backgroundColor:
-                      AppColors.primary.withValues(alpha: 0.12),
+                  backgroundColor: AppColors.primary.withValues(alpha: 0.12),
                   backgroundImage: review.userPhotoUrl != null
                       ? NetworkImage(review.userPhotoUrl!)
                       : null,
@@ -77,8 +76,10 @@ class BlockedReviewTile extends StatelessWidget {
                 ),
                 // Puan
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: AppColors.warning.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(8),
@@ -86,8 +87,11 @@ class BlockedReviewTile extends StatelessWidget {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(Icons.star_rounded,
-                          size: 14, color: AppColors.warning),
+                      const Icon(
+                        Icons.star_rounded,
+                        size: 14,
+                        color: AppColors.warning,
+                      ),
                       const SizedBox(width: 3),
                       Text(
                         review.rating.toStringAsFixed(1),
@@ -102,8 +106,10 @@ class BlockedReviewTile extends StatelessWidget {
                 const SizedBox(width: 8),
                 // Engellendi rozeti
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 6,
+                    vertical: 3,
+                  ),
                   decoration: BoxDecoration(
                     color: AppColors.error.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(6),
@@ -138,8 +144,10 @@ class BlockedReviewTile extends StatelessWidget {
             Row(
               children: [
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 6,
+                    vertical: 2,
+                  ),
                   decoration: BoxDecoration(
                     color: AppColors.primary.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(4),
@@ -160,43 +168,41 @@ class BlockedReviewTile extends StatelessWidget {
             const SizedBox(height: 12),
 
             // ─── Aksiyon butonları ────────────────────────────
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: onUnhide,
-                    icon: const Icon(Icons.visibility_rounded, size: 16),
-                    label: const Text('Geri Aç'),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: AppColors.success,
-                      side: BorderSide(
-                          color: AppColors.success.withValues(alpha: 0.5)),
-                      padding: const EdgeInsets.symmetric(vertical: 10),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: onDelete,
-                    icon:
-                        const Icon(Icons.delete_forever_rounded, size: 16),
-                    label: const Text('Kalıcı Sil'),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: AppColors.error,
-                      side: BorderSide(
-                          color: AppColors.error.withValues(alpha: 0.5)),
-                      padding: const EdgeInsets.symmetric(vertical: 10),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final stackButtons = constraints.maxWidth < 340;
+                final unhideButton = _ReviewActionButton(
+                  onPressed: onUnhide,
+                  icon: Icons.visibility_rounded,
+                  label: 'Geri Aç',
+                  color: AppColors.success,
+                );
+                final deleteButton = _ReviewActionButton(
+                  onPressed: onDelete,
+                  icon: Icons.delete_forever_rounded,
+                  label: 'Kalıcı Sil',
+                  color: AppColors.error,
+                );
+
+                if (stackButtons) {
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      unhideButton,
+                      const SizedBox(height: 8),
+                      deleteButton,
+                    ],
+                  );
+                }
+
+                return Row(
+                  children: [
+                    Expanded(child: unhideButton),
+                    const SizedBox(width: 10),
+                    Expanded(child: deleteButton),
+                  ],
+                );
+              },
             ),
           ],
         ),
@@ -213,5 +219,34 @@ class BlockedReviewTile extends StatelessWidget {
       case ReviewType.place:
         return 'Mekan Yorumu';
     }
+  }
+}
+
+class _ReviewActionButton extends StatelessWidget {
+  final VoidCallback onPressed;
+  final IconData icon;
+  final String label;
+  final Color color;
+
+  const _ReviewActionButton({
+    required this.onPressed,
+    required this.icon,
+    required this.label,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return OutlinedButton.icon(
+      onPressed: onPressed,
+      icon: Icon(icon, size: 16),
+      label: Text(label, maxLines: 1, overflow: TextOverflow.ellipsis),
+      style: OutlinedButton.styleFrom(
+        foregroundColor: color,
+        side: BorderSide(color: color.withValues(alpha: 0.5)),
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      ),
+    );
   }
 }

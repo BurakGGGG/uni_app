@@ -75,7 +75,8 @@ class AdminStatsScreen extends ConsumerWidget {
                   return Expanded(
                     child: GestureDetector(
                       onTap: () {
-                        ref.read(statsTimePeriodProvider.notifier).state = index;
+                        ref.read(statsTimePeriodProvider.notifier).state =
+                            index;
                       },
                       child: AnimatedContainer(
                         duration: const Duration(milliseconds: 200),
@@ -88,8 +89,9 @@ class AdminStatsScreen extends ConsumerWidget {
                           boxShadow: isSelected
                               ? [
                                   BoxShadow(
-                                    color: AppColors.primary
-                                        .withValues(alpha: 0.3),
+                                    color: AppColors.primary.withValues(
+                                      alpha: 0.3,
+                                    ),
                                     blurRadius: 8,
                                     offset: const Offset(0, 2),
                                   ),
@@ -103,8 +105,9 @@ class AdminStatsScreen extends ConsumerWidget {
                             color: isSelected
                                 ? Colors.white
                                 : AppColors.textSecondaryFor(context),
-                            fontWeight:
-                                isSelected ? FontWeight.w700 : FontWeight.w500,
+                            fontWeight: isSelected
+                                ? FontWeight.w700
+                                : FontWeight.w500,
                             fontSize: 12,
                           ),
                         ),
@@ -117,19 +120,15 @@ class AdminStatsScreen extends ConsumerWidget {
           ),
           Expanded(
             child: statsAsync.when(
-              loading: () =>
-                  const Center(child: CircularProgressIndicator()),
-              error: (error, _) => _ErrorState(
-                error: error,
-                onRetry: () => _refreshAll(ref),
-              ),
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (error, _) =>
+                  _ErrorState(error: error, onRetry: () => _refreshAll(ref)),
               data: (stats) {
                 final liveStats =
                     liveStatsAsync.valueOrNull ?? AdminLiveStatsModel.empty;
-                final liveUserCount = liveUsersAsync.valueOrNull ??
-                    liveStats.totalUsers;
-                final activeStoryCount =
-                    activeStoriesAsync.valueOrNull ?? 0;
+                final liveUserCount =
+                    liveUsersAsync.valueOrNull ?? liveStats.totalUsers;
+                final activeStoryCount = activeStoriesAsync.valueOrNull ?? 0;
                 final userCount = selectedPeriod == 3
                     ? liveUserCount
                     : stats.totalUsers;
@@ -156,7 +155,9 @@ class AdminStatsScreen extends ConsumerWidget {
                             loading: () => const SizedBox(
                               height: 80,
                               child: Center(
-                                child: CircularProgressIndicator(strokeWidth: 2),
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
                               ),
                             ),
                             error: (_, _) => const SizedBox.shrink(),
@@ -380,26 +381,30 @@ class AdminStatsScreen extends ConsumerWidget {
                           topUniversitiesAsync.when(
                             loading: () => const SizedBox.shrink(),
                             error: (_, _) => const SizedBox.shrink(),
-                            data: (universities) =>
-                                StatsTopUniversities(universities: universities),
+                            data: (universities) => StatsTopUniversities(
+                              universities: universities,
+                            ),
                           ),
                           const SizedBox(height: 20),
 
                           Center(
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
+                            child: Wrap(
+                              alignment: WrapAlignment.center,
+                              crossAxisAlignment: WrapCrossAlignment.center,
+                              spacing: 6,
+                              runSpacing: 4,
                               children: [
                                 Icon(
                                   Icons.refresh_rounded,
                                   size: 14,
                                   color: AppColors.textTertiaryFor(context),
                                 ),
-                                const SizedBox(width: 6),
                                 Text(
                                   'Güncelle butonuna basarak verileri yenileyebilirsiniz',
                                   style: AppTextStyles.caption.copyWith(
                                     color: AppColors.textTertiaryFor(context),
                                   ),
+                                  textAlign: TextAlign.center,
                                 ),
                               ],
                             ),
@@ -432,16 +437,9 @@ class _ErrorState extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.error_outline_rounded,
-              size: 48,
-              color: AppColors.error,
-            ),
+            Icon(Icons.error_outline_rounded, size: 48, color: AppColors.error),
             const SizedBox(height: 12),
-            Text(
-              'İstatistikler yüklenemedi',
-              style: AppTextStyles.titleMedium,
-            ),
+            Text('İstatistikler yüklenemedi', style: AppTextStyles.titleMedium),
             const SizedBox(height: 8),
             Text(
               error.toString(),

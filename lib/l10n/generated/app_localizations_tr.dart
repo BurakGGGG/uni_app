@@ -833,4 +833,88 @@ class AppLocalizationsTr extends AppLocalizations {
   String searchEst(Object year) {
     return 'Kuruluş: $year';
   }
+
+  @override
+  String get homeHeroBannerTitle => 'Puanını Hesapla,\nHedefini Belirle!';
+
+  @override
+  String get reviewSortLabel => 'Sırala:';
+
+  @override
+  String get reviewSortNewest => 'En Yeni';
+
+  @override
+  String get reviewSortMostLiked => 'En Beğenilen';
+
+  @override
+  String get uniDetailDepartments => 'Bölümler';
+
+  @override
+  String uniDetailDepartmentsSubtitle(int count) {
+    return '$count bölüm — En çok aranan 3 tanesi';
+  }
+
+  @override
+  String get uniDetailSeeAllDepartments => 'Tüm bölümleri gör';
+
+  @override
+  String get uniDetailReviews => 'Yorumlar';
+
+  @override
+  String uniDetailReviewsSubtitle(int count) {
+    return '$count yorum — En çok beğenilen 3 tanesi';
+  }
+
+  @override
+  String get uniDetailNoReviews => 'Henüz yorum yok';
+
+  @override
+  String get uniDetailSeeAllReviews => 'Tüm yorumları gör';
+
+  @override
+  String get uniDetailPlaces => 'Mekanlar';
+
+  @override
+  String uniDetailPlacesSubtitle(int count) {
+    return '$count mekan';
+  }
+
+  @override
+  String get uniDetailPlacesComingSoon => 'Yakında sizlerin önerileriyle!';
+
+  @override
+  String get uniDetailSeeAllPlaces => 'Tüm mekanları gör';
+
+  @override
+  String get uniDetailPlacesLoading => 'Yükleniyor...';
+
+  @override
+  String get uniDetailPlacesLoadError => 'Yüklenemedi';
+
+  @override
+  String get uniDetailOpenMap => 'Haritada Aç';
+
+  @override
+  String get uniDetailGallery => 'Galeri';
+
+  @override
+  String get uniDetailCategoryRatings => 'Kategori Puanları';
+
+  @override
+  String get uniDetailRateUniversity => 'Üniversiteyi Değerlendir';
+
+  @override
+  String get uniDetailPlacesEmptyTitle => 'Kafeler Yakında!';
+
+  @override
+  String get uniDetailPlacesEmptyDesc =>
+      'Bu bölüme yakında kafeler ve mekanlar eklenecek.\nSizlerin önerileriyle bu listeyi oluşturacağız! 🎉';
+
+  @override
+  String exploreFoundCount(int count) {
+    return '$count üniversite bulundu';
+  }
+
+  @override
+  String get exploreShowResults => 'Sonuçları Göster';
 }

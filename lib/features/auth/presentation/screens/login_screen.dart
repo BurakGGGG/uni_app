@@ -9,11 +9,14 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/widgets/widgets.dart';
 import '../../../../l10n/generated/app_localizations.dart';
+import '../../../../router/redirect_utils.dart';
 import '../providers/auth_providers.dart';
 
 /// Giriş ekranı
 class LoginScreen extends ConsumerStatefulWidget {
-  const LoginScreen({super.key});
+  final String? from;
+
+  const LoginScreen({super.key, this.from});
 
   @override
   ConsumerState<LoginScreen> createState() => _LoginScreenState();
@@ -48,13 +51,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   void _onLoginSuccess() {
     if (!mounted) return;
     setState(() => _isLoading = false);
-    final from = GoRouterState.of(context).uri.queryParameters['from'];
-    if (from != null && from.isNotEmpty) {
-      final decodedFrom = Uri.decodeComponent(from);
-      context.go(decodedFrom);
-    } else {
-      context.go('/');
-    }
+
+    context.go(localRedirectPathFromParam(widget.from) ?? '/');
   }
 
   Future<void> _loginWithEmail() async {
@@ -63,7 +61,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     setState(() => _isLoading = true);
 
     try {
-      await ref.read(authControllerProvider.notifier).signInWithEmail(
+      await ref
+          .read(authControllerProvider.notifier)
+          .signInWithEmail(
             _emailController.text.trim(),
             _passwordController.text,
           );
@@ -115,18 +115,21 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       isScrollControlled: true,
       builder: (ctx) => Padding(
         padding: EdgeInsets.fromLTRB(
-          24, 24, 24, MediaQuery.of(ctx).viewInsets.bottom + 24,
+          24,
+          24,
+          24,
+          MediaQuery.of(ctx).viewInsets.bottom + 24,
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(loc.authResetPasswordTitle, style: AppTextStyles.headlineMedium),
-            const SizedBox(height: 8),
             Text(
-              loc.authResetPasswordDesc,
-              style: AppTextStyles.bodySmall,
+              loc.authResetPasswordTitle,
+              style: AppTextStyles.headlineMedium,
             ),
+            const SizedBox(height: 8),
+            Text(loc.authResetPasswordDesc, style: AppTextStyles.bodySmall),
             const SizedBox(height: 20),
             TextField(
               controller: resetController,
@@ -149,9 +152,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       .resetPassword(resetController.text.trim());
                   navigator.pop();
                   messenger.showSnackBar(
-                    SnackBar(
-                      content: Text(loc.authResetPasswordSent),
-                    ),
+                    SnackBar(content: Text(loc.authResetPasswordSent)),
                   );
                 }
               },
@@ -193,7 +194,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               borderRadius: BorderRadius.circular(20),
                               boxShadow: [
                                 BoxShadow(
-                                  color: AppColors.primary.withValues(alpha: 0.3),
+                                  color: AppColors.primary.withValues(
+                                    alpha: 0.3,
+                                  ),
                                   blurRadius: 20,
                                   offset: const Offset(0, 8),
                                 ),
@@ -206,7 +209,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             ),
                           ),
                           const SizedBox(height: 20),
-                          Text(AppConstants.appName, style: AppTextStyles.displayMedium.copyWith(color: AppColors.textOnSurfaceFor(context))),
+                          Text(
+                            AppConstants.appName,
+                            style: AppTextStyles.displayMedium.copyWith(
+                              color: AppColors.textOnSurfaceFor(context),
+                            ),
+                          ),
                           const SizedBox(height: 4),
                           Text(
                             AppConstants.appTagline,
@@ -221,9 +229,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     const SizedBox(height: 40),
 
                     // ─── Giriş Yap başlığı ─────────────────────────
-                    Text(loc.authSignIn, style: AppTextStyles.headlineLarge.copyWith(color: AppColors.textOnSurfaceFor(context)))
-                        .animate()
-                        .fadeIn(delay: 200.ms, duration: 400.ms),
+                    Text(
+                      loc.authSignIn,
+                      style: AppTextStyles.headlineLarge.copyWith(
+                        color: AppColors.textOnSurfaceFor(context),
+                      ),
+                    ).animate().fadeIn(delay: 200.ms, duration: 400.ms),
 
                     const SizedBox(height: 6),
                     Text(
@@ -245,7 +256,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     // ─── Ayırıcı ─────────────────────────────────────
                     Row(
                       children: [
-                        Expanded(child: Divider(color: AppColors.dividerFor(context))),
+                        Expanded(
+                          child: Divider(color: AppColors.dividerFor(context)),
+                        ),
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 16),
                           child: Text(
@@ -253,7 +266,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             style: AppTextStyles.labelSmall,
                           ),
                         ),
-                        Expanded(child: Divider(color: AppColors.dividerFor(context))),
+                        Expanded(
+                          child: Divider(color: AppColors.dividerFor(context)),
+                        ),
                       ],
                     ).animate().fadeIn(delay: 350.ms, duration: 400.ms),
 
@@ -295,7 +310,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               ? loc.authShowPassword
                               : loc.authHidePassword,
                           onPressed: () {
-                            setState(() => _obscurePassword = !_obscurePassword);
+                            setState(
+                              () => _obscurePassword = !_obscurePassword,
+                            );
                           },
                           icon: Icon(
                             _obscurePassword
@@ -351,11 +368,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           ),
                           GestureDetector(
                             onTap: () {
-                              final from = GoRouterState.of(context).uri.queryParameters['from'];
-                              final registerPath = from != null && from.isNotEmpty 
-                                  ? '/register?from=${Uri.encodeComponent(from)}' 
-                                  : '/register';
-                              context.go(registerPath);
+                              context.go(
+                                routeWithLocalFrom('/register', widget.from),
+                              );
                             },
                             child: Text(
                               loc.authSignUp,
@@ -421,7 +436,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           const SizedBox(height: 20),
                           Text(
                             loc.authLoggingIn,
-                            style: AppTextStyles.titleMedium.copyWith(color: AppColors.textOnSurfaceFor(context)),
+                            style: AppTextStyles.titleMedium.copyWith(
+                              color: AppColors.textOnSurfaceFor(context),
+                            ),
                           ),
                           const SizedBox(height: 4),
                           Text(

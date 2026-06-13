@@ -168,7 +168,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                 return Padding(
                   padding: const EdgeInsets.fromLTRB(20, 12, 20, 4),
                   child: Text(
-                    '${filtered.length} üniversite bulundu',
+                    loc.exploreFoundCount(filtered.length),
                     style: AppTextStyles.labelMedium.copyWith(color: AppColors.textTertiaryFor(context)),
                   ),
                 );
@@ -396,7 +396,7 @@ class _FilterBottomSheet extends ConsumerWidget {
             Padding(
               padding: const EdgeInsets.all(20),
               child: GradientButton(
-                text: 'Sonuçları Göster',
+                text: loc.exploreShowResults,
                 onPressed: () => context.pop(),
               ),
             ),
