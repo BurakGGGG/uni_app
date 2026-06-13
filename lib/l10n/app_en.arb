@@ -330,5 +330,58 @@
   "searchNoResults": "No results found",
   "searchNoResultsSub": "No university matching \"{query}\".",
   "searchCampus": "Has Campus",
-  "searchEst": "Established: {year}"
+  "searchEst": "Established: {year}",
+  "homeHeroBannerTitle": "Calculate Your Score,\nSet Your Goal!",
+  "reviewSortLabel": "Sort:",
+  "reviewSortNewest": "Newest",
+  "reviewSortMostLiked": "Most Liked",
+  "uniDetailDepartments": "Departments",
+  "uniDetailDepartmentsSubtitle": "{count} departments — Top 3 most searched",
+  "@uniDetailDepartmentsSubtitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "uniDetailSeeAllDepartments": "See all departments",
+  "uniDetailReviews": "Reviews",
+  "uniDetailReviewsSubtitle": "{count} reviews — Top 3 most liked",
+  "@uniDetailReviewsSubtitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "uniDetailNoReviews": "No reviews yet",
+  "uniDetailSeeAllReviews": "See all reviews",
+  "uniDetailPlaces": "Places",
+  "uniDetailPlacesSubtitle": "{count} places",
+  "@uniDetailPlacesSubtitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "uniDetailPlacesComingSoon": "Coming soon with your suggestions!",
+  "uniDetailSeeAllPlaces": "See all places",
+  "uniDetailPlacesLoading": "Loading...",
+  "uniDetailPlacesLoadError": "Failed to load",
+  "uniDetailOpenMap": "Open Map",
+  "uniDetailGallery": "Gallery",
+  "uniDetailCategoryRatings": "Category Ratings",
+  "uniDetailRateUniversity": "Rate University",
+  "uniDetailPlacesEmptyTitle": "Cafes Coming Soon!",
+  "uniDetailPlacesEmptyDesc": "Cafes and places will be added to this section soon.\nWe'll build this list with your suggestions! 🎉",
+  "exploreFoundCount": "{count} universities found",
+  "@exploreFoundCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "exploreShowResults": "Show Results"
 }

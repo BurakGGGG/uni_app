@@ -1657,6 +1657,156 @@ abstract class AppLocalizations {
   /// In tr, this message translates to:
   /// **'Kuruluş: {year}'**
   String searchEst(Object year);
+
+  /// No description provided for @homeHeroBannerTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Puanını Hesapla,\nHedefini Belirle!'**
+  String get homeHeroBannerTitle;
+
+  /// No description provided for @reviewSortLabel.
+  ///
+  /// In tr, this message translates to:
+  /// **'Sırala:'**
+  String get reviewSortLabel;
+
+  /// No description provided for @reviewSortNewest.
+  ///
+  /// In tr, this message translates to:
+  /// **'En Yeni'**
+  String get reviewSortNewest;
+
+  /// No description provided for @reviewSortMostLiked.
+  ///
+  /// In tr, this message translates to:
+  /// **'En Beğenilen'**
+  String get reviewSortMostLiked;
+
+  /// No description provided for @uniDetailDepartments.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bölümler'**
+  String get uniDetailDepartments;
+
+  /// No description provided for @uniDetailDepartmentsSubtitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'{count} bölüm — En çok aranan 3 tanesi'**
+  String uniDetailDepartmentsSubtitle(int count);
+
+  /// No description provided for @uniDetailSeeAllDepartments.
+  ///
+  /// In tr, this message translates to:
+  /// **'Tüm bölümleri gör'**
+  String get uniDetailSeeAllDepartments;
+
+  /// No description provided for @uniDetailReviews.
+  ///
+  /// In tr, this message translates to:
+  /// **'Yorumlar'**
+  String get uniDetailReviews;
+
+  /// No description provided for @uniDetailReviewsSubtitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'{count} yorum — En çok beğenilen 3 tanesi'**
+  String uniDetailReviewsSubtitle(int count);
+
+  /// No description provided for @uniDetailNoReviews.
+  ///
+  /// In tr, this message translates to:
+  /// **'Henüz yorum yok'**
+  String get uniDetailNoReviews;
+
+  /// No description provided for @uniDetailSeeAllReviews.
+  ///
+  /// In tr, this message translates to:
+  /// **'Tüm yorumları gör'**
+  String get uniDetailSeeAllReviews;
+
+  /// No description provided for @uniDetailPlaces.
+  ///
+  /// In tr, this message translates to:
+  /// **'Mekanlar'**
+  String get uniDetailPlaces;
+
+  /// No description provided for @uniDetailPlacesSubtitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'{count} mekan'**
+  String uniDetailPlacesSubtitle(int count);
+
+  /// No description provided for @uniDetailPlacesComingSoon.
+  ///
+  /// In tr, this message translates to:
+  /// **'Yakında sizlerin önerileriyle!'**
+  String get uniDetailPlacesComingSoon;
+
+  /// No description provided for @uniDetailSeeAllPlaces.
+  ///
+  /// In tr, this message translates to:
+  /// **'Tüm mekanları gör'**
+  String get uniDetailSeeAllPlaces;
+
+  /// No description provided for @uniDetailPlacesLoading.
+  ///
+  /// In tr, this message translates to:
+  /// **'Yükleniyor...'**
+  String get uniDetailPlacesLoading;
+
+  /// No description provided for @uniDetailPlacesLoadError.
+  ///
+  /// In tr, this message translates to:
+  /// **'Yüklenemedi'**
+  String get uniDetailPlacesLoadError;
+
+  /// No description provided for @uniDetailOpenMap.
+  ///
+  /// In tr, this message translates to:
+  /// **'Haritada Aç'**
+  String get uniDetailOpenMap;
+
+  /// No description provided for @uniDetailGallery.
+  ///
+  /// In tr, this message translates to:
+  /// **'Galeri'**
+  String get uniDetailGallery;
+
+  /// No description provided for @uniDetailCategoryRatings.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kategori Puanları'**
+  String get uniDetailCategoryRatings;
+
+  /// No description provided for @uniDetailRateUniversity.
+  ///
+  /// In tr, this message translates to:
+  /// **'Üniversiteyi Değerlendir'**
+  String get uniDetailRateUniversity;
+
+  /// No description provided for @uniDetailPlacesEmptyTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kafeler Yakında!'**
+  String get uniDetailPlacesEmptyTitle;
+
+  /// No description provided for @uniDetailPlacesEmptyDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bu bölüme yakında kafeler ve mekanlar eklenecek.\nSizlerin önerileriyle bu listeyi oluşturacağız! 🎉'**
+  String get uniDetailPlacesEmptyDesc;
+
+  /// No description provided for @exploreFoundCount.
+  ///
+  /// In tr, this message translates to:
+  /// **'{count} üniversite bulundu'**
+  String exploreFoundCount(int count);
+
+  /// No description provided for @exploreShowResults.
+  ///
+  /// In tr, this message translates to:
+  /// **'Sonuçları Göster'**
+  String get exploreShowResults;
 }
 
 class _AppLocalizationsDelegate
