@@ -517,10 +517,12 @@ Sonuç:
 - `firebase-admin` desteklenen peer aralığındaki en güncel major/minor çizgide `^13.10.0` seviyesine çıkarıldı.
 - `firebase-functions-test` `^3.5.0` seviyesine çıkarıldı.
 - v1 zincir API kullanan 1st gen fonksiyonlarda importlar `firebase-functions/v1` olarak netleştirildi.
-- `firebase deploy --only functions --dry-run` başarılı tamamlandı; deploy/release yapılmadı.
-- Tam `npm audit --omit=dev` hâlâ transitive `uuid <11.1.1` zinciri nedeniyle 8 moderate vulnerability raporluyor:
+- `firebase deploy --only functions --dry-run` başarılı tamamlandı.
+- `trackAnalyticsEvent` hedefli deploy ile Node.js 22 revizyonuna geçti ve Cloud Logging'de `component="analytics.trackAnalyticsEvent"` structured log akışı doğrulandı.
+- Tam `firebase deploy --only functions`, uzakta kaynakta olmayan `revenuecatWebhook(us-central1)` bulunduğu için silme onayı gerektiriyor; bu orphan function ayrıca ele alınmalı.
+- Güncel lock audit özeti hâlâ transitive `uuid <11.1.1` zinciri nedeniyle 9 moderate vulnerability raporluyor:
   - 0 low
-  - 8 moderate
+  - 9 moderate
   - 0 high
   - 0 critical
 
