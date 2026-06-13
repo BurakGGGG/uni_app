@@ -1,6 +1,8 @@
+import 'dart:async';
 import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import '../domain/models/preference_list_model.dart';
 import '../../admin/data/analytics_service.dart';
 import '../../admin/domain/models/analytics_event.dart';
@@ -8,19 +10,27 @@ import '../../admin/domain/models/analytics_event.dart';
 class PreferenceListRepository {
   final FirebaseFirestore _firestore;
   final FirebaseAuth _auth;
+  final FirebaseFunctions _functions;
+
+  static const int _maxTitleLength = 80;
+  static const int _maxDescriptionLength = 500;
 
   PreferenceListRepository({
     FirebaseFirestore? firestore,
     FirebaseAuth? auth,
+    FirebaseFunctions? functions,
   }) : _firestore = firestore ?? FirebaseFirestore.instance,
-       _auth = auth ?? FirebaseAuth.instance;
+       _auth = auth ?? FirebaseAuth.instance,
+       _functions =
+           functions ?? FirebaseFunctions.instanceFor(region: 'europe-west1');
 
   CollectionReference<Map<String, dynamic>> get _listsRef =>
       _firestore.collection('preferenceLists');
 
   /// Slug üretimi: 8 karakterli alfanumerik (çakışma ihtimali çok düşük)
   static String _generateSlug() {
-    const chars = 'abcdefghjkmnpqrstuvwxyz23456789'; // confusing chars çıkarıldı
+    const chars =
+        'abcdefghjkmnpqrstuvwxyz23456789'; // confusing chars çıkarıldı
     final rng = Random.secure();
     return List.generate(8, (_) => chars[rng.nextInt(chars.length)]).join();
   }
@@ -38,13 +48,20 @@ class PreferenceListRepository {
   }) async {
     final user = _auth.currentUser;
     if (user == null) throw Exception('Giriş yapmalısınız');
+    final safeTitle = _validateTitle(title);
+    final safeDescription = _validateDescription(description);
+    final author = await _loadCurrentAuthor(user);
 
     // Limit kontrolü
-    final myLists = await _listsRef.where('userId', isEqualTo: user.uid)
-                                     .count().get();
+    final myLists = await _listsRef
+        .where('userId', isEqualTo: user.uid)
+        .count()
+        .get();
     final count = myLists.count ?? 0;
     if (count >= PreferenceListModel.maxLists) {
-      throw Exception('En fazla ${PreferenceListModel.maxLists} liste oluşturabilirsiniz.');
+      throw Exception(
+        'En fazla ${PreferenceListModel.maxLists} liste oluşturabilirsiniz.',
+      );
     }
 
     final slug = await _findUniqueSlug();
@@ -54,19 +71,30 @@ class PreferenceListRepository {
     final list = PreferenceListModel(
       id: docRef.id,
       userId: user.uid,
-      userName: user.displayName ?? 'Öğrenci',
-      userPhotoUrl: user.photoURL,
-      title: title,
-      description: description,
+      userName: author.displayName,
+      userPhotoUrl: author.photoUrl,
+      title: safeTitle,
+      description: safeDescription,
       isPublic: isPublic,
       shareSlug: slug,
       createdAt: now,
       updatedAt: now,
     );
 
-    await docRef.set(list.toMap());
-    AnalyticsService.instance
-        .trackEvent(AnalyticsEvent.preferenceListCreated);
+    await docRef.set({
+      'userId': list.userId,
+      'userName': list.userName,
+      'userPhotoUrl': list.userPhotoUrl,
+      'title': list.title,
+      'description': list.description,
+      'isPublic': list.isPublic,
+      'shareSlug': list.shareSlug,
+      'viewCount': 0,
+      'items': const <Map<String, dynamic>>[],
+      'createdAt': FieldValue.serverTimestamp(),
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
+    AnalyticsService.instance.trackEvent(AnalyticsEvent.preferenceListCreated);
     return list;
   }
 
@@ -77,9 +105,17 @@ class PreferenceListRepository {
       throw Exception('Bu listeyi düzenleme yetkiniz yok');
     }
     if (list.items.length > PreferenceListModel.maxItems) {
-      throw Exception('Bir listede en fazla ${PreferenceListModel.maxItems} tercih olabilir');
+      throw Exception(
+        'Bir listede en fazla ${PreferenceListModel.maxItems} tercih olabilir',
+      );
     }
-    await _listsRef.doc(list.id).update(list.toMap());
+    await _listsRef.doc(list.id).update({
+      'title': _validateTitle(list.title),
+      'description': _validateDescription(list.description),
+      'isPublic': list.isPublic,
+      'items': list.items.map((e) => e.toMap()).toList(),
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
   }
 
   /// Liste sil
@@ -102,9 +138,11 @@ class PreferenceListRepository {
         .where('userId', isEqualTo: user.uid)
         .orderBy('updatedAt', descending: true)
         .snapshots()
-        .map((snap) => snap.docs
-            .map((d) => PreferenceListModel.fromMap(d.data(), d.id))
-            .toList());
+        .map(
+          (snap) => snap.docs
+              .map((d) => PreferenceListModel.fromMap(d.data(), d.id))
+              .toList(),
+        );
   }
 
   /// Tek liste izle (kendi)
@@ -124,29 +162,36 @@ class PreferenceListRepository {
         .get();
     if (query.docs.isEmpty) return null;
     final doc = query.docs.first;
-    
-    // View count artır (best effort, hata olursa sessizce devam et)
-    _listsRef.doc(doc.id).update({
-      'viewCount': FieldValue.increment(1),
-    }).catchError((_) {});
+
+    unawaited(_incrementPublicListView(doc.id));
 
     return PreferenceListModel.fromMap(doc.data(), doc.id);
   }
 
   /// Liste'ye öğe ekle
   Future<void> addItem(String listId, PreferenceItem item) async {
+    final user = _auth.currentUser;
+    if (user == null) throw Exception('Giriş yapmalısınız');
     final list = await _listsRef.doc(listId).get();
     if (!list.exists) throw Exception('Liste bulunamadı');
     final model = PreferenceListModel.fromMap(list.data()!, listId);
+    if (model.userId != user.uid) {
+      throw Exception('Bu listeyi düzenleme yetkiniz yok');
+    }
 
     if (model.items.length >= PreferenceListModel.maxItems) {
-      throw Exception('Listede en fazla ${PreferenceListModel.maxItems} tercih olabilir');
+      throw Exception(
+        'Listede en fazla ${PreferenceListModel.maxItems} tercih olabilir',
+      );
     }
     if (model.items.any((i) => i.deptId == item.deptId)) {
       throw Exception('Bu bölüm zaten listede');
     }
 
-    final newItems = [...model.items, item.copyWith(order: model.items.length + 1)];
+    final newItems = [
+      ...model.items,
+      item.copyWith(order: model.items.length + 1),
+    ];
     await _listsRef.doc(listId).update({
       'items': newItems.map((e) => e.toMap()).toList(),
       'updatedAt': FieldValue.serverTimestamp(),
@@ -154,7 +199,25 @@ class PreferenceListRepository {
   }
 
   /// Sırayı yeniden düzenle
-  Future<void> reorderItems(String listId, List<PreferenceItem> orderedItems) async {
+  Future<void> reorderItems(
+    String listId,
+    List<PreferenceItem> orderedItems,
+  ) async {
+    final user = _auth.currentUser;
+    if (user == null) throw Exception('Giriş yapmalısınız');
+    if (orderedItems.length > PreferenceListModel.maxItems) {
+      throw Exception(
+        'Bir listede en fazla ${PreferenceListModel.maxItems} tercih olabilir',
+      );
+    }
+
+    final list = await _listsRef.doc(listId).get();
+    if (!list.exists) throw Exception('Liste bulunamadı');
+    final data = list.data();
+    if (data?['userId'] != user.uid) {
+      throw Exception('Bu listeyi düzenleme yetkiniz yok');
+    }
+
     final reordered = <Map<String, dynamic>>[];
     for (var i = 0; i < orderedItems.length; i++) {
       reordered.add(orderedItems[i].copyWith(order: i + 1).toMap());
@@ -164,4 +227,59 @@ class PreferenceListRepository {
       'updatedAt': FieldValue.serverTimestamp(),
     });
   }
+
+  Future<_PreferenceListAuthor> _loadCurrentAuthor(User user) async {
+    final doc = await _firestore.collection('users').doc(user.uid).get();
+    final data = doc.data();
+    final rawName = data?['displayName'];
+    final rawPhotoUrl = data?['photoUrl'];
+    final displayName = rawName is String && rawName.isNotEmpty
+        ? rawName
+        : 'Öğrenci';
+    final photoUrl = rawPhotoUrl is String ? rawPhotoUrl : null;
+    return _PreferenceListAuthor(displayName: displayName, photoUrl: photoUrl);
+  }
+
+  String _validateTitle(String value) {
+    final trimmed = value.trim();
+    if (trimmed.isEmpty) {
+      throw Exception('Liste başlığı boş olamaz');
+    }
+    if (trimmed.length > _maxTitleLength) {
+      throw Exception(
+        'Liste başlığı en fazla $_maxTitleLength karakter olabilir',
+      );
+    }
+    return trimmed;
+  }
+
+  String _validateDescription(String value) {
+    final trimmed = value.trim();
+    if (trimmed.length > _maxDescriptionLength) {
+      throw Exception(
+        'Liste açıklaması en fazla $_maxDescriptionLength karakter olabilir',
+      );
+    }
+    return trimmed;
+  }
+
+  Future<void> _incrementPublicListView(String listId) async {
+    try {
+      await _functions.httpsCallable('incrementPreferenceListView').call({
+        'listId': listId,
+      });
+    } catch (_) {
+      // Best-effort sayaç: paylaşım ekranı sayaç hatası yüzünden açılmamalı.
+    }
+  }
+}
+
+class _PreferenceListAuthor {
+  const _PreferenceListAuthor({
+    required this.displayName,
+    required this.photoUrl,
+  });
+
+  final String displayName;
+  final String? photoUrl;
 }
