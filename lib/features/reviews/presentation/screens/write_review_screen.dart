@@ -229,7 +229,9 @@ class _WriteReviewScreenState extends ConsumerState<WriteReviewScreen> {
       }
 
       final currentUserData = await ref.read(currentUserProvider.future);
-      if (currentUserData == null) throw Exception('Kullanıcı profili bulunamadı');
+      if (currentUserData == null) {
+        throw Exception('Kullanıcı profili bulunamadı');
+      }
 
       // 1. Önce yeni fotoğrafları yükle
       List<String> imageUrls = List.from(_existingPhotoUrls);
@@ -735,22 +737,27 @@ class _WriteReviewScreenState extends ConsumerState<WriteReviewScreen> {
               color: _isAnonymous ? AppColors.primary.withAlpha(80) : AppColors.borderLight,
             ),
           ),
-          child: SwitchListTile(
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-            title: Text('Anonim olarak paylaş', style: AppTextStyles.bodyLarge),
-            subtitle: Text(
-              _isAnonymous
-                  ? 'Adınız ve fotoğrafınız gizlenecek'
-                  : 'Adınız ve fotoğrafınız görünür olacak',
-              style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondaryFor(context)),
+          child: Material(
+            color: Colors.transparent,
+            borderRadius: BorderRadius.circular(AppConstants.radiusMd),
+            clipBehavior: Clip.antiAlias,
+            child: SwitchListTile(
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+              title: Text('Anonim olarak paylaş', style: AppTextStyles.bodyLarge),
+              subtitle: Text(
+                _isAnonymous
+                    ? 'Adınız ve fotoğrafınız gizlenecek'
+                    : 'Adınız ve fotoğrafınız görünür olacak',
+                style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondaryFor(context)),
+              ),
+              secondary: Icon(
+                _isAnonymous ? Icons.visibility_off_rounded : Icons.visibility_rounded,
+                color: _isAnonymous ? AppColors.primary : AppColors.textTertiaryFor(context),
+              ),
+              value: _isAnonymous,
+              onChanged: (val) => setState(() => _isAnonymous = val),
+              activeThumbColor: AppColors.primary,
             ),
-            secondary: Icon(
-              _isAnonymous ? Icons.visibility_off_rounded : Icons.visibility_rounded,
-              color: _isAnonymous ? AppColors.primary : AppColors.textTertiaryFor(context),
-            ),
-            value: _isAnonymous,
-            onChanged: (val) => setState(() => _isAnonymous = val),
-            activeThumbColor: AppColors.primary,
           ),
         ),
         // Anonim mod bilgi metni
