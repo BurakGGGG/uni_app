@@ -79,11 +79,16 @@ class _AdminStoryPanelScreenState extends ConsumerState<AdminStoryPanelScreen>
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.error_outline_rounded,
-                  size: 48, color: AppColors.error),
+              Icon(
+                Icons.error_outline_rounded,
+                size: 48,
+                color: AppColors.error,
+              ),
               const SizedBox(height: 12),
-              Text('Story\'ler yüklenirken hata oluştu.',
-                  style: AppTextStyles.bodyMedium),
+              Text(
+                'Story\'ler yüklenirken hata oluştu.',
+                style: AppTextStyles.bodyMedium,
+              ),
               const SizedBox(height: 8),
               TextButton(
                 onPressed: () => ref.invalidate(allStoriesStreamProvider),
@@ -93,66 +98,18 @@ class _AdminStoryPanelScreenState extends ConsumerState<AdminStoryPanelScreen>
           ),
         ),
         data: (allStories) {
-          final active =
-              allStories.where((s) => s.isActive).toList();
-          final archived =
-              allStories.where((s) => !s.isActive).toList();
+          final active = allStories.where((s) => s.isActive).toList();
+          final archived = allStories.where((s) => !s.isActive).toList();
 
           return Column(
             children: [
               // ─── İstatistik Özeti ─────────────────────────────
-              Container(
-                margin: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                decoration: BoxDecoration(
-                  color: AppColors.surfaceFor(context),
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: AppColors.borderLightFor(context)),
-                ),
-                child: Row(
-                  children: [
-                    _StatBadge(
-                      label: 'Toplam',
-                      count: allStories.length,
-                      color: AppColors.primary,
-                    ),
-                    const SizedBox(width: 16),
-                    _StatBadge(
-                      label: 'Aktif',
-                      count: active.length,
-                      color: const Color(0xFF10B981),
-                    ),
-                    const SizedBox(width: 16),
-                    _StatBadge(
-                      label: 'Arşiv',
-                      count: archived.length,
-                      color: const Color(0xFFF59E0B),
-                    ),
-                    const Spacer(),
-                    // Video / Fotoğraf dağılımı
-                    Row(
-                      children: [
-                        Icon(Icons.photo_rounded,
-                            size: 14,
-                            color: AppColors.textTertiaryFor(context)),
-                        const SizedBox(width: 4),
-                        Text(
-                          '${allStories.where((s) => !s.isVideo).length}',
-                          style: AppTextStyles.labelSmall,
-                        ),
-                        const SizedBox(width: 8),
-                        Icon(Icons.videocam_rounded,
-                            size: 14,
-                            color: AppColors.textTertiaryFor(context)),
-                        const SizedBox(width: 4),
-                        Text(
-                          '${allStories.where((s) => s.isVideo).length}',
-                          style: AppTextStyles.labelSmall,
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
+              _StorySummaryBar(
+                totalCount: allStories.length,
+                activeCount: active.length,
+                archivedCount: archived.length,
+                photoCount: allStories.where((s) => !s.isVideo).length,
+                videoCount: allStories.where((s) => s.isVideo).length,
               ),
 
               // ─── Tab İçerikleri ───────────────────────────────
@@ -164,7 +121,8 @@ class _AdminStoryPanelScreenState extends ConsumerState<AdminStoryPanelScreen>
                       stories: active,
                       emptyIcon: Icons.auto_stories_rounded,
                       emptyTitle: 'Henüz aktif story yok',
-                      emptySubtitle: 'Yeni story eklemek için + butonunu kullanın.',
+                      emptySubtitle:
+                          'Yeni story eklemek için + butonunu kullanın.',
                       isActiveTab: true,
                     ),
                     _StoryListTab(
@@ -218,7 +176,11 @@ class _StoryListTab extends ConsumerWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(emptyIcon, size: 56, color: AppColors.textTertiaryFor(context)),
+            Icon(
+              emptyIcon,
+              size: 56,
+              color: AppColors.textTertiaryFor(context),
+            ),
             const SizedBox(height: 12),
             Text(emptyTitle, style: AppTextStyles.titleMedium),
             const SizedBox(height: 4),
@@ -240,10 +202,7 @@ class _StoryListTab extends ConsumerWidget {
       separatorBuilder: (_, _) => const SizedBox(height: 8),
       itemBuilder: (context, index) {
         final story = stories[index];
-        return _StoryTile(
-          story: story,
-          isActiveTab: isActiveTab,
-        );
+        return _StoryTile(story: story, isActiveTab: isActiveTab);
       },
     );
   }
@@ -255,10 +214,7 @@ class _StoryTile extends ConsumerWidget {
   final StoryModel story;
   final bool isActiveTab;
 
-  const _StoryTile({
-    required this.story,
-    required this.isActiveTab,
-  });
+  const _StoryTile({required this.story, required this.isActiveTab});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -293,8 +249,11 @@ class _StoryTile extends ConsumerWidget {
                       width: 56,
                       height: 56,
                       color: AppColors.surfaceVariantFor(context),
-                      child: Icon(Icons.broken_image_rounded,
-                          size: 20, color: AppColors.textTertiaryFor(context)),
+                      child: Icon(
+                        Icons.broken_image_rounded,
+                        size: 20,
+                        color: AppColors.textTertiaryFor(context),
+                      ),
                     ),
                   ),
                 ),
@@ -334,16 +293,24 @@ class _StoryTile extends ConsumerWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 2),
-                  Row(
+                  Wrap(
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    spacing: 4,
+                    runSpacing: 2,
                     children: [
-                      Text(
-                        story.authorName,
-                        style: AppTextStyles.labelSmall.copyWith(
-                          color: AppColors.textSecondaryFor(context),
+                      ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 160),
+                        child: Text(
+                          story.authorName,
+                          style: AppTextStyles.labelSmall.copyWith(
+                            color: AppColors.textSecondaryFor(context),
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                       Text(
-                        ' • ',
+                        '•',
                         style: AppTextStyles.labelSmall.copyWith(
                           color: AppColors.textTertiaryFor(context),
                         ),
@@ -362,7 +329,9 @@ class _StoryTile extends ConsumerWidget {
                     children: [
                       Container(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 6, vertical: 2),
+                          horizontal: 6,
+                          vertical: 2,
+                        ),
                         decoration: BoxDecoration(
                           color: story.isVideo
                               ? const Color(0xFF8B5CF6).withValues(alpha: 0.12)
@@ -384,10 +353,13 @@ class _StoryTile extends ConsumerWidget {
                         const SizedBox(width: 6),
                         Container(
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 6, vertical: 2),
+                            horizontal: 6,
+                            vertical: 2,
+                          ),
                           decoration: BoxDecoration(
-                            color: const Color(0xFFF59E0B)
-                                .withValues(alpha: 0.12),
+                            color: const Color(
+                              0xFFF59E0B,
+                            ).withValues(alpha: 0.12),
                             borderRadius: BorderRadius.circular(4),
                           ),
                           child: Text(
@@ -414,9 +386,9 @@ class _StoryTile extends ConsumerWidget {
                 size: 20,
               ),
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12)),
-              onSelected: (action) =>
-                  _handleAction(context, ref, action),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              onSelected: (action) => _handleAction(context, ref, action),
               itemBuilder: (_) => [
                 if (isActiveTab)
                   const PopupMenuItem(
@@ -444,11 +416,16 @@ class _StoryTile extends ConsumerWidget {
                   value: 'delete',
                   child: Row(
                     children: [
-                      Icon(Icons.delete_outline_rounded,
-                          size: 18, color: AppColors.error),
+                      Icon(
+                        Icons.delete_outline_rounded,
+                        size: 18,
+                        color: AppColors.error,
+                      ),
                       const SizedBox(width: 8),
-                      Text('Kalıcı Sil',
-                          style: TextStyle(color: AppColors.error)),
+                      Text(
+                        'Kalıcı Sil',
+                        style: TextStyle(color: AppColors.error),
+                      ),
                     ],
                   ),
                 ),
@@ -571,6 +548,104 @@ class _StoryTile extends ConsumerWidget {
 }
 
 // ─── İstatistik Badge ────────────────────────────────────────────────
+
+class _StorySummaryBar extends StatelessWidget {
+  final int totalCount;
+  final int activeCount;
+  final int archivedCount;
+  final int photoCount;
+  final int videoCount;
+
+  const _StorySummaryBar({
+    required this.totalCount,
+    required this.activeCount,
+    required this.archivedCount,
+    required this.photoCount,
+    required this.videoCount,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceFor(context),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: AppColors.borderLightFor(context)),
+      ),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final compact = constraints.maxWidth < 360;
+
+          return Wrap(
+            spacing: compact ? 12 : 16,
+            runSpacing: 10,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            alignment: WrapAlignment.spaceBetween,
+            children: [
+              _StatBadge(
+                label: 'Toplam',
+                count: totalCount,
+                color: AppColors.primary,
+              ),
+              _StatBadge(
+                label: 'Aktif',
+                count: activeCount,
+                color: const Color(0xFF10B981),
+              ),
+              _StatBadge(
+                label: 'Arşiv',
+                count: archivedCount,
+                color: const Color(0xFFF59E0B),
+              ),
+              _MediaCountBadge(photoCount: photoCount, videoCount: videoCount),
+            ],
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _MediaCountBadge extends StatelessWidget {
+  final int photoCount;
+  final int videoCount;
+
+  const _MediaCountBadge({required this.photoCount, required this.videoCount});
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      spacing: 8,
+      runSpacing: 4,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      children: [
+        _MediaCountItem(icon: Icons.photo_rounded, count: photoCount),
+        _MediaCountItem(icon: Icons.videocam_rounded, count: videoCount),
+      ],
+    );
+  }
+}
+
+class _MediaCountItem extends StatelessWidget {
+  final IconData icon;
+  final int count;
+
+  const _MediaCountItem({required this.icon, required this.count});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: 14, color: AppColors.textTertiaryFor(context)),
+        const SizedBox(width: 4),
+        Text('$count', style: AppTextStyles.labelSmall),
+      ],
+    );
+  }
+}
 
 class _StatBadge extends StatelessWidget {
   final String label;

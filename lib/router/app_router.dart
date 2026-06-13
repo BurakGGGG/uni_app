@@ -48,7 +48,9 @@ import '../features/admin/presentation/screens/admin_panel_screen.dart';
 import '../features/admin/presentation/screens/admin_story_panel_screen.dart';
 import '../features/admin/presentation/screens/admin_reports_screen.dart';
 import '../features/admin/presentation/screens/admin_stats_screen.dart';
+import '../features/admin/presentation/screens/admin_access_denied_screen.dart';
 import 'app_shell.dart';
+import 'redirect_utils.dart';
 
 /// Uygulama route isimleri
 class AppRoutes {
@@ -74,6 +76,11 @@ class AppRoutes {
   static const String universityDepartments = '/university/:uniId/departments';
   static const String universityPlaces = '/university/:uniId/places';
   static const String universityReviews = '/university/:uniId/reviews';
+  static const String admin = '/admin';
+  static const String adminStories = '/admin/stories';
+  static const String adminReports = '/admin/reports';
+  static const String adminStats = '/admin/stats';
+  static const String forbidden = '/403';
 }
 
 /// GoRouter konfigürasyon provider'ı
@@ -95,6 +102,8 @@ final routerProvider = Provider<GoRouter>((ref) {
           path == AppRoutes.login || path == AppRoutes.register;
       final isGoingToOnboarding = path == AppRoutes.onboarding;
       final isGoingToSplash = path == AppRoutes.splash;
+      final isGoingToAdmin =
+          path == AppRoutes.admin || path.startsWith('${AppRoutes.admin}/');
 
       // 0. Splash ekranındayken yönlendirme yapma
       if (isGoingToSplash) {
@@ -110,6 +119,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       final protectedRoutes = [AppRoutes.editProfile, '/my-reviews'];
       final isGoingToProtected =
           protectedRoutes.contains(path) ||
+          isGoingToAdmin ||
           path.startsWith('/write-review') ||
           path.startsWith('/edit-review');
 
@@ -121,8 +131,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       // 3. Giriş yapmış kullanıcı auth sayfalarına erişemez
       if (isLoggedIn && isGoingToAuth) {
         // from parametresi varsa oraya yönlendir (korumalı rotadan gelmiş olabilir)
-        final from = state.uri.queryParameters['from'];
-        if (from != null && from.isNotEmpty) {
+        final from = localRedirectPathFromParam(
+          state.uri.queryParameters['from'],
+        );
+        if (from != null) {
           return from;
         }
         return AppRoutes.home;
@@ -178,22 +190,26 @@ final routerProvider = Provider<GoRouter>((ref) {
 
       // ─── Admin ─────────────────────────────────────────────────────
       GoRoute(
-        path: '/admin',
+        path: AppRoutes.forbidden,
+        builder: (context, state) => const AdminAccessDeniedScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.admin,
         builder: (context, state) =>
             const _AdminRouteGuard(child: AdminPanelScreen()),
       ),
       GoRoute(
-        path: '/admin/stories',
+        path: AppRoutes.adminStories,
         builder: (context, state) =>
             const _AdminRouteGuard(child: AdminStoryPanelScreen()),
       ),
       GoRoute(
-        path: '/admin/reports',
+        path: AppRoutes.adminReports,
         builder: (context, state) =>
             const _AdminRouteGuard(child: AdminReportsScreen()),
       ),
       GoRoute(
-        path: '/admin/stats',
+        path: AppRoutes.adminStats,
         builder: (context, state) =>
             const _AdminRouteGuard(child: AdminStatsScreen()),
       ),
@@ -234,11 +250,13 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: AppRoutes.login,
-        builder: (context, state) => const LoginScreen(),
+        builder: (context, state) =>
+            LoginScreen(from: state.uri.queryParameters['from']),
       ),
       GoRoute(
         path: AppRoutes.register,
-        builder: (context, state) => const RegisterScreen(),
+        builder: (context, state) =>
+            RegisterScreen(from: state.uri.queryParameters['from']),
       ),
       GoRoute(
         path: AppRoutes.editProfile,
@@ -497,45 +515,14 @@ class _AdminRouteGuard extends ConsumerWidget {
     return isAdminAsync.when(
       data: (isAdmin) {
         if (isAdmin) return child;
-        return Scaffold(
-          appBar: AppBar(),
-          body: Center(
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    Icons.lock_outline_rounded,
-                    size: 48,
-                    color: Theme.of(context).colorScheme.error,
-                  ),
-                  const SizedBox(height: 12),
-                  const Text(
-                    'Bu alana erişim yetkiniz yok.',
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 16),
-                  FilledButton(
-                    onPressed: () => context.go(AppRoutes.home),
-                    child: const Text('Ana Sayfaya Dön'),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        );
+        return const AdminAccessDeniedScreen();
       },
-      loading: () =>
-          const Scaffold(body: Center(child: CircularProgressIndicator())),
-      error: (_, _) => Scaffold(
-        appBar: AppBar(),
-        body: Center(
-          child: FilledButton(
-            onPressed: () => context.go(AppRoutes.home),
-            child: const Text('Ana Sayfaya Dön'),
-          ),
-        ),
+      loading: () => const AdminAccessCheckScreen(),
+      error: (_, _) => AdminAccessDeniedScreen(
+        title: 'Yetki doğrulanamadı',
+        message:
+            'Admin yetkisi kontrol edilirken bir sorun oluştu. Admin ekranı güvenli şekilde kapatıldı.',
+        onRetry: () => ref.invalidate(currentUserAdminProvider),
       ),
     );
   }

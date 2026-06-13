@@ -9,17 +9,16 @@ class StatsTrendChart extends StatelessWidget {
   final List<DailyTrendPoint> points;
   final PeriodComparisonModel? comparison;
 
-  const StatsTrendChart({
-    super.key,
-    required this.points,
-    this.comparison,
-  });
+  const StatsTrendChart({super.key, required this.points, this.comparison});
 
   @override
   Widget build(BuildContext context) {
     final maxY = points.isEmpty
         ? 10.0
-        : points.map((p) => p.newUsers).reduce((a, b) => a > b ? a : b).toDouble();
+        : points
+              .map((p) => p.newUsers)
+              .reduce((a, b) => a > b ? a : b)
+              .toDouble();
     final chartMaxY = (maxY < 5 ? 5.0 : maxY * 1.2).toDouble();
 
     return Container(
@@ -48,11 +47,15 @@ class StatsTrendChart extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 8),
-              Text(
-                '7 Günlük Trend',
-                style: AppTextStyles.titleSmall.copyWith(
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.textSecondaryFor(context),
+              Expanded(
+                child: Text(
+                  '7 Günlük Trend',
+                  style: AppTextStyles.titleSmall.copyWith(
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.textSecondaryFor(context),
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ],
@@ -224,7 +227,9 @@ class _ChangeChip extends StatelessWidget {
             Row(
               children: [
                 Icon(
-                  isUp ? Icons.trending_up_rounded : Icons.trending_down_rounded,
+                  isUp
+                      ? Icons.trending_up_rounded
+                      : Icons.trending_down_rounded,
                   size: 14,
                   color: color,
                 ),

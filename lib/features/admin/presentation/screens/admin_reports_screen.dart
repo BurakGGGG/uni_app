@@ -721,42 +721,63 @@ class _SummaryGrid extends StatelessWidget {
   const _SummaryGrid({required this.items});
   @override
   Widget build(BuildContext context) {
-    return Wrap(
-      spacing: 8,
-      runSpacing: 8,
-      children: items
-          .map(
-            (item) => Container(
-              width: (MediaQuery.of(context).size.width - 48) / 3,
-              padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 10),
-              decoration: BoxDecoration(
-                color: item.color.withValues(alpha: 0.06),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: item.color.withValues(alpha: 0.2)),
-              ),
-              child: Column(
-                children: [
-                  Text(
-                    '${item.count}',
-                    style: AppTextStyles.titleLarge.copyWith(
-                      fontWeight: FontWeight.w800,
-                      color: item.color,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final columnCount = constraints.maxWidth >= 420 ? 3 : 2;
+        final spacing = 8.0;
+        final itemWidth =
+            (constraints.maxWidth - (spacing * (columnCount - 1))) /
+            columnCount;
+
+        return Wrap(
+          spacing: spacing,
+          runSpacing: spacing,
+          children: items
+              .map(
+                (item) => SizedBox(
+                  width: itemWidth,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 14,
+                      horizontal: 10,
+                    ),
+                    decoration: BoxDecoration(
+                      color: item.color.withValues(alpha: 0.06),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: item.color.withValues(alpha: 0.2),
+                      ),
+                    ),
+                    child: Column(
+                      children: [
+                        Text(
+                          '${item.count}',
+                          style: AppTextStyles.titleLarge.copyWith(
+                            fontWeight: FontWeight.w800,
+                            color: item.color,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          item.label,
+                          style: AppTextStyles.labelSmall.copyWith(
+                            fontSize: 10,
+                            color: AppColors.textSecondaryFor(context),
+                          ),
+                          textAlign: TextAlign.center,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 2),
-                  Text(
-                    item.label,
-                    style: AppTextStyles.labelSmall.copyWith(
-                      fontSize: 10,
-                      color: AppColors.textSecondaryFor(context),
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ],
-              ),
-            ),
-          )
-          .toList(),
+                ),
+              )
+              .toList(),
+        );
+      },
     );
   }
 }

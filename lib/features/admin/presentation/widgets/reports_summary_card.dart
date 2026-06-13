@@ -20,9 +20,15 @@ class ReportsSummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final pending = reports.where((r) => r.status == ReportStatus.pending).length;
-    final actioned = reports.where((r) => r.status == ReportStatus.actioned).length;
-    final newFb = feedbacks.where((f) => f.status == FeedbackStatus.newFeedback).length;
+    final pending = reports
+        .where((r) => r.status == ReportStatus.pending)
+        .length;
+    final actioned = reports
+        .where((r) => r.status == ReportStatus.actioned)
+        .length;
+    final newFb = feedbacks
+        .where((f) => f.status == FeedbackStatus.newFeedback)
+        .length;
 
     return Container(
       margin: const EdgeInsets.fromLTRB(16, 16, 16, 8),
@@ -32,33 +38,57 @@ class ReportsSummaryCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: AppColors.borderLightFor(context)),
       ),
-      child: Row(
-        children: [
-          _StatBadge(label: 'Şikayet', count: reports.length, color: AppColors.error),
-          const SizedBox(width: 14),
-          _StatBadge(label: 'Bekleyen', count: pending, color: AppColors.warning),
-          const SizedBox(width: 14),
-          _StatBadge(label: 'Çözülen', count: actioned, color: AppColors.success),
-          const SizedBox(width: 14),
-          _StatBadge(label: 'Feedback', count: feedbacks.length, color: AppColors.info),
-          const Spacer(),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final badgeWidth = constraints.maxWidth < 360
+              ? (constraints.maxWidth - 12) / 2
+              : 64.0;
+
+          return Wrap(
+            spacing: 12,
+            runSpacing: 12,
+            crossAxisAlignment: WrapCrossAlignment.center,
             children: [
-              Row(mainAxisSize: MainAxisSize.min, children: [
-                Icon(Icons.block_rounded, size: 13, color: AppColors.textTertiaryFor(context)),
-                const SizedBox(width: 4),
-                Text('${blockedReviews.length}', style: AppTextStyles.labelSmall.copyWith(fontWeight: FontWeight.w600)),
-              ]),
-              const SizedBox(height: 2),
-              Row(mainAxisSize: MainAxisSize.min, children: [
-                Icon(Icons.fiber_new_rounded, size: 13, color: AppColors.textTertiaryFor(context)),
-                const SizedBox(width: 4),
-                Text('$newFb', style: AppTextStyles.labelSmall.copyWith(fontWeight: FontWeight.w600)),
-              ]),
+              SizedBox(
+                width: badgeWidth,
+                child: _StatBadge(
+                  label: 'Şikayet',
+                  count: reports.length,
+                  color: AppColors.error,
+                ),
+              ),
+              SizedBox(
+                width: badgeWidth,
+                child: _StatBadge(
+                  label: 'Bekleyen',
+                  count: pending,
+                  color: AppColors.warning,
+                ),
+              ),
+              SizedBox(
+                width: badgeWidth,
+                child: _StatBadge(
+                  label: 'Çözülen',
+                  count: actioned,
+                  color: AppColors.success,
+                ),
+              ),
+              SizedBox(
+                width: badgeWidth,
+                child: _StatBadge(
+                  label: 'Feedback',
+                  count: feedbacks.length,
+                  color: AppColors.info,
+                ),
+              ),
+              _CompactMetric(
+                icon: Icons.block_rounded,
+                value: blockedReviews.length,
+              ),
+              _CompactMetric(icon: Icons.fiber_new_rounded, value: newFb),
             ],
-          ),
-        ],
+          );
+        },
       ),
     );
   }
@@ -69,13 +99,58 @@ class _StatBadge extends StatelessWidget {
   final int count;
   final Color color;
 
-  const _StatBadge({required this.label, required this.count, required this.color});
+  const _StatBadge({
+    required this.label,
+    required this.count,
+    required this.color,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Column(children: [
-      Text('$count', style: AppTextStyles.titleMedium.copyWith(fontWeight: FontWeight.w800, color: color)),
-      Text(label, style: AppTextStyles.labelSmall.copyWith(color: AppColors.textTertiaryFor(context), fontSize: 10)),
-    ]);
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          '$count',
+          style: AppTextStyles.titleMedium.copyWith(
+            fontWeight: FontWeight.w800,
+            color: color,
+          ),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+        Text(
+          label,
+          style: AppTextStyles.labelSmall.copyWith(
+            color: AppColors.textTertiaryFor(context),
+            fontSize: 10,
+          ),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+      ],
+    );
+  }
+}
+
+class _CompactMetric extends StatelessWidget {
+  final IconData icon;
+  final int value;
+
+  const _CompactMetric({required this.icon, required this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: 13, color: AppColors.textTertiaryFor(context)),
+        const SizedBox(width: 4),
+        Text(
+          '$value',
+          style: AppTextStyles.labelSmall.copyWith(fontWeight: FontWeight.w600),
+        ),
+      ],
+    );
   }
 }

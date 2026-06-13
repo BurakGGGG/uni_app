@@ -50,12 +50,20 @@ class StatCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 10),
-          Text(
-            _formatNumber(value),
-            style: AppTextStyles.titleLarge.copyWith(
-              fontWeight: FontWeight.w800,
-              color: color,
-              height: 1,
+          SizedBox(
+            width: double.infinity,
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.centerLeft,
+              child: Text(
+                _formatNumber(value),
+                style: AppTextStyles.titleLarge.copyWith(
+                  fontWeight: FontWeight.w800,
+                  color: color,
+                  height: 1,
+                ),
+                maxLines: 1,
+              ),
             ),
           ),
           const SizedBox(height: 4),

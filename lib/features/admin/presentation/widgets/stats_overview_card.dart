@@ -79,36 +79,42 @@ class StatsOverviewCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(
-                child: _OverviewMetric(
-                  label: userLabel,
-                  value: userCount,
-                ),
-              ),
-              _verticalDivider(),
-              Expanded(
-                child: _OverviewMetric(
-                  label: 'Giriş',
-                  value: loginCount,
-                ),
-              ),
-              _verticalDivider(),
-              Expanded(
-                child: _OverviewMetric(
-                  label: 'Yorum',
-                  value: reviewCount,
-                ),
-              ),
-              _verticalDivider(),
-              Expanded(
-                child: _OverviewMetric(
-                  label: 'Karşılaştırma',
-                  value: comparisonCount,
-                ),
-              ),
-            ],
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final metrics = [
+                _OverviewMetric(label: userLabel, value: userCount),
+                _OverviewMetric(label: 'Giriş', value: loginCount),
+                _OverviewMetric(label: 'Yorum', value: reviewCount),
+                _OverviewMetric(label: 'Karşılaştırma', value: comparisonCount),
+              ];
+
+              if (constraints.maxWidth < 340) {
+                return Wrap(
+                  spacing: 10,
+                  runSpacing: 12,
+                  children: metrics
+                      .map(
+                        (metric) => SizedBox(
+                          width: (constraints.maxWidth - 10) / 2,
+                          child: metric,
+                        ),
+                      )
+                      .toList(),
+                );
+              }
+
+              return Row(
+                children: [
+                  Expanded(child: metrics[0]),
+                  _verticalDivider(),
+                  Expanded(child: metrics[1]),
+                  _verticalDivider(),
+                  Expanded(child: metrics[2]),
+                  _verticalDivider(),
+                  Expanded(child: metrics[3]),
+                ],
+              );
+            },
           ),
         ],
       ),
@@ -129,20 +135,24 @@ class _OverviewMetric extends StatelessWidget {
   final String label;
   final int value;
 
-  const _OverviewMetric({
-    required this.label,
-    required this.value,
-  });
+  const _OverviewMetric({required this.label, required this.value});
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Text(
-          _formatNumber(value),
-          style: AppTextStyles.titleMedium.copyWith(
-            color: Colors.white,
-            fontWeight: FontWeight.w800,
+        SizedBox(
+          width: double.infinity,
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              _formatNumber(value),
+              style: AppTextStyles.titleMedium.copyWith(
+                color: Colors.white,
+                fontWeight: FontWeight.w800,
+              ),
+              maxLines: 1,
+            ),
           ),
         ),
         const SizedBox(height: 2),

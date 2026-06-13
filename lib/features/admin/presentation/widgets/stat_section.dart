@@ -42,11 +42,15 @@ class StatSection extends StatelessWidget {
                 child: Icon(icon, color: accentColor, size: 15),
               ),
               const SizedBox(width: 8),
-              Text(
-                title,
-                style: AppTextStyles.titleSmall.copyWith(
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.textSecondaryFor(context),
+              Expanded(
+                child: Text(
+                  title,
+                  style: AppTextStyles.titleSmall.copyWith(
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.textSecondaryFor(context),
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ],
@@ -54,10 +58,14 @@ class StatSection extends StatelessWidget {
           const SizedBox(height: 14),
           LayoutBuilder(
             builder: (context, constraints) {
-              final cardWidth = (constraints.maxWidth - 10) / 2;
+              final columnCount = constraints.maxWidth >= 340 ? 2 : 1;
+              final spacing = 10.0;
+              final cardWidth =
+                  (constraints.maxWidth - spacing * (columnCount - 1)) /
+                  columnCount;
               return Wrap(
-                spacing: 10,
-                runSpacing: 10,
+                spacing: spacing,
+                runSpacing: spacing,
                 children: cards.map((card) {
                   return SizedBox(
                     width: cardWidth,

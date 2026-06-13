@@ -37,11 +37,15 @@ class StatsTopUniversities extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 8),
-              Text(
-                'En Popüler Üniversiteler',
-                style: AppTextStyles.titleSmall.copyWith(
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.textSecondaryFor(context),
+              Expanded(
+                child: Text(
+                  'En Popüler Üniversiteler',
+                  style: AppTextStyles.titleSmall.copyWith(
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.textSecondaryFor(context),
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ],
@@ -72,8 +76,9 @@ class StatsTopUniversities extends StatelessWidget {
                           width: 22,
                           height: 22,
                           decoration: BoxDecoration(
-                            color: const Color(0xFF06B6D4)
-                                .withValues(alpha: 0.12),
+                            color: const Color(
+                              0xFF06B6D4,
+                            ).withValues(alpha: 0.12),
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: Center(
@@ -112,8 +117,9 @@ class StatsTopUniversities extends StatelessWidget {
                       borderRadius: BorderRadius.circular(4),
                       child: LinearProgressIndicator(
                         value: pct,
-                        backgroundColor:
-                            const Color(0xFF06B6D4).withValues(alpha: 0.12),
+                        backgroundColor: const Color(
+                          0xFF06B6D4,
+                        ).withValues(alpha: 0.12),
                         valueColor: const AlwaysStoppedAnimation(
                           Color(0xFF06B6D4),
                         ),
