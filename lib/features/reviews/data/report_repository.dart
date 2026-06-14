@@ -1,15 +1,9 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import '../../admin/data/analytics_service.dart';
 import '../../admin/domain/models/analytics_event.dart';
 
 /// Şikayet nedenleri
-enum ReportReason {
-  inappropriate,
-  spam,
-  offensive,
-  misleading,
-  other,
-}
+enum ReportReason { inappropriate, spam, offensive, misleading, other }
 
 extension ReportReasonExt on ReportReason {
   String get label {
@@ -30,32 +24,62 @@ extension ReportReasonExt on ReportReason {
 
 /// Şikayet (Report) veritabanı işlemleri
 class ReportRepository {
-  final _firestore = FirebaseFirestore.instance;
+  final _functions = FirebaseFunctions.instanceFor(region: 'europe-west1');
 
   /// Bir yorumu şikayet et
   Future<void> reportReview({
     required String reviewId,
-    required String userId,
     required ReportReason reason,
     String? explanation,
   }) async {
-    final docId = '${reviewId}_$userId';
-    await _firestore.collection('reports').doc(docId).set({
-      'reviewId': reviewId,
-      'userId': userId,
-      'reason': reason.name,
-      'explanation': explanation,
-      'createdAt': FieldValue.serverTimestamp(),
-    });
+    try {
+      await _functions
+          .httpsCallable(
+            'submitReviewReport',
+            options: HttpsCallableOptions(timeout: const Duration(seconds: 10)),
+          )
+          .call(<String, dynamic>{
+            'reviewId': reviewId,
+            'reason': reason.name,
+            if (explanation != null && explanation.trim().isNotEmpty)
+              'explanation': explanation.trim(),
+          });
+    } on FirebaseFunctionsException catch (e) {
+      switch (e.code) {
+        case 'already-exists':
+          throw const DuplicateReportException();
+        case 'resource-exhausted':
+          throw const ReportRateLimitedException();
+        case 'failed-precondition':
+        case 'not-found':
+          throw ReportSubmissionException(
+            e.message ?? 'Şikayet gönderilemedi.',
+          );
+        default:
+          throw const ReportSubmissionException(
+            'Şikayet gönderilirken bir hata oluştu.',
+          );
+      }
+    }
 
     // Analytics: rapor gönderildi
     AnalyticsService.instance.trackEvent(AnalyticsEvent.reportCreated);
   }
+}
 
-  /// Bu kullanıcı bu yorumu daha önce şikayet etmiş mi?
-  Future<bool> hasAlreadyReported(String reviewId, String userId) async {
-    final doc =
-        await _firestore.collection('reports').doc('${reviewId}_$userId').get();
-    return doc.exists;
-  }
+class DuplicateReportException implements Exception {
+  const DuplicateReportException();
+}
+
+class ReportRateLimitedException implements Exception {
+  const ReportRateLimitedException();
+}
+
+class ReportSubmissionException implements Exception {
+  final String message;
+
+  const ReportSubmissionException(this.message);
+
+  @override
+  String toString() => message;
 }

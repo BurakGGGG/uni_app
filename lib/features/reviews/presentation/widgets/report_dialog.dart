@@ -46,17 +46,19 @@ class _ReportDialogState extends ConsumerState<ReportDialog> {
           children: [
             Text('Şikayet sebebinizi seçin:', style: AppTextStyles.bodyMedium),
             const SizedBox(height: 12),
-            ...ReportReason.values.map((reason) => RadioListTile<ReportReason>(
-              title: Text(reason.label, style: AppTextStyles.bodyMedium),
-              value: reason,
-              // ignore: deprecated_member_use
-              groupValue: _selectedReason,
-              activeColor: AppColors.primary,
-              // ignore: deprecated_member_use
-              onChanged: (v) => setState(() => _selectedReason = v),
-              dense: true,
-              contentPadding: EdgeInsets.zero,
-            )),
+            ...ReportReason.values.map(
+              (reason) => RadioListTile<ReportReason>(
+                title: Text(reason.label, style: AppTextStyles.bodyMedium),
+                value: reason,
+                // ignore: deprecated_member_use
+                groupValue: _selectedReason,
+                activeColor: AppColors.primary,
+                // ignore: deprecated_member_use
+                onChanged: (v) => setState(() => _selectedReason = v),
+                dense: true,
+                contentPadding: EdgeInsets.zero,
+              ),
+            ),
             if (_selectedReason == ReportReason.other) ...[
               const SizedBox(height: 8),
               TextField(
@@ -114,14 +116,15 @@ class _ReportDialogState extends ConsumerState<ReportDialog> {
     setState(() => _submitting = true);
 
     try {
-      await ref.read(reportRepositoryProvider).reportReview(
-        reviewId: widget.review.id,
-        userId: user.uid,
-        reason: _selectedReason!,
-        explanation: _selectedReason == ReportReason.other
-            ? _explanationController.text.trim()
-            : null,
-      );
+      await ref
+          .read(reportRepositoryProvider)
+          .reportReview(
+            reviewId: widget.review.id,
+            reason: _selectedReason!,
+            explanation: _selectedReason == ReportReason.other
+                ? _explanationController.text.trim()
+                : null,
+          );
 
       if (mounted) {
         Navigator.pop(context);
@@ -132,24 +135,24 @@ class _ReportDialogState extends ConsumerState<ReportDialog> {
           ),
         );
       }
-    } catch (e) {
-      if (mounted) {
-        setState(() => _submitting = false);
-        Navigator.pop(context);
+    } on DuplicateReportException {
+      _showSubmitError('Bu yorumu zaten şikayet ettiniz.');
+    } on ReportRateLimitedException {
+      _showSubmitError('Çok kısa sürede fazla şikayet gönderdiniz.');
+    } on ReportSubmissionException catch (e) {
+      _showSubmitError(e.message);
+    } catch (_) {
+      _showSubmitError('Bir hata oluştu. Lütfen tekrar deneyin.');
+    }
+  }
 
-        // permission-denied → büyük ihtimalle bu yorum zaten şikayet edilmiş
-        final isDuplicate = e.toString().contains('permission-denied');
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              isDuplicate
-                  ? 'Bu yorumu zaten şikayet ettiniz.'
-                  : 'Bir hata oluştu. Lütfen tekrar deneyin.',
-            ),
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
-      }
+  void _showSubmitError(String message) {
+    if (mounted) {
+      setState(() => _submitting = false);
+      Navigator.pop(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(message), behavior: SnackBarBehavior.floating),
+      );
     }
   }
 }
