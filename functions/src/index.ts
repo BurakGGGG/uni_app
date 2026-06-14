@@ -119,3 +119,9 @@ export { trackAnalyticsEvent } from './analytics/track_event';
 
 // Preference lists
 export { incrementPreferenceListView } from './preference_lists/increment_view';
+
+// Admin server-side moderation actions
+export { performAdminModerationAction } from './admin/moderation_actions';
+
+// Abuse/user submissions
+export { submitReviewReport, submitFeedback } from './abuse/user_submissions';

@@ -313,9 +313,9 @@ service cloud.firestore {
 
       allow create: if isVerifiedStudent() && isSafeReviewCreate();
 
-      allow update: if isAdmin() || isSafeReviewOwnerUpdate();
+      allow update: if isSafeReviewOwnerUpdate();
 
-      allow delete: if isAdmin() || isOwner(resource.data.userId);
+      allow delete: if isOwner(resource.data.userId);
     }
 
     match /reviews/{reviewId}/likes/{userId} {
@@ -331,8 +331,17 @@ service cloud.firestore {
 
     match /reports/{reportId} {
       allow read: if isAdmin();
-      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
-      allow update, delete: if isAdmin();
+      allow write: if false;
+    }
+
+    match /adminAuditLogs/{logId} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+
+    match /suspiciousActivityLogs/{logId} {
+      allow read: if isAdmin();
+      allow write: if false;
     }
 
     match /preferenceLists/{listId} {
@@ -486,18 +495,11 @@ service cloud.firestore {
     }
 
     // ─── Geri Bildirim (Feedback) ──────────────────────────────
-    // Giriş yapmış kullanıcılar geri bildirim oluşturabilir.
-    // Yalnızca admin tüm geri bildirimleri okuyabilir/yönetebilir.
+    // Client yazımı kapalıdır; submitFeedback callable function yazar.
     match /feedback/{feedbackId} {
-      allow create: if isAuthenticated() &&
-        request.resource.data.userId == request.auth.uid &&
-        request.resource.data.message is string &&
-        request.resource.data.message.size() >= 10 &&
-        request.resource.data.message.size() <= 1000 &&
-        request.resource.data.type in ['bug', 'suggestion', 'other'];
       allow read: if isAdmin() ||
         (isAuthenticated() && resource.data.userId == request.auth.uid);
-      allow update, delete: if isAdmin();
+      allow write: if false;
     }
 
     // ─── Webhook Events (Idempotency) ───────────────────────────
