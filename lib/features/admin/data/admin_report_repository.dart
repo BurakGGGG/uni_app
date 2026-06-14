@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter/foundation.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import '../domain/models/admin_report_model.dart';
 import '../../reviews/domain/models/review_model.dart';
 
@@ -8,9 +7,14 @@ import '../../reviews/domain/models/review_model.dart';
 /// admin tarafı CRUD işlemleri.
 class AdminReportRepository {
   final FirebaseFirestore _firestore;
+  final FirebaseFunctions _functions;
 
-  AdminReportRepository({FirebaseFirestore? firestore})
-    : _firestore = firestore ?? FirebaseFirestore.instance;
+  AdminReportRepository({
+    FirebaseFirestore? firestore,
+    FirebaseFunctions? functions,
+  }) : _firestore = firestore ?? FirebaseFirestore.instance,
+       _functions =
+           functions ?? FirebaseFunctions.instanceFor(region: 'europe-west1');
 
   CollectionReference<Map<String, dynamic>> get _reportsRef =>
       _firestore.collection('reports');
@@ -73,42 +77,46 @@ class AdminReportRepository {
     String reportId, {
     required ReportStatus status,
     String? adminNote,
-    required String adminUserId,
   }) async {
-    await _reportsRef.doc(reportId).update({
+    await _callAdminAction({
+      'action': 'updateReportStatus',
+      'reportId': reportId,
       'status': status.name,
       'adminNote': ?adminNote,
-      'reviewedBy': adminUserId,
-      'reviewedAt': FieldValue.serverTimestamp(),
     });
   }
 
   // ─── Şikayet edilen yorumu gizle (isApproved = false) ────────────
-  Future<void> hideReportedReview(String reviewId) async {
-    await _reviewsRef.doc(reviewId).update({'isApproved': false});
+  Future<void> hideReportedReview(
+    String reviewId, {
+    String? reportId,
+    String? adminNote,
+  }) async {
+    await _callAdminAction({
+      'action': 'hideReview',
+      'reviewId': reviewId,
+      'reportId': ?reportId,
+      'adminNote': ?adminNote,
+    });
   }
 
   // ─── Gizlenen yorumu geri aç (isApproved = true) ─────────────────
   Future<void> unhideReview(String reviewId) async {
-    await _reviewsRef.doc(reviewId).update({'isApproved': true});
+    await _callAdminAction({'action': 'unhideReview', 'reviewId': reviewId});
   }
 
   // ─── Şikayet edilen yorumu kalıcı sil ────────────────────────────
   Future<void> deleteReportedReview(
-    String reviewId,
-    List<String> photoUrls,
-  ) async {
-    // 1. Firestore'dan sil
-    await _reviewsRef.doc(reviewId).delete();
-
-    // 2. Fotoğrafları sil (best effort)
-    for (final url in photoUrls) {
-      try {
-        await FirebaseStorage.instance.refFromURL(url).delete();
-      } catch (e) {
-        debugPrint('[AdminReport] Photo delete failed: $e');
-      }
-    }
+    String reviewId, {
+    String? reportId,
+    String? adminNote,
+  }) async {
+    await _callAdminAction({
+      'action': 'deleteReview',
+      'reviewId': reviewId,
+      'reportId': ?reportId,
+      'adminNote': ?adminNote,
+    });
   }
 
   // ─── Engellenen (isApproved=false) yorumları dinle ────────────────
@@ -133,22 +141,11 @@ class AdminReportRepository {
     return snap.count ?? 0;
   }
 
-  // ─── Bir rapora ait bildirim gönder (yorum sahibine) ─────────────
-  Future<void> sendReportActionNotification({
-    required String reviewOwnerId,
-    required String action, // 'hidden' veya 'deleted'
-    String? adminNote,
-  }) async {
-    await _firestore.collection('notifications').add({
-      'userId': reviewOwnerId,
-      'type': 'review_moderated',
-      'title': action == 'deleted' ? 'Yorumunuz silindi' : 'Yorumunuz gizlendi',
-      'body': action == 'deleted'
-          ? 'Topluluk kurallarına aykırı bulunan yorumunuz kaldırıldı.'
-          : 'Topluluk kurallarına aykırı bulunan yorumunuz gizlendi.',
-      'data': {'adminNote': ?adminNote},
-      'isRead': false,
-      'createdAt': FieldValue.serverTimestamp(),
-    });
+  Future<void> _callAdminAction(Map<String, Object?> payload) async {
+    final callable = _functions.httpsCallable(
+      'performAdminModerationAction',
+      options: HttpsCallableOptions(timeout: const Duration(seconds: 30)),
+    );
+    await callable.call<Object?>(payload);
   }
 }

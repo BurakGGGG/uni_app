@@ -4,7 +4,6 @@ import '../../data/admin_feedback_repository.dart';
 import '../../domain/models/admin_report_model.dart';
 import '../../domain/models/admin_feedback_model.dart';
 import '../../../reviews/domain/models/review_model.dart';
-import '../../../auth/presentation/providers/auth_providers.dart';
 
 // ═══════════════════════════════════════════════════════════════
 //  Repository Providers
@@ -72,33 +71,20 @@ final newFeedbackCountProvider = StreamProvider<int>((ref) {
 
 class ReportActionController extends StateNotifier<AsyncValue<void>> {
   final AdminReportRepository _repo;
-  final String _adminUserId;
 
-  ReportActionController(this._repo, this._adminUserId)
-    : super(const AsyncValue.data(null));
+  ReportActionController(this._repo) : super(const AsyncValue.data(null));
 
   /// Yorumu gizle + rapor durumunu güncelle
   Future<void> hideReview({
     required String reportId,
     required String reviewId,
-    required String reviewOwnerId,
     String? adminNote,
   }) async {
     state = const AsyncValue.loading();
     try {
-      // 1. Yorumu gizle
-      await _repo.hideReportedReview(reviewId);
-      // 2. Rapor durumunu güncelle
-      await _repo.updateReportStatus(
-        reportId,
-        status: ReportStatus.actioned,
-        adminNote: adminNote,
-        adminUserId: _adminUserId,
-      );
-      // 3. Yorum sahibine bildirim gönder
-      await _repo.sendReportActionNotification(
-        reviewOwnerId: reviewOwnerId,
-        action: 'hidden',
+      await _repo.hideReportedReview(
+        reviewId,
+        reportId: reportId,
         adminNote: adminNote,
       );
       state = const AsyncValue.data(null);
@@ -111,25 +97,13 @@ class ReportActionController extends StateNotifier<AsyncValue<void>> {
   Future<void> deleteReview({
     required String reportId,
     required String reviewId,
-    required String reviewOwnerId,
-    required List<String> photoUrls,
     String? adminNote,
   }) async {
     state = const AsyncValue.loading();
     try {
-      // 1. Yorumu sil
-      await _repo.deleteReportedReview(reviewId, photoUrls);
-      // 2. Rapor durumunu güncelle
-      await _repo.updateReportStatus(
-        reportId,
-        status: ReportStatus.actioned,
-        adminNote: adminNote,
-        adminUserId: _adminUserId,
-      );
-      // 3. Yorum sahibine bildirim gönder
-      await _repo.sendReportActionNotification(
-        reviewOwnerId: reviewOwnerId,
-        action: 'deleted',
+      await _repo.deleteReportedReview(
+        reviewId,
+        reportId: reportId,
         adminNote: adminNote,
       );
       state = const AsyncValue.data(null);
@@ -149,7 +123,6 @@ class ReportActionController extends StateNotifier<AsyncValue<void>> {
         reportId,
         status: ReportStatus.dismissed,
         adminNote: adminNote,
-        adminUserId: _adminUserId,
       );
       state = const AsyncValue.data(null);
     } catch (e, st) {
@@ -169,13 +142,10 @@ class ReportActionController extends StateNotifier<AsyncValue<void>> {
   }
 
   /// Engellenen yorumu kalıcı sil
-  Future<void> permanentlyDeleteReview({
-    required String reviewId,
-    required List<String> photoUrls,
-  }) async {
+  Future<void> permanentlyDeleteReview({required String reviewId}) async {
     state = const AsyncValue.loading();
     try {
-      await _repo.deleteReportedReview(reviewId, photoUrls);
+      await _repo.deleteReportedReview(reviewId);
       state = const AsyncValue.data(null);
     } catch (e, st) {
       state = AsyncValue.error(e, st);
@@ -186,9 +156,7 @@ class ReportActionController extends StateNotifier<AsyncValue<void>> {
 final reportActionControllerProvider =
     StateNotifierProvider<ReportActionController, AsyncValue<void>>((ref) {
       final repo = ref.read(adminReportRepositoryProvider);
-      final user = ref.watch(authStateProvider).value;
-      final adminUserId = user?.uid ?? '';
-      return ReportActionController(repo, adminUserId);
+      return ReportActionController(repo);
     });
 
 // ═══════════════════════════════════════════════════════════════
@@ -197,10 +165,8 @@ final reportActionControllerProvider =
 
 class FeedbackActionController extends StateNotifier<AsyncValue<void>> {
   final AdminFeedbackRepository _repo;
-  final String _adminUserId;
 
-  FeedbackActionController(this._repo, this._adminUserId)
-    : super(const AsyncValue.data(null));
+  FeedbackActionController(this._repo) : super(const AsyncValue.data(null));
 
   /// Feedback statüsünü güncelle
   Future<void> updateStatus({
@@ -214,7 +180,6 @@ class FeedbackActionController extends StateNotifier<AsyncValue<void>> {
         feedbackId,
         status: status,
         adminNote: adminNote,
-        adminUserId: _adminUserId,
       );
       state = const AsyncValue.data(null);
     } catch (e, st) {
@@ -237,7 +202,5 @@ class FeedbackActionController extends StateNotifier<AsyncValue<void>> {
 final feedbackActionControllerProvider =
     StateNotifierProvider<FeedbackActionController, AsyncValue<void>>((ref) {
       final repo = ref.read(adminFeedbackRepositoryProvider);
-      final user = ref.watch(authStateProvider).value;
-      final adminUserId = user?.uid ?? '';
-      return FeedbackActionController(repo, adminUserId);
+      return FeedbackActionController(repo);
     });

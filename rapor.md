@@ -5,7 +5,7 @@ Kapsam: Flutter mobil uygulaması, Firebase Firestore/Storage kuralları, Cloud 
 
 ## Güncel İlerleme Notu
 
-Tarih: 2026-06-13
+Tarih: 2026-06-14
 
 Tamamlanan kritik/yüksek öncelikli düzeltmeler:
 
@@ -21,12 +21,14 @@ Tamamlanan kritik/yüksek öncelikli düzeltmeler:
 - AI tercih önerisi enrichment function'ı Pro entitlement kontrolü, atomik günlük quota (10/gün), kısa pencere rate limit (12/dk) ve App Check hazırlık yorumuyla sertleştirildi.
 - AI öneri cache hit'leri günlük kotadan düşmeyecek; gerçek Groq çağrıları transaction içinde hak tüketecek şekilde düzenlendi.
 - Flutter tarafında Firebase App Check aktive edildi; debug build'lerde debug provider, release Android'de Play Integrity, release Apple platformlarında App Attest + DeviceCheck fallback kullanılacak.
-- Callable Cloud Functions için App Check zorunlu hale getirildi: `verifyStudentUniversity`, `generateComparisonSummary`, `enrichRecommendations`.
+- Kritik callable Cloud Functions için App Check zorunlu hale getirildi: `verifyStudentUniversity`, `generateComparisonSummary`, `enrichRecommendations`, `trackAnalyticsEvent`, `incrementPreferenceListView`, `performAdminModerationAction`, `submitReviewReport`, `submitFeedback`.
 - Firestore analytics sayaçları client write'a kapatıldı; event yazımları App Check zorunlu `trackAnalyticsEvent` callable function'ına taşındı.
 - Analytics event adları server-side whitelist'e alındı ve kullanıcı başına kısa pencere rate limit eklendi.
 - `trackAnalyticsEvent` callable için accepted/rejected/failed structured log alanları, invalid payload/rate limit/write failure ayrımı ve Cloud Logging alert filtreleri eklendi.
 - Preference list `viewCount` client write'a kapatıldı; görüntülenme sayacı App Check zorunlu `incrementPreferenceListView` callable function'ına taşındı.
 - Preference list create/update kuralları schema whitelist, immutable alan koruması, server timestamp zorunluluğu ve item payload doğrulamasıyla sıkılaştırıldı.
+- Admin moderasyon aksiyonları `performAdminModerationAction` callable function'ına taşındı; report/feedback/review güncelleme, gizleme ve silme işlemleri App Check + admin custom claim ile server-side yapılıyor ve `adminAuditLogs` koleksiyonuna Admin SDK üzerinden loglanıyor.
+- Report ve feedback gönderimleri doğrudan Firestore client write yerine App Check zorunlu `submitReviewReport` / `submitFeedback` callable function'larına taşındı; duplicate report, kısa pencere rate limit ve `suspiciousActivityLogs` kaydı server-side uygulanıyor.
 - `usageStats` başlangıç dokümanı Firestore rules tarafında whitelist/zero-counter validasyonuna alındı.
 - Günlük quota reset job'u ve RevenueCat webhook'u `lastAiRecommendationResetDate` alanıyla AI öneri reset takibini tutarlı hale getirecek şekilde güncellendi.
 - Firestore rules testleri emulator ile çalışır hale getirildi ve kritik exploit senaryoları eklendi.
@@ -37,7 +39,7 @@ Son doğrulama çıktıları:
 | Komut | Sonuç |
 | --- | --- |
 | `npm run build` (`functions`) | Başarılı |
-| `npm test` (`rules-tests`) | Başarılı, 31 test geçti |
+| `npm test` (`rules-tests`) | Başarılı, 37 test geçti |
 | `flutter analyze` | Başarılı |
 | `flutter test` | Başarılı, 74 test geçti |
 | `./gradlew :app:lintDebug` | Başarılı. 0 hata, 15 uyarı |
@@ -79,7 +81,7 @@ Android lint hataları kod tarafında giderildi. `./gradlew :app:lintDebug` art�
 | `npm run lint` (`functions`) | Başarılı. ESLint config eklendi ve hata yok. |
 | `npm audit --omit=dev --audit-level=high` (`functions`) | Başarılı. High/critical açık yok; moderate `uuid` zinciri dependency migration maddesinde takip edilmeli. |
 | `flutter pub outdated` | Birçok paket major sürüm gerisinde. Firebase, go_router, notifications, ads ve permission paketleri özellikle eski. |
-| `npm test` (`rules-tests`) | Başarılı. Firestore emulator ile 31 test geçti. |
+| `npm test` (`rules-tests`) | Başarılı. Firestore emulator ile 37 test geçti. |
 | `./gradlew :app:assembleDebug` | Başarılı. Debug APK derlendi. |
 | `./gradlew :app:lintDebug` | Başarılı. 0 hata, 15 uyarı. CI gate'e alındı. |
 
@@ -762,20 +764,21 @@ Hard overflow kesin değil; Material NavigationBar label'ları sıkıştırabili
    - Firestore rules emulator tests
    - `./gradlew :app:lintDebug`
    - `./gradlew :app:assembleDebug`
+8. Admin action audit log ekleyin ve kritik admin aksiyonlarını callable function'a taşıyın. (Tamamlandı; `performAdminModerationAction` App Check + admin custom claim zorunlu, `adminAuditLogs` server-side yazılıyor)
 
 ## 11. Geliştirilebilecek veya Eklenebilecek Özellikler
 
 ### 11.1 Güvenlik ve güvenilirlik özellikleri
 
 - Firebase App Check Console provider ayarları ve debug token kayıt süreci release checklist'e bağlanmalı.
-- Admin action audit log eklenmeli: kim, neyi, ne zaman onayladı/sildi/güncelledi.
-- Suspicious activity log eklenmeli: fazla upload, fazla AI çağrısı, fazla report, başarısız admin erişimleri.
+- Admin action audit log ve kritik admin moderation callable akışı eklendi; sonraki sertleştirme adımı admin audit log görüntüleme/filtreleme ekranı ve alert kurallarıdır.
+- Suspicious activity log başlangıcı eklendi: duplicate report attempt, report rate limit ve feedback rate limit olayları `suspiciousActivityLogs` koleksiyonuna Admin SDK ile yazılıyor; fazla upload, fazla AI çağrısı ve başarısız admin erişimleri hâlâ genişletme maddesidir.
 - Rate limit sistemi eklenmeli:
   - Review oluşturma.
-  - Report gönderme.
-  - Feedback gönderme.
+  - Report gönderme. (Tamamlandı; `submitReviewReport`, 10 dakikada 5 istek)
+  - Feedback gönderme. (Tamamlandı; `submitFeedback`, 10 dakikada 3 istek)
   - Story upload.
-  - AI recommendation/summary çağrıları.
+  - AI recommendation/summary çağrıları. (Tamamlandı)
 - Server-side schema validation standardı oluşturulmalı.
 - Storage upload sonrası otomatik cleanup ve güvenlik taraması eklenmeli.
 - Firestore TTL politikaları gözden geçirilmeli: logs, webhookEvents, notification cleanup.

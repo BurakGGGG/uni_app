@@ -42,11 +42,16 @@ void main() async {
 
   final prefs = results[1] as SharedPreferences;
 
+  const forceDebugAppCheckProvider = bool.fromEnvironment(
+    'USE_APP_CHECK_DEBUG_PROVIDER',
+  );
+  final useDebugAppCheckProvider = !kReleaseMode || forceDebugAppCheckProvider;
+
   await FirebaseAppCheck.instance.activate(
-    androidProvider: kDebugMode
+    androidProvider: useDebugAppCheckProvider
         ? AndroidProvider.debug
         : AndroidProvider.playIntegrity,
-    appleProvider: kDebugMode
+    appleProvider: useDebugAppCheckProvider
         ? AppleProvider.debug
         : AppleProvider.appAttestWithDeviceCheckFallback,
   );

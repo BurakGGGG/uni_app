@@ -4,7 +4,6 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../auth/presentation/providers/auth_providers.dart';
-import '../providers/review_providers.dart';
 import '../../domain/models/review_model.dart';
 import 'report_dialog.dart';
 
@@ -53,9 +52,7 @@ class ReviewActionsMenu extends ConsumerWidget {
       builder: (ctx) => Container(
         decoration: BoxDecoration(
           color: AppColors.surfaceFor(context),
-          borderRadius: const BorderRadius.vertical(
-            top: Radius.circular(24),
-          ),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.1),
@@ -86,7 +83,11 @@ class ReviewActionsMenu extends ConsumerWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 24),
                 child: Row(
                   children: [
-                    Icon(Icons.settings_rounded, size: 20, color: AppColors.textSecondaryFor(context)),
+                    Icon(
+                      Icons.settings_rounded,
+                      size: 20,
+                      color: AppColors.textSecondaryFor(context),
+                    ),
                     const SizedBox(width: 8),
                     Text('İşlemler', style: AppTextStyles.titleMedium),
                   ],
@@ -149,8 +150,12 @@ class ReviewActionsMenu extends ConsumerWidget {
                       foregroundColor: AppColors.textSecondaryFor(context),
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(AppConstants.radiusMd),
-                        side: BorderSide(color: AppColors.borderLightFor(context)),
+                        borderRadius: BorderRadius.circular(
+                          AppConstants.radiusMd,
+                        ),
+                        side: BorderSide(
+                          color: AppColors.borderLightFor(context),
+                        ),
                       ),
                     ),
                     child: const Text('İptal'),
@@ -177,13 +182,19 @@ class ReviewActionsMenu extends ConsumerWidget {
             color: AppColors.error.withValues(alpha: 0.1),
             shape: BoxShape.circle,
           ),
-          child: Icon(Icons.delete_forever_rounded, size: 32, color: AppColors.error),
+          child: Icon(
+            Icons.delete_forever_rounded,
+            size: 32,
+            color: AppColors.error,
+          ),
         ),
         title: Text('Yorumu Sil', style: AppTextStyles.titleLarge),
         content: Text(
           'Bu yorumu silmek istediğinizden emin misiniz?\nBu işlem geri alınamaz ve tüm beğeniler silinecektir.',
           textAlign: TextAlign.center,
-          style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondaryFor(context)),
+          style: AppTextStyles.bodyMedium.copyWith(
+            color: AppColors.textSecondaryFor(context),
+          ),
         ),
         actionsAlignment: MainAxisAlignment.center,
         actionsPadding: const EdgeInsets.fromLTRB(24, 0, 24, 20),
@@ -222,7 +233,8 @@ class ReviewActionsMenu extends ConsumerWidget {
     );
   }
 
-  /// Şikayet akışı: giriş kontrolü → mükerrer kontrolü → dialog aç
+  /// Şikayet akışı: giriş kontrolü → dialog aç.
+  /// Mükerrer şikayet ve rate limit kontrolü callable function tarafında yapılır.
   Future<void> _handleReport(BuildContext context, WidgetRef ref) async {
     final user = ref.read(authStateProvider).value;
     if (user == null) {
@@ -235,27 +247,6 @@ class ReviewActionsMenu extends ConsumerWidget {
         );
       }
       return;
-    }
-
-    try {
-      final alreadyReported = await ref
-          .read(reportRepositoryProvider)
-          .hasAlreadyReported(review.id, user.uid);
-
-      if (alreadyReported) {
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Bu yorumu zaten şikayet ettiniz'),
-              behavior: SnackBarBehavior.floating,
-            ),
-          );
-        }
-        return;
-      }
-    } catch (_) {
-      // Firestore permission hatası olursa mükerrer kontrolünü atla,
-      // docId sabit olduğu için set() üzerine yazar — veri kaybı olmaz.
     }
 
     if (context.mounted) {

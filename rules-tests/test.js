@@ -117,6 +117,60 @@ async function seedReview(reviewId = 'review_1', data = {}) {
   });
 }
 
+async function seedReport(reportId = 'report_1', data = {}) {
+  await testEnv.withSecurityRulesDisabled(async (context) => {
+    await context
+      .firestore()
+      .collection('reports')
+      .doc(reportId)
+      .set({
+        reviewId: 'review_1',
+        userId: 'user_1',
+        reason: 'spam',
+        explanation: 'Spam içerik bildirimi',
+        status: 'pending',
+        createdAt: new Date(),
+        ...data,
+      });
+  });
+}
+
+async function seedFeedback(feedbackId = 'feedback_1', data = {}) {
+  await testEnv.withSecurityRulesDisabled(async (context) => {
+    await context
+      .firestore()
+      .collection('feedback')
+      .doc(feedbackId)
+      .set({
+        userId: 'user_1',
+        type: 'bug',
+        message: 'Yeterince detaylı test feedback mesajı',
+        status: 'new',
+        createdAt: new Date(),
+        ...data,
+      });
+  });
+}
+
+async function seedSuspiciousActivityLog(logId = 'log_1', data = {}) {
+  await testEnv.withSecurityRulesDisabled(async (context) => {
+    await context
+      .firestore()
+      .collection('suspiciousActivityLogs')
+      .doc(logId)
+      .set({
+        uid: 'user_1',
+        type: 'report_rate_limited',
+        source: 'abuse.userSubmissions',
+        metadata: {
+          reviewId: 'review_1',
+        },
+        createdAt: new Date(),
+        ...data,
+      });
+  });
+}
+
 function validPreferenceItem(data = {}) {
   return {
     deptId: 'dept_1',
@@ -314,6 +368,188 @@ describe('Firestore Security Rules - admin custom claims', () => {
 
     await assertSucceeds(
       ctx.firestore().collection('users').doc('user_1').get(),
+    );
+  });
+
+  it('custom claim admin can read audit logs but cannot write them directly', async () => {
+    await testEnv.withSecurityRulesDisabled(async (context) => {
+      await context.firestore().collection('adminAuditLogs').doc('log_1').set({
+        actorUid: 'admin_user',
+        action: 'review_hidden',
+        targetCollection: 'reviews',
+        targetId: 'review_1',
+        targetPath: 'reviews/review_1',
+        reviewId: 'review_1',
+        reportId: 'report_1',
+        adminNotePresent: true,
+        createdAt: new Date(),
+      });
+    });
+
+    const ctx = authed('admin_user', 'admin@example.edu.tr', true, {
+      admin: true,
+    });
+    const ref = ctx.firestore().collection('adminAuditLogs').doc('log_1');
+
+    await assertSucceeds(
+      ref.get(),
+    );
+
+    await assertFails(
+      ctx.firestore().collection('adminAuditLogs').doc('log_2').set({
+        actorUid: 'admin_user',
+        action: 'review_hidden',
+        targetCollection: 'reviews',
+        targetId: 'review_1',
+        targetPath: 'reviews/review_1',
+        reviewId: 'review_1',
+        reportId: 'report_1',
+        adminNotePresent: true,
+        createdAt: serverTimestamp(),
+      }),
+    );
+
+    await assertFails(ref.update({ action: 'review_deleted' }));
+    await assertFails(ref.delete());
+  });
+
+  it('custom claim admin can read suspicious activity logs but cannot write them directly', async () => {
+    await seedSuspiciousActivityLog('suspicious_1');
+
+    const adminCtx = authed('admin_user', 'admin@example.edu.tr', true, {
+      admin: true,
+    });
+    const userCtx = authed('user_1');
+
+    await assertSucceeds(
+      adminCtx
+        .firestore()
+        .collection('suspiciousActivityLogs')
+        .doc('suspicious_1')
+        .get(),
+    );
+
+    await assertFails(
+      userCtx
+        .firestore()
+        .collection('suspiciousActivityLogs')
+        .doc('suspicious_1')
+        .get(),
+    );
+
+    await assertFails(
+      adminCtx
+        .firestore()
+        .collection('suspiciousActivityLogs')
+        .doc('suspicious_2')
+        .set({
+          uid: 'user_1',
+          type: 'report_rate_limited',
+          source: 'client',
+          metadata: {},
+          createdAt: serverTimestamp(),
+        }),
+    );
+
+    await assertFails(
+      userCtx
+        .firestore()
+        .collection('suspiciousActivityLogs')
+        .doc('suspicious_3')
+        .set({
+          uid: 'user_1',
+          type: 'report_rate_limited',
+          source: 'client',
+          metadata: {},
+          createdAt: serverTimestamp(),
+        }),
+    );
+  });
+
+  it('non-admins and spoofed admins cannot create audit logs', async () => {
+    const userCtx = authed('user_1');
+    const adminCtx = authed('admin_user', 'admin@example.edu.tr', true, {
+      admin: true,
+    });
+
+    await assertFails(
+      userCtx.firestore().collection('adminAuditLogs').doc('log_1').set({
+        actorUid: 'user_1',
+        action: 'review_hidden',
+        targetCollection: 'reviews',
+        targetId: 'review_1',
+        targetPath: 'reviews/review_1',
+        createdAt: serverTimestamp(),
+      }),
+    );
+
+    await assertFails(
+      adminCtx.firestore().collection('adminAuditLogs').doc('log_2').set({
+        actorUid: 'another_admin',
+        action: 'review_hidden',
+        targetCollection: 'reviews',
+        targetId: 'review_1',
+        targetPath: 'reviews/review_1',
+        createdAt: serverTimestamp(),
+      }),
+    );
+  });
+
+  it('custom claim admin cannot bypass callable moderation writes', async () => {
+    await seedReview('review_1', { userId: 'user_1', isApproved: true });
+    await seedReport('report_1');
+    await seedFeedback('feedback_1');
+
+    const ctx = authed('admin_user', 'admin@example.edu.tr', true, {
+      admin: true,
+    });
+
+    await assertFails(
+      ctx.firestore().collection('reviews').doc('review_1').update({
+        isApproved: false,
+      }),
+    );
+    await assertFails(
+      ctx.firestore().collection('reviews').doc('review_1').delete(),
+    );
+    await assertFails(
+      ctx.firestore().collection('reports').doc('report_1').update({
+        status: 'actioned',
+      }),
+    );
+    await assertFails(
+      ctx.firestore().collection('feedback').doc('feedback_1').delete(),
+    );
+  });
+});
+
+describe('Firestore Security Rules - callable-only submissions', () => {
+  it('authenticated users cannot create reports directly', async () => {
+    const ctx = authed('user_1');
+
+    await assertFails(
+      ctx.firestore().collection('reports').doc('review_1_user_1').set({
+        reviewId: 'review_1',
+        userId: 'user_1',
+        reason: 'spam',
+        explanation: 'Spam içerik bildirimi',
+        status: 'pending',
+        createdAt: serverTimestamp(),
+      }),
+    );
+  });
+
+  it('authenticated users cannot create feedback directly', async () => {
+    const ctx = authed('user_1');
+
+    await assertFails(
+      ctx.firestore().collection('feedback').doc('feedback_1').set({
+        userId: 'user_1',
+        type: 'bug',
+        message: 'Yeterince detaylı test feedback mesajı',
+        status: 'new',
+        createdAt: serverTimestamp(),
+      }),
     );
   });
 });
