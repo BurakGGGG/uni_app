@@ -424,10 +424,7 @@ class _BlockedTab extends StatelessWidget {
     if (ok != true) return;
     await ref
         .read(reportActionControllerProvider.notifier)
-        .permanentlyDeleteReview(
-          reviewId: review.id,
-          photoUrls: review.imageUrls,
-        );
+        .permanentlyDeleteReview(reviewId: review.id);
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(

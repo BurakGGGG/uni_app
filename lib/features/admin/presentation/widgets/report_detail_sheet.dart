@@ -475,10 +475,6 @@ class _ReportDetailSheetState extends ConsumerState<ReportDetailSheet> {
       _noteCtrl.text.trim().isNotEmpty ? _noteCtrl.text.trim() : null;
 
   Future<void> _doHide(BuildContext context) async {
-    final review = await ref
-        .read(reviewRepositoryProvider)
-        .getReview(widget.report.reviewId);
-    if (!context.mounted) return;
     final ok = await _confirm(
       context,
       'Yorumu Gizle',
@@ -492,7 +488,6 @@ class _ReportDetailSheetState extends ConsumerState<ReportDetailSheet> {
         .hideReview(
           reportId: widget.report.id,
           reviewId: widget.report.reviewId,
-          reviewOwnerId: review?.userId ?? '',
           adminNote: _note,
         );
     if (!context.mounted) return;
@@ -506,10 +501,6 @@ class _ReportDetailSheetState extends ConsumerState<ReportDetailSheet> {
   }
 
   Future<void> _doDelete(BuildContext context) async {
-    final review = await ref
-        .read(reviewRepositoryProvider)
-        .getReview(widget.report.reviewId);
-    if (!context.mounted) return;
     final ok = await _confirm(
       context,
       'Yorumu Kalıcı Sil',
@@ -523,8 +514,6 @@ class _ReportDetailSheetState extends ConsumerState<ReportDetailSheet> {
         .deleteReview(
           reportId: widget.report.id,
           reviewId: widget.report.reviewId,
-          reviewOwnerId: review?.userId ?? '',
-          photoUrls: review?.imageUrls ?? [],
           adminNote: _note,
         );
     if (!context.mounted) return;

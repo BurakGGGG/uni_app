@@ -1,13 +1,19 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import '../domain/models/admin_feedback_model.dart';
 
 /// Admin Feedback Repository — Firestore `feedback` koleksiyonu üzerinde
 /// admin tarafı CRUD işlemleri.
 class AdminFeedbackRepository {
   final FirebaseFirestore _firestore;
+  final FirebaseFunctions _functions;
 
-  AdminFeedbackRepository({FirebaseFirestore? firestore})
-      : _firestore = firestore ?? FirebaseFirestore.instance;
+  AdminFeedbackRepository({
+    FirebaseFirestore? firestore,
+    FirebaseFunctions? functions,
+  }) : _firestore = firestore ?? FirebaseFirestore.instance,
+       _functions =
+           functions ?? FirebaseFunctions.instanceFor(region: 'europe-west1');
 
   CollectionReference<Map<String, dynamic>> get _feedbackRef =>
       _firestore.collection('feedback');
@@ -17,21 +23,26 @@ class AdminFeedbackRepository {
     return _feedbackRef
         .orderBy('createdAt', descending: true)
         .snapshots()
-        .map((snap) => snap.docs
-            .map((d) => AdminFeedbackModel.fromMap(d.data(), d.id))
-            .toList());
+        .map(
+          (snap) => snap.docs
+              .map((d) => AdminFeedbackModel.fromMap(d.data(), d.id))
+              .toList(),
+        );
   }
 
   // ─── Stream: Belirli statüdeki feedbackleri dinle ─────────────────
   Stream<List<AdminFeedbackModel>> watchFeedbackByStatus(
-      FeedbackStatus status) {
+    FeedbackStatus status,
+  ) {
     return _feedbackRef
         .where('status', isEqualTo: status.firestoreValue)
         .orderBy('createdAt', descending: true)
         .snapshots()
-        .map((snap) => snap.docs
-            .map((d) => AdminFeedbackModel.fromMap(d.data(), d.id))
-            .toList());
+        .map(
+          (snap) => snap.docs
+              .map((d) => AdminFeedbackModel.fromMap(d.data(), d.id))
+              .toList(),
+        );
   }
 
   // ─── Stream: Yeni feedback sayısı (badge) ─────────────────────────
@@ -47,17 +58,28 @@ class AdminFeedbackRepository {
     String feedbackId, {
     required FeedbackStatus status,
     String? adminNote,
-    required String adminUserId,
   }) async {
-    await _feedbackRef.doc(feedbackId).update({
+    await _callAdminAction({
+      'action': 'updateFeedbackStatus',
+      'feedbackId': feedbackId,
       'status': status.firestoreValue,
       'adminNote': ?adminNote,
-      'reviewedBy': adminUserId,
     });
   }
 
   // ─── Feedback sil ────────────────────────────────────────────────
   Future<void> deleteFeedback(String feedbackId) async {
-    await _feedbackRef.doc(feedbackId).delete();
+    await _callAdminAction({
+      'action': 'deleteFeedback',
+      'feedbackId': feedbackId,
+    });
+  }
+
+  Future<void> _callAdminAction(Map<String, Object?> payload) async {
+    final callable = _functions.httpsCallable(
+      'performAdminModerationAction',
+      options: HttpsCallableOptions(timeout: const Duration(seconds: 30)),
+    );
+    await callable.call<Object?>(payload);
   }
 }

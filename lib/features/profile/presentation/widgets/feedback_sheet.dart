@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/foundation.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
@@ -15,14 +15,14 @@ class FeedbackSheet extends StatefulWidget {
   final String? userId;
   final String? userEmail;
 
-  const FeedbackSheet({
-    super.key,
-    this.userId,
-    this.userEmail,
-  });
+  const FeedbackSheet({super.key, this.userId, this.userEmail});
 
   /// BottomSheet olarak göster.
-  static Future<void> show(BuildContext context, {String? userId, String? userEmail}) {
+  static Future<void> show(
+    BuildContext context, {
+    String? userId,
+    String? userEmail,
+  }) {
     return showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -38,6 +38,7 @@ class FeedbackSheet extends StatefulWidget {
 class _FeedbackSheetState extends State<FeedbackSheet> {
   final _formKey = GlobalKey<FormState>();
   final _messageController = TextEditingController();
+  final _functions = FirebaseFunctions.instanceFor(region: 'europe-west1');
 
   _FeedbackType _selectedType = _FeedbackType.suggestion;
   bool _isSending = false;
@@ -75,7 +76,9 @@ class _FeedbackSheetState extends State<FeedbackSheet> {
                   width: 40,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: AppColors.textTertiaryFor(context).withValues(alpha: 0.3),
+                    color: AppColors.textTertiaryFor(
+                      context,
+                    ).withValues(alpha: 0.3),
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -187,15 +190,22 @@ class _FeedbackSheetState extends State<FeedbackSheet> {
                   fillColor: AppColors.backgroundFor(context),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(AppConstants.radiusMd),
-                    borderSide: BorderSide(color: AppColors.borderLightFor(context)),
+                    borderSide: BorderSide(
+                      color: AppColors.borderLightFor(context),
+                    ),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(AppConstants.radiusMd),
-                    borderSide: BorderSide(color: AppColors.borderLightFor(context)),
+                    borderSide: BorderSide(
+                      color: AppColors.borderLightFor(context),
+                    ),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(AppConstants.radiusMd),
-                    borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
+                    borderSide: const BorderSide(
+                      color: AppColors.primary,
+                      width: 1.5,
+                    ),
                   ),
                 ),
                 validator: (value) {
@@ -228,7 +238,9 @@ class _FeedbackSheetState extends State<FeedbackSheet> {
                       : const Icon(Icons.send_rounded, size: 18),
                   label: Text(
                     _isSending
-                        ? (loc.localeName == 'tr' ? 'Gönderiliyor...' : 'Sending...')
+                        ? (loc.localeName == 'tr'
+                              ? 'Gönderiliyor...'
+                              : 'Sending...')
                         : (loc.localeName == 'tr' ? 'Gönder' : 'Send'),
                     style: AppTextStyles.titleSmall.copyWith(
                       color: Colors.white,
@@ -238,7 +250,9 @@ class _FeedbackSheetState extends State<FeedbackSheet> {
                   style: FilledButton.styleFrom(
                     backgroundColor: AppColors.primary,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(AppConstants.radiusMd),
+                      borderRadius: BorderRadius.circular(
+                        AppConstants.radiusMd,
+                      ),
                     ),
                   ),
                 ),
@@ -256,16 +270,17 @@ class _FeedbackSheetState extends State<FeedbackSheet> {
     setState(() => _isSending = true);
 
     try {
-      await FirebaseFirestore.instance.collection('feedback').add({
-        'userId': widget.userId,
-        'userEmail': widget.userEmail,
-        'type': _selectedType.name,
-        'message': _messageController.text.trim(),
-        'createdAt': FieldValue.serverTimestamp(),
-        'status': 'new', // new → in_progress → resolved
-        'appVersion': AppConstants.appVersion,
-        'platform': defaultTargetPlatform.name,
-      });
+      await _functions
+          .httpsCallable(
+            'submitFeedback',
+            options: HttpsCallableOptions(timeout: const Duration(seconds: 10)),
+          )
+          .call(<String, dynamic>{
+            'type': _selectedType.name,
+            'message': _messageController.text.trim(),
+            'appVersion': AppConstants.appVersion,
+            'platform': defaultTargetPlatform.name,
+          });
 
       if (mounted) {
         Navigator.pop(context);
@@ -276,6 +291,23 @@ class _FeedbackSheetState extends State<FeedbackSheet> {
               ? 'Geri bildiriminiz alındı. Teşekkürler!'
               : 'Your feedback has been received. Thank you!',
           isSuccess: true,
+        );
+      }
+    } on FirebaseFunctionsException catch (e) {
+      debugPrint('[Feedback] Error: $e');
+      if (mounted) {
+        setState(() => _isSending = false);
+        final loc = AppLocalizations.of(context);
+        final isRateLimited = e.code == 'resource-exhausted';
+        showAppSnackBar(
+          context,
+          message: isRateLimited
+              ? (loc.localeName == 'tr'
+                    ? 'Çok kısa sürede fazla geri bildirim gönderdiniz.'
+                    : 'You sent too much feedback in a short time.')
+              : (loc.localeName == 'tr'
+                    ? 'Gönderilirken bir hata oluştu. Lütfen tekrar deneyin.'
+                    : 'An error occurred. Please try again.'),
         );
       }
     } catch (e) {
@@ -304,28 +336,28 @@ enum _FeedbackType {
   other;
 
   String get labelTr => switch (this) {
-        bug => 'Hata',
-        suggestion => 'Öneri',
-        other => 'Diğer',
-      };
+    bug => 'Hata',
+    suggestion => 'Öneri',
+    other => 'Diğer',
+  };
 
   String get labelEn => switch (this) {
-        bug => 'Bug',
-        suggestion => 'Suggestion',
-        other => 'Other',
-      };
+    bug => 'Bug',
+    suggestion => 'Suggestion',
+    other => 'Other',
+  };
 
   IconData get icon => switch (this) {
-        bug => Icons.bug_report_rounded,
-        suggestion => Icons.lightbulb_rounded,
-        other => Icons.chat_bubble_outline_rounded,
-      };
+    bug => Icons.bug_report_rounded,
+    suggestion => Icons.lightbulb_rounded,
+    other => Icons.chat_bubble_outline_rounded,
+  };
 
   Color get color => switch (this) {
-        bug => AppColors.error,
-        suggestion => AppColors.warning,
-        other => AppColors.info,
-      };
+    bug => AppColors.error,
+    suggestion => AppColors.warning,
+    other => AppColors.info,
+  };
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -367,12 +399,20 @@ class _TypeChip extends StatelessWidget {
         ),
         child: Column(
           children: [
-            Icon(type.icon, size: 20, color: isSelected ? type.color : AppColors.textTertiaryFor(context)),
+            Icon(
+              type.icon,
+              size: 20,
+              color: isSelected
+                  ? type.color
+                  : AppColors.textTertiaryFor(context),
+            ),
             const SizedBox(height: 4),
             Text(
               label,
               style: AppTextStyles.labelSmall.copyWith(
-                color: isSelected ? type.color : AppColors.textSecondaryFor(context),
+                color: isSelected
+                    ? type.color
+                    : AppColors.textSecondaryFor(context),
                 fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
               ),
             ),
