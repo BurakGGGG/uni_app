@@ -5,33 +5,42 @@ Kapsam: Flutter mobil uygulaması, Firebase Firestore/Storage kuralları, Cloud 
 
 ## Güncel İlerleme Notu
 
-Tarih: 2026-06-14
+Tarih: 2026-06-15
 
 Tamamlanan kritik/yüksek öncelikli düzeltmeler:
 
 - `users` dokümanları owner/admin dışına kapatıldı; public profil alanları `publicProfiles` koleksiyonuna ayrıldı.
 - FCM tokenları `users/{uid}/fcmTokens/{tokenId}` alt koleksiyonuna taşındı.
 - Admin yetkisi Firestore `role` alanından Firebase Auth custom claim `admin == true` modeline taşındı.
-- Story Storage write/delete işlemleri admin custom claim'e bağlandı ve `application/octet-stream` kabulü kaldırıldı.
+- Story Storage write/delete işlemleri admin custom claim'e bağlandı; `application/octet-stream`, SVG ve wildcard image/video MIME kabulü kaldırıldı.
+- Review ve story dokümanları silindiğinde ilişkili Storage dosyalarını Admin SDK ile best-effort temizleyen `cleanupDeletedReviewMedia` / `cleanupDeletedStoryMedia` trigger'ları eklendi.
 - Admin route'ları client tarafında custom claim guard ile korundu ve 403 erişim reddi ekranı netleştirildi.
-- Review create/update kuralları schema whitelist, pending-first moderation ve immutable alan korumasıyla sıkılaştırıldı.
+- Review create akışı doğrudan Firestore client write yerine App Check zorunlu `submitReview` callable function'ına taşındı; Firestore `reviews` create client'a kapatıldı.
+- Review update kuralları schema whitelist, pending-first moderation ve immutable alan korumasıyla sıkılaştırıldı.
 - Parent `reviews/{reviewId}.likes` client write'a kapatıldı; like sayımı Cloud Function ile server-side senkronlanacak hale getirildi.
 - Yorum create/edit sonrası moderation function temiz içeriği otomatik onaylayacak, uygunsuz içeriği onaysız bırakacak şekilde güncellendi.
 - Üniversite/user review count hesaplamaları onaylı yorumlara göre çalışacak şekilde düzeltildi.
 - AI tercih önerisi enrichment function'ı Pro entitlement kontrolü, atomik günlük quota (10/gün), kısa pencere rate limit (12/dk) ve App Check hazırlık yorumuyla sertleştirildi.
 - AI öneri cache hit'leri günlük kotadan düşmeyecek; gerçek Groq çağrıları transaction içinde hak tüketecek şekilde düzenlendi.
 - Flutter tarafında Firebase App Check aktive edildi; debug build'lerde debug provider, release Android'de Play Integrity, release Apple platformlarında App Attest + DeviceCheck fallback kullanılacak.
-- Kritik callable Cloud Functions için App Check zorunlu hale getirildi: `verifyStudentUniversity`, `generateComparisonSummary`, `enrichRecommendations`, `trackAnalyticsEvent`, `incrementPreferenceListView`, `performAdminModerationAction`, `submitReviewReport`, `submitFeedback`.
+- Kritik callable Cloud Functions için App Check zorunlu hale getirildi: `verifyStudentUniversity`, `generateComparisonSummary`, `enrichRecommendations`, `trackAnalyticsEvent`, `incrementPreferenceListView`, `performAdminModerationAction`, `getReviewSubmissionStatus`, `submitReview`, `submitReviewReport`, `submitFeedback`.
 - Firestore analytics sayaçları client write'a kapatıldı; event yazımları App Check zorunlu `trackAnalyticsEvent` callable function'ına taşındı.
 - Analytics event adları server-side whitelist'e alındı ve kullanıcı başına kısa pencere rate limit eklendi.
 - `trackAnalyticsEvent` callable için accepted/rejected/failed structured log alanları, invalid payload/rate limit/write failure ayrımı ve Cloud Logging alert filtreleri eklendi.
 - Preference list `viewCount` client write'a kapatıldı; görüntülenme sayacı App Check zorunlu `incrementPreferenceListView` callable function'ına taşındı.
 - Preference list create/update kuralları schema whitelist, immutable alan koruması, server timestamp zorunluluğu ve item payload doğrulamasıyla sıkılaştırıldı.
 - Admin moderasyon aksiyonları `performAdminModerationAction` callable function'ına taşındı; report/feedback/review güncelleme, gizleme ve silme işlemleri App Check + admin custom claim ile server-side yapılıyor ve `adminAuditLogs` koleksiyonuna Admin SDK üzerinden loglanıyor.
+- Review oluşturma `submitReview` callable function'ına taşındı; doğrulanmış edu.tr hesabı, kullanıcının kendi üniversitesi, server-side author alanları, pending-first moderation ve 10 dakikada 3 yorum rate limit'i Admin SDK tarafında uygulanıyor. Flutter tarafında `getReviewSubmissionStatus` preflight kontrolüyle limit doluyken kullanıcı yorum yazma ekranına alınmadan uyarılıyor.
 - Report ve feedback gönderimleri doğrudan Firestore client write yerine App Check zorunlu `submitReviewReport` / `submitFeedback` callable function'larına taşındı; duplicate report, kısa pencere rate limit ve `suspiciousActivityLogs` kaydı server-side uygulanıyor.
+- Admin paneline read-only Güvenlik Logları ekranı eklendi; `adminAuditLogs` ve `suspiciousActivityLogs` kayıtları arama, tip/aksiyon filtresi ve detay sheet'iyle incelenebiliyor.
+- Admin claim'i olmayan veya girişsiz kullanıcıların admin callable denemeleri `failed_admin_callable_access` tipiyle `suspiciousActivityLogs` koleksiyonuna düşecek şekilde sertleştirildi.
+- Security observability dokümanı eklendi; admin callable, review/report/feedback abuse, Storage cleanup ve App Check reject olayları için Cloud Logging filtreleri ve önerilen alert eşikleri tanımlandı.
 - `usageStats` başlangıç dokümanı Firestore rules tarafında whitelist/zero-counter validasyonuna alındı.
 - Günlük quota reset job'u ve RevenueCat webhook'u `lastAiRecommendationResetDate` alanıyla AI öneri reset takibini tutarlı hale getirecek şekilde güncellendi.
 - Firestore rules testleri emulator ile çalışır hale getirildi ve kritik exploit senaryoları eklendi.
+- Callable review akışından kalan kullanılmayan eski Firestore review create helper'ları kaldırıldı; direct review create kapalı kalırken rules testleri 42/42 geçti.
+- Android release build guard eklendi; release build artık debug signing'e düşmüyor ve production AdMob App ID olmadan devam etmiyor.
+- Profil/review görsel ve story medya Storage kuralları açık MIME whitelist, dosya adı ve kullanıcı/admin path doğrulamasıyla sıkılaştırıldı; Storage emulator testleri CI rules gate kapsamına alındı.
 - Admin ekranlarındaki story summary, reports summary, stats kartları, detail sheet aksiyonları ve uzun metin satırları responsive davranacak şekilde düzeltildi.
 
 Son doğrulama çıktıları:
@@ -39,7 +48,7 @@ Son doğrulama çıktıları:
 | Komut | Sonuç |
 | --- | --- |
 | `npm run build` (`functions`) | Başarılı |
-| `npm test` (`rules-tests`) | Başarılı, 37 test geçti |
+| `npm test` (`rules-tests`) | Başarılı, 42 test geçti |
 | `flutter analyze` | Başarılı |
 | `flutter test` | Başarılı, 74 test geçti |
 | `./gradlew :app:lintDebug` | Başarılı. 0 hata, 15 uyarı |
@@ -81,7 +90,7 @@ Android lint hataları kod tarafında giderildi. `./gradlew :app:lintDebug` art�
 | `npm run lint` (`functions`) | Başarılı. ESLint config eklendi ve hata yok. |
 | `npm audit --omit=dev --audit-level=high` (`functions`) | Başarılı. High/critical açık yok; moderate `uuid` zinciri dependency migration maddesinde takip edilmeli. |
 | `flutter pub outdated` | Birçok paket major sürüm gerisinde. Firebase, go_router, notifications, ads ve permission paketleri özellikle eski. |
-| `npm test` (`rules-tests`) | Başarılı. Firestore emulator ile 37 test geçti. |
+| `npm test` (`rules-tests`) | Başarılı. Firestore + Storage emulator ile 42 test geçti. |
 | `./gradlew :app:assembleDebug` | Başarılı. Debug APK derlendi. |
 | `./gradlew :app:lintDebug` | Başarılı. 0 hata, 15 uyarı. CI gate'e alındı. |
 
@@ -188,17 +197,16 @@ Firestore kuralları doküman seviyesinde çalışır. Bir dokümanı okumaya iz
 
 ### 4.3 Yüksek: Yorum oluşturma/güncelleme kuralları moderasyon ve veri bütünlüğünü korumuyor
 
+Güncel durum (2026-06-15): Bu bulgu büyük ölçüde giderildi. Review oluşturma artık client tarafından doğrudan `reviews` koleksiyonuna yazılmıyor; App Check zorunlu `submitReview` callable function'ı Admin SDK ile pending review oluşturuyor. Function doğrulanmış `.edu.tr` hesabı, kullanıcının kendi üniversitesi, server-side author alanları, içerik schema doğrulaması ve 10 dakikada 3 yorum rate limit'i uyguluyor. Firestore rules tarafında `reviews/{reviewId}` create izni client'a kapatıldı. Owner update ise immutable alanları, parent `likes` değişimini ve doğrudan onay manipülasyonunu reddedecek şekilde sınırlandı.
+
 Kanıt:
 
-- `firestore.rules:61-77`: review create/update kuralları sınırlı doğrulama yapıyor.
-- `firestore.rules:65-71`: create sırasında sadece verified student, `userId`, `universityId` ve rating aralığı kontrol ediliyor.
-- `firestore.rules:73-77`: owner update sırasında `userId` değişmemesi yeterli; diğer alanlar serbest.
-- `lib/features/reviews/domain/models/review_model.dart:47-50`: `likes = 0`, `isApproved = true` varsayılanları.
-- `lib/features/reviews/domain/models/review_model.dart:85-105`: `isApproved`, `likes`, `createdAt`, `updatedAt`, `imageUrls`, `categoryRatings` Firestore'a yazılıyor.
-- `functions/src/moderation.ts:50-74`: moderasyon yalnızca `onDocumentCreated` ile yeni yorumda çalışıyor.
-- `lib/features/reviews/data/review_repository.dart:38-43`: update sırasında `createdAt` yeniden `serverTimestamp()` yapılıyor.
+- `functions/src/reviews/submit_review.ts`: `getReviewSubmissionStatus` ve `submitReview` callable function'ları App Check, auth, edu.tr, university match, schema validation ve rate limit kontrolleriyle review oluşturma akışını yönetiyor.
+- `firestore.rules`: `reviews/{reviewId}` için `allow create: if false`; owner update sadece güvenli içerik alanlarını ve `isApproved == false` geçişini kabul ediyor.
+- `lib/features/reviews/data/review_repository.dart`: yeni review oluşturma `submitReview` callable function'ına taşındı.
+- `rules-tests/test.js`: doğrudan review create denemeleri artık reddediliyor; owner update/like manipülasyonu testleri korunuyor.
 
-Etki:
+Önceki etki:
 
 - Kullanıcı yorum oluştururken `isApproved: true` gönderebilir.
 - Uygunsuz içerik yorum oluşturulduktan sonra update ile eklenebilir; moderation function tekrar çalışmaz.
@@ -206,16 +214,13 @@ Etki:
 - Beğeni sayısı yalnızca alt koleksiyondaki like dokümanlarına bağlı değil; parent review dokümanında arbitrary `likes` update yapılabilir.
 - Puan ortalamaları ve moderation kuyruğu güvenilmez hale gelir.
 
-Önerilen düzeltme:
+Uygulanan düzeltme:
 
-- Create kuralında tüm alanları beyaz listeye alın.
-- Create sırasında `isApproved == false`, `likes == 0` zorunlu olsun.
-- `createdAt` ve `updatedAt` server timestamp yaklaşımıyla backend veya kural düzeyinde tutarlı hale getirilsin.
-- Owner update sadece içerik alanlarıyla sınırlansın: `comment`, `pros`, `cons`, `imageUrls`, `categoryRatings`, `updatedAt`.
-- İçerik değiştiğinde `isApproved` otomatik `false` yapılmalı ve yeniden moderasyona girmeli.
-- `likes` parent dokümanında client tarafından yazılmamalı. Like işlemi `reviews/{reviewId}/likes/{uid}` alt koleksiyonu + Cloud Function aggregation veya transaction ile yönetilmeli.
-- `createdAt` update sırasında değiştirilmemeli; repository bug'ı düzeltilmeli.
-- Moderasyon fonksiyonu `onDocumentWritten` veya `onDocumentUpdated` için de çalışmalı.
+- Review create client write kapatıldı ve Admin SDK callable endpoint'e taşındı.
+- Create sırasında `isApproved == false`, `likes == 0`, `createdAt/updatedAt` server timestamp olarak backend'de üretiliyor.
+- Owner update sadece içerik/anonimlik alanlarını etkileyebiliyor; içerik değiştiğinde yorum tekrar pending duruma alınıyor.
+- Parent `likes` client update'e kapatıldı; like sayımı alt koleksiyon + Cloud Function senkronizasyonuna bağlandı.
+- Kalan takip işi: Fotoğraf upload'ı hâlâ review dokümanı oluşmadan önce Storage'a yapılıyor; callable rejection sonrası orphan dosya kalmaması için upload cleanup veya signed upload akışı eklenmeli.
 
 ### 4.4 Yüksek: Kullanıcı kendi `universityId` alanını değiştirebildiği için üniversite doğrulaması bypass edilebilir
 
@@ -410,29 +415,35 @@ Cache key pratikte tahmin edilmesi zor olabilir; ancak doküman public-auth read
 
 ## 6. Storage ve Dosya Güvenliği
 
-### 6.1 Profil ve review image MIME doğrulaması zayıf
+### 6.1 Profil ve review image MIME/path doğrulaması sıkılaştırıldı
+
+Güncel durum (2026-06-15): Review oluşturma callable function'ı artık `imageUrls` alanını yalnızca kullanıcının kendi `review_images/{uid}/` Storage path'inden gelen ve güvenli `.jpg` dosya adına sahip Firebase Storage URL'leriyle kabul ediyor. Storage rules tarafında profil fotoğrafları `profile_photos/{uid}.jpg`, review görselleri `review_images/{uid}/{imageId}.jpg` formatına ve `image/jpeg` metadata'sına bağlandı. Review dokümanı silindiğinde `cleanupDeletedReviewMedia` trigger'ı aynı prefix altında kalan dosyaları Admin SDK ile best-effort temizliyor. Kalan risk gerçek dosya içeriği/MIME taramasıdır.
 
 Kanıt:
 
-- `storage.rules:6-11`: profil fotoğrafı için `image/.*` ve 5 MB limiti.
-- `storage.rules:15-20`: review image için `image/.*` ve 10 MB limiti.
+- `storage.rules`: profil fotoğrafı için owner-only `{uid}.jpg`, `image/jpeg`, 5 MB ve pozitif boyut kontrolü.
+- `storage.rules`: review image için owner-only `review_images/{uid}/{imageId}.jpg`, güvenli dosya adı, `image/jpeg`, 10 MB ve pozitif boyut kontrolü.
+- `functions/src/reviews/submit_review.ts`: callable review create, image URL path'lerini `review_images/{uid}/{safeName}.jpg` formatıyla doğruluyor.
+- `rules-tests/test.js`: profil/review görsellerinde yanlış MIME, yanlış uzantı ve başka kullanıcı path'i reddediliyor.
 
 Etki:
 
-`contentType` client metadata'sına dayanır. Bu, gerçek dosya içeriğini garanti etmez. Ayrıca review image alanında kullanıcı başına kaç dosya yükleneceği veya dosyanın gerçek bir review ile ilişkisi doğrulanmıyor.
+`contentType` client metadata'sına dayanır; bu yüzden metadata sertleştirmesi gerçek dosya içeriğini tek başına garanti etmez. Buna rağmen client'ın rastgele `image/*`, `.png`, `.gif`, başka kullanıcı prefix'i veya callable'a elle sahte path gönderme yüzeyi kapatıldı.
 
-Önerilen düzeltme:
+Uygulanan düzeltme:
 
-- MIME whitelist'i daraltın: `image/jpeg`, `image/png`, `image/webp`.
-- Dosya adında extension ve UID/reviewId formatı zorunlu olsun.
-- Review başına maksimum görsel sayısı uygulayın.
-- Upload sonrası Cloud Function ile metadata/content doğrulaması ve gerekiyorsa malware/image scanning ekleyin.
+- Profil ve review upload'ları uygulamanın mevcut `.jpg` + `image/jpeg` akışıyla uyumlu olacak şekilde JPEG-only yapıldı.
+- Dosya adında güvenli karakter seti ve `.jpg` extension zorunlu hale getirildi.
+- Review başına maksimum 3 görsel callable schema doğrulamasında korunuyor.
+- Kalan takip işi: Upload sonrası Cloud Function ile gerçek içerik/MIME doğrulaması ve gerekiyorsa malware/image scanning eklenebilir.
 
 ### 6.2 Storage delete davranışı story tarafında orphan dosya riski oluşturabilir
 
+Güncel durum (2026-06-15): Story Storage write/delete kuralları admin custom claim'e bağlandı. Story create/update artık wildcard `image/.*` / `video/.*` yerine açık MIME whitelist kullanıyor: `image/jpeg`, `image/png`, `image/webp`, `image/gif`, `image/heic`, `image/heif`, `video/mp4`, `video/quicktime`, `video/webm`. Ek olarak `cleanupDeletedStoryMedia` trigger'ı `stories/{storyId}` dokümanı silindiğinde `imageUrl`, `thumbnailUrl` ve `videoUrl` alanlarındaki default bucket `stories/` dosyalarını Admin SDK ile best-effort temizliyor. Client tarafında storage dosyası önce silinse bile trigger `ignoreNotFound` davranışıyla güvenli çalışır.
+
 Kanıt:
 
-- `storage.rules:24-28`: story write kuralı `request.resource` üzerinden size/type kontrol ediyor.
+- `storage.rules`: story write kuralı admin custom claim, pozitif boyut, 100 MB üst limit ve açık MIME whitelist kontrolü yapıyor.
 - Delete işlemlerinde `request.resource` yoktur; bu kural delete'i de kapsadığı için client delete akışı başarısız olabilir.
 
 Etki:
@@ -441,9 +452,9 @@ Admin panel dokümanı silse bile Storage dosyaları silinemeyebilir ve orphan m
 
 Önerilen düzeltme:
 
-- Delete'i Admin SDK Cloud Function ile yapın.
-- Alternatif olarak admin custom claim ile ayrı delete kuralı yazın.
-- Story dokümanı silindiğinde Storage cleanup trigger ekleyin.
+- Delete'i Admin SDK Cloud Function ile yapın. (Tamamlandı; cleanup trigger eklendi)
+- Alternatif olarak admin custom claim ile ayrı delete kuralı yazın. (Tamamlandı)
+- Story dokümanı silindiğinde Storage cleanup trigger ekleyin. (Tamamlandı)
 
 ## 7. Android, Build ve Dependency Bulguları
 
@@ -477,37 +488,41 @@ Kalan uyarı sınıfları:
 - API 27/29 gerektiren style item'ları `values-v27` ve `values-v29` klasörlerine taşınmalı ya da `tools:targetApi` ile doğru şekilde işaretlenmeli.
 - Lint uyarılarındaki duplicate drawable ve densityless bitmap notları temizlenmeli.
 
-### 7.2 Release signing debug fallback riski
+### 7.2 Release signing debug fallback riski giderildi
 
-Kanıt:
+Güncel durum (2026-06-15): Bu risk kod tarafında giderildi. Android release build artık `key.properties` yokken debug signing config'e düşmüyor. `:app:validateReleaseConfig` Gradle task'i release signing dosyasını, gerekli keystore alanlarını ve keystore dosya varlığını doğruluyor. `Release` içeren Android Gradle task'leri bu validasyona bağlandı.
+
+Önceki kanıt:
 
 - `android/app/build.gradle.kts:63-70`: release build, `key.properties` yoksa debug signing kullanıyor.
 
-Etki:
+Önceki etki:
 
 CI veya release ortamında yanlışlıkla debug imzalı build üretilebilir. Bu, store dağıtımı, güvenlik ve release güvenilirliği açısından risklidir.
 
-Önerilen düzeltme:
+Uygulanan düzeltme:
 
-- Release build'de keystore yoksa build fail olmalı.
+- Release build'de keystore yoksa build fail olur.
 - Debug fallback sadece local development flavor'ında kalmalı.
-- CI environment için zorunlu secret/keystore kontrolü eklenmeli.
+- CI environment için secret/keystore kontrollü release config validation adımı eklendi.
 
-### 7.3 AdMob production App ID fallback riski
+### 7.3 AdMob production App ID fallback riski giderildi
 
-Kanıt:
+Güncel durum (2026-06-15): Bu risk kod tarafında giderildi. Debug/profile build'ler geliştirme için Google test App ID fallback'ini kullanabilir; release build ise `ADMOB_APP_ID` verilmeden veya Google test App ID ile devam etmez. Gradle yapılandırması hem `-PADMOB_APP_ID=...` hem de Flutter `--dart-define=ADMOB_APP_ID=...` girdisini okuyacak şekilde güncellendi.
+
+Önceki kanıt:
 
 - `android/app/build.gradle.kts:45-49`: `ADMOB_APP_ID` verilmezse Google test App ID kullanılıyor.
 
-Etki:
+Önceki etki:
 
 Production build yanlışlıkla test AdMob ID ile çıkabilir; gelir kaybı veya policy sorunları doğabilir.
 
-Önerilen düzeltme:
+Uygulanan düzeltme:
 
-- Release build'de `ADMOB_APP_ID` zorunlu olsun.
+- Release build'de `ADMOB_APP_ID` zorunlu hale getirildi.
 - Debug/profile için test ID kullanılabilir.
-- CI'da release config validation ekleyin.
+- CI'da release config validation eklendi.
 
 ### 7.4 Functions dependency audit açıkları
 
@@ -566,25 +581,23 @@ Güncel durum:
 - TypeScript parser/project ayarını yapın. (Tamamlandı)
 - `npm run lint` CI'a eklenmeden önce localde temiz hale getirin. (Tamamlandı)
 
-### 7.6 Firestore rules test paketi çalışır durumda değil
+### 7.6 Firebase rules test paketi çalışır hale getirildi
 
-Kanıt:
+Güncel durum:
 
-- `rules-tests/package.json:5-7`: `npm test` placeholder ve her zaman fail ediyor.
-- `npx mocha test.js` Firestore emulator host/port ayarı olmadan fail ediyor.
-- Testlerde adminliği custom claim ile simüle etme eğilimi varsa mevcut rules kodu `users/{uid}.role` okuduğu için test modeli üretim kuralıyla birebir uyuşmayabilir.
+- `rules-tests/package.json`: `npm test`, Firestore + Storage emulator'larını birlikte başlatıyor.
+- `rules-tests/test.js`: Firestore rules ve Storage rules aynı test ortamında yükleniyor.
+- Güncel sonuç: 42 test geçiyor.
 
-Önerilen düzeltme:
+Kapsanan kritik senaryolar:
 
-- `firebase emulators:exec --only firestore "npx mocha test.js"` şeklinde çalışan bir test script'i ekleyin.
-- Rules tests içinde önce kullanıcı dokümanları seed edilmeli veya kurallar custom claim'e taşındıktan sonra testler ona göre yazılmalı.
-- Kritik test senaryoları:
-  - Kullanıcı kendi `role` alanını admin yapamamalı.
-  - Başka kullanıcının `email`/`fcmTokens` alanı okunamamalı.
-  - Yorum create `isApproved: true` ile reddedilmeli.
-  - Owner yorum update `likes`/`createdAt`/`userId`/`universityId` değiştirememeli.
-  - Story storage upload admin olmayan kullanıcıda reddedilmeli.
-  - Analytics client arbitrary write reddedilmeli.
+- Kullanıcı kendi `role` alanını admin yapamamalı.
+- Başka kullanıcının `email`/`fcmTokens` alanı okunamamalı.
+- Review create doğrudan Firestore client write ile reddedilmeli.
+- Owner yorum update `likes`/`createdAt`/`userId`/`universityId` değiştirememeli.
+- Story storage upload admin olmayan kullanıcıda reddedilmeli.
+- Profil/review görsellerinde yanlış MIME, yanlış uzantı ve başka kullanıcı path'i reddedilmeli.
+- Analytics client arbitrary write reddedilmeli.
 
 ### 7.7 Flutter package sürümleri geride
 
@@ -761,7 +774,7 @@ Hard overflow kesin değil; Material NavigationBar label'ları sıkıştırabili
    - `npm run build` (`functions`)
    - `npm run lint` (`functions`)
    - `npm audit --omit=dev --audit-level=high` (`functions`)
-   - Firestore rules emulator tests
+   - Firestore + Storage rules emulator tests
    - `./gradlew :app:lintDebug`
    - `./gradlew :app:assembleDebug`
 8. Admin action audit log ekleyin ve kritik admin aksiyonlarını callable function'a taşıyın. (Tamamlandı; `performAdminModerationAction` App Check + admin custom claim zorunlu, `adminAuditLogs` server-side yazılıyor)
@@ -771,16 +784,16 @@ Hard overflow kesin değil; Material NavigationBar label'ları sıkıştırabili
 ### 11.1 Güvenlik ve güvenilirlik özellikleri
 
 - Firebase App Check Console provider ayarları ve debug token kayıt süreci release checklist'e bağlanmalı.
-- Admin action audit log ve kritik admin moderation callable akışı eklendi; sonraki sertleştirme adımı admin audit log görüntüleme/filtreleme ekranı ve alert kurallarıdır.
-- Suspicious activity log başlangıcı eklendi: duplicate report attempt, report rate limit ve feedback rate limit olayları `suspiciousActivityLogs` koleksiyonuna Admin SDK ile yazılıyor; fazla upload, fazla AI çağrısı ve başarısız admin erişimleri hâlâ genişletme maddesidir.
+- Admin action audit log ve kritik admin moderation callable akışı eklendi; admin panelinde audit/suspicious log görüntüleme ve filtreleme ekranı tamamlandı. Cloud Logging alert filtreleri/eşikleri `docs/security_observability.md` altında tanımlandı.
+- Suspicious activity log başlangıcı eklendi: review create rate limit, duplicate report attempt, report rate limit, feedback rate limit ve başarısız admin callable erişimleri `suspiciousActivityLogs` koleksiyonuna Admin SDK ile yazılıyor; fazla upload ve fazla AI çağrısı hâlâ genişletme maddesidir.
 - Rate limit sistemi eklenmeli:
-  - Review oluşturma.
+  - Review oluşturma. (Tamamlandı; `getReviewSubmissionStatus` preflight + `submitReview`, 10 dakikada 3 istek)
   - Report gönderme. (Tamamlandı; `submitReviewReport`, 10 dakikada 5 istek)
   - Feedback gönderme. (Tamamlandı; `submitFeedback`, 10 dakikada 3 istek)
   - Story upload.
   - AI recommendation/summary çağrıları. (Tamamlandı)
 - Server-side schema validation standardı oluşturulmalı.
-- Storage upload sonrası otomatik cleanup ve güvenlik taraması eklenmeli.
+- Storage upload sonrası otomatik cleanup ve güvenlik taraması eklenmeli. (Cleanup ve MIME/path rules sertleştirmesi tamamlandı; gerçek içerik scanning ayrı takip işi)
 - Firestore TTL politikaları gözden geçirilmeli: logs, webhookEvents, notification cleanup.
 
 ### 11.2 Moderasyon ve admin geliştirmeleri
@@ -856,7 +869,7 @@ Hard overflow kesin değil; Material NavigationBar label'ları sıkıştırabili
   - Kullanıcı kendi `role`, `email`, `fcmTokens`, `reviewCount`, `universityId` alanlarını değiştirememeli.
   - Admin custom claim olan kullanıcı admin write yapabilmeli.
   - Custom claim olmayan kullanıcı admin write yapamamalı.
-  - Review create `isApproved: true` ile reddedilmeli.
+  - Review create doğrudan Firestore client write ile reddedilmeli.
   - Review update `likes`, `createdAt`, `userId`, `universityId` değiştirememeli.
   - Preference list viewCount arbitrary set edilememeli.
   - Preference list create/update immutable alan ve item schema ihlalleri reddedilmeli.
@@ -865,8 +878,9 @@ Hard overflow kesin değil; Material NavigationBar label'ları sıkıştırabili
 - Storage:
   - Admin olmayan kullanıcı story upload yapamamalı.
   - `application/octet-stream` story upload reddedilmeli.
-  - Profil fotoğrafında sadece beklenen MIME türleri kabul edilmeli.
-  - Review image count/path kısıtları test edilmeli.
+  - `image/svg+xml` gibi whitelist dışı story MIME tipleri reddedilmeli.
+  - Profil fotoğrafında sadece beklenen MIME türleri kabul edilmeli. (Tamamlandı)
+  - Review image count/path kısıtları test edilmeli. (Path/MIME tamamlandı; count callable schema ile korunuyor)
 
 - Functions:
   - Recommendation quota dolunca function reddetmeli.
