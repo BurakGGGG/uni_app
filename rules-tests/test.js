@@ -15,6 +15,9 @@ before(async () => {
     firestore: {
       rules: readFileSync(path.resolve(__dirname, '../firestore.rules'), 'utf8'),
     },
+    storage: {
+      rules: readFileSync(path.resolve(__dirname, '../storage.rules'), 'utf8'),
+    },
   });
 });
 
@@ -24,6 +27,7 @@ after(async () => {
 
 beforeEach(async () => {
   await testEnv.clearFirestore();
+  await testEnv.clearStorage();
 });
 
 function authed(
@@ -218,6 +222,12 @@ async function seedPreferenceList(listId = 'list_1', data = {}) {
         }),
         ...data,
       });
+  });
+}
+
+function uploadStorageObject(ctx, objectPath, contentType, data = 'test-bytes') {
+  return ctx.storage().ref(objectPath).putString(data, 'raw', {
+    contentType,
   });
 }
 
@@ -836,17 +846,17 @@ describe('Firestore Security Rules - review moderation hardening', () => {
     });
   });
 
-  it('verified owner can create a pending safe review', async () => {
+  it('authenticated users cannot create reviews directly', async () => {
     const ctx = authed('user_1', 'user_1@example.edu.tr', true);
 
-    await assertSucceeds(
+    await assertFails(
       ctx.firestore().collection('reviews').doc('review_1').set(
         validReviewData('user_1'),
       ),
     );
   });
 
-  it('owner cannot create an already approved review', async () => {
+  it('direct review create stays blocked even with approved payload', async () => {
     const ctx = authed('user_1', 'user_1@example.edu.tr', true);
 
     await assertFails(
@@ -856,7 +866,7 @@ describe('Firestore Security Rules - review moderation hardening', () => {
     );
   });
 
-  it('owner cannot create a review for another university', async () => {
+  it('direct review create stays blocked for another university', async () => {
     const ctx = authed('user_1', 'user_1@example.edu.tr', true);
 
     await assertFails(
@@ -926,6 +936,123 @@ describe('Firestore Security Rules - review moderation hardening', () => {
         .collection('likes')
         .doc('user_1')
         .set({ createdAt: serverTimestamp() }),
+    );
+  });
+});
+
+describe('Storage Security Rules - media upload hardening', () => {
+  it('allows an owner to upload a JPEG profile photo only to their own path', async () => {
+    const ownerCtx = authed('user_1');
+    const otherCtx = authed('user_2');
+
+    await assertSucceeds(
+      uploadStorageObject(
+        ownerCtx,
+        'profile_photos/user_1.jpg',
+        'image/jpeg',
+      ),
+    );
+
+    await assertFails(
+      uploadStorageObject(
+        otherCtx,
+        'profile_photos/user_1.jpg',
+        'image/jpeg',
+      ),
+    );
+  });
+
+  it('rejects profile photo uploads with unsafe MIME or file names', async () => {
+    const ctx = authed('user_1');
+
+    await assertFails(
+      uploadStorageObject(
+        ctx,
+        'profile_photos/user_1.jpg',
+        'image/png',
+      ),
+    );
+
+    await assertFails(
+      uploadStorageObject(
+        ctx,
+        'profile_photos/user_1.png',
+        'image/jpeg',
+      ),
+    );
+  });
+
+  it('allows an owner to upload JPEG review photos under their own prefix', async () => {
+    const ctx = authed('user_1');
+
+    await assertSucceeds(
+      uploadStorageObject(
+        ctx,
+        'review_images/user_1/review_123.jpg',
+        'image/jpeg',
+      ),
+    );
+  });
+
+  it('rejects review image uploads with unsafe MIME, extension, or owner', async () => {
+    const ctx = authed('user_1');
+
+    await assertFails(
+      uploadStorageObject(
+        ctx,
+        'review_images/user_1/review_123.png',
+        'image/png',
+      ),
+    );
+
+    await assertFails(
+      uploadStorageObject(
+        ctx,
+        'review_images/user_1/review_123.jpg',
+        'image/gif',
+      ),
+    );
+
+    await assertFails(
+      uploadStorageObject(
+        ctx,
+        'review_images/user_2/review_123.jpg',
+        'image/jpeg',
+      ),
+    );
+  });
+
+  it('keeps story media admin-only and rejects octet-stream uploads', async () => {
+    const userCtx = authed('user_1');
+    const adminCtx = authed(
+      'admin_1',
+      'admin_1@example.edu.tr',
+      true,
+      { admin: true },
+    );
+
+    await assertFails(
+      uploadStorageObject(userCtx, 'stories/story_1.jpg', 'image/jpeg'),
+    );
+
+    await assertSucceeds(
+      uploadStorageObject(adminCtx, 'stories/story_1.jpg', 'image/jpeg'),
+    );
+
+    await assertSucceeds(
+      uploadStorageObject(adminCtx, 'stories/story_1.mp4', 'video/mp4'),
+    );
+
+    await assertFails(
+      uploadStorageObject(adminCtx, 'stories/story_1.svg', 'image/svg+xml'),
+    );
+
+    await assertFails(
+      uploadStorageObject(
+        adminCtx,
+        'stories/story_1.bin',
+        'application/octet-stream',
+      ),
     );
   });
 });

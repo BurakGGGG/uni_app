@@ -1,12 +1,11 @@
 import { onCall, HttpsError } from 'firebase-functions/v2/https';
 import * as admin from 'firebase-admin';
 import { logger } from 'firebase-functions';
+import { storageFileFromUrl } from '../storage/storage_file_from_url';
 
 const db = admin.firestore();
-const storage = admin.storage();
 
 const LOG_COMPONENT = 'admin.performModerationAction';
-type StorageFile = ReturnType<ReturnType<typeof storage.bucket>['file']>;
 
 type AdminAction =
   | 'updateReportStatus'
@@ -51,15 +50,30 @@ export const performAdminModerationAction = onCall(
     enforceAppCheck: true,
   },
   async (req): Promise<{ ok: true }> => {
+    const input = (req.data ?? {}) as AdminActionInput;
+
     if (!req.auth) {
+      await logSuspiciousActivity('anonymous', 'failed_admin_callable_access', {
+        reason: 'unauthenticated',
+        requestedAction: safeMetadataString(input.action),
+        appCheckPresent: Boolean(req.app),
+        appId: req.app?.appId ?? null,
+      });
       throw new HttpsError('unauthenticated', 'Giriş gerekli.');
-    }
-    if (req.auth.token.admin !== true) {
-      throw new HttpsError('permission-denied', 'Admin yetkisi gerekli.');
     }
 
     const uid = req.auth.uid;
-    const input = (req.data ?? {}) as AdminActionInput;
+    if (req.auth.token.admin !== true) {
+      await logSuspiciousActivity(uid, 'failed_admin_callable_access', {
+        reason: 'missing_admin_claim',
+        requestedAction: safeMetadataString(input.action),
+        appCheckPresent: Boolean(req.app),
+        appId: req.app?.appId ?? null,
+        email: safeMetadataString(req.auth.token.email),
+      });
+      throw new HttpsError('permission-denied', 'Admin yetkisi gerekli.');
+    }
+
     const action = parseAction(input.action);
 
     logger.info('Admin moderation action requested', {
@@ -322,6 +336,26 @@ function setAuditLog(batch: admin.firestore.WriteBatch, log: AuditLogInput) {
   batch.set(db.collection('adminAuditLogs').doc(), data);
 }
 
+async function logSuspiciousActivity(
+  uid: string,
+  type: string,
+  metadata: Record<string, unknown>,
+) {
+  await db.collection('suspiciousActivityLogs').add({
+    uid,
+    type,
+    source: LOG_COMPONENT,
+    metadata,
+    createdAt: admin.firestore.FieldValue.serverTimestamp(),
+  });
+  logger.warn('Suspicious activity logged', {
+    component: LOG_COMPONENT,
+    uid,
+    type,
+    ...metadata,
+  });
+}
+
 function setReviewModerationNotification(
   batch: admin.firestore.WriteBatch,
   userId: string,
@@ -353,6 +387,13 @@ function parseAction(value: unknown): AdminAction {
     return value;
   }
   throw new HttpsError('invalid-argument', 'Geçersiz admin aksiyonu.');
+}
+
+function safeMetadataString(value: unknown, maxLength = 256): string | null {
+  if (typeof value !== 'string') return null;
+  const trimmed = value.trim();
+  if (trimmed.length === 0) return null;
+  return trimmed.length > maxLength ? trimmed.slice(0, maxLength) : trimmed;
 }
 
 function parseReportStatus(value: unknown): ReportStatus {
@@ -431,7 +472,7 @@ async function deleteStorageFiles(
   reviewId: string,
 ) {
   for (const url of urls) {
-    const target = storageFileFromUrl(url);
+    const target = storageFileFromUrl(url, ['review_images/']);
     if (!target) {
       logger.warn('Review photo URL could not be parsed', {
         component: LOG_COMPONENT,
@@ -451,41 +492,4 @@ async function deleteStorageFiles(
       });
     }
   }
-}
-
-function storageFileFromUrl(url: string): StorageFile | null {
-  try {
-    if (url.startsWith('gs://')) {
-      const withoutScheme = url.slice('gs://'.length);
-      const slashIndex = withoutScheme.indexOf('/');
-      if (slashIndex <= 0) return null;
-      const bucketName = withoutScheme.slice(0, slashIndex);
-      const filePath = withoutScheme.slice(slashIndex + 1);
-      return storage.bucket(bucketName).file(filePath);
-    }
-
-    const parsed = new URL(url);
-    if (parsed.hostname === 'firebasestorage.googleapis.com') {
-      const parts = parsed.pathname.split('/');
-      const bucketIndex = parts.indexOf('b');
-      const objectIndex = parts.indexOf('o');
-      if (bucketIndex < 0 || objectIndex < 0 || objectIndex + 1 >= parts.length) {
-        return null;
-      }
-      const bucketName = parts[bucketIndex + 1];
-      const objectPath = decodeURIComponent(parts.slice(objectIndex + 1).join('/'));
-      return storage.bucket(bucketName).file(objectPath);
-    }
-
-    if (parsed.hostname === 'storage.googleapis.com') {
-      const parts = parsed.pathname.split('/').filter(Boolean);
-      if (parts.length < 2) return null;
-      const bucketName = parts[0];
-      const objectPath = decodeURIComponent(parts.slice(1).join('/'));
-      return storage.bucket(bucketName).file(objectPath);
-    }
-  } catch (_err) {
-    return null;
-  }
-  return null;
 }

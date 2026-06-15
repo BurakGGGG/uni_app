@@ -95,6 +95,7 @@ export { onNewReviewForFavorite } from './notifications/on_new_review_for_favori
 export { cleanupExpiredNotifications } from './notifications/cleanup_expired';
 export { cleanupStaleTokens } from './notifications/cleanup_stale_tokens';
 export { syncReviewLikeCount } from './reviews/sync_review_like_count';
+export { submitReview, getReviewSubmissionStatus } from './reviews/submit_review';
 
 // Auth/profile hardening
 export { verifyStudentUniversity } from './auth/verify_student';
@@ -113,6 +114,10 @@ export { revenuecatWebhook } from './revenuecat/webhook';
 
 // Sprint 10 — Cleanup functions
 export { cleanupAiSummaryLogs } from './cleanup/ai_logs_cleanup';
+export {
+  cleanupDeletedReviewMedia,
+  cleanupDeletedStoryMedia,
+} from './storage/cleanup_deleted_media';
 
 // Server-side analytics counters
 export { trackAnalyticsEvent } from './analytics/track_event';
