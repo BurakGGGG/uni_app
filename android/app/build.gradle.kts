@@ -1,5 +1,7 @@
-import java.util.Properties
 import java.io.FileInputStream
+import java.util.Base64
+import java.util.Properties
+import org.gradle.api.GradleException
 
 plugins {
     id("com.android.application")
@@ -14,6 +16,84 @@ val keystoreProperties = Properties()
 val keystorePropertiesFile = rootProject.file("key.properties")
 if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(FileInputStream(keystorePropertiesFile))
+}
+
+val googleTestAdMobAppId = "ca-app-pub-3940256099942544~3347511713"
+
+fun decodedDartDefines(): Map<String, String> {
+    val encodedDefines = (project.findProperty("dart-defines") as? String)
+        ?.takeIf { it.isNotBlank() }
+        ?: return emptyMap()
+
+    return encodedDefines.split(",")
+        .mapNotNull { encoded ->
+            runCatching {
+                String(Base64.getDecoder().decode(encoded), Charsets.UTF_8)
+            }.getOrNull()
+        }
+        .mapNotNull { define ->
+            val separatorIndex = define.indexOf("=")
+            if (separatorIndex <= 0) {
+                null
+            } else {
+                define.substring(0, separatorIndex) to define.substring(separatorIndex + 1)
+            }
+        }
+        .toMap()
+}
+
+val dartDefines = decodedDartDefines()
+
+fun configuredProperty(name: String): String? {
+    return (project.findProperty(name) as? String)
+        ?.trim()
+        ?.takeIf { it.isNotEmpty() }
+        ?: dartDefines[name]?.trim()?.takeIf { it.isNotEmpty() }
+}
+
+fun keystoreProperty(name: String): String? {
+    return (keystoreProperties[name] as? String)
+        ?.trim()
+        ?.takeIf { it.isNotEmpty() }
+}
+
+val configuredAdMobAppId = configuredProperty("ADMOB_APP_ID")
+
+fun validateAndroidReleaseConfig() {
+    val missingOrInvalid = mutableListOf<String>()
+
+    if (!keystorePropertiesFile.exists()) {
+        missingOrInvalid += "android/key.properties bulunamadi"
+    }
+
+    listOf("keyAlias", "keyPassword", "storeFile", "storePassword").forEach { propertyName ->
+        if (keystoreProperty(propertyName) == null) {
+            missingOrInvalid += "android/key.properties icinde '$propertyName' eksik"
+        }
+    }
+
+    keystoreProperty("storeFile")?.let { storeFilePath ->
+        if (!file(storeFilePath).exists()) {
+            missingOrInvalid += "keystore dosyasi bulunamadi: $storeFilePath"
+        }
+    }
+
+    when {
+        configuredAdMobAppId == null -> {
+            missingOrInvalid += "ADMOB_APP_ID eksik (-PADMOB_APP_ID=... veya --dart-define=ADMOB_APP_ID=...)"
+        }
+        configuredAdMobAppId == googleTestAdMobAppId ||
+            configuredAdMobAppId.startsWith("ca-app-pub-3940256099942544") -> {
+            missingOrInvalid += "release build Google test AdMob App ID kullanamaz"
+        }
+    }
+
+    if (missingOrInvalid.isNotEmpty()) {
+        throw GradleException(
+            "Release build yapilandirmasi eksik veya guvensiz:\n" +
+                missingOrInvalid.joinToString(separator = "\n") { "- $it" }
+        )
+    }
 }
 
 android {
@@ -42,32 +122,35 @@ android {
         versionName = flutter.versionName
         multiDexEnabled = true
 
-        // AdMob App ID: --dart-define=ADMOB_APP_ID=ca-app-pub-xxx~yyy
-        // Varsayılan: Google test App ID (geliştirme ortamı)
-        val admobAppId = project.properties["ADMOB_APP_ID"] as? String
-            ?: "ca-app-pub-3940256099942544~3347511713"
+        // AdMob App ID: -PADMOB_APP_ID=ca-app-pub-xxx~yyy
+        // veya --dart-define=ADMOB_APP_ID=ca-app-pub-xxx~yyy.
+        val admobAppId = configuredAdMobAppId ?: googleTestAdMobAppId
         manifestPlaceholders["admobAppId"] = admobAppId
     }
 
     signingConfigs {
         create("release") {
-            if (keystorePropertiesFile.exists()) {
-                keyAlias = keystoreProperties["keyAlias"] as String
-                keyPassword = keystoreProperties["keyPassword"] as String
-                storeFile = file(keystoreProperties["storeFile"] as String)
-                storePassword = keystoreProperties["storePassword"] as String
+            val releaseKeyAlias = keystoreProperty("keyAlias")
+            val releaseKeyPassword = keystoreProperty("keyPassword")
+            val releaseStoreFile = keystoreProperty("storeFile")
+            val releaseStorePassword = keystoreProperty("storePassword")
+
+            if (releaseKeyAlias != null &&
+                releaseKeyPassword != null &&
+                releaseStoreFile != null &&
+                releaseStorePassword != null
+            ) {
+                keyAlias = releaseKeyAlias
+                keyPassword = releaseKeyPassword
+                storeFile = file(releaseStoreFile)
+                storePassword = releaseStorePassword
             }
         }
     }
 
     buildTypes {
         release {
-            signingConfig = if (keystorePropertiesFile.exists()) {
-                signingConfigs.getByName("release")
-            } else {
-                // CI fallback: debug ile imzala (yerelde geliştirme için)
-                signingConfigs.getByName("debug")
-            }
+            signingConfig = signingConfigs.getByName("release")
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(
@@ -76,6 +159,21 @@ android {
             )
         }
     }
+}
+
+val validateReleaseConfigTask = tasks.register("validateReleaseConfig") {
+    group = "verification"
+    description = "Fails release builds when signing or production AdMob configuration is missing."
+
+    doLast {
+        validateAndroidReleaseConfig()
+    }
+}
+
+tasks.matching {
+    it.name.contains("Release") && it.name != "validateReleaseConfig"
+}.configureEach {
+    dependsOn(validateReleaseConfigTask)
 }
 
 flutter {

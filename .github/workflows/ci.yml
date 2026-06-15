@@ -77,6 +77,12 @@ jobs:
   android:
     name: Android Build And Lint
     runs-on: ubuntu-latest
+    env:
+      ANDROID_RELEASE_KEYSTORE_BASE64: ${{ secrets.ANDROID_RELEASE_KEYSTORE_BASE64 }}
+      ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+      ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+      ANDROID_STORE_PASSWORD: ${{ secrets.ANDROID_STORE_PASSWORD }}
+      ADMOB_APP_ID: ${{ secrets.ADMOB_APP_ID }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -105,8 +111,21 @@ jobs:
         run: ./gradlew :app:assembleDebug
         working-directory: android
 
-  firestore-rules:
-    name: Firestore Rules Tests
+      - name: Validate Android Release Config
+        if: ${{ env.ANDROID_RELEASE_KEYSTORE_BASE64 != '' && env.ANDROID_KEY_ALIAS != '' && env.ANDROID_KEY_PASSWORD != '' && env.ANDROID_STORE_PASSWORD != '' && env.ADMOB_APP_ID != '' }}
+        run: |
+          printf '%s' "$ANDROID_RELEASE_KEYSTORE_BASE64" | base64 --decode > upload-keystore.jks
+          {
+            echo "storeFile=upload-keystore.jks"
+            echo "storePassword=$ANDROID_STORE_PASSWORD"
+            echo "keyAlias=$ANDROID_KEY_ALIAS"
+            echo "keyPassword=$ANDROID_KEY_PASSWORD"
+          } > key.properties
+          ./gradlew :app:validateReleaseConfig -PADMOB_APP_ID="$ADMOB_APP_ID"
+        working-directory: android
+
+  firebase-rules:
+    name: Firebase Rules Tests
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -134,5 +153,5 @@ jobs:
       - name: Install Rules Test Dependencies
         run: npm ci
 
-      - name: Test Firestore Rules
+      - name: Test Firebase Rules
         run: npm test
