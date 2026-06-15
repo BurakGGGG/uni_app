@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "firebase emulators:exec --project unisec-test-rules --only firestore \"npx mocha test.js\""
+    "test": "firebase emulators:exec --project unisec-test-rules --only firestore,storage \"npx mocha test.js\""
   },
   "keywords": [],
   "author": "",

@@ -182,6 +182,16 @@ class AdminPanelScreen extends ConsumerWidget {
             onTap: () => context.push('/admin/stats'),
           ),
 
+          const SizedBox(height: 12),
+
+          _AdminModuleCard(
+            icon: Icons.manage_search_rounded,
+            iconColor: const Color(0xFF0EA5E9),
+            title: 'Güvenlik Logları',
+            description: 'Admin aksiyonlarını ve şüpheli aktiviteleri incele.',
+            onTap: () => context.push('/admin/logs'),
+          ),
+
           const SizedBox(height: 24),
 
           // ─── Araçlar ──────────────────────────────────────────

@@ -17,6 +17,18 @@ subprojects {
     project.layout.buildDirectory.value(newSubprojectBuildDir)
 }
 subprojects {
+    configurations.configureEach {
+        resolutionStrategy.eachDependency {
+            if (requested.group == "androidx.test" && requested.name == "runner") {
+                useVersion("1.6.2")
+            }
+            if (requested.group == "androidx.test" && requested.name == "rules") {
+                useVersion("1.6.1")
+            }
+        }
+    }
+}
+subprojects {
     project.evaluationDependsOn(":app")
 }
 
