@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../providers/university_providers.dart';
 import '../../../auth/presentation/providers/auth_providers.dart';
 import '../../../reviews/presentation/widgets/review_list.dart';
 import '../../../reviews/domain/models/review_model.dart';
+import '../../../reviews/presentation/utils/review_submission_guard.dart';
 
 /// Tüm yorumların tam listesi — /university/:uniId/reviews
 class UniReviewsScreen extends ConsumerWidget {
@@ -24,40 +24,61 @@ class UniReviewsScreen extends ConsumerWidget {
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, st) => Center(child: Text('Hata: $e')),
         data: (uni) {
-          if (uni == null) return const Center(child: Text('Üniversite bulunamadı'));
+          if (uni == null) {
+            return const Center(child: Text('Üniversite bulunamadı'));
+          }
 
           return Builder(
             builder: (context) {
               final children = [
                 // Değerlendir butonu
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
                   child: Consumer(
                     builder: (context, ref, _) {
                       final currentUserAsync = ref.watch(currentUserProvider);
                       return currentUserAsync.when(
                         data: (profile) {
-                          final canReview = profile != null &&
+                          final canReview =
+                              profile != null &&
                               profile.universityId == universityId &&
                               profile.isVerifiedStudent;
 
                           return SizedBox(
                             width: double.infinity,
                             child: canReview
-                              ? ElevatedButton.icon(
-                                  onPressed: () => context.push('/write-review/university/$universityId'),
-                                  icon: const Icon(Icons.add_comment_rounded, size: 18),
-                                  label: const Text('Bu Üniversiteyi Değerlendir'),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: AppColors.primary,
-                                    foregroundColor: Colors.white,
-                                    padding: const EdgeInsets.symmetric(vertical: 14),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(AppConstants.radiusMd),
+                                ? ElevatedButton.icon(
+                                    onPressed: () => openWriteReviewIfAllowed(
+                                      context: context,
+                                      ref: ref,
+                                      type: ReviewType.university,
+                                      targetId: universityId,
+                                      universityId: universityId,
                                     ),
-                                  ),
-                                )
-                              : const SizedBox.shrink(),
+                                    icon: const Icon(
+                                      Icons.add_comment_rounded,
+                                      size: 18,
+                                    ),
+                                    label: const Text(
+                                      'Bu Üniversiteyi Değerlendir',
+                                    ),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: AppColors.primary,
+                                      foregroundColor: Colors.white,
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: 14,
+                                      ),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(
+                                          AppConstants.radiusMd,
+                                        ),
+                                      ),
+                                    ),
+                                  )
+                                : const SizedBox.shrink(),
                           );
                         },
                         loading: () => const SizedBox(height: 48),
@@ -68,10 +89,7 @@ class UniReviewsScreen extends ConsumerWidget {
                 ),
 
                 // Yorum listesi
-                ReviewList(
-                  targetId: universityId,
-                  type: ReviewType.university,
-                ),
+                ReviewList(targetId: universityId, type: ReviewType.university),
               ];
 
               return ListView.builder(

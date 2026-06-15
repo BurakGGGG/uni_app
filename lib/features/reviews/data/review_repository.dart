@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import '../domain/models/review_model.dart';
 import '../../admin/data/analytics_service.dart';
@@ -11,6 +12,9 @@ import '../../admin/domain/models/analytics_event.dart';
 /// Index: universityId + createdAt (composite)
 class ReviewRepository {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseFunctions _functions = FirebaseFunctions.instanceFor(
+    region: 'europe-west1',
+  );
 
   // ignore: unused_element
   CollectionReference<Map<String, dynamic>> get _reviewsRef =>
@@ -23,17 +27,53 @@ class ReviewRepository {
   }
 
   Future<void> addReview(ReviewModel review) async {
-    final docRef = _firestore.collection('reviews').doc();
-    await docRef.set({
-      ...review.toMap(),
-      'likes': 0,
-      'isApproved': false,
-      'createdAt': FieldValue.serverTimestamp(),
-      'updatedAt': FieldValue.serverTimestamp(),
-    });
+    try {
+      await _functions
+          .httpsCallable(
+            'submitReview',
+            options: HttpsCallableOptions(timeout: const Duration(seconds: 10)),
+          )
+          .call(<String, dynamic>{
+            'type': review.type.name,
+            'targetId': review.targetId,
+            'universityId': review.universityId,
+            'rating': review.rating,
+            'categoryRatings': review.categoryRatings,
+            'comment': review.comment,
+            'pros': review.pros,
+            'cons': review.cons,
+            'imageUrls': review.imageUrls,
+            'isAnonymous': review.isAnonymous,
+          });
+    } on FirebaseFunctionsException catch (e) {
+      if (e.code == 'resource-exhausted') {
+        throw const ReviewRateLimitedException();
+      }
+      throw ReviewSubmissionException(
+        e.message ?? 'Yorum gönderilirken bir hata oluştu.',
+      );
+    }
 
     // Analytics: yeni yorum
     AnalyticsService.instance.trackEvent(AnalyticsEvent.reviewCreated);
+  }
+
+  Future<ReviewSubmissionStatus> getSubmissionStatus() async {
+    try {
+      final result = await _functions
+          .httpsCallable(
+            'getReviewSubmissionStatus',
+            options: HttpsCallableOptions(timeout: const Duration(seconds: 10)),
+          )
+          .call();
+      return ReviewSubmissionStatus.fromMap(
+        Map<String, dynamic>.from(result.data as Map),
+      );
+    } on FirebaseFunctionsException catch (e) {
+      throw ReviewSubmissionException(
+        e.message ?? 'Yorum hakkı kontrol edilirken bir hata oluştu.',
+      );
+    }
   }
 
   Future<void> updateReview(ReviewModel review) async {
@@ -242,6 +282,45 @@ class ReviewRepository {
       (snapshot) => snapshot.docs
           .map((doc) => ReviewModel.fromMap(doc.data(), doc.id))
           .toList(),
+    );
+  }
+}
+
+class ReviewRateLimitedException implements Exception {
+  const ReviewRateLimitedException();
+}
+
+class ReviewSubmissionException implements Exception {
+  final String message;
+
+  const ReviewSubmissionException(this.message);
+
+  @override
+  String toString() => message;
+}
+
+class ReviewSubmissionStatus {
+  final bool allowed;
+  final int currentCount;
+  final int remaining;
+  final int limit;
+  final int retryAfterSeconds;
+
+  const ReviewSubmissionStatus({
+    required this.allowed,
+    required this.currentCount,
+    required this.remaining,
+    required this.limit,
+    required this.retryAfterSeconds,
+  });
+
+  factory ReviewSubmissionStatus.fromMap(Map<String, dynamic> map) {
+    return ReviewSubmissionStatus(
+      allowed: map['allowed'] == true,
+      currentCount: (map['currentCount'] as num?)?.toInt() ?? 0,
+      remaining: (map['remaining'] as num?)?.toInt() ?? 0,
+      limit: (map['limit'] as num?)?.toInt() ?? 0,
+      retryAfterSeconds: (map['retryAfterSeconds'] as num?)?.toInt() ?? 0,
     );
   }
 }

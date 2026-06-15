@@ -48,6 +48,7 @@ import '../features/admin/presentation/screens/admin_panel_screen.dart';
 import '../features/admin/presentation/screens/admin_story_panel_screen.dart';
 import '../features/admin/presentation/screens/admin_reports_screen.dart';
 import '../features/admin/presentation/screens/admin_stats_screen.dart';
+import '../features/admin/presentation/screens/admin_logs_screen.dart';
 import '../features/admin/presentation/screens/admin_access_denied_screen.dart';
 import 'app_shell.dart';
 import 'redirect_utils.dart';
@@ -80,6 +81,7 @@ class AppRoutes {
   static const String adminStories = '/admin/stories';
   static const String adminReports = '/admin/reports';
   static const String adminStats = '/admin/stats';
+  static const String adminLogs = '/admin/logs';
   static const String forbidden = '/403';
 }
 
@@ -212,6 +214,11 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.adminStats,
         builder: (context, state) =>
             const _AdminRouteGuard(child: AdminStatsScreen()),
+      ),
+      GoRoute(
+        path: AppRoutes.adminLogs,
+        builder: (context, state) =>
+            const _AdminRouteGuard(child: AdminLogsScreen()),
       ),
 
       // ─── Arama ───────────────────────────────────────────────────

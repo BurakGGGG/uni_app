@@ -9,6 +9,7 @@ import '../../../../core/constants/app_constants.dart';
 import '../../../../core/widgets/widgets.dart';
 import '../../../reviews/domain/models/review_model.dart';
 import '../../../reviews/presentation/providers/review_providers.dart';
+import '../../../reviews/presentation/utils/review_submission_guard.dart';
 import '../../../reviews/presentation/widgets/review_card.dart';
 import '../../../reviews/presentation/screens/photo_gallery_screen.dart';
 import '../../domain/models/place_model.dart';
@@ -430,11 +431,14 @@ class _PlaceDetailScreenState extends ConsumerState<PlaceDetailScreen> {
           const SizedBox(width: 12),
           Expanded(
             child: ElevatedButton.icon(
-              onPressed: () {
-                context.push(
-                  '/write-review/place/${place.id}?uni=${place.universityId}&pt=${place.type.firestoreValue}',
-                );
-              },
+              onPressed: () => openWriteReviewIfAllowed(
+                context: context,
+                ref: ref,
+                type: ReviewType.place,
+                targetId: place.id,
+                universityId: place.universityId,
+                placeSubType: place.type.firestoreValue,
+              ),
               icon: const Icon(Icons.rate_review_rounded, size: 18),
               label: const Text('Yorum Yaz'),
               style: ElevatedButton.styleFrom(

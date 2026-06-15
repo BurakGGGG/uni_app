@@ -15,6 +15,7 @@ import '../../domain/models/university_model.dart';
 import '../../../auth/presentation/providers/auth_providers.dart';
 
 import '../../../reviews/presentation/providers/review_providers.dart';
+import '../../../reviews/presentation/utils/review_submission_guard.dart';
 import '../../../reviews/domain/models/review_model.dart';
 import '../../../reviews/presentation/widgets/review_card.dart';
 
@@ -82,82 +83,95 @@ class _Body extends ConsumerWidget {
         universityName: uni.name,
       ),
       child: RefreshIndicator(
-      onRefresh: () async {
-        ref.read(placeRepositoryProvider).clearCache();
-        ref.invalidate(universityDetailProvider(uni.id));
-        ref.invalidate(departmentsByUniversityProvider(uni.id));
-        ref.invalidate(placesByUniversityProvider(uni.id));
-        await Future.wait<void>([
-          ref.read(universityDetailProvider(uni.id).future).then((_) {}),
-          ref.read(departmentsByUniversityProvider(uni.id).future).then((_) {}),
-          ref.read(placesByUniversityProvider(uni.id).future).then((_) {}),
-        ]);
-      },
-      child: CustomScrollView(
-        slivers: [
-          UniHero(uni: uni),
-          SliverPersistentHeader(
-            pinned: false,
-            delegate: _InfoStripDelegate(
-              establishedYear: uni.establishedYear,
-              departmentCount: deptsAsync.value?.length ?? 0,
-              reviewCount: uni.reviewCount,
-              avgRating: uni.avgRating,
+        onRefresh: () async {
+          ref.read(placeRepositoryProvider).clearCache();
+          ref.invalidate(universityDetailProvider(uni.id));
+          ref.invalidate(departmentsByUniversityProvider(uni.id));
+          ref.invalidate(placesByUniversityProvider(uni.id));
+          await Future.wait<void>([
+            ref.read(universityDetailProvider(uni.id).future).then((_) {}),
+            ref
+                .read(departmentsByUniversityProvider(uni.id).future)
+                .then((_) {}),
+            ref.read(placesByUniversityProvider(uni.id).future).then((_) {}),
+          ]);
+        },
+        child: CustomScrollView(
+          slivers: [
+            UniHero(uni: uni),
+            SliverPersistentHeader(
+              pinned: false,
+              delegate: _InfoStripDelegate(
+                establishedYear: uni.establishedYear,
+                departmentCount: deptsAsync.value?.length ?? 0,
+                reviewCount: uni.reviewCount,
+                avgRating: uni.avgRating,
+              ),
             ),
-          ),
-          SliverToBoxAdapter(
-            child: Column(
-              children: [
-                const SizedBox(height: 16),
+            SliverToBoxAdapter(
+              child: Column(
+                children: [
+                  const SizedBox(height: 16),
 
-                // Action Butonları
-                _ActionButtons(uni: uni),
+                  // Action Butonları
+                  _ActionButtons(uni: uni),
 
-                const SizedBox(height: 16),
+                  const SizedBox(height: 16),
 
-                // Bölümler section
-                UniSection(
-                  title: loc.uniDetailDepartments,
-                  subtitle: loc.uniDetailDepartmentsSubtitle(deptsAsync.value?.length ?? 0),
-                  ctaText: loc.uniDetailSeeAllDepartments,
-                  onCtaTap: () =>
-                      context.push('/university/${uni.id}/departments'),
-                  child: _DepartmentsPreview(
-                    deptsAsync: deptsAsync,
-                    onRetry: () => ref.invalidate(departmentsByUniversityProvider(uni.id)),
+                  // Bölümler section
+                  UniSection(
+                    title: loc.uniDetailDepartments,
+                    subtitle: loc.uniDetailDepartmentsSubtitle(
+                      deptsAsync.value?.length ?? 0,
+                    ),
+                    ctaText: loc.uniDetailSeeAllDepartments,
+                    onCtaTap: () =>
+                        context.push('/university/${uni.id}/departments'),
+                    child: _DepartmentsPreview(
+                      deptsAsync: deptsAsync,
+                      onRetry: () => ref.invalidate(
+                        departmentsByUniversityProvider(uni.id),
+                      ),
+                    ),
                   ),
-                ),
 
-                // Mekanlar section
-                _PlacesSection(
-                  uni: uni,
-                  placesAsync: placesAsync,
-                  onRetry: () => ref.invalidate(placesByUniversityProvider(uni.id)),
-                ),
-
-                // Yorumlar section
-                UniSection(
-                  title: loc.uniDetailReviews,
-                  subtitle: uni.reviewCount > 0
-                      ? loc.uniDetailReviewsSubtitle(uni.reviewCount)
-                      : loc.uniDetailNoReviews,
-                  ctaText: loc.uniDetailSeeAllReviews,
-                  onCtaTap: () => context.push('/university/${uni.id}/reviews'),
-                  child: _ReviewsPreview(
-                    reviewsAsync: reviewsAsync,
-                    onRetry: () => ref.invalidate(sortedReviewsProvider(
-                      SortedReviewsParams(targetId: uni.id, type: ReviewType.university),
-                    )),
+                  // Mekanlar section
+                  _PlacesSection(
+                    uni: uni,
+                    placesAsync: placesAsync,
+                    onRetry: () =>
+                        ref.invalidate(placesByUniversityProvider(uni.id)),
                   ),
-                ),
 
-                const SizedBox(height: 80),
-              ],
+                  // Yorumlar section
+                  UniSection(
+                    title: loc.uniDetailReviews,
+                    subtitle: uni.reviewCount > 0
+                        ? loc.uniDetailReviewsSubtitle(uni.reviewCount)
+                        : loc.uniDetailNoReviews,
+                    ctaText: loc.uniDetailSeeAllReviews,
+                    onCtaTap: () =>
+                        context.push('/university/${uni.id}/reviews'),
+                    child: _ReviewsPreview(
+                      reviewsAsync: reviewsAsync,
+                      onRetry: () => ref.invalidate(
+                        sortedReviewsProvider(
+                          SortedReviewsParams(
+                            targetId: uni.id,
+                            type: ReviewType.university,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 80),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
-    ),
     );
   }
 }
@@ -288,7 +302,13 @@ class _ActionButtons extends ConsumerWidget {
                 _showReviewInfoSheet(context, user: user);
                 return;
               }
-              context.push('/write-review/university/${uni.id}');
+              openWriteReviewIfAllowed(
+                context: context,
+                ref: ref,
+                type: ReviewType.university,
+                targetId: uni.id,
+                universityId: uni.id,
+              );
             },
             icon: const Icon(Icons.rate_review_rounded, size: 20),
             label: Text(loc.uniDetailRateUniversity),
@@ -388,7 +408,11 @@ class _PlacesSection extends StatelessWidget {
   final UniversityModel uni;
   final AsyncValue<List<PlaceModel>> placesAsync;
   final VoidCallback? onRetry;
-  const _PlacesSection({required this.uni, required this.placesAsync, this.onRetry});
+  const _PlacesSection({
+    required this.uni,
+    required this.placesAsync,
+    this.onRetry,
+  });
 
   @override
   Widget build(BuildContext context) {
