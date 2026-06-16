@@ -3,20 +3,69 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../../core/utils/haptic.dart';
 import '../../domain/models/university_model.dart';
 import '../../../favorites/presentation/providers/favorites_providers.dart';
 import '../../../auth/presentation/providers/auth_providers.dart';
 
-class UniHero extends ConsumerWidget {
+class UniHero extends ConsumerStatefulWidget {
   final UniversityModel uni;
   
   const UniHero({super.key, required this.uni});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<UniHero> createState() => _UniHeroState();
+}
+
+class _UniHeroState extends ConsumerState<UniHero>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _heartController;
+  late final Animation<double> _heartScale;
+
+  @override
+  void initState() {
+    super.initState();
+    _heartController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 350),
+    );
+
+    _heartScale = TweenSequence<double>([
+      TweenSequenceItem(tween: Tween(begin: 1.0, end: 1.4), weight: 40),
+      TweenSequenceItem(tween: Tween(begin: 1.4, end: 0.85), weight: 30),
+      TweenSequenceItem(tween: Tween(begin: 0.85, end: 1.0), weight: 30),
+    ]).animate(CurvedAnimation(
+      parent: _heartController,
+      curve: Curves.easeOutCubic,
+    ));
+  }
+
+  @override
+  void dispose() {
+    _heartController.dispose();
+    super.dispose();
+  }
+
+  void _toggleFavorite(bool isFavorite) {
+    final user = ref.read(authStateProvider).value;
+    if (user == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Önce giriş yap')),
+      );
+      return;
+    }
+
+    AppHaptic.favoriteToggle();
+    _heartController.forward(from: 0);
+    ref.read(favoritesControllerProvider.notifier)
+       .toggleFavorite(user.uid, widget.uni.id, isFavorite);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final uni = widget.uni;
     final favoritesAsync = ref.watch(favoritesProvider);
     final isFavorite = favoritesAsync.value?.contains(uni.id) ?? false;
-    final user = ref.watch(authStateProvider).value;
 
     return SliverAppBar(
       expandedHeight: 220,
@@ -34,21 +83,9 @@ class UniHero extends ConsumerWidget {
       actions: [
         Padding(
           padding: const EdgeInsets.all(6.0),
-          child: _frostedIconButton(
-            icon: isFavorite 
-              ? Icons.favorite_rounded 
-              : Icons.favorite_border_rounded,
-            iconColor: Colors.white,
-            onTap: () {
-              if (user == null) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Önce giriş yap')),
-                );
-                return;
-              }
-              ref.read(favoritesControllerProvider.notifier)
-                 .toggleFavorite(user.uid, uni.id, isFavorite);
-            },
+          child: _frostedFavoriteButton(
+            isFavorite: isFavorite,
+            onTap: () => _toggleFavorite(isFavorite),
           ),
         ),
         const SizedBox(width: 8),
@@ -154,6 +191,35 @@ class UniHero extends ConsumerWidget {
             ),
           );
         },
+      ),
+    );
+  }
+
+  /// Favori butonu — scale bounce animasyonlu frosted glass buton.
+  Widget _frostedFavoriteButton({
+    required bool isFavorite,
+    required VoidCallback onTap,
+  }) {
+    return Material(
+      color: Colors.white.withValues(alpha: 0.25),
+      shape: const CircleBorder(),
+      child: InkWell(
+        customBorder: const CircleBorder(),
+        onTap: onTap,
+        child: SizedBox(
+          width: 48,
+          height: 48,
+          child: ScaleTransition(
+            scale: _heartScale,
+            child: Icon(
+              isFavorite
+                  ? Icons.favorite_rounded
+                  : Icons.favorite_border_rounded,
+              color: isFavorite ? AppColors.error : Colors.white,
+              size: 22,
+            ),
+          ),
+        ),
       ),
     );
   }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/rendering.dart' show ScrollCacheExtent;
 import '../../../../l10n/generated/app_localizations.dart';
 
@@ -23,6 +24,8 @@ import '../../../notifications/presentation/widgets/notification_bell.dart';
 import '../../../university/presentation/widgets/city_card.dart';
 import '../../../stories/presentation/widgets/story_bubble_carousel.dart';
 import '../widgets/home_list_skeleton.dart';
+import '../../../../core/utils/haptic.dart';
+import '../../../auth/presentation/providers/auth_providers.dart';
 
 /// Ana Sayfa ekranı
 class HomeScreen extends ConsumerStatefulWidget {
@@ -85,9 +88,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           children: [
                             Text(
                               'Üni',
-                              style: AppTextStyles.headlineLarge.copyWith(
+                              style: GoogleFonts.spaceGrotesk(
                                 color: AppColors.primary,
-                                fontFamily: 'SpaceGrotesk',
                                 fontWeight: FontWeight.w800,
                                 letterSpacing: -1.0,
                                 fontSize: 28,
@@ -102,9 +104,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             const SizedBox(width: 2),
                             Text(
                               'eç',
-                              style: AppTextStyles.headlineLarge.copyWith(
+                              style: GoogleFonts.spaceGrotesk(
                                 color: AppColors.primary,
-                                fontFamily: 'SpaceGrotesk',
                                 fontWeight: FontWeight.w800,
                                 letterSpacing: -1.0,
                                 fontSize: 28,
@@ -245,11 +246,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                               itemCount: popular.length,
                               itemBuilder: (context, index) {
                                 return RepaintBoundary(
-                                  child: _PopularUniCard(
-                                    university: popular[index],
+                                  child: AnimatedListItem(
                                     index: index,
-                                    onTap: () => context.push(
-                                        '/university/${popular[index].id}'),
+                                    direction: Axis.horizontal,
+                                    slideOffset: 40,
+                                    staggerDelay: const Duration(milliseconds: 80),
+                                    child: _PopularUniCard(
+                                      university: popular[index],
+                                      index: index,
+                                      onTap: () => context.push(
+                                          '/university/${popular[index].id}'),
+                                    ),
                                   ),
                                 );
                               },
@@ -673,9 +680,10 @@ class _PopularUniCard extends ConsumerWidget {
                               ),
                             ),
                           ),
-                          if (isFavorite)
-                            const Icon(Icons.favorite_rounded,
-                                color: AppColors.error, size: 18),
+                          _FavoriteHeartButton(
+                            universityId: university.id,
+                            isFavorite: isFavorite,
+                          ),
                         ],
                       ),
                       const Spacer(),
@@ -718,6 +726,94 @@ class _PopularUniCard extends ConsumerWidget {
                 ),
               ),
             ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Favoriye ekleme/çıkarma butonu — scale bounce animasyonu + haptic feedback.
+class _FavoriteHeartButton extends ConsumerStatefulWidget {
+  final String universityId;
+  final bool isFavorite;
+
+  const _FavoriteHeartButton({
+    required this.universityId,
+    required this.isFavorite,
+  });
+
+  @override
+  ConsumerState<_FavoriteHeartButton> createState() =>
+      _FavoriteHeartButtonState();
+}
+
+class _FavoriteHeartButtonState extends ConsumerState<_FavoriteHeartButton>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<double> _scaleAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 350),
+    );
+
+    _scaleAnimation = TweenSequence<double>([
+      TweenSequenceItem(tween: Tween(begin: 1.0, end: 1.4), weight: 40),
+      TweenSequenceItem(tween: Tween(begin: 1.4, end: 0.85), weight: 30),
+      TweenSequenceItem(tween: Tween(begin: 0.85, end: 1.0), weight: 30),
+    ]).animate(CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeOutCubic,
+    ));
+  }
+
+  @override
+  void didUpdateWidget(covariant _FavoriteHeartButton oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.isFavorite != oldWidget.isFavorite) {
+      _controller.forward(from: 0);
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _toggleFavorite() {
+    final user = ref.read(authStateProvider).value;
+    if (user == null) return;
+
+    AppHaptic.favoriteToggle();
+    ref.read(favoritesControllerProvider.notifier).toggleFavorite(
+          user.uid,
+          widget.universityId,
+          widget.isFavorite,
+        );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: _toggleFavorite,
+      behavior: HitTestBehavior.opaque,
+      child: Padding(
+        padding: const EdgeInsets.all(4),
+        child: ScaleTransition(
+          scale: _scaleAnimation,
+          child: Icon(
+            widget.isFavorite
+                ? Icons.favorite_rounded
+                : Icons.favorite_border_rounded,
+            color: widget.isFavorite
+                ? AppColors.error
+                : AppColors.textTertiaryFor(context),
+            size: 20,
           ),
         ),
       ),

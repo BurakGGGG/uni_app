@@ -203,35 +203,38 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                     itemCount: filtered.length,
                     itemBuilder: (context, index) {
                       final uni = filtered[index];
-                      return UniCard(
-                        title: uni.name,
-                        subtitle: '${uni.type} • Kuruluş: ${uni.establishedYear}',
-                        rating: uni.avgRating,
-                        reviewCount: uni.reviewCount,
-                        tags: [
-                          if (uni.hasCampus) 'Kampüslü',
-                          uni.type,
-                        ],
-                        brandPrimaryColor: uni.brandColor,
-                        logoAssetPath: uni.logoAssetPath,
-                        onTap: () => context.push('/university/${uni.id}'),
-                        badge: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                          decoration: BoxDecoration(
-                            color: (uni.type == loc.exploreTypeState
-                                    ? AppColors.stateUni
-                                    : AppColors.foundationUni)
-                                .withValues(alpha: 0.12),
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          child: Text(
+                      return AnimatedListItem(
+                        index: index,
+                        child: UniCard(
+                          title: uni.name,
+                          subtitle: '${uni.type} • Kuruluş: ${uni.establishedYear}',
+                          rating: uni.avgRating,
+                          reviewCount: uni.reviewCount,
+                          tags: [
+                            if (uni.hasCampus) 'Kampüslü',
                             uni.type,
-                            style: AppTextStyles.labelSmall.copyWith(
-                              color: uni.type == loc.exploreTypeState
-                                  ? AppColors.stateUni
-                                  : AppColors.foundationUni,
-                              fontWeight: FontWeight.w600,
-                              fontSize: 10,
+                          ],
+                          brandPrimaryColor: uni.brandColor,
+                          logoAssetPath: uni.logoAssetPath,
+                          onTap: () => context.push('/university/${uni.id}'),
+                          badge: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                            decoration: BoxDecoration(
+                              color: (uni.type == loc.exploreTypeState
+                                      ? AppColors.stateUni
+                                      : AppColors.foundationUni)
+                                  .withValues(alpha: 0.12),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: Text(
+                              uni.type,
+                              style: AppTextStyles.labelSmall.copyWith(
+                                color: uni.type == loc.exploreTypeState
+                                    ? AppColors.stateUni
+                                    : AppColors.foundationUni,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 10,
+                              ),
                             ),
                           ),
                         ),
