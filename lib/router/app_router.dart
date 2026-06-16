@@ -50,6 +50,8 @@ import '../features/admin/presentation/screens/admin_reports_screen.dart';
 import '../features/admin/presentation/screens/admin_stats_screen.dart';
 import '../features/admin/presentation/screens/admin_logs_screen.dart';
 import '../features/admin/presentation/screens/admin_access_denied_screen.dart';
+import '../features/admin/presentation/screens/admin_suggestions_screen.dart';
+import '../features/places/presentation/screens/suggest_place_screen.dart';
 import 'app_shell.dart';
 import 'redirect_utils.dart';
 
@@ -82,6 +84,8 @@ class AppRoutes {
   static const String adminReports = '/admin/reports';
   static const String adminStats = '/admin/stats';
   static const String adminLogs = '/admin/logs';
+  static const String adminSuggestions = '/admin/suggestions';
+  static const String suggestPlace = '/suggest-place';
   static const String forbidden = '/403';
 }
 
@@ -118,7 +122,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       }
 
       // 2. Korumalı Rotalar (Sprint 3'te yorum rotaları buraya eklenecek)
-      final protectedRoutes = [AppRoutes.editProfile, '/my-reviews'];
+      final protectedRoutes = [AppRoutes.editProfile, '/my-reviews', AppRoutes.suggestPlace];
       final isGoingToProtected =
           protectedRoutes.contains(path) ||
           isGoingToAdmin ||
@@ -219,6 +223,18 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.adminLogs,
         builder: (context, state) =>
             const _AdminRouteGuard(child: AdminLogsScreen()),
+      ),
+      GoRoute(
+        path: AppRoutes.adminSuggestions,
+        builder: (context, state) =>
+            const _AdminRouteGuard(child: AdminSuggestionsScreen()),
+      ),
+      GoRoute(
+        path: AppRoutes.suggestPlace,
+        builder: (context, state) => SuggestPlaceScreen(
+          universityId: state.uri.queryParameters['uniId'] ?? '',
+          universityName: state.uri.queryParameters['uniName'] ?? '',
+        ),
       ),
 
       // ─── Arama ───────────────────────────────────────────────────

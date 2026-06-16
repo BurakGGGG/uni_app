@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../providers/admin_reports_providers.dart';
+import '../../../places/presentation/providers/place_suggestion_providers.dart';
 import '../../data/analytics_migration_service.dart';
 
 /// Admin Paneli — merkezi yönetim hub'ı.
@@ -173,6 +174,20 @@ class AdminPanelScreen extends ConsumerWidget {
           ),
 
           const SizedBox(height: 12),
+
+          Consumer(
+            builder: (context, ref, _) {
+              final suggestionCount = ref.watch(pendingSuggestionCountProvider);
+              return _AdminModuleCard(
+                icon: Icons.place_rounded,
+                iconColor: const Color(0xFFF59E0B),
+                title: 'Mekan Önerileri',
+                description: 'Kullanıcıların önerdiği mekanları incele.',
+                badgeCount: suggestionCount.valueOrNull ?? 0,
+                onTap: () => context.push('/admin/suggestions'),
+              );
+            },
+          ),
 
           _AdminModuleCard(
             icon: Icons.bar_chart_rounded,
