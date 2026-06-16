@@ -67,10 +67,10 @@ Uygulamanın tüm tema sistemi, ana ekranlar, widget'lar ve navigasyon yapısı 
 - Yorumlar hata durumu → `ErrorStateWidget(compact: true)` + retry eklendi ✅
 - Tüm error state'ler artık ana sayfadakiyle aynı `ErrorStateWidget` pattern'ini kullanıyor ✅
 
-### 7. Pull-to-Refresh Eksikliği
-- **Home Screen** → `RefreshIndicator` yok — kullanıcı yeni içerik almak isterse uygulamayı yeniden açmalı
-- **Explore Screen** → `RefreshIndicator` yok
-- **University Detail** → var ✅
+### 7. ⏭️ Pull-to-Refresh Eksikliği — ATLANACAK
+- ~~Home Screen → `RefreshIndicator` yok~~
+- ~~Explore Screen → `RefreshIndicator` yok~~
+- University Detail → var ✅
 
 ### 8. ✅ Hardcoded Türkçe Metinler (l10n eksikleri) — TAMAMLANDI
 
@@ -99,23 +99,29 @@ Uygulamanın tüm tema sistemi, ana ekranlar, widget'lar ve navigasyon yapısı 
 
 ## 🟡 İyileştirme Önerileri
 
-### 9. Animasyon ve Mikro-etkileşim Eksiklikleri
-- **Explore listesi**: `UniCard`'lar düz `ListView.builder` ile gösteriliyor — giriş animasyonu (staggered fade-in / slide-up) yok
-- **Home popüler üniversiteler**: Yatay scroll'da kart giriş animasyonu yok
-- **Bottom Navigation**: Seçili tab değiştiğinde sayfa geçişi anlık — hafif bir crossfade olabilir
-- **Favorilere ekleme**: Haptic feedback veya kalp animasyonu yok (sadece icon değişiyor)
+### 9. ✅ Animasyon ve Mikro-etkileşim Eksiklikleri — TAMAMLANDI
+- ~~Explore listesi düz `ListView.builder`~~ → `AnimatedListItem` ile staggered fade-in + slide-up ✅
+- ~~Home popüler üniversiteler animasyonsuz~~ → `AnimatedListItem(direction: Axis.horizontal)` ile staggered slide-in ✅
+- ~~Favorilere ekleme feedback yok~~ → `_AnimatedHeartIcon` (scale bounce 0→1.3→0.9→1.0) + `AppHaptic.favoriteToggle()` ✅
+- Bottom Navigation tab geçişi → Riskli, atlandı ⏭️
 
-### 10. Tipografi Tutarsızlıkları
-- Splash ekranında `fontFamily: 'SpaceGrotesk'` doğrudan kullanılıyor, `GoogleFonts` ile değil → font yüklenme garantisi yok
-- Home ekranındaki logo metninde de aynı `fontFamily: 'SpaceGrotesk'` kalıbı → `GoogleFonts.spaceGrotesk()` kullanılmalı veya `pubspec.yaml`'da asset olarak eklenmeli
+> [!NOTE]
+> Yeni reusable widget oluşturuldu: `AnimatedListItem` — herhangi bir listeye staggered giriş animasyonu ekler. İlk 10 item için stagger delay uygulanır, sonrası sabit.
+
+### 10. ✅ Tipografi Tutarsızlıkları — TAMAMLANDI
+- ~~Splash ekranında `fontFamily: 'SpaceGrotesk'` doğrudan kullanılıyor~~ → `GoogleFonts.spaceGrotesk()` ile değiştirildi ✅
+- ~~Home ekranındaki logo metninde aynı sorun~~ → 2 yerde `GoogleFonts.spaceGrotesk()` ile değiştirildi ✅
 
 ### 11. Widget Derinliği (Nesting) Problemi
 - [home_screen.dart:614-724](file:///home/burak/uni_app/lib/features/home/presentation/screens/home_screen.dart#L614-L724): `_PopularUniCard` widget'ı 8 seviye iç içe Container → çok derin widget ağacı, debug zorlaşır
 - [uni_card.dart:40-152](file:///home/burak/uni_app/lib/core/widgets/uni_card.dart#L40-L152): `Container > Material > Semantics > InkWell > Padding > Row` → 6 seviye nesting
 
-### 12. Boş State UX İyileştirmeleri
-- `_PlacesEmptyState` güzel tasarlanmış ama aksiyon butonu yok (ör. "Mekan öner" butonu)
-- Home'daki yorum boş state'inde CTA (call-to-action) butonu yok → kullanıcıyı yorum yazmaya yönlendirilmeli
+### 12. ✅ Boş State UX İyileştirmeleri (Mekan Önerisi) — TAMAMLANDI
+- ~~`_PlacesEmptyState` güzel tasarlanmış ama aksiyon butonu yok~~ → Öğrencilerin mekan önerebileceği premium bir "Mekan Öner" ekranı yapıldı (`suggest_place_screen.dart`). ✅
+- Firebase Storage ile fotoğraf yükleme ve Firestore ile öneri kaydetme eklendi (`PlaceSuggestionModel` & `PlaceSuggestionRepository`). ✅
+- Admin panelinde yeni bir modül kartı eklendi ve "Bekleyen/Onaylanan/Reddedilen" sekmeli admin değerlendirme ekranı yapıldı. ✅
+- Admin onayladığında otomatik olarak `places` koleksiyonuna gerçek mekan olarak aktarım sağlandı. ✅
+- ~~Home'daki yorum boş state'inde CTA (call-to-action) butonu yok → kullanıcıyı yorum yazmaya yönlendirilmeli~~ (Daha sonra ele alınabilir)
 
 ### 13. Responsive Tasarım Eksikliği
 - Tablet görünümü için herhangi bir `LayoutBuilder` veya `MediaQuery` adaptasyonu yok
