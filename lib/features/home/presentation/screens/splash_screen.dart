@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
@@ -258,10 +259,9 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                   position: _textSlide,
                   child: FadeTransition(
                     opacity: _textFade,
-                    child: const Text(
+                    child: Text(
                       'ÜniSeç',
-                      style: TextStyle(
-                        fontFamily: 'SpaceGrotesk',
+                      style: GoogleFonts.spaceGrotesk(
                         fontSize: 40,
                         fontWeight: FontWeight.w700,
                         letterSpacing: -1.8,

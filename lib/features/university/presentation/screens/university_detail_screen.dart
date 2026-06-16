@@ -437,7 +437,7 @@ class _PlacesSection extends StatelessWidget {
           return UniSection(
             title: loc.uniDetailPlaces,
             subtitle: loc.uniDetailPlacesComingSoon,
-            child: _PlacesEmptyState(),
+            child: _PlacesEmptyState(uni: uni),
           );
         }
 
@@ -448,15 +448,35 @@ class _PlacesSection extends StatelessWidget {
           ctaText: loc.uniDetailSeeAllPlaces,
           onCtaTap: () => context.push('/university/${uni.id}/places'),
           child: Column(
-            children: preview
-                .map(
-                  (p) => PlaceCard(
-                    place: p,
-                    margin: const EdgeInsets.only(bottom: 8),
-                    onTap: () => context.push('/place/${p.id}'),
+            children: [
+              ...preview.map(
+                (p) => PlaceCard(
+                  place: p,
+                  margin: const EdgeInsets.only(bottom: 8),
+                  onTap: () => context.push('/place/${p.id}'),
+                ),
+              ),
+              const SizedBox(height: 8),
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  onPressed: () {
+                    final encodedName = Uri.encodeComponent(uni.name);
+                    context.push('/suggest-place?uniId=${uni.id}&uniName=$encodedName');
+                  },
+                  icon: const Icon(Icons.add_location_alt_rounded, size: 18),
+                  label: const Text('Yeni Mekan Öner'),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppColors.primary,
+                    side: const BorderSide(color: AppColors.primary),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
                   ),
-                )
-                .toList(),
+                ),
+              ),
+            ],
           ),
         );
       },
@@ -465,6 +485,9 @@ class _PlacesSection extends StatelessWidget {
 }
 
 class _PlacesEmptyState extends StatelessWidget {
+  final UniversityModel uni;
+  const _PlacesEmptyState({required this.uni});
+
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
@@ -505,6 +528,22 @@ class _PlacesEmptyState extends StatelessWidget {
             style: AppTextStyles.bodyMedium.copyWith(
               color: AppColors.textSecondaryFor(context),
               height: 1.5,
+            ),
+          ),
+          const SizedBox(height: 20),
+          FilledButton.icon(
+            onPressed: () {
+              final encodedName = Uri.encodeComponent(uni.name);
+              context.push('/suggest-place?uniId=${uni.id}&uniName=$encodedName');
+            },
+            icon: const Icon(Icons.add_location_alt_rounded, size: 18),
+            label: const Text('Mekan Öner'),
+            style: FilledButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
             ),
           ),
         ],

@@ -50,6 +50,21 @@ service firebase.storage {
         && isJpegUpload();
     }
 
+    // ─── Mekan Öneri Fotoğrafları ─────────────────────────────
+    match /place_suggestions/{userId}/{suggestionId}/{fileName} {
+      // Herkes okuyabilir (admin onayında vb.)
+      allow read: if true;
+      // Yalnızca giriş yapmış kullanıcı kendi klasörüne fotoğraf yükleyebilir
+      allow write: if request.auth != null
+        && request.auth.uid == userId
+        && request.resource.size < 10 * 1024 * 1024 // 10MB limit
+        && (
+          request.resource.contentType == 'image/jpeg'
+          || request.resource.contentType == 'image/png'
+          || request.resource.contentType == 'image/webp'
+        );
+    }
+
     // ─── Story Medyaları (Admin) ────────────────────────────
     match /stories/{fileName} {
       allow read: if true;
