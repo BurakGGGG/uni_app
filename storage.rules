@@ -16,6 +16,24 @@ service firebase.storage {
       return imageId.matches('^[A-Za-z0-9_-]+\\.jpg$');
     }
 
+    function isPlaceSuggestionId(suggestionId) {
+      return suggestionId.matches('^[A-Za-z0-9_-]{1,256}$');
+    }
+
+    function isPlaceSuggestionImageName(fileName) {
+      return fileName.matches('^photo_[0-4]\\.(jpg|jpeg|png|webp)$');
+    }
+
+    function isPlaceSuggestionImageUpload() {
+      return request.resource.size > 0
+        && request.resource.size < 10 * 1024 * 1024
+        && (
+          request.resource.contentType == 'image/jpeg'
+          || request.resource.contentType == 'image/png'
+          || request.resource.contentType == 'image/webp'
+        );
+    }
+
     function isStoryMediaUpload() {
       return request.resource.size > 0
         && (
@@ -52,17 +70,15 @@ service firebase.storage {
 
     // ─── Mekan Öneri Fotoğrafları ─────────────────────────────
     match /place_suggestions/{userId}/{suggestionId}/{fileName} {
-      // Herkes okuyabilir (admin onayında vb.)
       allow read: if true;
-      // Yalnızca giriş yapmış kullanıcı kendi klasörüne fotoğraf yükleyebilir
-      allow write: if request.auth != null
+      // Onay sonrası görsel değiştirmeyi önlemek için client yalnızca oluşturur.
+      allow create: if request.auth != null
+        && resource == null
         && request.auth.uid == userId
-        && request.resource.size < 10 * 1024 * 1024 // 10MB limit
-        && (
-          request.resource.contentType == 'image/jpeg'
-          || request.resource.contentType == 'image/png'
-          || request.resource.contentType == 'image/webp'
-        );
+        && isPlaceSuggestionId(suggestionId)
+        && isPlaceSuggestionImageName(fileName)
+        && isPlaceSuggestionImageUpload();
+      allow update, delete: if false;
     }
 
     // ─── Story Medyaları (Admin) ────────────────────────────

@@ -81,6 +81,10 @@ export { moderateNewReview } from './moderation';
 
 // Sprint 4 — Place yorumları aggregation
 export { aggregatePlaceRatings } from './places/aggregate_place_ratings';
+export {
+  submitPlaceSuggestion,
+  performPlaceSuggestionAction,
+} from './places/place_suggestions';
 
 // Sprint 4 — Department yorumları aggregation
 export { aggregateDepartmentRatings } from './aggregations/aggregate_department_ratings';
