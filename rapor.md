@@ -54,6 +54,18 @@ Tamamlanan kritik/yüksek öncelikli düzeltmeler:
 - Mekan callable URL'leri kimliksiz istekte 404 yerine beklenen 401 cevabını veriyor; kaldırılan eski RevenueCat URL'si 404, yalnızca POST kabul eden aktif Avrupa URL'si ise GET isteğine 405 döndürüyor.
 - Functions lock dosyasındaki `form-data` high advisory'si `2.5.6` sürümüne yükseltilerek giderildi. Production dependency audit sonucu 0 high, 0 critical ve transitive `uuid` zincirinde 9 moderate bulgudur.
 
+19 Haziran 2026 kapalı test hazırlığı:
+
+- Gizlilik politikası uygulama içinden canlı Vercel sayfasına bağlandı: `https://uni-app-web-sitesi.vercel.app/privacy.html`. URL HTTP 200 dönüyor ve Play Console Privacy Policy alanında kullanılabilir.
+- Hesap silme akışı release build'de görünür hale getirildi. Kullanıcı parola hesabında mevcut şifreyle, Google hesabında Google reauth ile doğrulanıyor; ardından `deleteUserAccount` callable function'ı çağrılıyor.
+- Hesap silme backend tasarımı veriyi önce temizleyip Firebase Auth hesabını en son silecek şekilde kuruldu. `cleanupDeletedUserAccount` Auth onDelete trigger'ı Console veya başka backend üzerinden silinen kullanıcılar için idempotent fallback sağlar.
+- Hesap silme cleanup kapsamı: kullanıcı dokümanı, public profile, subscription dokümanı, favori/tercih/yorum/öneri/notification/feedback/report verileri, kullanıcıya ait like dokümanları, ilgili rate-limit dokümanları ve profil/yorum/mekan önerisi Storage prefix'leri.
+- Türkçe cihaz dışındaki cihazlarda uygulamanın İngilizce başlaması ve kullanıcının sonradan seçtiği dilin korunması doğrulandı.
+- Closed testing için yeni Android App Bundle üretildi: `build/app/outputs/bundle/release/unisec-closed-1.0.0+3.aab`. Paket `com.unisec.app`, `versionCode=3`, `versionName=1.0.0`, `targetSdk=36` ve production AdMob App ID `ca-app-pub-9125676139820389~4633697387` ile üretildi.
+- AAB 16KB zip alignment ve zip bütünlüğü kontrollerinden geçti. SHA-256: `cc7061615b006c2c61e0695e52a5a9c914a98afdc7c4b7120cba0abd0bd92642`.
+- Firebase Android app üzerinde 2 SHA-1 ve 2 SHA-256 sertifika kaydı listelendi. Play App Signing sertifikasının Firebase kayıtlarıyla eşleştiği, Play Console > App integrity ekranından son kez kontrol edilmelidir.
+- `deleteUserAccount` ve `cleanupDeletedUserAccount` production deploy denemeleri yerel build/lint aşamasını geçti; ancak `cloudfunctions.googleapis.com` DNS çözümlemesinde `EAI_AGAIN` nedeniyle deployment tamamlanamadı. Test kullanıcılarını davet etmeden önce bu iki function deploy'u tekrar denenmelidir.
+
 Son doğrulama çıktıları:
 
 | Komut | Sonuç |
@@ -63,12 +75,17 @@ Son doğrulama çıktıları:
 | `npm audit --omit=dev --audit-level=high` (`functions`) | Başarılı; 0 high/critical, 9 moderate |
 | `npm test` (`rules-tests`) | Başarılı, 48 test geçti |
 | `flutter analyze` | Başarılı |
-| `flutter test` | Başarılı, 80 test geçti |
+| `flutter test` | Başarılı, 83 test geçti |
 | `./gradlew :app:lintDebug` | Başarılı. 0 hata, 15 uyarı |
 | `flutter build apk --debug` | Başarılı |
 | Hedefli Functions deploy | Başarılı; 4/4 function aktif |
 | `firebase deploy --only firestore:indexes` | Başarılı; gerekli iki indeks `READY` |
 | Eski RevenueCat function temizliği | Başarılı; `us-central1` silindi, `europe-west1` aktif |
+| `curl -I -L https://uni-app-web-sitesi.vercel.app/privacy.html` | Başarılı; HTTP 200 |
+| `npm run build` / `npm run lint -- --quiet` (`functions`, hesap silme eklemesi sonrası) | Başarılı |
+| `flutter build appbundle --release --build-name=1.0.0 --build-number=3 ...` | Başarılı; `unisec-closed-1.0.0+3.aab` üretildi |
+| `zipalign -c -P 16 4` + `unzip -tq` (`unisec-closed-1.0.0+3.aab`) | Başarılı |
+| `firebase deploy --only functions:deleteUserAccount,functions:cleanupDeletedUserAccount` | Beklemede; yerel analiz geçti, Google API DNS `EAI_AGAIN` nedeniyle deploy tamamlanamadı |
 
 ## 1. Yönetici Özeti
 
@@ -76,7 +93,9 @@ Uygulama genel olarak geniş bir ürün yüzeyine sahip: öğrenci doğrulama, y
 
 Mekan öneri akışı production ile eşitlenmiştir. Saat seçimi yazısız bottom sheet üzerinden yapılmakta, konum Türkiye geneli arama ile daraltılabilmekte, telefon istemci ve sunucuda yalnızca 10-11 rakam kabul etmekte ve gönderim/duplicate/admin action callable'ları aynı production revizyonunda çalışmaktadır. Sahipsiz öneri medyası için günlük scheduled cleanup da aktiftir.
 
-Güncel en önemli açık işler güvenlik kuralı düzeltmesinden çok release ve operasyon doğrulamasıdır: giriş yapılmış gerçek Android cihazında uçtan uca smoke test, Play Integrity/App Attest Console ayarlarıyla imzalı release AAB testi, gizlilik/KVKK ve hesap silme-veri dışa aktarma akışları, review upload reddinde orphan fotoğraf temizliği ve kritik Cloud Function senaryolarının otomatik testleridir.
+Gizlilik politikası canlı Vercel URL'sine bağlandı ve closed testing AAB üretildi. Hesap silme akışı kod tarafında hazırdır; ancak `deleteUserAccount` ve `cleanupDeletedUserAccount` production deploy'u Google API DNS `EAI_AGAIN` hatası nedeniyle henüz tamamlanmamıştır. Test kullanıcılarını davet etmeden önce bu deploy tekrar denenmelidir.
+
+Güncel en önemli açık işler güvenlik kuralı düzeltmesinden çok release ve operasyon doğrulamasıdır: hesap silme function deploy'u, Play Console'a yeni AAB yükleme, Play Integrity/App Check gerçek imzalı build doğrulaması, giriş yapılmış gerçek Android cihazında uçtan uca smoke test, veri dışa aktarma talebi süreci, review upload reddinde orphan fotoğraf temizliği ve kritik Cloud Function senaryolarının otomatik testleridir.
 
 UI tarafında otomatik Flutter analizinde hata bulunmadı. Admin story istatistik satırı, rapor özet kartı, stats kart gridleri, detail sheet aksiyonları ve uzun metin satırlarındaki başlıca responsive riskler kod tarafında giderildi. Buna rağmen gerçek cihaz, tablet, landscape, yüksek text scale ve golden/screenshot test kapsamı henüz yeterli değildir.
 
@@ -117,9 +136,9 @@ Sınırlamalar:
 
 | Öncelik | Alan | Risk | Etki |
 | --- | --- | --- | --- |
-| Yüksek | Release doğrulaması | Gerçek hesapla imzalı Android build üzerinde uçtan uca mekan gönderim/admin onay testi yapılmadı | App Check, auth veya cihaz davranışı kaynaklı production hataları geç fark edilebilir |
-| Yüksek | App Check operasyonu | Play Integrity/App Attest provider ve release token davranışı Console tarafında doğrulanmadı | Release callable çağrıları reddedilebilir |
-| Yüksek | KVKK/Play Store | Yayınlanmış gizlilik politikası, hesap silme ve veri dışa aktarma akışları tamamlanmadı | Store reddi ve veri sahibi talebi uyumsuzluğu |
+| Yüksek | Release doğrulaması | Closed testing AAB üretildi ancak Play Console'a yüklenmiş gerçek tester build üzerinde uçtan uca test yapılmadı | App Check, auth veya cihaz davranışı kaynaklı production hataları geç fark edilebilir |
+| Yüksek | App Check operasyonu | Play Integrity/App Attest provider, Play App Signing SHA eşleşmesi ve release token davranışı Console tarafında son kez doğrulanmadı | Release callable çağrıları reddedilebilir |
+| Yüksek | KVKK/Play Store | Gizlilik URL'si yayında ve hesap silme kodu hazır; ancak hesap silme function deploy'u DNS nedeniyle bekliyor, veri dışa aktarma talebi süreci eksik | Store reddi ve veri sahibi talebi uyumsuzluğu |
 | Orta | Review Storage | Callable reddedilmeden önce yüklenen review fotoğrafları orphan kalabilir | Storage maliyeti ve bucket kirliliği |
 | Orta | Functions testleri | Quota yarış durumu, webhook idempotency ve moderation için doğrudan function testleri eksik | Regresyonlar deploy öncesi yakalanmayabilir |
 | Orta | Story upload | Admin-only olmasına rağmen server-side upload rate limit ve gerçek içerik taraması yok | Yetkili hesap ele geçirilmesi veya yanlış kullanımda maliyet riski |
@@ -754,24 +773,31 @@ Hard overflow kesin değil; Material NavigationBar label'ları sıkıştırabili
 
 ### Sonraki işler — önem sırası
 
-1. Giriş yapılmış gerçek Android cihazında mekan önerisi uçtan uca smoke testi:
+1. Hesap silme production deploy'unu tamamla:
+   - `deleteUserAccount`,
+   - `cleanupDeletedUserAccount`,
+   - deploy sonrası callable varlık kontrolü,
+   - test kullanıcı hesabıyla silme smoke testi.
+2. Closed testing AAB'yi Play Console'a yükle:
+   - `build/app/outputs/bundle/release/unisec-closed-1.0.0+3.aab`,
+   - sürüm adı: `closed-1.0.0+3`,
+   - gizlilik politikası: `https://uni-app-web-sitesi.vercel.app/privacy.html`,
+   - Play App Signing SHA değerlerini Firebase/App Check ile son kez eşleştir.
+3. Giriş yapılmış gerçek Android cihazında mekan önerisi uçtan uca smoke testi:
    - saat, konum, telefon, fotoğraf ve taslak,
    - duplicate uyarısı,
    - gönderim,
    - admin düzenleme/onay,
    - oluşan mekan ve audit log doğrulaması.
-2. İmzalı release AAB ve App Check production doğrulaması:
+4. İmzalı release AAB ve App Check production doğrulaması:
    - Play Integrity,
    - App Attest/DeviceCheck,
    - release callable çağrıları,
    - production AdMob ve signing kontrolü.
-3. KVKK/Play Store uyumluluğu:
-   - gizlilik politikasını yayınlama,
-   - uygulama içi çalışan bağlantı,
-   - hesap silme,
+5. KVKK/Play Store uyumluluğu:
    - veri dışa aktarma ve silme talebi.
-4. Review fotoğraf upload rollback/orphan cleanup mekanizması.
-5. Kritik Cloud Function otomatik testleri:
+6. Review fotoğraf upload rollback/orphan cleanup mekanizması.
+7. Kritik Cloud Function otomatik testleri:
    - recommendation quota,
    - comparison quota race condition,
    - RevenueCat idempotency,
@@ -909,14 +935,18 @@ Hard overflow kesin değil; Material NavigationBar label'ları sıkıştırabili
 
 İlk incelemede bulunan kritik Firestore, admin yetkisi, private profil, review bütünlüğü ve Story Storage açıkları güncel kodda giderildi. Mekan önerisi sistemi de 18 Haziran 2026'da production ile eşitlendi; dört function aktif, gerekli indeksler hazır, scheduled orphan cleanup çalışır durumda ve eski RevenueCat function kopyası kaldırıldı.
 
+19 Haziran 2026 itibarıyla gizlilik politikası canlı Vercel URL'sine bağlandı, hesap silme akışı kod tarafında güvenli callable modele taşındı ve closed testing için `versionCode=3` AAB üretildi. Kalan engel, hesap silme function'larının production deploy'unun yerel DNS `EAI_AGAIN` hatası nedeniyle tamamlanamamış olmasıdır.
+
 Güncel risk profili artık doğrudan yetki yükseltme açıklarından release/operasyon doğrulamasına kaymıştır. En güvenli devam sırası:
 
-1. Gerçek cihazda girişli uçtan uca mekan önerisi testi.
-2. İmzalı release AAB + App Check production doğrulaması.
-3. KVKK/Play Store hesap silme ve veri yönetimi akışları.
-4. Review orphan upload temizliği.
-5. Kritik Cloud Function otomatik testleri.
-6. Story upload abuse koruması ve Monitoring alert'leri.
-7. Responsive/accessibility testleri ve dependency bakımı.
+1. `deleteUserAccount` ve `cleanupDeletedUserAccount` production deploy'unu DNS düzelince tamamlamak.
+2. `unisec-closed-1.0.0+3.aab` dosyasını Closed testing'e yüklemek.
+3. Play App Signing SHA/App Check Play Integrity eşleşmesini doğrulamak.
+4. Gerçek cihazda girişli uçtan uca smoke test yapmak.
+5. Veri dışa aktarma/silme talebi sürecini belgelemek.
+6. Review orphan upload temizliği.
+7. Kritik Cloud Function otomatik testleri.
+8. Story upload abuse koruması ve Monitoring alert'leri.
+9. Responsive/accessibility testleri ve dependency bakımı.
 
 Mevcut güvenlik tabanı production için önceki duruma göre belirgin biçimde daha sağlamdır; kalan işler release güvenilirliği, mevzuat uyumu, otomatik regresyon kapsamı ve operasyonel görünürlük üzerine yoğunlaşmaktadır.

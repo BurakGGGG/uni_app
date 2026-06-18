@@ -106,6 +106,10 @@ export { submitReview, getReviewSubmissionStatus } from './reviews/submit_review
 export { verifyStudentUniversity } from './auth/verify_student';
 export { syncPublicProfile } from './auth/sync_public_profile';
 export { syncUserReviewCount } from './auth/sync_user_review_count';
+export {
+  deleteUserAccount,
+  cleanupDeletedUserAccount,
+} from './auth/cleanup_user';
 
 // Sprint 5 — AI tercih önerisi zenginleştirme (Groq)
 export { enrichRecommendations } from './recommendations/enrich';

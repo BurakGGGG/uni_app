@@ -1430,6 +1430,84 @@ abstract class AppLocalizations {
   /// **'Hesabımı sil'**
   String get profileDeleteAccount;
 
+  /// No description provided for @deleteAccountTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Hesabı kalıcı olarak sil'**
+  String get deleteAccountTitle;
+
+  /// No description provided for @deleteAccountDescription.
+  ///
+  /// In tr, this message translates to:
+  /// **'Profiliniz, favorileriniz, tercih listeleriniz, yorumlarınız, önerileriniz ve hesabınızla ilişkili kişisel veriler silinecektir.'**
+  String get deleteAccountDescription;
+
+  /// No description provided for @deleteAccountWarning.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bu işlem geri alınamaz. Aktif mağaza aboneliğiniz varsa aboneliği ayrıca Google Play üzerinden iptal etmeniz gerekir.'**
+  String get deleteAccountWarning;
+
+  /// No description provided for @deleteAccountPasswordNote.
+  ///
+  /// In tr, this message translates to:
+  /// **'Devam etmek için mevcut şifrenizle kimliğinizi doğrulayın.'**
+  String get deleteAccountPasswordNote;
+
+  /// No description provided for @deleteAccountGoogleNote.
+  ///
+  /// In tr, this message translates to:
+  /// **'Devam ettiğinizde Google hesabınızla yeniden doğrulama istenecektir.'**
+  String get deleteAccountGoogleNote;
+
+  /// No description provided for @deleteAccountPasswordLabel.
+  ///
+  /// In tr, this message translates to:
+  /// **'Mevcut şifre'**
+  String get deleteAccountPasswordLabel;
+
+  /// No description provided for @deleteAccountPasswordRequired.
+  ///
+  /// In tr, this message translates to:
+  /// **'Mevcut şifrenizi girin'**
+  String get deleteAccountPasswordRequired;
+
+  /// No description provided for @deleteAccountConfirmationWord.
+  ///
+  /// In tr, this message translates to:
+  /// **'SİL'**
+  String get deleteAccountConfirmationWord;
+
+  /// No description provided for @deleteAccountConfirmationLabel.
+  ///
+  /// In tr, this message translates to:
+  /// **'Onaylamak için {word} yazın'**
+  String deleteAccountConfirmationLabel(String word);
+
+  /// No description provided for @deleteAccountConfirmationMismatch.
+  ///
+  /// In tr, this message translates to:
+  /// **'Devam etmek için {word} yazın'**
+  String deleteAccountConfirmationMismatch(String word);
+
+  /// No description provided for @deleteAccountConfirmButton.
+  ///
+  /// In tr, this message translates to:
+  /// **'Hesabı sil'**
+  String get deleteAccountConfirmButton;
+
+  /// No description provided for @deleteAccountProgress.
+  ///
+  /// In tr, this message translates to:
+  /// **'Hesabınız ve verileriniz siliniyor...'**
+  String get deleteAccountProgress;
+
+  /// No description provided for @deleteAccountSuccess.
+  ///
+  /// In tr, this message translates to:
+  /// **'Hesabınız ve ilişkili verileriniz silindi.'**
+  String get deleteAccountSuccess;
+
   /// No description provided for @favoritesEmpty.
   ///
   /// In tr, this message translates to:

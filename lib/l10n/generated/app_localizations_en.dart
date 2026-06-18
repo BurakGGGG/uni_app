@@ -713,6 +713,54 @@ class AppLocalizationsEn extends AppLocalizations {
   String get profileDeleteAccount => 'Delete account';
 
   @override
+  String get deleteAccountTitle => 'Permanently delete account';
+
+  @override
+  String get deleteAccountDescription =>
+      'Your profile, favorites, preference lists, reviews, suggestions, and personal data associated with your account will be deleted.';
+
+  @override
+  String get deleteAccountWarning =>
+      'This action cannot be undone. If you have an active store subscription, you must also cancel it through Google Play.';
+
+  @override
+  String get deleteAccountPasswordNote =>
+      'Verify your identity with your current password to continue.';
+
+  @override
+  String get deleteAccountGoogleNote =>
+      'You will be asked to verify your identity with Google when you continue.';
+
+  @override
+  String get deleteAccountPasswordLabel => 'Current password';
+
+  @override
+  String get deleteAccountPasswordRequired => 'Enter your current password';
+
+  @override
+  String get deleteAccountConfirmationWord => 'DELETE';
+
+  @override
+  String deleteAccountConfirmationLabel(String word) {
+    return 'Type $word to confirm';
+  }
+
+  @override
+  String deleteAccountConfirmationMismatch(String word) {
+    return 'Type $word to continue';
+  }
+
+  @override
+  String get deleteAccountConfirmButton => 'Delete account';
+
+  @override
+  String get deleteAccountProgress => 'Deleting your account and data...';
+
+  @override
+  String get deleteAccountSuccess =>
+      'Your account and associated data were deleted.';
+
+  @override
   String get favoritesEmpty => 'No favorites';
 
   @override

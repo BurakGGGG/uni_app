@@ -713,6 +713,54 @@ class AppLocalizationsTr extends AppLocalizations {
   String get profileDeleteAccount => 'Hesabımı sil';
 
   @override
+  String get deleteAccountTitle => 'Hesabı kalıcı olarak sil';
+
+  @override
+  String get deleteAccountDescription =>
+      'Profiliniz, favorileriniz, tercih listeleriniz, yorumlarınız, önerileriniz ve hesabınızla ilişkili kişisel veriler silinecektir.';
+
+  @override
+  String get deleteAccountWarning =>
+      'Bu işlem geri alınamaz. Aktif mağaza aboneliğiniz varsa aboneliği ayrıca Google Play üzerinden iptal etmeniz gerekir.';
+
+  @override
+  String get deleteAccountPasswordNote =>
+      'Devam etmek için mevcut şifrenizle kimliğinizi doğrulayın.';
+
+  @override
+  String get deleteAccountGoogleNote =>
+      'Devam ettiğinizde Google hesabınızla yeniden doğrulama istenecektir.';
+
+  @override
+  String get deleteAccountPasswordLabel => 'Mevcut şifre';
+
+  @override
+  String get deleteAccountPasswordRequired => 'Mevcut şifrenizi girin';
+
+  @override
+  String get deleteAccountConfirmationWord => 'SİL';
+
+  @override
+  String deleteAccountConfirmationLabel(String word) {
+    return 'Onaylamak için $word yazın';
+  }
+
+  @override
+  String deleteAccountConfirmationMismatch(String word) {
+    return 'Devam etmek için $word yazın';
+  }
+
+  @override
+  String get deleteAccountConfirmButton => 'Hesabı sil';
+
+  @override
+  String get deleteAccountProgress => 'Hesabınız ve verileriniz siliniyor...';
+
+  @override
+  String get deleteAccountSuccess =>
+      'Hesabınız ve ilişkili verileriniz silindi.';
+
+  @override
   String get favoritesEmpty => 'Favori yok';
 
   @override

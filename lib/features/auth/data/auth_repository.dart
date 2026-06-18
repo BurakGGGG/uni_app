@@ -47,6 +47,12 @@ class AuthRepository {
   /// Mevcut Firebase kullanıcısı
   User? get currentUser => _auth.currentUser;
 
+  bool get currentUserUsesPasswordProvider {
+    final user = _auth.currentUser;
+    if (user == null) return false;
+    return user.providerData.any((info) => info.providerId == 'password');
+  }
+
   Future<bool> isCurrentUserAdmin({bool forceRefresh = false}) async {
     final user = _auth.currentUser;
     if (user == null) return false;
@@ -354,6 +360,103 @@ class AuthRepository {
     _lastCacheTime = null;
     await clearAuthSessionCache();
     await Future.wait([_auth.signOut(), _googleSignIn.signOut()]);
+  }
+
+  // ─── Hesabı Sil ───────────────────────────────────────────────
+
+  Future<void> deleteAccount({String? password}) async {
+    final user = _auth.currentUser;
+    if (user == null) throw 'Oturum açık değil.';
+
+    try {
+      final uid = user.uid;
+      await _reauthenticateForAccountDeletion(user, password: password);
+      await user.getIdToken(true);
+
+      // FCM kaydını mümkünse callable öncesinde kaldır. Sunucu tarafı temizliği
+      // bu işlem başarısız olsa bile users/{uid} alt koleksiyonunu silecektir.
+      await FCMService().unregisterToken().catchError((_) {});
+
+      final callable = _functions.httpsCallable(
+        'deleteUserAccount',
+        options: HttpsCallableOptions(timeout: const Duration(minutes: 9)),
+      );
+      await callable.call<void>({'confirmation': 'DELETE'});
+
+      _cachedUser = null;
+      _lastCacheTime = null;
+      await _clearLocalAccountData(uid);
+      await RevenueCatService().logout();
+      await Future.wait([_auth.signOut(), _googleSignIn.signOut()]);
+    } on FirebaseAuthException catch (e) {
+      throw _handleAuthError(e);
+    } on FirebaseFunctionsException catch (e) {
+      switch (e.code) {
+        case 'failed-precondition':
+          throw 'Güvenlik nedeniyle hesabınızı silmek için yeniden giriş yapmalısınız.';
+        case 'unauthenticated':
+          throw 'Oturumunuz sona ermiş. Lütfen yeniden giriş yapın.';
+        case 'invalid-argument':
+          throw 'Hesap silme onayı geçersiz.';
+        default:
+          throw e.message ??
+              'Hesap şu anda silinemedi. Lütfen daha sonra tekrar deneyin.';
+      }
+    } catch (e) {
+      if (e is String) rethrow;
+      throw 'Hesap şu anda silinemedi. Lütfen daha sonra tekrar deneyin.';
+    }
+  }
+
+  Future<void> _reauthenticateForAccountDeletion(
+    User user, {
+    String? password,
+  }) async {
+    final providers = user.providerData.map((info) => info.providerId).toSet();
+
+    if (providers.contains('password')) {
+      final email = user.email;
+      if (email == null || password == null || password.isEmpty) {
+        throw 'Hesabınızı silmek için mevcut şifrenizi girin.';
+      }
+      final credential = EmailAuthProvider.credential(
+        email: email,
+        password: password,
+      );
+      await user.reauthenticateWithCredential(credential);
+      return;
+    }
+
+    if (providers.contains(GoogleAuthProvider.PROVIDER_ID)) {
+      final googleUser = await _googleSignIn.signIn();
+      if (googleUser == null) {
+        throw 'Google doğrulaması iptal edildi.';
+      }
+      final googleAuth = await googleUser.authentication;
+      final credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+      await user.reauthenticateWithCredential(credential);
+      return;
+    }
+
+    await user.reload();
+  }
+
+  Future<void> _clearLocalAccountData(String uid) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(AppConstants.persistedAuthUidKey);
+    await prefs.remove('offline_favorites_queue');
+
+    final draftPrefix = 'place_suggestion_draft_v1_${uid}_';
+    final draftKeys = prefs
+        .getKeys()
+        .where((key) => key.startsWith(draftPrefix))
+        .toList(growable: false);
+    for (final key in draftKeys) {
+      await prefs.remove(key);
+    }
   }
 
   // ─── Kullanıcı Profili Çekme ──────────────────────────────────

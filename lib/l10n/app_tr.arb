@@ -293,6 +293,33 @@
   "profilePremium": "Premium üyelik",
   "profileLanguage": "Dil",
   "profileDeleteAccount": "Hesabımı sil",
+  "deleteAccountTitle": "Hesabı kalıcı olarak sil",
+  "deleteAccountDescription": "Profiliniz, favorileriniz, tercih listeleriniz, yorumlarınız, önerileriniz ve hesabınızla ilişkili kişisel veriler silinecektir.",
+  "deleteAccountWarning": "Bu işlem geri alınamaz. Aktif mağaza aboneliğiniz varsa aboneliği ayrıca Google Play üzerinden iptal etmeniz gerekir.",
+  "deleteAccountPasswordNote": "Devam etmek için mevcut şifrenizle kimliğinizi doğrulayın.",
+  "deleteAccountGoogleNote": "Devam ettiğinizde Google hesabınızla yeniden doğrulama istenecektir.",
+  "deleteAccountPasswordLabel": "Mevcut şifre",
+  "deleteAccountPasswordRequired": "Mevcut şifrenizi girin",
+  "deleteAccountConfirmationWord": "SİL",
+  "deleteAccountConfirmationLabel": "Onaylamak için {word} yazın",
+  "@deleteAccountConfirmationLabel": {
+    "placeholders": {
+      "word": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteAccountConfirmationMismatch": "Devam etmek için {word} yazın",
+  "@deleteAccountConfirmationMismatch": {
+    "placeholders": {
+      "word": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteAccountConfirmButton": "Hesabı sil",
+  "deleteAccountProgress": "Hesabınız ve verileriniz siliniyor...",
+  "deleteAccountSuccess": "Hesabınız ve ilişkili verileriniz silindi.",
   "favoritesEmpty": "Favori yok",
   "favoritesEmptyHint": "Beğendiğin üniversiteleri buradan takip et.",
   "profileTheme": "Tema",

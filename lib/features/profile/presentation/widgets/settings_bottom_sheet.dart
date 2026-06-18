@@ -130,11 +130,15 @@ class _SettingsBottomSheetState extends ConsumerState<SettingsBottomSheet> {
                       iconColor: AppColors.primary,
                       title: loc.profileTheme,
                       trailing: _buildThemeSelector(
-                        context, ref, currentTheme, loc,
+                        context,
+                        ref,
+                        currentTheme,
+                        loc,
                       ),
                     ),
                     Divider(
-                      height: 1, indent: 56,
+                      height: 1,
+                      indent: 56,
                       color: AppColors.borderLightFor(context),
                     ),
                     _buildSheetTile(
@@ -143,7 +147,10 @@ class _SettingsBottomSheetState extends ConsumerState<SettingsBottomSheet> {
                       iconColor: AppColors.accent,
                       title: loc.profileLanguage,
                       trailing: _buildLanguageSelector(
-                        context, ref, currentLocale, loc,
+                        context,
+                        ref,
+                        currentLocale,
+                        loc,
                       ),
                     ),
                   ],
@@ -229,13 +236,16 @@ class _SettingsBottomSheetState extends ConsumerState<SettingsBottomSheet> {
                 applicationName: AppConstants.appName,
                 applicationVersion: 'v${AppConstants.appVersion}',
                 applicationIcon: Container(
-                  width: 48, height: 48,
+                  width: 48,
+                  height: 48,
                   decoration: BoxDecoration(
                     gradient: AppColors.primaryGradient,
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: const Icon(
-                    Icons.school_rounded, color: Colors.white, size: 28,
+                    Icons.school_rounded,
+                    color: Colors.white,
+                    size: 28,
                   ),
                 ),
                 children: [
@@ -309,7 +319,9 @@ class _SettingsBottomSheetState extends ConsumerState<SettingsBottomSheet> {
             title: loc.profilePrivacyPolicy,
             onTap: () async {
               Navigator.pop(context);
-              final url = Uri.parse('https://unisec.app/privacy');
+              final url = Uri.parse(
+                'https://uni-app-web-sitesi.vercel.app/privacy.html',
+              );
               if (await canLaunchUrl(url)) {
                 await launchUrl(url, mode: LaunchMode.externalApplication);
               } else {
@@ -367,11 +379,19 @@ class _SettingsBottomSheetState extends ConsumerState<SettingsBottomSheet> {
               try {
                 await seedService.uploadSeedData();
                 if (widget.parentContext.mounted) {
-                  showAppSnackBar(widget.parentContext, message: 'Seed verisi yüklendi!', isSuccess: true);
+                  showAppSnackBar(
+                    widget.parentContext,
+                    message: 'Seed verisi yüklendi!',
+                    isSuccess: true,
+                  );
                 }
               } catch (e) {
                 if (widget.parentContext.mounted) {
-                  showAppSnackBar(widget.parentContext, message: 'Hata: $e', isSuccess: false);
+                  showAppSnackBar(
+                    widget.parentContext,
+                    message: 'Hata: $e',
+                    isSuccess: false,
+                  );
                 }
               }
             },
@@ -389,11 +409,19 @@ class _SettingsBottomSheetState extends ConsumerState<SettingsBottomSheet> {
               try {
                 await seedService.deleteCafes();
                 if (widget.parentContext.mounted) {
-                  showAppSnackBar(widget.parentContext, message: 'Kafeler silindi!', isSuccess: true);
+                  showAppSnackBar(
+                    widget.parentContext,
+                    message: 'Kafeler silindi!',
+                    isSuccess: true,
+                  );
                 }
               } catch (e) {
                 if (widget.parentContext.mounted) {
-                  showAppSnackBar(widget.parentContext, message: 'Hata: $e', isSuccess: false);
+                  showAppSnackBar(
+                    widget.parentContext,
+                    message: 'Hata: $e',
+                    isSuccess: false,
+                  );
                 }
               }
             },
@@ -410,15 +438,27 @@ class _SettingsBottomSheetState extends ConsumerState<SettingsBottomSheet> {
               final seedService = seed_data.SeedDataService();
               try {
                 if (widget.parentContext.mounted) {
-                  showAppSnackBar(widget.parentContext, message: 'Yurtlar güncelleniyor...', isSuccess: true);
+                  showAppSnackBar(
+                    widget.parentContext,
+                    message: 'Yurtlar güncelleniyor...',
+                    isSuccess: true,
+                  );
                 }
                 await seedService.reseedDorms();
                 if (widget.parentContext.mounted) {
-                  showAppSnackBar(widget.parentContext, message: 'Yurtlar güncellendi!', isSuccess: true);
+                  showAppSnackBar(
+                    widget.parentContext,
+                    message: 'Yurtlar güncellendi!',
+                    isSuccess: true,
+                  );
                 }
               } catch (e) {
                 if (widget.parentContext.mounted) {
-                  showAppSnackBar(widget.parentContext, message: 'Hata: $e', isSuccess: false);
+                  showAppSnackBar(
+                    widget.parentContext,
+                    message: 'Hata: $e',
+                    isSuccess: false,
+                  );
                 }
               }
             },
@@ -433,7 +473,11 @@ class _SettingsBottomSheetState extends ConsumerState<SettingsBottomSheet> {
               Navigator.pop(context);
               await BrandColorsMigration().run();
               if (widget.parentContext.mounted) {
-                showAppSnackBar(widget.parentContext, message: 'Marka renkleri yüklendi', isSuccess: true);
+                showAppSnackBar(
+                  widget.parentContext,
+                  message: 'Marka renkleri yüklendi',
+                  isSuccess: true,
+                );
               }
             },
           ),
@@ -448,7 +492,11 @@ class _SettingsBottomSheetState extends ConsumerState<SettingsBottomSheet> {
               await CityBrandColorsMigration().run();
               if (widget.parentContext.mounted) {
                 ref.invalidate(citiesProvider);
-                showAppSnackBar(widget.parentContext, message: 'Şehir renkleri yüklendi', isSuccess: true);
+                showAppSnackBar(
+                  widget.parentContext,
+                  message: 'Şehir renkleri yüklendi',
+                  isSuccess: true,
+                );
               }
             },
           ),
@@ -463,11 +511,19 @@ class _SettingsBottomSheetState extends ConsumerState<SettingsBottomSheet> {
               try {
                 await CityBrandColorsMigration().runUniversityBrandColors();
                 if (widget.parentContext.mounted) {
-                  showAppSnackBar(widget.parentContext, message: 'Gradient renkleri yüklendi!', isSuccess: true);
+                  showAppSnackBar(
+                    widget.parentContext,
+                    message: 'Gradient renkleri yüklendi!',
+                    isSuccess: true,
+                  );
                 }
               } catch (e) {
                 if (widget.parentContext.mounted) {
-                  showAppSnackBar(widget.parentContext, message: 'Hata: $e', isSuccess: false);
+                  showAppSnackBar(
+                    widget.parentContext,
+                    message: 'Hata: $e',
+                    isSuccess: false,
+                  );
                 }
               }
             },
@@ -483,11 +539,19 @@ class _SettingsBottomSheetState extends ConsumerState<SettingsBottomSheet> {
               try {
                 final report = await DepartmentScoresMigration().run();
                 if (widget.parentContext.mounted) {
-                  showAppSnackBar(widget.parentContext, message: 'Başarılı: $report', isSuccess: true);
+                  showAppSnackBar(
+                    widget.parentContext,
+                    message: 'Başarılı: $report',
+                    isSuccess: true,
+                  );
                 }
               } catch (e) {
                 if (widget.parentContext.mounted) {
-                  showAppSnackBar(widget.parentContext, message: 'Hata: $e', isSuccess: false);
+                  showAppSnackBar(
+                    widget.parentContext,
+                    message: 'Hata: $e',
+                    isSuccess: false,
+                  );
                 }
               }
             },
@@ -503,11 +567,19 @@ class _SettingsBottomSheetState extends ConsumerState<SettingsBottomSheet> {
               try {
                 await deleteMissingDepartments();
                 if (widget.parentContext.mounted) {
-                  showAppSnackBar(widget.parentContext, message: 'Temizlik başarılı!', isSuccess: true);
+                  showAppSnackBar(
+                    widget.parentContext,
+                    message: 'Temizlik başarılı!',
+                    isSuccess: true,
+                  );
                 }
               } catch (e) {
                 if (widget.parentContext.mounted) {
-                  showAppSnackBar(widget.parentContext, message: 'Hata: $e', isSuccess: false);
+                  showAppSnackBar(
+                    widget.parentContext,
+                    message: 'Hata: $e',
+                    isSuccess: false,
+                  );
                 }
               }
             },
@@ -519,7 +591,10 @@ class _SettingsBottomSheetState extends ConsumerState<SettingsBottomSheet> {
 
   // ─── Tema Seçici ────────────────────────────────────────────────
   Widget _buildThemeSelector(
-    BuildContext context, WidgetRef ref, ThemeMode current, AppLocalizations loc,
+    BuildContext context,
+    WidgetRef ref,
+    ThemeMode current,
+    AppLocalizations loc,
   ) {
     return Container(
       padding: const EdgeInsets.all(3),
@@ -530,13 +605,21 @@ class _SettingsBottomSheetState extends ConsumerState<SettingsBottomSheet> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          _buildThemeChip(context, ref,
-            icon: Icons.light_mode_rounded, label: loc.themeLight,
-            isSelected: current == ThemeMode.light, mode: ThemeMode.light,
+          _buildThemeChip(
+            context,
+            ref,
+            icon: Icons.light_mode_rounded,
+            label: loc.themeLight,
+            isSelected: current == ThemeMode.light,
+            mode: ThemeMode.light,
           ),
-          _buildThemeChip(context, ref,
-            icon: Icons.dark_mode_rounded, label: loc.themeDark,
-            isSelected: current == ThemeMode.dark, mode: ThemeMode.dark,
+          _buildThemeChip(
+            context,
+            ref,
+            icon: Icons.dark_mode_rounded,
+            label: loc.themeDark,
+            isSelected: current == ThemeMode.dark,
+            mode: ThemeMode.dark,
             showBeta: true,
           ),
         ],
@@ -545,9 +628,13 @@ class _SettingsBottomSheetState extends ConsumerState<SettingsBottomSheet> {
   }
 
   Widget _buildThemeChip(
-    BuildContext context, WidgetRef ref, {
-    required IconData icon, required String label,
-    required bool isSelected, required ThemeMode mode, bool showBeta = false,
+    BuildContext context,
+    WidgetRef ref, {
+    required IconData icon,
+    required String label,
+    required bool isSelected,
+    required ThemeMode mode,
+    bool showBeta = false,
   }) {
     return GestureDetector(
       onTap: () => ref.read(themeProvider.notifier).setTheme(mode),
@@ -558,19 +645,36 @@ class _SettingsBottomSheetState extends ConsumerState<SettingsBottomSheet> {
           color: isSelected ? AppColors.primary : Colors.transparent,
           borderRadius: BorderRadius.circular(8),
           boxShadow: isSelected
-              ? [BoxShadow(color: AppColors.primary.withValues(alpha: 0.3), blurRadius: 8, offset: const Offset(0, 2))]
+              ? [
+                  BoxShadow(
+                    color: AppColors.primary.withValues(alpha: 0.3),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ]
               : null,
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 14,
-              color: isSelected ? Colors.white : AppColors.textSecondaryFor(context)),
+            Icon(
+              icon,
+              size: 14,
+              color: isSelected
+                  ? Colors.white
+                  : AppColors.textSecondaryFor(context),
+            ),
             const SizedBox(width: 4),
-            Text(label, style: AppTextStyles.labelSmall.copyWith(
-              color: isSelected ? Colors.white : AppColors.textSecondaryFor(context),
-              fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500, fontSize: 10,
-            )),
+            Text(
+              label,
+              style: AppTextStyles.labelSmall.copyWith(
+                color: isSelected
+                    ? Colors.white
+                    : AppColors.textSecondaryFor(context),
+                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                fontSize: 10,
+              ),
+            ),
             if (showBeta) ...[
               const SizedBox(width: 6),
               Container(
@@ -578,9 +682,23 @@ class _SettingsBottomSheetState extends ConsumerState<SettingsBottomSheet> {
                 decoration: BoxDecoration(
                   color: Colors.orange,
                   borderRadius: BorderRadius.circular(4),
-                  boxShadow: [BoxShadow(color: Colors.orange.withValues(alpha: 0.4), blurRadius: 4, offset: const Offset(0, 2))],
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.orange.withValues(alpha: 0.4),
+                      blurRadius: 4,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
                 ),
-                child: const Text('BETA', style: TextStyle(fontSize: 8, fontWeight: FontWeight.w900, color: Colors.white, letterSpacing: 0.5)),
+                child: const Text(
+                  'BETA',
+                  style: TextStyle(
+                    fontSize: 8,
+                    fontWeight: FontWeight.w900,
+                    color: Colors.white,
+                    letterSpacing: 0.5,
+                  ),
+                ),
               ),
             ],
           ],
@@ -591,7 +709,10 @@ class _SettingsBottomSheetState extends ConsumerState<SettingsBottomSheet> {
 
   // ─── Dil Seçici ────────────────────────────────────────────────
   Widget _buildLanguageSelector(
-    BuildContext context, WidgetRef ref, Locale current, AppLocalizations loc,
+    BuildContext context,
+    WidgetRef ref,
+    Locale current,
+    AppLocalizations loc,
   ) {
     return Container(
       padding: const EdgeInsets.all(3),
@@ -602,16 +723,31 @@ class _SettingsBottomSheetState extends ConsumerState<SettingsBottomSheet> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          _buildLangChip(context, ref, label: '🇹🇷 TR', locale: const Locale('tr'), isSelected: current.languageCode == 'tr'),
-          _buildLangChip(context, ref, label: '🇬🇧 EN', locale: const Locale('en'), isSelected: current.languageCode == 'en'),
+          _buildLangChip(
+            context,
+            ref,
+            label: '🇹🇷 TR',
+            locale: const Locale('tr'),
+            isSelected: current.languageCode == 'tr',
+          ),
+          _buildLangChip(
+            context,
+            ref,
+            label: '🇬🇧 EN',
+            locale: const Locale('en'),
+            isSelected: current.languageCode == 'en',
+          ),
         ],
       ),
     );
   }
 
   Widget _buildLangChip(
-    BuildContext context, WidgetRef ref, {
-    required String label, required Locale locale, required bool isSelected,
+    BuildContext context,
+    WidgetRef ref, {
+    required String label,
+    required Locale locale,
+    required bool isSelected,
   }) {
     return GestureDetector(
       onTap: () => ref.read(localeProvider.notifier).setLocale(locale),
@@ -622,22 +758,33 @@ class _SettingsBottomSheetState extends ConsumerState<SettingsBottomSheet> {
           color: isSelected ? AppColors.primary : Colors.transparent,
           borderRadius: BorderRadius.circular(8),
           boxShadow: isSelected
-              ? [BoxShadow(color: AppColors.primary.withValues(alpha: 0.3), blurRadius: 8, offset: const Offset(0, 2))]
+              ? [
+                  BoxShadow(
+                    color: AppColors.primary.withValues(alpha: 0.3),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ]
               : null,
         ),
-        child: Text(label, style: AppTextStyles.labelSmall.copyWith(
-          color: isSelected ? Colors.white : AppColors.textSecondaryFor(context),
-          fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500, fontSize: 11,
-        )),
+        child: Text(
+          label,
+          style: AppTextStyles.labelSmall.copyWith(
+            color: isSelected
+                ? Colors.white
+                : AppColors.textSecondaryFor(context),
+            fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+            fontSize: 11,
+          ),
+        ),
       ),
     );
   }
 
   // ─── Helpers ────────────────────────────────────────────────────
 
-  Widget _divider(BuildContext context) => Divider(
-    height: 1, indent: 56, color: AppColors.borderLightFor(context),
-  );
+  Widget _divider(BuildContext context) =>
+      Divider(height: 1, indent: 56, color: AppColors.borderLightFor(context));
 
   Widget _buildSectionLabel(BuildContext context, String title) {
     return Padding(
@@ -648,7 +795,8 @@ class _SettingsBottomSheetState extends ConsumerState<SettingsBottomSheet> {
           title.toUpperCase(),
           style: AppTextStyles.labelSmall.copyWith(
             color: AppColors.textTertiaryFor(context),
-            fontWeight: FontWeight.w700, letterSpacing: 1.2,
+            fontWeight: FontWeight.w700,
+            letterSpacing: 1.2,
           ),
         ),
       ),
@@ -657,15 +805,18 @@ class _SettingsBottomSheetState extends ConsumerState<SettingsBottomSheet> {
 
   Widget _buildSheetTile(
     BuildContext context, {
-    required IconData icon, required Color iconColor,
-    required String title, required Widget trailing,
+    required IconData icon,
+    required Color iconColor,
+    required String title,
+    required Widget trailing,
   }) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: Row(
         children: [
           Container(
-            width: 34, height: 34,
+            width: 34,
+            height: 34,
             decoration: BoxDecoration(
               color: iconColor.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(9),
@@ -683,8 +834,11 @@ class _SettingsBottomSheetState extends ConsumerState<SettingsBottomSheet> {
 
   Widget _buildSheetActionTile(
     BuildContext context, {
-    required IconData icon, required Color iconColor,
-    required String title, String? subtitle, required VoidCallback onTap,
+    required IconData icon,
+    required Color iconColor,
+    required String title,
+    String? subtitle,
+    required VoidCallback onTap,
   }) {
     return Material(
       color: Colors.transparent,
@@ -695,7 +849,8 @@ class _SettingsBottomSheetState extends ConsumerState<SettingsBottomSheet> {
           child: Row(
             children: [
               Container(
-                width: 34, height: 34,
+                width: 34,
+                height: 34,
                 decoration: BoxDecoration(
                   color: iconColor.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(9),
@@ -709,14 +864,20 @@ class _SettingsBottomSheetState extends ConsumerState<SettingsBottomSheet> {
                   children: [
                     Text(title, style: AppTextStyles.bodyMedium),
                     if (subtitle != null)
-                      Text(subtitle, style: AppTextStyles.labelSmall.copyWith(
-                        color: AppColors.textTertiaryFor(context),
-                      )),
+                      Text(
+                        subtitle,
+                        style: AppTextStyles.labelSmall.copyWith(
+                          color: AppColors.textTertiaryFor(context),
+                        ),
+                      ),
                   ],
                 ),
               ),
-              Icon(Icons.chevron_right_rounded, size: 18,
-                color: AppColors.textTertiaryFor(context)),
+              Icon(
+                Icons.chevron_right_rounded,
+                size: 18,
+                color: AppColors.textTertiaryFor(context),
+              ),
             ],
           ),
         ),

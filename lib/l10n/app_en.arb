@@ -293,6 +293,33 @@
   "profilePremium": "Premium membership",
   "profileLanguage": "Language",
   "profileDeleteAccount": "Delete account",
+  "deleteAccountTitle": "Permanently delete account",
+  "deleteAccountDescription": "Your profile, favorites, preference lists, reviews, suggestions, and personal data associated with your account will be deleted.",
+  "deleteAccountWarning": "This action cannot be undone. If you have an active store subscription, you must also cancel it through Google Play.",
+  "deleteAccountPasswordNote": "Verify your identity with your current password to continue.",
+  "deleteAccountGoogleNote": "You will be asked to verify your identity with Google when you continue.",
+  "deleteAccountPasswordLabel": "Current password",
+  "deleteAccountPasswordRequired": "Enter your current password",
+  "deleteAccountConfirmationWord": "DELETE",
+  "deleteAccountConfirmationLabel": "Type {word} to confirm",
+  "@deleteAccountConfirmationLabel": {
+    "placeholders": {
+      "word": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteAccountConfirmationMismatch": "Type {word} to continue",
+  "@deleteAccountConfirmationMismatch": {
+    "placeholders": {
+      "word": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteAccountConfirmButton": "Delete account",
+  "deleteAccountProgress": "Deleting your account and data...",
+  "deleteAccountSuccess": "Your account and associated data were deleted.",
   "favoritesEmpty": "No favorites",
   "favoritesEmptyHint": "Track universities you like here.",
   "profileTheme": "Theme",
