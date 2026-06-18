@@ -6,7 +6,7 @@ Uygulamanın tüm tema sistemi, ana ekranlar, widget'lar ve navigasyon yapısı 
 
 ## 🔴 Kritik Sorunlar
 
-### 1. Profil Ekranı Aşırı Büyük — **1890 satır** tek dosyada
+### ~~1. Profil Ekranı Aşırı Büyük — 1890 satır tek dosyada~~ ✅
 - [profile_screen.dart](file:///home/burak/uni_app/lib/features/profile/presentation/screens/profile_screen.dart) → **73 KB**, **1890 satır**
 - Tek bir dosyada guest profili, user kartı, istatistikler, admin paneli, ayarlar bottom sheet, plan detayları, seed data migration script'leri gibi **farklı sorumluluklar** var
 - Bu kadar büyük bir widget rebuild'leri yavaşlatır, bakımı ve UX iterasyonunu zorlaştırır
@@ -14,7 +14,7 @@ Uygulamanın tüm tema sistemi, ana ekranlar, widget'lar ve navigasyon yapısı 
 > [!WARNING]
 > Bu dosya acilen 5-6 ayrı widget/section dosyasına bölünmeli. `_SettingsBottomSheet`, `_buildStats`, `_buildUserCard`, `_buildGuestProfile`, `_showPlanDetails` bağımsız widget'lara dönüşmeli.
 
-### 2. Dark Mode Snackbar Metin Rengi Hatalı
+### ~~2. Dark Mode Snackbar Metin Rengi Hatalı~~ ✅
 - [app_theme.dart:599-604](file:///home/burak/uni_app/lib/core/theme/app_theme.dart#L598-L604): Dark modda snackbar arka planı **beyaz** ama metin rengi `AppColors.textOnPrimary` yani **beyaz**
 - **Sonuç:** Dark modda snackbar'daki yazılar **görünmez** (beyaz zemin üstüne beyaz metin)
 
@@ -29,7 +29,7 @@ Uygulamanın tüm tema sistemi, ana ekranlar, widget'lar ve navigasyon yapısı 
    ),
 ```
 
-### 3. Dark Mode ColorScheme'de `primaryContainer` Light Renk Kullanılıyor
+### ~~3. Dark Mode ColorScheme'de `primaryContainer` Light Renk Kullanılıyor~~ ✅
 - [app_theme.dart:335](file:///home/burak/uni_app/lib/core/theme/app_theme.dart#L334): `primaryContainer: AppColors.primaryLight` → Bu light mode değeri, dark'ta çok açık kalır
 - `secondaryContainer: AppColors.secondaryLight` da aynı sorun
 
@@ -112,9 +112,9 @@ Uygulamanın tüm tema sistemi, ana ekranlar, widget'lar ve navigasyon yapısı 
 - ~~Splash ekranında `fontFamily: 'SpaceGrotesk'` doğrudan kullanılıyor~~ → `GoogleFonts.spaceGrotesk()` ile değiştirildi ✅
 - ~~Home ekranındaki logo metninde aynı sorun~~ → 2 yerde `GoogleFonts.spaceGrotesk()` ile değiştirildi ✅
 
-### 11. Widget Derinliği (Nesting) Problemi
-- [home_screen.dart:614-724](file:///home/burak/uni_app/lib/features/home/presentation/screens/home_screen.dart#L614-L724): `_PopularUniCard` widget'ı 8 seviye iç içe Container → çok derin widget ağacı, debug zorlaşır
-- [uni_card.dart:40-152](file:///home/burak/uni_app/lib/core/widgets/uni_card.dart#L40-L152): `Container > Material > Semantics > InkWell > Padding > Row` → 6 seviye nesting
+### 11. ✅ Widget Derinliği (Nesting) Problemi — TAMAMLANDI
+- ~~[home_screen.dart:614-724](file:///home/burak/uni_app/lib/features/home/presentation/screens/home_screen.dart#L614-L724): `_PopularUniCard` widget'ı 8 seviye iç içe Container → çok derin widget ağacı, debug zorlaşır~~ ✅
+- ~~[uni_card.dart:40-152](file:///home/burak/uni_app/lib/core/widgets/uni_card.dart#L40-L152): `Container > Material > Semantics > InkWell > Padding > Row` → 6 seviye nesting~~ ✅
 
 ### 12. ✅ Boş State UX İyileştirmeleri (Mekan Önerisi) — TAMAMLANDI
 - ~~`_PlacesEmptyState` güzel tasarlanmış ama aksiyon butonu yok~~ → Öğrencilerin mekan önerebileceği premium bir "Mekan Öner" ekranı yapıldı (`suggest_place_screen.dart`). ✅
@@ -123,15 +123,21 @@ Uygulamanın tüm tema sistemi, ana ekranlar, widget'lar ve navigasyon yapısı 
 - Admin onayladığında otomatik olarak `places` koleksiyonuna gerçek mekan olarak aktarım sağlandı. ✅
 - ~~Home'daki yorum boş state'inde CTA (call-to-action) butonu yok → kullanıcıyı yorum yazmaya yönlendirilmeli~~ (Daha sonra ele alınabilir)
 
-### 13. Responsive Tasarım Eksikliği
-- Tablet görünümü için herhangi bir `LayoutBuilder` veya `MediaQuery` adaptasyonu yok
-- Popüler üniversite kartları sabit `160px` genişlikte — büyük ekranlarda küçük kalır
-- Hero Banner `minHeight: 160` — çok küçük/büyük ekranlarda uyumsuz olabilir
+### 13. ✅ Responsive Tasarım Eksikliği — TAMAMLANDI
+- Merkezi `Responsive` utility sınıfı oluşturuldu (`lib/core/utils/responsive.dart`) — 4-aşamalı breakpoint: compact (<600), medium (600-839), expanded (840-1199), large (≥1200) ✅
+- ~~Tablet görünümü için herhangi bir `LayoutBuilder` veya `MediaQuery` adaptasyonu yok~~ → `Responsive.gridColumns()`, `Responsive.galleryColumns()`, `Responsive.cardWidth()`, `Responsive.horizontalPadding()` vb. yardımcılar eklendi ✅
+- ~~Popüler üniversite kartları sabit `160px` genişlikte — büyük ekranlarda küçük kalır~~ → `Responsive.cardWidth()` ile tablet'te 220px, telefonda 160px ✅
+- ~~Hero Banner `minHeight: 160` — çok küçük/büyük ekranlarda uyumsuz olabilir~~ → `Responsive.heroBannerMinHeight()` ile tablet'te 220px ✅
+- `home_list_skeleton.dart` → responsive kart genişliği ✅
+- `all_cities_screen.dart` → grid kolonları responsive (2/3/4/5) ✅
+- `university_gallery_screen.dart` → galeri kolonları responsive (3/4/5/6) ✅
+- `explore_screen.dart` → header/search/result padding responsive ✅
+- `_PopularUniCard` widget nesting 8→5 seviyeye indirildi (Madde 11 ile birlikte) ✅
 
-### 14. Dark Mode'da Border ve Divider Renkleri
+### ~~14. Dark Mode'da Border ve Divider Renkleri~~ ✅
 - [review_list.dart](file:///home/burak/uni_app/lib/features/reviews/presentation/widgets/review_list.dart): Sort bar'daki `ChoiceChip`'ler `AppColors.borderLight` kullanıyor (`AppColors.borderLightFor(context)` yerine) — dark modda neredeyse görünmez
 
-### 15. `withAlpha()` vs `withValues()` Karışıklığı  
+### ~~15. `withAlpha()` vs `withValues()` Karışıklığı~~ ✅
 - [university_detail_screen.dart:544](file:///home/burak/uni_app/lib/features/university/presentation/screens/university_detail_screen.dart#L544): `withAlpha(80)` (int tabanlı, 0-255)
 - Geri kalan her yerde: `withValues(alpha: 0.12)` (double tabanlı, 0-1)
 - **Tutarsız API kullanımı** — `withAlpha(80)` aslında ~0.31 alpha demek, okunabilirlik açısından kötü

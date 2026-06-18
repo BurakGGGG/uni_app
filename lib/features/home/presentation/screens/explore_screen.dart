@@ -8,6 +8,7 @@ import '../../../../core/widgets/widgets.dart';
 import '../../../university/presentation/providers/university_providers.dart';
 import '../../../university/domain/models/university_model.dart';
 import '../providers/explore_filter_provider.dart';
+import '../../../../core/utils/responsive.dart';
 
 class ExploreScreen extends ConsumerStatefulWidget {
   const ExploreScreen({super.key});
@@ -75,12 +76,12 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
           children: [
             // ─── Header ──────────────────────────────────────────
             Padding(
-              padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+              padding: EdgeInsets.fromLTRB(Responsive.horizontalPadding(context), 16, Responsive.horizontalPadding(context), 0),
               child: Text(loc.exploreTitle, style: AppTextStyles.displaySmall),
             ),
             const SizedBox(height: 4),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
+              padding: EdgeInsets.symmetric(horizontal: Responsive.horizontalPadding(context)),
               child: Text(
                 loc.exploreSubtitle,
                 style: AppTextStyles.bodySmall,
@@ -89,7 +90,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
 
             // ─── Arama ──────────────────────────────────────────
             Padding(
-              padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
+              padding: EdgeInsets.fromLTRB(Responsive.horizontalPadding(context), 16, Responsive.horizontalPadding(context), 8),
               child: AppSearchBar(
                 readOnly: true,
                 onTap: () => context.push('/search'),
@@ -166,7 +167,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
               data: (unis) {
                 final filtered = _applyFilters(unis, filters);
                 return Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 12, 20, 4),
+                  padding: EdgeInsets.fromLTRB(Responsive.horizontalPadding(context), 12, Responsive.horizontalPadding(context), 4),
                   child: Text(
                     loc.exploreFoundCount(filtered.length),
                     style: AppTextStyles.labelMedium.copyWith(color: AppColors.textTertiaryFor(context)),

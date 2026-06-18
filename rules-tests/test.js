@@ -156,6 +156,36 @@ async function seedFeedback(feedbackId = 'feedback_1', data = {}) {
   });
 }
 
+function validPlaceSuggestionData(userId = 'user_1', data = {}) {
+  return {
+    universityId: 'uni_1',
+    universityName: 'Test University',
+    userId,
+    userName: 'Test User',
+    name: 'Kampüs Kafe',
+    type: 'cafe',
+    description: 'Kampüs içinde sessiz bir çalışma alanı.',
+    address: 'Merkez Kampüs',
+    photoUrls: [],
+    status: 'pending',
+    createdAt: new Date(),
+    ...data,
+  };
+}
+
+async function seedPlaceSuggestion(suggestionId = 'suggestion_1', data = {}) {
+  await testEnv.withSecurityRulesDisabled(async (context) => {
+    await context
+      .firestore()
+      .collection('place_suggestions')
+      .doc(suggestionId)
+      .set({
+        ...validPlaceSuggestionData(),
+        ...data,
+      });
+  });
+}
+
 async function seedSuspiciousActivityLog(logId = 'log_1', data = {}) {
   await testEnv.withSecurityRulesDisabled(async (context) => {
     await context
@@ -561,6 +591,52 @@ describe('Firestore Security Rules - callable-only submissions', () => {
         createdAt: serverTimestamp(),
       }),
     );
+  });
+
+  it('authenticated users cannot create place suggestions directly', async () => {
+    const ctx = authed('user_1');
+
+    await assertFails(
+      ctx
+        .firestore()
+        .collection('place_suggestions')
+        .doc('suggestion_1')
+        .set(validPlaceSuggestionData('user_1')),
+    );
+  });
+
+  it('place suggestion owners and admins can read, other users cannot', async () => {
+    await seedPlaceSuggestion();
+    const ownerCtx = authed('user_1');
+    const otherCtx = authed('user_2');
+    const adminCtx = authed('admin_1', 'admin@example.edu.tr', true, {
+      admin: true,
+    });
+    const refPath = ['place_suggestions', 'suggestion_1'];
+
+    await assertSucceeds(
+      ownerCtx.firestore().collection(refPath[0]).doc(refPath[1]).get(),
+    );
+    await assertFails(
+      otherCtx.firestore().collection(refPath[0]).doc(refPath[1]).get(),
+    );
+    await assertSucceeds(
+      adminCtx.firestore().collection(refPath[0]).doc(refPath[1]).get(),
+    );
+  });
+
+  it('admins cannot bypass callable place suggestion moderation', async () => {
+    await seedPlaceSuggestion();
+    const adminCtx = authed('admin_1', 'admin@example.edu.tr', true, {
+      admin: true,
+    });
+    const ref = adminCtx
+      .firestore()
+      .collection('place_suggestions')
+      .doc('suggestion_1');
+
+    await assertFails(ref.update({ status: 'approved' }));
+    await assertFails(ref.delete());
   });
 });
 
@@ -1018,6 +1094,84 @@ describe('Storage Security Rules - media upload hardening', () => {
         ctx,
         'review_images/user_2/review_123.jpg',
         'image/jpeg',
+      ),
+    );
+  });
+
+  it('allows owners to upload safe place suggestion photos', async () => {
+    const ctx = authed('user_1');
+
+    await assertSucceeds(
+      uploadStorageObject(
+        ctx,
+        'place_suggestions/user_1/suggestion_1/photo_0.jpg',
+        'image/jpeg',
+      ),
+    );
+
+    await assertSucceeds(
+      uploadStorageObject(
+        ctx,
+        'place_suggestions/user_1/suggestion_1/photo_4.webp',
+        'image/webp',
+      ),
+    );
+  });
+
+  it('prevents place suggestion photos from changing after upload', async () => {
+    const ctx = authed('user_1');
+    const path =
+      'place_suggestions/user_1/suggestion_overwrite/photo_0.jpg';
+
+    await assertSucceeds(
+      uploadStorageObject(ctx, path, 'image/jpeg', 'original-image'),
+    );
+    await assertFails(
+      uploadStorageObject(ctx, path, 'image/jpeg', 'replacement-image'),
+    );
+    await assertFails(ctx.storage().ref(path).delete());
+  });
+
+  it('rejects unsafe place suggestion paths, MIME types, and owners', async () => {
+    const ctx = authed('user_1');
+
+    await assertFails(
+      uploadStorageObject(
+        ctx,
+        'place_suggestions/user_2/suggestion_1/photo_0.jpg',
+        'image/jpeg',
+      ),
+    );
+
+    await assertFails(
+      uploadStorageObject(
+        ctx,
+        'place_suggestions/user_1/suggestion_1/photo_5.jpg',
+        'image/jpeg',
+      ),
+    );
+
+    await assertFails(
+      uploadStorageObject(
+        ctx,
+        'place_suggestions/user_1/../unsafe/photo_0.jpg',
+        'image/jpeg',
+      ),
+    );
+
+    await assertFails(
+      uploadStorageObject(
+        ctx,
+        'place_suggestions/user_1/suggestion_1/photo_0.svg',
+        'image/svg+xml',
+      ),
+    );
+
+    await assertFails(
+      uploadStorageObject(
+        ctx,
+        'place_suggestions/user_1/suggestion_1/photo_0.jpg',
+        'application/octet-stream',
       ),
     );
   });

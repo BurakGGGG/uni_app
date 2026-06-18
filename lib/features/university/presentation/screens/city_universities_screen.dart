@@ -6,6 +6,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/utils/turkish_compare.dart';
+import '../../../../core/utils/responsive.dart';
 import '../../../../core/widgets/widgets.dart';
 import '../providers/university_providers.dart';
 import '../../domain/models/city_model.dart';
@@ -49,7 +50,7 @@ class CityUniversitiesScreen extends ConsumerWidget {
             SliverToBoxAdapter(
               child: cityAsync.when(
                 data: (city) => city != null
-                    ? _buildKpiStrip(city, unisAsync)
+                    ? _buildKpiStrip(context, city, unisAsync)
                     : const SizedBox.shrink(),
                 loading: () => const SizedBox.shrink(),
                 error: (_, st) => const SizedBox.shrink(),
@@ -64,7 +65,7 @@ class CityUniversitiesScreen extends ConsumerWidget {
                     : universities.where((u) => u.type == filter).toList();
                     
                 return Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
+                  padding: EdgeInsets.fromLTRB(Responsive.horizontalPadding(context), 16, Responsive.horizontalPadding(context), 8),
                   child: Row(
                     children: [
                       _FilterPill(
@@ -169,13 +170,13 @@ class CityUniversitiesScreen extends ConsumerWidget {
   }
 
   Widget _buildKpiStrip(
-      CityModel city, AsyncValue<List<UniversityModel>> unisAsync) {
+      BuildContext context, CityModel city, AsyncValue<List<UniversityModel>> unisAsync) {
     final unis = unisAsync.valueOrNull ?? [];
     final devletCount = unis.where((u) => u.type == 'Devlet').length;
     final vakifCount = unis.where((u) => u.type == 'Vakıf').length;
 
     return Container(
-      margin: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+      margin: EdgeInsets.fromLTRB(Responsive.horizontalPadding(context), 16, Responsive.horizontalPadding(context), 0),
       child: Wrap(
         spacing: 8, runSpacing: 8,
         children: [
@@ -435,7 +436,7 @@ class _FilterPill extends StatelessWidget {
           color: selected ? AppColors.primary : AppColors.surface,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: selected ? AppColors.primary : AppColors.borderLight,
+            color: selected ? AppColors.primary : AppColors.borderLightFor(context),
           ),
         ),
         child: Text(

@@ -216,7 +216,7 @@ class _HistoryTile extends ConsumerWidget {
             border: Border.all(
               color: isDark
                   ? Colors.white.withValues(alpha: 0.06)
-                  : AppColors.borderLight,
+                  : AppColors.borderLightFor(context),
             ),
           ),
           child: Row(

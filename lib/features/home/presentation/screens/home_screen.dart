@@ -25,6 +25,7 @@ import '../../../university/presentation/widgets/city_card.dart';
 import '../../../stories/presentation/widgets/story_bubble_carousel.dart';
 import '../widgets/home_list_skeleton.dart';
 import '../../../../core/utils/haptic.dart';
+import '../../../../core/utils/responsive.dart';
 import '../../../auth/presentation/providers/auth_providers.dart';
 
 /// Ana Sayfa ekranı
@@ -227,7 +228,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     onAction: () => context.go('/explore'),
                   ),
                   SizedBox(
-                    height: 200,
+                    height: Responsive.cardListHeight(context),
                     child: ref.watch(popularUniversitiesProvider).when(
                           loading: () => const HomeListSkeleton(),
                           error: (e, st) => ErrorStateWidget(
@@ -412,7 +413,9 @@ class _HeroBanner extends StatelessWidget {
     return GestureDetector(
       onTap: () => context.push('/score-calculator'),
       child: Container(
-        constraints: const BoxConstraints(minHeight: 160),
+        constraints: BoxConstraints(
+          minHeight: Responsive.heroBannerMinHeight(context),
+        ),
         decoration: BoxDecoration(
           gradient: AppColors.heroGradient,
           borderRadius: BorderRadius.circular(24),
@@ -618,46 +621,38 @@ class _PopularUniCard extends ConsumerWidget {
 
     final brandColor = university.brandColor ?? color;
 
-    return Container(
-      width: 160,
-      margin: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(AppConstants.radiusLg),
-        boxShadow: AppColors.softShadowFor(context),
-        gradient: LinearGradient(
-          colors: [
-            brandColor.withValues(alpha: 0.5),
-            brandColor.withValues(alpha: 0.05),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-      ),
-      child: Padding(
+
+
+    return Semantics(
+      label: '${university.name}, ${university.type}${isFavorite ? ', favorilerde' : ''}',
+      button: true,
+      child: Container(
+        width: Responsive.cardWidth(context),
+        margin: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
         padding: const EdgeInsets.all(2.0),
-        child: Container(
-          decoration: BoxDecoration(
-            color: AppColors.surfaceFor(context),
-            borderRadius:
-                BorderRadius.circular(AppConstants.radiusLg - 1.5),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(AppConstants.radiusLg),
+          boxShadow: AppColors.softShadowFor(context),
+          gradient: LinearGradient(
+            colors: [
+              brandColor.withValues(alpha: 0.5),
+              brandColor.withValues(alpha: 0.05),
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
           ),
-          child: Material(
-            color: Colors.transparent,
-            borderRadius:
-                BorderRadius.circular(AppConstants.radiusLg - 1.5),
-            child: Semantics(
-              label:
-                  '${university.name}, ${university.type}${isFavorite ? ', favorilerde' : ''}',
-              button: true,
-              child: InkWell(
-                onTap: onTap,
-                borderRadius:
-                    BorderRadius.circular(AppConstants.radiusLg - 1.5),
-                child: Padding(
-                  padding: const EdgeInsets.all(AppConstants.spacingLg),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
+        ),
+        child: Material(
+          color: AppColors.surfaceFor(context),
+          borderRadius: BorderRadius.circular(AppConstants.radiusLg - 1.5),
+          child: InkWell(
+            onTap: onTap,
+            borderRadius: BorderRadius.circular(AppConstants.radiusLg - 1.5),
+            child: Padding(
+              padding: const EdgeInsets.all(AppConstants.spacingLg),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -722,8 +717,6 @@ class _PopularUniCard extends ConsumerWidget {
                         ],
                       ),
                     ],
-                  ),
-                ),
               ),
             ),
           ),

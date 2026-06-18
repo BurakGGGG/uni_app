@@ -8,6 +8,7 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/widgets.dart';
 import '../../../../l10n/generated/app_localizations.dart';
 import '../../../../router/redirect_utils.dart';
+import '../../../../core/utils/responsive.dart';
 import '../providers/auth_providers.dart';
 
 /// Kayıt ekranı
@@ -153,247 +154,266 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
         children: [
           // ─── Ana İçerik ────────────────────────────────────────
           SafeArea(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(height: 16),
+            child: Center(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxWidth: Responsive.formMaxWidth(context),
+                ),
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(height: 16),
 
-                    // ─── Geri butonu ─────────────────────────────────
-                    IconButton(
-                      tooltip: loc.authGoBack,
-                      onPressed: () {
-                        if (context.canPop()) {
-                          context.pop();
-                        } else {
-                          context.go(routeWithLocalFrom('/login', widget.from));
-                        }
-                      },
-                      icon: const Icon(Icons.arrow_back_rounded),
-                      style: IconButton.styleFrom(
-                        backgroundColor: AppColors.surfaceFor(context),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          side: const BorderSide(color: AppColors.borderLight),
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(height: 24),
-
-                    // ─── Başlık ─────────────────────────────────────
-                    Text(
-                      loc.authSignUp,
-                      style: AppTextStyles.displaySmall.copyWith(
-                        color: AppColors.textOnSurfaceFor(context),
-                      ),
-                    ).animate().fadeIn(duration: 400.ms),
-                    const SizedBox(height: 6),
-                    Text(
-                      loc.authRegisterTitle,
-                      style: AppTextStyles.bodySmall,
-                    ).animate().fadeIn(delay: 100.ms, duration: 400.ms),
-
-                    const SizedBox(height: 32),
-
-                    // ─── Ad Soyad ───────────────────────────────────
-                    TextFormField(
-                      controller: _nameController,
-                      textInputAction: TextInputAction.next,
-                      textCapitalization: TextCapitalization.words,
-                      decoration: InputDecoration(
-                        hintText: loc.authFullName,
-                        prefixIcon: const Icon(Icons.person_outlined),
-                      ),
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return loc.authFullNameRequired;
-                        }
-                        if (value.trim().length < 2) {
-                          return loc.authFullNameTooShort;
-                        }
-                        return null;
-                      },
-                    ).animate().fadeIn(delay: 200.ms, duration: 400.ms),
-
-                    const SizedBox(height: 16),
-
-                    // ─── Email ──────────────────────────────────────
-                    TextFormField(
-                      controller: _emailController,
-                      keyboardType: TextInputType.emailAddress,
-                      textInputAction: TextInputAction.next,
-                      onChanged: _checkEduEmail,
-                      decoration: InputDecoration(
-                        hintText: loc.authEmailLabel,
-                        prefixIcon: const Icon(Icons.email_outlined),
-                      ),
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return loc.authEmailRequired;
-                        }
-                        if (!value.contains('@') || !value.contains('.')) {
-                          return loc.authEmailInvalid;
-                        }
-                        return null;
-                      },
-                    ).animate().fadeIn(delay: 250.ms, duration: 400.ms),
-
-                    // ─── edu.tr bilgilendirme ────────────────────────
-                    if (_isEduEmail)
-                      Container(
-                        margin: const EdgeInsets.only(top: 8),
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: AppColors.success.withValues(alpha: 0.08),
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(
-                            color: AppColors.success.withValues(alpha: 0.2),
-                          ),
-                        ),
-                        child: Row(
-                          children: [
-                            const Icon(
-                              Icons.verified_rounded,
-                              color: AppColors.success,
-                              size: 20,
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Text(
-                                loc.authEduDetected,
-                                style: AppTextStyles.labelSmall.copyWith(
-                                  color: AppColors.success,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ).animate().fadeIn(duration: 300.ms).slideY(begin: -0.2),
-
-                    const SizedBox(height: 16),
-
-                    // ─── Şifre ──────────────────────────────────────
-                    TextFormField(
-                      controller: _passwordController,
-                      obscureText: _obscurePassword,
-                      textInputAction: TextInputAction.next,
-                      decoration: InputDecoration(
-                        hintText: loc.authPasswordLabel,
-                        prefixIcon: const Icon(Icons.lock_outlined),
-                        suffixIcon: IconButton(
-                          tooltip: _obscurePassword
-                              ? loc.authShowPassword
-                              : loc.authHidePassword,
+                        // ─── Geri butonu ─────────────────────────────────
+                        IconButton(
+                          tooltip: loc.authGoBack,
                           onPressed: () {
-                            setState(
-                              () => _obscurePassword = !_obscurePassword,
-                            );
-                          },
-                          icon: Icon(
-                            _obscurePassword
-                                ? Icons.visibility_outlined
-                                : Icons.visibility_off_outlined,
-                            color: AppColors.textTertiaryFor(context),
-                          ),
-                        ),
-                      ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return loc.authPasswordRequired;
-                        }
-                        if (value.length < 8) {
-                          return loc.authPasswordMin8;
-                        }
-                        if (!RegExp(r'[A-Z]').hasMatch(value)) {
-                          return loc.authPasswordUppercase;
-                        }
-                        if (!RegExp(r'[0-9]').hasMatch(value)) {
-                          return loc.authPasswordDigit;
-                        }
-                        return null;
-                      },
-                    ).animate().fadeIn(delay: 300.ms, duration: 400.ms),
-
-                    const SizedBox(height: 16),
-
-                    // ─── Şifre Tekrar ───────────────────────────────
-                    TextFormField(
-                      controller: _confirmPasswordController,
-                      obscureText: _obscureConfirm,
-                      textInputAction: TextInputAction.done,
-                      onFieldSubmitted: (_) => _register(),
-                      decoration: InputDecoration(
-                        hintText: loc.authPasswordConfirm,
-                        prefixIcon: const Icon(Icons.lock_outlined),
-                        suffixIcon: IconButton(
-                          tooltip: _obscureConfirm
-                              ? loc.authShowPassword
-                              : loc.authHidePassword,
-                          onPressed: () {
-                            setState(() => _obscureConfirm = !_obscureConfirm);
-                          },
-                          icon: Icon(
-                            _obscureConfirm
-                                ? Icons.visibility_outlined
-                                : Icons.visibility_off_outlined,
-                            color: AppColors.textTertiaryFor(context),
-                          ),
-                        ),
-                      ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return loc.authPasswordConfirmRequired;
-                        }
-                        if (value != _passwordController.text) {
-                          return loc.authPasswordMismatch;
-                        }
-                        return null;
-                      },
-                    ).animate().fadeIn(delay: 350.ms, duration: 400.ms),
-
-                    const SizedBox(height: 28),
-
-                    // ─── Kayıt Ol butonu ─────────────────────────────
-                    GradientButton(
-                      text: loc.authSignUp,
-                      onPressed: _isLoading ? null : _register,
-                      icon: Icons.person_add_rounded,
-                    ).animate().fadeIn(delay: 400.ms, duration: 400.ms),
-
-                    const SizedBox(height: 24),
-
-                    // ─── Giriş Yap linki ─────────────────────────────
-                    Center(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            loc.authHaveAccount,
-                            style: AppTextStyles.bodySmall,
-                          ),
-                          GestureDetector(
-                            onTap: () {
+                            if (context.canPop()) {
+                              context.pop();
+                            } else {
                               context.go(
                                 routeWithLocalFrom('/login', widget.from),
                               );
-                            },
-                            child: Text(
-                              loc.authSignIn,
-                              style: AppTextStyles.labelLarge.copyWith(
-                                color: AppColors.primary,
+                            }
+                          },
+                          icon: const Icon(Icons.arrow_back_rounded),
+                          style: IconButton.styleFrom(
+                            backgroundColor: AppColors.surfaceFor(context),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              side: BorderSide(
+                                color: AppColors.borderLightFor(context),
                               ),
                             ),
                           ),
-                        ],
-                      ),
-                    ).animate().fadeIn(delay: 450.ms, duration: 400.ms),
+                        ),
 
-                    const SizedBox(height: 32),
-                  ],
+                        const SizedBox(height: 24),
+
+                        // ─── Başlık ─────────────────────────────────────
+                        Text(
+                          loc.authSignUp,
+                          style: AppTextStyles.displaySmall.copyWith(
+                            color: AppColors.textOnSurfaceFor(context),
+                          ),
+                        ).animate().fadeIn(duration: 400.ms),
+                        const SizedBox(height: 6),
+                        Text(
+                          loc.authRegisterTitle,
+                          style: AppTextStyles.bodySmall,
+                        ).animate().fadeIn(delay: 100.ms, duration: 400.ms),
+
+                        const SizedBox(height: 32),
+
+                        // ─── Ad Soyad ───────────────────────────────────
+                        TextFormField(
+                          controller: _nameController,
+                          textInputAction: TextInputAction.next,
+                          textCapitalization: TextCapitalization.words,
+                          decoration: InputDecoration(
+                            hintText: loc.authFullName,
+                            prefixIcon: const Icon(Icons.person_outlined),
+                          ),
+                          validator: (value) {
+                            if (value == null || value.trim().isEmpty) {
+                              return loc.authFullNameRequired;
+                            }
+                            if (value.trim().length < 2) {
+                              return loc.authFullNameTooShort;
+                            }
+                            return null;
+                          },
+                        ).animate().fadeIn(delay: 200.ms, duration: 400.ms),
+
+                        const SizedBox(height: 16),
+
+                        // ─── Email ──────────────────────────────────────
+                        TextFormField(
+                          controller: _emailController,
+                          keyboardType: TextInputType.emailAddress,
+                          textInputAction: TextInputAction.next,
+                          onChanged: _checkEduEmail,
+                          decoration: InputDecoration(
+                            hintText: loc.authEmailLabel,
+                            prefixIcon: const Icon(Icons.email_outlined),
+                          ),
+                          validator: (value) {
+                            if (value == null || value.trim().isEmpty) {
+                              return loc.authEmailRequired;
+                            }
+                            if (!value.contains('@') || !value.contains('.')) {
+                              return loc.authEmailInvalid;
+                            }
+                            return null;
+                          },
+                        ).animate().fadeIn(delay: 250.ms, duration: 400.ms),
+
+                        // ─── edu.tr bilgilendirme ────────────────────────
+                        if (_isEduEmail)
+                          Container(
+                                margin: const EdgeInsets.only(top: 8),
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: AppColors.success.withValues(
+                                    alpha: 0.08,
+                                  ),
+                                  borderRadius: BorderRadius.circular(10),
+                                  border: Border.all(
+                                    color: AppColors.success.withValues(
+                                      alpha: 0.2,
+                                    ),
+                                  ),
+                                ),
+                                child: Row(
+                                  children: [
+                                    const Icon(
+                                      Icons.verified_rounded,
+                                      color: AppColors.success,
+                                      size: 20,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text(
+                                        loc.authEduDetected,
+                                        style: AppTextStyles.labelSmall
+                                            .copyWith(color: AppColors.success),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              )
+                              .animate()
+                              .fadeIn(duration: 300.ms)
+                              .slideY(begin: -0.2),
+
+                        const SizedBox(height: 16),
+
+                        // ─── Şifre ──────────────────────────────────────
+                        TextFormField(
+                          controller: _passwordController,
+                          obscureText: _obscurePassword,
+                          textInputAction: TextInputAction.next,
+                          decoration: InputDecoration(
+                            hintText: loc.authPasswordLabel,
+                            prefixIcon: const Icon(Icons.lock_outlined),
+                            suffixIcon: IconButton(
+                              tooltip: _obscurePassword
+                                  ? loc.authShowPassword
+                                  : loc.authHidePassword,
+                              onPressed: () {
+                                setState(
+                                  () => _obscurePassword = !_obscurePassword,
+                                );
+                              },
+                              icon: Icon(
+                                _obscurePassword
+                                    ? Icons.visibility_outlined
+                                    : Icons.visibility_off_outlined,
+                                color: AppColors.textTertiaryFor(context),
+                              ),
+                            ),
+                          ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return loc.authPasswordRequired;
+                            }
+                            if (value.length < 8) {
+                              return loc.authPasswordMin8;
+                            }
+                            if (!RegExp(r'[A-Z]').hasMatch(value)) {
+                              return loc.authPasswordUppercase;
+                            }
+                            if (!RegExp(r'[0-9]').hasMatch(value)) {
+                              return loc.authPasswordDigit;
+                            }
+                            return null;
+                          },
+                        ).animate().fadeIn(delay: 300.ms, duration: 400.ms),
+
+                        const SizedBox(height: 16),
+
+                        // ─── Şifre Tekrar ───────────────────────────────
+                        TextFormField(
+                          controller: _confirmPasswordController,
+                          obscureText: _obscureConfirm,
+                          textInputAction: TextInputAction.done,
+                          onFieldSubmitted: (_) => _register(),
+                          decoration: InputDecoration(
+                            hintText: loc.authPasswordConfirm,
+                            prefixIcon: const Icon(Icons.lock_outlined),
+                            suffixIcon: IconButton(
+                              tooltip: _obscureConfirm
+                                  ? loc.authShowPassword
+                                  : loc.authHidePassword,
+                              onPressed: () {
+                                setState(
+                                  () => _obscureConfirm = !_obscureConfirm,
+                                );
+                              },
+                              icon: Icon(
+                                _obscureConfirm
+                                    ? Icons.visibility_outlined
+                                    : Icons.visibility_off_outlined,
+                                color: AppColors.textTertiaryFor(context),
+                              ),
+                            ),
+                          ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return loc.authPasswordConfirmRequired;
+                            }
+                            if (value != _passwordController.text) {
+                              return loc.authPasswordMismatch;
+                            }
+                            return null;
+                          },
+                        ).animate().fadeIn(delay: 350.ms, duration: 400.ms),
+
+                        const SizedBox(height: 28),
+
+                        // ─── Kayıt Ol butonu ─────────────────────────────
+                        GradientButton(
+                          text: loc.authSignUp,
+                          onPressed: _isLoading ? null : _register,
+                          icon: Icons.person_add_rounded,
+                        ).animate().fadeIn(delay: 400.ms, duration: 400.ms),
+
+                        const SizedBox(height: 24),
+
+                        // ─── Giriş Yap linki ─────────────────────────────
+                        Center(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                loc.authHaveAccount,
+                                style: AppTextStyles.bodySmall,
+                              ),
+                              GestureDetector(
+                                onTap: () {
+                                  context.go(
+                                    routeWithLocalFrom('/login', widget.from),
+                                  );
+                                },
+                                child: Text(
+                                  loc.authSignIn,
+                                  style: AppTextStyles.labelLarge.copyWith(
+                                    color: AppColors.primary,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ).animate().fadeIn(delay: 450.ms, duration: 400.ms),
+
+                        const SizedBox(height: 32),
+                      ],
+                    ),
+                  ),
                 ),
               ),
             ),

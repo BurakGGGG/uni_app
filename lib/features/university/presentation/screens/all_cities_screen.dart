@@ -6,6 +6,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/utils/turkish_compare.dart';
+import '../../../../core/utils/responsive.dart';
 import '../providers/university_providers.dart';
 import '../../domain/models/city_model.dart';
 import '../widgets/city_card.dart';
@@ -19,6 +20,8 @@ class AllCitiesScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final citiesAsync = ref.watch(citiesProvider);
     final query = ref.watch(_searchProvider);
+    
+    final crossAxisCount = Responsive.gridColumns(context);
 
     return Scaffold(
       backgroundColor: AppColors.backgroundFor(context),
@@ -98,8 +101,8 @@ class AllCitiesScreen extends ConsumerWidget {
                     SliverPadding(
                       padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                       sliver: SliverGrid(
-                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: crossAxisCount,
                           mainAxisSpacing: 12,
                           crossAxisSpacing: 12,
                         ),
@@ -128,8 +131,8 @@ class AllCitiesScreen extends ConsumerWidget {
                     SliverPadding(
                       padding: const EdgeInsets.fromLTRB(16, 0, 16, 80),
                       sliver: SliverGrid(
-                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: crossAxisCount,
                           mainAxisSpacing: 12,
                           crossAxisSpacing: 12,
                         ),

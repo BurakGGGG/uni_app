@@ -103,7 +103,7 @@ class _ScoreCard extends StatelessWidget {
         color: AppColors.surfaceFor(context),
         borderRadius: BorderRadius.circular(AppConstants.radiusMd),
         border: Border.all(
-          color: isWinner ? color : AppColors.borderLight,
+          color: isWinner ? color : AppColors.borderLightFor(context),
           width: isWinner ? 2 : 1,
         ),
       ),

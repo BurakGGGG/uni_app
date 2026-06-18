@@ -421,25 +421,10 @@ service cloud.firestore {
 
     // ─── Mekan Önerileri ─────────────────────────────────────────
     match /place_suggestions/{suggestionId} {
-      // Admin tüm önerileri okuyabilir
       allow read: if isAdmin() ||
         (isAuthenticated() && resource.data.userId == request.auth.uid);
-
-      // Giriş yapmış kullanıcı öneri oluşturabilir
-      allow create: if isAuthenticated() &&
-        request.resource.data.userId == request.auth.uid &&
-        request.resource.data.name is string &&
-        request.resource.data.name.size() >= 2 &&
-        request.resource.data.name.size() <= 100 &&
-        request.resource.data.type in ['cafe', 'dorm', 'study_area', 'library', 'sports'] &&
-        request.resource.data.status == 'pending' &&
-        request.resource.data.photoUrls is list &&
-        request.resource.data.photoUrls.size() <= 5;
-
-      // Admin durumu güncelleyebilir
-      allow update: if isAdmin();
-
-      allow delete: if isAdmin();
+      // submitPlaceSuggestion ve performPlaceSuggestionAction yazar.
+      allow create, update, delete: if false;
     }
 
     // ─── Geri Bildirim (Feedback) ──────────────────────────────

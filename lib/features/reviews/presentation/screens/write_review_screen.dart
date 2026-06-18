@@ -9,6 +9,7 @@ import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/utils/snackbar_helper.dart';
+import '../../../../core/utils/responsive.dart';
 import '../../../../core/widgets/widgets.dart';
 import '../../../auth/presentation/providers/auth_providers.dart';
 import '../../data/review_repository.dart';
@@ -389,148 +390,160 @@ class _WriteReviewScreenState extends ConsumerState<WriteReviewScreen> {
         ),
         body: Stack(
           children: [
-            SingleChildScrollView(
-              padding: const EdgeInsets.all(24),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // ─── Genel Puan ──────────────────────────────────
-                    _buildOverallRating().animate().fadeIn(duration: 400.ms),
+            Center(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxWidth: Responsive.formMaxWidth(context),
+                ),
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(24),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // ─── Genel Puan ──────────────────────────────────
+                        _buildOverallRating().animate().fadeIn(
+                          duration: 400.ms,
+                        ),
 
-                    const SizedBox(height: 32),
-                    const Divider(),
-                    const SizedBox(height: 24),
+                        const SizedBox(height: 32),
+                        const Divider(),
+                        const SizedBox(height: 24),
 
-                    // ─── Kategori Puanları ───────────────────────────
-                    CategoryRatingsSection(
-                      type: widget.type,
-                      ratings: _categoryRatings,
-                      onChanged: (category, rating) {
-                        setState(() => _categoryRatings[category] = rating);
-                      },
-                    ).animate().fadeIn(delay: 100.ms, duration: 400.ms),
+                        // ─── Kategori Puanları ───────────────────────────
+                        CategoryRatingsSection(
+                          type: widget.type,
+                          ratings: _categoryRatings,
+                          onChanged: (category, rating) {
+                            setState(() => _categoryRatings[category] = rating);
+                          },
+                        ).animate().fadeIn(delay: 100.ms, duration: 400.ms),
 
-                    const SizedBox(height: 32),
-                    const Divider(),
-                    const SizedBox(height: 24),
+                        const SizedBox(height: 32),
+                        const Divider(),
+                        const SizedBox(height: 24),
 
-                    // ─── Artılar (Pros) ──────────────────────────────
-                    ProsConsSection(
-                      presetItems: _presetPros,
-                      selectedItems: _selectedPros,
-                      title: 'Artılar',
-                      icon: Icons.thumb_up_alt_rounded,
-                      color: AppColors.success,
-                      onToggle: (item) {
-                        setState(() {
-                          if (_selectedPros.contains(item)) {
-                            _selectedPros.remove(item);
-                          } else {
-                            _selectedPros.add(item);
-                          }
-                        });
-                      },
-                      onAddCustom: (item) {
-                        if (item.isNotEmpty && !_selectedPros.contains(item)) {
-                          setState(() => _selectedPros.add(item));
-                        }
-                      },
-                    ).animate().fadeIn(delay: 150.ms, duration: 400.ms),
+                        // ─── Artılar (Pros) ──────────────────────────────
+                        ProsConsSection(
+                          presetItems: _presetPros,
+                          selectedItems: _selectedPros,
+                          title: 'Artılar',
+                          icon: Icons.thumb_up_alt_rounded,
+                          color: AppColors.success,
+                          onToggle: (item) {
+                            setState(() {
+                              if (_selectedPros.contains(item)) {
+                                _selectedPros.remove(item);
+                              } else {
+                                _selectedPros.add(item);
+                              }
+                            });
+                          },
+                          onAddCustom: (item) {
+                            if (item.isNotEmpty &&
+                                !_selectedPros.contains(item)) {
+                              setState(() => _selectedPros.add(item));
+                            }
+                          },
+                        ).animate().fadeIn(delay: 150.ms, duration: 400.ms),
 
-                    const SizedBox(height: 24),
+                        const SizedBox(height: 24),
 
-                    // ─── Eksiler (Cons) ──────────────────────────────
-                    ProsConsSection(
-                      presetItems: _presetCons,
-                      selectedItems: _selectedCons,
-                      title: 'Eksiler',
-                      icon: Icons.thumb_down_alt_rounded,
-                      color: AppColors.error,
-                      onToggle: (item) {
-                        setState(() {
-                          if (_selectedCons.contains(item)) {
-                            _selectedCons.remove(item);
-                          } else {
-                            _selectedCons.add(item);
-                          }
-                        });
-                      },
-                      onAddCustom: (item) {
-                        if (item.isNotEmpty && !_selectedCons.contains(item)) {
-                          setState(() => _selectedCons.add(item));
-                        }
-                      },
-                    ).animate().fadeIn(delay: 200.ms, duration: 400.ms),
+                        // ─── Eksiler (Cons) ──────────────────────────────
+                        ProsConsSection(
+                          presetItems: _presetCons,
+                          selectedItems: _selectedCons,
+                          title: 'Eksiler',
+                          icon: Icons.thumb_down_alt_rounded,
+                          color: AppColors.error,
+                          onToggle: (item) {
+                            setState(() {
+                              if (_selectedCons.contains(item)) {
+                                _selectedCons.remove(item);
+                              } else {
+                                _selectedCons.add(item);
+                              }
+                            });
+                          },
+                          onAddCustom: (item) {
+                            if (item.isNotEmpty &&
+                                !_selectedCons.contains(item)) {
+                              setState(() => _selectedCons.add(item));
+                            }
+                          },
+                        ).animate().fadeIn(delay: 200.ms, duration: 400.ms),
 
-                    const SizedBox(height: 32),
-                    const Divider(),
-                    const SizedBox(height: 24),
+                        const SizedBox(height: 32),
+                        const Divider(),
+                        const SizedBox(height: 24),
 
-                    // ─── Yorum Metni ─────────────────────────────────
-                    _buildCommentField().animate().fadeIn(
-                      delay: 250.ms,
-                      duration: 400.ms,
+                        // ─── Yorum Metni ─────────────────────────────────
+                        _buildCommentField().animate().fadeIn(
+                          delay: 250.ms,
+                          duration: 400.ms,
+                        ),
+
+                        const SizedBox(height: 32),
+                        const Divider(),
+                        const SizedBox(height: 24),
+
+                        // ─── Fotoğraflar ─────────────────────────────────
+                        PhotoUploadSection(
+                          localPhotos: _localPhotos,
+                          uploadedUrls: _existingPhotoUrls,
+                          onAdd: (file) =>
+                              setState(() => _localPhotos.add(file)),
+                          onRemove: (index, isLocal) {
+                            setState(() {
+                              if (isLocal) {
+                                _localPhotos.removeAt(index);
+                              } else {
+                                _existingPhotoUrls.removeAt(index);
+                              }
+                            });
+                          },
+                        ).animate().fadeIn(delay: 300.ms, duration: 400.ms),
+
+                        if (widget.initialReview == null) ...[
+                          const SizedBox(height: 24),
+
+                          // ─── Anonim Switch ───────────────────────────────
+                          _buildAnonymousSwitch().animate().fadeIn(
+                            delay: 350.ms,
+                            duration: 400.ms,
+                          ),
+                        ],
+
+                        const SizedBox(height: 16),
+
+                        // ─── Validation Hataları ─────────────────────────
+                        if (_submitted && !_isFormValid)
+                          _buildValidationErrors()
+                              .animate()
+                              .fadeIn(duration: 300.ms)
+                              .shakeX(hz: 3, amount: 2, duration: 400.ms),
+
+                        const SizedBox(height: 16),
+
+                        // ─── Gönder Butonu ───────────────────────────────
+                        Tooltip(
+                          message: _submitted && !_isFormValid
+                              ? _submitTooltip
+                              : '',
+                          child: GradientButton(
+                            text: widget.initialReview != null
+                                ? 'Değişiklikleri Kaydet'
+                                : 'Değerlendirmeyi Gönder',
+                            onPressed: _submitReview,
+                            isLoading: _isLoading,
+                          ),
+                        ).animate().fadeIn(delay: 400.ms, duration: 400.ms),
+
+                        const SizedBox(height: 40),
+                      ],
                     ),
-
-                    const SizedBox(height: 32),
-                    const Divider(),
-                    const SizedBox(height: 24),
-
-                    // ─── Fotoğraflar ─────────────────────────────────
-                    PhotoUploadSection(
-                      localPhotos: _localPhotos,
-                      uploadedUrls: _existingPhotoUrls,
-                      onAdd: (file) => setState(() => _localPhotos.add(file)),
-                      onRemove: (index, isLocal) {
-                        setState(() {
-                          if (isLocal) {
-                            _localPhotos.removeAt(index);
-                          } else {
-                            _existingPhotoUrls.removeAt(index);
-                          }
-                        });
-                      },
-                    ).animate().fadeIn(delay: 300.ms, duration: 400.ms),
-
-                    if (widget.initialReview == null) ...[
-                      const SizedBox(height: 24),
-
-                      // ─── Anonim Switch ───────────────────────────────
-                      _buildAnonymousSwitch().animate().fadeIn(
-                        delay: 350.ms,
-                        duration: 400.ms,
-                      ),
-                    ],
-
-                    const SizedBox(height: 16),
-
-                    // ─── Validation Hataları ─────────────────────────
-                    if (_submitted && !_isFormValid)
-                      _buildValidationErrors()
-                          .animate()
-                          .fadeIn(duration: 300.ms)
-                          .shakeX(hz: 3, amount: 2, duration: 400.ms),
-
-                    const SizedBox(height: 16),
-
-                    // ─── Gönder Butonu ───────────────────────────────
-                    Tooltip(
-                      message: _submitted && !_isFormValid
-                          ? _submitTooltip
-                          : '',
-                      child: GradientButton(
-                        text: widget.initialReview != null
-                            ? 'Değişiklikleri Kaydet'
-                            : 'Değerlendirmeyi Gönder',
-                        onPressed: _submitReview,
-                        isLoading: _isLoading,
-                      ),
-                    ).animate().fadeIn(delay: 400.ms, duration: 400.ms),
-
-                    const SizedBox(height: 40),
-                  ],
+                  ),
                 ),
               ),
             ),
@@ -552,9 +565,9 @@ class _WriteReviewScreenState extends ConsumerState<WriteReviewScreen> {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.error.withAlpha(20),
+        color: AppColors.error.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(AppConstants.radiusMd),
-        border: Border.all(color: AppColors.error.withAlpha(80)),
+        border: Border.all(color: AppColors.error.withValues(alpha: 0.31)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -585,7 +598,7 @@ class _WriteReviewScreenState extends ConsumerState<WriteReviewScreen> {
                   Icon(
                     Icons.circle,
                     size: 6,
-                    color: AppColors.error.withAlpha(160),
+                    color: AppColors.error.withValues(alpha: 0.63),
                   ),
                   const SizedBox(width: 8),
                   Text(
@@ -606,7 +619,7 @@ class _WriteReviewScreenState extends ConsumerState<WriteReviewScreen> {
   /// Loading overlay — foto upload progress gösterir
   Widget _buildLoadingOverlay() {
     return Container(
-      color: Colors.black.withAlpha(100),
+      color: Colors.black.withValues(alpha: 0.39),
       child: Center(
         child:
             Container(
@@ -620,7 +633,7 @@ class _WriteReviewScreenState extends ConsumerState<WriteReviewScreen> {
                     borderRadius: BorderRadius.circular(AppConstants.radiusXl),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withAlpha(30),
+                        color: Colors.black.withValues(alpha: 0.12),
                         blurRadius: 20,
                         offset: const Offset(0, 8),
                       ),
@@ -644,7 +657,7 @@ class _WriteReviewScreenState extends ConsumerState<WriteReviewScreen> {
                           borderRadius: BorderRadius.circular(4),
                           child: LinearProgressIndicator(
                             value: _uploadProgress,
-                            backgroundColor: AppColors.borderLight,
+                            backgroundColor: AppColors.borderLightFor(context),
                             valueColor: AlwaysStoppedAnimation<Color>(
                               AppColors.primary,
                             ),
@@ -731,7 +744,7 @@ class _WriteReviewScreenState extends ConsumerState<WriteReviewScreen> {
                     color: isFilled
                         ? AppColors.warning
                         : (hasError
-                              ? AppColors.error.withAlpha(100)
+                              ? AppColors.error.withValues(alpha: 0.39)
                               : AppColors.textTertiaryFor(context)),
                     size: 40,
                   ),
@@ -814,13 +827,13 @@ class _WriteReviewScreenState extends ConsumerState<WriteReviewScreen> {
         Container(
           decoration: BoxDecoration(
             color: _isAnonymous
-                ? AppColors.primary.withAlpha(25)
+                ? AppColors.primary.withValues(alpha: 0.10)
                 : AppColors.surface,
             borderRadius: BorderRadius.circular(AppConstants.radiusMd),
             border: Border.all(
               color: _isAnonymous
-                  ? AppColors.primary.withAlpha(80)
-                  : AppColors.borderLight,
+                  ? AppColors.primary.withValues(alpha: 0.31)
+                  : AppColors.borderLightFor(context),
             ),
           ),
           child: Material(
@@ -866,9 +879,11 @@ class _WriteReviewScreenState extends ConsumerState<WriteReviewScreen> {
               width: double.infinity,
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: AppColors.info.withAlpha(20),
+                color: AppColors.info.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(AppConstants.radiusSm),
-                border: Border.all(color: AppColors.info.withAlpha(60)),
+                border: Border.all(
+                  color: AppColors.info.withValues(alpha: 0.24),
+                ),
               ),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,

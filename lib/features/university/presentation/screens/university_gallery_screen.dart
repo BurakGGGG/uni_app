@@ -8,6 +8,7 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../../reviews/presentation/providers/review_providers.dart';
 import '../../../reviews/domain/models/review_model.dart';
 import 'package:uni_app/features/university/presentation/widgets/fullscreen_photo_viewer.dart';
+import '../../../../core/utils/responsive.dart';
 
 class UniversityGalleryScreen extends ConsumerStatefulWidget {
   final String universityId;
@@ -35,6 +36,7 @@ class _UniversityGalleryScreenState extends ConsumerState<UniversityGalleryScree
   @override
   Widget build(BuildContext context) {
     final photosAsync = ref.watch(universityGalleryPhotosProvider(widget.universityId));
+    final crossAxisCount = Responsive.galleryColumns(context);
 
     return Scaffold(
       backgroundColor: AppColors.backgroundFor(context),
@@ -123,8 +125,8 @@ class _UniversityGalleryScreenState extends ConsumerState<UniversityGalleryScree
                       )
                     : GridView.builder(
                         padding: const EdgeInsets.all(4),
-                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 3,
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: crossAxisCount,
                           crossAxisSpacing: 4,
                           mainAxisSpacing: 4,
                         ),

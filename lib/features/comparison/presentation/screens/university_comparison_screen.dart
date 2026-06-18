@@ -899,7 +899,7 @@ class _QuickStat extends StatelessWidget {
           border: Border.all(
             color: isDark
                 ? Colors.white.withValues(alpha: 0.06)
-                : AppColors.borderLight,
+                : AppColors.borderLightFor(context),
           ),
         ),
         child: Column(
@@ -1751,7 +1751,7 @@ class _TripleQuickStats extends StatelessWidget {
         border: Border.all(
           color: isDark
               ? Colors.white.withValues(alpha: 0.06)
-              : AppColors.borderLight,
+              : AppColors.borderLightFor(context),
         ),
       ),
       child: Column(
@@ -1821,7 +1821,7 @@ class _StatRow extends StatelessWidget {
                 bottom: BorderSide(
                   color: isDark
                       ? Colors.white.withValues(alpha: 0.05)
-                      : AppColors.borderLight,
+                      : AppColors.borderLightFor(context),
                 ),
               )
             : null,
@@ -1940,7 +1940,7 @@ class _AnimatedTripleCategoryBarState
             border: Border.all(
               color: widget.isDark
                   ? Colors.white.withValues(alpha: 0.06)
-                  : AppColors.borderLight,
+                  : AppColors.borderLightFor(context),
             ),
           ),
           child: Column(

@@ -75,6 +75,8 @@ class AdminAuditLogModel {
     'review_deleted' => 'Yorum silindi',
     'feedback_status_updated' => 'Feedback durumu güncellendi',
     'feedback_deleted' => 'Feedback silindi',
+    'place_suggestion_approved' => 'Mekan önerisi onaylandı',
+    'place_suggestion_rejected' => 'Mekan önerisi reddedildi',
     _ => action.ifEmpty('Bilinmeyen aksiyon'),
   };
 
@@ -82,6 +84,7 @@ class AdminAuditLogModel {
     'reports' => 'Rapor',
     'reviews' => 'Yorum',
     'feedback' => 'Feedback',
+    'place_suggestions' => 'Mekan önerisi',
     _ => targetCollection.ifEmpty('Hedef'),
   };
 
@@ -149,6 +152,7 @@ class SuspiciousActivityLogModel {
   String get typeLabel => switch (type) {
     'report_rate_limited' => 'Report rate limit',
     'feedback_rate_limited' => 'Feedback rate limit',
+    'place_suggestion_rate_limited' => 'Mekan önerisi rate limit',
     'duplicate_report_attempt' => 'Tekrarlı report denemesi',
     'failed_admin_callable_access' => 'Başarısız admin callable erişimi',
     _ => type.ifEmpty('Bilinmeyen olay'),

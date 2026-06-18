@@ -43,7 +43,7 @@ class PlaceFilterSheet extends ConsumerWidget {
           margin: const EdgeInsets.only(top: 12),
           width: 36, height: 4,
           decoration: BoxDecoration(
-            color: AppColors.borderLight,
+            color: AppColors.borderLightFor(context),
             borderRadius: BorderRadius.circular(2),
           ),
         ),
@@ -89,7 +89,7 @@ class PlaceFilterSheet extends ConsumerWidget {
           padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
           decoration: BoxDecoration(
             color: AppColors.surfaceFor(context),
-            border: const Border(top: BorderSide(color: AppColors.borderLight)),
+            border: Border(top: BorderSide(color: AppColors.borderLightFor(context))),
           ),
           child: ElevatedButton(
             onPressed: () => Navigator.pop(context),

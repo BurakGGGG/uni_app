@@ -84,10 +84,10 @@ class MyReviewsScreen extends ConsumerWidget {
                     separatorBuilder: (context, index) => const SizedBox(width: 8),
                     itemBuilder: (context, index) {
                       switch (index) {
-                        case 0: return _buildFilterChip(ref, null, 'Tümü', filterType);
-                        case 1: return _buildFilterChip(ref, ReviewType.university, 'Üniversiteler', filterType);
-                        case 2: return _buildFilterChip(ref, ReviewType.department, 'Bölümler', filterType);
-                        case 3: return _buildFilterChip(ref, ReviewType.place, 'Mekanlar', filterType);
+                        case 0: return _buildFilterChip(context, ref, null, 'Tümü', filterType);
+                        case 1: return _buildFilterChip(context, ref, ReviewType.university, 'Üniversiteler', filterType);
+                        case 2: return _buildFilterChip(context, ref, ReviewType.department, 'Bölümler', filterType);
+                        case 3: return _buildFilterChip(context, ref, ReviewType.place, 'Mekanlar', filterType);
                         default: return const SizedBox.shrink();
                       }
                     },
@@ -185,7 +185,7 @@ class MyReviewsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildFilterChip(WidgetRef ref, ReviewType? type, String label, ReviewType? currentFilter) {
+  Widget _buildFilterChip(BuildContext context, WidgetRef ref, ReviewType? type, String label, ReviewType? currentFilter) {
     final selected = type == currentFilter;
     return FilterChip(
       label: Text(label),
@@ -202,7 +202,7 @@ class MyReviewsScreen extends ConsumerWidget {
       side: BorderSide(
         color: selected
             ? AppColors.primary.withValues(alpha: 0.3)
-            : AppColors.borderLight,
+            : AppColors.borderLightFor(context),
       ),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       showCheckmark: false,

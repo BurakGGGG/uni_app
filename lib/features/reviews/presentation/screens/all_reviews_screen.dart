@@ -228,7 +228,7 @@ class _SortChip extends StatelessWidget {
           border: Border.all(
             color: selected
                 ? AppColors.primary.withValues(alpha: 0.4)
-                : AppColors.borderLight,
+                : AppColors.borderLightFor(context),
           ),
         ),
         child: Text(
@@ -267,7 +267,7 @@ class _FilterBottomSheet extends ConsumerWidget {
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: AppColors.borderLight,
+                color: AppColors.borderLightFor(context),
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -292,7 +292,7 @@ class _FilterBottomSheet extends ConsumerWidget {
                 ],
               ),
             ),
-            const Divider(color: AppColors.borderLight, height: 1),
+            Divider(color: AppColors.borderLightFor(context), height: 1),
             Expanded(
               child: Builder(
                 builder: (context) {
@@ -457,7 +457,7 @@ class _TypeOption extends StatelessWidget {
                 : AppColors.surface,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: isSelected ? AppColors.primary : AppColors.borderLight,
+              color: isSelected ? AppColors.primary : AppColors.borderLightFor(context),
               width: isSelected ? 1.5 : 1,
             ),
           ),

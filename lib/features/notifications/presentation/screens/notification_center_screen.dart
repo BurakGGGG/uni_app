@@ -72,10 +72,10 @@ class NotificationCenterScreen extends ConsumerWidget {
           return ListView.separated(
             padding: const EdgeInsets.symmetric(vertical: 8),
             itemCount: notifs.length,
-            separatorBuilder: (context, index) => const Divider(
+            separatorBuilder: (context, index) => Divider(
               height: 1,
               thickness: 1,
-              color: AppColors.borderLight,
+              color: AppColors.borderLightFor(context),
               indent: 56,
             ),
             itemBuilder: (context, i) =>

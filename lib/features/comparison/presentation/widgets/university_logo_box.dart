@@ -68,7 +68,7 @@ class UniversityLogoBox extends StatelessWidget {
                     ? accentColor
                     : (isDark
                         ? Colors.white.withValues(alpha: 0.15)
-                        : AppColors.borderLight),
+                        : AppColors.borderLightFor(context)),
                 width: isWinner ? 2.5 : 1,
               ),
               boxShadow: [

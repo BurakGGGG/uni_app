@@ -76,7 +76,7 @@ class ProsConsSection extends StatelessWidget {
                 checkmarkColor: Colors.white,
                 backgroundColor: AppColors.surfaceFor(context),
                 side: BorderSide(
-                  color: isSelected ? color : AppColors.borderLight,
+                  color: isSelected ? color : AppColors.borderLightFor(context),
                 ),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(AppConstants.radiusMd),
@@ -95,7 +95,7 @@ class ProsConsSection extends StatelessWidget {
                 ),
                 selected: true,
                 onSelected: (_) => onToggle(item),
-                selectedColor: color.withAlpha(200),
+                selectedColor: color.withValues(alpha: 0.78),
                 checkmarkColor: Colors.white,
                 deleteIcon: const Icon(Icons.close, size: 16, color: Colors.white),
                 onDeleted: () => onToggle(item),
@@ -117,8 +117,8 @@ class ProsConsSection extends StatelessWidget {
                   onAddCustom(result);
                 }
               },
-              backgroundColor: color.withAlpha(20),
-              side: BorderSide(color: color.withAlpha(80)),
+              backgroundColor: color.withValues(alpha: 0.08),
+              side: BorderSide(color: color.withValues(alpha: 0.31)),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(AppConstants.radiusMd),
               ),

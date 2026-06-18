@@ -5,12 +5,11 @@ import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
-import '../../../../core/constants/app_constants.dart';
 import '../../../../core/utils/haptic.dart';
+import '../../../../core/utils/responsive.dart';
 import '../../../auth/presentation/providers/auth_providers.dart';
 import '../../domain/models/place_model.dart';
 import '../../domain/models/place_suggestion_model.dart';
-import '../../data/place_suggestion_repository.dart';
 import '../providers/place_suggestion_providers.dart';
 
 /// Mekan Öneri Formu — premium kalitede, fotoğraf destekli.
@@ -121,10 +120,9 @@ class _SuggestPlaceScreenState extends ConsumerState<SuggestPlaceScreen> {
         createdAt: DateTime.now(),
       );
 
-      await ref.read(placeSuggestionRepositoryProvider).submitSuggestion(
-            suggestion: suggestion,
-            photos: _selectedPhotos,
-          );
+      await ref
+          .read(placeSuggestionRepositoryProvider)
+          .submitSuggestion(suggestion: suggestion, photos: _selectedPhotos);
 
       AppHaptic.noteSaved();
 
@@ -169,92 +167,103 @@ class _SuggestPlaceScreenState extends ConsumerState<SuggestPlaceScreen> {
         surfaceTintColor: Colors.transparent,
         elevation: 0,
       ),
-      body: Form(
-        key: _formKey,
-        child: ListView(
-          padding: const EdgeInsets.all(20),
-          children: [
-            // ─── Üniversite bilgisi ────────────────────────────
-            _InfoBanner(universityName: widget.universityName),
-            const SizedBox(height: 24),
+      body: Center(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxWidth: Responsive.formMaxWidth(context),
+          ),
+          child: Form(
+            key: _formKey,
+            child: ListView(
+              padding: const EdgeInsets.all(20),
+              children: [
+                // ─── Üniversite bilgisi ────────────────────────────
+                _InfoBanner(universityName: widget.universityName),
+                const SizedBox(height: 24),
 
-            // ─── Mekan Adı ─────────────────────────────────────
-            _SectionLabel(label: 'Mekan Adı', required: true),
-            const SizedBox(height: 8),
-            TextFormField(
-              controller: _nameController,
-              decoration: _inputDecoration(
-                hint: 'Örn: Kampüs Kahve',
-                prefixIcon: Icons.store_rounded,
-              ),
-              textCapitalization: TextCapitalization.words,
-              validator: (v) {
-                if (v == null || v.trim().isEmpty) return 'Mekan adı gerekli';
-                if (v.trim().length < 2) return 'En az 2 karakter olmalı';
-                return null;
-              },
-            ),
-            const SizedBox(height: 20),
+                // ─── Mekan Adı ─────────────────────────────────────
+                _SectionLabel(label: 'Mekan Adı', required: true),
+                const SizedBox(height: 8),
+                TextFormField(
+                  controller: _nameController,
+                  decoration: _inputDecoration(
+                    hint: 'Örn: Kampüs Kahve',
+                    prefixIcon: Icons.store_rounded,
+                  ),
+                  textCapitalization: TextCapitalization.words,
+                  maxLength: 100,
+                  validator: (v) {
+                    if (v == null || v.trim().isEmpty) {
+                      return 'Mekan adı gerekli';
+                    }
+                    if (v.trim().length < 2) return 'En az 2 karakter olmalı';
+                    if (v.trim().length > 100) {
+                      return 'En fazla 100 karakter olmalı';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 20),
 
-            // ─── Mekan Türü ────────────────────────────────────
-            _SectionLabel(label: 'Mekan Türü', required: true),
-            const SizedBox(height: 8),
-            _PlaceTypeSelector(
-              selected: _selectedType,
-              onChanged: (type) => setState(() => _selectedType = type),
-            ),
-            const SizedBox(height: 20),
+                // ─── Mekan Türü ────────────────────────────────────
+                _SectionLabel(label: 'Mekan Türü', required: true),
+                const SizedBox(height: 8),
+                _PlaceTypeSelector(
+                  selected: _selectedType,
+                  onChanged: (type) => setState(() => _selectedType = type),
+                ),
+                const SizedBox(height: 20),
 
-            // ─── Açıklama ──────────────────────────────────────
-            _SectionLabel(label: 'Açıklama'),
-            const SizedBox(height: 8),
-            TextFormField(
-              controller: _descController,
-              decoration: _inputDecoration(
-                hint: 'Bu mekan hakkında bilgi ver...',
-                prefixIcon: Icons.description_rounded,
-              ),
-              maxLines: 4,
-              maxLength: 500,
-              textCapitalization: TextCapitalization.sentences,
-            ),
-            const SizedBox(height: 20),
+                // ─── Açıklama ──────────────────────────────────────
+                _SectionLabel(label: 'Açıklama'),
+                const SizedBox(height: 8),
+                TextFormField(
+                  controller: _descController,
+                  decoration: _inputDecoration(
+                    hint: 'Bu mekan hakkında bilgi ver...',
+                    prefixIcon: Icons.description_rounded,
+                  ),
+                  maxLines: 4,
+                  maxLength: 500,
+                  textCapitalization: TextCapitalization.sentences,
+                ),
+                const SizedBox(height: 20),
 
-            // ─── Adres ─────────────────────────────────────────
-            _SectionLabel(label: 'Adres'),
-            const SizedBox(height: 8),
-            TextFormField(
-              controller: _addressController,
-              decoration: _inputDecoration(
-                hint: 'Mekanın adresi veya konumu',
-                prefixIcon: Icons.location_on_rounded,
-              ),
-              textCapitalization: TextCapitalization.sentences,
-            ),
-            const SizedBox(height: 24),
+                // ─── Adres ─────────────────────────────────────────
+                _SectionLabel(label: 'Adres'),
+                const SizedBox(height: 8),
+                TextFormField(
+                  controller: _addressController,
+                  decoration: _inputDecoration(
+                    hint: 'Mekanın adresi veya konumu',
+                    prefixIcon: Icons.location_on_rounded,
+                  ),
+                  maxLength: 300,
+                  textCapitalization: TextCapitalization.sentences,
+                ),
+                const SizedBox(height: 24),
 
-            // ─── Fotoğraflar ───────────────────────────────────
-            _SectionLabel(
-              label: 'Fotoğraflar',
-              subtitle: 'En fazla $_maxPhotos fotoğraf ekleyebilirsin',
-            ),
-            const SizedBox(height: 12),
-            _PhotoGrid(
-              photos: _selectedPhotos,
-              maxPhotos: _maxPhotos,
-              onPickGallery: _pickPhotos,
-              onPickCamera: _takePhoto,
-              onRemove: _removePhoto,
-            ),
-            const SizedBox(height: 32),
+                // ─── Fotoğraflar ───────────────────────────────────
+                _SectionLabel(
+                  label: 'Fotoğraflar',
+                  subtitle: 'En fazla $_maxPhotos fotoğraf ekleyebilirsin',
+                ),
+                const SizedBox(height: 12),
+                _PhotoGrid(
+                  photos: _selectedPhotos,
+                  maxPhotos: _maxPhotos,
+                  onPickGallery: _pickPhotos,
+                  onPickCamera: _takePhoto,
+                  onRemove: _removePhoto,
+                ),
+                const SizedBox(height: 32),
 
-            // ─── Gönder Butonu ─────────────────────────────────
-            _SubmitButton(
-              isSubmitting: _isSubmitting,
-              onTap: _submit,
+                // ─── Gönder Butonu ─────────────────────────────────
+                _SubmitButton(isSubmitting: _isSubmitting, onTap: _submit),
+                const SizedBox(height: 16),
+              ],
             ),
-            const SizedBox(height: 16),
-          ],
+          ),
         ),
       ),
     );
@@ -311,9 +320,7 @@ class _InfoBanner extends StatelessWidget {
           ],
         ),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: AppColors.primary.withValues(alpha: 0.15),
-        ),
+        border: Border.all(color: AppColors.primary.withValues(alpha: 0.15)),
       ),
       child: Row(
         children: [
@@ -411,10 +418,7 @@ class _PlaceTypeSelector extends StatelessWidget {
   final PlaceType selected;
   final ValueChanged<PlaceType> onChanged;
 
-  const _PlaceTypeSelector({
-    required this.selected,
-    required this.onChanged,
-  });
+  const _PlaceTypeSelector({required this.selected, required this.onChanged});
 
   @override
   Widget build(BuildContext context) {
@@ -592,12 +596,7 @@ class _PhotoThumbnail extends StatelessWidget {
       children: [
         ClipRRect(
           borderRadius: BorderRadius.circular(14),
-          child: Image.file(
-            file,
-            width: 110,
-            height: 110,
-            fit: BoxFit.cover,
-          ),
+          child: Image.file(file, width: 110, height: 110, fit: BoxFit.cover),
         ),
         // Silme butonu
         Positioned(
@@ -666,7 +665,11 @@ class _SubmitButton extends StatelessWidget {
               : Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.send_rounded, color: Colors.white, size: 20),
+                    const Icon(
+                      Icons.send_rounded,
+                      color: Colors.white,
+                      size: 20,
+                    ),
                     const SizedBox(width: 10),
                     Text(
                       'Öneriyi Gönder',
@@ -739,7 +742,10 @@ class _SuccessDialog extends StatelessWidget {
                     borderRadius: BorderRadius.circular(14),
                   ),
                 ),
-                child: const Text('Tamam', style: TextStyle(fontWeight: FontWeight.w600)),
+                child: const Text(
+                  'Tamam',
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
               ),
             ),
           ],
