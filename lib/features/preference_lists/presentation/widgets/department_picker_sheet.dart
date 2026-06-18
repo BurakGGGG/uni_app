@@ -69,7 +69,7 @@ class _BodyState extends ConsumerState<_Body> {
           width: 40,
           height: 4,
           decoration: BoxDecoration(
-            color: AppColors.borderLight,
+            color: AppColors.borderLightFor(context),
             borderRadius: BorderRadius.circular(2),
           ),
         ),
@@ -138,7 +138,7 @@ class _BodyState extends ConsumerState<_Body> {
                 ),
         ),
 
-        const Divider(height: 1, color: AppColors.borderLight),
+        Divider(height: 1, color: AppColors.borderLightFor(context)),
 
         Expanded(
           child: _selectedUni == null
@@ -196,7 +196,7 @@ class _SelectedUniStrip extends StatelessWidget {
             decoration: BoxDecoration(
               color: AppColors.surfaceFor(context),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.borderLight),
+              border: Border.all(color: AppColors.borderLightFor(context)),
             ),
             child: Image.asset(
               uni.logoAssetPath,
@@ -296,7 +296,7 @@ class _UniTile extends StatelessWidget {
           decoration: BoxDecoration(
             color: AppColors.surfaceFor(context),
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppColors.borderLight),
+            border: Border.all(color: AppColors.borderLightFor(context)),
           ),
           child: Row(
             children: [
@@ -473,7 +473,7 @@ class _DeptCard extends StatelessWidget {
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppColors.borderLight),
+            border: Border.all(color: AppColors.borderLightFor(context)),
             color: AppColors.surfaceFor(context),
           ),
           child: Column(
@@ -533,7 +533,7 @@ class _DeptCard extends StatelessWidget {
                       Container(
                         width: 1,
                         height: 28,
-                        color: AppColors.borderLight,
+                        color: AppColors.borderLightFor(context),
                       ),
                       Expanded(
                         child: _Stat(
@@ -548,7 +548,7 @@ class _DeptCard extends StatelessWidget {
                       Container(
                         width: 1,
                         height: 28,
-                        color: AppColors.borderLight,
+                        color: AppColors.borderLightFor(context),
                       ),
                       Expanded(
                         child: _Stat(

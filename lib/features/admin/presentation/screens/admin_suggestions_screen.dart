@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
-import '../../../../core/constants/app_constants.dart';
 import '../../../../core/widgets/widgets.dart';
-import '../../../auth/presentation/providers/auth_providers.dart';
 import '../../../places/domain/models/place_suggestion_model.dart';
 import '../../../places/presentation/providers/place_suggestion_providers.dart';
 
@@ -17,8 +15,7 @@ class AdminSuggestionsScreen extends ConsumerStatefulWidget {
       _AdminSuggestionsScreenState();
 }
 
-class _AdminSuggestionsScreenState
-    extends ConsumerState<AdminSuggestionsScreen>
+class _AdminSuggestionsScreenState extends ConsumerState<AdminSuggestionsScreen>
     with SingleTickerProviderStateMixin {
   late final TabController _tabController;
 
@@ -67,8 +64,14 @@ class _AdminSuggestionsScreenState
         controller: _tabController,
         children: [
           _SuggestionList(status: SuggestionStatus.pending, showActions: true),
-          _SuggestionList(status: SuggestionStatus.approved, showActions: false),
-          _SuggestionList(status: SuggestionStatus.rejected, showActions: false),
+          _SuggestionList(
+            status: SuggestionStatus.approved,
+            showActions: false,
+          ),
+          _SuggestionList(
+            status: SuggestionStatus.rejected,
+            showActions: false,
+          ),
         ],
       ),
     );
@@ -110,10 +113,7 @@ class _SuggestionList extends ConsumerWidget {
   final SuggestionStatus status;
   final bool showActions;
 
-  const _SuggestionList({
-    required this.status,
-    required this.showActions,
-  });
+  const _SuggestionList({required this.status, required this.showActions});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -140,7 +140,7 @@ class _SuggestionList extends ConsumerWidget {
         return ListView.separated(
           padding: const EdgeInsets.all(16),
           itemCount: suggestions.length,
-          separatorBuilder: (_, __) => const SizedBox(height: 12),
+          separatorBuilder: (_, _) => const SizedBox(height: 12),
           itemBuilder: (context, index) {
             return _SuggestionCard(
               suggestion: suggestions[index],
@@ -154,17 +154,23 @@ class _SuggestionList extends ConsumerWidget {
 
   String _emptyTitle(SuggestionStatus s) {
     switch (s) {
-      case SuggestionStatus.pending: return 'Bekleyen öneri yok';
-      case SuggestionStatus.approved: return 'Onaylanan öneri yok';
-      case SuggestionStatus.rejected: return 'Reddedilen öneri yok';
+      case SuggestionStatus.pending:
+        return 'Bekleyen öneri yok';
+      case SuggestionStatus.approved:
+        return 'Onaylanan öneri yok';
+      case SuggestionStatus.rejected:
+        return 'Reddedilen öneri yok';
     }
   }
 
   String _emptyMessage(SuggestionStatus s) {
     switch (s) {
-      case SuggestionStatus.pending: return 'Tüm öneriler işlenmiş görünüyor.';
-      case SuggestionStatus.approved: return 'Henüz onaylanan bir öneri yok.';
-      case SuggestionStatus.rejected: return 'Henüz reddedilen bir öneri yok.';
+      case SuggestionStatus.pending:
+        return 'Tüm öneriler işlenmiş görünüyor.';
+      case SuggestionStatus.approved:
+        return 'Henüz onaylanan bir öneri yok.';
+      case SuggestionStatus.rejected:
+        return 'Henüz reddedilen bir öneri yok.';
     }
   }
 }
@@ -173,10 +179,7 @@ class _SuggestionCard extends ConsumerWidget {
   final PlaceSuggestionModel suggestion;
   final bool showActions;
 
-  const _SuggestionCard({
-    required this.suggestion,
-    required this.showActions,
-  });
+  const _SuggestionCard({required this.suggestion, required this.showActions});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -195,7 +198,9 @@ class _SuggestionCard extends ConsumerWidget {
           // ─── Fotoğraflar ───────────────────────────────────
           if (suggestion.photoUrls.isNotEmpty)
             ClipRRect(
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(16),
+              ),
               child: SizedBox(
                 height: 180,
                 child: ListView.builder(
@@ -207,9 +212,12 @@ class _SuggestionCard extends ConsumerWidget {
                       child: Image.network(
                         suggestion.photoUrls[i],
                         fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => Container(
+                        errorBuilder: (_, _, _) => Container(
                           color: AppColors.borderLightFor(context),
-                          child: const Icon(Icons.broken_image_rounded, size: 40),
+                          child: const Icon(
+                            Icons.broken_image_rounded,
+                            size: 40,
+                          ),
                         ),
                       ),
                     );
@@ -233,7 +241,11 @@ class _SuggestionCard extends ConsumerWidget {
                         color: AppColors.primary.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      child: Icon(type.icon, color: AppColors.primary, size: 22),
+                      child: Icon(
+                        type.icon,
+                        color: AppColors.primary,
+                        size: 22,
+                      ),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
@@ -278,10 +290,7 @@ class _SuggestionCard extends ConsumerWidget {
                   ),
                 ],
                 const SizedBox(height: 6),
-                _MetaRow(
-                  icon: Icons.person_rounded,
-                  text: suggestion.userName,
-                ),
+                _MetaRow(icon: Icons.person_rounded, text: suggestion.userName),
                 const SizedBox(height: 6),
                 _MetaRow(
                   icon: Icons.access_time_rounded,
@@ -325,8 +334,11 @@ class _SuggestionCard extends ConsumerWidget {
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Icon(Icons.note_rounded,
-                            size: 16, color: AppColors.warning),
+                        const Icon(
+                          Icons.note_rounded,
+                          size: 16,
+                          color: AppColors.warning,
+                        ),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
@@ -420,20 +432,14 @@ class _SuggestionCard extends ConsumerWidget {
           FilledButton(
             onPressed: () async {
               Navigator.pop(ctx);
-              final admin = ref.read(authStateProvider).value;
-              if (admin == null) return;
 
               final repo = ref.read(placeSuggestionRepositoryProvider);
               await repo.approveSuggestion(
                 suggestionId: suggestion.id,
-                adminUserId: admin.uid,
                 adminNote: noteController.text.trim().isNotEmpty
                     ? noteController.text.trim()
                     : null,
               );
-              // Onaylanan öneriyi mekan olarak ekle
-              await repo.convertToPlace(suggestion);
-              // Listeyi yenile
               ref.invalidate(suggestionsProvider(SuggestionStatus.pending));
               ref.invalidate(suggestionsProvider(SuggestionStatus.approved));
             },
@@ -479,12 +485,11 @@ class _SuggestionCard extends ConsumerWidget {
           FilledButton(
             onPressed: () async {
               Navigator.pop(ctx);
-              final admin = ref.read(authStateProvider).value;
-              if (admin == null) return;
 
-              await ref.read(placeSuggestionRepositoryProvider).rejectSuggestion(
+              await ref
+                  .read(placeSuggestionRepositoryProvider)
+                  .rejectSuggestion(
                     suggestionId: suggestion.id,
-                    adminUserId: admin.uid,
                     adminNote: noteController.text.trim().isNotEmpty
                         ? noteController.text.trim()
                         : null,
@@ -517,17 +522,17 @@ class _StatusBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     final (Color bg, Color fg) = switch (status) {
       SuggestionStatus.pending => (
-          AppColors.warning.withValues(alpha: 0.12),
-          AppColors.warning,
-        ),
+        AppColors.warning.withValues(alpha: 0.12),
+        AppColors.warning,
+      ),
       SuggestionStatus.approved => (
-          AppColors.success.withValues(alpha: 0.12),
-          AppColors.success,
-        ),
+        AppColors.success.withValues(alpha: 0.12),
+        AppColors.success,
+      ),
       SuggestionStatus.rejected => (
-          AppColors.error.withValues(alpha: 0.12),
-          AppColors.error,
-        ),
+        AppColors.error.withValues(alpha: 0.12),
+        AppColors.error,
+      ),
     };
 
     return Container(

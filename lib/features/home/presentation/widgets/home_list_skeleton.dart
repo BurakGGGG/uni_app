@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/utils/responsive.dart';
 
 /// Home ekranındaki üniversite kartı yükleme skeleton'ı.
 class HomeListSkeleton extends StatelessWidget {
@@ -27,13 +28,15 @@ class HomeListSkeleton extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16),
           itemCount: itemCount,
           separatorBuilder: (_, _) => const SizedBox(width: 12),
-          itemBuilder: (_, _) => Container(
-            width: 160,
-            decoration: BoxDecoration(
-              color: AppColors.shimmerBaseFor(context),
-              borderRadius: BorderRadius.circular(16),
-            ),
-          ),
+          itemBuilder: (context, _) {
+            return Container(
+              width: Responsive.cardWidth(context),
+              decoration: BoxDecoration(
+                color: AppColors.shimmerBaseFor(context),
+                borderRadius: BorderRadius.circular(16),
+              ),
+            );
+          },
         ),
       ),
     );

@@ -101,7 +101,7 @@ class _PhotoUploadSectionState extends State<PhotoUploadSection> {
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: AppColors.textTertiary.withAlpha(80),
+                  color: AppColors.textTertiary.withValues(alpha: 0.31),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -112,7 +112,7 @@ class _PhotoUploadSectionState extends State<PhotoUploadSection> {
                 leading: Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: AppColors.primary.withAlpha(25),
+                    color: AppColors.primary.withValues(alpha: 0.10),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: const Icon(Icons.photo_library_rounded, color: AppColors.primary),
@@ -127,7 +127,7 @@ class _PhotoUploadSectionState extends State<PhotoUploadSection> {
                 leading: Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: AppColors.info.withAlpha(25),
+                    color: AppColors.info.withValues(alpha: 0.10),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Icon(Icons.camera_alt_rounded, color: AppColors.info),
@@ -183,10 +183,10 @@ class _PhotoUploadSectionState extends State<PhotoUploadSection> {
                       height: 100,
                       margin: const EdgeInsets.only(right: 12),
                       decoration: BoxDecoration(
-                        color: AppColors.primary.withAlpha(15),
+                        color: AppColors.primary.withValues(alpha: 0.06),
                         borderRadius: BorderRadius.circular(AppConstants.radiusMd),
                         border: Border.all(
-                          color: AppColors.primary.withAlpha(60),
+                          color: AppColors.primary.withValues(alpha: 0.24),
                           style: BorderStyle.solid,
                         ),
                       ),
@@ -257,7 +257,7 @@ class _PhotoUploadSectionState extends State<PhotoUploadSection> {
               child: Container(
                 padding: const EdgeInsets.all(4),
                 decoration: BoxDecoration(
-                  color: Colors.black.withAlpha(140),
+                  color: Colors.black.withValues(alpha: 0.55),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(Icons.close, size: 14, color: Colors.white),

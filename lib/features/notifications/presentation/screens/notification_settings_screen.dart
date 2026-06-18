@@ -197,7 +197,7 @@ class _SettingTile extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(AppConstants.radiusMd),
-        border: Border.all(color: AppColors.borderLight),
+        border: Border.all(color: AppColors.borderLightFor(context)),
       ),
       child: Material(
         color: Colors.transparent,

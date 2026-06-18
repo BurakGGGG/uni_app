@@ -209,7 +209,7 @@ class _SharedItemCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.surfaceFor(context),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.borderLight),
+        border: Border.all(color: AppColors.borderLightFor(context)),
         boxShadow: AppColors.softShadow,
       ),
       child: Row(

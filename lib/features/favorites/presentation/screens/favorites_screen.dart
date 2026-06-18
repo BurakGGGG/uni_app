@@ -9,6 +9,7 @@ import '../../../university/presentation/providers/university_providers.dart';
 import '../../../university/domain/models/university_model.dart';
 import '../providers/favorites_providers.dart';
 import '../../../auth/presentation/providers/auth_providers.dart';
+import '../../../../core/utils/responsive.dart';
 
 class FavoritesScreen extends ConsumerStatefulWidget {
   const FavoritesScreen({super.key});
@@ -142,7 +143,7 @@ class _FavoritesScreenState extends ConsumerState<FavoritesScreen> {
 
   Widget _buildTopBar(BuildContext context, WidgetRef ref, int count) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+      padding: EdgeInsets.symmetric(horizontal: Responsive.horizontalPadding(context), vertical: 12),
       child: Row(
         children: [
           Container(
