@@ -3,8 +3,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/widgets.dart';
+import '../../domain/models/admin_log_model.dart';
+import '../providers/admin_logs_providers.dart';
+import '../widgets/place_suggestion_approval_sheet.dart';
 import '../../../places/domain/models/place_suggestion_model.dart';
+import '../../../places/domain/models/place_model.dart';
 import '../../../places/presentation/providers/place_suggestion_providers.dart';
+
+enum _SuggestionSort { newest, oldest, completeness, duplicateRisk }
 
 /// Admin — Mekan Önerileri ekranı.
 class AdminSuggestionsScreen extends ConsumerStatefulWidget {
@@ -18,6 +24,11 @@ class AdminSuggestionsScreen extends ConsumerStatefulWidget {
 class _AdminSuggestionsScreenState extends ConsumerState<AdminSuggestionsScreen>
     with SingleTickerProviderStateMixin {
   late final TabController _tabController;
+  final _searchController = TextEditingController();
+  PlaceType? _typeFilter;
+  String? _universityFilter;
+  bool _duplicatesOnly = false;
+  _SuggestionSort _sort = _SuggestionSort.newest;
 
   @override
   void initState() {
@@ -28,6 +39,7 @@ class _AdminSuggestionsScreenState extends ConsumerState<AdminSuggestionsScreen>
   @override
   void dispose() {
     _tabController.dispose();
+    _searchController.dispose();
     super.dispose();
   }
 
@@ -60,17 +72,162 @@ class _AdminSuggestionsScreenState extends ConsumerState<AdminSuggestionsScreen>
           ],
         ),
       ),
-      body: TabBarView(
-        controller: _tabController,
+      body: Column(
         children: [
-          _SuggestionList(status: SuggestionStatus.pending, showActions: true),
-          _SuggestionList(
-            status: SuggestionStatus.approved,
-            showActions: false,
+          _buildQueueControls(context),
+          Expanded(
+            child: TabBarView(
+              controller: _tabController,
+              children: [
+                _buildSuggestionList(SuggestionStatus.pending, true),
+                _buildSuggestionList(SuggestionStatus.approved, false),
+                _buildSuggestionList(SuggestionStatus.rejected, false),
+              ],
+            ),
           ),
-          _SuggestionList(
-            status: SuggestionStatus.rejected,
-            showActions: false,
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSuggestionList(SuggestionStatus status, bool showActions) {
+    return _SuggestionList(
+      status: status,
+      showActions: showActions,
+      query: _searchController.text,
+      typeFilter: _typeFilter,
+      universityFilter: _universityFilter,
+      duplicatesOnly: _duplicatesOnly,
+      sort: _sort,
+    );
+  }
+
+  Widget _buildQueueControls(BuildContext context) {
+    final allSuggestions =
+        ref.watch(suggestionsProvider(null)).valueOrNull ?? [];
+    final universities =
+        allSuggestions
+            .map((item) => item.universityName)
+            .where((name) => name.isNotEmpty)
+            .toSet()
+            .toList()
+          ..sort();
+
+    return Container(
+      color: AppColors.surfaceFor(context),
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 10),
+      child: Column(
+        children: [
+          TextField(
+            controller: _searchController,
+            onChanged: (_) => setState(() {}),
+            decoration: InputDecoration(
+              hintText: 'Mekan, kullanıcı veya adres ara',
+              prefixIcon: const Icon(Icons.search_rounded),
+              suffixIcon: _searchController.text.isEmpty
+                  ? null
+                  : IconButton(
+                      tooltip: 'Aramayı temizle',
+                      onPressed: () {
+                        _searchController.clear();
+                        setState(() {});
+                      },
+                      icon: const Icon(Icons.close_rounded),
+                    ),
+            ),
+          ),
+          const SizedBox(height: 10),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: [
+                PopupMenuButton<String>(
+                  tooltip: 'Mekan türü filtresi',
+                  onSelected: (value) => setState(() {
+                    _typeFilter = value == '__all__'
+                        ? null
+                        : PlaceType.fromString(value);
+                  }),
+                  itemBuilder: (_) => [
+                    const PopupMenuItem(
+                      value: '__all__',
+                      child: Text('Tüm türler'),
+                    ),
+                    ...PlaceType.values.map(
+                      (type) => PopupMenuItem(
+                        value: type.firestoreValue,
+                        child: Text(type.label),
+                      ),
+                    ),
+                  ],
+                  child: _FilterChip(
+                    icon: Icons.category_rounded,
+                    label: _typeFilter?.label ?? 'Tür',
+                    active: _typeFilter != null,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                PopupMenuButton<String>(
+                  tooltip: 'Üniversite filtresi',
+                  onSelected: (value) => setState(() {
+                    _universityFilter = value == '__all__' ? null : value;
+                  }),
+                  itemBuilder: (_) => [
+                    const PopupMenuItem(
+                      value: '__all__',
+                      child: Text('Tüm üniversiteler'),
+                    ),
+                    ...universities.map(
+                      (name) => PopupMenuItem(value: name, child: Text(name)),
+                    ),
+                  ],
+                  child: _FilterChip(
+                    icon: Icons.school_rounded,
+                    label: _universityFilter ?? 'Üniversite',
+                    active: _universityFilter != null,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                InkWell(
+                  onTap: () =>
+                      setState(() => _duplicatesOnly = !_duplicatesOnly),
+                  borderRadius: BorderRadius.circular(8),
+                  child: _FilterChip(
+                    icon: Icons.content_copy_rounded,
+                    label: 'Mükerrer risk',
+                    active: _duplicatesOnly,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                PopupMenuButton<_SuggestionSort>(
+                  tooltip: 'Sıralama',
+                  onSelected: (value) => setState(() => _sort = value),
+                  itemBuilder: (_) => const [
+                    PopupMenuItem(
+                      value: _SuggestionSort.newest,
+                      child: Text('En yeni'),
+                    ),
+                    PopupMenuItem(
+                      value: _SuggestionSort.oldest,
+                      child: Text('En eski'),
+                    ),
+                    PopupMenuItem(
+                      value: _SuggestionSort.completeness,
+                      child: Text('En eksik önce'),
+                    ),
+                    PopupMenuItem(
+                      value: _SuggestionSort.duplicateRisk,
+                      child: Text('Mükerrer risk önce'),
+                    ),
+                  ],
+                  child: _FilterChip(
+                    icon: Icons.sort_rounded,
+                    label: _sortLabel(_sort),
+                    active: _sort != _SuggestionSort.newest,
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -107,13 +264,33 @@ class _AdminSuggestionsScreenState extends ConsumerState<AdminSuggestionsScreen>
       ),
     );
   }
+
+  String _sortLabel(_SuggestionSort sort) => switch (sort) {
+    _SuggestionSort.newest => 'En yeni',
+    _SuggestionSort.oldest => 'En eski',
+    _SuggestionSort.completeness => 'Eksik önce',
+    _SuggestionSort.duplicateRisk => 'Risk önce',
+  };
 }
 
 class _SuggestionList extends ConsumerWidget {
   final SuggestionStatus status;
   final bool showActions;
+  final String query;
+  final PlaceType? typeFilter;
+  final String? universityFilter;
+  final bool duplicatesOnly;
+  final _SuggestionSort sort;
 
-  const _SuggestionList({required this.status, required this.showActions});
+  const _SuggestionList({
+    required this.status,
+    required this.showActions,
+    required this.query,
+    required this.typeFilter,
+    required this.universityFilter,
+    required this.duplicatesOnly,
+    required this.sort,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -127,23 +304,56 @@ class _SuggestionList extends ConsumerWidget {
         compact: true,
       ),
       data: (suggestions) {
-        if (suggestions.isEmpty) {
+        final filtered = suggestions.where((suggestion) {
+          final normalizedQuery = query.trim().toLowerCase();
+          final matchesQuery =
+              normalizedQuery.isEmpty ||
+              suggestion.name.toLowerCase().contains(normalizedQuery) ||
+              suggestion.userName.toLowerCase().contains(normalizedQuery) ||
+              suggestion.address.toLowerCase().contains(normalizedQuery) ||
+              suggestion.universityName.toLowerCase().contains(normalizedQuery);
+          return matchesQuery &&
+              (typeFilter == null || suggestion.type == typeFilter) &&
+              (universityFilter == null ||
+                  suggestion.universityName == universityFilter) &&
+              (!duplicatesOnly || suggestion.duplicateRiskCount > 0);
+        }).toList();
+        switch (sort) {
+          case _SuggestionSort.newest:
+            filtered.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+          case _SuggestionSort.oldest:
+            filtered.sort((a, b) => a.createdAt.compareTo(b.createdAt));
+          case _SuggestionSort.completeness:
+            filtered.sort(
+              (a, b) => a.completenessScore.compareTo(b.completenessScore),
+            );
+          case _SuggestionSort.duplicateRisk:
+            filtered.sort(
+              (a, b) => b.duplicateRiskCount.compareTo(a.duplicateRiskCount),
+            );
+        }
+
+        if (filtered.isEmpty) {
           return Center(
             child: EmptyState(
               icon: Icons.inbox_rounded,
-              title: _emptyTitle(status),
-              message: _emptyMessage(status),
+              title: suggestions.isEmpty
+                  ? _emptyTitle(status)
+                  : 'Filtreye uygun öneri yok',
+              message: suggestions.isEmpty
+                  ? _emptyMessage(status)
+                  : 'Arama veya filtreleri değiştirerek tekrar dene.',
             ),
           );
         }
 
         return ListView.separated(
           padding: const EdgeInsets.all(16),
-          itemCount: suggestions.length,
+          itemCount: filtered.length,
           separatorBuilder: (_, _) => const SizedBox(height: 12),
           itemBuilder: (context, index) {
             return _SuggestionCard(
-              suggestion: suggestions[index],
+              suggestion: filtered[index],
               showActions: showActions,
             );
           },
@@ -296,6 +506,70 @@ class _SuggestionCard extends ConsumerWidget {
                   icon: Icons.access_time_rounded,
                   text: _formatDate(suggestion.createdAt),
                 ),
+                if (suggestion.hasLocation) ...[
+                  const SizedBox(height: 6),
+                  _MetaRow(
+                    icon: Icons.map_rounded,
+                    text:
+                        '${suggestion.latitude!.toStringAsFixed(5)}, '
+                        '${suggestion.longitude!.toStringAsFixed(5)}',
+                  ),
+                ],
+                if ((suggestion.openHours ?? '').isNotEmpty) ...[
+                  const SizedBox(height: 6),
+                  _MetaRow(
+                    icon: Icons.schedule_rounded,
+                    text: suggestion.openHours!,
+                  ),
+                ],
+                if ((suggestion.phone ?? '').isNotEmpty) ...[
+                  const SizedBox(height: 6),
+                  _MetaRow(icon: Icons.phone_rounded, text: suggestion.phone!),
+                ],
+                const SizedBox(height: 12),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    _InfoPill(
+                      icon: Icons.fact_check_rounded,
+                      text: 'Tamlık %${suggestion.completenessScore}',
+                      color: suggestion.completenessScore >= 80
+                          ? AppColors.success
+                          : AppColors.warning,
+                    ),
+                    if (suggestion.duplicateRiskCount > 0)
+                      _InfoPill(
+                        icon: Icons.content_copy_rounded,
+                        text: '${suggestion.duplicateRiskCount} benzer kayıt',
+                        color: AppColors.error,
+                      ),
+                    if (suggestion.priceRange != null)
+                      _InfoPill(
+                        icon: Icons.payments_rounded,
+                        text: suggestion.priceRange!,
+                        color: AppColors.primary,
+                      ),
+                  ],
+                ),
+                if (suggestion.missingQualityFields.isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  Text(
+                    'Eksik: ${suggestion.missingQualityFields.join(', ')}',
+                    style: AppTextStyles.labelSmall.copyWith(
+                      color: AppColors.warning,
+                    ),
+                  ),
+                ],
+                if (suggestion.amenities.isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  Text(
+                    suggestion.amenities.join(' • '),
+                    style: AppTextStyles.labelSmall.copyWith(
+                      color: AppColors.textSecondaryFor(context),
+                    ),
+                  ),
+                ],
 
                 // ─── Açıklama ──────────────────────────────────
                 if (suggestion.description.isNotEmpty) ...[
@@ -390,6 +664,23 @@ class _SuggestionCard extends ConsumerWidget {
                     ],
                   ),
                 ],
+                const SizedBox(height: 8),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    if (suggestion.duplicateRiskCount > 0)
+                      TextButton.icon(
+                        onPressed: () => _showDuplicates(context, ref),
+                        icon: const Icon(Icons.content_copy_rounded, size: 18),
+                        label: const Text('Benzerler'),
+                      ),
+                    TextButton.icon(
+                      onPressed: () => _showHistory(context, ref),
+                      icon: const Icon(Icons.history_rounded, size: 18),
+                      label: const Text('Geçmiş'),
+                    ),
+                  ],
+                ),
               ],
             ),
           ),
@@ -398,63 +689,121 @@ class _SuggestionCard extends ConsumerWidget {
     );
   }
 
-  void _showApproveDialog(BuildContext context, WidgetRef ref) {
-    final noteController = TextEditingController();
+  Future<void> _showApproveDialog(BuildContext context, WidgetRef ref) async {
+    final result = await PlaceSuggestionApprovalSheet.show(context, suggestion);
+    if (result == null || !context.mounted) return;
 
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text('Öneriyi Onayla'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              '"${suggestion.name}" mekanı onaylanacak ve places koleksiyonuna eklenecek.',
-              style: AppTextStyles.bodySmall,
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: noteController,
-              decoration: const InputDecoration(
-                labelText: 'Admin notu (opsiyonel)',
-                border: OutlineInputBorder(),
-              ),
-              maxLines: 2,
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('İptal'),
-          ),
-          FilledButton(
-            onPressed: () async {
-              Navigator.pop(ctx);
-
-              final repo = ref.read(placeSuggestionRepositoryProvider);
-              await repo.approveSuggestion(
-                suggestionId: suggestion.id,
-                adminNote: noteController.text.trim().isNotEmpty
-                    ? noteController.text.trim()
-                    : null,
-              );
-              ref.invalidate(suggestionsProvider(SuggestionStatus.pending));
-              ref.invalidate(suggestionsProvider(SuggestionStatus.approved));
-            },
-            style: FilledButton.styleFrom(backgroundColor: AppColors.success),
-            child: const Text('Onayla'),
-          ),
-        ],
-      ),
-    );
+    try {
+      final repo = ref.read(placeSuggestionRepositoryProvider);
+      await repo.approveSuggestion(
+        suggestionId: suggestion.id,
+        adminNote: result.adminNote,
+        approvedPlace: result.approvedPlace,
+      );
+      ref.invalidate(suggestionsProvider(SuggestionStatus.pending));
+      ref.invalidate(suggestionsProvider(SuggestionStatus.approved));
+      ref.invalidate(suggestionsProvider(null));
+      if (!context.mounted) return;
+      _showActionMessage(context, 'Mekan önerisi onaylandı.');
+    } catch (error) {
+      if (!context.mounted) return;
+      _showActionMessage(
+        context,
+        'Mekan önerisi onaylanamadı: $error',
+        isError: true,
+      );
+    }
   }
 
-  void _showRejectDialog(BuildContext context, WidgetRef ref) {
+  Future<void> _showHistory(BuildContext context, WidgetRef ref) async {
+    try {
+      final logs = await ref
+          .read(adminLogsRepositoryProvider)
+          .getAuditLogsForTarget(suggestion.id);
+      if (!context.mounted) return;
+      await showModalBottomSheet<void>(
+        context: context,
+        showDragHandle: true,
+        builder: (_) =>
+            _SuggestionHistorySheet(logs: logs, suggestion: suggestion),
+      );
+    } catch (error) {
+      if (!context.mounted) return;
+      _showActionMessage(
+        context,
+        'İşlem geçmişi yüklenemedi: $error',
+        isError: true,
+      );
+    }
+  }
+
+  Future<void> _showDuplicates(BuildContext context, WidgetRef ref) async {
+    try {
+      final candidates = await ref
+          .read(placeSuggestionRepositoryProvider)
+          .checkDuplicates(
+            universityId: suggestion.universityId,
+            name: suggestion.name,
+            type: suggestion.type,
+            latitude: suggestion.latitude,
+            longitude: suggestion.longitude,
+            excludeSuggestionId: suggestion.id,
+          );
+      if (!context.mounted) return;
+      await showModalBottomSheet<void>(
+        context: context,
+        showDragHandle: true,
+        builder: (_) => SafeArea(
+          child: candidates.isEmpty
+              ? const Padding(
+                  padding: EdgeInsets.fromLTRB(24, 8, 24, 32),
+                  child: Text('Benzer mekan kaydı bulunamadı.'),
+                )
+              : ListView.separated(
+                  shrinkWrap: true,
+                  padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
+                  itemCount: candidates.length,
+                  separatorBuilder: (_, _) => const Divider(),
+                  itemBuilder: (_, index) {
+                    final candidate = candidates[index];
+                    return ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: Icon(
+                        candidate.source == 'place'
+                            ? Icons.place_rounded
+                            : Icons.pending_actions_rounded,
+                        color: AppColors.warning,
+                      ),
+                      title: Text(candidate.name),
+                      subtitle: Text(
+                        [
+                          if (candidate.address.isNotEmpty) candidate.address,
+                          if (candidate.distanceMeters != null)
+                            '${candidate.distanceMeters!.round()} m',
+                          candidate.source == 'place'
+                              ? 'Kayıtlı mekan'
+                              : 'Bekleyen öneri',
+                        ].join(' • '),
+                      ),
+                    );
+                  },
+                ),
+        ),
+      );
+    } catch (error) {
+      if (!context.mounted) return;
+      _showActionMessage(
+        context,
+        'Benzer mekanlar yüklenemedi: $error',
+        isError: true,
+      );
+    }
+  }
+
+  Future<void> _showRejectDialog(BuildContext context, WidgetRef ref) async {
     final noteController = TextEditingController();
 
-    showDialog(
+    final adminNote = await showDialog<String>(
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
@@ -483,24 +832,47 @@ class _SuggestionCard extends ConsumerWidget {
             child: const Text('İptal'),
           ),
           FilledButton(
-            onPressed: () async {
-              Navigator.pop(ctx);
-
-              await ref
-                  .read(placeSuggestionRepositoryProvider)
-                  .rejectSuggestion(
-                    suggestionId: suggestion.id,
-                    adminNote: noteController.text.trim().isNotEmpty
-                        ? noteController.text.trim()
-                        : null,
-                  );
-              ref.invalidate(suggestionsProvider(SuggestionStatus.pending));
-              ref.invalidate(suggestionsProvider(SuggestionStatus.rejected));
-            },
+            onPressed: () => Navigator.pop(ctx, noteController.text.trim()),
             style: FilledButton.styleFrom(backgroundColor: AppColors.error),
             child: const Text('Reddet'),
           ),
         ],
+      ),
+    );
+    noteController.dispose();
+    if (adminNote == null || !context.mounted) return;
+
+    try {
+      await ref
+          .read(placeSuggestionRepositoryProvider)
+          .rejectSuggestion(
+            suggestionId: suggestion.id,
+            adminNote: adminNote.isEmpty ? null : adminNote,
+          );
+      ref.invalidate(suggestionsProvider(SuggestionStatus.pending));
+      ref.invalidate(suggestionsProvider(SuggestionStatus.rejected));
+      ref.invalidate(suggestionsProvider(null));
+      if (!context.mounted) return;
+      _showActionMessage(context, 'Mekan önerisi reddedildi.');
+    } catch (error) {
+      if (!context.mounted) return;
+      _showActionMessage(
+        context,
+        'Mekan önerisi reddedilemedi: $error',
+        isError: true,
+      );
+    }
+  }
+
+  void _showActionMessage(
+    BuildContext context,
+    String message, {
+    bool isError = false,
+  }) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: isError ? AppColors.error : AppColors.success,
       ),
     );
   }
@@ -572,6 +944,201 @@ class _MetaRow extends StatelessWidget {
             ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _FilterChip extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final bool active;
+
+  const _FilterChip({
+    required this.icon,
+    required this.label,
+    required this.active,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      constraints: const BoxConstraints(maxWidth: 180),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      decoration: BoxDecoration(
+        color: active
+            ? AppColors.primary.withValues(alpha: 0.1)
+            : AppColors.backgroundFor(context),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: active ? AppColors.primary : AppColors.borderLightFor(context),
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            icon,
+            size: 16,
+            color: active
+                ? AppColors.primary
+                : AppColors.textSecondaryFor(context),
+          ),
+          const SizedBox(width: 6),
+          Flexible(
+            child: Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: AppTextStyles.labelSmall.copyWith(
+                color: active
+                    ? AppColors.primary
+                    : AppColors.textPrimaryFor(context),
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _InfoPill extends StatelessWidget {
+  final IconData icon;
+  final String text;
+  final Color color;
+
+  const _InfoPill({
+    required this.icon,
+    required this.text,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 14, color: color),
+          const SizedBox(width: 4),
+          Text(
+            text,
+            style: AppTextStyles.labelSmall.copyWith(
+              color: color,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SuggestionHistorySheet extends StatelessWidget {
+  final List<AdminAuditLogModel> logs;
+  final PlaceSuggestionModel suggestion;
+
+  const _SuggestionHistorySheet({required this.logs, required this.suggestion});
+
+  @override
+  Widget build(BuildContext context) {
+    final itemCount = logs.length + 1;
+
+    return SafeArea(
+      child: ListView.separated(
+        padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
+        itemCount: itemCount,
+        separatorBuilder: (_, _) => const Divider(height: 24),
+        itemBuilder: (context, index) {
+          if (index == logs.length) {
+            return _HistoryEntry(
+              icon: Icons.send_rounded,
+              title: 'Öneri gönderildi',
+              detail: suggestion.userName,
+              date: suggestion.createdAt,
+            );
+          }
+          final log = logs[index];
+          return _HistoryEntry(
+            icon: Icons.admin_panel_settings_rounded,
+            title: log.actionLabel,
+            detail: [
+              'Admin: ${log.actorUid}',
+              if (log.changedFields.isNotEmpty)
+                'Değişen: ${log.changedFields.join(', ')}',
+            ].join('\n'),
+            date: log.createdAt,
+          );
+        },
+      ),
+    );
+  }
+
+  static String _formatHistoryDate(DateTime date) {
+    return '${date.day.toString().padLeft(2, '0')}.'
+        '${date.month.toString().padLeft(2, '0')}.${date.year} '
+        '${date.hour.toString().padLeft(2, '0')}:'
+        '${date.minute.toString().padLeft(2, '0')}';
+  }
+}
+
+class _HistoryEntry extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String detail;
+  final DateTime date;
+
+  const _HistoryEntry({
+    required this.icon,
+    required this.title,
+    required this.detail,
+    required this.date,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: 36,
+          height: 36,
+          decoration: BoxDecoration(
+            color: AppColors.primary.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Icon(icon, color: AppColors.primary, size: 18),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: AppTextStyles.bodyMedium.copyWith(
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              const SizedBox(height: 3),
+              Text(detail, style: AppTextStyles.labelSmall),
+              const SizedBox(height: 4),
+              Text(
+                _SuggestionHistorySheet._formatHistoryDate(date),
+                style: AppTextStyles.labelSmall.copyWith(
+                  color: AppColors.textTertiaryFor(context),
+                ),
+              ),
+            ],
           ),
         ),
       ],

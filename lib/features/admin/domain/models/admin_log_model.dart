@@ -26,6 +26,8 @@ class AdminAuditLogModel {
   final String? status;
   final bool adminNotePresent;
   final int? photoCount;
+  final List<String> changedFields;
+  final Map<String, dynamic> approvedSnapshot;
   final DateTime createdAt;
 
   const AdminAuditLogModel({
@@ -42,6 +44,8 @@ class AdminAuditLogModel {
     this.status,
     this.adminNotePresent = false,
     this.photoCount,
+    this.changedFields = const [],
+    this.approvedSnapshot = const {},
     required this.createdAt,
   });
 
@@ -64,6 +68,10 @@ class AdminAuditLogModel {
       status: _nullableString(map['status']),
       adminNotePresent: map['adminNotePresent'] == true,
       photoCount: _nullableInt(map['photoCount']),
+      changedFields: List<String>.from(
+        map['changedFields'] as List? ?? const [],
+      ),
+      approvedSnapshot: _mapValue(map['approvedSnapshot']),
       createdAt: _dateValue(map['createdAt']),
     );
   }
@@ -153,6 +161,7 @@ class SuspiciousActivityLogModel {
     'report_rate_limited' => 'Report rate limit',
     'feedback_rate_limited' => 'Feedback rate limit',
     'place_suggestion_rate_limited' => 'Mekan önerisi rate limit',
+    'place_duplicate_check_rate_limited' => 'Benzer mekan kontrolü rate limit',
     'duplicate_report_attempt' => 'Tekrarlı report denemesi',
     'failed_admin_callable_access' => 'Başarısız admin callable erişimi',
     _ => type.ifEmpty('Bilinmeyen olay'),

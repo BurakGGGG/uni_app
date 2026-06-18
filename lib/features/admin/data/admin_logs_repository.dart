@@ -40,4 +40,18 @@ class AdminLogsRepository {
               .toList(),
         );
   }
+
+  Future<List<AdminAuditLogModel>> getAuditLogsForTarget(
+    String targetId, {
+    int limit = 50,
+  }) async {
+    final snap = await _auditLogsRef
+        .where('targetId', isEqualTo: targetId)
+        .orderBy('createdAt', descending: true)
+        .limit(limit)
+        .get();
+    return snap.docs
+        .map((doc) => AdminAuditLogModel.fromMap(doc.data(), doc.id))
+        .toList();
+  }
 }
