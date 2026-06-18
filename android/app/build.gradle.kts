@@ -19,6 +19,7 @@ if (keystorePropertiesFile.exists()) {
 }
 
 val googleTestAdMobAppId = "ca-app-pub-3940256099942544~3347511713"
+val googleTestRewardedAndroidId = "ca-app-pub-3940256099942544/5224354917"
 
 fun decodedDartDefines(): Map<String, String> {
     val encodedDefines = (project.findProperty("dart-defines") as? String)
@@ -58,9 +59,14 @@ fun keystoreProperty(name: String): String? {
 }
 
 val configuredAdMobAppId = configuredProperty("ADMOB_APP_ID")
+val configuredAdMobRewardedAndroidId = configuredProperty("ADMOB_REWARDED_ANDROID")
+val allowTestAdUnits = configuredProperty("ALLOW_TEST_AD_UNITS")
+    ?.equals("true", ignoreCase = true) == true
 
 fun validateAndroidReleaseConfig() {
     val missingOrInvalid = mutableListOf<String>()
+    val appIdPattern = Regex("^ca-app-pub-[0-9]+~[0-9]+$")
+    val adUnitIdPattern = Regex("^ca-app-pub-[0-9]+/[0-9]+$")
 
     if (!keystorePropertiesFile.exists()) {
         missingOrInvalid += "android/key.properties bulunamadi"
@@ -85,6 +91,26 @@ fun validateAndroidReleaseConfig() {
         configuredAdMobAppId == googleTestAdMobAppId ||
             configuredAdMobAppId.startsWith("ca-app-pub-3940256099942544") -> {
             missingOrInvalid += "release build Google test AdMob App ID kullanamaz"
+        }
+        !appIdPattern.matches(configuredAdMobAppId) -> {
+            missingOrInvalid += "ADMOB_APP_ID gecersiz formatta"
+        }
+    }
+
+    when {
+        configuredAdMobRewardedAndroidId == null && !allowTestAdUnits -> {
+            missingOrInvalid +=
+                "ADMOB_REWARDED_ANDROID eksik (--dart-define=ADMOB_REWARDED_ANDROID=...)"
+        }
+        configuredAdMobRewardedAndroidId != null &&
+            (configuredAdMobRewardedAndroidId == googleTestRewardedAndroidId ||
+                configuredAdMobRewardedAndroidId.startsWith("ca-app-pub-3940256099942544")) &&
+            !allowTestAdUnits -> {
+            missingOrInvalid += "release build Google test rewarded Ad Unit ID kullanamaz"
+        }
+        configuredAdMobRewardedAndroidId != null &&
+            !adUnitIdPattern.matches(configuredAdMobRewardedAndroidId) -> {
+            missingOrInvalid += "ADMOB_REWARDED_ANDROID gecersiz formatta"
         }
     }
 
