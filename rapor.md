@@ -32,6 +32,7 @@ Tamamlanan kritik/yüksek öncelikli düzeltmeler:
 - Admin moderasyon aksiyonları `performAdminModerationAction` callable function'ına taşındı; report/feedback/review güncelleme, gizleme ve silme işlemleri App Check + admin custom claim ile server-side yapılıyor ve `adminAuditLogs` koleksiyonuna Admin SDK üzerinden loglanıyor.
 - Review oluşturma `submitReview` callable function'ına taşındı; doğrulanmış edu.tr hesabı, kullanıcının kendi üniversitesi, server-side author alanları, pending-first moderation ve 10 dakikada 3 yorum rate limit'i Admin SDK tarafında uygulanıyor. Flutter tarafında `getReviewSubmissionStatus` preflight kontrolüyle limit doluyken kullanıcı yorum yazma ekranına alınmadan uyarılıyor.
 - Report ve feedback gönderimleri doğrudan Firestore client write yerine App Check zorunlu `submitReviewReport` / `submitFeedback` callable function'larına taşındı; duplicate report, kısa pencere rate limit ve `suspiciousActivityLogs` kaydı server-side uygulanıyor.
+- Mekan önerisi oluşturma ve admin onay/red akışı App Check zorunlu callable function'lara taşındı; kullanıcı/admin doğrudan `place_suggestions` yazamıyor, fotoğraf path/MIME doğrulaması, create-only görsel bütünlüğü, rate limit, custom claim kontrolü ve admin audit log server-side uygulanıyor.
 - Admin paneline read-only Güvenlik Logları ekranı eklendi; `adminAuditLogs` ve `suspiciousActivityLogs` kayıtları arama, tip/aksiyon filtresi ve detay sheet'iyle incelenebiliyor.
 - Admin claim'i olmayan veya girişsiz kullanıcıların admin callable denemeleri `failed_admin_callable_access` tipiyle `suspiciousActivityLogs` koleksiyonuna düşecek şekilde sertleştirildi.
 - Security observability dokümanı eklendi; admin callable, review/report/feedback abuse, Storage cleanup ve App Check reject olayları için Cloud Logging filtreleri ve önerilen alert eşikleri tanımlandı.
@@ -874,6 +875,7 @@ Hard overflow kesin değil; Material NavigationBar label'ları sıkıştırabili
   - Preference list viewCount arbitrary set edilememeli.
   - Preference list create/update immutable alan ve item schema ihlalleri reddedilmeli.
   - Analytics direct client write reddedilmeli.
+  - Mekan önerisi create/update/delete doğrudan client write ile reddedilmeli.
 
 - Storage:
   - Admin olmayan kullanıcı story upload yapamamalı.
@@ -881,6 +883,7 @@ Hard overflow kesin değil; Material NavigationBar label'ları sıkıştırabili
   - `image/svg+xml` gibi whitelist dışı story MIME tipleri reddedilmeli.
   - Profil fotoğrafında sadece beklenen MIME türleri kabul edilmeli. (Tamamlandı)
   - Review image count/path kısıtları test edilmeli. (Path/MIME tamamlandı; count callable schema ile korunuyor)
+  - Mekan önerisi fotoğrafları yalnızca sahibin güvenli path'i, `photo_0..4` dosya adı ve JPG/PNG/WebP MIME türleriyle kabul edilmeli. (Tamamlandı)
 
 - Functions:
   - Recommendation quota dolunca function reddetmeli.
