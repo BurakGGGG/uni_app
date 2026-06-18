@@ -37,7 +37,7 @@ class PlaceList extends ConsumerWidget {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (showTypeFilter) _buildFilterBar(ref, allPlaces, filter),
+            if (showTypeFilter) _buildFilterBar(context, ref, allPlaces, filter),
             if (filtered.isEmpty)
               !filter.isEmpty
                 ? Padding(
@@ -73,7 +73,7 @@ class PlaceList extends ConsumerWidget {
   }
 
   Widget _buildFilterBar(
-      WidgetRef ref, List<PlaceModel> all, PlaceFilterState filter) {
+      BuildContext context, WidgetRef ref, List<PlaceModel> all, PlaceFilterState filter) {
     final types = all.map((p) => p.type).toSet().toList();
     if (types.length < 2) return const SizedBox.shrink();
 
@@ -85,17 +85,18 @@ class PlaceList extends ConsumerWidget {
         itemCount: types.length + 1,
         itemBuilder: (context, index) {
           if (index == 0) {
-            return _buildFilterChip(ref, null, 'Tümü', all.length, filter);
+            return _buildFilterChip(context, ref, null, 'Tümü', all.length, filter);
           }
           final t = types[index - 1];
           final count = all.where((p) => p.type == t).length;
-          return _buildFilterChip(ref, t, t.label, count, filter);
+          return _buildFilterChip(context, ref, t, t.label, count, filter);
         },
       ),
     );
   }
 
   Widget _buildFilterChip(
+    BuildContext context,
     WidgetRef ref,
     PlaceType? type,
     String label,
@@ -143,7 +144,7 @@ class PlaceList extends ConsumerWidget {
         side: BorderSide(
           color: selected
               ? AppColors.primary.withValues(alpha: 0.3)
-              : AppColors.borderLight,
+              : AppColors.borderLightFor(context),
         ),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         showCheckmark: false,

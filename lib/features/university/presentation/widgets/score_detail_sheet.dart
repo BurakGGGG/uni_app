@@ -367,7 +367,7 @@ class _ScoreDetailSheet extends StatelessWidget {
                               child: LinearProgressIndicator(
                                 value: scoreData.fillRate.clamp(0, 1).toDouble(),
                                 minHeight: 8,
-                                backgroundColor: AppColors.borderLight,
+                                backgroundColor: AppColors.borderLightFor(context),
                                 valueColor: AlwaysStoppedAnimation(
                                   scoreData.fillRate >= 1 ? AppColors.success : AppColors.warning,
                                 ),

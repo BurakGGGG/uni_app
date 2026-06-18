@@ -17,6 +17,7 @@ import '../widgets/score_detail_sheet.dart';
 import '../../../admin/data/analytics_service.dart';
 import '../../../admin/domain/models/analytics_event.dart';
 import '../../../admin/presentation/widgets/analytics_once_tracker.dart';
+import '../../../../core/utils/responsive.dart';
 
 class DepartmentDetailScreen extends ConsumerWidget {
   final String departmentId;
@@ -47,7 +48,7 @@ class DepartmentDetailScreen extends ConsumerWidget {
               AnalyticsEvent.departmentViewed,
             ),
             child: SingleChildScrollView(
-              padding: const EdgeInsets.all(20),
+              padding: EdgeInsets.all(Responsive.horizontalPadding(context)),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -621,7 +622,7 @@ void _showReviewInfoSheet(
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: AppColors.textTertiary.withAlpha(80),
+                color: AppColors.textTertiary.withValues(alpha: 0.31),
                 borderRadius: BorderRadius.circular(2),
               ),
             ),

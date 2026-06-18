@@ -34,13 +34,14 @@ class UniInfoStrip extends StatelessWidget {
       ),
       child: Row(
         children: [
-          _kpi('$establishedYear', 'Kuruluş'),
-          _divider(),
-          _kpi('$departmentCount', 'Bölüm'),
-          _divider(),
-          _kpi('$reviewCount', 'Yorum'),
-          _divider(),
+          _kpi(context, '$establishedYear', 'Kuruluş'),
+          _divider(context),
+          _kpi(context, '$departmentCount', 'Bölüm'),
+          _divider(context),
+          _kpi(context, '$reviewCount', 'Yorum'),
+          _divider(context),
           _kpi(
+            context,
             avgRating > 0 ? avgRating.toStringAsFixed(1) : '–',
             'Puan',
             valueColor: avgRating > 0 ? AppColors.ratingStar : null,
@@ -50,7 +51,7 @@ class UniInfoStrip extends StatelessWidget {
     );
   }
 
-  Widget _kpi(String value, String label, {Color? valueColor}) {
+  Widget _kpi(BuildContext context, String value, String label, {Color? valueColor}) {
     return Expanded(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -59,7 +60,7 @@ class UniInfoStrip extends StatelessWidget {
           Text(
             value,
             style: AppTextStyles.headlineSmall.copyWith(
-              color: valueColor ?? AppColors.textPrimary,
+              color: valueColor ?? AppColors.textPrimaryFor(context),
               fontWeight: FontWeight.w800,
             ),
           ),
@@ -67,7 +68,7 @@ class UniInfoStrip extends StatelessWidget {
           Text(
             label,
             style: AppTextStyles.labelSmall.copyWith(
-              color: AppColors.textTertiary,
+              color: AppColors.textTertiaryFor(context),
               letterSpacing: 0.3,
             ),
           ),
@@ -76,9 +77,9 @@ class UniInfoStrip extends StatelessWidget {
     );
   }
 
-  Widget _divider() => Container(
+  Widget _divider(BuildContext context) => Container(
     width: 1,
     height: 28,
-    color: AppColors.borderLight,
+    color: AppColors.borderLightFor(context),
   );
 }

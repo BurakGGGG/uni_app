@@ -350,7 +350,7 @@ class _PlaceDetailScreenState extends ConsumerState<PlaceDetailScreen> {
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(AppConstants.radiusLg),
-        border: Border.all(color: AppColors.borderLight),
+        border: Border.all(color: AppColors.borderLightFor(context)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

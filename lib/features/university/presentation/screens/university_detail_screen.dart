@@ -30,6 +30,7 @@ import '../widgets/uni_info_strip.dart';
 import '../widgets/uni_section.dart';
 import '../../../admin/data/analytics_service.dart';
 import '../../../admin/presentation/widgets/analytics_once_tracker.dart';
+import '../../../../core/utils/responsive.dart';
 
 class UniversityDetailScreen extends ConsumerWidget {
   final String universityId;
@@ -235,7 +236,7 @@ class _ActionButtons extends ConsumerWidget {
         user != null && (user.email?.endsWith('.edu.tr') ?? false);
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+      padding: EdgeInsets.symmetric(horizontal: Responsive.horizontalPadding(context), vertical: 8),
       child: Column(
         children: [
           Row(
@@ -493,7 +494,7 @@ class _PlacesEmptyState extends StatelessWidget {
     final loc = AppLocalizations.of(context);
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 20),
+      padding: EdgeInsets.symmetric(vertical: 32, horizontal: Responsive.horizontalPadding(context)),
       decoration: BoxDecoration(
         color: AppColors.surfaceFor(context),
         borderRadius: BorderRadius.circular(16),
@@ -636,7 +637,7 @@ void _showReviewInfoSheet(BuildContext context, {required dynamic user}) {
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: AppColors.textTertiary.withAlpha(80),
+                color: AppColors.textTertiary.withValues(alpha: 0.31),
                 borderRadius: BorderRadius.circular(2),
               ),
             ),

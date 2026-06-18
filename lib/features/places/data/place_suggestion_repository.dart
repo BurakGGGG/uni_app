@@ -1,19 +1,23 @@
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter/foundation.dart';
 import '../domain/models/place_suggestion_model.dart';
 
-/// Mekan önerisi repository — Firestore CRUD + Firebase Storage fotoğraf yükleme.
+/// Mekan önerisi repository — güvenli callable akışı + fotoğraf yükleme.
 class PlaceSuggestionRepository {
   final FirebaseFirestore _firestore;
   final FirebaseStorage _storage;
+  final FirebaseFunctions _functions;
 
   PlaceSuggestionRepository({
     FirebaseFirestore? firestore,
     FirebaseStorage? storage,
-  })  : _firestore = firestore ?? FirebaseFirestore.instance,
-        _storage = storage ?? FirebaseStorage.instance;
+    FirebaseFunctions? functions,
+  }) : _firestore = firestore ?? FirebaseFirestore.instance,
+       _storage = storage ?? FirebaseStorage.instance,
+       _functions =
+           functions ?? FirebaseFunctions.instanceFor(region: 'europe-west1');
 
   CollectionReference<Map<String, dynamic>> get _suggestionsRef =>
       _firestore.collection('place_suggestions');
@@ -26,19 +30,25 @@ class PlaceSuggestionRepository {
     required String suggestionId,
     required List<File> photos,
   }) async {
+    if (photos.length > 5) {
+      throw const PlaceSuggestionException(
+        'En fazla 5 fotoğraf yükleyebilirsin.',
+      );
+    }
+
+    final extensions = photos.map(_safePhotoExtension).toList();
     final urls = <String>[];
 
     for (int i = 0; i < photos.length; i++) {
       final file = photos[i];
-      final ext = file.path.split('.').last.toLowerCase();
-      final mimeExt = ext == 'jpg' ? 'jpeg' : ext;
+      final ext = extensions[i];
       final ref = _storage.ref(
         'place_suggestions/$userId/$suggestionId/photo_$i.$ext',
       );
 
       final uploadTask = ref.putFile(
         file,
-        SettableMetadata(contentType: 'image/$mimeExt'),
+        SettableMetadata(contentType: _contentTypeForExtension(ext)),
       );
 
       final snapshot = await uploadTask;
@@ -51,16 +61,14 @@ class PlaceSuggestionRepository {
 
   // ─── Öneri Gönderme ───────────────────────────────────────────
 
-  /// Yeni mekan önerisi oluşturur. Fotoğrafları yükler ve Firestore'a yazar.
+  /// Fotoğrafları yükler ve öneriyi App Check zorunlu callable ile gönderir.
   Future<String> submitSuggestion({
     required PlaceSuggestionModel suggestion,
     List<File> photos = const [],
   }) async {
-    // 1. Firestore dökümanını oluştur (ID al)
-    final docRef = _suggestionsRef.doc();
-    final suggestionId = docRef.id;
+    _validateSuggestion(suggestion, photos);
+    final suggestionId = _suggestionsRef.doc().id;
 
-    // 2. Fotoğrafları yükle
     List<String> photoUrls = [];
     if (photos.isNotEmpty) {
       photoUrls = await uploadPhotos(
@@ -70,9 +78,25 @@ class PlaceSuggestionRepository {
       );
     }
 
-    // 3. Dökümanı kaydet
-    final data = suggestion.copyWith(photoUrls: photoUrls).toMap();
-    await docRef.set(data);
+    try {
+      final callable = _functions.httpsCallable(
+        'submitPlaceSuggestion',
+        options: HttpsCallableOptions(timeout: const Duration(seconds: 30)),
+      );
+      await callable.call<Object?>({
+        'suggestionId': suggestionId,
+        'universityId': suggestion.universityId,
+        'name': suggestion.name,
+        'type': suggestion.type.firestoreValue,
+        'description': suggestion.description,
+        'address': suggestion.address,
+        'photoUrls': photoUrls,
+      });
+    } on FirebaseFunctionsException catch (e) {
+      throw PlaceSuggestionException(
+        e.message ?? 'Mekan önerisi gönderilemedi.',
+      );
+    }
 
     return suggestionId;
   }
@@ -83,8 +107,10 @@ class PlaceSuggestionRepository {
   Future<List<PlaceSuggestionModel>> getSuggestions({
     SuggestionStatus? status,
   }) async {
-    Query<Map<String, dynamic>> query = _suggestionsRef
-        .orderBy('createdAt', descending: true);
+    Query<Map<String, dynamic>> query = _suggestionsRef.orderBy(
+      'createdAt',
+      descending: true,
+    );
 
     if (status != null) {
       query = query.where('status', isEqualTo: status.firestoreValue);
@@ -107,50 +133,113 @@ class PlaceSuggestionRepository {
   /// Öneriyi onayla — opsiyonel admin notu ile.
   Future<void> approveSuggestion({
     required String suggestionId,
-    required String adminUserId,
     String? adminNote,
   }) async {
-    await _suggestionsRef.doc(suggestionId).update({
-      'status': SuggestionStatus.approved.firestoreValue,
-      'reviewedBy': adminUserId,
-      'reviewedAt': FieldValue.serverTimestamp(),
-      if (adminNote != null) 'adminNote': adminNote,
-    });
+    await _callAdminAction(
+      action: 'approve',
+      suggestionId: suggestionId,
+      adminNote: adminNote,
+    );
   }
 
   /// Öneriyi reddet — opsiyonel sebep notu ile.
   Future<void> rejectSuggestion({
     required String suggestionId,
-    required String adminUserId,
     String? adminNote,
   }) async {
-    await _suggestionsRef.doc(suggestionId).update({
-      'status': SuggestionStatus.rejected.firestoreValue,
-      'reviewedBy': adminUserId,
-      'reviewedAt': FieldValue.serverTimestamp(),
-      if (adminNote != null) 'adminNote': adminNote,
-    });
+    await _callAdminAction(
+      action: 'reject',
+      suggestionId: suggestionId,
+      adminNote: adminNote,
+    );
   }
 
-  /// Onaylanan öneriyi gerçek mekan olarak `places` koleksiyonuna ekler.
-  Future<void> convertToPlace(PlaceSuggestionModel suggestion) async {
-    await _firestore.collection('places').add({
-      'universityId': suggestion.universityId,
-      'name': suggestion.name,
-      'type': suggestion.type.firestoreValue,
-      'description': suggestion.description,
-      'imageUrls': suggestion.photoUrls,
-      'address': suggestion.address,
-      'amenities': <String>[],
-      'avgRating': 0.0,
-      'reviewCount': 0,
-      'categoryRatings': <String, dynamic>{},
-      'isPromoted': false,
-      'promotionPriority': 0,
-      'createdAt': FieldValue.serverTimestamp(),
-      'updatedAt': FieldValue.serverTimestamp(),
-    });
-
-    debugPrint('✅ Öneri mekan olarak eklendi: ${suggestion.name}');
+  Future<void> _callAdminAction({
+    required String action,
+    required String suggestionId,
+    String? adminNote,
+  }) async {
+    try {
+      final callable = _functions.httpsCallable(
+        'performPlaceSuggestionAction',
+        options: HttpsCallableOptions(timeout: const Duration(seconds: 30)),
+      );
+      await callable.call<Object?>({
+        'action': action,
+        'suggestionId': suggestionId,
+        'adminNote': ?adminNote,
+      });
+    } on FirebaseFunctionsException catch (e) {
+      throw PlaceSuggestionException(e.message ?? 'Mekan önerisi işlenemedi.');
+    }
   }
+
+  String _safePhotoExtension(File file) {
+    final fileName = file.path.split('/').last.toLowerCase();
+    final dotIndex = fileName.lastIndexOf('.');
+    if (dotIndex < 0 || dotIndex == fileName.length - 1) {
+      throw const PlaceSuggestionException(
+        'Fotoğraf dosya türü belirlenemedi.',
+      );
+    }
+
+    final extension = fileName.substring(dotIndex + 1);
+    if (extension == 'jpg' ||
+        extension == 'jpeg' ||
+        extension == 'png' ||
+        extension == 'webp') {
+      return extension;
+    }
+    throw const PlaceSuggestionException(
+      'Sadece JPG, PNG veya WebP fotoğraf yükleyebilirsin.',
+    );
+  }
+
+  void _validateSuggestion(PlaceSuggestionModel suggestion, List<File> photos) {
+    final nameLength = suggestion.name.trim().length;
+    if (nameLength < 2 || nameLength > 100) {
+      throw const PlaceSuggestionException(
+        'Mekan adı 2-100 karakter arasında olmalı.',
+      );
+    }
+    if (suggestion.description.trim().length > 500) {
+      throw const PlaceSuggestionException(
+        'Açıklama en fazla 500 karakter olabilir.',
+      );
+    }
+    if (suggestion.address.trim().length > 300) {
+      throw const PlaceSuggestionException(
+        'Adres en fazla 300 karakter olabilir.',
+      );
+    }
+    if (photos.length > 5) {
+      throw const PlaceSuggestionException(
+        'En fazla 5 fotoğraf yükleyebilirsin.',
+      );
+    }
+
+    for (final photo in photos) {
+      _safePhotoExtension(photo);
+    }
+  }
+
+  String _contentTypeForExtension(String extension) {
+    return switch (extension) {
+      'jpg' || 'jpeg' => 'image/jpeg',
+      'png' => 'image/png',
+      'webp' => 'image/webp',
+      _ => throw const PlaceSuggestionException(
+        'Desteklenmeyen fotoğraf türü.',
+      ),
+    };
+  }
+}
+
+class PlaceSuggestionException implements Exception {
+  final String message;
+
+  const PlaceSuggestionException(this.message);
+
+  @override
+  String toString() => message;
 }
