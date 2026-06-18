@@ -89,7 +89,7 @@ Son doğrulama çıktıları:
 
 ## 1. Yönetici Özeti
 
-Uygulama genel olarak geniş bir ürün yüzeyine sahip: öğrenci doğrulama, yorumlar, favoriler, tercih listeleri, admin panelleri, hikayeler, bildirimler, abonelikler, AI karşılaştırma/öneri özellikleri ve Firebase tabanlı sunucu işlevleri bulunuyor. İlk güvenlik incelemesinde bulunan admin yetki yükseltme, private kullanıcı verisi sızıntısı, review bütünlüğü ve Story Storage yazma açıkları güncel kodda giderildi. Firestore/Storage rules testleri 48/48, Flutter testleri 80/80 geçmektedir.
+Uygulama genel olarak geniş bir ürün yüzeyine sahip: öğrenci doğrulama, yorumlar, favoriler, tercih listeleri, admin panelleri, hikayeler, bildirimler, abonelikler, AI karşılaştırma/öneri özellikleri ve Firebase tabanlı sunucu işlevleri bulunuyor. İlk güvenlik incelemesinde bulunan admin yetki yükseltme, private kullanıcı verisi sızıntısı, review bütünlüğü ve Story Storage yazma açıkları güncel kodda giderildi. Firestore/Storage rules testleri 48/48, Flutter testleri 83/83 geçmektedir.
 
 Mekan öneri akışı production ile eşitlenmiştir. Saat seçimi yazısız bottom sheet üzerinden yapılmakta, konum Türkiye geneli arama ile daraltılabilmekte, telefon istemci ve sunucuda yalnızca 10-11 rakam kabul etmekte ve gönderim/duplicate/admin action callable'ları aynı production revizyonunda çalışmaktadır. Sahipsiz öneri medyası için günlük scheduled cleanup da aktiftir.
 
