@@ -9,6 +9,7 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../widgets/comparison_type_card.dart';
 import '../widgets/comparison_history_sheet.dart';
 import '../../../../l10n/generated/app_localizations.dart';
+import '../../../../core/utils/responsive.dart';
 
 /// Karşılaştırma Hub Ekranı
 /// Kullanıcı hangi tür karşılaştırma yapacağını seçer:
@@ -94,7 +95,7 @@ class _ComparisonHubScreenState extends ConsumerState<ComparisonHubScreen>
       backgroundColor: AppColors.backgroundFor(context),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+          padding: EdgeInsets.symmetric(horizontal: Responsive.horizontalPadding(context), vertical: 16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

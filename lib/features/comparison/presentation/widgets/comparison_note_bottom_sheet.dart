@@ -207,7 +207,7 @@ class _ComparisonNoteBottomSheetState extends State<ComparisonNoteBottomSheet> {
                   borderSide: BorderSide(
                     color: isDark
                         ? Colors.white.withValues(alpha: 0.08)
-                        : AppColors.borderLight,
+                        : AppColors.borderLightFor(context),
                   ),
                 ),
                 focusedBorder: OutlineInputBorder(
@@ -268,7 +268,7 @@ class _ComparisonNoteBottomSheetState extends State<ComparisonNoteBottomSheet> {
                       side: BorderSide(
                         color: isDark
                             ? Colors.white.withValues(alpha: 0.15)
-                            : AppColors.borderLight,
+                            : AppColors.borderLightFor(context),
                       ),
                     ),
                     child: Text(
