@@ -131,6 +131,17 @@ class AuthController extends StateNotifier<AsyncValue<void>> {
       state = AsyncValue.error(e, st);
     }
   }
+
+  /// Hesabı sil
+  Future<void> deleteAccount({String? password}) async {
+    state = const AsyncValue.loading();
+    try {
+      await _repository.deleteAccount(password: password);
+      state = const AsyncValue.data(null);
+    } catch (e, st) {
+      state = AsyncValue.error(e, st);
+    }
+  }
 }
 
 /// AuthController provider

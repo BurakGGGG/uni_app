@@ -8,6 +8,7 @@ const storage = admin.storage();
 const LOG_COMPONENT = 'places.placeSuggestions';
 const TEN_MINUTES_MS = 10 * 60 * 1000;
 const SUGGESTION_LIMIT_PER_WINDOW = 3;
+const DUPLICATE_CHECK_LIMIT_PER_WINDOW = 20;
 const MAX_PHOTO_COUNT = 5;
 const MAX_PHOTO_SIZE_BYTES = 10 * 1024 * 1024;
 const ID_RE = /^[A-Za-z0-9_-]{1,256}$/;
@@ -250,7 +251,7 @@ export const checkPlaceSuggestionDuplicates = onCall(
     enforceAppCheck: true,
   },
   async (req): Promise<{ candidates: DuplicateCandidate[] }> => {
-    requireUid(req.auth?.uid);
+    const uid = requireUid(req.auth?.uid);
     const input = (req.data ?? {}) as DuplicateCheckInput;
     const universityId = parseId(input.universityId, 'universityId');
     const name = parseRequiredString(input.name, 'name', 2, 100);
@@ -259,6 +260,23 @@ export const checkPlaceSuggestionDuplicates = onCall(
     const excludeSuggestionId = input.excludeSuggestionId == null
       ? undefined
       : parseId(input.excludeSuggestionId, 'excludeSuggestionId');
+
+    const rate = await enforceRateLimit(
+      `place_duplicate_check_${uid}`,
+      DUPLICATE_CHECK_LIMIT_PER_WINDOW,
+      TEN_MINUTES_MS,
+    );
+    if (!rate.allowed) {
+      await logSuspiciousActivity(uid, 'place_duplicate_check_rate_limited', {
+        universityId,
+        ...rate,
+        appId: req.app?.appId ?? null,
+      });
+      throw new HttpsError(
+        'resource-exhausted',
+        'Çok kısa sürede fazla benzer mekan kontrolü yaptınız.',
+      );
+    }
 
     const candidates = await findDuplicateCandidates({
       universityId,
@@ -271,7 +289,7 @@ export const checkPlaceSuggestionDuplicates = onCall(
 
     logger.info('Place duplicate check completed', {
       component: LOG_COMPONENT,
-      uid: req.auth?.uid,
+      uid,
       universityId,
       candidateCount: candidates.length,
       appCheckPresent: Boolean(req.app),

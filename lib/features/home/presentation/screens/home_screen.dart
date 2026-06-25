@@ -417,7 +417,7 @@ class _HeroBanner extends StatelessWidget {
           minHeight: Responsive.heroBannerMinHeight(context),
         ),
         decoration: BoxDecoration(
-          gradient: AppColors.heroGradient,
+          gradient: AppColors.heroGradientFor(context),
           borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(

@@ -2,6 +2,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_text_styles.dart';
+import '../../../../../l10n/generated/app_localizations.dart';
 import 'pro_chart_gate.dart';
 
 class TrendLineChart extends StatefulWidget {
@@ -37,13 +38,14 @@ class _TrendLineChartState extends State<TrendLineChart> {
     final a = widget.seriesA.take(6).toList();
     final b = widget.seriesB.take(6).toList();
     if (safeMonths.length < 2 || a.length < 2 || b.length < 2) {
+      final loc = AppLocalizations.of(context);
       return _cardShell(
         isDark: isDark,
         title: widget.title,
         child: Center(
           child: Padding(
             padding: const EdgeInsets.all(24),
-            child: Text('Trend verisi yok', style: AppTextStyles.bodySmall),
+            child: Text(loc.trendNoData, style: AppTextStyles.bodySmall),
           ),
         ),
       );

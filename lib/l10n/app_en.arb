@@ -274,6 +274,14 @@
   "comparisonNoteAdd": "Add note",
   "comparisonNoteEmpty": "No notes yet",
   "comparisonNoteMaxLength": "Maximum 500 characters",
+  "comparisonNotesLoadError": "Failed to load notes.",
+  "comparisonNoteSaved": "Note saved ✍️",
+  "comparisonNoteUpdated": "Note updated ✅",
+  "comparisonNoteDeleteTitle": "Delete Note",
+  "comparisonNoteDeleteConfirm": "This note will be permanently deleted. Continue?",
+  "comparisonNoteDeleted": "Note deleted",
+  "comparisonNoteEmptyTitle": "No notes yet",
+  "comparisonNoteEmptyDesc": "Save your thoughts about this comparison",
   "comparisonProUpsell": "Upgrade to Pro to add a 3rd university",
   "paywallContinueFree": "Continue for free",
   "paywallSavePercent": "SAVE {percent}%",
@@ -293,6 +301,33 @@
   "profilePremium": "Premium membership",
   "profileLanguage": "Language",
   "profileDeleteAccount": "Delete account",
+  "deleteAccountTitle": "Permanently delete account",
+  "deleteAccountDescription": "Your profile, favorites, preference lists, reviews, suggestions, and personal data associated with your account will be deleted.",
+  "deleteAccountWarning": "This action cannot be undone. If you have an active store subscription, you must also cancel it through Google Play.",
+  "deleteAccountPasswordNote": "Verify your identity with your current password to continue.",
+  "deleteAccountGoogleNote": "You will be asked to verify your identity with Google when you continue.",
+  "deleteAccountPasswordLabel": "Current password",
+  "deleteAccountPasswordRequired": "Enter your current password",
+  "deleteAccountConfirmationWord": "DELETE",
+  "deleteAccountConfirmationLabel": "Type {word} to confirm",
+  "@deleteAccountConfirmationLabel": {
+    "placeholders": {
+      "word": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteAccountConfirmationMismatch": "Type {word} to continue",
+  "@deleteAccountConfirmationMismatch": {
+    "placeholders": {
+      "word": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteAccountConfirmButton": "Delete account",
+  "deleteAccountProgress": "Deleting your account and data...",
+  "deleteAccountSuccess": "Your account and associated data were deleted.",
   "favoritesEmpty": "No favorites",
   "favoritesEmptyHint": "Track universities you like here.",
   "profileTheme": "Theme",
@@ -383,5 +418,423 @@
       }
     }
   },
-  "exploreShowResults": "Show Results"
+  "exploreShowResults": "Show Results",
+  "commonActions": "Actions",
+  "commonPrivate": "Private",
+  "commonPublic": "Public",
+  "commonPublicLong": "Public",
+  "commonSelect": "Select",
+  "commonNoData": "No data",
+  "commonNoDataLower": "no data",
+  "semanticUniversityLogo": "University logo",
+  "universityTypeState": "State",
+  "universityTypeFoundation": "Foundation",
+  "campusLayoutCampus": "Campus",
+  "campusLayoutBlock": "Block campus",
+  "campusLayoutDistributed": "Distributed campus",
+  "departmentTypeUndergraduate": "Undergraduate",
+  "departmentTypeAssociate": "Associate degree",
+  "departmentLanguageTurkish": "Turkish",
+  "departmentLanguageEnglish": "English",
+  "yearsCount": "{years} years",
+  "@yearsCount": {
+    "placeholders": {
+      "years": {
+        "type": "int"
+      }
+    }
+  },
+  "prefListsTitle": "My Preference Lists",
+  "prefListsNewList": "New List",
+  "prefListsEmptyTitle": "No lists yet",
+  "prefListsEmptyDesc": "Tap the \"New List\" button at the bottom right to create your first preference list.",
+  "prefListsLoginTitle": "Sign in required",
+  "prefListsLoginDesc": "Sign in first to view your lists and add new preferences.",
+  "prefListDeleteTitle": "Delete List",
+  "prefListDeleteConfirm": "Are you sure you want to delete \"{title}\"? This action cannot be undone.",
+  "@prefListDeleteConfirm": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "prefListItemLimit": "/ {max} choices",
+  "@prefListItemLimit": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "prefListItemCount": "{count} choices",
+  "@prefListItemCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "prefListActionsShare": "Share List",
+  "prefListActionsShareDesc": "Manage the share link and visibility",
+  "prefListActionsDeleteDesc": "This action cannot be undone",
+  "prefListCreateTitle": "New Preference List",
+  "prefListCreateSubtitle": "Enter a name and description",
+  "prefListTitleLabel": "List name",
+  "prefListTitleRequired": "List name is required",
+  "prefListTitleHint": "E.g. My 2025 STEM Preferences",
+  "prefListDescriptionLabel": "Description (optional)",
+  "prefListDescriptionHint": "A short note about this list…",
+  "prefListPublicTitle": "Public",
+  "prefListPublicCreateSubtitle": "Anyone with the link can view the list",
+  "prefListPublicShareSubtitle": "Anyone with the link can view your list",
+  "prefListCreateButton": "Create List",
+  "prefListShareTitle": "Share List",
+  "prefListLinkCopied": "Link copied",
+  "prefListShareLinkButton": "Share Link",
+  "prefListViewCount": "{count} views",
+  "@prefListViewCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "prefListPrivateNotice": "Your list is private right now. Turn on the switch above to share it.",
+  "prefListShareTextHeader": "I shared my \"{title}\" preference list 🎓",
+  "@prefListShareTextHeader": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "prefListShareTextExtra": "…and {count} more departments",
+  "@prefListShareTextExtra": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "prefListDuplicateDepartment": "This department is already in the list",
+  "prefListMaxItems": "A list can contain at most {max} choices",
+  "@prefListMaxItems": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "prefListSaved": "Preference list saved",
+  "prefListSaveError": "Save error: {error}",
+  "@prefListSaveError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "prefListDeleted": "Preference list deleted",
+  "prefListDeleteError": "Delete error: {error}",
+  "@prefListDeleteError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "prefListNotFound": "List not found.",
+  "prefListFullLimit": "Limit reached ({max})",
+  "@prefListFullLimit": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "prefListAddDepartment": "Add Department",
+  "prefListSortByRanking": "Sort by Ranking",
+  "prefListUndo": "Undo",
+  "prefListSavedState": "Saved",
+  "prefListEmptyItemsTitle": "List is empty",
+  "prefListEmptyItemsDesc": "Tap \"Add Department\" to choose a university and department. You can reorder your preferences by dragging or sorting by ranking.",
+  "prefDeptSelectUniversity": "Select University",
+  "prefDeptSelectDepartment": "Select Department",
+  "prefDeptSearchUniversity": "Search university…",
+  "prefDeptSearchDepartment": "Search department…",
+  "prefNoSearchResults": "No results found",
+  "prefNoSearchResultsDesc": "Try a different search.",
+  "prefNoDepartmentsTitle": "No departments found",
+  "prefNoDepartmentsDesc": "There are no registered departments for this university.",
+  "prefDeptUniversitiesWithDepartment": "Universities with {department}",
+  "@prefDeptUniversitiesWithDepartment": {
+    "placeholders": {
+      "department": {
+        "type": "String"
+      }
+    }
+  },
+  "prefDeptNoUniversityForDepartment": "No university found with this department",
+  "prefDeptNoOtherUniversityForDepartment": "There is no other university with \"{department}\".",
+  "@prefDeptNoOtherUniversityForDepartment": {
+    "placeholders": {
+      "department": {
+        "type": "String"
+      }
+    }
+  },
+  "prefBaseScoreShort": "Base",
+  "prefSharedListLoadError": "Failed to load list",
+  "prefSharedListBadge": "Shared List",
+  "prefSharedListOwner": "List owner",
+  "prefSharedListEmptyDesc": "There are no preferences in this list yet.",
+  "prefSharedListHiddenOrDeleted": "This list may have been deleted or marked private.",
+  "prefSharedListBackHome": "Back to Home",
+  "comparisonHubSubtitle": "What type of comparison do you want to make?",
+  "comparisonHistoryTitle": "Comparison History",
+  "comparisonHistoryTooltip": "Comparison history",
+  "comparisonEntityUniversity": "University",
+  "comparisonEntityDepartment": "Department",
+  "comparisonEntityCity": "City",
+  "comparisonSubscriptionLabel": "Your plan",
+  "subscriptionFree": "Free",
+  "comparisonUpgradePlus": "Upgrade to Plus",
+  "comparisonResetTitle": "Reset Comparison",
+  "comparisonResetConfirm": "Reset the current comparison? You can choose new universities.",
+  "comparisonAddThirdTooltip": "Add 3rd university (Pro)",
+  "comparisonRemoveThirdTooltip": "Remove 3rd university",
+  "comparisonEmptyUniversityTitle": "Select two universities",
+  "comparisonEmptyUniversityDesc": "Once you choose two universities above, comparison results will appear here.",
+  "comparisonNotesTab": "My Notes",
+  "comparisonNotesTabShort": "Notes",
+  "comparisonTabGeneralShort": "Gen",
+  "comparisonTabCategoriesShort": "Cat",
+  "comparisonTabChartShort": "Chart",
+  "comparisonTabStatsShort": "Stats",
+  "comparisonSummaryTitle": "Comparison Summary",
+  "comparisonWinnerCategories": "🏆 {winnerName} leads in {wins}/{total} categories",
+  "@comparisonWinnerCategories": {
+    "placeholders": {
+      "winnerName": {
+        "type": "String"
+      },
+      "wins": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "comparisonQuickDepartments": "Departments",
+  "comparisonQuickPlaces": "Places",
+  "comparisonQuickReviews": "Reviews",
+  "reviewCountShort": "{count} reviews",
+  "@reviewCountShort": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "comparisonCategoriesEmptyTitle": "Not enough ratings",
+  "comparisonCategoriesEmptyDesc": "There are not enough reviews to calculate category scores for these two universities yet.",
+  "comparisonChartEmptyTitle": "Reviews are required to generate charts",
+  "comparisonChartEmptyDesc": "Charts appear empty because there are not enough ratings yet.",
+  "comparisonUniversityPickerTitle": "Compare Universities",
+  "comparisonUniversityPickerSubtitle": "Select two universities to compare. Scores, categories, and statistics will appear side by side.",
+  "comparisonTripleHint": "With Pro, you can add a 3rd university for a three-way comparison.",
+  "comparisonSelectUniversityForA": "Select university for A",
+  "comparisonSelectUniversityForB": "Select university for B",
+  "comparisonDepartmentHeaderTitle": "Compare Departments",
+  "comparisonDepartmentHeaderSubtitle": "Compare the same department at two different universities. Base score, ranking, and quota appear side by side.",
+  "comparisonDepartmentHint": "Once you select one department on each side, comparison results will appear here.",
+  "comparisonCityHeaderTitle": "Compare Cities",
+  "comparisonCityHeaderSubtitle": "Compare the university ecosystem of two cities. State/foundation distribution, university count, and more.",
+  "comparisonCityHint": "Once you select two cities, comparison results will appear here.",
+  "comparisonSelectCity": "Select City",
+  "comparisonSearchCity": "Search city…",
+  "comparisonCityTileMeta": "Plate: {plate} • Univ: {count}",
+  "@comparisonCityTileMeta": {
+    "placeholders": {
+      "plate": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "comparisonResultNotFound": "Result not found.",
+  "comparisonScoreTypeMismatch": "The score types appear to be different. The comparison may be misleading.",
+  "comparisonBaseScore2025": "Base Score (2025)",
+  "comparisonDetailedInfo": "Detailed Information",
+  "comparisonFaculty": "Faculty",
+  "comparisonRankingTitle": "Ranking",
+  "comparisonNoDataLower": "no data",
+  "comparisonUniversityCount": "University Count",
+  "comparisonStateFoundationDistribution": "State / Foundation Distribution",
+  "comparisonPopulation": "Population",
+  "comparisonCityFeatures": "City Details",
+  "comparisonPlate": "Plate",
+  "comparisonTotalUniversities": "Total Univ.",
+  "comparisonInUniSec": "In ÜniSeç",
+  "comparisonProNotesTitle": "Comparison Notes",
+  "comparisonProNotesSubtitleLoggedIn": "A premium experience for Pro members is waiting for you!",
+  "comparisonProNotesSubtitleGuest": "Sign in and become a Pro member to unlock this feature!",
+  "comparisonProNotesFeaturePersonal": "Add personal notes to every comparison",
+  "comparisonProNotesFeatureProsCons": "Analyze in detail with pros and cons",
+  "comparisonProNotesFeatureRating": "Sort with a 1-5 star preference score",
+  "comparisonProNotesFeatureCloud": "Your notes are safe in the cloud — never lost",
+  "comparisonProNotesUpgrade": "Upgrade to Pro",
+  "comparisonProNotesLoginAndPro": "Sign In and Go Pro",
+  "comparisonSkipForNow": "Skip for now",
+  "comparisonHistoryClearTooltip": "Clear history",
+  "comparisonHistoryClearTitle": "Clear History",
+  "comparisonHistoryClearConfirm": "Delete all comparison history?",
+  "comparisonHistoryClearButton": "Clear",
+  "comparisonHistoryLoadError": "Failed to load history: {error}",
+  "@comparisonHistoryLoadError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "comparisonHistoryEmptyTitle": "No comparisons yet",
+  "comparisonHistoryEmptyDesc": "Your first comparison will appear here.",
+  "comparisonHistoryPaywallTitle": "Comparison History is in Plus / Pro",
+  "comparisonHistoryPaywallDesc": "Save your comparisons automatically and reopen them whenever you want.",
+  "comparisonHistoryPaywallButton": "Upgrade to Plus / Pro",
+  "comparisonHistoryFeatureRecent": "The last 20 comparisons are saved automatically",
+  "comparisonHistoryFeatureReturn": "Return to the same comparison with one tap",
+  "comparisonHistoryFeatureSync": "Sync across devices",
+  "comparisonTripleCategoryTitle": "Category Comparison",
+  "comparisonLeader": "LEADER",
+  "noteEditTitle": "Edit Note",
+  "noteAddTitle": "Add Note",
+  "noteSubtitle": "Save your thoughts about this comparison",
+  "notePreferenceRating": "Your Preference Rating",
+  "noteLabel": "Note",
+  "noteHint": "E.g. ITU is closer to me, the campus is beautiful...",
+  "noteEmptyError": "Note cannot be empty",
+  "noteProsLabel": "Pros",
+  "noteConsLabel": "Cons",
+  "noteAddProHint": "Add a new pro...",
+  "noteAddConHint": "Add a new con...",
+  "noteUpdate": "Update",
+  "noteMyNotes": "My Notes",
+  "noteLoadError": "Failed to load notes.",
+  "noteSavedSnack": "Note saved \u270d\ufe0f",
+  "noteUpdatedSnack": "Note updated \u2705",
+  "noteDeletedSnack": "Note deleted",
+  "noteDeleteTitle": "Delete Note",
+  "noteDeleteConfirm": "This note will be permanently deleted. Continue?",
+  "noteEmptyState": "No notes yet",
+  "noteEmptyStateDesc": "Save your thoughts about this comparison",
+  "noteTimeJustNow": "Just now",
+  "noteTimeMinutesAgo": "{minutes} min ago",
+  "@noteTimeMinutesAgo": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "noteTimeHoursAgo": "{hours} hours ago",
+  "@noteTimeHoursAgo": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "noteTimeDaysAgo": "{days} days ago",
+  "@noteTimeDaysAgo": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "noteTimeWeeksAgo": "{weeks} weeks ago",
+  "@noteTimeWeeksAgo": {
+    "placeholders": {
+      "weeks": {
+        "type": "int"
+      }
+    }
+  },
+  "plusLockSubtitle": "Unlock with Plus or Pro",
+  "plusLockButton": "Upgrade to Plus",
+  "comparisonNoData": "No data",
+  "trendNoData": "No trend data",
+  "shareInstagramStory": "Instagram Story (9:16)",
+  "shareInstagramPost": "Instagram Post (1:1)",
+  "shareTwitterWhatsApp": "Twitter / WhatsApp",
+  "yearlyTableYear": "Year",
+  "loadFailed": "Failed to load: {error}",
+  "@loadFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "favoriteLoginRequired": "Sign in to add favorites.",
+  "yearlyComparisonTitle": "Year-by-Year Comparison",
+  "yearlyDifference": "Diff",
+  "rankFormat": "{rank}th place",
+  "@rankFormat": {
+    "placeholders": {
+      "rank": {
+        "type": "String"
+      }
+    }
+  },
+  "rankNotAnnounced": "Rank: Not announced",
+  "shareStatAvgBase": "Avg. Base",
+  "shareStatDepartment": "Dept.",
+  "shareStatPlace": "Place",
+  "shareFormat": "Share Format",
+  "comparisonSubtitle": "Compare universities side by side",
+  "comparisonSwapTooltip": "Swap",
+  "comparisonError": "Error: {error}",
+  "@comparisonError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "adGateTitleGuest": "Compare with Ad",
+  "adGateTitleUser": "Free quota used up",
+  "adGateDescGuest": "You need to watch a short ad to compare. Sign in or upgrade to Plus for unlimited comparisons.",
+  "adGateDescUser": "You've used your 1 free daily comparison. Watch a short ad to continue or upgrade to Plus for unlimited comparisons.",
+  "adGateWatchBusy": "Loading ad\u2026",
+  "adGateWatchCta": "Watch Ad & Continue",
+  "adGatePlusCta": "Upgrade to Plus \u2014 Unlimited",
+  "adGateDismiss": "Not now",
+  "adGateOverlayTitleGuest": "Watch an ad to continue",
+  "adGateOverlayTitleUser": "Unlock to continue",
+  "adGateOverlayDescGuest": "You need to watch a short ad to compare.",
+  "adGateOverlayDescUser": "Your daily comparison quota is used up.",
+  "adGateOverlayBusy": "Loading\u2026",
+  "adGateOverlayCta": "Watch Ad / Upgrade to Plus",
+  "favoritesAddTitle": "Add to favorites",
+  "actionBarShare": "Share",
+  "actionBarFavorite": "Favorite",
+  "actionBarRecompare": "Redo",
+  "emptyStateSelectTwo": "Select two universities",
+  "emptyStateSelectTwoDesc": "Select two universities above to see comparison results here.",
+  "triplePickerTitle": "Select 3rd university",
+  "triplePickerSearchHint": "Search university\u2026",
+  "triplePickerNoResult": "No results found",
+  "sectionCategoryScores": "Category Scores",
+  "sectionOverview": "Overview",
+  "sectionStats": "General Statistics",
+  "noReviewsTitle": "Not enough reviews",
+  "noReviewsDesc": "There are not enough reviews yet to generate category scores for these two universities.",
+  "commonReset": "Reset"
 }

@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../../core/utils/localized_labels.dart';
 import '../../../../core/widgets/app_search_bar.dart';
+import '../../../../l10n/generated/app_localizations.dart';
 import '../../../university/presentation/providers/university_providers.dart';
 import '../../../university/domain/models/university_model.dart';
 import '../../../university/domain/models/department_model.dart';
@@ -61,6 +63,7 @@ class _BodyState extends ConsumerState<_Body> {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
     return Column(
       children: [
         // Drag handle
@@ -96,7 +99,9 @@ class _BodyState extends ConsumerState<_Body> {
               ),
               Expanded(
                 child: Text(
-                  _selectedUni == null ? 'Üniversite Seç' : 'Bölüm Seç',
+                  _selectedUni == null
+                      ? loc.prefDeptSelectUniversity
+                      : loc.prefDeptSelectDepartment,
                   style: AppTextStyles.titleLarge.copyWith(
                     fontWeight: FontWeight.bold,
                     letterSpacing: -0.3,
@@ -116,7 +121,7 @@ class _BodyState extends ConsumerState<_Body> {
           child: _selectedUni == null
               ? AppSearchBar(
                   controller: _uniSearchCtrl,
-                  hintText: 'Üniversite ara…',
+                  hintText: loc.prefDeptSearchUniversity,
                   onChanged: (v) => setState(() => _uniQuery = v),
                   trailing: _uniQuery.isNotEmpty
                       ? _ClearBtn(onTap: () {
@@ -127,7 +132,7 @@ class _BodyState extends ConsumerState<_Body> {
                 )
               : AppSearchBar(
                   controller: _deptSearchCtrl,
-                  hintText: 'Bölüm ara…',
+                  hintText: loc.prefDeptSearchDepartment,
                   onChanged: (v) => setState(() => _deptQuery = v),
                   trailing: _deptQuery.isNotEmpty
                       ? _ClearBtn(onTap: () {
@@ -179,6 +184,7 @@ class _SelectedUniStrip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final brand = uni.brandColor ?? AppColors.primary;
+    final loc = AppLocalizations.of(context);
     return Container(
       margin: const EdgeInsets.fromLTRB(16, 4, 16, 0),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
@@ -201,7 +207,7 @@ class _SelectedUniStrip extends StatelessWidget {
             child: Image.asset(
               uni.logoAssetPath,
               fit: BoxFit.contain,
-              semanticLabel: 'Üniversite logosu',
+              semanticLabel: loc.semanticUniversityLogo,
               errorBuilder: (_, _, _) =>
                   Icon(Icons.account_balance_rounded, color: brand, size: 20),
             ),
@@ -219,7 +225,7 @@ class _SelectedUniStrip extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
                 Text(
-                  '${uni.type} • ${uni.establishedYear}',
+                  '${localizedUniversityType(loc, uni.type)} • ${uni.establishedYear}',
                   style: AppTextStyles.labelSmall
                       .copyWith(color: AppColors.textSecondaryFor(context)),
                 ),
@@ -244,10 +250,11 @@ class _UniList extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final loc = AppLocalizations.of(context);
     final unisAsync = ref.watch(allUniversitiesProvider);
     return unisAsync.when(
       loading: () => const Center(child: CircularProgressIndicator(color: AppColors.primary)),
-      error: (e, _) => Center(child: Text('Hata: $e')),
+      error: (e, _) => Center(child: Text(loc.errorGeneral(e.toString()))),
       data: (unis) {
         final q = query.trim().toLowerCase();
         final filtered = q.isEmpty
@@ -258,8 +265,8 @@ class _UniList extends ConsumerWidget {
         if (filtered.isEmpty) {
           return _Empty(
             icon: Icons.search_off_rounded,
-            title: 'Sonuç bulunamadı',
-            subtitle: 'Farklı bir arama deneyebilirsin.',
+            title: loc.prefNoSearchResults,
+            subtitle: loc.prefNoSearchResultsDesc,
           );
         }
         return ListView.separated(
@@ -285,6 +292,7 @@ class _UniTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final brand = uni.brandColor ?? AppColors.primary;
+    final loc = AppLocalizations.of(context);
     return Material(
       color: AppColors.surfaceFor(context),
       borderRadius: BorderRadius.circular(16),
@@ -320,7 +328,7 @@ class _UniTile extends StatelessWidget {
                 child: Image.asset(
                   uni.logoAssetPath,
                   fit: BoxFit.contain,
-                  semanticLabel: 'Üniversite logosu',
+                  semanticLabel: loc.semanticUniversityLogo,
                   errorBuilder: (_, _, _) =>
                       Icon(Icons.account_balance_rounded, color: brand, size: 20),
                 ),
@@ -340,7 +348,7 @@ class _UniTile extends StatelessWidget {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      '${uni.type} • ${uni.establishedYear}',
+                      '${localizedUniversityType(loc, uni.type)} • ${uni.establishedYear}',
                       style: AppTextStyles.labelSmall
                           .copyWith(color: AppColors.textSecondaryFor(context)),
                     ),
@@ -368,17 +376,18 @@ class _DeptList extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final loc = AppLocalizations.of(context);
     final deptsAsync = ref.watch(departmentsByUniversityProvider(uni.id));
 
     return deptsAsync.when(
       loading: () => const Center(child: CircularProgressIndicator(color: AppColors.primary)),
-      error: (e, _) => Center(child: Text('Hata: $e')),
+      error: (e, _) => Center(child: Text(loc.errorGeneral(e.toString()))),
       data: (depts) {
         if (depts.isEmpty) {
           return _Empty(
             icon: Icons.school_outlined,
-            title: 'Bölüm bulunamadı',
-            subtitle: 'Bu üniversite için kayıtlı bölüm yok.',
+            title: loc.prefNoDepartmentsTitle,
+            subtitle: loc.prefNoDepartmentsDesc,
           );
         }
 
@@ -402,8 +411,8 @@ class _DeptList extends ConsumerWidget {
         if (filtered.isEmpty) {
           return _Empty(
             icon: Icons.search_off_rounded,
-            title: 'Sonuç bulunamadı',
-            subtitle: 'Farklı bir arama deneyebilirsin.',
+            title: loc.prefNoSearchResults,
+            subtitle: loc.prefNoSearchResultsDesc,
           );
         }
 
@@ -456,6 +465,7 @@ class _DeptCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final brand = uni.brandColor ?? AppColors.primary;
+    final loc = AppLocalizations.of(context);
     final score = dept.scoreData;
     final baseScore = score?.baseScore ?? dept.baseScore;
     final ranking = score?.ranking ?? dept.ranking;
@@ -523,7 +533,7 @@ class _DeptCard extends StatelessWidget {
                   children: [
                     Expanded(
                       child: _Stat(
-                        label: 'Taban',
+                        label: loc.prefBaseScoreShort,
                         value: baseScore.toStringAsFixed(2),
                         icon: Icons.trending_up_rounded,
                         color: AppColors.primary,
@@ -537,7 +547,7 @@ class _DeptCard extends StatelessWidget {
                       ),
                       Expanded(
                         child: _Stat(
-                          label: 'Sıralama',
+                          label: loc.ranking,
                           value: _formatRank(ranking),
                           icon: Icons.emoji_events_rounded,
                           color: AppColors.warning,
@@ -552,7 +562,7 @@ class _DeptCard extends StatelessWidget {
                       ),
                       Expanded(
                         child: _Stat(
-                          label: 'Kontenjan',
+                          label: loc.quota,
                           value: placed != null ? '$placed/$quota' : '$quota',
                           icon: Icons.people_alt_rounded,
                           color: AppColors.info,

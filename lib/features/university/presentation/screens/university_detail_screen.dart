@@ -316,7 +316,7 @@ class _ActionButtons extends ConsumerWidget {
             style: ElevatedButton.styleFrom(
               backgroundColor: isEduUser
                   ? AppColors.primary
-                  : AppColors.surfaceVariant,
+                  : AppColors.surfaceVariantFor(context),
               foregroundColor: isEduUser
                   ? Colors.white
                   : AppColors.textTertiaryFor(context),

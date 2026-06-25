@@ -13,6 +13,7 @@ import '../../../../core/widgets/widgets.dart';
 import '../../../../l10n/generated/app_localizations.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../../auth/presentation/providers/auth_providers.dart';
+import '../widgets/delete_account_dialog.dart';
 
 /// Profil düzenleme ekranı
 class EditProfileScreen extends ConsumerStatefulWidget {
@@ -33,6 +34,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   File? _selectedImage;
   String? _currentPhotoUrl;
   bool _isLoading = false;
+  bool _isDeleting = false;
   bool _hasChanges = false;
   bool _bioHasProfanity = false;
 
@@ -97,7 +99,10 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
             mainAxisSize: MainAxisSize.min,
             children: [
               ListTile(
-                leading: const Icon(Icons.camera_alt_rounded, color: AppColors.primary),
+                leading: const Icon(
+                  Icons.camera_alt_rounded,
+                  color: AppColors.primary,
+                ),
                 title: Text(loc.editProfileCamera),
                 onTap: () {
                   Navigator.pop(ctx);
@@ -105,7 +110,10 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.photo_library_rounded, color: AppColors.secondary),
+                leading: const Icon(
+                  Icons.photo_library_rounded,
+                  color: AppColors.secondary,
+                ),
                 title: Text(loc.editProfileGallery),
                 onTap: () {
                   Navigator.pop(ctx);
@@ -122,7 +130,10 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   Future<void> _saveProfile() async {
     if (!_formKey.currentState!.validate()) return;
 
-    setState(() => _isLoading = true);
+    setState(() {
+      _isLoading = true;
+      _isDeleting = false;
+    });
 
     try {
       final authRepo = ref.read(authRepositoryProvider);
@@ -147,15 +158,74 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       ref.invalidate(currentUserProvider);
 
       if (mounted) {
-        showAppSnackBar(context, message: AppLocalizations.of(context).editProfileSuccess, isSuccess: true);
+        showAppSnackBar(
+          context,
+          message: AppLocalizations.of(context).editProfileSuccess,
+          isSuccess: true,
+        );
         context.pop();
       }
     } catch (e) {
       if (mounted) {
-        showAppSnackBar(context, message: AppLocalizations.of(context).editProfileError, isError: true);
+        showAppSnackBar(
+          context,
+          message: AppLocalizations.of(context).editProfileError,
+          isError: true,
+        );
       }
     } finally {
-      if (mounted) setState(() => _isLoading = false);
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _isDeleting = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _deleteAccount() async {
+    final loc = AppLocalizations.of(context);
+    final requiresPassword = ref
+        .read(authRepositoryProvider)
+        .currentUserUsesPasswordProvider;
+    final confirmation = await DeleteAccountDialog.show(
+      context,
+      requiresPassword: requiresPassword,
+    );
+
+    if (confirmation == null) return;
+
+    if (mounted) {
+      setState(() {
+        _isLoading = true;
+        _isDeleting = true;
+      });
+    }
+
+    try {
+      await ref
+          .read(authControllerProvider.notifier)
+          .deleteAccount(password: confirmation.password);
+
+      if (mounted) {
+        showAppSnackBar(
+          context,
+          message: loc.deleteAccountSuccess,
+          isSuccess: true,
+        );
+        context.go('/login');
+      }
+    } catch (e) {
+      if (mounted) {
+        showAppSnackBar(context, message: e.toString(), isError: true);
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _isDeleting = false;
+        });
+      }
     }
   }
 
@@ -164,207 +234,268 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
-      appBar: AppBar(
-        title: Text(AppLocalizations.of(context).editProfileTitle),
-      ),
-      body: Stack(
-        children: [
-          SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                children: [
-                  // ─── Profil Fotoğrafı ────────────────────────────
-                  GestureDetector(
-                    onTap: _showImagePicker,
-                    child: Stack(
-                      children: [
-                        Container(
-                          width: 110,
-                          height: 110,
-                          decoration: BoxDecoration(
-                            gradient: AppColors.primaryGradient,
-                            shape: BoxShape.circle,
-                            boxShadow: [
-                              BoxShadow(
-                                color: AppColors.primary.withValues(alpha: 0.3),
-                                blurRadius: 20,
-                                offset: const Offset(0, 8),
+        appBar: AppBar(
+          title: Text(AppLocalizations.of(context).editProfileTitle),
+        ),
+        body: Stack(
+          children: [
+            SingleChildScrollView(
+              padding: const EdgeInsets.all(24),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  children: [
+                    // ─── Profil Fotoğrafı ────────────────────────────
+                    GestureDetector(
+                          onTap: _showImagePicker,
+                          child: Stack(
+                            children: [
+                              Container(
+                                width: 110,
+                                height: 110,
+                                decoration: BoxDecoration(
+                                  gradient: AppColors.primaryGradient,
+                                  shape: BoxShape.circle,
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: AppColors.primary.withValues(
+                                        alpha: 0.3,
+                                      ),
+                                      blurRadius: 20,
+                                      offset: const Offset(0, 8),
+                                    ),
+                                  ],
+                                ),
+                                child: _buildAvatar(),
+                              ),
+                              Positioned(
+                                bottom: 0,
+                                right: 0,
+                                child: Container(
+                                  width: 36,
+                                  height: 36,
+                                  decoration: BoxDecoration(
+                                    color: AppColors.primary,
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                      color: AppColors.backgroundFor(context),
+                                      width: 3,
+                                    ),
+                                  ),
+                                  child: const Icon(
+                                    Icons.camera_alt_rounded,
+                                    color: Colors.white,
+                                    size: 18,
+                                  ),
+                                ),
                               ),
                             ],
                           ),
-                          child: _buildAvatar(),
-                        ),
-                        Positioned(
-                          bottom: 0,
-                          right: 0,
-                          child: Container(
-                            width: 36,
-                            height: 36,
-                            decoration: BoxDecoration(
-                              color: AppColors.primary,
-                              shape: BoxShape.circle,
-                              border: Border.all(color: AppColors.backgroundFor(context), width: 3),
-                            ),
-                            child: const Icon(
-                              Icons.camera_alt_rounded,
-                              color: Colors.white,
-                              size: 18,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ).animate().fadeIn(duration: 400.ms).scale(begin: const Offset(0.8, 0.8)),
+                        )
+                        .animate()
+                        .fadeIn(duration: 400.ms)
+                        .scale(begin: const Offset(0.8, 0.8)),
 
-                  const SizedBox(height: 32),
+                    const SizedBox(height: 32),
 
-                  // ─── Ad Soyad ────────────────────────────────────
-                  TextFormField(
-                    controller: _nameController,
-                    textCapitalization: TextCapitalization.words,
-                    onChanged: (_) => setState(() => _hasChanges = true),
-                    decoration: InputDecoration(
-                      labelText: AppLocalizations.of(context).editProfileFullName,
-                      prefixIcon: const Icon(Icons.person_outlined),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return AppLocalizations.of(context).editProfileFullNameRequired;
-                      }
-                      return null;
-                    },
-                  ).animate().fadeIn(delay: 100.ms, duration: 400.ms),
-
-                  const SizedBox(height: 20),
-
-                  // Üniversite seçimi otomatik atandığı için kaldırıldı
-
-
-                  // ─── Bölüm ────────────────────────────────────────
-                  TextFormField(
-                    initialValue: _selectedDepartment,
-                    textCapitalization: TextCapitalization.words,
-                    decoration: InputDecoration(
-                      labelText: AppLocalizations.of(context).editProfileDepartment,
-                      prefixIcon: const Icon(Icons.menu_book_outlined),
-                      hintText: AppLocalizations.of(context).editProfileDepartmentHint,
-                    ),
-                    onChanged: (value) {
-                      setState(() {
-                        _selectedDepartment = value;
-                        _hasChanges = true;
-                      });
-                    },
-                  ).animate().fadeIn(delay: 300.ms, duration: 400.ms),
-
-                  const SizedBox(height: 20),
-
-                  // ─── Hakkımda (Bio) ──────────────────────────────
-                  TextFormField(
-                    initialValue: _bio,
-                    textCapitalization: TextCapitalization.sentences,
-                    maxLines: 3,
-                    maxLength: 150,
-                    decoration: InputDecoration(
-                      labelText: AppLocalizations.of(context).editProfileBio,
-                      alignLabelWithHint: true,
-                      prefixIcon: const Padding(
-                        padding: EdgeInsets.only(bottom: 40),
-                        child: Icon(Icons.info_outline_rounded),
+                    // ─── Ad Soyad ────────────────────────────────────
+                    TextFormField(
+                      controller: _nameController,
+                      textCapitalization: TextCapitalization.words,
+                      onChanged: (_) => setState(() => _hasChanges = true),
+                      decoration: InputDecoration(
+                        labelText: AppLocalizations.of(
+                          context,
+                        ).editProfileFullName,
+                        prefixIcon: const Icon(Icons.person_outlined),
                       ),
-                      hintText: AppLocalizations.of(context).editProfileBioHint,
-                      errorText: _bioHasProfanity ? AppLocalizations.of(context).editProfileBioProfanity : null,
-                      errorStyle: const TextStyle(color: AppColors.error),
-                    ),
-                    onChanged: (value) {
-                      final hasProfanity = ProfanityFilter.containsProfanity(value);
-                      setState(() {
-                        _bio = value.trim().isEmpty ? null : value.trim();
-                        _bioHasProfanity = hasProfanity;
-                        _hasChanges = true;
-                      });
-                    },
-                    validator: (value) {
-                      if (value != null && ProfanityFilter.containsProfanity(value)) {
-                        return AppLocalizations.of(context).editProfileBioProfanity;
-                      }
-                      return null;
-                    },
-                  ).animate().fadeIn(delay: 350.ms, duration: 400.ms),
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return AppLocalizations.of(
+                            context,
+                          ).editProfileFullNameRequired;
+                        }
+                        return null;
+                      },
+                    ).animate().fadeIn(delay: 100.ms, duration: 400.ms),
 
-                  const SizedBox(height: 20),
+                    const SizedBox(height: 20),
 
-                  // ─── Sınıf ────────────────────────────────────────
-                  DropdownButtonFormField<int>(
-                    initialValue: _selectedGrade,
-                    decoration: InputDecoration(
-                      labelText: AppLocalizations.of(context).editProfileGrade,
-                      prefixIcon: const Icon(Icons.grade_outlined),
-                    ),
-                    items: _grades.map((g) {
-                      return DropdownMenuItem(
-                        value: g['value'] as int,
-                        child: Text(g['label'] as String),
-                      );
-                    }).toList(),
-                    onChanged: (value) {
-                      setState(() {
-                        _selectedGrade = value;
-                        _hasChanges = true;
-                      });
-                    },
-                  ).animate().fadeIn(delay: 400.ms, duration: 400.ms),
+                    // Üniversite seçimi otomatik atandığı için kaldırıldı
 
-                  const SizedBox(height: 36),
+                    // ─── Bölüm ────────────────────────────────────────
+                    TextFormField(
+                      initialValue: _selectedDepartment,
+                      textCapitalization: TextCapitalization.words,
+                      decoration: InputDecoration(
+                        labelText: AppLocalizations.of(
+                          context,
+                        ).editProfileDepartment,
+                        prefixIcon: const Icon(Icons.menu_book_outlined),
+                        hintText: AppLocalizations.of(
+                          context,
+                        ).editProfileDepartmentHint,
+                      ),
+                      onChanged: (value) {
+                        setState(() {
+                          _selectedDepartment = value;
+                          _hasChanges = true;
+                        });
+                      },
+                    ).animate().fadeIn(delay: 300.ms, duration: 400.ms),
 
-                  // ─── Kaydet ───────────────────────────────────────
-                  GradientButton(
-                    text: AppLocalizations.of(context).editProfileSave,
-                    icon: Icons.check_rounded,
-                    onPressed: (_hasChanges && !_isLoading && !_bioHasProfanity) ? _saveProfile : null,
-                  ).animate().fadeIn(delay: 500.ms, duration: 400.ms),
+                    const SizedBox(height: 20),
 
-                  const SizedBox(height: 40),
-                ],
+                    // ─── Hakkımda (Bio) ──────────────────────────────
+                    TextFormField(
+                      initialValue: _bio,
+                      textCapitalization: TextCapitalization.sentences,
+                      maxLines: 3,
+                      maxLength: 150,
+                      decoration: InputDecoration(
+                        labelText: AppLocalizations.of(context).editProfileBio,
+                        alignLabelWithHint: true,
+                        prefixIcon: const Padding(
+                          padding: EdgeInsets.only(bottom: 40),
+                          child: Icon(Icons.info_outline_rounded),
+                        ),
+                        hintText: AppLocalizations.of(
+                          context,
+                        ).editProfileBioHint,
+                        errorText: _bioHasProfanity
+                            ? AppLocalizations.of(
+                                context,
+                              ).editProfileBioProfanity
+                            : null,
+                        errorStyle: const TextStyle(color: AppColors.error),
+                      ),
+                      onChanged: (value) {
+                        final hasProfanity = ProfanityFilter.containsProfanity(
+                          value,
+                        );
+                        setState(() {
+                          _bio = value.trim().isEmpty ? null : value.trim();
+                          _bioHasProfanity = hasProfanity;
+                          _hasChanges = true;
+                        });
+                      },
+                      validator: (value) {
+                        if (value != null &&
+                            ProfanityFilter.containsProfanity(value)) {
+                          return AppLocalizations.of(
+                            context,
+                          ).editProfileBioProfanity;
+                        }
+                        return null;
+                      },
+                    ).animate().fadeIn(delay: 350.ms, duration: 400.ms),
+
+                    const SizedBox(height: 20),
+
+                    // ─── Sınıf ────────────────────────────────────────
+                    DropdownButtonFormField<int>(
+                      initialValue: _selectedGrade,
+                      decoration: InputDecoration(
+                        labelText: AppLocalizations.of(
+                          context,
+                        ).editProfileGrade,
+                        prefixIcon: const Icon(Icons.grade_outlined),
+                      ),
+                      items: _grades.map((g) {
+                        return DropdownMenuItem(
+                          value: g['value'] as int,
+                          child: Text(g['label'] as String),
+                        );
+                      }).toList(),
+                      onChanged: (value) {
+                        setState(() {
+                          _selectedGrade = value;
+                          _hasChanges = true;
+                        });
+                      },
+                    ).animate().fadeIn(delay: 400.ms, duration: 400.ms),
+
+                    const SizedBox(height: 36),
+
+                    // ─── Kaydet ───────────────────────────────────────
+                    GradientButton(
+                      text: AppLocalizations.of(context).editProfileSave,
+                      icon: Icons.check_rounded,
+                      onPressed:
+                          (_hasChanges && !_isLoading && !_bioHasProfanity)
+                          ? _saveProfile
+                          : null,
+                    ).animate().fadeIn(delay: 500.ms, duration: 400.ms),
+
+                    const SizedBox(height: 24),
+
+                    // ─── Hesabı Sil ─────────────────────────────────
+                    TextButton.icon(
+                      style: TextButton.styleFrom(
+                        foregroundColor: AppColors.error,
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 12,
+                          horizontal: 16,
+                        ),
+                      ),
+                      icon: const Icon(Icons.delete_forever_rounded),
+                      label: Text(
+                        AppLocalizations.of(context).profileDeleteAccount,
+                        style: const TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                      onPressed: _isLoading ? null : _deleteAccount,
+                    ).animate().fadeIn(delay: 550.ms, duration: 400.ms),
+
+                    const SizedBox(height: 40),
+                  ],
+                ),
               ),
             ),
-          ),
 
-          // ─── Loading Overlay ──────────────────────────────────
-          if (_isLoading)
-            Positioned.fill(
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-                child: Container(
-                  color: Colors.black.withValues(alpha: 0.3),
-                  child: Center(
-                    child: Container(
-                      padding: const EdgeInsets.all(32),
-                      decoration: BoxDecoration(
-                        color: AppColors.surfaceFor(context),
-                        borderRadius: BorderRadius.circular(20),
-                        boxShadow: AppColors.cardShadowFor(context),
-                      ),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          CircularProgressIndicator(
-                            strokeWidth: 3,
-                            valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
-                          ),
-                          const SizedBox(height: 20),
-                          Text(AppLocalizations.of(context).editProfileSaving, style: AppTextStyles.titleMedium),
-                        ],
+            // ─── Loading Overlay ──────────────────────────────────
+            if (_isLoading)
+              Positioned.fill(
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                  child: Container(
+                    color: Colors.black.withValues(alpha: 0.3),
+                    child: Center(
+                      child: Container(
+                        padding: const EdgeInsets.all(32),
+                        decoration: BoxDecoration(
+                          color: AppColors.surfaceFor(context),
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: AppColors.cardShadowFor(context),
+                        ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            CircularProgressIndicator(
+                              strokeWidth: 3,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                AppColors.primary,
+                              ),
+                            ),
+                            const SizedBox(height: 20),
+                            Text(
+                              _isDeleting
+                                  ? AppLocalizations.of(
+                                      context,
+                                    ).deleteAccountProgress
+                                  : AppLocalizations.of(
+                                      context,
+                                    ).editProfileSaving,
+                              style: AppTextStyles.titleMedium,
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
                 ),
               ),
-            ),
-        ],
-      ),
+          ],
+        ),
       ),
     );
   }
@@ -372,7 +503,12 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   Widget _buildAvatar() {
     if (_selectedImage != null) {
       return ClipOval(
-        child: Image.file(_selectedImage!, fit: BoxFit.cover, width: 110, height: 110),
+        child: Image.file(
+          _selectedImage!,
+          fit: BoxFit.cover,
+          width: 110,
+          height: 110,
+        ),
       );
     }
     if (_currentPhotoUrl != null) {
@@ -384,9 +520,8 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
           height: 110,
           memCacheWidth: 220,
           memCacheHeight: 220,
-          placeholder: (context, url) => const Center(
-            child: CircularProgressIndicator(strokeWidth: 2),
-          ),
+          placeholder: (context, url) =>
+              const Center(child: CircularProgressIndicator(strokeWidth: 2)),
           errorWidget: (context, url, error) => _buildInitials(),
         ),
       );

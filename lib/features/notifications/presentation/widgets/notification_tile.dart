@@ -37,7 +37,7 @@ class NotificationTile extends ConsumerWidget {
       child: Container(
         decoration: BoxDecoration(
           color: notification.isRead
-              ? AppColors.surface
+              ? AppColors.surfaceFor(context)
               : AppColors.primary.withValues(alpha: 0.04),
           border: notification.isRead
               ? null

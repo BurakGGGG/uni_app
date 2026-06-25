@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../../l10n/generated/app_localizations.dart';
 import '../../../auth/presentation/providers/auth_providers.dart';
 import '../providers/preference_list_providers.dart';
 import '../../domain/models/preference_list_model.dart';
@@ -16,6 +17,7 @@ class MyListsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final loc = AppLocalizations.of(context);
     final user = ref.watch(authStateProvider).value;
     if (user == null) return const _UnauthenticatedView();
 
@@ -35,7 +37,7 @@ class MyListsScreen extends ConsumerWidget {
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(20, 28, 20, 20),
                 child: Text(
-                  'Tercih Listelerim',
+                  loc.prefListsTitle,
                   style: AppTextStyles.headlineMedium.copyWith(
                     fontWeight: FontWeight.bold,
                     letterSpacing: -0.5,
@@ -50,8 +52,9 @@ class MyListsScreen extends ConsumerWidget {
                   child: CircularProgressIndicator(color: AppColors.primary),
                 ),
               ),
-              error: (e, _) =>
-                  SliverFillRemaining(child: Center(child: Text('Hata: $e'))),
+              error: (e, _) => SliverFillRemaining(
+                child: Center(child: Text(loc.errorGeneral(e.toString()))),
+              ),
               data: (lists) {
                 if (lists.isEmpty) {
                   return const SliverFillRemaining(
@@ -85,6 +88,7 @@ class MyListsScreen extends ConsumerWidget {
     WidgetRef ref,
     PreferenceListModel list,
   ) {
+    final loc = AppLocalizations.of(context);
     return showDialog(
       context: context,
       builder: (c) => AlertDialog(
@@ -104,18 +108,18 @@ class MyListsScreen extends ConsumerWidget {
               ),
             ),
             const SizedBox(width: 12),
-            const Expanded(child: Text('Listeyi Sil')),
+            Expanded(child: Text(loc.prefListDeleteTitle)),
           ],
         ),
         content: Text(
-          '"${list.title}" listesini silmek istediğine emin misin? Bu işlem geri alınamaz.',
+          loc.prefListDeleteConfirm(list.title),
           style: AppTextStyles.bodyMedium,
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(c),
             child: Text(
-              'Vazgeç',
+              loc.commonCancel,
               style: TextStyle(
                 color: AppColors.textSecondaryFor(context),
                 fontWeight: FontWeight.w600,
@@ -138,9 +142,9 @@ class MyListsScreen extends ConsumerWidget {
                   .delete(list.id);
               Navigator.pop(c);
             },
-            child: const Text(
-              'Sil',
-              style: TextStyle(fontWeight: FontWeight.bold),
+            child: Text(
+              loc.commonDelete,
+              style: const TextStyle(fontWeight: FontWeight.bold),
             ),
           ),
         ],
@@ -165,6 +169,7 @@ class _ListCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
     final filled = list.items.length;
     const max = PreferenceListModel.maxItems;
     final progress = (filled / max).clamp(0.0, 1.0);
@@ -251,7 +256,7 @@ class _ListCard extends StatelessWidget {
                             ),
                             const SizedBox(width: 4),
                             Text(
-                              '/ $max tercih',
+                              loc.prefListItemLimit(max),
                               style: AppTextStyles.bodySmall.copyWith(
                                 color: AppColors.textSecondaryFor(context),
                               ),
@@ -268,7 +273,7 @@ class _ListCard extends StatelessWidget {
                     icon: list.isPublic
                         ? Icons.public_rounded
                         : Icons.lock_rounded,
-                    label: list.isPublic ? 'Açık' : 'Gizli',
+                    label: list.isPublic ? loc.commonPublic : loc.commonPrivate,
                     color: list.isPublic
                         ? AppColors.success
                         : AppColors.textTertiaryFor(context),
@@ -309,6 +314,7 @@ class _ListActionsButton extends StatelessWidget {
   }
 
   void _showBottomSheet(BuildContext context) {
+    final loc = AppLocalizations.of(context);
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -348,15 +354,15 @@ class _ListActionsButton extends StatelessWidget {
                       color: AppColors.textSecondaryFor(context),
                     ),
                     const SizedBox(width: 8),
-                    Text('İşlemler', style: AppTextStyles.titleMedium),
+                    Text(loc.commonActions, style: AppTextStyles.titleMedium),
                   ],
                 ),
               ),
               const SizedBox(height: 16),
               _ActionTile(
                 icon: Icons.share_rounded,
-                label: 'Listeyi Paylaş',
-                subtitle: 'Paylaşım bağlantısını ve görünürlüğü yönet',
+                label: loc.prefListActionsShare,
+                subtitle: loc.prefListActionsShareDesc,
                 iconColor: AppColors.primary,
                 iconBgColor: AppColors.primary.withValues(alpha: 0.1),
                 onTap: () {
@@ -366,8 +372,8 @@ class _ListActionsButton extends StatelessWidget {
               ),
               _ActionTile(
                 icon: Icons.delete_outline_rounded,
-                label: 'Listeyi Sil',
-                subtitle: 'Bu işlem geri alınamaz',
+                label: loc.prefListDeleteTitle,
+                subtitle: loc.prefListActionsDeleteDesc,
                 iconColor: AppColors.error,
                 iconBgColor: AppColors.error.withValues(alpha: 0.1),
                 onTap: () {
@@ -391,7 +397,7 @@ class _ListActionsButton extends StatelessWidget {
                         side: BorderSide(color: AppColors.borderLightFor(context)),
                       ),
                     ),
-                    child: const Text('İptal'),
+                    child: Text(loc.commonCancel),
                   ),
                 ),
               ),
@@ -513,6 +519,7 @@ class _EmptyState extends StatelessWidget {
   const _EmptyState();
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
     return Center(
       child: Padding(
         padding: const EdgeInsets.fromLTRB(32, 0, 32, 32),
@@ -534,14 +541,14 @@ class _EmptyState extends StatelessWidget {
             ),
             const SizedBox(height: 20),
             Text(
-              'Henüz listen yok',
+              loc.prefListsEmptyTitle,
               style: AppTextStyles.titleLarge.copyWith(
                 fontWeight: FontWeight.w700,
               ),
             ),
             const SizedBox(height: 8),
             Text(
-              'Sağ alttaki "Yeni Liste" butonuna tıklayarak ilk tercih listeni oluşturmaya başla.',
+              loc.prefListsEmptyDesc,
               textAlign: TextAlign.center,
               style: AppTextStyles.bodyMedium.copyWith(
                 color: AppColors.textSecondaryFor(context),
@@ -560,6 +567,7 @@ class _UnauthenticatedView extends StatelessWidget {
   const _UnauthenticatedView();
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: AppColors.backgroundFor(context),
       body: SafeArea(
@@ -570,7 +578,7 @@ class _UnauthenticatedView extends StatelessWidget {
               child: Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
-                  'Tercih Listelerim',
+                  loc.prefListsTitle,
                   style: AppTextStyles.headlineMedium.copyWith(
                     fontWeight: FontWeight.bold,
                     letterSpacing: -0.5,
@@ -600,14 +608,14 @@ class _UnauthenticatedView extends StatelessWidget {
                       ),
                       const SizedBox(height: 20),
                       Text(
-                        'Giriş Yapmalısın',
+                        loc.prefListsLoginTitle,
                         style: AppTextStyles.titleLarge.copyWith(
                           fontWeight: FontWeight.w700,
                         ),
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Listelerini görmek ve yeni tercihler eklemek için önce giriş yapmalısın.',
+                        loc.prefListsLoginDesc,
                         textAlign: TextAlign.center,
                         style: AppTextStyles.bodyMedium.copyWith(
                           color: AppColors.textSecondaryFor(context),
@@ -628,8 +636,8 @@ class _UnauthenticatedView extends StatelessWidget {
                             elevation: 0,
                           ),
                           onPressed: () => context.push('/login'),
-                          child: const Text(
-                            'Giriş Yap',
+                          child: Text(
+                            loc.authSignIn,
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 16,
@@ -656,6 +664,7 @@ class _GradientFab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
     return Material(
       color: Colors.transparent,
       borderRadius: BorderRadius.circular(16),
@@ -669,16 +678,16 @@ class _GradientFab extends StatelessWidget {
             gradient: AppColors.heroGradient,
             borderRadius: BorderRadius.circular(16),
           ),
-          child: const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.add_rounded, color: Colors.white, size: 22),
-                SizedBox(width: 8),
+                const Icon(Icons.add_rounded, color: Colors.white, size: 22),
+                const SizedBox(width: 8),
                 Text(
-                  'Yeni Liste',
-                  style: TextStyle(
+                  loc.prefListsNewList,
+                  style: const TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.w700,
                     fontSize: 15,

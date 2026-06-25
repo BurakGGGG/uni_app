@@ -674,6 +674,32 @@ class AppLocalizationsTr extends AppLocalizations {
   String get comparisonNoteMaxLength => 'En fazla 500 karakter';
 
   @override
+  String get comparisonNotesLoadError => 'Notlar yüklenemedi.';
+
+  @override
+  String get comparisonNoteSaved => 'Not kaydedildi ✍️';
+
+  @override
+  String get comparisonNoteUpdated => 'Not güncellendi ✅';
+
+  @override
+  String get comparisonNoteDeleteTitle => 'Notu Sil';
+
+  @override
+  String get comparisonNoteDeleteConfirm =>
+      'Bu not kalıcı olarak silinecek. Devam edilsin mi?';
+
+  @override
+  String get comparisonNoteDeleted => 'Not silindi';
+
+  @override
+  String get comparisonNoteEmptyTitle => 'Henüz not yok';
+
+  @override
+  String get comparisonNoteEmptyDesc =>
+      'Bu karşılaştırma hakkındaki düşüncelerini kaydet';
+
+  @override
   String get comparisonProUpsell =>
       '3. üniversite eklemek için Pro\'ya yükselt';
 
@@ -711,6 +737,54 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get profileDeleteAccount => 'Hesabımı sil';
+
+  @override
+  String get deleteAccountTitle => 'Hesabı kalıcı olarak sil';
+
+  @override
+  String get deleteAccountDescription =>
+      'Profiliniz, favorileriniz, tercih listeleriniz, yorumlarınız, önerileriniz ve hesabınızla ilişkili kişisel veriler silinecektir.';
+
+  @override
+  String get deleteAccountWarning =>
+      'Bu işlem geri alınamaz. Aktif mağaza aboneliğiniz varsa aboneliği ayrıca Google Play üzerinden iptal etmeniz gerekir.';
+
+  @override
+  String get deleteAccountPasswordNote =>
+      'Devam etmek için mevcut şifrenizle kimliğinizi doğrulayın.';
+
+  @override
+  String get deleteAccountGoogleNote =>
+      'Devam ettiğinizde Google hesabınızla yeniden doğrulama istenecektir.';
+
+  @override
+  String get deleteAccountPasswordLabel => 'Mevcut şifre';
+
+  @override
+  String get deleteAccountPasswordRequired => 'Mevcut şifrenizi girin';
+
+  @override
+  String get deleteAccountConfirmationWord => 'SİL';
+
+  @override
+  String deleteAccountConfirmationLabel(String word) {
+    return 'Onaylamak için $word yazın';
+  }
+
+  @override
+  String deleteAccountConfirmationMismatch(String word) {
+    return 'Devam etmek için $word yazın';
+  }
+
+  @override
+  String get deleteAccountConfirmButton => 'Hesabı sil';
+
+  @override
+  String get deleteAccountProgress => 'Hesabınız ve verileriniz siliniyor...';
+
+  @override
+  String get deleteAccountSuccess =>
+      'Hesabınız ve ilişkili verileriniz silindi.';
 
   @override
   String get favoritesEmpty => 'Favori yok';
@@ -917,4 +991,815 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get exploreShowResults => 'Sonuçları Göster';
+
+  @override
+  String get commonActions => 'İşlemler';
+
+  @override
+  String get commonPrivate => 'Gizli';
+
+  @override
+  String get commonPublic => 'Açık';
+
+  @override
+  String get commonPublicLong => 'Herkese Açık';
+
+  @override
+  String get commonSelect => 'Seç';
+
+  @override
+  String get commonNoData => 'Veri yok';
+
+  @override
+  String get commonNoDataLower => 'veri yok';
+
+  @override
+  String get semanticUniversityLogo => 'Üniversite logosu';
+
+  @override
+  String get universityTypeState => 'Devlet';
+
+  @override
+  String get universityTypeFoundation => 'Vakıf';
+
+  @override
+  String get campusLayoutCampus => 'Kampüslü';
+
+  @override
+  String get campusLayoutBlock => 'Blok Yerleşke';
+
+  @override
+  String get campusLayoutDistributed => 'Dağınık Kampüs';
+
+  @override
+  String get departmentTypeUndergraduate => 'Lisans';
+
+  @override
+  String get departmentTypeAssociate => 'Önlisans';
+
+  @override
+  String get departmentLanguageTurkish => 'Türkçe';
+
+  @override
+  String get departmentLanguageEnglish => 'İngilizce';
+
+  @override
+  String yearsCount(int years) {
+    return '$years yıl';
+  }
+
+  @override
+  String get prefListsTitle => 'Tercih Listelerim';
+
+  @override
+  String get prefListsNewList => 'Yeni Liste';
+
+  @override
+  String get prefListsEmptyTitle => 'Henüz listen yok';
+
+  @override
+  String get prefListsEmptyDesc =>
+      'Sağ alttaki \"Yeni Liste\" butonuna tıklayarak ilk tercih listeni oluşturmaya başla.';
+
+  @override
+  String get prefListsLoginTitle => 'Giriş Yapmalısın';
+
+  @override
+  String get prefListsLoginDesc =>
+      'Listelerini görmek ve yeni tercihler eklemek için önce giriş yapmalısın.';
+
+  @override
+  String get prefListDeleteTitle => 'Listeyi Sil';
+
+  @override
+  String prefListDeleteConfirm(String title) {
+    return '\"$title\" listesini silmek istediğine emin misin? Bu işlem geri alınamaz.';
+  }
+
+  @override
+  String prefListItemLimit(int max) {
+    return '/ $max tercih';
+  }
+
+  @override
+  String prefListItemCount(int count) {
+    return '$count tercih';
+  }
+
+  @override
+  String get prefListActionsShare => 'Listeyi Paylaş';
+
+  @override
+  String get prefListActionsShareDesc =>
+      'Paylaşım bağlantısını ve görünürlüğü yönet';
+
+  @override
+  String get prefListActionsDeleteDesc => 'Bu işlem geri alınamaz';
+
+  @override
+  String get prefListCreateTitle => 'Yeni Tercih Listesi';
+
+  @override
+  String get prefListCreateSubtitle => 'Liste adını ve açıklamasını gir';
+
+  @override
+  String get prefListTitleLabel => 'Liste adı';
+
+  @override
+  String get prefListTitleRequired => 'Liste adı gerekli';
+
+  @override
+  String get prefListTitleHint => 'Örn. 2025 Sayısal Tercihlerim';
+
+  @override
+  String get prefListDescriptionLabel => 'Açıklama (opsiyonel)';
+
+  @override
+  String get prefListDescriptionHint => 'Bu liste hakkında kısa not…';
+
+  @override
+  String get prefListPublicTitle => 'Herkese açık';
+
+  @override
+  String get prefListPublicCreateSubtitle =>
+      'Bağlantıyı paylaştığın herkes listeyi görebilir';
+
+  @override
+  String get prefListPublicShareSubtitle =>
+      'Linke sahip herkes listeni görebilir';
+
+  @override
+  String get prefListCreateButton => 'Listeyi Oluştur';
+
+  @override
+  String get prefListShareTitle => 'Listeyi Paylaş';
+
+  @override
+  String get prefListLinkCopied => 'Bağlantı kopyalandı';
+
+  @override
+  String get prefListShareLinkButton => 'Bağlantıyı Paylaş';
+
+  @override
+  String prefListViewCount(int count) {
+    return '$count görüntülenme';
+  }
+
+  @override
+  String get prefListPrivateNotice =>
+      'Listen şu an gizli. Paylaşmak için yukarıdaki anahtarı aç.';
+
+  @override
+  String prefListShareTextHeader(String title) {
+    return '\"$title\" tercih listemi paylaştım 🎓';
+  }
+
+  @override
+  String prefListShareTextExtra(int count) {
+    return '…ve $count bölüm daha';
+  }
+
+  @override
+  String get prefListDuplicateDepartment => 'Bu bölüm zaten listede';
+
+  @override
+  String prefListMaxItems(int max) {
+    return 'Listede en fazla $max tercih olabilir';
+  }
+
+  @override
+  String get prefListSaved => 'Tercih listesi kaydedildi';
+
+  @override
+  String prefListSaveError(String error) {
+    return 'Kaydetme hatası: $error';
+  }
+
+  @override
+  String get prefListDeleted => 'Tercih listesi silindi';
+
+  @override
+  String prefListDeleteError(String error) {
+    return 'Silme hatası: $error';
+  }
+
+  @override
+  String get prefListNotFound => 'Liste bulunamadı.';
+
+  @override
+  String prefListFullLimit(int max) {
+    return 'Limit dolu ($max)';
+  }
+
+  @override
+  String get prefListAddDepartment => 'Bölüm Ekle';
+
+  @override
+  String get prefListSortByRanking => 'Sıralamaya Göre';
+
+  @override
+  String get prefListUndo => 'Geri Al';
+
+  @override
+  String get prefListSavedState => 'Kaydedildi';
+
+  @override
+  String get prefListEmptyItemsTitle => 'Liste boş';
+
+  @override
+  String get prefListEmptyItemsDesc =>
+      '\"Bölüm Ekle\" butonuna tıklayarak üniversite ve bölüm seç. Tercihlerini sürükleyerek veya sıralamaya göre düzenleyebilirsin.';
+
+  @override
+  String get prefDeptSelectUniversity => 'Üniversite Seç';
+
+  @override
+  String get prefDeptSelectDepartment => 'Bölüm Seç';
+
+  @override
+  String get prefDeptSearchUniversity => 'Üniversite ara…';
+
+  @override
+  String get prefDeptSearchDepartment => 'Bölüm ara…';
+
+  @override
+  String get prefNoSearchResults => 'Sonuç bulunamadı';
+
+  @override
+  String get prefNoSearchResultsDesc => 'Farklı bir arama deneyebilirsin.';
+
+  @override
+  String get prefNoDepartmentsTitle => 'Bölüm bulunamadı';
+
+  @override
+  String get prefNoDepartmentsDesc => 'Bu üniversite için kayıtlı bölüm yok.';
+
+  @override
+  String prefDeptUniversitiesWithDepartment(String department) {
+    return '$department bölümü olan üniversiteler';
+  }
+
+  @override
+  String get prefDeptNoUniversityForDepartment =>
+      'Bu bölüme sahip üniversite bulunamadı';
+
+  @override
+  String prefDeptNoOtherUniversityForDepartment(String department) {
+    return '\"$department\" bölümü olan başka üniversite yok.';
+  }
+
+  @override
+  String get prefBaseScoreShort => 'Taban';
+
+  @override
+  String get prefSharedListLoadError => 'Liste yüklenemedi';
+
+  @override
+  String get prefSharedListBadge => 'Paylaşılan Liste';
+
+  @override
+  String get prefSharedListOwner => 'Liste sahibi';
+
+  @override
+  String get prefSharedListEmptyDesc => 'Bu listede henüz tercih yok.';
+
+  @override
+  String get prefSharedListHiddenOrDeleted =>
+      'Bu liste silinmiş veya gizli olarak işaretlenmiş olabilir.';
+
+  @override
+  String get prefSharedListBackHome => 'Ana Sayfaya Dön';
+
+  @override
+  String get comparisonHubSubtitle =>
+      'Hangi tür karşılaştırma yapmak istiyorsun?';
+
+  @override
+  String get comparisonHistoryTitle => 'Karşılaştırma Geçmişi';
+
+  @override
+  String get comparisonHistoryTooltip => 'Karşılaştırma geçmişi';
+
+  @override
+  String get comparisonEntityUniversity => 'Üniversite';
+
+  @override
+  String get comparisonEntityDepartment => 'Bölüm';
+
+  @override
+  String get comparisonEntityCity => 'Şehir';
+
+  @override
+  String get comparisonSubscriptionLabel => 'Aboneliğin';
+
+  @override
+  String get subscriptionFree => 'Ücretsiz';
+
+  @override
+  String get comparisonUpgradePlus => 'Plus\'a Geç';
+
+  @override
+  String get comparisonResetTitle => 'Karşılaştırmayı Sıfırla';
+
+  @override
+  String get comparisonResetConfirm =>
+      'Mevcut karşılaştırma sıfırlansın mı? Yeni üniversiteler seçebilirsiniz.';
+
+  @override
+  String get comparisonAddThirdTooltip => '3. üniversite ekle (Pro)';
+
+  @override
+  String get comparisonRemoveThirdTooltip => '3. üniversiteyi kaldır';
+
+  @override
+  String get comparisonEmptyUniversityTitle => 'İki üniversite seç';
+
+  @override
+  String get comparisonEmptyUniversityDesc =>
+      'Yukarıdan iki üniversite seçince karşılaştırma sonuçları burada gözükür.';
+
+  @override
+  String get comparisonNotesTab => 'Notlarım';
+
+  @override
+  String get comparisonNotesTabShort => 'Not';
+
+  @override
+  String get comparisonTabGeneralShort => 'Gn';
+
+  @override
+  String get comparisonTabCategoriesShort => 'Kat';
+
+  @override
+  String get comparisonTabChartShort => 'Grf';
+
+  @override
+  String get comparisonTabStatsShort => 'İst';
+
+  @override
+  String get comparisonSummaryTitle => 'Karşılaştırma Özeti';
+
+  @override
+  String comparisonWinnerCategories(String winnerName, int wins, int total) {
+    return '🏆 $winnerName $wins/$total kategoride önde';
+  }
+
+  @override
+  String get comparisonQuickDepartments => 'Bölüm';
+
+  @override
+  String get comparisonQuickPlaces => 'Mekan';
+
+  @override
+  String get comparisonQuickReviews => 'Yorum';
+
+  @override
+  String reviewCountShort(int count) {
+    return '$count yorum';
+  }
+
+  @override
+  String get comparisonCategoriesEmptyTitle => 'Yeterli değerlendirme yok';
+
+  @override
+  String get comparisonCategoriesEmptyDesc =>
+      'Bu iki üniversite için henüz kategori puanı oluşturacak yorum bulunmuyor.';
+
+  @override
+  String get comparisonChartEmptyTitle => 'Grafik üretmek için yorum gerekiyor';
+
+  @override
+  String get comparisonChartEmptyDesc =>
+      'Henüz yeterli değerlendirme olmadığı için grafikler boş görünüyor.';
+
+  @override
+  String get comparisonUniversityPickerTitle => 'Üniversite Karşılaştır';
+
+  @override
+  String get comparisonUniversityPickerSubtitle =>
+      'Karşılaştırmak istediğin iki üniversiteyi seç. Puanlar, kategoriler ve istatistikler yan yana gelsin.';
+
+  @override
+  String get comparisonTripleHint =>
+      'Pro ile 3. üniversiteyi ekleyip üçlü karşılaştırma yapabilirsin.';
+
+  @override
+  String get comparisonSelectUniversityForA => 'A için üniversite seç';
+
+  @override
+  String get comparisonSelectUniversityForB => 'B için üniversite seç';
+
+  @override
+  String get comparisonDepartmentHeaderTitle => 'Bölüm Karşılaştır';
+
+  @override
+  String get comparisonDepartmentHeaderSubtitle =>
+      'Aynı bölümü iki farklı üniversitede karşılaştır. Taban puan, sıralama ve kontenjan yan yana gelsin.';
+
+  @override
+  String get comparisonDepartmentHint =>
+      'İki taraftan da birer bölüm seçince karşılaştırma sonuçları burada gözükecek.';
+
+  @override
+  String get comparisonCityHeaderTitle => 'Şehir Karşılaştır';
+
+  @override
+  String get comparisonCityHeaderSubtitle =>
+      'İki şehrin üniversite ekosistemini karşılaştır. Devlet/vakıf dağılımı, üniversite sayısı ve daha fazlası.';
+
+  @override
+  String get comparisonCityHint =>
+      'İki şehir seçince karşılaştırma sonuçları burada gözükecek.';
+
+  @override
+  String get comparisonSelectCity => 'Şehir Seç';
+
+  @override
+  String get comparisonSearchCity => 'Şehir ara…';
+
+  @override
+  String comparisonCityTileMeta(String plate, int count) {
+    return 'Plaka: $plate • Üni: $count';
+  }
+
+  @override
+  String get comparisonResultNotFound => 'Sonuç bulunamadı.';
+
+  @override
+  String get comparisonScoreTypeMismatch =>
+      'Puan türleri farklı görünüyor. Karşılaştırma yanıltıcı olabilir.';
+
+  @override
+  String get comparisonBaseScore2025 => 'Taban Puan (2025)';
+
+  @override
+  String get comparisonDetailedInfo => 'Detaylı Bilgiler';
+
+  @override
+  String get comparisonFaculty => 'Fakülte';
+
+  @override
+  String get comparisonRankingTitle => 'Sıralama';
+
+  @override
+  String get comparisonNoDataLower => 'veri yok';
+
+  @override
+  String get comparisonUniversityCount => 'Üniversite Sayısı';
+
+  @override
+  String get comparisonStateFoundationDistribution => 'Devlet / Vakıf Dağılımı';
+
+  @override
+  String get comparisonPopulation => 'Nüfus';
+
+  @override
+  String get comparisonCityFeatures => 'Şehir Özellikleri';
+
+  @override
+  String get comparisonPlate => 'Plaka';
+
+  @override
+  String get comparisonTotalUniversities => 'Toplam Üni';
+
+  @override
+  String get comparisonInUniSec => 'ÜniSeç\'te';
+
+  @override
+  String get comparisonProNotesTitle => 'Karşılaştırma Notları';
+
+  @override
+  String get comparisonProNotesSubtitleLoggedIn =>
+      'Pro üyelere özel premium bir deneyim seni bekliyor!';
+
+  @override
+  String get comparisonProNotesSubtitleGuest =>
+      'Giriş yap ve Pro üye olarak bu özelliğin kilidini aç!';
+
+  @override
+  String get comparisonProNotesFeaturePersonal =>
+      'Her karşılaştırmaya kişisel not ekle';
+
+  @override
+  String get comparisonProNotesFeatureProsCons =>
+      'Artılar ve eksiler ile detaylı analiz yap';
+
+  @override
+  String get comparisonProNotesFeatureRating =>
+      '1-5 yıldız tercih puanı ile sırala';
+
+  @override
+  String get comparisonProNotesFeatureCloud =>
+      'Notların bulutta güvende — asla kaybolmaz';
+
+  @override
+  String get comparisonProNotesUpgrade => 'Pro Plana Yükselt';
+
+  @override
+  String get comparisonProNotesLoginAndPro => 'Giriş Yap ve Pro Ol';
+
+  @override
+  String get comparisonSkipForNow => 'Şimdilik geç';
+
+  @override
+  String get comparisonHistoryClearTooltip => 'Geçmişi temizle';
+
+  @override
+  String get comparisonHistoryClearTitle => 'Geçmişi Temizle';
+
+  @override
+  String get comparisonHistoryClearConfirm =>
+      'Tüm karşılaştırma geçmişin silinsin mi?';
+
+  @override
+  String get comparisonHistoryClearButton => 'Temizle';
+
+  @override
+  String comparisonHistoryLoadError(String error) {
+    return 'Geçmiş yüklenemedi: $error';
+  }
+
+  @override
+  String get comparisonHistoryEmptyTitle => 'Henüz karşılaştırma yapmadın';
+
+  @override
+  String get comparisonHistoryEmptyDesc =>
+      'İlk karşılaştırmanı yaptığında burada görünecek.';
+
+  @override
+  String get comparisonHistoryPaywallTitle =>
+      'Karşılaştırma Geçmişi Plus / Pro\'da';
+
+  @override
+  String get comparisonHistoryPaywallDesc =>
+      'Yaptığın karşılaştırmalar otomatik kaydedilsin, istediğin zaman tekrar açıp incele.';
+
+  @override
+  String get comparisonHistoryPaywallButton => 'Plus / Pro\'ya Geç';
+
+  @override
+  String get comparisonHistoryFeatureRecent =>
+      'Son 20 karşılaştırma otomatik kaydedilir';
+
+  @override
+  String get comparisonHistoryFeatureReturn =>
+      'Tek dokunuşla aynı karşılaştırmaya geri dön';
+
+  @override
+  String get comparisonHistoryFeatureSync => 'Cihazlar arası senkronize';
+
+  @override
+  String get comparisonTripleCategoryTitle => 'Kategori Karşılaştırması';
+
+  @override
+  String get comparisonLeader => 'LİDER';
+
+  @override
+  String get noteEditTitle => 'Notu Düzenle';
+
+  @override
+  String get noteAddTitle => 'Not Ekle';
+
+  @override
+  String get noteSubtitle => 'Karşılaştırma hakkındaki düşüncelerini kaydet';
+
+  @override
+  String get notePreferenceRating => 'Tercih Puanın';
+
+  @override
+  String get noteLabel => 'Not';
+
+  @override
+  String get noteHint => 'Örn: İTÜ bana daha yakın, kampüsü çok güzel...';
+
+  @override
+  String get noteEmptyError => 'Not boş bırakılamaz';
+
+  @override
+  String get noteProsLabel => 'Artılar';
+
+  @override
+  String get noteConsLabel => 'Eksiler';
+
+  @override
+  String get noteAddProHint => 'Yeni artı ekle...';
+
+  @override
+  String get noteAddConHint => 'Yeni eksi ekle...';
+
+  @override
+  String get noteUpdate => 'Güncelle';
+
+  @override
+  String get noteMyNotes => 'Notlarım';
+
+  @override
+  String get noteLoadError => 'Notlar yüklenemedi.';
+
+  @override
+  String get noteSavedSnack => 'Not kaydedildi ✍️';
+
+  @override
+  String get noteUpdatedSnack => 'Not güncellendi ✅';
+
+  @override
+  String get noteDeletedSnack => 'Not silindi';
+
+  @override
+  String get noteDeleteTitle => 'Notu Sil';
+
+  @override
+  String get noteDeleteConfirm =>
+      'Bu not kalıcı olarak silinecek. Devam edilsin mi?';
+
+  @override
+  String get noteEmptyState => 'Henüz not yok';
+
+  @override
+  String get noteEmptyStateDesc =>
+      'Bu karşılaştırma hakkındaki düşüncelerini kaydet';
+
+  @override
+  String get noteTimeJustNow => 'Az önce';
+
+  @override
+  String noteTimeMinutesAgo(int minutes) {
+    return '$minutes dk önce';
+  }
+
+  @override
+  String noteTimeHoursAgo(int hours) {
+    return '$hours saat önce';
+  }
+
+  @override
+  String noteTimeDaysAgo(int days) {
+    return '$days gün önce';
+  }
+
+  @override
+  String noteTimeWeeksAgo(int weeks) {
+    return '$weeks hafta önce';
+  }
+
+  @override
+  String get plusLockSubtitle => 'Plus veya Pro ile açılır';
+
+  @override
+  String get plusLockButton => 'Plus\'a Geç';
+
+  @override
+  String get comparisonNoData => 'Veri yok';
+
+  @override
+  String get trendNoData => 'Trend verisi yok';
+
+  @override
+  String get shareInstagramStory => 'Instagram Hikaye (9:16)';
+
+  @override
+  String get shareInstagramPost => 'Instagram Gönderi (1:1)';
+
+  @override
+  String get shareTwitterWhatsApp => 'Twitter / WhatsApp';
+
+  @override
+  String get yearlyTableYear => 'Yıl';
+
+  @override
+  String loadFailed(String error) {
+    return 'Yüklenemedi: $error';
+  }
+
+  @override
+  String get favoriteLoginRequired => 'Favori için giriş yapmalısın.';
+
+  @override
+  String get yearlyComparisonTitle => 'Yıl Bazlı Karşılaştırma';
+
+  @override
+  String get yearlyDifference => 'Fark';
+
+  @override
+  String rankFormat(String rank) {
+    return '$rank. sıra';
+  }
+
+  @override
+  String get rankNotAnnounced => 'Sıra: Açıklanmadı';
+
+  @override
+  String get shareStatAvgBase => 'Ort. Taban';
+
+  @override
+  String get shareStatDepartment => 'Bölüm';
+
+  @override
+  String get shareStatPlace => 'Mekan';
+
+  @override
+  String get shareFormat => 'Paylaşım Formatı';
+
+  @override
+  String get comparisonSubtitle => 'Üniversiteleri yan yana kıyasla';
+
+  @override
+  String get comparisonSwapTooltip => 'Yer Değiştir';
+
+  @override
+  String comparisonError(String error) {
+    return 'Hata: $error';
+  }
+
+  @override
+  String get adGateTitleGuest => 'Reklam ile Karşılaştır';
+
+  @override
+  String get adGateTitleUser => 'Ücretsiz hakkın bitti';
+
+  @override
+  String get adGateDescGuest =>
+      'Karşılaştırma yapmak için kısa bir reklam izlemen gerekiyor. Giriş yap veya Plus\'a geçerek sınırsız karşılaştırma yapabilirsin.';
+
+  @override
+  String get adGateDescUser =>
+      'Günlük 1 ücretsiz karşılaştırma hakkını kullandın. Devam etmek için kısa bir reklam izleyebilir veya Plus\'a geçerek sınırsız karşılaştırma yapabilirsin.';
+
+  @override
+  String get adGateWatchBusy => 'Reklam hazırlanıyor…';
+
+  @override
+  String get adGateWatchCta => 'Reklamı İzle ve Devam Et';
+
+  @override
+  String get adGatePlusCta => 'Plus\'a Geç — Sınırsız';
+
+  @override
+  String get adGateDismiss => 'Şimdilik Vazgeç';
+
+  @override
+  String get adGateOverlayTitleGuest => 'Reklam izleyerek devam et';
+
+  @override
+  String get adGateOverlayTitleUser => 'Devam etmek için kilidi aç';
+
+  @override
+  String get adGateOverlayDescGuest =>
+      'Karşılaştırma için kısa bir reklam izlemen gerekiyor.';
+
+  @override
+  String get adGateOverlayDescUser => 'Günlük karşılaştırma hakkın doldu.';
+
+  @override
+  String get adGateOverlayBusy => 'Yükleniyor…';
+
+  @override
+  String get adGateOverlayCta => 'Reklamı İzle / Plus\'a Geç';
+
+  @override
+  String get favoritesAddTitle => 'Favorilere ekle';
+
+  @override
+  String get actionBarShare => 'Paylaş';
+
+  @override
+  String get actionBarFavorite => 'Favorile';
+
+  @override
+  String get actionBarRecompare => 'Yeniden';
+
+  @override
+  String get emptyStateSelectTwo => 'İki üniversite seç';
+
+  @override
+  String get emptyStateSelectTwoDesc =>
+      'Yukarıdan iki üniversite seçince karşılaştırma sonuçları burada gözükür.';
+
+  @override
+  String get triplePickerTitle => '3. üniversiteyi seç';
+
+  @override
+  String get triplePickerSearchHint => 'Üniversite ara…';
+
+  @override
+  String get triplePickerNoResult => 'Sonuç bulunamadı';
+
+  @override
+  String get sectionCategoryScores => 'Kategori Puanları';
+
+  @override
+  String get sectionOverview => 'Genel Görünüm';
+
+  @override
+  String get sectionStats => 'Genel İstatistikler';
+
+  @override
+  String get noReviewsTitle => 'Yeterli değerlendirme yok';
+
+  @override
+  String get noReviewsDesc =>
+      'Bu iki üniversite için henüz kategori puanı oluşturacak yorum bulunmuyor.';
+
+  @override
+  String get commonReset => 'Sıfırla';
 }

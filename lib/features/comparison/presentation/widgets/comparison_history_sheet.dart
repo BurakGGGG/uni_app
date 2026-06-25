@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/utils/haptic.dart';
+import '../../../../l10n/generated/app_localizations.dart';
 import '../../domain/models/comparison_history_entry.dart';
 import '../providers/comparison_providers.dart';
 
@@ -30,6 +31,7 @@ class ComparisonHistorySheet extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final canUse = ref.watch(canUseComparisonHistoryProvider);
+    final loc = AppLocalizations.of(context);
 
     return DraggableScrollableSheet(
       initialChildSize: 0.7,
@@ -67,7 +69,7 @@ class ComparisonHistorySheet extends ConsumerWidget {
                         size: 22, color: AppColors.primary),
                     const SizedBox(width: 10),
                     Text(
-                      'Karşılaştırma Geçmişi',
+                      loc.comparisonHistoryTitle,
                       style: AppTextStyles.titleMedium.copyWith(
                         fontWeight: FontWeight.w800,
                       ),
@@ -81,7 +83,7 @@ class ComparisonHistorySheet extends ConsumerWidget {
                           if (!hasItems) return const SizedBox.shrink();
                           return IconButton(
                             icon: const Icon(Icons.delete_sweep_outlined),
-                            tooltip: 'Geçmişi temizle',
+                            tooltip: loc.comparisonHistoryClearTooltip,
                             onPressed: () => _confirmClear(context, ref),
                           );
                         },
@@ -111,6 +113,7 @@ class ComparisonHistorySheet extends ConsumerWidget {
 
   Future<void> _confirmClear(BuildContext context, WidgetRef ref) async {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final loc = AppLocalizations.of(context);
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -118,18 +121,18 @@ class ComparisonHistorySheet extends ConsumerWidget {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         icon: Icon(Icons.delete_sweep_outlined,
             color: AppColors.error, size: 32),
-        title: const Text('Geçmişi Temizle'),
-        content: const Text('Tüm karşılaştırma geçmişin silinsin mi?'),
+        title: Text(loc.comparisonHistoryClearTitle),
+        content: Text(loc.comparisonHistoryClearConfirm),
         actionsAlignment: MainAxisAlignment.center,
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('İptal'),
+            child: Text(loc.commonCancel),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(ctx, true),
             style: FilledButton.styleFrom(backgroundColor: AppColors.error),
-            child: const Text('Temizle'),
+            child: Text(loc.comparisonHistoryClearButton),
           ),
         ],
       ),
@@ -146,6 +149,7 @@ class _HistoryList extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final loc = AppLocalizations.of(context);
     final asyncHistory = ref.watch(comparisonHistoryProvider);
     return asyncHistory.when(
       loading: () => const Center(child: CircularProgressIndicator()),
@@ -153,7 +157,7 @@ class _HistoryList extends ConsumerWidget {
         child: Padding(
           padding: const EdgeInsets.all(24),
           child: Text(
-            'Geçmiş yüklenemedi: $e',
+            loc.comparisonHistoryLoadError(e.toString()),
             textAlign: TextAlign.center,
             style: AppTextStyles.bodySmall.copyWith(
               color: AppColors.textTertiaryFor(context),
@@ -184,7 +188,11 @@ class _HistoryTile extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final dateFormat = DateFormat('d MMM HH:mm', 'tr_TR');
+    final loc = AppLocalizations.of(context);
+    final dateFormat = DateFormat(
+      'd MMM HH:mm',
+      loc.localeName == 'tr' ? 'tr_TR' : 'en_US',
+    );
 
     return Dismissible(
       key: ValueKey(entry.id),
@@ -243,7 +251,7 @@ class _HistoryTile extends ConsumerWidget {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      '${_typeLabel(entry.type)} · ${dateFormat.format(entry.createdAt)}',
+                      '${_typeLabel(loc, entry.type)} · ${dateFormat.format(entry.createdAt)}',
                       style: AppTextStyles.labelSmall.copyWith(
                         color: AppColors.textTertiaryFor(context),
                         fontSize: 11,
@@ -302,14 +310,14 @@ class _HistoryTile extends ConsumerWidget {
     }
   }
 
-  String _typeLabel(ComparisonHistoryType type) {
+  String _typeLabel(AppLocalizations loc, ComparisonHistoryType type) {
     switch (type) {
       case ComparisonHistoryType.university:
-        return 'Üniversite';
+        return loc.comparisonEntityUniversity;
       case ComparisonHistoryType.department:
-        return 'Bölüm';
+        return loc.comparisonEntityDepartment;
       case ComparisonHistoryType.city:
-        return 'Şehir';
+        return loc.comparisonEntityCity;
     }
   }
 }
@@ -392,11 +400,11 @@ class _LogoCircle extends StatelessWidget {
         ),
       ),
       clipBehavior: Clip.antiAlias,
-      child: _buildImage(),
+      child: _buildImage(context),
     );
   }
 
-  Widget _buildImage() {
+  Widget _buildImage(BuildContext context) {
     final src = source;
     if (src == null || src.isEmpty) {
       return Icon(fallbackIcon, size: 18, color: accentColor);
@@ -415,7 +423,7 @@ class _LogoCircle extends StatelessWidget {
       return Image.asset(
         src,
         fit: BoxFit.cover,
-        semanticLabel: 'Üniversite logosu',
+        semanticLabel: AppLocalizations.of(context).semanticUniversityLogo,
         errorBuilder: (_, _, _) =>
             Icon(fallbackIcon, size: 18, color: accentColor),
       );
@@ -430,6 +438,7 @@ class _EmptyHistory extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
     return SingleChildScrollView(
       controller: scrollController,
       physics: const AlwaysScrollableScrollPhysics(),
@@ -443,7 +452,7 @@ class _EmptyHistory extends StatelessWidget {
               color: AppColors.primary.withValues(alpha: 0.3)),
           const SizedBox(height: 16),
           Text(
-            'Henüz karşılaştırma yapmadın',
+            loc.comparisonHistoryEmptyTitle,
             textAlign: TextAlign.center,
             style: AppTextStyles.titleSmall.copyWith(
               fontWeight: FontWeight.w700,
@@ -451,7 +460,7 @@ class _EmptyHistory extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            'İlk karşılaştırmanı yaptığında burada görünecek.',
+            loc.comparisonHistoryEmptyDesc,
             textAlign: TextAlign.center,
             style: AppTextStyles.bodySmall.copyWith(
               color: AppColors.textSecondaryFor(context),
@@ -469,6 +478,7 @@ class _PaywallView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
     return SingleChildScrollView(
       controller: scrollController,
       physics: const AlwaysScrollableScrollPhysics(),
@@ -488,7 +498,7 @@ class _PaywallView extends StatelessWidget {
                 const Icon(Icons.lock_rounded, color: Colors.white, size: 36),
                 const SizedBox(height: 12),
                 Text(
-                  'Karşılaştırma Geçmişi Plus / Pro\'da',
+                  loc.comparisonHistoryPaywallTitle,
                   textAlign: TextAlign.center,
                   style: AppTextStyles.titleMedium.copyWith(
                     color: Colors.white,
@@ -497,8 +507,7 @@ class _PaywallView extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Yaptığın karşılaştırmalar otomatik kaydedilsin, '
-                  'istediğin zaman tekrar açıp incele.',
+                  loc.comparisonHistoryPaywallDesc,
                   textAlign: TextAlign.center,
                   style: AppTextStyles.bodySmall.copyWith(
                     color: Colors.white.withValues(alpha: 0.9),
@@ -522,7 +531,7 @@ class _PaywallView extends StatelessWidget {
                   ),
                   icon: const Icon(Icons.workspace_premium_rounded),
                   label: Text(
-                    'Plus / Pro\'ya Geç',
+                    loc.comparisonHistoryPaywallButton,
                     style: AppTextStyles.labelLarge.copyWith(fontWeight: FontWeight.w800),
                   ),
                 ),
@@ -532,13 +541,13 @@ class _PaywallView extends StatelessWidget {
           const SizedBox(height: 24),
           _FeatureBullet(
               icon: Icons.bookmark_rounded,
-              text: 'Son 20 karşılaştırma otomatik kaydedilir'),
+              text: loc.comparisonHistoryFeatureRecent),
           _FeatureBullet(
               icon: Icons.refresh_rounded,
-              text: 'Tek dokunuşla aynı karşılaştırmaya geri dön'),
+              text: loc.comparisonHistoryFeatureReturn),
           _FeatureBullet(
               icon: Icons.cloud_done_rounded,
-              text: 'Cihazlar arası senkronize'),
+              text: loc.comparisonHistoryFeatureSync),
         ],
       ),
     );

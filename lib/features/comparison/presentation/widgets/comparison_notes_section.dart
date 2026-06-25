@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/utils/haptic.dart';
+import '../../../../l10n/generated/app_localizations.dart';
 import '../../domain/models/comparison_note.dart';
 import '../providers/comparison_providers.dart';
 import 'comparison_note_card.dart';
@@ -29,9 +30,11 @@ class ComparisonNotesSection extends ConsumerWidget {
     final canUse = ref.watch(canUseComparisonNotesProvider);
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
+    final loc = AppLocalizations.of(context);
+
     return PlusLockOverlay(
       isLocked: !canUse,
-      featureName: 'Karşılaştırma Notları',
+      featureName: loc.comparisonProNotesTitle,
       child: _NotesContent(
         comparisonType: comparisonType,
         entityAId: entityAId,
@@ -57,6 +60,7 @@ class _NotesContent extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final loc = AppLocalizations.of(context);
     final notesAsync = ref.watch(comparisonNotesForPairProvider((
       type: comparisonType,
       idA: entityAId,
@@ -96,7 +100,7 @@ class _NotesContent extends ConsumerWidget {
               ),
               const SizedBox(width: 8),
               Text(
-                'Notlarım',
+                loc.noteMyNotes,
                 style: AppTextStyles.labelMedium.copyWith(
                   fontWeight: FontWeight.w800,
                   color: isDark ? Colors.white : AppColors.textPrimaryFor(context),
@@ -138,7 +142,7 @@ class _NotesContent extends ConsumerWidget {
             error: (_, _) => Padding(
               padding: const EdgeInsets.symmetric(vertical: 12),
               child: Text(
-                'Notlar yüklenemedi.',
+                loc.noteLoadError,
                 style: AppTextStyles.bodySmall.copyWith(
                   color: AppColors.textTertiaryFor(context),
                 ),
@@ -156,6 +160,7 @@ class _NotesContent extends ConsumerWidget {
     WidgetRef ref,
     List<ComparisonNote> notes,
   ) {
+    final loc = AppLocalizations.of(context);
     return Column(
       children: [
         if (notes.isEmpty)
@@ -177,7 +182,7 @@ class _NotesContent extends ConsumerWidget {
           child: OutlinedButton.icon(
             onPressed: () => _addNote(context, ref),
             icon: const Icon(Icons.add_rounded, size: 18),
-            label: const Text('Not Ekle'),
+            label: Text(loc.noteAddTitle),
             style: OutlinedButton.styleFrom(
               foregroundColor: AppColors.tierPro,
               padding: const EdgeInsets.symmetric(vertical: 12),
@@ -198,6 +203,7 @@ class _NotesContent extends ConsumerWidget {
   }
 
   Future<void> _addNote(BuildContext context, WidgetRef ref) async {
+    final loc = AppLocalizations.of(context);
     final result = await ComparisonNoteBottomSheet.show(context);
     if (result == null) return;
 
@@ -216,7 +222,7 @@ class _NotesContent extends ConsumerWidget {
       ScaffoldMessenger.of(context)
         ..hideCurrentSnackBar()
         ..showSnackBar(SnackBar(
-          content: const Text('Not kaydedildi ✍️'),
+          content: Text(loc.noteSavedSnack),
           backgroundColor: AppColors.success,
           behavior: SnackBarBehavior.floating,
           margin: const EdgeInsets.all(16),
@@ -233,6 +239,7 @@ class _NotesContent extends ConsumerWidget {
     WidgetRef ref,
     ComparisonNote note,
   ) async {
+    final loc = AppLocalizations.of(context);
     final result = await ComparisonNoteBottomSheet.show(
       context,
       existingNote: note,
@@ -252,7 +259,7 @@ class _NotesContent extends ConsumerWidget {
       ScaffoldMessenger.of(context)
         ..hideCurrentSnackBar()
         ..showSnackBar(SnackBar(
-          content: const Text('Not güncellendi ✅'),
+          content: Text(loc.noteUpdatedSnack),
           backgroundColor: AppColors.success,
           behavior: SnackBarBehavior.floating,
           margin: const EdgeInsets.all(16),
@@ -269,6 +276,7 @@ class _NotesContent extends ConsumerWidget {
     WidgetRef ref,
     ComparisonNote note,
   ) async {
+    final loc = AppLocalizations.of(context);
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -283,13 +291,13 @@ class _NotesContent extends ConsumerWidget {
           size: 32,
         ),
         title: Text(
-          'Notu Sil',
+          loc.noteDeleteTitle,
           style: AppTextStyles.titleMedium.copyWith(
             fontWeight: FontWeight.w700,
           ),
         ),
         content: Text(
-          'Bu not kalıcı olarak silinecek. Devam edilsin mi?',
+          loc.noteDeleteConfirm,
           style: AppTextStyles.bodySmall.copyWith(
             color: AppColors.textSecondaryFor(context),
           ),
@@ -300,7 +308,7 @@ class _NotesContent extends ConsumerWidget {
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
             child: Text(
-              'İptal',
+              loc.commonCancel,
               style: AppTextStyles.labelMedium.copyWith(
                 color: AppColors.textSecondaryFor(context),
               ),
@@ -315,7 +323,7 @@ class _NotesContent extends ConsumerWidget {
                 borderRadius: BorderRadius.circular(10),
               ),
             ),
-            child: const Text('Sil'),
+            child: Text(loc.commonDelete),
           ),
         ],
       ),
@@ -330,7 +338,7 @@ class _NotesContent extends ConsumerWidget {
       ScaffoldMessenger.of(context)
         ..hideCurrentSnackBar()
         ..showSnackBar(SnackBar(
-          content: const Text('Not silindi'),
+          content: Text(loc.noteDeletedSnack),
           backgroundColor: AppColors.textSecondaryFor(context),
           behavior: SnackBarBehavior.floating,
           margin: const EdgeInsets.all(16),
@@ -351,6 +359,7 @@ class _EmptyNotesState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 12),
       child: Column(
@@ -362,7 +371,7 @@ class _EmptyNotesState extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            'Henüz not yok',
+            loc.noteEmptyState,
             style: AppTextStyles.labelMedium.copyWith(
               color: AppColors.textTertiaryFor(context),
               fontWeight: FontWeight.w600,
@@ -370,7 +379,7 @@ class _EmptyNotesState extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            'Bu karşılaştırma hakkındaki düşüncelerini kaydet',
+            loc.noteEmptyStateDesc,
             style: AppTextStyles.bodySmall.copyWith(
               color: AppColors.textTertiary.withValues(alpha: 0.7),
               fontSize: 11,

@@ -22,6 +22,7 @@ import '../../../../core/providers/connectivity_provider.dart';
 import '../widgets/comparison_result_skeleton.dart';
 import '../widgets/comparison_empty_state.dart';
 import '../../../../core/utils/haptic.dart';
+import '../../../../core/utils/localized_labels.dart';
 import '../../../../l10n/generated/app_localizations.dart';
 import '../widgets/triple_third_uni_picker.dart';
 import '../widgets/university_logo_box.dart';
@@ -151,13 +152,13 @@ class _UniversityComparisonScreenState
                     ),
                   ],
                 ),
-                tooltip: '3. üniversite ekle (Pro)',
+                tooltip: loc.comparisonAddThirdTooltip,
                 onPressed: () => _handleAddThird(context, ref, selection),
               ),
             if (selection.allThreeSelected)
               IconButton(
                 icon: const Icon(Icons.domain_disabled_rounded),
-                tooltip: '3. üniversiteyi kaldır',
+                tooltip: loc.comparisonRemoveThirdTooltip,
                 onPressed: () {
                   AppHaptic.reset();
                   ref.read(comparisonSelectionProvider.notifier).removeC();
@@ -214,7 +215,10 @@ class _UniversityComparisonScreenState
       error: (e, _) => Center(
         child: Padding(
           padding: const EdgeInsets.all(32),
-          child: Text('Hata: $e', textAlign: TextAlign.center),
+          child: Text(
+            AppLocalizations.of(context).errorGeneral(e.toString()),
+            textAlign: TextAlign.center,
+          ),
         ),
       ),
       data: (result) {
@@ -252,6 +256,7 @@ class _UniversityComparisonScreenState
 
   static void _showResetConfirmation(BuildContext context, WidgetRef ref) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final loc = AppLocalizations.of(context);
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -265,13 +270,13 @@ class _UniversityComparisonScreenState
           size: 32,
         ),
         title: Text(
-          'Karşılaştırmayı Sıfırla',
+          loc.comparisonResetTitle,
           style: AppTextStyles.titleMedium.copyWith(
             fontWeight: FontWeight.w700,
           ),
         ),
         content: Text(
-          'Mevcut karşılaştırma sıfırlansın mı? Yeni üniversiteler seçebilirsiniz.',
+          loc.comparisonResetConfirm,
           style: AppTextStyles.bodySmall.copyWith(
             color: AppColors.textSecondaryFor(context),
           ),
@@ -282,7 +287,7 @@ class _UniversityComparisonScreenState
           TextButton(
             onPressed: () => Navigator.pop(ctx),
             child: Text(
-              'İptal',
+              loc.commonCancel,
               style: AppTextStyles.labelMedium.copyWith(
                 color: AppColors.textSecondaryFor(context),
               ),
@@ -317,9 +322,10 @@ class _EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const ComparisonEmptyState(
-      title: 'İki üniversite seç',
-      subtitle: 'Yukarıdan iki üniversite seçince karşılaştırma sonuçları burada gözükür.',
+    final loc = AppLocalizations.of(context);
+    return ComparisonEmptyState(
+      title: loc.comparisonEmptyUniversityTitle,
+      subtitle: loc.comparisonEmptyUniversityDesc,
       fallbackIcon: Icons.school_rounded,
     );
   }
@@ -348,8 +354,6 @@ class _TabbedResultViewState extends ConsumerState<_TabbedResultView>
     Icons.sticky_note_2_rounded,
   ];
 
-  static const _tabShortNames = ['Gn', 'Kat', 'Grf', 'İst', 'Not'];
-
   @override
   void initState() {
     super.initState();
@@ -370,7 +374,15 @@ class _TabbedResultViewState extends ConsumerState<_TabbedResultView>
         loc.tabCategories,
         loc.tabChart,
         loc.tabStats,
-        'Notlarım',
+        loc.comparisonNotesTab,
+      ];
+
+  List<String> _tabShortNames(AppLocalizations loc) => [
+        loc.comparisonTabGeneralShort,
+        loc.comparisonTabCategoriesShort,
+        loc.comparisonTabChartShort,
+        loc.comparisonTabStatsShort,
+        loc.comparisonNotesTabShort,
       ];
 
   void _handleTabTap(int i) {
@@ -404,6 +416,7 @@ class _TabbedResultViewState extends ConsumerState<_TabbedResultView>
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final loc = AppLocalizations.of(context);
     final fullNames = _tabFullNames(loc);
+    final shortNames = _tabShortNames(loc);
 
     return Column(
       children: [
@@ -481,7 +494,7 @@ class _TabbedResultViewState extends ConsumerState<_TabbedResultView>
                               child: Text(
                                 isActive
                                     ? fullNames[i]
-                                    : _tabShortNames[i],
+                                    : shortNames[i],
                                 maxLines: 1,
                                 overflow: TextOverflow.clip,
                                 style: AppTextStyles.labelSmall.copyWith(
@@ -658,7 +671,7 @@ class _AiSummarySection extends ConsumerWidget {
       if (err is AiSummaryFailure) {
         aiErrorMessage = err.userMessage;
       } else {
-        aiErrorMessage = 'Beklenmeyen bir hata oluştu. Lütfen tekrar dene.';
+        aiErrorMessage = AppLocalizations.of(context).commonError;
       }
     }
 
@@ -711,6 +724,7 @@ class _BigInfoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -735,7 +749,7 @@ class _BigInfoCard extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            '$reviewCount yorum',
+            loc.reviewCountShort(reviewCount),
             style: AppTextStyles.labelSmall.copyWith(
               color: AppColors.textTertiaryFor(context),
             ),
@@ -751,7 +765,7 @@ class _BigInfoCard extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            '$type • $year',
+            '${localizedUniversityType(loc, type)} • $year',
             style: AppTextStyles.labelSmall.copyWith(
               color: AppColors.textTertiaryFor(context),
               fontSize: 10,
@@ -770,6 +784,7 @@ class _SummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
     final winner = result.overallWinnerId;
     final winnerName = winner == result.uniA.id
         ? result.uniA.name
@@ -796,7 +811,7 @@ class _SummaryCard extends StatelessWidget {
             children: [
               Icon(Icons.insights_rounded, size: 18, color: AppColors.primary),
               const SizedBox(width: 8),
-              Text('Karşılaştırma Özeti',
+              Text(loc.comparisonSummaryTitle,
                   style: AppTextStyles.labelMedium.copyWith(
                     fontWeight: FontWeight.w700,
                     color: isDark ? Colors.white : AppColors.textPrimaryFor(context),
@@ -820,7 +835,13 @@ class _SummaryCard extends StatelessWidget {
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
-                '🏆 $winnerName ${result.categoriesAWins > result.categoriesBWins ? result.categoriesAWins : result.categoriesBWins}/${result.categoryComparisons.length} kategoride önde',
+                loc.comparisonWinnerCategories(
+                  winnerName,
+                  result.categoriesAWins > result.categoriesBWins
+                      ? result.categoriesAWins
+                      : result.categoriesBWins,
+                  result.categoryComparisons.length,
+                ),
                 style: AppTextStyles.labelSmall.copyWith(
                   color: AppColors.success,
                   fontWeight: FontWeight.w600,
@@ -841,11 +862,12 @@ class _QuickStatsRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
     return Row(
       children: [
         _QuickStat(
           icon: Icons.school_rounded,
-          label: 'Bölüm',
+          label: loc.comparisonQuickDepartments,
           valueA: result.stats.totalDepartmentsA.toString(),
           valueB: result.stats.totalDepartmentsB.toString(),
           isDark: isDark,
@@ -853,7 +875,7 @@ class _QuickStatsRow extends StatelessWidget {
         const SizedBox(width: 10),
         _QuickStat(
           icon: Icons.place_rounded,
-          label: 'Mekan',
+          label: loc.comparisonQuickPlaces,
           valueA: result.placeCountA.toString(),
           valueB: result.placeCountB.toString(),
           isDark: isDark,
@@ -861,7 +883,7 @@ class _QuickStatsRow extends StatelessWidget {
         const SizedBox(width: 10),
         _QuickStat(
           icon: Icons.rate_review_rounded,
-          label: 'Yorum',
+          label: loc.comparisonQuickReviews,
           valueA: result.uniA.reviewCount.toString(),
           valueB: result.uniB.reviewCount.toString(),
           isDark: isDark,
@@ -959,9 +981,9 @@ class _CategoriesTab extends StatelessWidget {
               ),
               child: const Icon(Icons.rate_review_rounded, size: 32, color: AppColors.primary),
             ),
-            title: 'Yeterli değerlendirme yok',
+            title: AppLocalizations.of(context).comparisonCategoriesEmptyTitle,
             description:
-                'Bu iki üniversite için henüz kategori puanı oluşturacak yorum bulunmuyor.',
+                AppLocalizations.of(context).comparisonCategoriesEmptyDesc,
           ),
         ),
       );
@@ -1002,8 +1024,8 @@ class _ChartTab extends StatelessWidget {
               ),
               child: const Icon(Icons.show_chart_rounded, size: 32, color: AppColors.secondary),
             ),
-            title: 'Grafik üretmek için yorum gerekiyor',
-            description: 'Henüz yeterli değerlendirme olmadığı için grafikler boş görünüyor.',
+            title: AppLocalizations.of(context).comparisonChartEmptyTitle,
+            description: AppLocalizations.of(context).comparisonChartEmptyDesc,
           ),
         ),
       );
@@ -1062,6 +1084,7 @@ class _ProNotesPaywallSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
     return Container(
       decoration: BoxDecoration(
         color: isDark ? AppColors.darkSurface : Colors.white,
@@ -1112,7 +1135,7 @@ class _ProNotesPaywallSheet extends StatelessWidget {
               shaderCallback: (bounds) => AppColors.tierProGradient
                   .createShader(bounds),
               child: Text(
-                'Karşılaştırma Notları',
+                loc.comparisonProNotesTitle,
                 style: AppTextStyles.titleLarge.copyWith(
                   fontWeight: FontWeight.w900,
                   color: Colors.white,
@@ -1125,8 +1148,8 @@ class _ProNotesPaywallSheet extends StatelessWidget {
             // ─── Subtitle ────────────────────────────────────
             Text(
               isLoggedIn
-                  ? 'Pro üyelere özel premium bir deneyim seni bekliyor!'
-                  : 'Giriş yap ve Pro üye olarak bu özelliğin kilidini aç!',
+                  ? loc.comparisonProNotesSubtitleLoggedIn
+                  : loc.comparisonProNotesSubtitleGuest,
               style: AppTextStyles.bodyMedium.copyWith(
                 color: AppColors.textSecondaryFor(context),
                 height: 1.4,
@@ -1149,25 +1172,25 @@ class _ProNotesPaywallSheet extends StatelessWidget {
                 children: [
                   _FeatureRow(
                     icon: Icons.edit_note_rounded,
-                    text: 'Her karşılaştırmaya kişisel not ekle',
+                    text: loc.comparisonProNotesFeaturePersonal,
                     isDark: isDark,
                   ),
                   const SizedBox(height: 12),
                   _FeatureRow(
                     icon: Icons.thumb_up_alt_rounded,
-                    text: 'Artılar ve eksiler ile detaylı analiz yap',
+                    text: loc.comparisonProNotesFeatureProsCons,
                     isDark: isDark,
                   ),
                   const SizedBox(height: 12),
                   _FeatureRow(
                     icon: Icons.star_rounded,
-                    text: '1-5 yıldız tercih puanı ile sırala',
+                    text: loc.comparisonProNotesFeatureRating,
                     isDark: isDark,
                   ),
                   const SizedBox(height: 12),
                   _FeatureRow(
                     icon: Icons.cloud_done_rounded,
-                    text: 'Notların bulutta güvende — asla kaybolmaz',
+                    text: loc.comparisonProNotesFeatureCloud,
                     isDark: isDark,
                   ),
                 ],
@@ -1207,8 +1230,8 @@ class _ProNotesPaywallSheet extends StatelessWidget {
                   ),
                   label: Text(
                     isLoggedIn
-                        ? 'Pro Plana Yükselt'
-                        : 'Giriş Yap ve Pro Ol',
+                        ? loc.comparisonProNotesUpgrade
+                        : loc.comparisonProNotesLoginAndPro,
                     style: const TextStyle(
                       fontWeight: FontWeight.w900,
                       fontSize: 15,
@@ -1233,7 +1256,7 @@ class _ProNotesPaywallSheet extends StatelessWidget {
             TextButton(
               onPressed: () => Navigator.pop(context),
               child: Text(
-                'Şimdilik geç',
+                loc.comparisonSkipForNow,
                 style: AppTextStyles.labelMedium.copyWith(
                   color: AppColors.textTertiaryFor(context),
                   fontWeight: FontWeight.w600,
@@ -1303,7 +1326,10 @@ class _TripleResultView extends ConsumerWidget {
       error: (e, _) => Center(
         child: Padding(
           padding: const EdgeInsets.all(32),
-          child: Text('Hata: $e', textAlign: TextAlign.center),
+          child: Text(
+            AppLocalizations.of(context).errorGeneral(e.toString()),
+            textAlign: TextAlign.center,
+          ),
         ),
       ),
       data: (result) {
@@ -1348,7 +1374,8 @@ class _TripleResultView extends ConsumerWidget {
                             size: 18, color: AppColors.tierPro),
                         const SizedBox(width: 8),
                         Text(
-                          'Kategori Karşılaştırması',
+                          AppLocalizations.of(context)
+                              .comparisonTripleCategoryTitle,
                           style: AppTextStyles.titleSmall.copyWith(
                             fontWeight: FontWeight.w800,
                           ),
@@ -1505,13 +1532,13 @@ class _PodiumSpot extends StatelessWidget {
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
-              children: const [
-                Icon(Icons.emoji_events_rounded,
+              children: [
+                const Icon(Icons.emoji_events_rounded,
                     color: Colors.white, size: 12),
-                SizedBox(width: 3),
+                const SizedBox(width: 3),
                 Text(
-                  'LİDER',
-                  style: TextStyle(
+                  AppLocalizations.of(context).comparisonLeader,
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 9,
                     fontWeight: FontWeight.w900,
@@ -1613,7 +1640,7 @@ class _PodiumSpot extends StatelessWidget {
         ),
         const SizedBox(height: 2),
         Text(
-          '${ranked.uni.reviewCount} yorum',
+          AppLocalizations.of(context).reviewCountShort(ranked.uni.reviewCount),
           style: AppTextStyles.labelSmall.copyWith(
             color: AppColors.textTertiaryFor(context),
             fontSize: 10,
@@ -1665,7 +1692,7 @@ class _TripleScoreChips extends StatelessWidget {
         ),
         if (tied > 0)
           _ScoreChip(
-            name: 'Berabere',
+            name: AppLocalizations.of(context).tie,
             wins: tied,
             color: AppColors.textTertiaryFor(context),
             isDark: isDark,
@@ -1757,7 +1784,7 @@ class _TripleQuickStats extends StatelessWidget {
       child: Column(
         children: [
           _StatRow(
-            label: 'Toplam Yorum',
+            label: AppLocalizations.of(context).reviewCount,
             valueA: '${result.uniA.reviewCount}',
             valueB: '${result.uniB.reviewCount}',
             valueC: '${result.uniC.reviewCount}',
@@ -1765,21 +1792,21 @@ class _TripleQuickStats extends StatelessWidget {
             isFirst: true,
           ),
           _StatRow(
-            label: 'Bölüm Sayısı',
+            label: AppLocalizations.of(context).comparisonQuickDepartments,
             valueA: '${result.stats.totalDepartmentsA}',
             valueB: '${result.stats.totalDepartmentsB}',
             valueC: '${result.stats.totalDepartmentsC}',
             isDark: isDark,
           ),
           _StatRow(
-            label: 'Mekan Sayısı',
+            label: AppLocalizations.of(context).comparisonQuickPlaces,
             valueA: '${result.placeCountA}',
             valueB: '${result.placeCountB}',
             valueC: '${result.placeCountC}',
             isDark: isDark,
           ),
           _StatRow(
-            label: 'Kuruluş',
+            label: AppLocalizations.of(context).establishedYear,
             valueA: '${result.uniA.establishedYear}',
             valueB: '${result.uniB.establishedYear}',
             valueC: '${result.uniC.establishedYear}',
@@ -1980,7 +2007,7 @@ class _AnimatedTripleCategoryBarState
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
-                        'BERABERE',
+                        AppLocalizations.of(context).tie.toUpperCase(),
                         style: AppTextStyles.labelSmall.copyWith(
                           color: AppColors.textTertiaryFor(context),
                           fontWeight: FontWeight.w800,

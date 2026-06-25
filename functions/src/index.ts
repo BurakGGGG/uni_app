@@ -83,6 +83,7 @@ export { moderateNewReview } from './moderation';
 export { aggregatePlaceRatings } from './places/aggregate_place_ratings';
 export {
   submitPlaceSuggestion,
+  checkPlaceSuggestionDuplicates,
   performPlaceSuggestionAction,
 } from './places/place_suggestions';
 
@@ -105,6 +106,10 @@ export { submitReview, getReviewSubmissionStatus } from './reviews/submit_review
 export { verifyStudentUniversity } from './auth/verify_student';
 export { syncPublicProfile } from './auth/sync_public_profile';
 export { syncUserReviewCount } from './auth/sync_user_review_count';
+export {
+  deleteUserAccount,
+  cleanupDeletedUserAccount,
+} from './auth/cleanup_user';
 
 // Sprint 5 — AI tercih önerisi zenginleştirme (Groq)
 export { enrichRecommendations } from './recommendations/enrich';
@@ -122,6 +127,9 @@ export {
   cleanupDeletedReviewMedia,
   cleanupDeletedStoryMedia,
 } from './storage/cleanup_deleted_media';
+export {
+  cleanupOrphanPlaceSuggestionMedia,
+} from './storage/cleanup_orphan_place_suggestion_media';
 
 // Server-side analytics counters
 export { trackAnalyticsEvent } from './analytics/track_event';

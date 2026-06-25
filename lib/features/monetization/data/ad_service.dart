@@ -24,6 +24,7 @@ class AdService {
   /// Ad Unit ID'leri:
   /// Production: flutter build --dart-define=ADMOB_REWARDED_ANDROID=ca-app-pub-xxx/yyy
   ///                            --dart-define=ADMOB_REWARDED_IOS=ca-app-pub-xxx/zzz
+  /// Internal test: ALLOW_TEST_AD_UNITS=true ile Google test ID kullanılabilir.
   /// Debug: otomatik olarak Google test ID kullanılır.
   static const _androidRewardedId = String.fromEnvironment(
     'ADMOB_REWARDED_ANDROID',

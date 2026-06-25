@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/widgets.dart';
+import '../../../../l10n/generated/app_localizations.dart';
 import '../../../university/domain/models/city_model.dart';
 import '../../../university/presentation/providers/university_providers.dart';
 import '../../../university/presentation/widgets/city_logo.dart';
@@ -63,6 +64,7 @@ class _BodyState extends ConsumerState<_Body> {
   @override
   Widget build(BuildContext context) {
     final citiesAsync = ref.watch(citiesProvider);
+    final loc = AppLocalizations.of(context);
     return Column(
       children: [
         Container(
@@ -84,7 +86,7 @@ class _BodyState extends ConsumerState<_Body> {
               ),
               Expanded(
                 child: Text(
-                  'Şehir Seç',
+                  loc.comparisonSelectCity,
                   style: AppTextStyles.titleLarge.copyWith(
                     fontWeight: FontWeight.bold,
                     letterSpacing: -0.3,
@@ -98,7 +100,7 @@ class _BodyState extends ConsumerState<_Body> {
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
           child: AppSearchBar(
             controller: _searchCtrl,
-            hintText: 'Şehir ara…',
+            hintText: loc.comparisonSearchCity,
             onChanged: (v) => setState(() => _query = v),
             trailing: _query.isNotEmpty
                 ? IconButton(
@@ -120,7 +122,7 @@ class _BodyState extends ConsumerState<_Body> {
             loading: () => const Center(
               child: CircularProgressIndicator(color: AppColors.primary),
             ),
-            error: (e, _) => const ErrorStateWidget(message: 'Şehirler yüklenirken bir hata oluştu.'),
+            error: (e, _) => ErrorStateWidget(message: loc.exploreCitiesError),
             data: (cities) {
               final q = _query.trim().toLowerCase();
               final filtered = q.isEmpty
@@ -131,10 +133,10 @@ class _BodyState extends ConsumerState<_Body> {
                           c.plateCode.toLowerCase().contains(q))
                       .toList();
               if (filtered.isEmpty) {
-                return const EmptyStateWidget(
+                return EmptyStateWidget(
                   icon: Icons.search_off_rounded,
-                  title: 'Sonuç bulunamadı',
-                  description: 'Farklı bir arama deneyebilirsin.',
+                  title: loc.prefNoSearchResults,
+                  description: loc.prefNoSearchResultsDesc,
                 );
               }
               return ListView.separated(
@@ -162,6 +164,7 @@ class _CityTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
     return Material(
       color: AppColors.surfaceFor(context),
       borderRadius: BorderRadius.circular(16),
@@ -200,7 +203,10 @@ class _CityTile extends StatelessWidget {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      'Plaka: ${city.plateCode} • Üni: ${city.appUniversityCount}',
+                      loc.comparisonCityTileMeta(
+                        city.plateCode,
+                        city.appUniversityCount,
+                      ),
                       style: AppTextStyles.labelSmall.copyWith(
                         color: AppColors.textSecondaryFor(context),
                       ),
@@ -216,4 +222,3 @@ class _CityTile extends StatelessWidget {
     );
   }
 }
-

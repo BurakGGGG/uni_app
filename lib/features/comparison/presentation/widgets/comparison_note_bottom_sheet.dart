@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../../l10n/generated/app_localizations.dart';
 import '../../domain/models/comparison_note.dart';
 
 /// Not ekleme/düzenleme için bottom sheet.
@@ -105,6 +106,7 @@ class _ComparisonNoteBottomSheetState extends State<ComparisonNoteBottomSheet> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
+    final loc = AppLocalizations.of(context);
 
     return Container(
       margin: const EdgeInsets.only(top: 60),
@@ -134,7 +136,7 @@ class _ComparisonNoteBottomSheetState extends State<ComparisonNoteBottomSheet> {
 
             // ─── Title ──────────────────────────────────────
             Text(
-              _isEdit ? 'Notu Düzenle' : 'Not Ekle',
+              _isEdit ? loc.noteEditTitle : loc.noteAddTitle,
               style: AppTextStyles.titleMedium.copyWith(
                 fontWeight: FontWeight.w800,
                 color: isDark ? Colors.white : AppColors.textPrimaryFor(context),
@@ -142,7 +144,7 @@ class _ComparisonNoteBottomSheetState extends State<ComparisonNoteBottomSheet> {
             ),
             const SizedBox(height: 4),
             Text(
-              'Karşılaştırma hakkındaki düşüncelerini kaydet',
+              loc.noteSubtitle,
               style: AppTextStyles.bodySmall.copyWith(
                 color: AppColors.textSecondaryFor(context),
               ),
@@ -151,7 +153,7 @@ class _ComparisonNoteBottomSheetState extends State<ComparisonNoteBottomSheet> {
 
             // ─── Rating ─────────────────────────────────────
             Text(
-              'Tercih Puanın',
+              loc.notePreferenceRating,
               style: AppTextStyles.labelMedium.copyWith(
                 fontWeight: FontWeight.w700,
                 color: isDark ? Colors.white : AppColors.textPrimaryFor(context),
@@ -166,7 +168,7 @@ class _ComparisonNoteBottomSheetState extends State<ComparisonNoteBottomSheet> {
 
             // ─── Note TextField ─────────────────────────────
             Text(
-              'Not',
+              loc.noteLabel,
               style: AppTextStyles.labelMedium.copyWith(
                 fontWeight: FontWeight.w700,
                 color: isDark ? Colors.white : AppColors.textPrimaryFor(context),
@@ -189,11 +191,11 @@ class _ComparisonNoteBottomSheetState extends State<ComparisonNoteBottomSheet> {
                 color: isDark ? Colors.white : AppColors.textPrimaryFor(context),
               ),
               decoration: InputDecoration(
-                hintText: 'Örn: İTÜ bana daha yakın, kampüsü çok güzel...',
+                hintText: loc.noteHint,
                 hintStyle: AppTextStyles.bodySmall.copyWith(
                   color: AppColors.textTertiaryFor(context),
                 ),
-                errorText: _isInvalid ? 'Not boş bırakılamaz' : null,
+                errorText: _isInvalid ? loc.noteEmptyError : null,
                 filled: true,
                 fillColor: isDark
                     ? Colors.white.withValues(alpha: 0.05)
@@ -228,7 +230,8 @@ class _ComparisonNoteBottomSheetState extends State<ComparisonNoteBottomSheet> {
 
             // ─── Pros ───────────────────────────────────────
             _ChipInputSection(
-              label: 'Artılar',
+              label: loc.noteProsLabel,
+              hintText: loc.noteAddProHint,
               icon: Icons.add_circle_outline_rounded,
               color: AppColors.success,
               items: _pros,
@@ -242,7 +245,8 @@ class _ComparisonNoteBottomSheetState extends State<ComparisonNoteBottomSheet> {
 
             // ─── Cons ───────────────────────────────────────
             _ChipInputSection(
-              label: 'Eksiler',
+              label: loc.noteConsLabel,
+              hintText: loc.noteAddConHint,
               icon: Icons.remove_circle_outline_rounded,
               color: AppColors.error,
               items: _cons,
@@ -272,7 +276,7 @@ class _ComparisonNoteBottomSheetState extends State<ComparisonNoteBottomSheet> {
                       ),
                     ),
                     child: Text(
-                      'İptal',
+                      loc.commonCancel,
                       style: AppTextStyles.labelMedium.copyWith(
                         color: AppColors.textSecondaryFor(context),
                         fontWeight: FontWeight.w700,
@@ -300,7 +304,7 @@ class _ComparisonNoteBottomSheetState extends State<ComparisonNoteBottomSheet> {
                             _isEdit ? Icons.check_rounded : Icons.note_add_rounded,
                             size: 18,
                           ),
-                    label: Text(_isEdit ? 'Güncelle' : 'Kaydet'),
+                    label: Text(_isEdit ? loc.noteUpdate : loc.commonSave),
                     style: FilledButton.styleFrom(
                       backgroundColor: AppColors.primary,
                       disabledBackgroundColor:
@@ -368,6 +372,7 @@ class _RatingSelector extends StatelessWidget {
 
 class _ChipInputSection extends StatelessWidget {
   final String label;
+  final String hintText;
   final IconData icon;
   final Color color;
   final List<String> items;
@@ -379,6 +384,7 @@ class _ChipInputSection extends StatelessWidget {
 
   const _ChipInputSection({
     required this.label,
+    required this.hintText,
     required this.icon,
     required this.color,
     required this.items,
@@ -447,7 +453,7 @@ class _ChipInputSection extends StatelessWidget {
                     color: isDark ? Colors.white : AppColors.textPrimaryFor(context),
                   ),
                   decoration: InputDecoration(
-                    hintText: 'Yeni ${label.toLowerCase().replaceAll('lar', '').replaceAll('ler', '')} ekle...',
+                    hintText: hintText,
                     hintStyle: AppTextStyles.bodySmall.copyWith(
                       color: AppColors.textTertiaryFor(context),
                       fontSize: 12,

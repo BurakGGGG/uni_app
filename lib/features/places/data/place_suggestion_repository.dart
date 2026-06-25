@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import '../domain/models/place_model.dart';
 import '../domain/models/place_suggestion_model.dart';
 
 /// Mekan önerisi repository — güvenli callable akışı + fotoğraf yükleme.
@@ -91,14 +92,73 @@ class PlaceSuggestionRepository {
         'description': suggestion.description,
         'address': suggestion.address,
         'photoUrls': photoUrls,
+        'latitude': suggestion.latitude,
+        'longitude': suggestion.longitude,
+        'priceRange': suggestion.priceRange,
+        'openHours': suggestion.openHours,
+        'phone': suggestion.phone,
+        'amenities': suggestion.amenities,
       });
     } on FirebaseFunctionsException catch (e) {
+      final normalizedMessage = e.message?.trim().toUpperCase().replaceAll(
+        ' ',
+        '_',
+      );
+      if (e.code == 'not-found' &&
+          (normalizedMessage == null ||
+              normalizedMessage.isEmpty ||
+              normalizedMessage == 'NOT_FOUND')) {
+        throw const PlaceSuggestionException(
+          'Mekan öneri servisine ulaşılamadı. Lütfen tekrar dene.',
+        );
+      }
       throw PlaceSuggestionException(
         e.message ?? 'Mekan önerisi gönderilemedi.',
       );
     }
 
     return suggestionId;
+  }
+
+  Future<List<PlaceDuplicateCandidate>> checkDuplicates({
+    required String universityId,
+    required String name,
+    required PlaceType type,
+    double? latitude,
+    double? longitude,
+    String? excludeSuggestionId,
+  }) async {
+    try {
+      final callable = _functions.httpsCallable(
+        'checkPlaceSuggestionDuplicates',
+        options: HttpsCallableOptions(timeout: const Duration(seconds: 15)),
+      );
+      final result = await callable.call<Map<String, dynamic>>({
+        'universityId': universityId,
+        'name': name,
+        'type': type.firestoreValue,
+        'latitude': latitude,
+        'longitude': longitude,
+        'excludeSuggestionId': excludeSuggestionId,
+      });
+      final candidates = result.data['candidates'];
+      if (candidates is! List) return const [];
+      return candidates
+          .whereType<Map>()
+          .map(
+            (item) => PlaceDuplicateCandidate.fromMap(
+              Map<String, dynamic>.from(item),
+            ),
+          )
+          .toList();
+    } on FirebaseFunctionsException catch (e) {
+      // Duplicate kontrolü yardımcı bir preflight'tır. Eski production
+      // sürümünde endpoint yoksa asıl gönderimi engelleme.
+      if (e.code == 'not-found') return const [];
+      throw PlaceSuggestionException(
+        e.message ?? 'Benzer mekan kontrolü yapılamadı.',
+      );
+    }
   }
 
   // ─── Admin İşlemleri ──────────────────────────────────────────
@@ -134,11 +194,13 @@ class PlaceSuggestionRepository {
   Future<void> approveSuggestion({
     required String suggestionId,
     String? adminNote,
+    PlaceSuggestionModel? approvedPlace,
   }) async {
     await _callAdminAction(
       action: 'approve',
       suggestionId: suggestionId,
       adminNote: adminNote,
+      approvedPlace: approvedPlace,
     );
   }
 
@@ -158,6 +220,7 @@ class PlaceSuggestionRepository {
     required String action,
     required String suggestionId,
     String? adminNote,
+    PlaceSuggestionModel? approvedPlace,
   }) async {
     try {
       final callable = _functions.httpsCallable(
@@ -168,6 +231,19 @@ class PlaceSuggestionRepository {
         'action': action,
         'suggestionId': suggestionId,
         'adminNote': ?adminNote,
+        if (approvedPlace != null)
+          'approvedPlace': {
+            'name': approvedPlace.name,
+            'type': approvedPlace.type.firestoreValue,
+            'description': approvedPlace.description,
+            'address': approvedPlace.address,
+            'latitude': approvedPlace.latitude,
+            'longitude': approvedPlace.longitude,
+            'priceRange': approvedPlace.priceRange,
+            'openHours': approvedPlace.openHours,
+            'phone': approvedPlace.phone,
+            'amenities': approvedPlace.amenities,
+          },
       });
     } on FirebaseFunctionsException catch (e) {
       throw PlaceSuggestionException(e.message ?? 'Mekan önerisi işlenemedi.');
@@ -211,6 +287,20 @@ class PlaceSuggestionRepository {
       throw const PlaceSuggestionException(
         'Adres en fazla 300 karakter olabilir.',
       );
+    }
+    if ((suggestion.openHours ?? '').trim().length > 120) {
+      throw const PlaceSuggestionException(
+        'Çalışma saatleri en fazla 120 karakter olabilir.',
+      );
+    }
+    final phone = (suggestion.phone ?? '').trim();
+    if (phone.isNotEmpty && !RegExp(r'^[0-9+()\s.-]{5,40}$').hasMatch(phone)) {
+      throw const PlaceSuggestionException(
+        'Telefon formatı geçersiz.',
+      );
+    }
+    if (suggestion.amenities.length > 12) {
+      throw const PlaceSuggestionException('En fazla 12 olanak seçebilirsin.');
     }
     if (photos.length > 5) {
       throw const PlaceSuggestionException(

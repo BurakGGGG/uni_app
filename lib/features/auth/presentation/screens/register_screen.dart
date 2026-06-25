@@ -9,6 +9,7 @@ import '../../../../core/widgets/widgets.dart';
 import '../../../../l10n/generated/app_localizations.dart';
 import '../../../../router/redirect_utils.dart';
 import '../../../../core/utils/responsive.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../providers/auth_providers.dart';
 
 /// Kayıt ekranı
@@ -31,6 +32,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   bool _obscureConfirm = true;
   bool _isEduEmail = false;
   bool _isLoading = false;
+  bool _acceptedTerms = false;
 
   @override
   void dispose() {
@@ -61,6 +63,11 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
   Future<void> _register() async {
     if (!_formKey.currentState!.validate()) return;
+
+    if (!_acceptedTerms) {
+      _showError('Kayıt olmak için Kullanım Koşulları ve Gizlilik Politikası\'nı kabul etmelisiniz.');
+      return;
+    }
 
     setState(() => _isLoading = true);
 
@@ -372,6 +379,52 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                             return null;
                           },
                         ).animate().fadeIn(delay: 350.ms, duration: 400.ms),
+
+                        const SizedBox(height: 24),
+                        
+                        // ─── Kullanım Koşulları ve Gizlilik Politikası ───
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            SizedBox(
+                              width: 24,
+                              height: 24,
+                              child: Checkbox(
+                                value: _acceptedTerms,
+                                activeColor: AppColors.primary,
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+                                onChanged: (value) {
+                                  setState(() => _acceptedTerms = value ?? false);
+                                },
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Wrap(
+                                children: [
+                                  GestureDetector(
+                                    onTap: () async {
+                                      final url = Uri.parse('https://uni-app-web-sitesi.vercel.app/privacy.html');
+                                      if (await canLaunchUrl(url)) await launchUrl(url, mode: LaunchMode.externalApplication);
+                                    },
+                                    child: Text(
+                                      'Kullanım Koşulları ve Gizlilik Politikası',
+                                      style: AppTextStyles.labelSmall.copyWith(
+                                        color: AppColors.primary,
+                                        decoration: TextDecoration.underline,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
+                                  Text(
+                                    "'nı okudum ve kabul ediyorum.",
+                                    style: AppTextStyles.labelSmall,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ).animate().fadeIn(delay: 380.ms, duration: 400.ms),
 
                         const SizedBox(height: 28),
 

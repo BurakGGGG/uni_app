@@ -1,6 +1,9 @@
+import 'dart:async';
 import 'dart:io';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -8,9 +11,12 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/utils/haptic.dart';
 import '../../../../core/utils/responsive.dart';
 import '../../../auth/presentation/providers/auth_providers.dart';
+import '../../data/place_suggestion_draft_store.dart';
 import '../../domain/models/place_model.dart';
 import '../../domain/models/place_suggestion_model.dart';
 import '../providers/place_suggestion_providers.dart';
+import '../widgets/place_open_hours_picker.dart';
+import 'place_location_picker_screen.dart';
 
 /// Mekan Öneri Formu — premium kalitede, fotoğraf destekli.
 class SuggestPlaceScreen extends ConsumerStatefulWidget {
@@ -32,18 +38,56 @@ class _SuggestPlaceScreenState extends ConsumerState<SuggestPlaceScreen> {
   final _nameController = TextEditingController();
   final _descController = TextEditingController();
   final _addressController = TextEditingController();
+  final _phoneController = TextEditingController();
 
   PlaceType _selectedType = PlaceType.cafe;
   final List<File> _selectedPhotos = [];
+  final Set<String> _selectedAmenities = {};
+  String? _selectedPriceRange;
+  String? _openHours;
+  double? _latitude;
+  double? _longitude;
+  Timer? _draftTimer;
+  bool _draftRestored = false;
   bool _isSubmitting = false;
 
   static const _maxPhotos = 5;
+  static const _amenityOptions = [
+    'Wi-Fi',
+    'Priz',
+    'Otopark',
+    'Engelli erişimi',
+    'Çalışma alanı',
+    'Açık alan',
+    'Klima',
+    'Yemek',
+    'Güvenlik',
+    'Çamaşırhane',
+    'Spor alanı',
+    '7/24 açık',
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    for (final controller in [
+      _nameController,
+      _descController,
+      _addressController,
+      _phoneController,
+    ]) {
+      controller.addListener(_scheduleDraftSave);
+    }
+    WidgetsBinding.instance.addPostFrameCallback((_) => _restoreDraft());
+  }
 
   @override
   void dispose() {
     _nameController.dispose();
     _descController.dispose();
     _addressController.dispose();
+    _phoneController.dispose();
+    _draftTimer?.cancel();
     super.dispose();
   }
 
@@ -71,6 +115,7 @@ class _SuggestPlaceScreenState extends ConsumerState<SuggestPlaceScreen> {
         final toAdd = images.take(remaining).map((x) => File(x.path)).toList();
         _selectedPhotos.addAll(toAdd);
       });
+      _scheduleDraftSave();
     }
   }
 
@@ -89,6 +134,7 @@ class _SuggestPlaceScreenState extends ConsumerState<SuggestPlaceScreen> {
       setState(() {
         _selectedPhotos.add(File(image.path));
       });
+      _scheduleDraftSave();
     }
   }
 
@@ -96,6 +142,161 @@ class _SuggestPlaceScreenState extends ConsumerState<SuggestPlaceScreen> {
     setState(() {
       _selectedPhotos.removeAt(index);
     });
+    _scheduleDraftSave();
+  }
+
+  Future<void> _restoreDraft() async {
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid == null || widget.universityId.isEmpty) return;
+    final draft = await ref
+        .read(placeSuggestionDraftStoreProvider)
+        .load(userId: uid, universityId: widget.universityId);
+    if (!mounted || draft == null) {
+      _draftRestored = true;
+      return;
+    }
+
+    final restoredPhotos = <File>[];
+    for (final path in draft.photoPaths) {
+      final file = File(path);
+      if (await file.exists()) restoredPhotos.add(file);
+    }
+
+    setState(() {
+      _nameController.text = draft.name;
+      _descController.text = draft.description;
+      _addressController.text = draft.address;
+      _openHours = draft.openHours.trim().isEmpty ? null : draft.openHours;
+      _phoneController.text = _digitsOnly(draft.phone);
+      _selectedType = PlaceType.fromString(draft.type);
+      _selectedPriceRange = draft.priceRange;
+      _latitude = draft.latitude;
+      _longitude = draft.longitude;
+      _selectedAmenities
+        ..clear()
+        ..addAll(draft.amenities);
+      _selectedPhotos
+        ..clear()
+        ..addAll(restoredPhotos.take(_maxPhotos));
+      _draftRestored = true;
+    });
+  }
+
+  void _scheduleDraftSave() {
+    if (!_draftRestored || _isSubmitting) return;
+    _draftTimer?.cancel();
+    _draftTimer = Timer(const Duration(milliseconds: 600), _saveDraft);
+  }
+
+  Future<void> _saveDraft() async {
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid == null || widget.universityId.isEmpty) return;
+    await ref
+        .read(placeSuggestionDraftStoreProvider)
+        .save(
+          userId: uid,
+          universityId: widget.universityId,
+          draft: PlaceSuggestionDraft(
+            name: _nameController.text,
+            type: _selectedType.firestoreValue,
+            description: _descController.text,
+            address: _addressController.text,
+            photoPaths: _selectedPhotos.map((file) => file.path).toList(),
+            latitude: _latitude,
+            longitude: _longitude,
+            priceRange: _selectedPriceRange,
+            openHours: _openHours ?? '',
+            phone: _phoneController.text,
+            amenities: _selectedAmenities.toList(),
+            updatedAt: DateTime.now(),
+          ),
+        );
+  }
+
+  Future<void> _selectLocation() async {
+    final result = await Navigator.of(context).push<PlaceLocationSelection>(
+      MaterialPageRoute(
+        builder: (_) => PlaceLocationPickerScreen(
+          initialLatitude: _latitude,
+          initialLongitude: _longitude,
+          initialSearchQuery: [
+            _addressController.text.trim(),
+            widget.universityName,
+          ].where((item) => item.isNotEmpty).join(', '),
+        ),
+      ),
+    );
+    if (result == null || !mounted) return;
+    setState(() {
+      _latitude = result.latitude;
+      _longitude = result.longitude;
+    });
+    _scheduleDraftSave();
+  }
+
+  Future<bool> _confirmDuplicateCandidates(
+    List<PlaceDuplicateCandidate> candidates,
+  ) async {
+    if (candidates.isEmpty) return true;
+    return await showDialog<bool>(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            title: const Text('Benzer mekanlar bulundu'),
+            content: SizedBox(
+              width: double.maxFinite,
+              height: 380,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Aşağıdaki kayıtları kontrol et. Aynı mekan değilse devam edebilirsin.',
+                  ),
+                  const SizedBox(height: 12),
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: candidates.length,
+                      itemBuilder: (_, index) {
+                        final candidate = candidates[index];
+                        return ListTile(
+                          contentPadding: EdgeInsets.zero,
+                          leading: Icon(
+                            candidate.source == 'place'
+                                ? Icons.place_rounded
+                                : Icons.pending_actions_rounded,
+                            color: AppColors.warning,
+                          ),
+                          title: Text(candidate.name),
+                          subtitle: Text(
+                            [
+                              if (candidate.address.isNotEmpty)
+                                candidate.address,
+                              if (candidate.distanceMeters != null)
+                                '${candidate.distanceMeters!.round()} m uzakta',
+                              candidate.source == 'place'
+                                  ? 'Kayıtlı mekan'
+                                  : 'İncelemede',
+                            ].join(' • '),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx, false),
+                child: const Text('Geri dön'),
+              ),
+              FilledButton(
+                onPressed: () => Navigator.pop(ctx, true),
+                child: const Text('Yine de gönder'),
+              ),
+            ],
+          ),
+        ) ??
+        false;
   }
 
   Future<void> _submit() async {
@@ -107,6 +308,17 @@ class _SuggestPlaceScreenState extends ConsumerState<SuggestPlaceScreen> {
     setState(() => _isSubmitting = true);
 
     try {
+      final repository = ref.read(placeSuggestionRepositoryProvider);
+      final duplicates = await repository.checkDuplicates(
+        universityId: widget.universityId,
+        name: _nameController.text.trim(),
+        type: _selectedType,
+        latitude: _latitude,
+        longitude: _longitude,
+      );
+      if (!mounted) return;
+      if (!await _confirmDuplicateCandidates(duplicates)) return;
+
       final suggestion = PlaceSuggestionModel(
         id: '',
         universityId: widget.universityId,
@@ -117,12 +329,24 @@ class _SuggestPlaceScreenState extends ConsumerState<SuggestPlaceScreen> {
         type: _selectedType,
         description: _descController.text.trim(),
         address: _addressController.text.trim(),
+        latitude: _latitude,
+        longitude: _longitude,
+        priceRange: _selectedPriceRange,
+        openHours: _openHours,
+        phone: _phoneController.text.trim().isEmpty
+            ? null
+            : _phoneController.text.trim(),
+        amenities: _selectedAmenities.toList(),
         createdAt: DateTime.now(),
       );
 
+      await repository.submitSuggestion(
+        suggestion: suggestion,
+        photos: _selectedPhotos,
+      );
       await ref
-          .read(placeSuggestionRepositoryProvider)
-          .submitSuggestion(suggestion: suggestion, photos: _selectedPhotos);
+          .read(placeSuggestionDraftStoreProvider)
+          .clear(userId: user.uid, universityId: widget.universityId);
 
       AppHaptic.noteSaved();
 
@@ -210,7 +434,10 @@ class _SuggestPlaceScreenState extends ConsumerState<SuggestPlaceScreen> {
                 const SizedBox(height: 8),
                 _PlaceTypeSelector(
                   selected: _selectedType,
-                  onChanged: (type) => setState(() => _selectedType = type),
+                  onChanged: (type) {
+                    setState(() => _selectedType = type);
+                    _scheduleDraftSave();
+                  },
                 ),
                 const SizedBox(height: 20),
 
@@ -243,6 +470,130 @@ class _SuggestPlaceScreenState extends ConsumerState<SuggestPlaceScreen> {
                 ),
                 const SizedBox(height: 24),
 
+                _SectionLabel(
+                  label: 'Harita Konumu',
+                  subtitle: 'Admin doğrulaması ve yol tarifi için',
+                ),
+                const SizedBox(height: 8),
+                Material(
+                  color: AppColors.surfaceFor(context),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    side: BorderSide(color: AppColors.borderLightFor(context)),
+                  ),
+                  clipBehavior: Clip.antiAlias,
+                  child: ListTile(
+                    onTap: _selectLocation,
+                    leading: const Icon(
+                      Icons.map_rounded,
+                      color: AppColors.primary,
+                    ),
+                    title: Text(
+                      _latitude == null
+                          ? 'Haritadan konum seç'
+                          : 'Konum seçildi',
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    subtitle: _latitude == null
+                        ? const Text('Haritaya dokunarak pin bırak')
+                        : Text(
+                            '${_latitude!.toStringAsFixed(6)}, '
+                            '${_longitude!.toStringAsFixed(6)}',
+                          ),
+                    trailing: Icon(
+                      _latitude == null
+                          ? Icons.chevron_right_rounded
+                          : Icons.check_circle_rounded,
+                      color: _latitude == null
+                          ? AppColors.textTertiaryFor(context)
+                          : AppColors.success,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+
+                _SectionLabel(label: 'Fiyat Aralığı'),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 8,
+                  children: const ['₺', '₺₺', '₺₺₺'].map((price) {
+                    return ChoiceChip(
+                      label: Text(price),
+                      selected: _selectedPriceRange == price,
+                      onSelected: (selected) {
+                        setState(() {
+                          _selectedPriceRange = selected ? price : null;
+                        });
+                        _scheduleDraftSave();
+                      },
+                    );
+                  }).toList(),
+                ),
+                const SizedBox(height: 20),
+
+                _SectionLabel(label: 'Çalışma Saatleri'),
+                const SizedBox(height: 8),
+                PlaceOpenHoursPicker(
+                  value: _openHours,
+                  onChanged: (value) {
+                    setState(() => _openHours = value);
+                    _scheduleDraftSave();
+                  },
+                ),
+                const SizedBox(height: 20),
+
+                _SectionLabel(label: 'Telefon'),
+                const SizedBox(height: 8),
+                TextFormField(
+                  key: const Key('place_phone_field'),
+                  controller: _phoneController,
+                  decoration: _inputDecoration(
+                    hint: 'Örn: 0346 000 00 00',
+                    prefixIcon: Icons.phone_rounded,
+                  ),
+                  keyboardType: TextInputType.phone,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  maxLength: 11,
+                  validator: (value) {
+                    final phone = value?.trim() ?? '';
+                    if (phone.isEmpty) return null;
+                    if (phone.length < 10 || phone.length > 11) {
+                      return 'Telefon 10 veya 11 haneli olmalı';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 20),
+
+                _SectionLabel(
+                  label: 'Olanaklar',
+                  subtitle: 'Mekanda bulunanları seç',
+                ),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: _amenityOptions.map((amenity) {
+                    return FilterChip(
+                      label: Text(amenity),
+                      selected: _selectedAmenities.contains(amenity),
+                      onSelected: (selected) {
+                        setState(() {
+                          if (selected) {
+                            _selectedAmenities.add(amenity);
+                          } else {
+                            _selectedAmenities.remove(amenity);
+                          }
+                        });
+                        _scheduleDraftSave();
+                      },
+                    );
+                  }).toList(),
+                ),
+                const SizedBox(height: 24),
+
                 // ─── Fotoğraflar ───────────────────────────────────
                 _SectionLabel(
                   label: 'Fotoğraflar',
@@ -257,7 +608,6 @@ class _SuggestPlaceScreenState extends ConsumerState<SuggestPlaceScreen> {
                   onRemove: _removePhoto,
                 ),
                 const SizedBox(height: 32),
-
                 // ─── Gönder Butonu ─────────────────────────────────
                 _SubmitButton(isSubmitting: _isSubmitting, onTap: _submit),
                 const SizedBox(height: 16),
@@ -267,6 +617,11 @@ class _SuggestPlaceScreenState extends ConsumerState<SuggestPlaceScreen> {
         ),
       ),
     );
+  }
+
+  String _digitsOnly(String value) {
+    final digits = value.replaceAll(RegExp(r'\D'), '');
+    return digits.length <= 11 ? digits : digits.substring(0, 11);
   }
 
   InputDecoration _inputDecoration({

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../../l10n/generated/app_localizations.dart';
 import '../providers/preference_list_providers.dart';
 
 class CreateListSheet {
@@ -47,9 +48,10 @@ class _BodyState extends ConsumerState<_Body> {
   }
 
   Future<void> _create() async {
+    final loc = AppLocalizations.of(context);
     final title = _titleCtrl.text.trim();
     if (title.isEmpty) {
-      setState(() => _err = 'Liste adı gerekli');
+      setState(() => _err = loc.prefListTitleRequired);
       return;
     }
     setState(() {
@@ -80,6 +82,7 @@ class _BodyState extends ConsumerState<_Body> {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
       child: Column(
@@ -120,14 +123,14 @@ class _BodyState extends ConsumerState<_Body> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Yeni Tercih Listesi',
+                      loc.prefListCreateTitle,
                       style: AppTextStyles.titleLarge.copyWith(
                         fontWeight: FontWeight.w700,
                         letterSpacing: -0.3,
                       ),
                     ),
                     Text(
-                      'Liste adını ve açıklamasını gir',
+                      loc.prefListCreateSubtitle,
                       style: AppTextStyles.labelSmall.copyWith(
                         color: AppColors.textSecondaryFor(context),
                       ),
@@ -140,11 +143,11 @@ class _BodyState extends ConsumerState<_Body> {
           const SizedBox(height: 24),
 
           // Title field
-          _Label(text: 'Liste adı', required: true),
+          _Label(text: loc.prefListTitleLabel, required: true),
           const SizedBox(height: 6),
           _Field(
             controller: _titleCtrl,
-            hintText: 'Örn. 2025 Sayısal Tercihlerim',
+            hintText: loc.prefListTitleHint,
             autofocus: true,
             maxLength: 60,
             onChanged: (_) {
@@ -154,11 +157,11 @@ class _BodyState extends ConsumerState<_Body> {
           const SizedBox(height: 14),
 
           // Description field
-          _Label(text: 'Açıklama (opsiyonel)'),
+          _Label(text: loc.prefListDescriptionLabel),
           const SizedBox(height: 6),
           _Field(
             controller: _descCtrl,
-            hintText: 'Bu liste hakkında kısa not…',
+            hintText: loc.prefListDescriptionHint,
             maxLength: 140,
             maxLines: 2,
           ),
@@ -178,13 +181,13 @@ class _BodyState extends ConsumerState<_Body> {
                 borderRadius: BorderRadius.circular(12),
               ),
               title: Text(
-                'Herkese açık',
+                loc.prefListPublicTitle,
                 style: AppTextStyles.bodyMedium.copyWith(
                   fontWeight: FontWeight.w600,
                 ),
               ),
               subtitle: Text(
-                'Bağlantıyı paylaştığın herkes listeyi görebilir',
+                loc.prefListPublicCreateSubtitle,
                 style: AppTextStyles.labelSmall.copyWith(
                   color: AppColors.textSecondaryFor(context),
                 ),
@@ -256,9 +259,9 @@ class _BodyState extends ConsumerState<_Body> {
                         : ShaderMask(
                             shaderCallback: (bounds) =>
                                 AppColors.heroGradient.createShader(bounds),
-                            child: const Text(
-                              'Listeyi Oluştur',
-                              style: TextStyle(
+                            child: Text(
+                              loc.prefListCreateButton,
+                              style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 16,
                                 color: Colors.white,

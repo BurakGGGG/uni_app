@@ -5,7 +5,7 @@ Kapsam: Flutter mobil uygulaması, Firebase Firestore/Storage kuralları, Cloud 
 
 ## Güncel İlerleme Notu
 
-Tarih: 2026-06-15
+Tarih: 2026-06-18
 
 Tamamlanan kritik/yüksek öncelikli düzeltmeler:
 
@@ -33,41 +33,71 @@ Tamamlanan kritik/yüksek öncelikli düzeltmeler:
 - Review oluşturma `submitReview` callable function'ına taşındı; doğrulanmış edu.tr hesabı, kullanıcının kendi üniversitesi, server-side author alanları, pending-first moderation ve 10 dakikada 3 yorum rate limit'i Admin SDK tarafında uygulanıyor. Flutter tarafında `getReviewSubmissionStatus` preflight kontrolüyle limit doluyken kullanıcı yorum yazma ekranına alınmadan uyarılıyor.
 - Report ve feedback gönderimleri doğrudan Firestore client write yerine App Check zorunlu `submitReviewReport` / `submitFeedback` callable function'larına taşındı; duplicate report, kısa pencere rate limit ve `suspiciousActivityLogs` kaydı server-side uygulanıyor.
 - Mekan önerisi oluşturma ve admin onay/red akışı App Check zorunlu callable function'lara taşındı; kullanıcı/admin doğrudan `place_suggestions` yazamıyor, fotoğraf path/MIME doğrulaması, create-only görsel bütünlüğü, rate limit, custom claim kontrolü ve admin audit log server-side uygulanıyor.
+- Mekan öneri sistemi ürün tarafında genişletildi: rate limit korumalı gönderim öncesi mükerrer mekan kontrolü, OpenStreetMap tabanlı konum seçimi, fiyat/saat/telefon/olanak alanları, kullanıcı bazlı otomatik taslak, admin düzenlenebilir onay ekranı, gelişmiş moderasyon filtreleri, sıralı işlem geçmişi ve tüm Storage sayfalarını tarayarak 24 saatten eski sahipsiz öneri fotoğraflarını temizleyen scheduled function eklendi.
 - Admin paneline read-only Güvenlik Logları ekranı eklendi; `adminAuditLogs` ve `suspiciousActivityLogs` kayıtları arama, tip/aksiyon filtresi ve detay sheet'iyle incelenebiliyor.
 - Admin claim'i olmayan veya girişsiz kullanıcıların admin callable denemeleri `failed_admin_callable_access` tipiyle `suspiciousActivityLogs` koleksiyonuna düşecek şekilde sertleştirildi.
 - Security observability dokümanı eklendi; admin callable, review/report/feedback abuse, Storage cleanup ve App Check reject olayları için Cloud Logging filtreleri ve önerilen alert eşikleri tanımlandı.
 - `usageStats` başlangıç dokümanı Firestore rules tarafında whitelist/zero-counter validasyonuna alındı.
 - Günlük quota reset job'u ve RevenueCat webhook'u `lastAiRecommendationResetDate` alanıyla AI öneri reset takibini tutarlı hale getirecek şekilde güncellendi.
 - Firestore rules testleri emulator ile çalışır hale getirildi ve kritik exploit senaryoları eklendi.
-- Callable review akışından kalan kullanılmayan eski Firestore review create helper'ları kaldırıldı; direct review create kapalı kalırken rules testleri 42/42 geçti.
+- Callable review akışından kalan kullanılmayan eski Firestore review create helper'ları kaldırıldı; direct review create kapalı kalırken rules testleri 48/48 geçti.
 - Android release build guard eklendi; release build artık debug signing'e düşmüyor ve production AdMob App ID olmadan devam etmiyor.
 - Profil/review görsel ve story medya Storage kuralları açık MIME whitelist, dosya adı ve kullanıcı/admin path doğrulamasıyla sıkılaştırıldı; Storage emulator testleri CI rules gate kapsamına alındı.
 - Admin ekranlarındaki story summary, reports summary, stats kartları, detail sheet aksiyonları ve uzun metin satırları responsive davranacak şekilde düzeltildi.
+
+18 Haziran 2026 production eşitlemesi:
+
+- `submitPlaceSuggestion`, `checkPlaceSuggestionDuplicates`, `performPlaceSuggestionAction` ve `cleanupOrphanPlaceSuggestionMedia` function'ları `europe-west1` bölgesinde aynı kaynak revizyonuyla deploy edildi ve `ACTIVE` durumda doğrulandı.
+- `cleanupOrphanPlaceSuggestionMedia` için her gün Türkiye saatiyle 04:00'te çalışan Cloud Scheduler job'u oluşturuldu. Job, 24 saatten eski ve Firestore öneri dokümanı olmayan `place_suggestions/` dosyalarını sayfalı taramayla temizliyor.
+- `place_suggestions(status, createdAt)` ve `adminAuditLogs(targetId, createdAt)` birleşik indeksleri production Firestore'da `READY` durumda doğrulandı.
+- Eski `revenuecatWebhook(us-central1)` function'ı silindi. Aktif webhook yalnızca `revenuecatWebhook(europe-west1)` olarak kaldı.
+- Mekan callable URL'leri kimliksiz istekte 404 yerine beklenen 401 cevabını veriyor; kaldırılan eski RevenueCat URL'si 404, yalnızca POST kabul eden aktif Avrupa URL'si ise GET isteğine 405 döndürüyor.
+- Functions lock dosyasındaki `form-data` high advisory'si `2.5.6` sürümüne yükseltilerek giderildi. Production dependency audit sonucu 0 high, 0 critical ve transitive `uuid` zincirinde 9 moderate bulgudur.
+
+19 Haziran 2026 kapalı test hazırlığı:
+
+- Gizlilik politikası uygulama içinden canlı Vercel sayfasına bağlandı: `https://uni-app-web-sitesi.vercel.app/privacy.html`. URL HTTP 200 dönüyor ve Play Console Privacy Policy alanında kullanılabilir.
+- Hesap silme akışı release build'de görünür hale getirildi. Kullanıcı parola hesabında mevcut şifreyle, Google hesabında Google reauth ile doğrulanıyor; ardından `deleteUserAccount` callable function'ı çağrılıyor.
+- Hesap silme backend tasarımı veriyi önce temizleyip Firebase Auth hesabını en son silecek şekilde kuruldu. `cleanupDeletedUserAccount` Auth onDelete trigger'ı Console veya başka backend üzerinden silinen kullanıcılar için idempotent fallback sağlar.
+- Hesap silme cleanup kapsamı: kullanıcı dokümanı, public profile, subscription dokümanı, favori/tercih/yorum/öneri/notification/feedback/report verileri, kullanıcıya ait like dokümanları, ilgili rate-limit dokümanları ve profil/yorum/mekan önerisi Storage prefix'leri.
+- Türkçe cihaz dışındaki cihazlarda uygulamanın İngilizce başlaması ve kullanıcının sonradan seçtiği dilin korunması doğrulandı.
+- Closed testing için yeni Android App Bundle üretildi: `build/app/outputs/bundle/release/unisec-closed-1.0.0+3.aab`. Paket `com.unisec.app`, `versionCode=3`, `versionName=1.0.0`, `targetSdk=36` ve production AdMob App ID `ca-app-pub-9125676139820389~4633697387` ile üretildi.
+- AAB 16KB zip alignment ve zip bütünlüğü kontrollerinden geçti. SHA-256: `cc7061615b006c2c61e0695e52a5a9c914a98afdc7c4b7120cba0abd0bd92642`.
+- Firebase Android app üzerinde 2 SHA-1 ve 2 SHA-256 sertifika kaydı listelendi. Play App Signing sertifikasının Firebase kayıtlarıyla eşleştiği, Play Console > App integrity ekranından son kez kontrol edilmelidir.
+- `deleteUserAccount` ve `cleanupDeletedUserAccount` production deploy denemeleri yerel build/lint aşamasını geçti; ancak `cloudfunctions.googleapis.com` DNS çözümlemesinde `EAI_AGAIN` nedeniyle deployment tamamlanamadı. Test kullanıcılarını davet etmeden önce bu iki function deploy'u tekrar denenmelidir.
 
 Son doğrulama çıktıları:
 
 | Komut | Sonuç |
 | --- | --- |
 | `npm run build` (`functions`) | Başarılı |
-| `npm test` (`rules-tests`) | Başarılı, 42 test geçti |
+| `npm run lint` (`functions`) | Başarılı |
+| `npm audit --omit=dev --audit-level=high` (`functions`) | Başarılı; 0 high/critical, 9 moderate |
+| `npm test` (`rules-tests`) | Başarılı, 48 test geçti |
 | `flutter analyze` | Başarılı |
-| `flutter test` | Başarılı, 74 test geçti |
+| `flutter test` | Başarılı, 83 test geçti |
 | `./gradlew :app:lintDebug` | Başarılı. 0 hata, 15 uyarı |
 | `flutter build apk --debug` | Başarılı |
+| Hedefli Functions deploy | Başarılı; 4/4 function aktif |
+| `firebase deploy --only firestore:indexes` | Başarılı; gerekli iki indeks `READY` |
+| Eski RevenueCat function temizliği | Başarılı; `us-central1` silindi, `europe-west1` aktif |
+| `curl -I -L https://uni-app-web-sitesi.vercel.app/privacy.html` | Başarılı; HTTP 200 |
+| `npm run build` / `npm run lint -- --quiet` (`functions`, hesap silme eklemesi sonrası) | Başarılı |
+| `flutter build appbundle --release --build-name=1.0.0 --build-number=3 ...` | Başarılı; `unisec-closed-1.0.0+3.aab` üretildi |
+| `zipalign -c -P 16 4` + `unzip -tq` (`unisec-closed-1.0.0+3.aab`) | Başarılı |
+| `firebase deploy --only functions:deleteUserAccount,functions:cleanupDeletedUserAccount` | Beklemede; yerel analiz geçti, Google API DNS `EAI_AGAIN` nedeniyle deploy tamamlanamadı |
 
 ## 1. Yönetici Özeti
 
-Uygulama genel olarak geniş bir ürün yüzeyine sahip: öğrenci doğrulama, yorumlar, favoriler, tercih listeleri, admin panelleri, hikayeler, bildirimler, abonelikler, AI karşılaştırma/öneri özellikleri ve Firebase tabanlı sunucu işlevleri bulunuyor. Flutter tarafında statik analiz ve birim/widget testleri temiz geçti; Cloud Functions TypeScript build de geçti. Buna karşın Firebase güvenlik kurallarında birkaç kritik açık var.
+Uygulama genel olarak geniş bir ürün yüzeyine sahip: öğrenci doğrulama, yorumlar, favoriler, tercih listeleri, admin panelleri, hikayeler, bildirimler, abonelikler, AI karşılaştırma/öneri özellikleri ve Firebase tabanlı sunucu işlevleri bulunuyor. İlk güvenlik incelemesinde bulunan admin yetki yükseltme, private kullanıcı verisi sızıntısı, review bütünlüğü ve Story Storage yazma açıkları güncel kodda giderildi. Firestore/Storage rules testleri 48/48, Flutter testleri 83/83 geçmektedir.
 
-En önemli risk, `users/{userId}` dokümanlarının herkese okunabilir ve kullanıcı sahibine çok geniş yazılabilir olmasıdır. Aynı dokümanda `role`, `email`, `fcmTokens`, `universityId`, `reviewCount` gibi hassas ve yetki etkileyen alanlar tutuluyor. Firestore `isAdmin()` fonksiyonu da adminliği bu kullanıcı dokümanındaki `role == 'admin'` alanından okuduğu için, bir kullanıcı kendi dokümanında `role` alanını değiştirebilirse admin yetkisi kazanabilir. Bu, veritabanı yazma yetkilerinin, admin panellerinin ve içerik yönetiminin bütünlüğünü etkileyen kritik bir yetki yükseltme riskidir.
+Mekan öneri akışı production ile eşitlenmiştir. Saat seçimi yazısız bottom sheet üzerinden yapılmakta, konum Türkiye geneli arama ile daraltılabilmekte, telefon istemci ve sunucuda yalnızca 10-11 rakam kabul etmekte ve gönderim/duplicate/admin action callable'ları aynı production revizyonunda çalışmaktadır. Sahipsiz öneri medyası için günlük scheduled cleanup da aktiftir.
 
-İkinci kritik risk, kullanıcı dokümanlarının `allow read: if true` ile herkese açılmasıdır. Uygulama kodunda public profil okurken `email` ve `fcmTokens` client tarafında maskeleniyor; fakat Firestore kuralları doküman seviyesinde çalıştığı için doğrudan Firestore okuması yapan herhangi biri bu alanları okuyabilir. Bu durum e-posta, FCM token, bildirim tercihleri, rol ve okul bilgileri gibi özel verilerin sızmasına yol açabilir.
+Gizlilik politikası canlı Vercel URL'sine bağlandı ve closed testing AAB üretildi. Hesap silme akışı kod tarafında hazırdır; ancak `deleteUserAccount` ve `cleanupDeletedUserAccount` production deploy'u Google API DNS `EAI_AGAIN` hatası nedeniyle henüz tamamlanmamıştır. Test kullanıcılarını davet etmeden önce bu deploy tekrar denenmelidir.
 
-Yorum/moderasyon tarafında da yüksek riskli bütünlük sorunları var. Yorum oluşturma kuralı `isApproved`, `likes`, `createdAt`, `targetId`, `type`, metin uzunlukları ve görsel sayısı gibi alanları yeterince doğrulamıyor. Modelde `isApproved` varsayılan olarak `true`; moderasyon fonksiyonu sadece yorum oluşturulduğunda çalışıyor. Kullanıcı, güncelleme kuralı sayesinde kendi yorumunun birçok alanını sonradan değiştirebilir ve onay durumunu manipüle edebilir. Beğeni sayısı da doğrudan sayı olarak değiştirilebilir.
+Güncel en önemli açık işler güvenlik kuralı düzeltmesinden çok release ve operasyon doğrulamasıdır: hesap silme function deploy'u, Play Console'a yeni AAB yükleme, Play Integrity/App Check gerçek imzalı build doğrulaması, giriş yapılmış gerçek Android cihazında uçtan uca smoke test, veri dışa aktarma talebi süreci, review upload reddinde orphan fotoğraf temizliği ve kritik Cloud Function senaryolarının otomatik testleridir.
 
-Storage tarafında `/stories/{fileName}` yazma izni tüm giriş yapmış kullanıcılara açık. Firestore story dokümanları admin kontrolü yapıyor olsa da medya dosyası yükleme kuralı admin kontrolü yapmadığı için herhangi bir authenticated kullanıcı story bucket alanına 100 MB'a kadar medya yükleyebilir. Bu hem maliyet hem de içerik güvenliği açısından yüksek risklidir.
-
-UI tarafında otomatik Flutter analizinde hata bulunmadı. Admin story istatistik satırı, rapor özet kartı, stats kart gridleri, detail sheet aksiyonları ve uzun metin satırlarında tespit edilen başlıca responsive taşma riskleri kod tarafında giderildi. Görsel taşmaları otomatik yakalamak için küçük genişlik ve yüksek text scale widget/golden testleri hâlâ eklenebilir.
+UI tarafında otomatik Flutter analizinde hata bulunmadı. Admin story istatistik satırı, rapor özet kartı, stats kart gridleri, detail sheet aksiyonları ve uzun metin satırlarındaki başlıca responsive riskler kod tarafında giderildi. Buna rağmen gerçek cihaz, tablet, landscape, yüksek text scale ve golden/screenshot test kapsamı henüz yeterli değildir.
 
 Android lint hataları kod tarafında giderildi. `./gradlew :app:lintDebug` artık başarılı çalışıyor; sonuç 0 hata, 15 uyarı. Giderilen ana sorunlar `UCropActivity` dependency görünürlüğü ve minSdk 24 ile uyumsuz API 27/29 style attribute kullanımlarıydı. Kalan uyarılar dependency sürüm güncellemeleri, splash asset tekrarları ve Android geniş ekran/orientation önerileri gibi non-blocking kalite maddeleridir.
 
@@ -86,12 +116,12 @@ Android lint hataları kod tarafında giderildi. `./gradlew :app:lintDebug` art�
 | Komut | Sonuç |
 | --- | --- |
 | `flutter analyze` | Başarılı. `No issues found`. |
-| `flutter test` | Başarılı. 74 test geçti. |
+| `flutter test` | Başarılı. 80 test geçti. |
 | `npm run build` (`functions`) | Başarılı. TypeScript build geçti. |
 | `npm run lint` (`functions`) | Başarılı. ESLint config eklendi ve hata yok. |
 | `npm audit --omit=dev --audit-level=high` (`functions`) | Başarılı. High/critical açık yok; moderate `uuid` zinciri dependency migration maddesinde takip edilmeli. |
 | `flutter pub outdated` | Birçok paket major sürüm gerisinde. Firebase, go_router, notifications, ads ve permission paketleri özellikle eski. |
-| `npm test` (`rules-tests`) | Başarılı. Firestore + Storage emulator ile 42 test geçti. |
+| `npm test` (`rules-tests`) | Başarılı. Firestore + Storage emulator ile 48 test geçti. |
 | `./gradlew :app:assembleDebug` | Başarılı. Debug APK derlendi. |
 | `./gradlew :app:lintDebug` | Başarılı. 0 hata, 15 uyarı. CI gate'e alındı. |
 
@@ -106,19 +136,19 @@ Sınırlamalar:
 
 | Öncelik | Alan | Risk | Etki |
 | --- | --- | --- | --- |
-| Kritik | Firestore users/admin | Kullanıcı kendi `role` alanını değiştirerek admin olabilir | Tam yetki yükseltme, admin verilerine/yazmalarına erişim |
-| Kritik | Firestore users/privacy | Tüm kullanıcı dokümanları herkese okunabilir | E-posta, FCM token, rol ve profil verisi sızıntısı |
-| Yüksek | Reviews/moderation | Yorum onayı, beğeni, içerik ve tarih alanları client tarafından manipüle edilebilir | Sahte/uygunsuz içerik, puan ve beğeni manipülasyonu |
-| Yüksek | Users/universityId | Kullanıcı kendi `universityId` alanını değiştirebilir | Başka üniversite adına yorum yazma |
-| Yüksek | Storage stories | Tüm authenticated kullanıcılar story medyası yükleyebilir | Maliyet, içerik güvenliği, bucket kirliliği |
-| Yüksek | Functions AI | Recommendation enrichment quota/rate limit ve callable App Check enforcement eklendi | Firebase Console provider ayarları/debug token kaydı yapılmazsa client çağrıları reddedilir |
-| Orta | Analytics | Client analytics write kapatıldı; server-side callable endpoint'e taşındı | Debug token/App Check olmadan client event çağrıları reddedilir |
-| Orta | Preference lists | `viewCount` client write kapatıldı; liste schema validasyonu eklendi | App Check function deploy edilmeden eski client sayaç artıramaz |
-| Orta (giderildi) | Admin route | `/admin*` rotaları custom claim guard ve 403 ekranıyla kapatıldı | Admin olmayan kullanıcı admin UI'a erişemeden engellenir |
-| Orta | Android lint | Manifest/style hataları var | Release kalitesi ve bazı cihazlarda runtime uyumsuzluk riski |
-| Orta | Dependency | Functions dependency audit açıkları var | Transitive paket açıkları, bakım riski |
+| Yüksek | Release doğrulaması | Closed testing AAB üretildi ancak Play Console'a yüklenmiş gerçek tester build üzerinde uçtan uca test yapılmadı | App Check, auth veya cihaz davranışı kaynaklı production hataları geç fark edilebilir |
+| Yüksek | App Check operasyonu | Play Integrity/App Attest provider, Play App Signing SHA eşleşmesi ve release token davranışı Console tarafında son kez doğrulanmadı | Release callable çağrıları reddedilebilir |
+| Yüksek | KVKK/Play Store | Gizlilik URL'si yayında ve hesap silme kodu hazır; ancak hesap silme function deploy'u DNS nedeniyle bekliyor, veri dışa aktarma talebi süreci eksik | Store reddi ve veri sahibi talebi uyumsuzluğu |
+| Orta | Review Storage | Callable reddedilmeden önce yüklenen review fotoğrafları orphan kalabilir | Storage maliyeti ve bucket kirliliği |
+| Orta | Functions testleri | Quota yarış durumu, webhook idempotency ve moderation için doğrudan function testleri eksik | Regresyonlar deploy öncesi yakalanmayabilir |
+| Orta | Story upload | Admin-only olmasına rağmen server-side upload rate limit ve gerçek içerik taraması yok | Yetkili hesap ele geçirilmesi veya yanlış kullanımda maliyet riski |
+| Orta | Observability | Alert filtreleri dokümante edildi ancak Console alert policy kurulumu doğrulanmadı | Hata ve abuse olaylarına geç müdahale |
+| Düşük | UI/accessibility | Tablet, landscape, yüksek text scale ve golden test kapsamı sınırlı | Dar/geniş cihazlarda kullanılabilirlik sorunları |
+| Düşük | Dependency/Android | 9 moderate transitive advisory ve 15 Android lint warning kaldı | Uzun vadeli bakım ve platform uyumluluğu riski |
 
 ## 4. Kritik ve Yüksek Güvenlik Bulguları
+
+Not: Bu bölüm ilk incelemede bulunan tarihsel bulguları ve yapılan düzeltmeleri ayrıntılı kanıtlarıyla korur. Güncel açık riskler için Bölüm 3 ve Bölüm 10 esas alınmalıdır.
 
 ### 4.1 Kritik: Firestore admin yetkisi kullanıcı dokümanındaki değiştirilebilir `role` alanına bağlı
 
@@ -537,7 +567,7 @@ Sonuç:
 - v1 zincir API kullanan 1st gen fonksiyonlarda importlar `firebase-functions/v1` olarak netleştirildi.
 - `firebase deploy --only functions --dry-run` başarılı tamamlandı.
 - `trackAnalyticsEvent` hedefli deploy ile Node.js 22 revizyonuna geçti ve Cloud Logging'de `component="analytics.trackAnalyticsEvent"` structured log akışı doğrulandı.
-- Tam `firebase deploy --only functions`, uzakta kaynakta olmayan `revenuecatWebhook(us-central1)` bulunduğu için silme onayı gerektiriyor; bu orphan function ayrıca ele alınmalı.
+- Eski `revenuecatWebhook(us-central1)` 18 Haziran 2026'da silindi; `revenuecatWebhook(europe-west1)` tek aktif webhook olarak bırakıldı.
 - Güncel lock audit özeti hâlâ transitive `uuid <11.1.1` zinciri nedeniyle 9 moderate vulnerability raporluyor:
   - 0 low
   - 9 moderate
@@ -588,7 +618,7 @@ Güncel durum:
 
 - `rules-tests/package.json`: `npm test`, Firestore + Storage emulator'larını birlikte başlatıyor.
 - `rules-tests/test.js`: Firestore rules ve Storage rules aynı test ortamında yükleniyor.
-- Güncel sonuç: 42 test geçiyor.
+- Güncel sonuç: 48 test geçiyor.
 
 Kapsanan kritik senaryolar:
 
@@ -730,55 +760,53 @@ Hard overflow kesin değil; Material NavigationBar label'ları sıkıştırabili
 - `flutter analyze` ve `flutter test` temiz; uygulama kodu temel statik kalite kontrolünden geçiyor.
 - `./gradlew :app:assembleDebug` başarılı; debug build üretilebiliyor.
 
-## 10. Acil Düzeltme Planı
+## 10. Güncel Uygulama Planı
 
-### İlk 24 saat
+### Tamamlanan production eşitlemesi
 
-1. Firestore `users` kuralını kilitleyin:
-   - `allow read: if isOwner(userId) || isAdmin()`.
-   - Public profil için ayrı koleksiyon hazırlanana kadar public user read'i kapatın.
-   - Owner update alanlarını beyaz listeye alın.
+1. Mekan önerisi istemci, admin ve Functions değişiklikleri aynı kaynak revizyonunda birleştirildi.
+2. Dört mekan function'ı production'a deploy edildi ve `ACTIVE` durumda doğrulandı.
+3. Gerekli iki Firestore birleşik indeksi production'da `READY` hale getirildi.
+4. Sahipsiz mekan önerisi medyası için günlük scheduled cleanup aktifleştirildi.
+5. Eski `revenuecatWebhook(us-central1)` silindi; Avrupa webhook'u korundu.
+6. Functions high advisory'si lock dosyasında giderildi.
 
-2. Adminliği custom claim'e taşıyın:
-   - `isAdmin()` artık `request.auth.token.admin == true` kullanmalı.
-   - Firestore user `role` alanı yalnızca UI/display amaçlıysa bile güvenlikte kullanılmamalı.
+### Sonraki işler — önem sırası
 
-3. Story Storage write kuralını admin-only yapın:
-   - `request.auth.token.admin == true`.
-   - `application/octet-stream` kaldırın.
-
-4. Review create/update kurallarını sıkılaştırın:
-   - `isApproved == false`, `likes == 0`.
-   - Owner update alanlarını sınırlandırın.
-   - Parent `likes` client write'ı kapatın.
-
-### İlk 3 gün
-
-1. `publicProfiles` ayrımını uygulayın.
-2. FCM tokenları owner-only alt koleksiyona taşıyın.
-3. Review moderation'ı update sonrası da çalışır hale getirin.
-4. University aggregation'a `isApproved == true` filtresi ekleyin.
-5. Rules tests'i emulator ile çalışan hale getirin ve kritik exploit senaryolarını test edin.
-6. Android lint hatalarını temizleyin. (Tamamlandı; 0 hata, 15 uyarı)
-
-### İlk 7 gün
-
-1. Functions dependency upgrade planını uygulayın. (Kısmen tamamlandı; Node 22 + `firebase-functions@7` + `firebase-admin@13.10` uygulandı, Admin SDK 14 modular migration ayrı iş olarak kaldı)
-2. Firebase Console App Check provider ayarlarını ve debug token kayıtlarını tamamlayın.
-3. Analytics dashboard için server-side event doğrulama loglarını ve alert'leri izleyin. (Kod ve log filtreleri tamamlandı; Console alert policy kurulumu manuel takip işi)
-4. Preference list callable deploy ve Android client rebuild akışını tamamlayın.
-5. Admin route guard ve 403 ekranı ekleyin. (Tamamlandı)
-6. Admin UI responsive taşma risklerini düzeltin. (Tamamlandı)
-7. CI pipeline'a şu gate'leri koyun. (Tamamlandı)
-   - `flutter analyze`
-   - `flutter test`
-   - `npm run build` (`functions`)
-   - `npm run lint` (`functions`)
-   - `npm audit --omit=dev --audit-level=high` (`functions`)
-   - Firestore + Storage rules emulator tests
-   - `./gradlew :app:lintDebug`
-   - `./gradlew :app:assembleDebug`
-8. Admin action audit log ekleyin ve kritik admin aksiyonlarını callable function'a taşıyın. (Tamamlandı; `performAdminModerationAction` App Check + admin custom claim zorunlu, `adminAuditLogs` server-side yazılıyor)
+1. Hesap silme production deploy'unu tamamla:
+   - `deleteUserAccount`,
+   - `cleanupDeletedUserAccount`,
+   - deploy sonrası callable varlık kontrolü,
+   - test kullanıcı hesabıyla silme smoke testi.
+2. Closed testing AAB'yi Play Console'a yükle:
+   - `build/app/outputs/bundle/release/unisec-closed-1.0.0+3.aab`,
+   - sürüm adı: `closed-1.0.0+3`,
+   - gizlilik politikası: `https://uni-app-web-sitesi.vercel.app/privacy.html`,
+   - Play App Signing SHA değerlerini Firebase/App Check ile son kez eşleştir.
+3. Giriş yapılmış gerçek Android cihazında mekan önerisi uçtan uca smoke testi:
+   - saat, konum, telefon, fotoğraf ve taslak,
+   - duplicate uyarısı,
+   - gönderim,
+   - admin düzenleme/onay,
+   - oluşan mekan ve audit log doğrulaması.
+4. İmzalı release AAB ve App Check production doğrulaması:
+   - Play Integrity,
+   - App Attest/DeviceCheck,
+   - release callable çağrıları,
+   - production AdMob ve signing kontrolü.
+5. KVKK/Play Store uyumluluğu:
+   - veri dışa aktarma ve silme talebi.
+6. Review fotoğraf upload rollback/orphan cleanup mekanizması.
+7. Kritik Cloud Function otomatik testleri:
+   - recommendation quota,
+   - comparison quota race condition,
+   - RevenueCat idempotency,
+   - review yeniden moderasyonu,
+   - mekan callable auth/App Check/hata senaryoları.
+6. Story upload için server-side rate limit, abuse log ve gerçek içerik/MIME taraması.
+7. Cloud Monitoring alert policy'lerini Console'da kurma ve test alarmı üretme.
+8. Tablet, landscape, yüksek text scale, bottom navigation ve empty/error state UI testleri.
+9. Admin SDK modular migration, 9 moderate advisory ve 15 Android lint warning bakım işi.
 
 ## 11. Geliştirilebilecek veya Eklenebilecek Özellikler
 
@@ -905,16 +933,20 @@ Hard overflow kesin değil; Material NavigationBar label'ları sıkıştırabili
 
 ## 13. Sonuç
 
-Uygulamanın ürün kapsamı güçlü ve bazı iyi güvenlik temelleri mevcut; ancak Firestore kullanıcı dokümanı yetkileri, admin role modeli, public user read, review moderation bütünlüğü ve Story Storage kuralları acil düzeltilmeli. Bu açıklar production ortamında ciddi yetki yükseltme, veri sızıntısı, içerik manipülasyonu ve maliyet abuse riskleri doğurabilir.
+İlk incelemede bulunan kritik Firestore, admin yetkisi, private profil, review bütünlüğü ve Story Storage açıkları güncel kodda giderildi. Mekan önerisi sistemi de 18 Haziran 2026'da production ile eşitlendi; dört function aktif, gerekli indeksler hazır, scheduled orphan cleanup çalışır durumda ve eski RevenueCat function kopyası kaldırıldı.
 
-En güvenli sıra şu olmalı:
+19 Haziran 2026 itibarıyla gizlilik politikası canlı Vercel URL'sine bağlandı, hesap silme akışı kod tarafında güvenli callable modele taşındı ve closed testing için `versionCode=3` AAB üretildi. Kalan engel, hesap silme function'larının production deploy'unun yerel DNS `EAI_AGAIN` hatası nedeniyle tamamlanamamış olmasıdır.
 
-1. `users` dokümanı read/write kurallarını kilitle.
-2. Adminliği custom claim'e taşı.
-3. Public/private profil ayrımını yap.
-4. Review create/update ve moderation akışını sıkılaştır.
-5. Story Storage write'ı admin-only yap.
-6. Rules tests ve CI gate'lerini çalışır hale getir.
-7. Android lint ve dependency audit açıklarını temizle.
+Güncel risk profili artık doğrudan yetki yükseltme açıklarından release/operasyon doğrulamasına kaymıştır. En güvenli devam sırası:
 
-Bu adımlar tamamlandığında uygulamanın güvenlik tabanı çok daha sağlam hale gelir; sonrasında UI responsive iyileştirmeleri, admin ergonomisi, observability ve ürün özellikleri daha güvenli bir zemin üzerinde geliştirilebilir.
+1. `deleteUserAccount` ve `cleanupDeletedUserAccount` production deploy'unu DNS düzelince tamamlamak.
+2. `unisec-closed-1.0.0+3.aab` dosyasını Closed testing'e yüklemek.
+3. Play App Signing SHA/App Check Play Integrity eşleşmesini doğrulamak.
+4. Gerçek cihazda girişli uçtan uca smoke test yapmak.
+5. Veri dışa aktarma/silme talebi sürecini belgelemek.
+6. Review orphan upload temizliği.
+7. Kritik Cloud Function otomatik testleri.
+8. Story upload abuse koruması ve Monitoring alert'leri.
+9. Responsive/accessibility testleri ve dependency bakımı.
+
+Mevcut güvenlik tabanı production için önceki duruma göre belirgin biçimde daha sağlamdır; kalan işler release güvenilirliği, mevzuat uyumu, otomatik regresyon kapsamı ve operasyonel görünürlük üzerine yoğunlaşmaktadır.

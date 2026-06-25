@@ -828,7 +828,7 @@ class _WriteReviewScreenState extends ConsumerState<WriteReviewScreen> {
           decoration: BoxDecoration(
             color: _isAnonymous
                 ? AppColors.primary.withValues(alpha: 0.10)
-                : AppColors.surface,
+                : AppColors.surfaceFor(context),
             borderRadius: BorderRadius.circular(AppConstants.radiusMd),
             border: Border.all(
               color: _isAnonymous

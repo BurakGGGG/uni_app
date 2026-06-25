@@ -433,7 +433,7 @@ class _FilterPill extends StatelessWidget {
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
-          color: selected ? AppColors.primary : AppColors.surface,
+          color: selected ? AppColors.primary : AppColors.surfaceFor(context),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: selected ? AppColors.primary : AppColors.borderLightFor(context),

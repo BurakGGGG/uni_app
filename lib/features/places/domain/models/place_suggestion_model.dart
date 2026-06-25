@@ -39,7 +39,7 @@ class PlaceSuggestionModel {
   final String universityName;
   final String userId;
   final String userName;
-  
+
   // Mekan bilgileri
   final String name;
   final PlaceType type;
@@ -145,6 +145,10 @@ class PlaceSuggestionModel {
   }
 
   PlaceSuggestionModel copyWith({
+    String? name,
+    PlaceType? type,
+    String? description,
+    String? address,
     SuggestionStatus? status,
     String? adminNote,
     String? reviewedBy,
@@ -165,10 +169,10 @@ class PlaceSuggestionModel {
       universityName: universityName,
       userId: userId,
       userName: userName,
-      name: name,
-      type: type,
-      description: description,
-      address: address,
+      name: name ?? this.name,
+      type: type ?? this.type,
+      description: description ?? this.description,
+      address: address ?? this.address,
       photoUrls: photoUrls ?? this.photoUrls,
       latitude: latitude ?? this.latitude,
       longitude: longitude ?? this.longitude,

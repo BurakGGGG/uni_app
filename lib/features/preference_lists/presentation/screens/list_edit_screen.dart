@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../../l10n/generated/app_localizations.dart';
 import '../../../university/presentation/widgets/score_badge.dart';
 import '../providers/preference_list_providers.dart';
 import '../../domain/models/preference_list_model.dart';
@@ -30,9 +31,13 @@ class _ListEditScreenState extends ConsumerState<ListEditScreen> {
     final currentItems = _effectiveItems(currentList);
     if (currentItems.any((i) => i.deptId == newItem.deptId)) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('Bu bölüm zaten listede')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              AppLocalizations.of(context).prefListDuplicateDepartment,
+            ),
+          ),
+        );
       }
       return;
     }
@@ -42,7 +47,9 @@ class _ListEditScreenState extends ConsumerState<ListEditScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              'Listede en fazla ${PreferenceListModel.maxItems} tercih olabilir',
+              AppLocalizations.of(
+                context,
+              ).prefListMaxItems(PreferenceListModel.maxItems),
             ),
           ),
         );
@@ -93,13 +100,17 @@ class _ListEditScreenState extends ConsumerState<ListEditScreen> {
         _draftItems = _normalizedItems(items);
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Tercih listesi kaydedildi')),
+        SnackBar(content: Text(AppLocalizations.of(context).prefListSaved)),
       );
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('Kaydetme hatası: $e')));
+      ).showSnackBar(
+        SnackBar(
+          content: Text(AppLocalizations.of(context).prefListSaveError('$e')),
+        ),
+      );
     } finally {
       if (mounted) {
         setState(() => _isSaving = false);
@@ -109,19 +120,20 @@ class _ListEditScreenState extends ConsumerState<ListEditScreen> {
 
   Future<void> _deleteList(PreferenceListModel list) async {
     if (_isDeleting) return;
+    final loc = AppLocalizations.of(context);
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text('Listeyi Sil'),
+        title: Text(loc.prefListDeleteTitle),
         content: Text(
-          '"${list.title}" listesini silmek istediğine emin misin? Bu işlem geri alınamaz.',
+          loc.prefListDeleteConfirm(list.title),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
             child: Text(
-              'Vazgeç',
+              loc.commonCancel,
               style: TextStyle(color: AppColors.textSecondaryFor(context)),
             ),
           ),
@@ -131,7 +143,7 @@ class _ListEditScreenState extends ConsumerState<ListEditScreen> {
               backgroundColor: AppColors.error,
               foregroundColor: Colors.white,
             ),
-            child: const Text('Sil'),
+            child: Text(loc.commonDelete),
           ),
         ],
       ),
@@ -146,12 +158,12 @@ class _ListEditScreenState extends ConsumerState<ListEditScreen> {
       Navigator.pop(context);
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('Tercih listesi silindi')));
+      ).showSnackBar(SnackBar(content: Text(loc.prefListDeleted)));
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('Silme hatası: $e')));
+      ).showSnackBar(SnackBar(content: Text(loc.prefListDeleteError('$e'))));
     } finally {
       if (mounted) {
         setState(() => _isDeleting = false);
@@ -240,6 +252,7 @@ class _ListEditScreenState extends ConsumerState<ListEditScreen> {
   @override
   Widget build(BuildContext context) {
     final listAsync = ref.watch(preferenceListProvider(widget.listId));
+    final loc = AppLocalizations.of(context);
 
     return Scaffold(
       backgroundColor: AppColors.backgroundFor(context),
@@ -247,10 +260,10 @@ class _ListEditScreenState extends ConsumerState<ListEditScreen> {
         loading: () => const Center(
           child: CircularProgressIndicator(color: AppColors.primary),
         ),
-        error: (e, _) => Center(child: Text('Hata: $e')),
+        error: (e, _) => Center(child: Text(loc.errorGeneral(e.toString()))),
         data: (list) {
           if (list == null) {
-            return const Center(child: Text('Liste bulunamadı.'));
+            return Center(child: Text(loc.prefListNotFound));
           }
           _syncDraftIfNeeded(list);
           return _buildContent(list);
@@ -260,6 +273,7 @@ class _ListEditScreenState extends ConsumerState<ListEditScreen> {
   }
 
   Widget _buildContent(PreferenceListModel list) {
+    final loc = AppLocalizations.of(context);
     final items = _effectiveItems(list);
     final isFull = items.length >= PreferenceListModel.maxItems;
 
@@ -343,8 +357,8 @@ class _ListEditScreenState extends ConsumerState<ListEditScreen> {
               height: 50,
               icon: Icons.add_rounded,
               label: isFull
-                  ? 'Limit dolu (${PreferenceListModel.maxItems})'
-                  : 'Bölüm Ekle',
+                  ? loc.prefListFullLimit(PreferenceListModel.maxItems)
+                  : loc.prefListAddDepartment,
             ),
           ),
         ),
@@ -373,9 +387,9 @@ class _ListEditScreenState extends ConsumerState<ListEditScreen> {
                             child: CircularProgressIndicator(strokeWidth: 2),
                           )
                         : const Icon(Icons.delete_outline_rounded, size: 18),
-                    label: const Text(
-                      'Sil',
-                      style: TextStyle(fontWeight: FontWeight.w700),
+                    label: Text(
+                      loc.commonDelete,
+                      style: const TextStyle(fontWeight: FontWeight.w700),
                     ),
                   ),
                 ),
@@ -384,7 +398,7 @@ class _ListEditScreenState extends ConsumerState<ListEditScreen> {
                   child: _GradientBorderButton(
                     onPressed: _isDirty && !_isSaving ? _saveItems : null,
                     icon: _isSaving ? null : Icons.save_rounded,
-                    label: _isDirty ? 'Kaydet' : 'Kaydedildi',
+                    label: _isDirty ? loc.commonSave : loc.prefListSavedState,
                     child: _isSaving
                         ? SizedBox(
                             width: 16,
@@ -447,6 +461,7 @@ class _ActionBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
     return Row(
       children: [
         Expanded(
@@ -461,9 +476,9 @@ class _ActionBar extends StatelessWidget {
               ),
             ),
             icon: const Icon(Icons.sort_rounded, size: 18),
-            label: const Text(
-              'Sıralamaya Göre',
-              style: TextStyle(fontWeight: FontWeight.w700),
+            label: Text(
+              loc.prefListSortByRanking,
+              style: const TextStyle(fontWeight: FontWeight.w700),
             ),
           ),
         ),
@@ -480,9 +495,9 @@ class _ActionBar extends StatelessWidget {
               ),
             ),
             icon: const Icon(Icons.undo_rounded, size: 18),
-            label: const Text(
-              'Geri Al',
-              style: TextStyle(fontWeight: FontWeight.w700),
+            label: Text(
+              loc.prefListUndo,
+              style: const TextStyle(fontWeight: FontWeight.w700),
             ),
           ),
         ),
@@ -497,6 +512,7 @@ class _ListSummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
     final filled = list.items.length;
     const max = PreferenceListModel.maxItems;
     final progress = (filled / max).clamp(0.0, 1.0);
@@ -530,7 +546,7 @@ class _ListSummaryCard extends StatelessWidget {
               ),
               const SizedBox(width: 4),
               Text(
-                '/ $max tercih',
+                loc.prefListItemLimit(max),
                 style: AppTextStyles.bodySmall.copyWith(
                   color: AppColors.textSecondaryFor(context),
                 ),
@@ -559,7 +575,9 @@ class _ListSummaryCard extends StatelessWidget {
                     ),
                     const SizedBox(width: 5),
                     Text(
-                      list.isPublic ? 'Herkese Açık' : 'Gizli',
+                      list.isPublic
+                          ? loc.commonPublicLong
+                          : loc.commonPrivate,
                       style: AppTextStyles.labelSmall.copyWith(
                         color: list.isPublic
                             ? AppColors.success
@@ -640,6 +658,7 @@ class _EmptyItems extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
@@ -661,15 +680,14 @@ class _EmptyItems extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             Text(
-              'Liste boş',
+              loc.prefListEmptyItemsTitle,
               style: AppTextStyles.titleLarge.copyWith(
                 fontWeight: FontWeight.w700,
               ),
             ),
             const SizedBox(height: 6),
             Text(
-              '"Bölüm Ekle" butonuna tıklayarak üniversite ve bölüm seç. '
-              'Tercihlerini sürükleyerek veya sıralamaya göre düzenleyebilirsin.',
+              loc.prefListEmptyItemsDesc,
               textAlign: TextAlign.center,
               style: AppTextStyles.bodyMedium.copyWith(
                 color: AppColors.textSecondaryFor(context),

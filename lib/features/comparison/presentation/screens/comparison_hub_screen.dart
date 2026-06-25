@@ -90,6 +90,7 @@ class _ComparisonHubScreenState extends ConsumerState<ComparisonHubScreen>
     final canDepartment = ref.watch(canCompareDepartmentsProvider);
     final canCity = ref.watch(canCompareCitiesProvider);
     final currentTier = tierAsync.valueOrNull ?? SubscriptionTier.free;
+    final loc = AppLocalizations.of(context);
 
     return Scaffold(
       backgroundColor: AppColors.backgroundFor(context),
@@ -102,7 +103,7 @@ class _ComparisonHubScreenState extends ConsumerState<ComparisonHubScreen>
               // ─── Header ──────────────────────────────────────────
               _buildHeader(context, isDark),
               const SizedBox(height: 8),
-              _buildSubtitle(isDark),
+              _buildSubtitle(context, isDark),
               const SizedBox(height: 28),
 
               // ─── Karşılaştırma Kartları ──────────────────────────
@@ -110,8 +111,8 @@ class _ComparisonHubScreenState extends ConsumerState<ComparisonHubScreen>
                 index: 0,
                 child: ComparisonTypeCard(
                   icon: Icons.account_balance_rounded,
-                  title: 'Üniversite',
-                  description: 'İki üniversiteyi detaylı karşılaştır',
+                  title: loc.comparisonEntityUniversity,
+                  description: loc.comparisonUniversityDesc,
                   iconColor: AppColors.primary,
                   isLocked: false,
                   isSelected: _selectedTypeIndex == 0,
@@ -131,8 +132,8 @@ class _ComparisonHubScreenState extends ConsumerState<ComparisonHubScreen>
                   onLocked: () => context.push('/compare/paywall'),
                   child: ComparisonTypeCard(
                     icon: Icons.menu_book_rounded,
-                    title: 'Bölüm',
-                    description: 'Aynı bölümü farklı üniversitelerde karşılaştır',
+                    title: loc.comparisonEntityDepartment,
+                    description: loc.comparisonDepartmentDesc,
                     iconColor: AppColors.tierPlus,
                     isLocked: !canDepartment,
                     requiredTier: SubscriptionTier.plus,
@@ -154,8 +155,8 @@ class _ComparisonHubScreenState extends ConsumerState<ComparisonHubScreen>
                   onLocked: () => context.push('/compare/paywall'),
                   child: ComparisonTypeCard(
                     icon: Icons.location_city_rounded,
-                    title: 'Şehir',
-                    description: 'İki şehrin üniversite ekosistemini karşılaştır',
+                    title: loc.comparisonEntityCity,
+                    description: loc.comparisonCityDesc,
                     iconColor: AppColors.tierPlus,
                     isLocked: !canCity,
                     requiredTier: SubscriptionTier.plus,
@@ -209,18 +210,18 @@ class _ComparisonHubScreenState extends ConsumerState<ComparisonHubScreen>
             Icons.history_rounded,
             color: isDark ? Colors.white : AppColors.textPrimaryFor(context),
           ),
-          tooltip: 'Karşılaştırma geçmişi',
+          tooltip: AppLocalizations.of(context).comparisonHistoryTooltip,
           onPressed: () => ComparisonHistorySheet.show(context),
         ),
       ],
     );
   }
 
-  Widget _buildSubtitle(bool isDark) {
+  Widget _buildSubtitle(BuildContext context, bool isDark) {
     return Padding(
       padding: const EdgeInsets.only(left: 16),
       child: Text(
-        'Hangi tür karşılaştırma yapmak istiyorsun?',
+        AppLocalizations.of(context).comparisonHubSubtitle,
         style: AppTextStyles.bodyMedium.copyWith(
           color: isDark
               ? Colors.white.withValues(alpha: 0.6)
@@ -245,6 +246,7 @@ class _ComparisonHubScreenState extends ConsumerState<ComparisonHubScreen>
     bool isDark,
     SubscriptionTier currentTier,
   ) {
+    final loc = AppLocalizations.of(context);
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -284,7 +286,7 @@ class _ComparisonHubScreenState extends ConsumerState<ComparisonHubScreen>
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      'Aboneliğin',
+                      loc.comparisonSubscriptionLabel,
                       style: AppTextStyles.bodySmall.copyWith(
                         color: AppColors.textSecondaryFor(context),
                       ),
@@ -293,7 +295,7 @@ class _ComparisonHubScreenState extends ConsumerState<ComparisonHubScreen>
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  _tierLabel(currentTier),
+                  _tierLabel(loc, currentTier),
                   style: AppTextStyles.titleSmall.copyWith(
                     fontWeight: FontWeight.w700,
                     color: _tierColor(currentTier),
@@ -307,7 +309,7 @@ class _ComparisonHubScreenState extends ConsumerState<ComparisonHubScreen>
             FilledButton.icon(
               onPressed: () => context.push('/compare/paywall'),
               icon: const Icon(Icons.rocket_launch_rounded, size: 18),
-              label: const Text("Plus'a Geç"),
+              label: Text(loc.comparisonUpgradePlus),
               style: FilledButton.styleFrom(
                 backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
@@ -350,14 +352,14 @@ class _ComparisonHubScreenState extends ConsumerState<ComparisonHubScreen>
     }
   }
 
-  String _tierLabel(SubscriptionTier tier) {
+  String _tierLabel(AppLocalizations loc, SubscriptionTier tier) {
     switch (tier) {
       case SubscriptionTier.plus:
         return 'Plus';
       case SubscriptionTier.pro:
         return 'Pro';
       default:
-        return 'Ücretsiz';
+        return loc.subscriptionFree;
     }
   }
 }

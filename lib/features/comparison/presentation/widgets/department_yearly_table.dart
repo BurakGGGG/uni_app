@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../../l10n/generated/app_localizations.dart';
 import '../../../university/domain/models/department_model.dart';
 
 /// İki bölümün yıl bazlı puanlarını tablo halinde gösteren kart.
@@ -56,6 +57,7 @@ class DepartmentYearlyTable extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final loc = AppLocalizations.of(context);
     final scoresA = _getScores(deptA);
     final scoresB = _getScores(deptB);
     final rankingsA = _getRankings(deptA);
@@ -99,7 +101,7 @@ class DepartmentYearlyTable extends StatelessWidget {
               ),
               const SizedBox(width: 8),
               Text(
-                'Yıl Bazlı Karşılaştırma',
+                loc.yearlyComparisonTitle,
                 style: AppTextStyles.titleSmall.copyWith(
                   fontWeight: FontWeight.w900,
                   color: isDark
@@ -112,7 +114,7 @@ class DepartmentYearlyTable extends StatelessWidget {
           const SizedBox(height: 16),
 
           // Tablo Header
-          _buildHeaderRow(context, isDark),
+          _buildHeaderRow(context, isDark, loc),
           const SizedBox(height: 4),
 
           // Yıl satırları
@@ -124,6 +126,7 @@ class DepartmentYearlyTable extends StatelessWidget {
             return _buildYearRow(
               context,
               isDark,
+              loc,
               year: year,
               scoreA: valA,
               scoreB: valB,
@@ -137,7 +140,7 @@ class DepartmentYearlyTable extends StatelessWidget {
     );
   }
 
-  Widget _buildHeaderRow(BuildContext context, bool isDark) {
+  Widget _buildHeaderRow(BuildContext context, bool isDark, AppLocalizations loc) {
     final headerStyle = AppTextStyles.labelSmall.copyWith(
       fontWeight: FontWeight.w900,
       color: isDark ? Colors.white54 : AppColors.textTertiaryFor(context),
@@ -147,7 +150,7 @@ class DepartmentYearlyTable extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
         children: [
-          SizedBox(width: 44, child: Text('Yıl', style: headerStyle)),
+          SizedBox(width: 44, child: Text(loc.yearlyTableYear, style: headerStyle)),
           Expanded(
             child: Text(
               labelA,
@@ -165,7 +168,7 @@ class DepartmentYearlyTable extends StatelessWidget {
           SizedBox(
             width: 56,
             child: Text(
-              'Fark',
+              loc.yearlyDifference,
               textAlign: TextAlign.center,
               style: headerStyle,
             ),
@@ -177,7 +180,8 @@ class DepartmentYearlyTable extends StatelessWidget {
 
   Widget _buildYearRow(
     BuildContext context,
-    bool isDark, {
+    bool isDark,
+    AppLocalizations loc, {
     required int year,
     double? scoreA,
     double? scoreB,
@@ -241,7 +245,7 @@ class DepartmentYearlyTable extends StatelessWidget {
                 ),
                 if (rankA != null)
                   Text(
-                    '${_formatRank(rankA)}. sıra',
+                    '${_formatRank(rankA)}. ${loc.comparisonRankingTitle.toLowerCase()}',
                     textAlign: TextAlign.center,
                     style: AppTextStyles.labelSmall.copyWith(
                       color: isDark
@@ -252,7 +256,7 @@ class DepartmentYearlyTable extends StatelessWidget {
                   ),
                 if (year == 2025 && rankA == null)
                   Text(
-                    'Sıra: Açıklanmadı',
+                    loc.rankNotAnnounced,
                     textAlign: TextAlign.center,
                     style: AppTextStyles.labelSmall.copyWith(
                       color: isDark
@@ -280,7 +284,7 @@ class DepartmentYearlyTable extends StatelessWidget {
                 ),
                 if (rankB != null)
                   Text(
-                    '${_formatRank(rankB)}. sıra',
+                    '${_formatRank(rankB)}. ${loc.comparisonRankingTitle.toLowerCase()}',
                     textAlign: TextAlign.center,
                     style: AppTextStyles.labelSmall.copyWith(
                       color: isDark
@@ -291,7 +295,7 @@ class DepartmentYearlyTable extends StatelessWidget {
                   ),
                 if (year == 2025 && rankB == null)
                   Text(
-                    'Sıra: Açıklanmadı',
+                    loc.rankNotAnnounced,
                     textAlign: TextAlign.center,
                     style: AppTextStyles.labelSmall.copyWith(
                       color: isDark

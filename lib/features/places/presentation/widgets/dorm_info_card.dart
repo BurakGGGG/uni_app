@@ -76,7 +76,7 @@ class DormInfoCard extends StatelessWidget {
                 child: _InfoTile(
                   icon: Icons.meeting_room_rounded,
                   label: 'Oda Tipi',
-                  value: 'Bilinmiyor', // TODO: Add to PlaceModel
+                  value: 'Bilinmiyor',
                   color: AppColors.textSecondaryFor(context),
                 ),
               ),
@@ -163,7 +163,7 @@ class _InfoTile extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: AppColors.surfaceFor(context),
         borderRadius: BorderRadius.circular(AppConstants.radiusMd),
         border: Border.all(color: color.withValues(alpha: 0.2)),
       ),
@@ -212,7 +212,7 @@ class _ContactRow extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: AppColors.surfaceFor(context),
           borderRadius: BorderRadius.circular(AppConstants.radiusSm),
           border: Border.all(color: color.withValues(alpha: 0.12)),
         ),
