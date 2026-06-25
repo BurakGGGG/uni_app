@@ -274,6 +274,14 @@
   "comparisonNoteAdd": "Not ekle",
   "comparisonNoteEmpty": "Henüz notun yok",
   "comparisonNoteMaxLength": "En fazla 500 karakter",
+  "comparisonNotesLoadError": "Notlar yüklenemedi.",
+  "comparisonNoteSaved": "Not kaydedildi ✍️",
+  "comparisonNoteUpdated": "Not güncellendi ✅",
+  "comparisonNoteDeleteTitle": "Notu Sil",
+  "comparisonNoteDeleteConfirm": "Bu not kalıcı olarak silinecek. Devam edilsin mi?",
+  "comparisonNoteDeleted": "Not silindi",
+  "comparisonNoteEmptyTitle": "Henüz not yok",
+  "comparisonNoteEmptyDesc": "Bu karşılaştırma hakkındaki düşüncelerini kaydet",
   "comparisonProUpsell": "3. üniversite eklemek için Pro'ya yükselt",
   "paywallContinueFree": "Ücretsiz devam et",
   "paywallSavePercent": "TASARRUF {percent}%",
@@ -410,5 +418,423 @@
       }
     }
   },
-  "exploreShowResults": "Sonuçları Göster"
+  "exploreShowResults": "Sonuçları Göster",
+  "commonActions": "İşlemler",
+  "commonPrivate": "Gizli",
+  "commonPublic": "Açık",
+  "commonPublicLong": "Herkese Açık",
+  "commonSelect": "Seç",
+  "commonNoData": "Veri yok",
+  "commonNoDataLower": "veri yok",
+  "semanticUniversityLogo": "Üniversite logosu",
+  "universityTypeState": "Devlet",
+  "universityTypeFoundation": "Vakıf",
+  "campusLayoutCampus": "Kampüslü",
+  "campusLayoutBlock": "Blok Yerleşke",
+  "campusLayoutDistributed": "Dağınık Kampüs",
+  "departmentTypeUndergraduate": "Lisans",
+  "departmentTypeAssociate": "Önlisans",
+  "departmentLanguageTurkish": "Türkçe",
+  "departmentLanguageEnglish": "İngilizce",
+  "yearsCount": "{years} yıl",
+  "@yearsCount": {
+    "placeholders": {
+      "years": {
+        "type": "int"
+      }
+    }
+  },
+  "prefListsTitle": "Tercih Listelerim",
+  "prefListsNewList": "Yeni Liste",
+  "prefListsEmptyTitle": "Henüz listen yok",
+  "prefListsEmptyDesc": "Sağ alttaki \"Yeni Liste\" butonuna tıklayarak ilk tercih listeni oluşturmaya başla.",
+  "prefListsLoginTitle": "Giriş Yapmalısın",
+  "prefListsLoginDesc": "Listelerini görmek ve yeni tercihler eklemek için önce giriş yapmalısın.",
+  "prefListDeleteTitle": "Listeyi Sil",
+  "prefListDeleteConfirm": "\"{title}\" listesini silmek istediğine emin misin? Bu işlem geri alınamaz.",
+  "@prefListDeleteConfirm": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "prefListItemLimit": "/ {max} tercih",
+  "@prefListItemLimit": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "prefListItemCount": "{count} tercih",
+  "@prefListItemCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "prefListActionsShare": "Listeyi Paylaş",
+  "prefListActionsShareDesc": "Paylaşım bağlantısını ve görünürlüğü yönet",
+  "prefListActionsDeleteDesc": "Bu işlem geri alınamaz",
+  "prefListCreateTitle": "Yeni Tercih Listesi",
+  "prefListCreateSubtitle": "Liste adını ve açıklamasını gir",
+  "prefListTitleLabel": "Liste adı",
+  "prefListTitleRequired": "Liste adı gerekli",
+  "prefListTitleHint": "Örn. 2025 Sayısal Tercihlerim",
+  "prefListDescriptionLabel": "Açıklama (opsiyonel)",
+  "prefListDescriptionHint": "Bu liste hakkında kısa not…",
+  "prefListPublicTitle": "Herkese açık",
+  "prefListPublicCreateSubtitle": "Bağlantıyı paylaştığın herkes listeyi görebilir",
+  "prefListPublicShareSubtitle": "Linke sahip herkes listeni görebilir",
+  "prefListCreateButton": "Listeyi Oluştur",
+  "prefListShareTitle": "Listeyi Paylaş",
+  "prefListLinkCopied": "Bağlantı kopyalandı",
+  "prefListShareLinkButton": "Bağlantıyı Paylaş",
+  "prefListViewCount": "{count} görüntülenme",
+  "@prefListViewCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "prefListPrivateNotice": "Listen şu an gizli. Paylaşmak için yukarıdaki anahtarı aç.",
+  "prefListShareTextHeader": "\"{title}\" tercih listemi paylaştım 🎓",
+  "@prefListShareTextHeader": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "prefListShareTextExtra": "…ve {count} bölüm daha",
+  "@prefListShareTextExtra": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "prefListDuplicateDepartment": "Bu bölüm zaten listede",
+  "prefListMaxItems": "Listede en fazla {max} tercih olabilir",
+  "@prefListMaxItems": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "prefListSaved": "Tercih listesi kaydedildi",
+  "prefListSaveError": "Kaydetme hatası: {error}",
+  "@prefListSaveError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "prefListDeleted": "Tercih listesi silindi",
+  "prefListDeleteError": "Silme hatası: {error}",
+  "@prefListDeleteError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "prefListNotFound": "Liste bulunamadı.",
+  "prefListFullLimit": "Limit dolu ({max})",
+  "@prefListFullLimit": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "prefListAddDepartment": "Bölüm Ekle",
+  "prefListSortByRanking": "Sıralamaya Göre",
+  "prefListUndo": "Geri Al",
+  "prefListSavedState": "Kaydedildi",
+  "prefListEmptyItemsTitle": "Liste boş",
+  "prefListEmptyItemsDesc": "\"Bölüm Ekle\" butonuna tıklayarak üniversite ve bölüm seç. Tercihlerini sürükleyerek veya sıralamaya göre düzenleyebilirsin.",
+  "prefDeptSelectUniversity": "Üniversite Seç",
+  "prefDeptSelectDepartment": "Bölüm Seç",
+  "prefDeptSearchUniversity": "Üniversite ara…",
+  "prefDeptSearchDepartment": "Bölüm ara…",
+  "prefNoSearchResults": "Sonuç bulunamadı",
+  "prefNoSearchResultsDesc": "Farklı bir arama deneyebilirsin.",
+  "prefNoDepartmentsTitle": "Bölüm bulunamadı",
+  "prefNoDepartmentsDesc": "Bu üniversite için kayıtlı bölüm yok.",
+  "prefDeptUniversitiesWithDepartment": "{department} bölümü olan üniversiteler",
+  "@prefDeptUniversitiesWithDepartment": {
+    "placeholders": {
+      "department": {
+        "type": "String"
+      }
+    }
+  },
+  "prefDeptNoUniversityForDepartment": "Bu bölüme sahip üniversite bulunamadı",
+  "prefDeptNoOtherUniversityForDepartment": "\"{department}\" bölümü olan başka üniversite yok.",
+  "@prefDeptNoOtherUniversityForDepartment": {
+    "placeholders": {
+      "department": {
+        "type": "String"
+      }
+    }
+  },
+  "prefBaseScoreShort": "Taban",
+  "prefSharedListLoadError": "Liste yüklenemedi",
+  "prefSharedListBadge": "Paylaşılan Liste",
+  "prefSharedListOwner": "Liste sahibi",
+  "prefSharedListEmptyDesc": "Bu listede henüz tercih yok.",
+  "prefSharedListHiddenOrDeleted": "Bu liste silinmiş veya gizli olarak işaretlenmiş olabilir.",
+  "prefSharedListBackHome": "Ana Sayfaya Dön",
+  "comparisonHubSubtitle": "Hangi tür karşılaştırma yapmak istiyorsun?",
+  "comparisonHistoryTitle": "Karşılaştırma Geçmişi",
+  "comparisonHistoryTooltip": "Karşılaştırma geçmişi",
+  "comparisonEntityUniversity": "Üniversite",
+  "comparisonEntityDepartment": "Bölüm",
+  "comparisonEntityCity": "Şehir",
+  "comparisonSubscriptionLabel": "Aboneliğin",
+  "subscriptionFree": "Ücretsiz",
+  "comparisonUpgradePlus": "Plus'a Geç",
+  "comparisonResetTitle": "Karşılaştırmayı Sıfırla",
+  "comparisonResetConfirm": "Mevcut karşılaştırma sıfırlansın mı? Yeni üniversiteler seçebilirsiniz.",
+  "comparisonAddThirdTooltip": "3. üniversite ekle (Pro)",
+  "comparisonRemoveThirdTooltip": "3. üniversiteyi kaldır",
+  "comparisonEmptyUniversityTitle": "İki üniversite seç",
+  "comparisonEmptyUniversityDesc": "Yukarıdan iki üniversite seçince karşılaştırma sonuçları burada gözükür.",
+  "comparisonNotesTab": "Notlarım",
+  "comparisonNotesTabShort": "Not",
+  "comparisonTabGeneralShort": "Gn",
+  "comparisonTabCategoriesShort": "Kat",
+  "comparisonTabChartShort": "Grf",
+  "comparisonTabStatsShort": "İst",
+  "comparisonSummaryTitle": "Karşılaştırma Özeti",
+  "comparisonWinnerCategories": "🏆 {winnerName} {wins}/{total} kategoride önde",
+  "@comparisonWinnerCategories": {
+    "placeholders": {
+      "winnerName": {
+        "type": "String"
+      },
+      "wins": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "comparisonQuickDepartments": "Bölüm",
+  "comparisonQuickPlaces": "Mekan",
+  "comparisonQuickReviews": "Yorum",
+  "reviewCountShort": "{count} yorum",
+  "@reviewCountShort": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "comparisonCategoriesEmptyTitle": "Yeterli değerlendirme yok",
+  "comparisonCategoriesEmptyDesc": "Bu iki üniversite için henüz kategori puanı oluşturacak yorum bulunmuyor.",
+  "comparisonChartEmptyTitle": "Grafik üretmek için yorum gerekiyor",
+  "comparisonChartEmptyDesc": "Henüz yeterli değerlendirme olmadığı için grafikler boş görünüyor.",
+  "comparisonUniversityPickerTitle": "Üniversite Karşılaştır",
+  "comparisonUniversityPickerSubtitle": "Karşılaştırmak istediğin iki üniversiteyi seç. Puanlar, kategoriler ve istatistikler yan yana gelsin.",
+  "comparisonTripleHint": "Pro ile 3. üniversiteyi ekleyip üçlü karşılaştırma yapabilirsin.",
+  "comparisonSelectUniversityForA": "A için üniversite seç",
+  "comparisonSelectUniversityForB": "B için üniversite seç",
+  "comparisonDepartmentHeaderTitle": "Bölüm Karşılaştır",
+  "comparisonDepartmentHeaderSubtitle": "Aynı bölümü iki farklı üniversitede karşılaştır. Taban puan, sıralama ve kontenjan yan yana gelsin.",
+  "comparisonDepartmentHint": "İki taraftan da birer bölüm seçince karşılaştırma sonuçları burada gözükecek.",
+  "comparisonCityHeaderTitle": "Şehir Karşılaştır",
+  "comparisonCityHeaderSubtitle": "İki şehrin üniversite ekosistemini karşılaştır. Devlet/vakıf dağılımı, üniversite sayısı ve daha fazlası.",
+  "comparisonCityHint": "İki şehir seçince karşılaştırma sonuçları burada gözükecek.",
+  "comparisonSelectCity": "Şehir Seç",
+  "comparisonSearchCity": "Şehir ara…",
+  "comparisonCityTileMeta": "Plaka: {plate} • Üni: {count}",
+  "@comparisonCityTileMeta": {
+    "placeholders": {
+      "plate": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "comparisonResultNotFound": "Sonuç bulunamadı.",
+  "comparisonScoreTypeMismatch": "Puan türleri farklı görünüyor. Karşılaştırma yanıltıcı olabilir.",
+  "comparisonBaseScore2025": "Taban Puan (2025)",
+  "comparisonDetailedInfo": "Detaylı Bilgiler",
+  "comparisonFaculty": "Fakülte",
+  "comparisonRankingTitle": "Sıralama",
+  "comparisonNoDataLower": "veri yok",
+  "comparisonUniversityCount": "Üniversite Sayısı",
+  "comparisonStateFoundationDistribution": "Devlet / Vakıf Dağılımı",
+  "comparisonPopulation": "Nüfus",
+  "comparisonCityFeatures": "Şehir Özellikleri",
+  "comparisonPlate": "Plaka",
+  "comparisonTotalUniversities": "Toplam Üni",
+  "comparisonInUniSec": "ÜniSeç'te",
+  "comparisonProNotesTitle": "Karşılaştırma Notları",
+  "comparisonProNotesSubtitleLoggedIn": "Pro üyelere özel premium bir deneyim seni bekliyor!",
+  "comparisonProNotesSubtitleGuest": "Giriş yap ve Pro üye olarak bu özelliğin kilidini aç!",
+  "comparisonProNotesFeaturePersonal": "Her karşılaştırmaya kişisel not ekle",
+  "comparisonProNotesFeatureProsCons": "Artılar ve eksiler ile detaylı analiz yap",
+  "comparisonProNotesFeatureRating": "1-5 yıldız tercih puanı ile sırala",
+  "comparisonProNotesFeatureCloud": "Notların bulutta güvende — asla kaybolmaz",
+  "comparisonProNotesUpgrade": "Pro Plana Yükselt",
+  "comparisonProNotesLoginAndPro": "Giriş Yap ve Pro Ol",
+  "comparisonSkipForNow": "Şimdilik geç",
+  "comparisonHistoryClearTooltip": "Geçmişi temizle",
+  "comparisonHistoryClearTitle": "Geçmişi Temizle",
+  "comparisonHistoryClearConfirm": "Tüm karşılaştırma geçmişin silinsin mi?",
+  "comparisonHistoryClearButton": "Temizle",
+  "comparisonHistoryLoadError": "Geçmiş yüklenemedi: {error}",
+  "@comparisonHistoryLoadError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "comparisonHistoryEmptyTitle": "Henüz karşılaştırma yapmadın",
+  "comparisonHistoryEmptyDesc": "İlk karşılaştırmanı yaptığında burada görünecek.",
+  "comparisonHistoryPaywallTitle": "Karşılaştırma Geçmişi Plus / Pro'da",
+  "comparisonHistoryPaywallDesc": "Yaptığın karşılaştırmalar otomatik kaydedilsin, istediğin zaman tekrar açıp incele.",
+  "comparisonHistoryPaywallButton": "Plus / Pro'ya Geç",
+  "comparisonHistoryFeatureRecent": "Son 20 karşılaştırma otomatik kaydedilir",
+  "comparisonHistoryFeatureReturn": "Tek dokunuşla aynı karşılaştırmaya geri dön",
+  "comparisonHistoryFeatureSync": "Cihazlar arası senkronize",
+  "comparisonTripleCategoryTitle": "Kategori Karşılaştırması",
+  "comparisonLeader": "LİDER",
+  "noteEditTitle": "Notu Düzenle",
+  "noteAddTitle": "Not Ekle",
+  "noteSubtitle": "Karşılaştırma hakkındaki düşüncelerini kaydet",
+  "notePreferenceRating": "Tercih Puanın",
+  "noteLabel": "Not",
+  "noteHint": "Örn: İTÜ bana daha yakın, kampüsü çok güzel...",
+  "noteEmptyError": "Not boş bırakılamaz",
+  "noteProsLabel": "Artılar",
+  "noteConsLabel": "Eksiler",
+  "noteAddProHint": "Yeni artı ekle...",
+  "noteAddConHint": "Yeni eksi ekle...",
+  "noteUpdate": "Güncelle",
+  "noteMyNotes": "Notlarım",
+  "noteLoadError": "Notlar yüklenemedi.",
+  "noteSavedSnack": "Not kaydedildi ✍️",
+  "noteUpdatedSnack": "Not güncellendi ✅",
+  "noteDeletedSnack": "Not silindi",
+  "noteDeleteTitle": "Notu Sil",
+  "noteDeleteConfirm": "Bu not kalıcı olarak silinecek. Devam edilsin mi?",
+  "noteEmptyState": "Henüz not yok",
+  "noteEmptyStateDesc": "Bu karşılaştırma hakkındaki düşüncelerini kaydet",
+  "noteTimeJustNow": "Az önce",
+  "noteTimeMinutesAgo": "{minutes} dk önce",
+  "@noteTimeMinutesAgo": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "noteTimeHoursAgo": "{hours} saat önce",
+  "@noteTimeHoursAgo": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "noteTimeDaysAgo": "{days} gün önce",
+  "@noteTimeDaysAgo": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "noteTimeWeeksAgo": "{weeks} hafta önce",
+  "@noteTimeWeeksAgo": {
+    "placeholders": {
+      "weeks": {
+        "type": "int"
+      }
+    }
+  },
+  "plusLockSubtitle": "Plus veya Pro ile açılır",
+  "plusLockButton": "Plus'a Geç",
+  "comparisonNoData": "Veri yok",
+  "trendNoData": "Trend verisi yok",
+  "shareInstagramStory": "Instagram Hikaye (9:16)",
+  "shareInstagramPost": "Instagram Gönderi (1:1)",
+  "shareTwitterWhatsApp": "Twitter / WhatsApp",
+  "yearlyTableYear": "Yıl",
+  "loadFailed": "Yüklenemedi: {error}",
+  "@loadFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "favoriteLoginRequired": "Favori için giriş yapmalısın.",
+  "yearlyComparisonTitle": "Yıl Bazlı Karşılaştırma",
+  "yearlyDifference": "Fark",
+  "rankFormat": "{rank}. sıra",
+  "@rankFormat": {
+    "placeholders": {
+      "rank": {
+        "type": "String"
+      }
+    }
+  },
+  "rankNotAnnounced": "Sıra: Açıklanmadı",
+  "shareStatAvgBase": "Ort. Taban",
+  "shareStatDepartment": "Bölüm",
+  "shareStatPlace": "Mekan",
+  "shareFormat": "Paylaşım Formatı",
+  "comparisonSubtitle": "Üniversiteleri yan yana kıyasla",
+  "comparisonSwapTooltip": "Yer Değiştir",
+  "comparisonError": "Hata: {error}",
+  "@comparisonError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "adGateTitleGuest": "Reklam ile Karşılaştır",
+  "adGateTitleUser": "Ücretsiz hakkın bitti",
+  "adGateDescGuest": "Karşılaştırma yapmak için kısa bir reklam izlemen gerekiyor. Giriş yap veya Plus'a geçerek sınırsız karşılaştırma yapabilirsin.",
+  "adGateDescUser": "Günlük 1 ücretsiz karşılaştırma hakkını kullandın. Devam etmek için kısa bir reklam izleyebilir veya Plus'a geçerek sınırsız karşılaştırma yapabilirsin.",
+  "adGateWatchBusy": "Reklam hazırlanıyor\u2026",
+  "adGateWatchCta": "Reklamı İzle ve Devam Et",
+  "adGatePlusCta": "Plus'a Geç \u2014 Sınırsız",
+  "adGateDismiss": "Şimdilik Vazgeç",
+  "adGateOverlayTitleGuest": "Reklam izleyerek devam et",
+  "adGateOverlayTitleUser": "Devam etmek için kilidi aç",
+  "adGateOverlayDescGuest": "Karşılaştırma için kısa bir reklam izlemen gerekiyor.",
+  "adGateOverlayDescUser": "Günlük karşılaştırma hakkın doldu.",
+  "adGateOverlayBusy": "Yükleniyor\u2026",
+  "adGateOverlayCta": "Reklamı İzle / Plus'a Geç",
+  "favoritesAddTitle": "Favorilere ekle",
+  "actionBarShare": "Paylaş",
+  "actionBarFavorite": "Favorile",
+  "actionBarRecompare": "Yeniden",
+  "emptyStateSelectTwo": "İki üniversite seç",
+  "emptyStateSelectTwoDesc": "Yukarıdan iki üniversite seçince karşılaştırma sonuçları burada gözükür.",
+  "triplePickerTitle": "3. üniversiteyi seç",
+  "triplePickerSearchHint": "Üniversite ara\u2026",
+  "triplePickerNoResult": "Sonuç bulunamadı",
+  "sectionCategoryScores": "Kategori Puanları",
+  "sectionOverview": "Genel Görünüm",
+  "sectionStats": "Genel İstatistikler",
+  "noReviewsTitle": "Yeterli değerlendirme yok",
+  "noReviewsDesc": "Bu iki üniversite için henüz kategori puanı oluşturacak yorum bulunmuyor.",
+  "commonReset": "Sıfırla"
 }

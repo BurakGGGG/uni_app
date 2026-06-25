@@ -1358,6 +1358,54 @@ abstract class AppLocalizations {
   /// **'En fazla 500 karakter'**
   String get comparisonNoteMaxLength;
 
+  /// No description provided for @comparisonNotesLoadError.
+  ///
+  /// In tr, this message translates to:
+  /// **'Notlar yüklenemedi.'**
+  String get comparisonNotesLoadError;
+
+  /// No description provided for @comparisonNoteSaved.
+  ///
+  /// In tr, this message translates to:
+  /// **'Not kaydedildi ✍️'**
+  String get comparisonNoteSaved;
+
+  /// No description provided for @comparisonNoteUpdated.
+  ///
+  /// In tr, this message translates to:
+  /// **'Not güncellendi ✅'**
+  String get comparisonNoteUpdated;
+
+  /// No description provided for @comparisonNoteDeleteTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Notu Sil'**
+  String get comparisonNoteDeleteTitle;
+
+  /// No description provided for @comparisonNoteDeleteConfirm.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bu not kalıcı olarak silinecek. Devam edilsin mi?'**
+  String get comparisonNoteDeleteConfirm;
+
+  /// No description provided for @comparisonNoteDeleted.
+  ///
+  /// In tr, this message translates to:
+  /// **'Not silindi'**
+  String get comparisonNoteDeleted;
+
+  /// No description provided for @comparisonNoteEmptyTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Henüz not yok'**
+  String get comparisonNoteEmptyTitle;
+
+  /// No description provided for @comparisonNoteEmptyDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bu karşılaştırma hakkındaki düşüncelerini kaydet'**
+  String get comparisonNoteEmptyDesc;
+
   /// No description provided for @comparisonProUpsell.
   ///
   /// In tr, this message translates to:
@@ -1885,6 +1933,1452 @@ abstract class AppLocalizations {
   /// In tr, this message translates to:
   /// **'Sonuçları Göster'**
   String get exploreShowResults;
+
+  /// No description provided for @commonActions.
+  ///
+  /// In tr, this message translates to:
+  /// **'İşlemler'**
+  String get commonActions;
+
+  /// No description provided for @commonPrivate.
+  ///
+  /// In tr, this message translates to:
+  /// **'Gizli'**
+  String get commonPrivate;
+
+  /// No description provided for @commonPublic.
+  ///
+  /// In tr, this message translates to:
+  /// **'Açık'**
+  String get commonPublic;
+
+  /// No description provided for @commonPublicLong.
+  ///
+  /// In tr, this message translates to:
+  /// **'Herkese Açık'**
+  String get commonPublicLong;
+
+  /// No description provided for @commonSelect.
+  ///
+  /// In tr, this message translates to:
+  /// **'Seç'**
+  String get commonSelect;
+
+  /// No description provided for @commonNoData.
+  ///
+  /// In tr, this message translates to:
+  /// **'Veri yok'**
+  String get commonNoData;
+
+  /// No description provided for @commonNoDataLower.
+  ///
+  /// In tr, this message translates to:
+  /// **'veri yok'**
+  String get commonNoDataLower;
+
+  /// No description provided for @semanticUniversityLogo.
+  ///
+  /// In tr, this message translates to:
+  /// **'Üniversite logosu'**
+  String get semanticUniversityLogo;
+
+  /// No description provided for @universityTypeState.
+  ///
+  /// In tr, this message translates to:
+  /// **'Devlet'**
+  String get universityTypeState;
+
+  /// No description provided for @universityTypeFoundation.
+  ///
+  /// In tr, this message translates to:
+  /// **'Vakıf'**
+  String get universityTypeFoundation;
+
+  /// No description provided for @campusLayoutCampus.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kampüslü'**
+  String get campusLayoutCampus;
+
+  /// No description provided for @campusLayoutBlock.
+  ///
+  /// In tr, this message translates to:
+  /// **'Blok Yerleşke'**
+  String get campusLayoutBlock;
+
+  /// No description provided for @campusLayoutDistributed.
+  ///
+  /// In tr, this message translates to:
+  /// **'Dağınık Kampüs'**
+  String get campusLayoutDistributed;
+
+  /// No description provided for @departmentTypeUndergraduate.
+  ///
+  /// In tr, this message translates to:
+  /// **'Lisans'**
+  String get departmentTypeUndergraduate;
+
+  /// No description provided for @departmentTypeAssociate.
+  ///
+  /// In tr, this message translates to:
+  /// **'Önlisans'**
+  String get departmentTypeAssociate;
+
+  /// No description provided for @departmentLanguageTurkish.
+  ///
+  /// In tr, this message translates to:
+  /// **'Türkçe'**
+  String get departmentLanguageTurkish;
+
+  /// No description provided for @departmentLanguageEnglish.
+  ///
+  /// In tr, this message translates to:
+  /// **'İngilizce'**
+  String get departmentLanguageEnglish;
+
+  /// No description provided for @yearsCount.
+  ///
+  /// In tr, this message translates to:
+  /// **'{years} yıl'**
+  String yearsCount(int years);
+
+  /// No description provided for @prefListsTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Tercih Listelerim'**
+  String get prefListsTitle;
+
+  /// No description provided for @prefListsNewList.
+  ///
+  /// In tr, this message translates to:
+  /// **'Yeni Liste'**
+  String get prefListsNewList;
+
+  /// No description provided for @prefListsEmptyTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Henüz listen yok'**
+  String get prefListsEmptyTitle;
+
+  /// No description provided for @prefListsEmptyDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'Sağ alttaki \"Yeni Liste\" butonuna tıklayarak ilk tercih listeni oluşturmaya başla.'**
+  String get prefListsEmptyDesc;
+
+  /// No description provided for @prefListsLoginTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Giriş Yapmalısın'**
+  String get prefListsLoginTitle;
+
+  /// No description provided for @prefListsLoginDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'Listelerini görmek ve yeni tercihler eklemek için önce giriş yapmalısın.'**
+  String get prefListsLoginDesc;
+
+  /// No description provided for @prefListDeleteTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Listeyi Sil'**
+  String get prefListDeleteTitle;
+
+  /// No description provided for @prefListDeleteConfirm.
+  ///
+  /// In tr, this message translates to:
+  /// **'\"{title}\" listesini silmek istediğine emin misin? Bu işlem geri alınamaz.'**
+  String prefListDeleteConfirm(String title);
+
+  /// No description provided for @prefListItemLimit.
+  ///
+  /// In tr, this message translates to:
+  /// **'/ {max} tercih'**
+  String prefListItemLimit(int max);
+
+  /// No description provided for @prefListItemCount.
+  ///
+  /// In tr, this message translates to:
+  /// **'{count} tercih'**
+  String prefListItemCount(int count);
+
+  /// No description provided for @prefListActionsShare.
+  ///
+  /// In tr, this message translates to:
+  /// **'Listeyi Paylaş'**
+  String get prefListActionsShare;
+
+  /// No description provided for @prefListActionsShareDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'Paylaşım bağlantısını ve görünürlüğü yönet'**
+  String get prefListActionsShareDesc;
+
+  /// No description provided for @prefListActionsDeleteDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bu işlem geri alınamaz'**
+  String get prefListActionsDeleteDesc;
+
+  /// No description provided for @prefListCreateTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Yeni Tercih Listesi'**
+  String get prefListCreateTitle;
+
+  /// No description provided for @prefListCreateSubtitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Liste adını ve açıklamasını gir'**
+  String get prefListCreateSubtitle;
+
+  /// No description provided for @prefListTitleLabel.
+  ///
+  /// In tr, this message translates to:
+  /// **'Liste adı'**
+  String get prefListTitleLabel;
+
+  /// No description provided for @prefListTitleRequired.
+  ///
+  /// In tr, this message translates to:
+  /// **'Liste adı gerekli'**
+  String get prefListTitleRequired;
+
+  /// No description provided for @prefListTitleHint.
+  ///
+  /// In tr, this message translates to:
+  /// **'Örn. 2025 Sayısal Tercihlerim'**
+  String get prefListTitleHint;
+
+  /// No description provided for @prefListDescriptionLabel.
+  ///
+  /// In tr, this message translates to:
+  /// **'Açıklama (opsiyonel)'**
+  String get prefListDescriptionLabel;
+
+  /// No description provided for @prefListDescriptionHint.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bu liste hakkında kısa not…'**
+  String get prefListDescriptionHint;
+
+  /// No description provided for @prefListPublicTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Herkese açık'**
+  String get prefListPublicTitle;
+
+  /// No description provided for @prefListPublicCreateSubtitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bağlantıyı paylaştığın herkes listeyi görebilir'**
+  String get prefListPublicCreateSubtitle;
+
+  /// No description provided for @prefListPublicShareSubtitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Linke sahip herkes listeni görebilir'**
+  String get prefListPublicShareSubtitle;
+
+  /// No description provided for @prefListCreateButton.
+  ///
+  /// In tr, this message translates to:
+  /// **'Listeyi Oluştur'**
+  String get prefListCreateButton;
+
+  /// No description provided for @prefListShareTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Listeyi Paylaş'**
+  String get prefListShareTitle;
+
+  /// No description provided for @prefListLinkCopied.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bağlantı kopyalandı'**
+  String get prefListLinkCopied;
+
+  /// No description provided for @prefListShareLinkButton.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bağlantıyı Paylaş'**
+  String get prefListShareLinkButton;
+
+  /// No description provided for @prefListViewCount.
+  ///
+  /// In tr, this message translates to:
+  /// **'{count} görüntülenme'**
+  String prefListViewCount(int count);
+
+  /// No description provided for @prefListPrivateNotice.
+  ///
+  /// In tr, this message translates to:
+  /// **'Listen şu an gizli. Paylaşmak için yukarıdaki anahtarı aç.'**
+  String get prefListPrivateNotice;
+
+  /// No description provided for @prefListShareTextHeader.
+  ///
+  /// In tr, this message translates to:
+  /// **'\"{title}\" tercih listemi paylaştım 🎓'**
+  String prefListShareTextHeader(String title);
+
+  /// No description provided for @prefListShareTextExtra.
+  ///
+  /// In tr, this message translates to:
+  /// **'…ve {count} bölüm daha'**
+  String prefListShareTextExtra(int count);
+
+  /// No description provided for @prefListDuplicateDepartment.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bu bölüm zaten listede'**
+  String get prefListDuplicateDepartment;
+
+  /// No description provided for @prefListMaxItems.
+  ///
+  /// In tr, this message translates to:
+  /// **'Listede en fazla {max} tercih olabilir'**
+  String prefListMaxItems(int max);
+
+  /// No description provided for @prefListSaved.
+  ///
+  /// In tr, this message translates to:
+  /// **'Tercih listesi kaydedildi'**
+  String get prefListSaved;
+
+  /// No description provided for @prefListSaveError.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kaydetme hatası: {error}'**
+  String prefListSaveError(String error);
+
+  /// No description provided for @prefListDeleted.
+  ///
+  /// In tr, this message translates to:
+  /// **'Tercih listesi silindi'**
+  String get prefListDeleted;
+
+  /// No description provided for @prefListDeleteError.
+  ///
+  /// In tr, this message translates to:
+  /// **'Silme hatası: {error}'**
+  String prefListDeleteError(String error);
+
+  /// No description provided for @prefListNotFound.
+  ///
+  /// In tr, this message translates to:
+  /// **'Liste bulunamadı.'**
+  String get prefListNotFound;
+
+  /// No description provided for @prefListFullLimit.
+  ///
+  /// In tr, this message translates to:
+  /// **'Limit dolu ({max})'**
+  String prefListFullLimit(int max);
+
+  /// No description provided for @prefListAddDepartment.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bölüm Ekle'**
+  String get prefListAddDepartment;
+
+  /// No description provided for @prefListSortByRanking.
+  ///
+  /// In tr, this message translates to:
+  /// **'Sıralamaya Göre'**
+  String get prefListSortByRanking;
+
+  /// No description provided for @prefListUndo.
+  ///
+  /// In tr, this message translates to:
+  /// **'Geri Al'**
+  String get prefListUndo;
+
+  /// No description provided for @prefListSavedState.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kaydedildi'**
+  String get prefListSavedState;
+
+  /// No description provided for @prefListEmptyItemsTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Liste boş'**
+  String get prefListEmptyItemsTitle;
+
+  /// No description provided for @prefListEmptyItemsDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'\"Bölüm Ekle\" butonuna tıklayarak üniversite ve bölüm seç. Tercihlerini sürükleyerek veya sıralamaya göre düzenleyebilirsin.'**
+  String get prefListEmptyItemsDesc;
+
+  /// No description provided for @prefDeptSelectUniversity.
+  ///
+  /// In tr, this message translates to:
+  /// **'Üniversite Seç'**
+  String get prefDeptSelectUniversity;
+
+  /// No description provided for @prefDeptSelectDepartment.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bölüm Seç'**
+  String get prefDeptSelectDepartment;
+
+  /// No description provided for @prefDeptSearchUniversity.
+  ///
+  /// In tr, this message translates to:
+  /// **'Üniversite ara…'**
+  String get prefDeptSearchUniversity;
+
+  /// No description provided for @prefDeptSearchDepartment.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bölüm ara…'**
+  String get prefDeptSearchDepartment;
+
+  /// No description provided for @prefNoSearchResults.
+  ///
+  /// In tr, this message translates to:
+  /// **'Sonuç bulunamadı'**
+  String get prefNoSearchResults;
+
+  /// No description provided for @prefNoSearchResultsDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'Farklı bir arama deneyebilirsin.'**
+  String get prefNoSearchResultsDesc;
+
+  /// No description provided for @prefNoDepartmentsTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bölüm bulunamadı'**
+  String get prefNoDepartmentsTitle;
+
+  /// No description provided for @prefNoDepartmentsDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bu üniversite için kayıtlı bölüm yok.'**
+  String get prefNoDepartmentsDesc;
+
+  /// No description provided for @prefDeptUniversitiesWithDepartment.
+  ///
+  /// In tr, this message translates to:
+  /// **'{department} bölümü olan üniversiteler'**
+  String prefDeptUniversitiesWithDepartment(String department);
+
+  /// No description provided for @prefDeptNoUniversityForDepartment.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bu bölüme sahip üniversite bulunamadı'**
+  String get prefDeptNoUniversityForDepartment;
+
+  /// No description provided for @prefDeptNoOtherUniversityForDepartment.
+  ///
+  /// In tr, this message translates to:
+  /// **'\"{department}\" bölümü olan başka üniversite yok.'**
+  String prefDeptNoOtherUniversityForDepartment(String department);
+
+  /// No description provided for @prefBaseScoreShort.
+  ///
+  /// In tr, this message translates to:
+  /// **'Taban'**
+  String get prefBaseScoreShort;
+
+  /// No description provided for @prefSharedListLoadError.
+  ///
+  /// In tr, this message translates to:
+  /// **'Liste yüklenemedi'**
+  String get prefSharedListLoadError;
+
+  /// No description provided for @prefSharedListBadge.
+  ///
+  /// In tr, this message translates to:
+  /// **'Paylaşılan Liste'**
+  String get prefSharedListBadge;
+
+  /// No description provided for @prefSharedListOwner.
+  ///
+  /// In tr, this message translates to:
+  /// **'Liste sahibi'**
+  String get prefSharedListOwner;
+
+  /// No description provided for @prefSharedListEmptyDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bu listede henüz tercih yok.'**
+  String get prefSharedListEmptyDesc;
+
+  /// No description provided for @prefSharedListHiddenOrDeleted.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bu liste silinmiş veya gizli olarak işaretlenmiş olabilir.'**
+  String get prefSharedListHiddenOrDeleted;
+
+  /// No description provided for @prefSharedListBackHome.
+  ///
+  /// In tr, this message translates to:
+  /// **'Ana Sayfaya Dön'**
+  String get prefSharedListBackHome;
+
+  /// No description provided for @comparisonHubSubtitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Hangi tür karşılaştırma yapmak istiyorsun?'**
+  String get comparisonHubSubtitle;
+
+  /// No description provided for @comparisonHistoryTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Karşılaştırma Geçmişi'**
+  String get comparisonHistoryTitle;
+
+  /// No description provided for @comparisonHistoryTooltip.
+  ///
+  /// In tr, this message translates to:
+  /// **'Karşılaştırma geçmişi'**
+  String get comparisonHistoryTooltip;
+
+  /// No description provided for @comparisonEntityUniversity.
+  ///
+  /// In tr, this message translates to:
+  /// **'Üniversite'**
+  String get comparisonEntityUniversity;
+
+  /// No description provided for @comparisonEntityDepartment.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bölüm'**
+  String get comparisonEntityDepartment;
+
+  /// No description provided for @comparisonEntityCity.
+  ///
+  /// In tr, this message translates to:
+  /// **'Şehir'**
+  String get comparisonEntityCity;
+
+  /// No description provided for @comparisonSubscriptionLabel.
+  ///
+  /// In tr, this message translates to:
+  /// **'Aboneliğin'**
+  String get comparisonSubscriptionLabel;
+
+  /// No description provided for @subscriptionFree.
+  ///
+  /// In tr, this message translates to:
+  /// **'Ücretsiz'**
+  String get subscriptionFree;
+
+  /// No description provided for @comparisonUpgradePlus.
+  ///
+  /// In tr, this message translates to:
+  /// **'Plus\'a Geç'**
+  String get comparisonUpgradePlus;
+
+  /// No description provided for @comparisonResetTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Karşılaştırmayı Sıfırla'**
+  String get comparisonResetTitle;
+
+  /// No description provided for @comparisonResetConfirm.
+  ///
+  /// In tr, this message translates to:
+  /// **'Mevcut karşılaştırma sıfırlansın mı? Yeni üniversiteler seçebilirsiniz.'**
+  String get comparisonResetConfirm;
+
+  /// No description provided for @comparisonAddThirdTooltip.
+  ///
+  /// In tr, this message translates to:
+  /// **'3. üniversite ekle (Pro)'**
+  String get comparisonAddThirdTooltip;
+
+  /// No description provided for @comparisonRemoveThirdTooltip.
+  ///
+  /// In tr, this message translates to:
+  /// **'3. üniversiteyi kaldır'**
+  String get comparisonRemoveThirdTooltip;
+
+  /// No description provided for @comparisonEmptyUniversityTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'İki üniversite seç'**
+  String get comparisonEmptyUniversityTitle;
+
+  /// No description provided for @comparisonEmptyUniversityDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'Yukarıdan iki üniversite seçince karşılaştırma sonuçları burada gözükür.'**
+  String get comparisonEmptyUniversityDesc;
+
+  /// No description provided for @comparisonNotesTab.
+  ///
+  /// In tr, this message translates to:
+  /// **'Notlarım'**
+  String get comparisonNotesTab;
+
+  /// No description provided for @comparisonNotesTabShort.
+  ///
+  /// In tr, this message translates to:
+  /// **'Not'**
+  String get comparisonNotesTabShort;
+
+  /// No description provided for @comparisonTabGeneralShort.
+  ///
+  /// In tr, this message translates to:
+  /// **'Gn'**
+  String get comparisonTabGeneralShort;
+
+  /// No description provided for @comparisonTabCategoriesShort.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kat'**
+  String get comparisonTabCategoriesShort;
+
+  /// No description provided for @comparisonTabChartShort.
+  ///
+  /// In tr, this message translates to:
+  /// **'Grf'**
+  String get comparisonTabChartShort;
+
+  /// No description provided for @comparisonTabStatsShort.
+  ///
+  /// In tr, this message translates to:
+  /// **'İst'**
+  String get comparisonTabStatsShort;
+
+  /// No description provided for @comparisonSummaryTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Karşılaştırma Özeti'**
+  String get comparisonSummaryTitle;
+
+  /// No description provided for @comparisonWinnerCategories.
+  ///
+  /// In tr, this message translates to:
+  /// **'🏆 {winnerName} {wins}/{total} kategoride önde'**
+  String comparisonWinnerCategories(String winnerName, int wins, int total);
+
+  /// No description provided for @comparisonQuickDepartments.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bölüm'**
+  String get comparisonQuickDepartments;
+
+  /// No description provided for @comparisonQuickPlaces.
+  ///
+  /// In tr, this message translates to:
+  /// **'Mekan'**
+  String get comparisonQuickPlaces;
+
+  /// No description provided for @comparisonQuickReviews.
+  ///
+  /// In tr, this message translates to:
+  /// **'Yorum'**
+  String get comparisonQuickReviews;
+
+  /// No description provided for @reviewCountShort.
+  ///
+  /// In tr, this message translates to:
+  /// **'{count} yorum'**
+  String reviewCountShort(int count);
+
+  /// No description provided for @comparisonCategoriesEmptyTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Yeterli değerlendirme yok'**
+  String get comparisonCategoriesEmptyTitle;
+
+  /// No description provided for @comparisonCategoriesEmptyDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bu iki üniversite için henüz kategori puanı oluşturacak yorum bulunmuyor.'**
+  String get comparisonCategoriesEmptyDesc;
+
+  /// No description provided for @comparisonChartEmptyTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Grafik üretmek için yorum gerekiyor'**
+  String get comparisonChartEmptyTitle;
+
+  /// No description provided for @comparisonChartEmptyDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'Henüz yeterli değerlendirme olmadığı için grafikler boş görünüyor.'**
+  String get comparisonChartEmptyDesc;
+
+  /// No description provided for @comparisonUniversityPickerTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Üniversite Karşılaştır'**
+  String get comparisonUniversityPickerTitle;
+
+  /// No description provided for @comparisonUniversityPickerSubtitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Karşılaştırmak istediğin iki üniversiteyi seç. Puanlar, kategoriler ve istatistikler yan yana gelsin.'**
+  String get comparisonUniversityPickerSubtitle;
+
+  /// No description provided for @comparisonTripleHint.
+  ///
+  /// In tr, this message translates to:
+  /// **'Pro ile 3. üniversiteyi ekleyip üçlü karşılaştırma yapabilirsin.'**
+  String get comparisonTripleHint;
+
+  /// No description provided for @comparisonSelectUniversityForA.
+  ///
+  /// In tr, this message translates to:
+  /// **'A için üniversite seç'**
+  String get comparisonSelectUniversityForA;
+
+  /// No description provided for @comparisonSelectUniversityForB.
+  ///
+  /// In tr, this message translates to:
+  /// **'B için üniversite seç'**
+  String get comparisonSelectUniversityForB;
+
+  /// No description provided for @comparisonDepartmentHeaderTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bölüm Karşılaştır'**
+  String get comparisonDepartmentHeaderTitle;
+
+  /// No description provided for @comparisonDepartmentHeaderSubtitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Aynı bölümü iki farklı üniversitede karşılaştır. Taban puan, sıralama ve kontenjan yan yana gelsin.'**
+  String get comparisonDepartmentHeaderSubtitle;
+
+  /// No description provided for @comparisonDepartmentHint.
+  ///
+  /// In tr, this message translates to:
+  /// **'İki taraftan da birer bölüm seçince karşılaştırma sonuçları burada gözükecek.'**
+  String get comparisonDepartmentHint;
+
+  /// No description provided for @comparisonCityHeaderTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Şehir Karşılaştır'**
+  String get comparisonCityHeaderTitle;
+
+  /// No description provided for @comparisonCityHeaderSubtitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'İki şehrin üniversite ekosistemini karşılaştır. Devlet/vakıf dağılımı, üniversite sayısı ve daha fazlası.'**
+  String get comparisonCityHeaderSubtitle;
+
+  /// No description provided for @comparisonCityHint.
+  ///
+  /// In tr, this message translates to:
+  /// **'İki şehir seçince karşılaştırma sonuçları burada gözükecek.'**
+  String get comparisonCityHint;
+
+  /// No description provided for @comparisonSelectCity.
+  ///
+  /// In tr, this message translates to:
+  /// **'Şehir Seç'**
+  String get comparisonSelectCity;
+
+  /// No description provided for @comparisonSearchCity.
+  ///
+  /// In tr, this message translates to:
+  /// **'Şehir ara…'**
+  String get comparisonSearchCity;
+
+  /// No description provided for @comparisonCityTileMeta.
+  ///
+  /// In tr, this message translates to:
+  /// **'Plaka: {plate} • Üni: {count}'**
+  String comparisonCityTileMeta(String plate, int count);
+
+  /// No description provided for @comparisonResultNotFound.
+  ///
+  /// In tr, this message translates to:
+  /// **'Sonuç bulunamadı.'**
+  String get comparisonResultNotFound;
+
+  /// No description provided for @comparisonScoreTypeMismatch.
+  ///
+  /// In tr, this message translates to:
+  /// **'Puan türleri farklı görünüyor. Karşılaştırma yanıltıcı olabilir.'**
+  String get comparisonScoreTypeMismatch;
+
+  /// No description provided for @comparisonBaseScore2025.
+  ///
+  /// In tr, this message translates to:
+  /// **'Taban Puan (2025)'**
+  String get comparisonBaseScore2025;
+
+  /// No description provided for @comparisonDetailedInfo.
+  ///
+  /// In tr, this message translates to:
+  /// **'Detaylı Bilgiler'**
+  String get comparisonDetailedInfo;
+
+  /// No description provided for @comparisonFaculty.
+  ///
+  /// In tr, this message translates to:
+  /// **'Fakülte'**
+  String get comparisonFaculty;
+
+  /// No description provided for @comparisonRankingTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Sıralama'**
+  String get comparisonRankingTitle;
+
+  /// No description provided for @comparisonNoDataLower.
+  ///
+  /// In tr, this message translates to:
+  /// **'veri yok'**
+  String get comparisonNoDataLower;
+
+  /// No description provided for @comparisonUniversityCount.
+  ///
+  /// In tr, this message translates to:
+  /// **'Üniversite Sayısı'**
+  String get comparisonUniversityCount;
+
+  /// No description provided for @comparisonStateFoundationDistribution.
+  ///
+  /// In tr, this message translates to:
+  /// **'Devlet / Vakıf Dağılımı'**
+  String get comparisonStateFoundationDistribution;
+
+  /// No description provided for @comparisonPopulation.
+  ///
+  /// In tr, this message translates to:
+  /// **'Nüfus'**
+  String get comparisonPopulation;
+
+  /// No description provided for @comparisonCityFeatures.
+  ///
+  /// In tr, this message translates to:
+  /// **'Şehir Özellikleri'**
+  String get comparisonCityFeatures;
+
+  /// No description provided for @comparisonPlate.
+  ///
+  /// In tr, this message translates to:
+  /// **'Plaka'**
+  String get comparisonPlate;
+
+  /// No description provided for @comparisonTotalUniversities.
+  ///
+  /// In tr, this message translates to:
+  /// **'Toplam Üni'**
+  String get comparisonTotalUniversities;
+
+  /// No description provided for @comparisonInUniSec.
+  ///
+  /// In tr, this message translates to:
+  /// **'ÜniSeç\'te'**
+  String get comparisonInUniSec;
+
+  /// No description provided for @comparisonProNotesTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Karşılaştırma Notları'**
+  String get comparisonProNotesTitle;
+
+  /// No description provided for @comparisonProNotesSubtitleLoggedIn.
+  ///
+  /// In tr, this message translates to:
+  /// **'Pro üyelere özel premium bir deneyim seni bekliyor!'**
+  String get comparisonProNotesSubtitleLoggedIn;
+
+  /// No description provided for @comparisonProNotesSubtitleGuest.
+  ///
+  /// In tr, this message translates to:
+  /// **'Giriş yap ve Pro üye olarak bu özelliğin kilidini aç!'**
+  String get comparisonProNotesSubtitleGuest;
+
+  /// No description provided for @comparisonProNotesFeaturePersonal.
+  ///
+  /// In tr, this message translates to:
+  /// **'Her karşılaştırmaya kişisel not ekle'**
+  String get comparisonProNotesFeaturePersonal;
+
+  /// No description provided for @comparisonProNotesFeatureProsCons.
+  ///
+  /// In tr, this message translates to:
+  /// **'Artılar ve eksiler ile detaylı analiz yap'**
+  String get comparisonProNotesFeatureProsCons;
+
+  /// No description provided for @comparisonProNotesFeatureRating.
+  ///
+  /// In tr, this message translates to:
+  /// **'1-5 yıldız tercih puanı ile sırala'**
+  String get comparisonProNotesFeatureRating;
+
+  /// No description provided for @comparisonProNotesFeatureCloud.
+  ///
+  /// In tr, this message translates to:
+  /// **'Notların bulutta güvende — asla kaybolmaz'**
+  String get comparisonProNotesFeatureCloud;
+
+  /// No description provided for @comparisonProNotesUpgrade.
+  ///
+  /// In tr, this message translates to:
+  /// **'Pro Plana Yükselt'**
+  String get comparisonProNotesUpgrade;
+
+  /// No description provided for @comparisonProNotesLoginAndPro.
+  ///
+  /// In tr, this message translates to:
+  /// **'Giriş Yap ve Pro Ol'**
+  String get comparisonProNotesLoginAndPro;
+
+  /// No description provided for @comparisonSkipForNow.
+  ///
+  /// In tr, this message translates to:
+  /// **'Şimdilik geç'**
+  String get comparisonSkipForNow;
+
+  /// No description provided for @comparisonHistoryClearTooltip.
+  ///
+  /// In tr, this message translates to:
+  /// **'Geçmişi temizle'**
+  String get comparisonHistoryClearTooltip;
+
+  /// No description provided for @comparisonHistoryClearTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Geçmişi Temizle'**
+  String get comparisonHistoryClearTitle;
+
+  /// No description provided for @comparisonHistoryClearConfirm.
+  ///
+  /// In tr, this message translates to:
+  /// **'Tüm karşılaştırma geçmişin silinsin mi?'**
+  String get comparisonHistoryClearConfirm;
+
+  /// No description provided for @comparisonHistoryClearButton.
+  ///
+  /// In tr, this message translates to:
+  /// **'Temizle'**
+  String get comparisonHistoryClearButton;
+
+  /// No description provided for @comparisonHistoryLoadError.
+  ///
+  /// In tr, this message translates to:
+  /// **'Geçmiş yüklenemedi: {error}'**
+  String comparisonHistoryLoadError(String error);
+
+  /// No description provided for @comparisonHistoryEmptyTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Henüz karşılaştırma yapmadın'**
+  String get comparisonHistoryEmptyTitle;
+
+  /// No description provided for @comparisonHistoryEmptyDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'İlk karşılaştırmanı yaptığında burada görünecek.'**
+  String get comparisonHistoryEmptyDesc;
+
+  /// No description provided for @comparisonHistoryPaywallTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Karşılaştırma Geçmişi Plus / Pro\'da'**
+  String get comparisonHistoryPaywallTitle;
+
+  /// No description provided for @comparisonHistoryPaywallDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'Yaptığın karşılaştırmalar otomatik kaydedilsin, istediğin zaman tekrar açıp incele.'**
+  String get comparisonHistoryPaywallDesc;
+
+  /// No description provided for @comparisonHistoryPaywallButton.
+  ///
+  /// In tr, this message translates to:
+  /// **'Plus / Pro\'ya Geç'**
+  String get comparisonHistoryPaywallButton;
+
+  /// No description provided for @comparisonHistoryFeatureRecent.
+  ///
+  /// In tr, this message translates to:
+  /// **'Son 20 karşılaştırma otomatik kaydedilir'**
+  String get comparisonHistoryFeatureRecent;
+
+  /// No description provided for @comparisonHistoryFeatureReturn.
+  ///
+  /// In tr, this message translates to:
+  /// **'Tek dokunuşla aynı karşılaştırmaya geri dön'**
+  String get comparisonHistoryFeatureReturn;
+
+  /// No description provided for @comparisonHistoryFeatureSync.
+  ///
+  /// In tr, this message translates to:
+  /// **'Cihazlar arası senkronize'**
+  String get comparisonHistoryFeatureSync;
+
+  /// No description provided for @comparisonTripleCategoryTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kategori Karşılaştırması'**
+  String get comparisonTripleCategoryTitle;
+
+  /// No description provided for @comparisonLeader.
+  ///
+  /// In tr, this message translates to:
+  /// **'LİDER'**
+  String get comparisonLeader;
+
+  /// No description provided for @noteEditTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Notu Düzenle'**
+  String get noteEditTitle;
+
+  /// No description provided for @noteAddTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Not Ekle'**
+  String get noteAddTitle;
+
+  /// No description provided for @noteSubtitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Karşılaştırma hakkındaki düşüncelerini kaydet'**
+  String get noteSubtitle;
+
+  /// No description provided for @notePreferenceRating.
+  ///
+  /// In tr, this message translates to:
+  /// **'Tercih Puanın'**
+  String get notePreferenceRating;
+
+  /// No description provided for @noteLabel.
+  ///
+  /// In tr, this message translates to:
+  /// **'Not'**
+  String get noteLabel;
+
+  /// No description provided for @noteHint.
+  ///
+  /// In tr, this message translates to:
+  /// **'Örn: İTÜ bana daha yakın, kampüsü çok güzel...'**
+  String get noteHint;
+
+  /// No description provided for @noteEmptyError.
+  ///
+  /// In tr, this message translates to:
+  /// **'Not boş bırakılamaz'**
+  String get noteEmptyError;
+
+  /// No description provided for @noteProsLabel.
+  ///
+  /// In tr, this message translates to:
+  /// **'Artılar'**
+  String get noteProsLabel;
+
+  /// No description provided for @noteConsLabel.
+  ///
+  /// In tr, this message translates to:
+  /// **'Eksiler'**
+  String get noteConsLabel;
+
+  /// No description provided for @noteAddProHint.
+  ///
+  /// In tr, this message translates to:
+  /// **'Yeni artı ekle...'**
+  String get noteAddProHint;
+
+  /// No description provided for @noteAddConHint.
+  ///
+  /// In tr, this message translates to:
+  /// **'Yeni eksi ekle...'**
+  String get noteAddConHint;
+
+  /// No description provided for @noteUpdate.
+  ///
+  /// In tr, this message translates to:
+  /// **'Güncelle'**
+  String get noteUpdate;
+
+  /// No description provided for @noteMyNotes.
+  ///
+  /// In tr, this message translates to:
+  /// **'Notlarım'**
+  String get noteMyNotes;
+
+  /// No description provided for @noteLoadError.
+  ///
+  /// In tr, this message translates to:
+  /// **'Notlar yüklenemedi.'**
+  String get noteLoadError;
+
+  /// No description provided for @noteSavedSnack.
+  ///
+  /// In tr, this message translates to:
+  /// **'Not kaydedildi ✍️'**
+  String get noteSavedSnack;
+
+  /// No description provided for @noteUpdatedSnack.
+  ///
+  /// In tr, this message translates to:
+  /// **'Not güncellendi ✅'**
+  String get noteUpdatedSnack;
+
+  /// No description provided for @noteDeletedSnack.
+  ///
+  /// In tr, this message translates to:
+  /// **'Not silindi'**
+  String get noteDeletedSnack;
+
+  /// No description provided for @noteDeleteTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Notu Sil'**
+  String get noteDeleteTitle;
+
+  /// No description provided for @noteDeleteConfirm.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bu not kalıcı olarak silinecek. Devam edilsin mi?'**
+  String get noteDeleteConfirm;
+
+  /// No description provided for @noteEmptyState.
+  ///
+  /// In tr, this message translates to:
+  /// **'Henüz not yok'**
+  String get noteEmptyState;
+
+  /// No description provided for @noteEmptyStateDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bu karşılaştırma hakkındaki düşüncelerini kaydet'**
+  String get noteEmptyStateDesc;
+
+  /// No description provided for @noteTimeJustNow.
+  ///
+  /// In tr, this message translates to:
+  /// **'Az önce'**
+  String get noteTimeJustNow;
+
+  /// No description provided for @noteTimeMinutesAgo.
+  ///
+  /// In tr, this message translates to:
+  /// **'{minutes} dk önce'**
+  String noteTimeMinutesAgo(int minutes);
+
+  /// No description provided for @noteTimeHoursAgo.
+  ///
+  /// In tr, this message translates to:
+  /// **'{hours} saat önce'**
+  String noteTimeHoursAgo(int hours);
+
+  /// No description provided for @noteTimeDaysAgo.
+  ///
+  /// In tr, this message translates to:
+  /// **'{days} gün önce'**
+  String noteTimeDaysAgo(int days);
+
+  /// No description provided for @noteTimeWeeksAgo.
+  ///
+  /// In tr, this message translates to:
+  /// **'{weeks} hafta önce'**
+  String noteTimeWeeksAgo(int weeks);
+
+  /// No description provided for @plusLockSubtitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Plus veya Pro ile açılır'**
+  String get plusLockSubtitle;
+
+  /// No description provided for @plusLockButton.
+  ///
+  /// In tr, this message translates to:
+  /// **'Plus\'a Geç'**
+  String get plusLockButton;
+
+  /// No description provided for @comparisonNoData.
+  ///
+  /// In tr, this message translates to:
+  /// **'Veri yok'**
+  String get comparisonNoData;
+
+  /// No description provided for @trendNoData.
+  ///
+  /// In tr, this message translates to:
+  /// **'Trend verisi yok'**
+  String get trendNoData;
+
+  /// No description provided for @shareInstagramStory.
+  ///
+  /// In tr, this message translates to:
+  /// **'Instagram Hikaye (9:16)'**
+  String get shareInstagramStory;
+
+  /// No description provided for @shareInstagramPost.
+  ///
+  /// In tr, this message translates to:
+  /// **'Instagram Gönderi (1:1)'**
+  String get shareInstagramPost;
+
+  /// No description provided for @shareTwitterWhatsApp.
+  ///
+  /// In tr, this message translates to:
+  /// **'Twitter / WhatsApp'**
+  String get shareTwitterWhatsApp;
+
+  /// No description provided for @yearlyTableYear.
+  ///
+  /// In tr, this message translates to:
+  /// **'Yıl'**
+  String get yearlyTableYear;
+
+  /// No description provided for @loadFailed.
+  ///
+  /// In tr, this message translates to:
+  /// **'Yüklenemedi: {error}'**
+  String loadFailed(String error);
+
+  /// No description provided for @favoriteLoginRequired.
+  ///
+  /// In tr, this message translates to:
+  /// **'Favori için giriş yapmalısın.'**
+  String get favoriteLoginRequired;
+
+  /// No description provided for @yearlyComparisonTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Yıl Bazlı Karşılaştırma'**
+  String get yearlyComparisonTitle;
+
+  /// No description provided for @yearlyDifference.
+  ///
+  /// In tr, this message translates to:
+  /// **'Fark'**
+  String get yearlyDifference;
+
+  /// No description provided for @rankFormat.
+  ///
+  /// In tr, this message translates to:
+  /// **'{rank}. sıra'**
+  String rankFormat(String rank);
+
+  /// No description provided for @rankNotAnnounced.
+  ///
+  /// In tr, this message translates to:
+  /// **'Sıra: Açıklanmadı'**
+  String get rankNotAnnounced;
+
+  /// No description provided for @shareStatAvgBase.
+  ///
+  /// In tr, this message translates to:
+  /// **'Ort. Taban'**
+  String get shareStatAvgBase;
+
+  /// No description provided for @shareStatDepartment.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bölüm'**
+  String get shareStatDepartment;
+
+  /// No description provided for @shareStatPlace.
+  ///
+  /// In tr, this message translates to:
+  /// **'Mekan'**
+  String get shareStatPlace;
+
+  /// No description provided for @shareFormat.
+  ///
+  /// In tr, this message translates to:
+  /// **'Paylaşım Formatı'**
+  String get shareFormat;
+
+  /// No description provided for @comparisonSubtitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Üniversiteleri yan yana kıyasla'**
+  String get comparisonSubtitle;
+
+  /// No description provided for @comparisonSwapTooltip.
+  ///
+  /// In tr, this message translates to:
+  /// **'Yer Değiştir'**
+  String get comparisonSwapTooltip;
+
+  /// No description provided for @comparisonError.
+  ///
+  /// In tr, this message translates to:
+  /// **'Hata: {error}'**
+  String comparisonError(String error);
+
+  /// No description provided for @adGateTitleGuest.
+  ///
+  /// In tr, this message translates to:
+  /// **'Reklam ile Karşılaştır'**
+  String get adGateTitleGuest;
+
+  /// No description provided for @adGateTitleUser.
+  ///
+  /// In tr, this message translates to:
+  /// **'Ücretsiz hakkın bitti'**
+  String get adGateTitleUser;
+
+  /// No description provided for @adGateDescGuest.
+  ///
+  /// In tr, this message translates to:
+  /// **'Karşılaştırma yapmak için kısa bir reklam izlemen gerekiyor. Giriş yap veya Plus\'a geçerek sınırsız karşılaştırma yapabilirsin.'**
+  String get adGateDescGuest;
+
+  /// No description provided for @adGateDescUser.
+  ///
+  /// In tr, this message translates to:
+  /// **'Günlük 1 ücretsiz karşılaştırma hakkını kullandın. Devam etmek için kısa bir reklam izleyebilir veya Plus\'a geçerek sınırsız karşılaştırma yapabilirsin.'**
+  String get adGateDescUser;
+
+  /// No description provided for @adGateWatchBusy.
+  ///
+  /// In tr, this message translates to:
+  /// **'Reklam hazırlanıyor…'**
+  String get adGateWatchBusy;
+
+  /// No description provided for @adGateWatchCta.
+  ///
+  /// In tr, this message translates to:
+  /// **'Reklamı İzle ve Devam Et'**
+  String get adGateWatchCta;
+
+  /// No description provided for @adGatePlusCta.
+  ///
+  /// In tr, this message translates to:
+  /// **'Plus\'a Geç — Sınırsız'**
+  String get adGatePlusCta;
+
+  /// No description provided for @adGateDismiss.
+  ///
+  /// In tr, this message translates to:
+  /// **'Şimdilik Vazgeç'**
+  String get adGateDismiss;
+
+  /// No description provided for @adGateOverlayTitleGuest.
+  ///
+  /// In tr, this message translates to:
+  /// **'Reklam izleyerek devam et'**
+  String get adGateOverlayTitleGuest;
+
+  /// No description provided for @adGateOverlayTitleUser.
+  ///
+  /// In tr, this message translates to:
+  /// **'Devam etmek için kilidi aç'**
+  String get adGateOverlayTitleUser;
+
+  /// No description provided for @adGateOverlayDescGuest.
+  ///
+  /// In tr, this message translates to:
+  /// **'Karşılaştırma için kısa bir reklam izlemen gerekiyor.'**
+  String get adGateOverlayDescGuest;
+
+  /// No description provided for @adGateOverlayDescUser.
+  ///
+  /// In tr, this message translates to:
+  /// **'Günlük karşılaştırma hakkın doldu.'**
+  String get adGateOverlayDescUser;
+
+  /// No description provided for @adGateOverlayBusy.
+  ///
+  /// In tr, this message translates to:
+  /// **'Yükleniyor…'**
+  String get adGateOverlayBusy;
+
+  /// No description provided for @adGateOverlayCta.
+  ///
+  /// In tr, this message translates to:
+  /// **'Reklamı İzle / Plus\'a Geç'**
+  String get adGateOverlayCta;
+
+  /// No description provided for @favoritesAddTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Favorilere ekle'**
+  String get favoritesAddTitle;
+
+  /// No description provided for @actionBarShare.
+  ///
+  /// In tr, this message translates to:
+  /// **'Paylaş'**
+  String get actionBarShare;
+
+  /// No description provided for @actionBarFavorite.
+  ///
+  /// In tr, this message translates to:
+  /// **'Favorile'**
+  String get actionBarFavorite;
+
+  /// No description provided for @actionBarRecompare.
+  ///
+  /// In tr, this message translates to:
+  /// **'Yeniden'**
+  String get actionBarRecompare;
+
+  /// No description provided for @emptyStateSelectTwo.
+  ///
+  /// In tr, this message translates to:
+  /// **'İki üniversite seç'**
+  String get emptyStateSelectTwo;
+
+  /// No description provided for @emptyStateSelectTwoDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'Yukarıdan iki üniversite seçince karşılaştırma sonuçları burada gözükür.'**
+  String get emptyStateSelectTwoDesc;
+
+  /// No description provided for @triplePickerTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'3. üniversiteyi seç'**
+  String get triplePickerTitle;
+
+  /// No description provided for @triplePickerSearchHint.
+  ///
+  /// In tr, this message translates to:
+  /// **'Üniversite ara…'**
+  String get triplePickerSearchHint;
+
+  /// No description provided for @triplePickerNoResult.
+  ///
+  /// In tr, this message translates to:
+  /// **'Sonuç bulunamadı'**
+  String get triplePickerNoResult;
+
+  /// No description provided for @sectionCategoryScores.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kategori Puanları'**
+  String get sectionCategoryScores;
+
+  /// No description provided for @sectionOverview.
+  ///
+  /// In tr, this message translates to:
+  /// **'Genel Görünüm'**
+  String get sectionOverview;
+
+  /// No description provided for @sectionStats.
+  ///
+  /// In tr, this message translates to:
+  /// **'Genel İstatistikler'**
+  String get sectionStats;
+
+  /// No description provided for @noReviewsTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Yeterli değerlendirme yok'**
+  String get noReviewsTitle;
+
+  /// No description provided for @noReviewsDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bu iki üniversite için henüz kategori puanı oluşturacak yorum bulunmuyor.'**
+  String get noReviewsDesc;
+
+  /// No description provided for @commonReset.
+  ///
+  /// In tr, this message translates to:
+  /// **'Sıfırla'**
+  String get commonReset;
 }
 
 class _AppLocalizationsDelegate

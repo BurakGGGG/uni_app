@@ -292,6 +292,17 @@ class AppColors {
         : softShadow;
   }
 
+  /// Tema duyarlı hero gradient
+  static LinearGradient heroGradientFor(BuildContext context) {
+    return Theme.of(context).brightness == Brightness.dark
+        ? const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [Color(0xFF231E5B), Color(0xFF5A1C2C)], // Much darker variants for dark mode
+          )
+        : heroGradient;
+  }
+
   /// Tema duyarlı kart gradient
   static LinearGradient cardGradientFor(BuildContext context) {
     return Theme.of(context).brightness == Brightness.dark

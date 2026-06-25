@@ -675,6 +675,32 @@ class AppLocalizationsEn extends AppLocalizations {
   String get comparisonNoteMaxLength => 'Maximum 500 characters';
 
   @override
+  String get comparisonNotesLoadError => 'Failed to load notes.';
+
+  @override
+  String get comparisonNoteSaved => 'Note saved ✍️';
+
+  @override
+  String get comparisonNoteUpdated => 'Note updated ✅';
+
+  @override
+  String get comparisonNoteDeleteTitle => 'Delete Note';
+
+  @override
+  String get comparisonNoteDeleteConfirm =>
+      'This note will be permanently deleted. Continue?';
+
+  @override
+  String get comparisonNoteDeleted => 'Note deleted';
+
+  @override
+  String get comparisonNoteEmptyTitle => 'No notes yet';
+
+  @override
+  String get comparisonNoteEmptyDesc =>
+      'Save your thoughts about this comparison';
+
+  @override
   String get comparisonProUpsell => 'Upgrade to Pro to add a 3rd university';
 
   @override
@@ -962,4 +988,817 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get exploreShowResults => 'Show Results';
+
+  @override
+  String get commonActions => 'Actions';
+
+  @override
+  String get commonPrivate => 'Private';
+
+  @override
+  String get commonPublic => 'Public';
+
+  @override
+  String get commonPublicLong => 'Public';
+
+  @override
+  String get commonSelect => 'Select';
+
+  @override
+  String get commonNoData => 'No data';
+
+  @override
+  String get commonNoDataLower => 'no data';
+
+  @override
+  String get semanticUniversityLogo => 'University logo';
+
+  @override
+  String get universityTypeState => 'State';
+
+  @override
+  String get universityTypeFoundation => 'Foundation';
+
+  @override
+  String get campusLayoutCampus => 'Campus';
+
+  @override
+  String get campusLayoutBlock => 'Block campus';
+
+  @override
+  String get campusLayoutDistributed => 'Distributed campus';
+
+  @override
+  String get departmentTypeUndergraduate => 'Undergraduate';
+
+  @override
+  String get departmentTypeAssociate => 'Associate degree';
+
+  @override
+  String get departmentLanguageTurkish => 'Turkish';
+
+  @override
+  String get departmentLanguageEnglish => 'English';
+
+  @override
+  String yearsCount(int years) {
+    return '$years years';
+  }
+
+  @override
+  String get prefListsTitle => 'My Preference Lists';
+
+  @override
+  String get prefListsNewList => 'New List';
+
+  @override
+  String get prefListsEmptyTitle => 'No lists yet';
+
+  @override
+  String get prefListsEmptyDesc =>
+      'Tap the \"New List\" button at the bottom right to create your first preference list.';
+
+  @override
+  String get prefListsLoginTitle => 'Sign in required';
+
+  @override
+  String get prefListsLoginDesc =>
+      'Sign in first to view your lists and add new preferences.';
+
+  @override
+  String get prefListDeleteTitle => 'Delete List';
+
+  @override
+  String prefListDeleteConfirm(String title) {
+    return 'Are you sure you want to delete \"$title\"? This action cannot be undone.';
+  }
+
+  @override
+  String prefListItemLimit(int max) {
+    return '/ $max choices';
+  }
+
+  @override
+  String prefListItemCount(int count) {
+    return '$count choices';
+  }
+
+  @override
+  String get prefListActionsShare => 'Share List';
+
+  @override
+  String get prefListActionsShareDesc => 'Manage the share link and visibility';
+
+  @override
+  String get prefListActionsDeleteDesc => 'This action cannot be undone';
+
+  @override
+  String get prefListCreateTitle => 'New Preference List';
+
+  @override
+  String get prefListCreateSubtitle => 'Enter a name and description';
+
+  @override
+  String get prefListTitleLabel => 'List name';
+
+  @override
+  String get prefListTitleRequired => 'List name is required';
+
+  @override
+  String get prefListTitleHint => 'E.g. My 2025 STEM Preferences';
+
+  @override
+  String get prefListDescriptionLabel => 'Description (optional)';
+
+  @override
+  String get prefListDescriptionHint => 'A short note about this list…';
+
+  @override
+  String get prefListPublicTitle => 'Public';
+
+  @override
+  String get prefListPublicCreateSubtitle =>
+      'Anyone with the link can view the list';
+
+  @override
+  String get prefListPublicShareSubtitle =>
+      'Anyone with the link can view your list';
+
+  @override
+  String get prefListCreateButton => 'Create List';
+
+  @override
+  String get prefListShareTitle => 'Share List';
+
+  @override
+  String get prefListLinkCopied => 'Link copied';
+
+  @override
+  String get prefListShareLinkButton => 'Share Link';
+
+  @override
+  String prefListViewCount(int count) {
+    return '$count views';
+  }
+
+  @override
+  String get prefListPrivateNotice =>
+      'Your list is private right now. Turn on the switch above to share it.';
+
+  @override
+  String prefListShareTextHeader(String title) {
+    return 'I shared my \"$title\" preference list 🎓';
+  }
+
+  @override
+  String prefListShareTextExtra(int count) {
+    return '…and $count more departments';
+  }
+
+  @override
+  String get prefListDuplicateDepartment =>
+      'This department is already in the list';
+
+  @override
+  String prefListMaxItems(int max) {
+    return 'A list can contain at most $max choices';
+  }
+
+  @override
+  String get prefListSaved => 'Preference list saved';
+
+  @override
+  String prefListSaveError(String error) {
+    return 'Save error: $error';
+  }
+
+  @override
+  String get prefListDeleted => 'Preference list deleted';
+
+  @override
+  String prefListDeleteError(String error) {
+    return 'Delete error: $error';
+  }
+
+  @override
+  String get prefListNotFound => 'List not found.';
+
+  @override
+  String prefListFullLimit(int max) {
+    return 'Limit reached ($max)';
+  }
+
+  @override
+  String get prefListAddDepartment => 'Add Department';
+
+  @override
+  String get prefListSortByRanking => 'Sort by Ranking';
+
+  @override
+  String get prefListUndo => 'Undo';
+
+  @override
+  String get prefListSavedState => 'Saved';
+
+  @override
+  String get prefListEmptyItemsTitle => 'List is empty';
+
+  @override
+  String get prefListEmptyItemsDesc =>
+      'Tap \"Add Department\" to choose a university and department. You can reorder your preferences by dragging or sorting by ranking.';
+
+  @override
+  String get prefDeptSelectUniversity => 'Select University';
+
+  @override
+  String get prefDeptSelectDepartment => 'Select Department';
+
+  @override
+  String get prefDeptSearchUniversity => 'Search university…';
+
+  @override
+  String get prefDeptSearchDepartment => 'Search department…';
+
+  @override
+  String get prefNoSearchResults => 'No results found';
+
+  @override
+  String get prefNoSearchResultsDesc => 'Try a different search.';
+
+  @override
+  String get prefNoDepartmentsTitle => 'No departments found';
+
+  @override
+  String get prefNoDepartmentsDesc =>
+      'There are no registered departments for this university.';
+
+  @override
+  String prefDeptUniversitiesWithDepartment(String department) {
+    return 'Universities with $department';
+  }
+
+  @override
+  String get prefDeptNoUniversityForDepartment =>
+      'No university found with this department';
+
+  @override
+  String prefDeptNoOtherUniversityForDepartment(String department) {
+    return 'There is no other university with \"$department\".';
+  }
+
+  @override
+  String get prefBaseScoreShort => 'Base';
+
+  @override
+  String get prefSharedListLoadError => 'Failed to load list';
+
+  @override
+  String get prefSharedListBadge => 'Shared List';
+
+  @override
+  String get prefSharedListOwner => 'List owner';
+
+  @override
+  String get prefSharedListEmptyDesc =>
+      'There are no preferences in this list yet.';
+
+  @override
+  String get prefSharedListHiddenOrDeleted =>
+      'This list may have been deleted or marked private.';
+
+  @override
+  String get prefSharedListBackHome => 'Back to Home';
+
+  @override
+  String get comparisonHubSubtitle =>
+      'What type of comparison do you want to make?';
+
+  @override
+  String get comparisonHistoryTitle => 'Comparison History';
+
+  @override
+  String get comparisonHistoryTooltip => 'Comparison history';
+
+  @override
+  String get comparisonEntityUniversity => 'University';
+
+  @override
+  String get comparisonEntityDepartment => 'Department';
+
+  @override
+  String get comparisonEntityCity => 'City';
+
+  @override
+  String get comparisonSubscriptionLabel => 'Your plan';
+
+  @override
+  String get subscriptionFree => 'Free';
+
+  @override
+  String get comparisonUpgradePlus => 'Upgrade to Plus';
+
+  @override
+  String get comparisonResetTitle => 'Reset Comparison';
+
+  @override
+  String get comparisonResetConfirm =>
+      'Reset the current comparison? You can choose new universities.';
+
+  @override
+  String get comparisonAddThirdTooltip => 'Add 3rd university (Pro)';
+
+  @override
+  String get comparisonRemoveThirdTooltip => 'Remove 3rd university';
+
+  @override
+  String get comparisonEmptyUniversityTitle => 'Select two universities';
+
+  @override
+  String get comparisonEmptyUniversityDesc =>
+      'Once you choose two universities above, comparison results will appear here.';
+
+  @override
+  String get comparisonNotesTab => 'My Notes';
+
+  @override
+  String get comparisonNotesTabShort => 'Notes';
+
+  @override
+  String get comparisonTabGeneralShort => 'Gen';
+
+  @override
+  String get comparisonTabCategoriesShort => 'Cat';
+
+  @override
+  String get comparisonTabChartShort => 'Chart';
+
+  @override
+  String get comparisonTabStatsShort => 'Stats';
+
+  @override
+  String get comparisonSummaryTitle => 'Comparison Summary';
+
+  @override
+  String comparisonWinnerCategories(String winnerName, int wins, int total) {
+    return '🏆 $winnerName leads in $wins/$total categories';
+  }
+
+  @override
+  String get comparisonQuickDepartments => 'Departments';
+
+  @override
+  String get comparisonQuickPlaces => 'Places';
+
+  @override
+  String get comparisonQuickReviews => 'Reviews';
+
+  @override
+  String reviewCountShort(int count) {
+    return '$count reviews';
+  }
+
+  @override
+  String get comparisonCategoriesEmptyTitle => 'Not enough ratings';
+
+  @override
+  String get comparisonCategoriesEmptyDesc =>
+      'There are not enough reviews to calculate category scores for these two universities yet.';
+
+  @override
+  String get comparisonChartEmptyTitle =>
+      'Reviews are required to generate charts';
+
+  @override
+  String get comparisonChartEmptyDesc =>
+      'Charts appear empty because there are not enough ratings yet.';
+
+  @override
+  String get comparisonUniversityPickerTitle => 'Compare Universities';
+
+  @override
+  String get comparisonUniversityPickerSubtitle =>
+      'Select two universities to compare. Scores, categories, and statistics will appear side by side.';
+
+  @override
+  String get comparisonTripleHint =>
+      'With Pro, you can add a 3rd university for a three-way comparison.';
+
+  @override
+  String get comparisonSelectUniversityForA => 'Select university for A';
+
+  @override
+  String get comparisonSelectUniversityForB => 'Select university for B';
+
+  @override
+  String get comparisonDepartmentHeaderTitle => 'Compare Departments';
+
+  @override
+  String get comparisonDepartmentHeaderSubtitle =>
+      'Compare the same department at two different universities. Base score, ranking, and quota appear side by side.';
+
+  @override
+  String get comparisonDepartmentHint =>
+      'Once you select one department on each side, comparison results will appear here.';
+
+  @override
+  String get comparisonCityHeaderTitle => 'Compare Cities';
+
+  @override
+  String get comparisonCityHeaderSubtitle =>
+      'Compare the university ecosystem of two cities. State/foundation distribution, university count, and more.';
+
+  @override
+  String get comparisonCityHint =>
+      'Once you select two cities, comparison results will appear here.';
+
+  @override
+  String get comparisonSelectCity => 'Select City';
+
+  @override
+  String get comparisonSearchCity => 'Search city…';
+
+  @override
+  String comparisonCityTileMeta(String plate, int count) {
+    return 'Plate: $plate • Univ: $count';
+  }
+
+  @override
+  String get comparisonResultNotFound => 'Result not found.';
+
+  @override
+  String get comparisonScoreTypeMismatch =>
+      'The score types appear to be different. The comparison may be misleading.';
+
+  @override
+  String get comparisonBaseScore2025 => 'Base Score (2025)';
+
+  @override
+  String get comparisonDetailedInfo => 'Detailed Information';
+
+  @override
+  String get comparisonFaculty => 'Faculty';
+
+  @override
+  String get comparisonRankingTitle => 'Ranking';
+
+  @override
+  String get comparisonNoDataLower => 'no data';
+
+  @override
+  String get comparisonUniversityCount => 'University Count';
+
+  @override
+  String get comparisonStateFoundationDistribution =>
+      'State / Foundation Distribution';
+
+  @override
+  String get comparisonPopulation => 'Population';
+
+  @override
+  String get comparisonCityFeatures => 'City Details';
+
+  @override
+  String get comparisonPlate => 'Plate';
+
+  @override
+  String get comparisonTotalUniversities => 'Total Univ.';
+
+  @override
+  String get comparisonInUniSec => 'In ÜniSeç';
+
+  @override
+  String get comparisonProNotesTitle => 'Comparison Notes';
+
+  @override
+  String get comparisonProNotesSubtitleLoggedIn =>
+      'A premium experience for Pro members is waiting for you!';
+
+  @override
+  String get comparisonProNotesSubtitleGuest =>
+      'Sign in and become a Pro member to unlock this feature!';
+
+  @override
+  String get comparisonProNotesFeaturePersonal =>
+      'Add personal notes to every comparison';
+
+  @override
+  String get comparisonProNotesFeatureProsCons =>
+      'Analyze in detail with pros and cons';
+
+  @override
+  String get comparisonProNotesFeatureRating =>
+      'Sort with a 1-5 star preference score';
+
+  @override
+  String get comparisonProNotesFeatureCloud =>
+      'Your notes are safe in the cloud — never lost';
+
+  @override
+  String get comparisonProNotesUpgrade => 'Upgrade to Pro';
+
+  @override
+  String get comparisonProNotesLoginAndPro => 'Sign In and Go Pro';
+
+  @override
+  String get comparisonSkipForNow => 'Skip for now';
+
+  @override
+  String get comparisonHistoryClearTooltip => 'Clear history';
+
+  @override
+  String get comparisonHistoryClearTitle => 'Clear History';
+
+  @override
+  String get comparisonHistoryClearConfirm => 'Delete all comparison history?';
+
+  @override
+  String get comparisonHistoryClearButton => 'Clear';
+
+  @override
+  String comparisonHistoryLoadError(String error) {
+    return 'Failed to load history: $error';
+  }
+
+  @override
+  String get comparisonHistoryEmptyTitle => 'No comparisons yet';
+
+  @override
+  String get comparisonHistoryEmptyDesc =>
+      'Your first comparison will appear here.';
+
+  @override
+  String get comparisonHistoryPaywallTitle =>
+      'Comparison History is in Plus / Pro';
+
+  @override
+  String get comparisonHistoryPaywallDesc =>
+      'Save your comparisons automatically and reopen them whenever you want.';
+
+  @override
+  String get comparisonHistoryPaywallButton => 'Upgrade to Plus / Pro';
+
+  @override
+  String get comparisonHistoryFeatureRecent =>
+      'The last 20 comparisons are saved automatically';
+
+  @override
+  String get comparisonHistoryFeatureReturn =>
+      'Return to the same comparison with one tap';
+
+  @override
+  String get comparisonHistoryFeatureSync => 'Sync across devices';
+
+  @override
+  String get comparisonTripleCategoryTitle => 'Category Comparison';
+
+  @override
+  String get comparisonLeader => 'LEADER';
+
+  @override
+  String get noteEditTitle => 'Edit Note';
+
+  @override
+  String get noteAddTitle => 'Add Note';
+
+  @override
+  String get noteSubtitle => 'Save your thoughts about this comparison';
+
+  @override
+  String get notePreferenceRating => 'Your Preference Rating';
+
+  @override
+  String get noteLabel => 'Note';
+
+  @override
+  String get noteHint => 'E.g. ITU is closer to me, the campus is beautiful...';
+
+  @override
+  String get noteEmptyError => 'Note cannot be empty';
+
+  @override
+  String get noteProsLabel => 'Pros';
+
+  @override
+  String get noteConsLabel => 'Cons';
+
+  @override
+  String get noteAddProHint => 'Add a new pro...';
+
+  @override
+  String get noteAddConHint => 'Add a new con...';
+
+  @override
+  String get noteUpdate => 'Update';
+
+  @override
+  String get noteMyNotes => 'My Notes';
+
+  @override
+  String get noteLoadError => 'Failed to load notes.';
+
+  @override
+  String get noteSavedSnack => 'Note saved ✍️';
+
+  @override
+  String get noteUpdatedSnack => 'Note updated ✅';
+
+  @override
+  String get noteDeletedSnack => 'Note deleted';
+
+  @override
+  String get noteDeleteTitle => 'Delete Note';
+
+  @override
+  String get noteDeleteConfirm =>
+      'This note will be permanently deleted. Continue?';
+
+  @override
+  String get noteEmptyState => 'No notes yet';
+
+  @override
+  String get noteEmptyStateDesc => 'Save your thoughts about this comparison';
+
+  @override
+  String get noteTimeJustNow => 'Just now';
+
+  @override
+  String noteTimeMinutesAgo(int minutes) {
+    return '$minutes min ago';
+  }
+
+  @override
+  String noteTimeHoursAgo(int hours) {
+    return '$hours hours ago';
+  }
+
+  @override
+  String noteTimeDaysAgo(int days) {
+    return '$days days ago';
+  }
+
+  @override
+  String noteTimeWeeksAgo(int weeks) {
+    return '$weeks weeks ago';
+  }
+
+  @override
+  String get plusLockSubtitle => 'Unlock with Plus or Pro';
+
+  @override
+  String get plusLockButton => 'Upgrade to Plus';
+
+  @override
+  String get comparisonNoData => 'No data';
+
+  @override
+  String get trendNoData => 'No trend data';
+
+  @override
+  String get shareInstagramStory => 'Instagram Story (9:16)';
+
+  @override
+  String get shareInstagramPost => 'Instagram Post (1:1)';
+
+  @override
+  String get shareTwitterWhatsApp => 'Twitter / WhatsApp';
+
+  @override
+  String get yearlyTableYear => 'Year';
+
+  @override
+  String loadFailed(String error) {
+    return 'Failed to load: $error';
+  }
+
+  @override
+  String get favoriteLoginRequired => 'Sign in to add favorites.';
+
+  @override
+  String get yearlyComparisonTitle => 'Year-by-Year Comparison';
+
+  @override
+  String get yearlyDifference => 'Diff';
+
+  @override
+  String rankFormat(String rank) {
+    return '${rank}th place';
+  }
+
+  @override
+  String get rankNotAnnounced => 'Rank: Not announced';
+
+  @override
+  String get shareStatAvgBase => 'Avg. Base';
+
+  @override
+  String get shareStatDepartment => 'Dept.';
+
+  @override
+  String get shareStatPlace => 'Place';
+
+  @override
+  String get shareFormat => 'Share Format';
+
+  @override
+  String get comparisonSubtitle => 'Compare universities side by side';
+
+  @override
+  String get comparisonSwapTooltip => 'Swap';
+
+  @override
+  String comparisonError(String error) {
+    return 'Error: $error';
+  }
+
+  @override
+  String get adGateTitleGuest => 'Compare with Ad';
+
+  @override
+  String get adGateTitleUser => 'Free quota used up';
+
+  @override
+  String get adGateDescGuest =>
+      'You need to watch a short ad to compare. Sign in or upgrade to Plus for unlimited comparisons.';
+
+  @override
+  String get adGateDescUser =>
+      'You\'ve used your 1 free daily comparison. Watch a short ad to continue or upgrade to Plus for unlimited comparisons.';
+
+  @override
+  String get adGateWatchBusy => 'Loading ad…';
+
+  @override
+  String get adGateWatchCta => 'Watch Ad & Continue';
+
+  @override
+  String get adGatePlusCta => 'Upgrade to Plus — Unlimited';
+
+  @override
+  String get adGateDismiss => 'Not now';
+
+  @override
+  String get adGateOverlayTitleGuest => 'Watch an ad to continue';
+
+  @override
+  String get adGateOverlayTitleUser => 'Unlock to continue';
+
+  @override
+  String get adGateOverlayDescGuest =>
+      'You need to watch a short ad to compare.';
+
+  @override
+  String get adGateOverlayDescUser => 'Your daily comparison quota is used up.';
+
+  @override
+  String get adGateOverlayBusy => 'Loading…';
+
+  @override
+  String get adGateOverlayCta => 'Watch Ad / Upgrade to Plus';
+
+  @override
+  String get favoritesAddTitle => 'Add to favorites';
+
+  @override
+  String get actionBarShare => 'Share';
+
+  @override
+  String get actionBarFavorite => 'Favorite';
+
+  @override
+  String get actionBarRecompare => 'Redo';
+
+  @override
+  String get emptyStateSelectTwo => 'Select two universities';
+
+  @override
+  String get emptyStateSelectTwoDesc =>
+      'Select two universities above to see comparison results here.';
+
+  @override
+  String get triplePickerTitle => 'Select 3rd university';
+
+  @override
+  String get triplePickerSearchHint => 'Search university…';
+
+  @override
+  String get triplePickerNoResult => 'No results found';
+
+  @override
+  String get sectionCategoryScores => 'Category Scores';
+
+  @override
+  String get sectionOverview => 'Overview';
+
+  @override
+  String get sectionStats => 'General Statistics';
+
+  @override
+  String get noReviewsTitle => 'Not enough reviews';
+
+  @override
+  String get noReviewsDesc =>
+      'There are not enough reviews yet to generate category scores for these two universities.';
+
+  @override
+  String get commonReset => 'Reset';
 }
