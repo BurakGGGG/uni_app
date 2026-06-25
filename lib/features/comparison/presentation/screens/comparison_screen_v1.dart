@@ -4,6 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/widgets.dart';
+import '../../../../l10n/generated/app_localizations.dart';
 import '../../domain/models/comparison_result.dart';
 import '../providers/comparison_providers.dart';
 import '../widgets/comparison_uni_picker.dart';
@@ -18,6 +19,7 @@ class ComparisonScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final loc = AppLocalizations.of(context);
     final selection = ref.watch(comparisonSelectionProvider);
     final resultAsync = ref.watch(comparisonResultProvider);
 
@@ -32,12 +34,12 @@ class ComparisonScreen extends ConsumerWidget {
               Row(
                 children: [
                   Expanded(
-                    child: Text('Karşılaştır', style: AppTextStyles.displaySmall),
+                    child: Text(loc.comparisonHubTitle, style: AppTextStyles.displaySmall),
                   ),
                   if (selection.uniIdA != null || selection.uniIdB != null)
                     TextButton.icon(
                       icon: const Icon(Icons.refresh_rounded, size: 18),
-                      label: const Text('Sıfırla'),
+                      label: Text(loc.commonReset),
                       style: TextButton.styleFrom(
                         foregroundColor: AppColors.error,
                         backgroundColor: AppColors.error.withValues(alpha: 0.08),
@@ -49,13 +51,13 @@ class ComparisonScreen extends ConsumerWidget {
                   if (selection.bothSelected) ...[
                     IconButton(
                       icon: const Icon(Icons.swap_horiz_rounded),
-                      tooltip: 'Yer Değiştir',
+                      tooltip: loc.comparisonSwapTooltip,
                       onPressed: () =>
                           ref.read(comparisonSelectionProvider.notifier).swap(),
                     ),
                     IconButton(
                       icon: const Icon(Icons.ios_share_rounded),
-                      tooltip: 'Paylaş',
+                      tooltip: loc.commonShare,
                       onPressed: () async {
                         final result = resultAsync.valueOrNull;
                         if (result != null) {
@@ -68,7 +70,7 @@ class ComparisonScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 4),
               Text(
-                'Üniversiteleri yan yana kıyasla',
+                loc.comparisonSubtitle,
                 style: AppTextStyles.bodySmall,
               ),
               const SizedBox(height: 24),
@@ -88,6 +90,7 @@ class ComparisonScreen extends ConsumerWidget {
     ComparisonSelection selection,
     AsyncValue<ComparisonResult?> resultAsync,
   ) {
+    final loc = AppLocalizations.of(context);
     if (!selection.bothSelected) {
       return const _EmptyState();
     }
@@ -98,7 +101,7 @@ class ComparisonScreen extends ConsumerWidget {
         child: Center(child: CircularProgressIndicator()),
       ),
       error: (e, _) => ErrorStateWidget(
-        message: 'Karşılaştırma yüklenemedi. Tekrar denemek için aşağıdaki butona tıkla.',
+        message: loc.comparisonError(e.toString()),
         onRetry: () => ref.invalidate(comparisonResultProvider),
       ),
       data: (result) {
@@ -114,6 +117,7 @@ class _EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 32),
       child: EmptyStateWidget(
@@ -129,9 +133,9 @@ class _EmptyState extends StatelessWidget {
             height: 56,
           ),
         ),
-        title: 'İki üniversite seç',
+        title: loc.emptyStateSelectTwo,
         description:
-            'Yukarıdan iki üniversite seçince karşılaştırma sonuçları burada gözükür.',
+            loc.emptyStateSelectTwoDesc,
       ),
     );
   }
@@ -143,12 +147,13 @@ class _ResultView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         ComparisonHeader(result: result),
         const SizedBox(height: 24),
-        _SectionTitle('Kategori Puanları'),
+        _SectionTitle(loc.sectionCategoryScores),
         ...result.categoryComparisons.values.map(
           (c) => ComparisonCategoryRow(
             comparison: c,
@@ -157,10 +162,10 @@ class _ResultView extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 24),
-        _SectionTitle('Genel Görünüm'),
+        _SectionTitle(loc.sectionOverview),
         ComparisonRadarChart(result: result),
         const SizedBox(height: 24),
-        _SectionTitle('Genel İstatistikler'),
+        _SectionTitle(loc.sectionStats),
         ComparisonStatsTable(result: result),
         const SizedBox(height: 80),
       ],

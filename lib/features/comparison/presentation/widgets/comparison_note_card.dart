@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../../l10n/generated/app_localizations.dart';
 import '../../domain/models/comparison_note.dart';
 
 /// Tek bir karşılaştırma notunu gösteren kart widget'ı.
@@ -19,6 +20,7 @@ class ComparisonNoteCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final loc = AppLocalizations.of(context);
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -107,7 +109,7 @@ class ComparisonNoteCard extends StatelessWidget {
           // ─── Zaman Damgası ────────────────────────────────
           const SizedBox(height: 10),
           Text(
-            _formatRelativeTime(note.updatedAt),
+            _formatRelativeTime(note.updatedAt, loc),
             style: AppTextStyles.labelSmall.copyWith(
               color: AppColors.textTertiaryFor(context),
               fontSize: 10,
@@ -118,15 +120,15 @@ class ComparisonNoteCard extends StatelessWidget {
     );
   }
 
-  static String _formatRelativeTime(DateTime dateTime) {
+  static String _formatRelativeTime(DateTime dateTime, AppLocalizations loc) {
     final now = DateTime.now();
     final diff = now.difference(dateTime);
 
-    if (diff.inMinutes < 1) return 'Az önce';
-    if (diff.inMinutes < 60) return '${diff.inMinutes} dk önce';
-    if (diff.inHours < 24) return '${diff.inHours} saat önce';
-    if (diff.inDays < 7) return '${diff.inDays} gün önce';
-    if (diff.inDays < 30) return '${(diff.inDays / 7).floor()} hafta önce';
+    if (diff.inMinutes < 1) return loc.noteTimeJustNow;
+    if (diff.inMinutes < 60) return loc.noteTimeMinutesAgo(diff.inMinutes);
+    if (diff.inHours < 24) return loc.noteTimeHoursAgo(diff.inHours);
+    if (diff.inDays < 7) return loc.noteTimeDaysAgo(diff.inDays);
+    if (diff.inDays < 30) return loc.noteTimeWeeksAgo((diff.inDays / 7).floor());
     return '${dateTime.day}.${dateTime.month}.${dateTime.year}';
   }
 }

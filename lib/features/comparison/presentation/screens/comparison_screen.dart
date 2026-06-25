@@ -5,6 +5,7 @@ import 'dart:ui';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/widgets.dart';
+import '../../../../l10n/generated/app_localizations.dart';
 import '../../domain/models/comparison_result.dart';
 import '../providers/comparison_providers.dart';
 import '../widgets/comparison_uni_picker.dart';
@@ -21,6 +22,7 @@ class ComparisonScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final loc = AppLocalizations.of(context);
     final selection = ref.watch(comparisonSelectionProvider);
     final resultAsync = ref.watch(comparisonResultProvider);
     final gateLocked = ref.watch(comparisonAdGateLockedProvider);
@@ -53,12 +55,12 @@ class ComparisonScreen extends ConsumerWidget {
                     children: [
                       Expanded(
                         child:
-                            Text('Karşılaştır', style: AppTextStyles.displaySmall),
+                            Text(loc.comparisonHubTitle, style: AppTextStyles.displaySmall),
                       ),
                       if (selection.uniIdA != null || selection.uniIdB != null)
                         TextButton.icon(
                           icon: const Icon(Icons.refresh_rounded, size: 18),
-                          label: const Text('Sıfırla'),
+                          label: Text(loc.commonReset),
                           style: TextButton.styleFrom(
                             foregroundColor: AppColors.error,
                             backgroundColor:
@@ -76,13 +78,13 @@ class ComparisonScreen extends ConsumerWidget {
                       if (selection.bothSelected) ...[
                         IconButton(
                           icon: const Icon(Icons.swap_horiz_rounded),
-                          tooltip: 'Yer Değiştir',
+                          tooltip: loc.comparisonSwapTooltip,
                           onPressed: () =>
                               ref.read(comparisonSelectionProvider.notifier).swap(),
                         ),
                         IconButton(
                           icon: const Icon(Icons.ios_share_rounded),
-                          tooltip: 'Paylaş',
+                          tooltip: loc.commonShare,
                           onPressed: () async {
                             final result = resultAsync.valueOrNull;
                             if (result != null) {
@@ -95,7 +97,7 @@ class ComparisonScreen extends ConsumerWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Üniversiteleri yan yana kıyasla',
+                    loc.comparisonSubtitle,
                     style: AppTextStyles.bodySmall,
                   ),
                   const SizedBox(height: 24),
@@ -105,7 +107,7 @@ class ComparisonScreen extends ConsumerWidget {
                     duration: const Duration(milliseconds: 260),
                     switchInCurve: Curves.easeOutCubic,
                     switchOutCurve: Curves.easeInCubic,
-                    child: _buildBody(context, selection, resultAsync),
+                    child: _buildBody(context, loc, selection, resultAsync),
                   ),
                 ],
               ),
@@ -153,6 +155,7 @@ class ComparisonScreen extends ConsumerWidget {
 
   Widget _buildBody(
     BuildContext context,
+    AppLocalizations loc,
     ComparisonSelection selection,
     AsyncValue<ComparisonResult?> resultAsync,
   ) {
@@ -165,7 +168,7 @@ class ComparisonScreen extends ConsumerWidget {
         padding: EdgeInsets.symmetric(vertical: 40),
         child: Center(child: CircularProgressIndicator()),
       ),
-      error: (e, _) => Center(child: Text('Hata: $e')),
+      error: (e, _) => Center(child: Text(loc.comparisonError(e.toString()))),
       data: (result) {
         if (result == null) return const _EmptyState();
         return _ResultView(result: result);
@@ -182,6 +185,7 @@ Future<void> _showAdGateModal({
   required BuildContext context,
 }) async {
   final isDark = Theme.of(context).brightness == Brightness.dark;
+  final loc = AppLocalizations.of(context);
 
   await showModalBottomSheet<void>(
     context: context,
@@ -238,8 +242,8 @@ Future<void> _showAdGateModal({
                   // ─── Başlık ────────────────────────────
                   Text(
                     isGuest
-                        ? 'Reklam ile Karşılaştır'
-                        : 'Ücretsiz hakkın bitti',
+                        ? loc.adGateTitleGuest
+                        : loc.adGateTitleUser,
                     textAlign: TextAlign.center,
                     style: AppTextStyles.titleMedium.copyWith(
                       fontWeight: FontWeight.w900,
@@ -251,11 +255,8 @@ Future<void> _showAdGateModal({
                   // ─── Açıklama ──────────────────────────
                   Text(
                     isGuest
-                        ? 'Karşılaştırma yapmak için kısa bir reklam izlemen gerekiyor. '
-                          'Giriş yap veya Plus\'a geçerek sınırsız karşılaştırma yapabilirsin.'
-                        : 'Günlük 1 ücretsiz karşılaştırma hakkını kullandın. '
-                          'Devam etmek için kısa bir reklam izleyebilir veya '
-                          'Plus\'a geçerek sınırsız karşılaştırma yapabilirsin.',
+                        ? loc.adGateDescGuest
+                        : loc.adGateDescUser,
                     textAlign: TextAlign.center,
                     style: AppTextStyles.bodySmall.copyWith(
                       color: isDark ? Colors.white60 : AppColors.textSecondaryFor(context),
@@ -304,7 +305,7 @@ Future<void> _showAdGateModal({
                                     )
                                   : const Icon(Icons.smart_display_rounded, size: 18),
                               label: Text(
-                                busy ? 'Reklam hazırlanıyor…' : 'Reklamı İzle ve Devam Et',
+                                busy ? loc.adGateWatchBusy : loc.adGateWatchCta,
                               ),
                               style: FilledButton.styleFrom(
                                 backgroundColor: AppColors.primary,
@@ -330,7 +331,7 @@ Future<void> _showAdGateModal({
                                       Navigator.of(context).pop();
                                     },
                               icon: const Icon(Icons.rocket_launch_rounded, size: 18),
-                              label: const Text('Plus\'a Geç — Sınırsız'),
+                              label: Text(loc.adGatePlusCta),
                               style: OutlinedButton.styleFrom(
                                 foregroundColor:
                                     isDark ? Colors.white : AppColors.textPrimaryFor(context),
@@ -355,7 +356,7 @@ Future<void> _showAdGateModal({
                                 ? null
                                 : () => Navigator.of(context).pop(),
                             child: Text(
-                              'Şimdilik Vazgeç',
+                              loc.adGateDismiss,
                               style: AppTextStyles.labelMedium.copyWith(
                                 color: isDark ? Colors.white38 : AppColors.textTertiaryFor(context),
                                 fontWeight: FontWeight.w600,
@@ -382,9 +383,10 @@ Future<void> _showFavoriteModal({
   required ComparisonResult result,
 }) async {
   final auth = ref.read(authStateProvider).valueOrNull;
+  final loc = AppLocalizations.of(context);
   if (auth == null) {
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Favori için giriş yapmalısın.')),
+      SnackBar(content: Text(loc.favoriteLoginRequired)),
     );
     return;
   }
@@ -418,7 +420,7 @@ Future<void> _showFavoriteModal({
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Favorilere ekle',
+                loc.favoritesAddTitle,
                 style: AppTextStyles.titleMedium.copyWith(
                   fontWeight: FontWeight.w800,
                   color: isDark ? Colors.white : AppColors.textPrimaryFor(context),
@@ -528,6 +530,7 @@ class _ComparisonFloatingActionBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final loc = AppLocalizations.of(context);
     return SafeArea(
       top: false,
       child: Padding(
@@ -552,7 +555,7 @@ class _ComparisonFloatingActionBar extends StatelessWidget {
                   Expanded(
                     child: _ActionPill(
                       icon: Icons.ios_share_rounded,
-                      label: 'Paylaş',
+                      label: loc.actionBarShare,
                       onTap: onShare,
                     ),
                   ),
@@ -560,7 +563,7 @@ class _ComparisonFloatingActionBar extends StatelessWidget {
                   Expanded(
                     child: _ActionPill(
                       icon: Icons.favorite_rounded,
-                      label: 'Favorile',
+                      label: loc.actionBarFavorite,
                       onTap: onFavorite,
                     ),
                   ),
@@ -568,7 +571,7 @@ class _ComparisonFloatingActionBar extends StatelessWidget {
                   Expanded(
                     child: _ActionPill(
                       icon: Icons.refresh_rounded,
-                      label: 'Yeniden',
+                      label: loc.actionBarRecompare,
                       onTap: onRecompare,
                     ),
                   ),
@@ -643,6 +646,7 @@ class _ComparisonAdGateOverlay extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final loc = AppLocalizations.of(context);
     final isGuest = ref.watch(authStateProvider).valueOrNull == null;
 
     return AnimatedOpacity(
@@ -710,8 +714,8 @@ class _ComparisonAdGateOverlay extends ConsumerWidget {
                   const SizedBox(height: 12),
                   Text(
                     isGuest
-                        ? 'Reklam izleyerek devam et'
-                        : 'Devam etmek için kilidi aç',
+                        ? loc.adGateOverlayTitleGuest
+                        : loc.adGateOverlayTitleUser,
                     textAlign: TextAlign.center,
                     style: AppTextStyles.titleMedium.copyWith(
                       fontWeight: FontWeight.w900,
@@ -721,8 +725,8 @@ class _ComparisonAdGateOverlay extends ConsumerWidget {
                   const SizedBox(height: 6),
                   Text(
                     isGuest
-                        ? 'Karşılaştırma için kısa bir reklam izlemen gerekiyor.'
-                        : 'Günlük karşılaştırma hakkın doldu.',
+                        ? loc.adGateOverlayDescGuest
+                        : loc.adGateOverlayDescUser,
                     textAlign: TextAlign.center,
                     style: AppTextStyles.bodySmall.copyWith(
                       color: isDark ? Colors.white70 : AppColors.textSecondaryFor(context),
@@ -777,6 +781,7 @@ class _EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 32),
       child: EmptyStateWidget(
@@ -792,9 +797,9 @@ class _EmptyState extends StatelessWidget {
             height: 56,
           ),
         ),
-        title: 'İki üniversite seç',
+        title: loc.emptyStateSelectTwo,
         description:
-            'Yukarıdan iki üniversite seçince karşılaştırma sonuçları burada gözükür.',
+            loc.emptyStateSelectTwoDesc,
       ),
     );
   }
@@ -806,12 +811,13 @@ class _ResultView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         ComparisonHeader(result: result),
         const SizedBox(height: 24),
-        _SectionTitle('Kategori Puanları'),
+        _SectionTitle(loc.sectionCategoryScores),
             if (result.categoryComparisons.isEmpty)
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 16),
@@ -824,9 +830,9 @@ class _ResultView extends StatelessWidget {
                     ),
                     child: const Icon(Icons.rate_review_rounded, size: 32, color: AppColors.primary),
                   ),
-                  title: 'Yeterli değerlendirme yok',
+                  title: loc.noReviewsTitle,
                   description:
-                      'Bu iki üniversite için henüz kategori puanı oluşturacak yorum bulunmuyor.',
+                      loc.noReviewsDesc,
                 ),
               )
             else
@@ -838,13 +844,13 @@ class _ResultView extends StatelessWidget {
                 ),
               ),
         const SizedBox(height: 24),
-        _SectionTitle('Genel Görünüm'),
+        _SectionTitle(loc.sectionOverview),
             if (result.categoryComparisons.isEmpty)
               const SizedBox.shrink()
             else
               ComparisonRadarChart(result: result),
         const SizedBox(height: 24),
-        _SectionTitle('Genel İstatistikler'),
+        _SectionTitle(loc.sectionStats),
         ComparisonStatsTable(result: result),
         const SizedBox(height: 80),
       ],

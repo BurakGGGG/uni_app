@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/utils/university_abbreviations.dart';
+import '../../../../l10n/generated/app_localizations.dart';
 import '../../domain/models/department_comparison.dart';
 
 /// Kazanan bölümü gösteren büyük, gösterişli sonuç kartı.
@@ -20,6 +21,7 @@ class DepartmentWinnerCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final loc = AppLocalizations.of(context);
     final winner = result.winnerId;
     final isDraw = winner == null;
     final isAWinner = winner == result.deptA.id;
@@ -105,7 +107,7 @@ class DepartmentWinnerCard extends StatelessWidget {
               ),
               const SizedBox(width: 10),
               Text(
-                isDraw ? 'Berabere!' : 'Kazanan',
+                isDraw ? '${loc.tie}!' : loc.winner,
                 style: AppTextStyles.titleMedium.copyWith(
                   fontWeight: FontWeight.w900,
                   color: isDraw
@@ -149,7 +151,7 @@ class DepartmentWinnerCard extends StatelessWidget {
             children: [
               _MetricBadge(
                 icon: Icons.school_rounded,
-                label: 'Puan',
+                label: loc.baseScore,
                 winner: metrics['baseScore']!,
                 labelA: shortA,
                 labelB: shortB,
@@ -158,7 +160,7 @@ class DepartmentWinnerCard extends StatelessWidget {
               const SizedBox(width: 8),
               _MetricBadge(
                 icon: Icons.format_list_numbered_rounded,
-                label: 'Sıralama',
+                label: loc.ranking,
                 winner: metrics['ranking']!,
                 labelA: shortA,
                 labelB: shortB,
@@ -167,7 +169,7 @@ class DepartmentWinnerCard extends StatelessWidget {
               const SizedBox(width: 8),
               _MetricBadge(
                 icon: Icons.people_rounded,
-                label: 'Kontenjan',
+                label: loc.quota,
                 winner: metrics['quota']!,
                 labelA: shortA,
                 labelB: shortB,
@@ -176,7 +178,7 @@ class DepartmentWinnerCard extends StatelessWidget {
               const SizedBox(width: 8),
               _MetricBadge(
                 icon: Icons.check_circle_rounded,
-                label: 'Doluluk',
+                label: loc.fillRate,
                 winner: metrics['fillRate']!,
                 labelA: shortA,
                 labelB: shortB,

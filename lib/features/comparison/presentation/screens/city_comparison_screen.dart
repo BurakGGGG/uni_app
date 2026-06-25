@@ -130,12 +130,10 @@ class _CityComparisonScreenState extends ConsumerState<CityComparisonScreen> {
               if (!ref.watch(isOnlineProvider))
                 const OfflineBanner(),
               // Header — başlık + alt başlık
-              const ComparisonPickerHeader(
+              ComparisonPickerHeader(
                 icon: Icons.location_city_rounded,
-                title: 'Şehir Karşılaştır',
-                subtitle:
-                    'İki şehrin üniversite ekosistemini karşılaştır. '
-                    'Devlet/vakıf dağılımı, üniversite sayısı ve daha fazlası.',
+                title: loc.comparisonCityHeaderTitle,
+                subtitle: loc.comparisonCityHeaderSubtitle,
                 accentColor: AppColors.primary,
               ),
               const SizedBox(height: 20),
@@ -175,7 +173,7 @@ class _CityComparisonScreenState extends ConsumerState<CityComparisonScreen> {
                 duration: const Duration(milliseconds: 260),
                 switchInCurve: Curves.easeOutCubic,
                 switchOutCurve: Curves.easeInCubic,
-                child: _buildResultArea(isDark, resultAsync),
+                child: _buildResultArea(context, isDark, resultAsync),
               ),
             ],
           ),
@@ -187,6 +185,7 @@ class _CityComparisonScreenState extends ConsumerState<CityComparisonScreen> {
   }
 
   Widget _buildResultArea(
+    BuildContext context,
     bool isDark,
     AsyncValue<CityComparisonResult?> resultAsync,
   ) {
@@ -208,7 +207,10 @@ class _CityComparisonScreenState extends ConsumerState<CityComparisonScreen> {
             : null;
         final effectiveResult = result ?? fallback;
         if (effectiveResult == null) {
-          return _ErrorCard(message: 'Sonuç bulunamadı.', isDark: isDark);
+          return _ErrorCard(
+            message: AppLocalizations.of(context).comparisonResultNotFound,
+            isDark: isDark,
+          );
         }
         return _CityResultView(result: effectiveResult);
       },
@@ -251,6 +253,7 @@ class _HintCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
@@ -274,7 +277,7 @@ class _HintCard extends StatelessWidget {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'İki şehir seçince karşılaştırma sonuçları burada gözükecek.',
+              loc.comparisonCityHint,
               style: AppTextStyles.bodyMedium.copyWith(
                 color: isDark ? Colors.white70 : AppColors.textSecondaryFor(context),
                 height: 1.3,
@@ -453,13 +456,13 @@ class _CityResultView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // final isDark removed — not used in this widget
+    final loc = AppLocalizations.of(context);
 
     return Column(
       children: [
         // ─── Üniversite Sayısı ──────────────────────────
         _CompareBarCard(
-          title: 'Üniversite Sayısı',
+          title: loc.comparisonUniversityCount,
           labelA: result.cityA.name,
           labelB: result.cityB.name,
           valueA: result.universityCountA.toDouble(),
@@ -471,7 +474,7 @@ class _CityResultView extends StatelessWidget {
 
         // ─── Devlet / Vakıf Dağılımı ─────────────────
         _Card(
-          title: 'Devlet / Vakıf Dağılımı',
+          title: loc.comparisonStateFoundationDistribution,
           child: Row(
             children: [
               Expanded(
@@ -519,7 +522,7 @@ class _CityResultView extends StatelessWidget {
         // ─── Nüfus ─────────────────────────────────
         if ((result.populationA ?? 0) > 0 || (result.populationB ?? 0) > 0)
           _CompareBarCard(
-            title: 'Nüfus',
+            title: loc.comparisonPopulation,
             labelA: result.cityA.name,
             labelB: result.cityB.name,
             valueA: (result.populationA ?? 0).toDouble(),
@@ -532,23 +535,23 @@ class _CityResultView extends StatelessWidget {
 
         // ─── Şehir Özellikleri ────────────────────────
         _Card(
-          title: 'Şehir Özellikleri',
+          title: loc.comparisonCityFeatures,
           child: Column(
             children: [
               _InfoRow(
-                label: 'Plaka',
+                label: loc.comparisonPlate,
                 a: result.cityA.plateCode,
                 b: result.cityB.plateCode,
               ),
               const SizedBox(height: 8),
               _InfoRow(
-                label: 'Toplam Üni',
+                label: loc.comparisonTotalUniversities,
                 a: result.cityA.totalUniversityCount.toString(),
                 b: result.cityB.totalUniversityCount.toString(),
               ),
               const SizedBox(height: 8),
               _InfoRow(
-                label: 'ÜniSeç\'te',
+                label: loc.comparisonInUniSec,
                 a: result.cityA.appUniversityCount.toString(),
                 b: result.cityB.appUniversityCount.toString(),
               ),
@@ -759,4 +762,3 @@ class _InfoRow extends StatelessWidget {
     );
   }
 }
-

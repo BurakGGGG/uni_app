@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../../core/utils/localized_labels.dart';
+import '../../../../l10n/generated/app_localizations.dart';
 import '../../../university/presentation/providers/university_providers.dart';
 import '../providers/comparison_providers.dart';
 import 'comparison_picker_slot.dart';
@@ -16,6 +18,7 @@ class ComparisonUniPicker extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final selection = ref.watch(comparisonSelectionProvider);
+    final loc = AppLocalizations.of(context);
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 20, 16, 16),
@@ -23,11 +26,10 @@ class ComparisonUniPicker extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           // Başlık + alt başlık
-          const ComparisonPickerHeader(
+          ComparisonPickerHeader(
             icon: Icons.account_balance_rounded,
-            title: 'Üniversite Karşılaştır',
-            subtitle: 'Karşılaştırmak istediğin iki üniversiteyi seç. '
-                'Puanlar, kategoriler ve istatistikler yan yana gelsin.',
+            title: loc.comparisonUniversityPickerTitle,
+            subtitle: loc.comparisonUniversityPickerSubtitle,
             accentColor: AppColors.primary,
           ),
           const SizedBox(height: 24),
@@ -39,7 +41,7 @@ class ComparisonUniPicker extends ConsumerWidget {
               Expanded(
                 child: _UniSlot(
                   uniId: selection.uniIdA,
-                  emptyLabel: 'Üniversite A',
+                  emptyLabel: loc.selectUniversityA,
                   accentColor: AppColors.primary,
                   onTap: () =>
                       _showPicker(context, ref, selection, isA: true),
@@ -51,7 +53,7 @@ class ComparisonUniPicker extends ConsumerWidget {
               Expanded(
                 child: _UniSlot(
                   uniId: selection.uniIdB,
-                  emptyLabel: 'Üniversite B',
+                  emptyLabel: loc.selectUniversityB,
                   accentColor: AppColors.secondary,
                   onTap: () =>
                       _showPicker(context, ref, selection, isA: false),
@@ -63,9 +65,9 @@ class ComparisonUniPicker extends ConsumerWidget {
           const SizedBox(height: 16),
 
           // İpucu (Pro feature reklamı)
-          const ComparisonPickerHint(
+          ComparisonPickerHint(
             icon: Icons.workspace_premium_rounded,
-            text: 'Pro ile 3. üniversiteyi ekleyip üçlü karşılaştırma yapabilirsin.',
+            text: loc.comparisonTripleHint,
             accentColor: AppColors.tierPro,
           ),
         ],
@@ -91,6 +93,7 @@ class ComparisonUniPicker extends ConsumerWidget {
         builder: (_, controller) {
           final isDark = Theme.of(context).brightness == Brightness.dark;
           final uniListAsync = ref.watch(allUniversitiesProvider);
+          final loc = AppLocalizations.of(context);
           return Container(
             decoration: BoxDecoration(
               color: isDark ? AppColors.darkSurface : AppColors.surface,
@@ -122,8 +125,8 @@ class ComparisonUniPicker extends ConsumerWidget {
                       const SizedBox(width: 10),
                       Text(
                         isA
-                            ? 'A için üniversite seç'
-                            : 'B için üniversite seç',
+                            ? loc.comparisonSelectUniversityForA
+                            : loc.comparisonSelectUniversityForB,
                         style: AppTextStyles.titleMedium.copyWith(
                           fontWeight: FontWeight.w800,
                         ),
@@ -203,7 +206,7 @@ class ComparisonUniPicker extends ConsumerWidget {
                                         ),
                                         const SizedBox(height: 2),
                                         Text(
-                                          '${uni.type} · ${uni.campusLayout.label}',
+                                          '${localizedUniversityType(loc, uni.type)} · ${localizedCampusLayout(loc, uni.campusLayout.name)}',
                                           style: AppTextStyles.labelSmall
                                               .copyWith(
                                             color: AppColors.textTertiaryFor(context),
@@ -248,6 +251,7 @@ class _UniSlot extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final loc = AppLocalizations.of(context);
     if (uniId == null) {
       return ComparisonPickerSlot(
         isEmpty: true,
@@ -261,7 +265,7 @@ class _UniSlot extends ConsumerWidget {
     return uniAsync.when(
       loading: () => ComparisonPickerSlot(
         isEmpty: true,
-        emptyLabel: 'Yükleniyor…',
+        emptyLabel: loc.commonLoading,
         emptyIcon: Icons.hourglass_top_rounded,
         accentColor: accentColor,
         onTap: onTap,
@@ -302,7 +306,7 @@ class _UniSlot extends ConsumerWidget {
             ),
           ),
           title: uni.name,
-          subtitle: uni.type,
+          subtitle: localizedUniversityType(loc, uni.type),
         );
       },
     );

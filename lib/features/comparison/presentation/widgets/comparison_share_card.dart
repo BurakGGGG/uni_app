@@ -6,6 +6,7 @@ import 'dart:io';
 import 'dart:ui';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../../l10n/generated/app_localizations.dart';
 import '../../domain/models/comparison_result.dart';
 import '../../../admin/data/analytics_service.dart';
 import '../../../admin/domain/models/analytics_event.dart';
@@ -57,23 +58,23 @@ class ShareFormatPicker extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           Text(
-            'Paylaşım Formatı',
+            AppLocalizations.of(context).commonShare,
             style: AppTextStyles.titleMedium,
           ),
           const SizedBox(height: 8),
           ListTile(
             leading: const Icon(Icons.camera_alt_rounded),
-            title: const Text('Instagram Hikaye (9:16)'),
+            title: Text(AppLocalizations.of(context).shareInstagramStory),
             onTap: () => onSelected(ShareFormat.instagramStory),
           ),
           ListTile(
             leading: const Icon(Icons.crop_square_rounded),
-            title: const Text('Instagram Gönderi (1:1)'),
+            title: Text(AppLocalizations.of(context).shareInstagramPost),
             onTap: () => onSelected(ShareFormat.instagramPost),
           ),
           ListTile(
             leading: const Icon(Icons.forum_rounded),
-            title: const Text('Twitter / WhatsApp'),
+            title: Text(AppLocalizations.of(context).shareTwitterWhatsApp),
             onTap: () => onSelected(ShareFormat.twitterCard),
           ),
           const SizedBox(height: 16),
@@ -99,6 +100,7 @@ class ComparisonShareCard extends StatelessWidget {
     BuildContext context,
     ComparisonResult result,
   ) async {
+    final loc = AppLocalizations.of(context);
     final mediaQueryData = MediaQuery.of(context);
     final format = await ShareFormatPicker.show(context);
     if (format == null) return;
@@ -137,7 +139,7 @@ class ComparisonShareCard extends StatelessWidget {
     await Share.shareXFiles(
       [XFile(file.path)],
       text:
-          '${result.uniA.name} vs ${result.uniB.name} karşılaştırması — ÜniSeç ile yap!\n\n$shareLink',
+          '${result.uniA.name} vs ${result.uniB.name} — ${loc.comparisonHubTitle} | ÜniSeç\n\n$shareLink',
     );
     AnalyticsService.instance.trackEvent(AnalyticsEvent.comparisonShared);
   }
@@ -145,6 +147,7 @@ class ComparisonShareCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final loc = AppLocalizations.of(context);
     final winnerA = result.overallWinnerId == result.uniA.id;
     final winnerB = result.overallWinnerId == result.uniB.id;
 
@@ -296,7 +299,7 @@ class ComparisonShareCard extends StatelessWidget {
                               ),
                               const SizedBox(height: 16),
                               _ShareStatRow(
-                                label: 'Ort. Taban',
+                                label: loc.shareStatAvgBase,
                                 valueA: result.stats.avgBaseScoreA > 0
                                     ? result.stats.avgBaseScoreA.toStringAsFixed(1)
                                     : '-',
@@ -306,13 +309,13 @@ class ComparisonShareCard extends StatelessWidget {
                               ),
                               const SizedBox(height: 10),
                               _ShareStatRow(
-                                label: 'Bölüm',
+                                label: loc.shareStatDepartment,
                                 valueA: result.stats.totalDepartmentsA.toString(),
                                 valueB: result.stats.totalDepartmentsB.toString(),
                               ),
                               const SizedBox(height: 10),
                               _ShareStatRow(
-                                label: 'Mekan',
+                                label: loc.shareStatPlace,
                                 valueA: result.placeCountA.toString(),
                                 valueB: result.placeCountB.toString(),
                               ),
@@ -427,7 +430,7 @@ class _WinnerPill extends StatelessWidget {
           Icon(Icons.emoji_events_rounded, color: color, size: 14),
           const SizedBox(width: 6),
           Text(
-            'Önde',
+            AppLocalizations.of(context).winner,
             style: AppTextStyles.labelSmall.copyWith(
               color: color,
               fontWeight: FontWeight.w900,

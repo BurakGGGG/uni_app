@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../../l10n/generated/app_localizations.dart';
 import '../../../university/domain/models/university_model.dart';
 import '../providers/comparison_providers.dart';
 import 'university_logo_box.dart';
@@ -56,6 +57,7 @@ class _TripleThirdUniPickerState extends ConsumerState<TripleThirdUniPicker> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final loc = AppLocalizations.of(context);
     final unisAsync = ref.watch(departmentPickerUniversitiesProvider);
 
     return DraggableScrollableSheet(
@@ -93,7 +95,7 @@ class _TripleThirdUniPickerState extends ConsumerState<TripleThirdUniPicker> {
                         size: 22, color: AppColors.tierPro),
                     const SizedBox(width: 10),
                     Text(
-                      '3. üniversiteyi seç',
+                      loc.triplePickerTitle,
                       style: AppTextStyles.titleMedium.copyWith(
                         fontWeight: FontWeight.w800,
                       ),
@@ -114,7 +116,7 @@ class _TripleThirdUniPickerState extends ConsumerState<TripleThirdUniPicker> {
                   controller: _ctrl,
                   onChanged: (v) => setState(() => _query = v.trim()),
                   decoration: InputDecoration(
-                    hintText: 'Üniversite ara…',
+                    hintText: loc.triplePickerSearchHint,
                     prefixIcon: const Icon(Icons.search_rounded),
                     isDense: true,
                     border: OutlineInputBorder(
@@ -132,7 +134,7 @@ class _TripleThirdUniPickerState extends ConsumerState<TripleThirdUniPicker> {
                   error: (e, _) => Center(
                     child: Padding(
                       padding: const EdgeInsets.all(24),
-                      child: Text('Yüklenemedi: $e'),
+                      child: Text(loc.loadFailed(e.toString())),
                     ),
                   ),
                   data: (unis) {
@@ -142,7 +144,7 @@ class _TripleThirdUniPickerState extends ConsumerState<TripleThirdUniPicker> {
                         child: Padding(
                           padding: const EdgeInsets.all(24),
                           child: Text(
-                            'Sonuç bulunamadı',
+                            loc.triplePickerNoResult,
                             style: AppTextStyles.bodySmall.copyWith(
                               color: AppColors.textTertiaryFor(context),
                             ),

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../../l10n/generated/app_localizations.dart';
 
 /// Plus/Pro gerektiren alanlar için reusable lock overlay.
 /// Not: Tier logic'i Kişi A provider'ına bağlanınca `isLocked` gerçek veriden beslenecek.
@@ -22,6 +23,7 @@ class PlusLockOverlay extends StatelessWidget {
   Widget build(BuildContext context) {
     if (!isLocked) return child;
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final loc = AppLocalizations.of(context);
     return ClipRRect(
       borderRadius: BorderRadius.circular(18),
       child: Stack(
@@ -83,7 +85,7 @@ class PlusLockOverlay extends StatelessWidget {
                       ),
                       const SizedBox(height: 6),
                       Text(
-                        'Plus veya Pro ile açılır',
+                        loc.plusLockSubtitle,
                         textAlign: TextAlign.center,
                         style: AppTextStyles.bodySmall.copyWith(
                           color: isDark ? Colors.white70 : AppColors.textSecondaryFor(context),
@@ -95,7 +97,7 @@ class PlusLockOverlay extends StatelessWidget {
                         child: FilledButton.icon(
                           onPressed: () => context.push('/compare/paywall'),
                           icon: const Icon(Icons.rocket_launch_rounded, size: 18),
-                          label: const Text("Plus'a Geç"),
+                          label: Text(loc.plusLockButton),
                           style: FilledButton.styleFrom(
                             backgroundColor: AppColors.tierPlus,
                             foregroundColor: Colors.white,

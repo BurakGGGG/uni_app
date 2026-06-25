@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../../core/utils/localized_labels.dart';
 import '../../../../core/utils/university_abbreviations.dart';
 import '../../../monetization/domain/enums/subscription_tier.dart';
 import '../../../monetization/presentation/widgets/subscription_gate_widget.dart';
@@ -141,12 +142,10 @@ class _DepartmentComparisonScreenState
                   // ─── Offline Banner ──────────────────────────────
                   if (!ref.watch(isOnlineProvider)) const OfflineBanner(),
                   // Header — başlık + alt başlık
-                  const ComparisonPickerHeader(
+                  ComparisonPickerHeader(
                     icon: Icons.menu_book_rounded,
-                    title: 'Bölüm Karşılaştır',
-                    subtitle:
-                        'Aynı bölümü iki farklı üniversitede karşılaştır. '
-                        'Taban puan, sıralama ve kontenjan yan yana gelsin.',
+                    title: loc.comparisonDepartmentHeaderTitle,
+                    subtitle: loc.comparisonDepartmentHeaderSubtitle,
                     accentColor: AppColors.primary,
                   ),
                   const SizedBox(height: 20),
@@ -225,7 +224,10 @@ class _DepartmentComparisonScreenState
             : null;
         final effectiveResult = result ?? fallback;
         if (effectiveResult == null) {
-          return _ErrorCard(message: 'Sonuç bulunamadı.', isDark: isDark);
+          return _ErrorCard(
+            message: AppLocalizations.of(context).comparisonResultNotFound,
+            isDark: isDark,
+          );
         }
         return _DepartmentResultView(
           result: effectiveResult,
@@ -313,6 +315,7 @@ class _HintCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
@@ -339,7 +342,7 @@ class _HintCard extends StatelessWidget {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'İki taraftan da birer bölüm seçince karşılaştırma sonuçları burada gözükecek.',
+              loc.comparisonDepartmentHint,
               style: AppTextStyles.bodyMedium.copyWith(
                 color: isDark
                     ? Colors.white70
@@ -417,6 +420,7 @@ class _PickCard extends StatelessWidget {
     }
 
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final loc = AppLocalizations.of(context);
     final dept = p.department;
     final uni = p.university;
     final scoreType = dept.scoreData?.scoreType ?? dept.scoreType;
@@ -491,7 +495,7 @@ class _PickCard extends StatelessWidget {
               children: [
                 _MetaPill(
                   icon: Icons.timelapse_rounded,
-                  label: '${dept.duration}y',
+                  label: loc.yearsCount(dept.duration),
                 ),
                 if (scoreType != null && scoreType.isNotEmpty)
                   _MetaPill(
@@ -558,6 +562,7 @@ class _DepartmentResultView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final loc = AppLocalizations.of(context);
 
     final baseA =
         result.deptA.baseScore ?? result.deptA.scoreData?.baseScore ?? 0;
@@ -591,7 +596,7 @@ class _DepartmentResultView extends StatelessWidget {
 
         // Taban Puan
         _BigCompareCard(
-          title: 'Taban Puan (2025)',
+          title: loc.comparisonBaseScore2025,
           leftLabel: shortA,
           rightLabel: shortB,
           leftValue: baseA > 0 ? baseA.toStringAsFixed(2) : '-',
@@ -633,7 +638,7 @@ class _DepartmentResultView extends StatelessWidget {
           children: [
             Expanded(
               child: _CompactMetricCard(
-                title: 'Kontenjan',
+                title: loc.quota,
                 icon: Icons.people_rounded,
                 labelA: shortA,
                 labelB: shortB,
@@ -646,7 +651,7 @@ class _DepartmentResultView extends StatelessWidget {
             const SizedBox(width: 10),
             Expanded(
               child: _CompactMetricCard(
-                title: 'Doluluk',
+                title: loc.fillRate,
                 icon: Icons.check_circle_rounded,
                 labelA: shortA,
                 labelB: shortB,
@@ -689,6 +694,7 @@ class _MismatchBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(14),
@@ -703,7 +709,7 @@ class _MismatchBanner extends StatelessWidget {
           const SizedBox(width: 10),
           Expanded(
             child: Text(
-              'Puan türleri farklı görünüyor. Karşılaştırma yanıltıcı olabilir.',
+              loc.comparisonScoreTypeMismatch,
               style: AppTextStyles.bodySmall.copyWith(
                 color: isDark
                     ? Colors.white70
@@ -1047,6 +1053,7 @@ class _DetailedInfoCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final loc = AppLocalizations.of(context);
 
     final scoreTypeA = deptA.scoreData?.scoreType ?? deptA.scoreType ?? '';
     final scoreTypeB = deptB.scoreData?.scoreType ?? deptB.scoreType ?? '';
@@ -1085,7 +1092,7 @@ class _DetailedInfoCard extends StatelessWidget {
               ),
               const SizedBox(width: 8),
               Text(
-                'Detaylı Bilgiler',
+                loc.comparisonDetailedInfo,
                 style: AppTextStyles.titleSmall.copyWith(
                   fontWeight: FontWeight.w900,
                   color: isDark
@@ -1097,24 +1104,32 @@ class _DetailedInfoCard extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           _DetailRow(
-            label: 'Fakülte',
+            label: loc.comparisonFaculty,
             a: deptA.faculty.isNotEmpty ? deptA.faculty : '-',
             b: deptB.faculty.isNotEmpty ? deptB.faculty : '-',
           ),
           _DetailDivider(isDark: isDark),
           _DetailRow(
-            label: 'Süre',
-            a: '${deptA.duration} yıl',
-            b: '${deptB.duration} yıl',
+            label: loc.duration,
+            a: loc.yearsCount(deptA.duration),
+            b: loc.yearsCount(deptB.duration),
           ),
           _DetailDivider(isDark: isDark),
-          _DetailRow(label: 'Dil', a: deptA.language, b: deptB.language),
+          _DetailRow(
+            label: loc.language,
+            a: localizedDepartmentLanguage(loc, deptA.language),
+            b: localizedDepartmentLanguage(loc, deptB.language),
+          ),
           _DetailDivider(isDark: isDark),
-          _DetailRow(label: 'Tür', a: deptA.type, b: deptB.type),
+          _DetailRow(
+            label: loc.type,
+            a: localizedDepartmentType(loc, deptA.type),
+            b: localizedDepartmentType(loc, deptB.type),
+          ),
           if (scoreTypeA.isNotEmpty || scoreTypeB.isNotEmpty) ...[
             _DetailDivider(isDark: isDark),
             _DetailRow(
-              label: 'Puan Türü',
+              label: loc.scoreType,
               a: scoreTypeA.isNotEmpty ? scoreTypeA : '-',
               b: scoreTypeB.isNotEmpty ? scoreTypeB : '-',
             ),
@@ -1329,6 +1344,7 @@ class _RankingYearCardState extends State<_RankingYearCard> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final loc = AppLocalizations.of(context);
     final rankingsA = _getRankings(widget.deptA);
     final rankingsB = _getRankings(widget.deptB);
 
@@ -1378,7 +1394,7 @@ class _RankingYearCardState extends State<_RankingYearCard> {
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  'Sıralama',
+                  loc.comparisonRankingTitle,
                   style: AppTextStyles.titleSmall.copyWith(
                     fontWeight: FontWeight.w900,
                     color: isDark
@@ -1443,7 +1459,7 @@ class _RankingYearCardState extends State<_RankingYearCard> {
                           ),
                           if (!hasData)
                             Text(
-                              'veri yok',
+                              loc.comparisonNoDataLower,
                               style: AppTextStyles.labelSmall.copyWith(
                                 fontSize: 7,
                                 color: isSelected
@@ -1471,7 +1487,7 @@ class _RankingYearCardState extends State<_RankingYearCard> {
                   label: widget.labelA,
                   value: rankA != null && rankA > 0
                       ? _formatRank(rankA)
-                      : 'Veri yok',
+                      : loc.commonNoData,
                   color: AppColors.primary,
                 ),
               ),
@@ -1485,7 +1501,7 @@ class _RankingYearCardState extends State<_RankingYearCard> {
                   label: widget.labelB,
                   value: rankB != null && rankB > 0
                       ? _formatRank(rankB)
-                      : 'Veri yok',
+                      : loc.commonNoData,
                   color: AppColors.secondary,
                 ),
               ),

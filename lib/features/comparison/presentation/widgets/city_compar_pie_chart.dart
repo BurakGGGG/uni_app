@@ -2,6 +2,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../../l10n/generated/app_localizations.dart';
 
 class CityComparPieChart extends StatelessWidget {
   final int stateCount;
@@ -16,9 +17,10 @@ class CityComparPieChart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final total = stateCount + foundationCount;
+    final loc = AppLocalizations.of(context);
     if (total <= 0) {
       return Center(
-        child: Text('Veri yok', style: AppTextStyles.bodySmall),
+        child: Text(loc.comparisonNoData, style: AppTextStyles.bodySmall),
       );
     }
 
@@ -64,9 +66,9 @@ class CityComparPieChart extends StatelessWidget {
           runSpacing: 6,
           alignment: WrapAlignment.center,
           children: [
-            _LegendDot(label: 'Devlet', value: stateCount, color: AppColors.info),
+            _LegendDot(label: loc.universityTypeState, value: stateCount, color: AppColors.info),
             _LegendDot(
-              label: 'Vakıf',
+              label: loc.universityTypeFoundation,
               value: foundationCount,
               color: AppColors.tierPlus,
             ),
