@@ -895,13 +895,10 @@ function parseOptionalPriceRange(value: unknown): string | undefined {
 }
 
 function parseOptionalPhone(value: unknown): string | undefined {
-  const parsed = parseOptionalString(value, 'phone', 11);
+  const parsed = parseOptionalString(value, 'phone', 40);
   if (parsed === undefined) return undefined;
-  if (!/^[0-9]{10,11}$/.test(parsed)) {
-    throw new HttpsError(
-      'invalid-argument',
-      'Telefon yalnızca 10 veya 11 rakamdan oluşmalı.',
-    );
+  if (!/^[0-9+()\s.-]{5,40}$/.test(parsed)) {
+    throw new HttpsError('invalid-argument', 'Telefon formatı geçersiz.');
   }
   return parsed;
 }

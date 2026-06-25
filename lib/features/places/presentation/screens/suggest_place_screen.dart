@@ -608,7 +608,6 @@ class _SuggestPlaceScreenState extends ConsumerState<SuggestPlaceScreen> {
                   onRemove: _removePhoto,
                 ),
                 const SizedBox(height: 32),
-
                 // ─── Gönder Butonu ─────────────────────────────────
                 _SubmitButton(isSubmitting: _isSubmitting, onTap: _submit),
                 const SizedBox(height: 16),

@@ -294,9 +294,9 @@ class PlaceSuggestionRepository {
       );
     }
     final phone = (suggestion.phone ?? '').trim();
-    if (phone.isNotEmpty && !RegExp(r'^[0-9]{10,11}$').hasMatch(phone)) {
+    if (phone.isNotEmpty && !RegExp(r'^[0-9+()\s.-]{5,40}$').hasMatch(phone)) {
       throw const PlaceSuggestionException(
-        'Telefon yalnızca 10 veya 11 rakamdan oluşmalı.',
+        'Telefon formatı geçersiz.',
       );
     }
     if (suggestion.amenities.length > 12) {

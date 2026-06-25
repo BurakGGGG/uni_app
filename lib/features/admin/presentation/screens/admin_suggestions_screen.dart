@@ -74,6 +74,7 @@ class _AdminSuggestionsScreenState extends ConsumerState<AdminSuggestionsScreen>
       ),
       body: Column(
         children: [
+
           _buildQueueControls(context),
           Expanded(
             child: TabBarView(
@@ -228,6 +229,7 @@ class _AdminSuggestionsScreenState extends ConsumerState<AdminSuggestionsScreen>
                 ),
               ],
             ),
+
           ),
         ],
       ),
