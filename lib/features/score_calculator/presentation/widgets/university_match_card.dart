@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../domain/models/match_result.dart';
+import '../../../../core/utils/city_helper.dart';
 
 class UniversityMatchCard extends StatelessWidget {
   final UniversityMatch match;
@@ -85,7 +86,7 @@ class UniversityMatchCard extends StatelessWidget {
                           const SizedBox(width: 4),
                           Flexible(
                             child: Text(
-                              match.university.cityId, // TODO: city name
+                              CityHelper.getCityName(match.university.cityId),
                               style: AppTextStyles.bodySmall.copyWith(color: AppColors.textTertiaryFor(context)),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
