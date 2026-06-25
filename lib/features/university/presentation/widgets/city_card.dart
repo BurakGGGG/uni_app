@@ -106,7 +106,7 @@ class _CityCardState extends State<CityCard>
                       height: 44,
                       padding: const EdgeInsets.all(4),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: AppColors.surfaceFor(context),
                         borderRadius: BorderRadius.circular(10),
                         border: Border.all(color: AppColors.borderLightFor(context)),
                       ),
@@ -210,7 +210,7 @@ class _CityCardState extends State<CityCard>
                       height: 64,
                       padding: const EdgeInsets.all(6),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: AppColors.surfaceFor(context),
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(color: AppColors.borderLightFor(context)),
                         boxShadow: [

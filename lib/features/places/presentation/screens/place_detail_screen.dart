@@ -96,18 +96,18 @@ class _PlaceDetailScreenState extends ConsumerState<PlaceDetailScreen> {
     return SliverAppBar(
       expandedHeight: hasImages ? 240 : 0,
       pinned: true,
-      backgroundColor: AppColors.surface,
+      backgroundColor: AppColors.surfaceFor(context),
       foregroundColor: AppColors.textPrimaryFor(context),
       leading: IconButton(
         tooltip: 'Geri dön',
         onPressed: () => context.pop(),
         icon: Container(
           padding: const EdgeInsets.all(6),
-          decoration: const BoxDecoration(
-            color: Colors.white70,
+          decoration: BoxDecoration(
+            color: AppColors.surfaceFor(context).withValues(alpha: 0.7),
             shape: BoxShape.circle,
           ),
-          child: const Icon(Icons.arrow_back_rounded, size: 20),
+          child: Icon(Icons.arrow_back_rounded, size: 20, color: AppColors.textPrimaryFor(context)),
         ),
       ),
       flexibleSpace: hasImages
@@ -348,7 +348,7 @@ class _PlaceDetailScreenState extends ConsumerState<PlaceDetailScreen> {
       margin: const EdgeInsets.fromLTRB(20, 16, 20, 0),
       padding: const EdgeInsets.all(AppConstants.spacingLg),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: AppColors.surfaceFor(context),
         borderRadius: BorderRadius.circular(AppConstants.radiusLg),
         border: Border.all(color: AppColors.borderLightFor(context)),
       ),

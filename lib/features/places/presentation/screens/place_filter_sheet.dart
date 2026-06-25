@@ -147,7 +147,7 @@ class _TypeFilters extends StatelessWidget {
             ]),
             selected: selected,
             onSelected: (_) => notifier.toggleType(t),
-            backgroundColor: AppColors.surfaceVariant,
+            backgroundColor: AppColors.surfaceVariantFor(context),
             selectedColor: AppColors.primary,
             labelStyle: TextStyle(
               color: selected ? Colors.white : AppColors.textPrimaryFor(context),
@@ -178,7 +178,7 @@ class _PriceFilters extends StatelessWidget {
           label: Text('${prices[i]} ${labels[i]}'),
           selected: selected,
           onSelected: (_) => notifier.togglePrice(prices[i]),
-          backgroundColor: AppColors.surfaceVariant,
+          backgroundColor: AppColors.surfaceVariantFor(context),
           selectedColor: AppColors.success,
           labelStyle: TextStyle(
             color: selected ? Colors.white : AppColors.textPrimaryFor(context),
@@ -210,7 +210,7 @@ class _AmenityFilters extends StatelessWidget {
           label: Text(a),
           selected: selected,
           onSelected: (_) => notifier.toggleAmenity(a),
-          backgroundColor: AppColors.surfaceVariant,
+          backgroundColor: AppColors.surfaceVariantFor(context),
           selectedColor: AppColors.info,
           labelStyle: TextStyle(
             color: selected ? Colors.white : AppColors.textPrimaryFor(context),

@@ -56,7 +56,7 @@ class _PlaceCardState extends ConsumerState<PlaceCard> {
     return Container(
       margin: widget.margin ?? const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: AppColors.surfaceFor(context),
         borderRadius: BorderRadius.circular(AppConstants.radiusLg),
         border: Border.all(color: AppColors.borderLightFor(context)),
         boxShadow: AppColors.softShadow,
@@ -95,7 +95,7 @@ class _PlaceCardState extends ConsumerState<PlaceCard> {
         memCacheWidth: (PlaceCard._kImageSize * 2).toInt(),
         memCacheHeight: (PlaceCard._kImageSize * 2).toInt(),
         placeholder: (_, url) => Container(
-          width: PlaceCard._kImageSize, height: PlaceCard._kImageSize, color: AppColors.surfaceVariant,
+          width: PlaceCard._kImageSize, height: PlaceCard._kImageSize, color: AppColors.surfaceVariantFor(context),
         ),
         errorWidget: (_, url, error) => Container(
           width: PlaceCard._kImageSize, height: PlaceCard._kImageSize,

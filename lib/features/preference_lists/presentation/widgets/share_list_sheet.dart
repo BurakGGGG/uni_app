@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../../l10n/generated/app_localizations.dart';
 import '../../domain/models/preference_list_model.dart';
 import '../providers/preference_list_providers.dart';
 import '../../../admin/data/analytics_service.dart';
@@ -34,6 +35,7 @@ class _Content extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final loc = AppLocalizations.of(context);
     final listsAsync = ref.watch(myPreferenceListsProvider);
     final currentList =
         listsAsync.value?.firstWhere(
@@ -82,7 +84,7 @@ class _Content extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Listeyi Paylaş',
+                      loc.prefListShareTitle,
                       style: AppTextStyles.titleLarge.copyWith(
                         fontWeight: FontWeight.w700,
                         letterSpacing: -0.3,
@@ -117,13 +119,13 @@ class _Content extends ConsumerWidget {
                 borderRadius: BorderRadius.circular(12),
               ),
               title: Text(
-                'Herkese açık',
+                loc.prefListPublicTitle,
                 style: AppTextStyles.bodyMedium.copyWith(
                   fontWeight: FontWeight.w600,
                 ),
               ),
               subtitle: Text(
-                'Linke sahip herkes listeni görebilir',
+                loc.prefListPublicShareSubtitle,
                 style: AppTextStyles.labelSmall.copyWith(
                   color: AppColors.textSecondaryFor(context),
                 ),
@@ -139,7 +141,9 @@ class _Content extends ConsumerWidget {
                   if (context.mounted) {
                     ScaffoldMessenger.of(
                       context,
-                    ).showSnackBar(SnackBar(content: Text('Hata: $e')));
+                    ).showSnackBar(
+                      SnackBar(content: Text(loc.errorGeneral(e.toString()))),
+                    );
                   }
                 }
               },
@@ -190,9 +194,9 @@ class _Content extends ConsumerWidget {
                       );
                       if (context.mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Bağlantı kopyalandı'),
-                            duration: Duration(seconds: 2),
+                          SnackBar(
+                            content: Text(loc.prefListLinkCopied),
+                            duration: const Duration(seconds: 2),
                           ),
                         );
                       }
@@ -217,9 +221,12 @@ class _Content extends ConsumerWidget {
                 ),
                 onPressed: () => _shareList(context, currentList),
                 icon: const Icon(Icons.ios_share_rounded, size: 20),
-                label: const Text(
-                  'Bağlantıyı Paylaş',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                label: Text(
+                  loc.prefListShareLinkButton,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 15,
+                  ),
                 ),
               ),
             ),
@@ -235,7 +242,7 @@ class _Content extends ConsumerWidget {
                 ),
                 const SizedBox(width: 5),
                 Text(
-                  '${currentList.viewCount} görüntülenme',
+                  loc.prefListViewCount(currentList.viewCount),
                   style: AppTextStyles.labelSmall.copyWith(
                     color: AppColors.textTertiaryFor(context),
                   ),
@@ -260,7 +267,7 @@ class _Content extends ConsumerWidget {
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(
-                      'Listen şu an gizli. Paylaşmak için yukarıdaki anahtarı aç.',
+                      loc.prefListPrivateNotice,
                       style: AppTextStyles.bodySmall.copyWith(
                         color: AppColors.textSecondaryFor(context),
                         height: 1.4,
@@ -277,6 +284,7 @@ class _Content extends ConsumerWidget {
   }
 
   void _shareList(BuildContext context, PreferenceListModel list) {
+    final loc = AppLocalizations.of(context);
     final preview = list.items
         .take(3)
         .map((it) {
@@ -285,10 +293,10 @@ class _Content extends ConsumerWidget {
         })
         .join('\n');
     final extra = list.items.length > 3
-        ? '\n…ve ${list.items.length - 3} bölüm daha'
+        ? '\n${loc.prefListShareTextExtra(list.items.length - 3)}'
         : '';
     final text =
-        '"${list.title}" tercih listemi paylaştım 🎓\n\n'
+        '${loc.prefListShareTextHeader(list.title)}\n\n'
         '$preview$extra\n\n'
         '${list.publicUrl}';
     AnalyticsService.instance.trackEvent(AnalyticsEvent.preferenceListShared);

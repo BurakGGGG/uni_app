@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../../l10n/generated/app_localizations.dart';
 import '../../../auth/presentation/providers/auth_providers.dart';
 import '../../../university/presentation/widgets/score_badge.dart';
 import '../providers/preference_list_providers.dart';
@@ -15,6 +16,7 @@ class SharedListScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final loc = AppLocalizations.of(context);
     final listAsync = ref.watch(publicListBySlugProvider(shareSlug));
     final isLoggedIn = ref.watch(authStateProvider).value != null;
 
@@ -25,7 +27,7 @@ class SharedListScreen extends ConsumerWidget {
           loading: () => const Center(
             child: CircularProgressIndicator(color: AppColors.primary),
           ),
-          error: (e, _) => _NotFoundView(message: 'Liste yüklenemedi'),
+          error: (e, _) => _NotFoundView(message: loc.prefSharedListLoadError),
           data: (list) {
             if (list == null) return const _NotFoundView();
             return _buildList(context, list, isLoggedIn);
@@ -37,6 +39,7 @@ class SharedListScreen extends ConsumerWidget {
 
   Widget _buildList(
       BuildContext context, PreferenceListModel list, bool isLoggedIn) {
+    final loc = AppLocalizations.of(context);
     return CustomScrollView(
       physics: const BouncingScrollPhysics(),
       slivers: [
@@ -64,9 +67,9 @@ class SharedListScreen extends ConsumerWidget {
                     style: TextButton.styleFrom(
                       foregroundColor: AppColors.primary,
                     ),
-                    child: const Text(
-                      'Giriş Yap',
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                    child: Text(
+                      loc.authSignIn,
+                      style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
                   ),
               ],
@@ -89,7 +92,7 @@ class SharedListScreen extends ConsumerWidget {
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
-                    'Paylaşılan Liste',
+                    loc.prefSharedListBadge,
                     style: AppTextStyles.labelSmall.copyWith(
                       color: AppColors.primary,
                       fontWeight: FontWeight.w700,
@@ -136,7 +139,7 @@ class SharedListScreen extends ConsumerWidget {
                             ),
                           ),
                           Text(
-                            'Liste sahibi',
+                            loc.prefSharedListOwner,
                             style: AppTextStyles.labelSmall.copyWith(
                               color: AppColors.textSecondaryFor(context),
                             ),
@@ -158,7 +161,7 @@ class SharedListScreen extends ConsumerWidget {
                               size: 14, color: AppColors.textSecondaryFor(context)),
                           const SizedBox(width: 4),
                           Text(
-                            '${list.items.length} tercih',
+                            loc.prefListItemCount(list.items.length),
                             style: AppTextStyles.labelSmall.copyWith(
                               color: AppColors.textSecondaryFor(context),
                               fontWeight: FontWeight.w700,
@@ -363,6 +366,7 @@ class _EmptyView extends StatelessWidget {
   const _EmptyView();
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
@@ -384,14 +388,14 @@ class _EmptyView extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             Text(
-              'Liste boş',
+              loc.prefListEmptyItemsTitle,
               style: AppTextStyles.titleLarge.copyWith(
                 fontWeight: FontWeight.w700,
               ),
             ),
             const SizedBox(height: 6),
             Text(
-              'Bu listede henüz tercih yok.',
+              loc.prefSharedListEmptyDesc,
               style: AppTextStyles.bodyMedium.copyWith(
                 color: AppColors.textSecondaryFor(context),
               ),
@@ -408,6 +412,7 @@ class _NotFoundView extends StatelessWidget {
   const _NotFoundView({this.message});
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
@@ -429,14 +434,14 @@ class _NotFoundView extends StatelessWidget {
             ),
             const SizedBox(height: 20),
             Text(
-              message ?? 'Liste bulunamadı',
+              message ?? loc.prefListNotFound,
               style: AppTextStyles.titleLarge.copyWith(
                 fontWeight: FontWeight.w700,
               ),
             ),
             const SizedBox(height: 8),
             Text(
-              'Bu liste silinmiş veya gizli olarak işaretlenmiş olabilir.',
+              loc.prefSharedListHiddenOrDeleted,
               textAlign: TextAlign.center,
               style: AppTextStyles.bodyMedium.copyWith(
                 color: AppColors.textSecondaryFor(context),
@@ -463,9 +468,12 @@ class _NotFoundView extends StatelessWidget {
                     GoRouter.of(context).go('/home');
                   }
                 },
-                child: const Text(
-                  'Ana Sayfaya Dön',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                child: Text(
+                  loc.prefSharedListBackHome,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 15,
+                  ),
                 ),
               ),
             ),
