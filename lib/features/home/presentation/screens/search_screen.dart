@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart' show ScrollCacheExtent;
+import 'package:flutter_animate/flutter_animate.dart';
 import '../../../../l10n/generated/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -171,15 +172,15 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                 ),
               ),
             ),
-            for (final uni in suggestions)
+            for (var i = 0; i < suggestions.length; i++)
               ListTile(
                 leading: Icon(
                   Icons.lightbulb_outline_rounded,
                   color: AppColors.primary,
                 ),
-                title: Text(uni.name, style: AppTextStyles.bodyMedium),
+                title: Text(suggestions[i].name, style: AppTextStyles.bodyMedium),
                 subtitle: Text(
-                  uni.type == 'Devlet'
+                  suggestions[i].type == 'Devlet'
                       ? loc.exploreTypeState
                       : loc.exploreTypeFoundation,
                   style: AppTextStyles.labelSmall.copyWith(
@@ -191,8 +192,13 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                   size: 18,
                   color: AppColors.textTertiaryFor(context),
                 ),
-                onTap: () => _applySuggestion(uni.name),
-              ),
+                onTap: () => _applySuggestion(suggestions[i].name),
+              ).animate().fadeIn(delay: (i * 70).ms, duration: 280.ms).slideX(
+                  begin: 0.08,
+                  end: 0,
+                  delay: (i * 70).ms,
+                  duration: 280.ms,
+                  curve: Curves.easeOut),
           ],
         ],
       ),

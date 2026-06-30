@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
@@ -539,7 +540,12 @@ class _TabbedResultViewState extends ConsumerState<_TabbedResultView>
           ),
         ],
       ),
-    );
+    ).animate().fadeIn(duration: 300.ms).slideY(
+          begin: -0.15,
+          end: 0,
+          duration: 300.ms,
+          curve: Curves.easeOut,
+        );
   }
 
   @override
@@ -1189,7 +1195,10 @@ class _ChartTab extends ConsumerWidget {
       padding: const EdgeInsets.fromLTRB(0, 8, 0, 80),
       child: Column(
         children: [
-          ComparisonRadarChart(result: result),
+          ComparisonRadarChart(result: result)
+              .animate()
+              .fadeIn(duration: 350.ms)
+              .slideY(begin: 0.12, end: 0, duration: 350.ms, curve: Curves.easeOut),
           const SizedBox(height: 16),
           Padding(
             padding: hPad,
@@ -1201,7 +1210,8 @@ class _ChartTab extends ConsumerWidget {
               labelA: labelA,
               labelB: labelB,
             ),
-          ),
+          ).animate().fadeIn(delay: 90.ms, duration: 350.ms).slideY(
+              begin: 0.12, end: 0, delay: 90.ms, duration: 350.ms, curve: Curves.easeOut),
           const SizedBox(height: 16),
           Padding(
             padding: hPad,
@@ -1213,7 +1223,8 @@ class _ChartTab extends ConsumerWidget {
               labelA: labelA,
               labelB: labelB,
             ),
-          ),
+          ).animate().fadeIn(delay: 180.ms, duration: 350.ms).slideY(
+              begin: 0.12, end: 0, delay: 180.ms, duration: 350.ms, curve: Curves.easeOut),
           const SizedBox(height: 16),
           Padding(
             padding: hPad,
@@ -1224,7 +1235,8 @@ class _ChartTab extends ConsumerWidget {
               labelA: labelA,
               labelB: labelB,
             ),
-          ),
+          ).animate().fadeIn(delay: 270.ms, duration: 350.ms).slideY(
+              begin: 0.12, end: 0, delay: 270.ms, duration: 350.ms, curve: Curves.easeOut),
         ],
       ),
     );

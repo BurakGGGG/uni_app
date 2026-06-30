@@ -420,6 +420,7 @@ class _HeroBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return GestureDetector(
       onTap: () => context.push('/score-calculator'),
       child: Container(
@@ -431,7 +432,8 @@ class _HeroBanner extends StatelessWidget {
           borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(
-              color: AppColors.primary.withValues(alpha: 0.3),
+              color: AppColors.primary
+                  .withValues(alpha: isDark ? 0.18 : 0.3),
               blurRadius: 24,
               offset: const Offset(0, 8),
             ),
@@ -468,10 +470,11 @@ class _HeroBanner extends StatelessWidget {
                 height: 100,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Colors.white.withValues(alpha: 0.1),
+                  color: Colors.white.withValues(alpha: isDark ? 0.06 : 0.1),
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.secondary.withValues(alpha: 0.3),
+                      color: (isDark ? Colors.white : AppColors.secondary)
+                          .withValues(alpha: isDark ? 0.12 : 0.3),
                       blurRadius: 40,
                       spreadRadius: 20,
                     ),

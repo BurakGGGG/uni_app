@@ -292,13 +292,16 @@ class AppColors {
         : softShadow;
   }
 
-  /// Tema duyarlı hero gradient
+  /// Tema duyarlı hero gradient.
+  /// Açık temada canlı mor→pembe; karanlık temada bu tonun "gece" hâli:
+  /// muddy bordo yerine bütünlüklü, derin indigo→menekşe (beyaz metinle
+  /// yüksek kontrast, dark surface'le uyumlu).
   static LinearGradient heroGradientFor(BuildContext context) {
     return Theme.of(context).brightness == Brightness.dark
         ? const LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [Color(0xFF231E5B), Color(0xFF5A1C2C)], // Much darker variants for dark mode
+            colors: [Color(0xFF1E1B4B), Color(0xFF3B2F7A)],
           )
         : heroGradient;
   }
