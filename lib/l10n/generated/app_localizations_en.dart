@@ -999,6 +999,9 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get searchDidYouMean => 'Did you mean?';
+
+  @override
   String get searchCampus => 'Has Campus';
 
   @override

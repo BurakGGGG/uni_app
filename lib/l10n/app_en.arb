@@ -402,6 +402,7 @@
   "searchRecentTitle": "Recent Searches",
   "searchRecentClear": "Clear",
   "searchNoResultsSub": "No university matching \"{query}\".",
+  "searchDidYouMean": "Did you mean?",
   "searchCampus": "Has Campus",
   "searchEst": "Established: {year}",
   "homeHeroBannerTitle": "Calculate Your Score,\nSet Your Goal!",

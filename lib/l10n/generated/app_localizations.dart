@@ -1952,6 +1952,12 @@ abstract class AppLocalizations {
   /// **'\"{query}\" aramasına uygun üniversite yok.'**
   String searchNoResultsSub(Object query);
 
+  /// No description provided for @searchDidYouMean.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bunu mu demek istedin?'**
+  String get searchDidYouMean;
+
   /// No description provided for @searchCampus.
   ///
   /// In tr, this message translates to:

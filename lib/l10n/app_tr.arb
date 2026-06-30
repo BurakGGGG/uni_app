@@ -411,6 +411,7 @@
   "searchRecentTitle": "Son Aramalar",
   "searchRecentClear": "Temizle",
   "searchNoResultsSub": "\"{query}\" aramasına uygun üniversite yok.",
+  "searchDidYouMean": "Bunu mu demek istedin?",
   "searchCampus": "Kampüslü",
   "searchEst": "Kuruluş: {year}",
   "homeHeroBannerTitle": "Puanını Hesapla,\nHedefini Belirle!",

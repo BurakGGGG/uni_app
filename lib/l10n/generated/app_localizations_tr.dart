@@ -1002,6 +1002,9 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
+  String get searchDidYouMean => 'Bunu mu demek istedin?';
+
+  @override
   String get searchCampus => 'Kampüslü';
 
   @override

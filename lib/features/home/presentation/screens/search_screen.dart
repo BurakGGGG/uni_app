@@ -7,6 +7,10 @@ import 'dart:async';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/widgets.dart';
+import '../../../../core/utils/fuzzy_search.dart';
+import '../../../../core/utils/turkish_compare.dart';
+import '../../../../core/utils/university_abbreviations.dart';
+import '../../../university/domain/models/university_model.dart';
 import '../../../university/presentation/providers/university_providers.dart';
 import '../../../admin/data/analytics_service.dart';
 import '../../../admin/domain/models/analytics_event.dart';
@@ -92,18 +96,106 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                   onPressed: () =>
                       ref.read(recentSearchesProvider.notifier).remove(term),
                 ),
-                onTap: () {
-                  _searchController.value = TextEditingValue(
-                    text: term,
-                    selection: TextSelection.collapsed(offset: term.length),
-                  );
-                  ref.read(searchQueryProvider.notifier).state = term;
-                },
+                onTap: () => _applySuggestion(term),
               );
             },
           ),
         ),
       ],
+    );
+  }
+
+  /// Yazım hatalı sorgu için en yakın üniversiteleri bulur ("bunu mu demek
+  /// istedin?"). Ad, sistem kısaltması ve alias'lara karşı bulanık eşleşme.
+  List<UniversityModel> _didYouMean(String query, List<UniversityModel> all) {
+    final q = turkishNormalize(query.trim());
+    if (q.length < 2 || all.isEmpty) return const [];
+
+    final scored = <(int, UniversityModel)>[];
+    for (final uni in all) {
+      final d = fuzzyDistance(query, [
+        uni.name,
+        UniversityAbbreviations.shorten(uni.name),
+        ...uni.aliases,
+      ]);
+      if (isFuzzyMatch(d, q.length)) scored.add((d, uni));
+    }
+    scored.sort((a, b) {
+      final c = a.$1.compareTo(b.$1);
+      return c != 0 ? c : turkishCompare(a.$2.name, b.$2.name);
+    });
+    return scored.take(3).map((e) => e.$2).toList();
+  }
+
+  void _applySuggestion(String text) {
+    _searchController.value = TextEditingValue(
+      text: text,
+      selection: TextSelection.collapsed(offset: text.length),
+    );
+    ref.read(searchQueryProvider.notifier).state = text;
+  }
+
+  Widget _buildNoResults(
+    BuildContext context,
+    String query,
+    AppLocalizations loc,
+  ) {
+    final all =
+        ref.watch(allUniversitiesProvider).valueOrNull ?? const <UniversityModel>[];
+    final suggestions = _didYouMean(query, all);
+
+    return SingleChildScrollView(
+      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+      padding: const EdgeInsets.only(bottom: 24),
+      child: Column(
+        children: [
+          const SizedBox(height: 24),
+          EmptyState(
+            icon: Icons.search_off_rounded,
+            title: loc.searchNoResults,
+            message: loc.searchNoResultsSub(query),
+            compact: true,
+          ),
+          if (suggestions.isNotEmpty) ...[
+            const SizedBox(height: 4),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(20, 8, 16, 8),
+                child: Text(
+                  loc.searchDidYouMean,
+                  style: AppTextStyles.labelLarge.copyWith(
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.textSecondaryFor(context),
+                  ),
+                ),
+              ),
+            ),
+            for (final uni in suggestions)
+              ListTile(
+                leading: Icon(
+                  Icons.lightbulb_outline_rounded,
+                  color: AppColors.primary,
+                ),
+                title: Text(uni.name, style: AppTextStyles.bodyMedium),
+                subtitle: Text(
+                  uni.type == 'Devlet'
+                      ? loc.exploreTypeState
+                      : loc.exploreTypeFoundation,
+                  style: AppTextStyles.labelSmall.copyWith(
+                    color: AppColors.textTertiaryFor(context),
+                  ),
+                ),
+                trailing: Icon(
+                  Icons.north_west_rounded,
+                  size: 18,
+                  color: AppColors.textTertiaryFor(context),
+                ),
+                onTap: () => _applySuggestion(uni.name),
+              ),
+          ],
+        ],
+      ),
     );
   }
 
@@ -196,11 +288,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                     }
                   }
                   if (results.isEmpty) {
-                    return EmptyState(
-                      icon: Icons.search_off_rounded,
-                      title: loc.searchNoResults,
-                      message: loc.searchNoResultsSub(query),
-                    );
+                    return _buildNoResults(context, query, loc);
                   }
 
                   final showAds =
