@@ -7,6 +7,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/widgets/widgets.dart';
+import '../../../../l10n/generated/app_localizations.dart';
 import '../../../reviews/domain/models/review_model.dart';
 import '../../../reviews/presentation/providers/review_providers.dart';
 import '../../../reviews/presentation/utils/review_submission_guard.dart';
@@ -39,7 +40,10 @@ class _PlaceDetailScreenState extends ConsumerState<PlaceDetailScreen> {
       backgroundColor: AppColors.backgroundFor(context),
       body: placeAsync.when(
         loading: () => const PlaceDetailSkeleton(),
-        error: (e, _) => Center(child: Text('Hata: $e')),
+        error: (e, _) => ErrorState(
+          message: AppLocalizations.of(context).commonError,
+          onRetry: () => ref.invalidate(placeDetailProvider(widget.placeId)),
+        ),
         data: (place) {
           if (place == null) {
             return Center(

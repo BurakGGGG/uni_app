@@ -5,6 +5,8 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/widgets/widgets.dart';
+import '../../../../l10n/generated/app_localizations.dart';
 import '../providers/university_providers.dart';
 import '../../../reviews/presentation/widgets/review_list.dart';
 import '../../../reviews/domain/models/review_model.dart';
@@ -32,7 +34,10 @@ class DepartmentDetailScreen extends ConsumerWidget {
       appBar: AppBar(title: const Text('Bölüm Detayı')),
       body: deptAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, st) => Center(child: Text('Hata: $e')),
+        error: (e, st) => ErrorState(
+          message: AppLocalizations.of(context).commonError,
+          onRetry: () => ref.invalidate(departmentDetailProvider(departmentId)),
+        ),
         data: (dept) {
           if (dept == null) {
             return const Center(child: Text('Bölüm bulunamadı'));

@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/widgets/widgets.dart';
+import '../../../../l10n/generated/app_localizations.dart';
 import '../providers/university_providers.dart';
 import '../../domain/models/department_model.dart';
 import '../widgets/score_badge.dart';
@@ -121,8 +123,12 @@ class _UniDepartmentsScreenState extends ConsumerState<UniDepartmentsScreen> {
         ),
       ),
       body: deptsAsync.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, st) => Center(child: Text('Bölümler yüklenemedi: $e')),
+        loading: () => const ListSkeleton(),
+        error: (e, st) => ErrorState(
+          message: AppLocalizations.of(context).commonError,
+          onRetry: () => ref
+              .invalidate(departmentsByUniversityProvider(widget.universityId)),
+        ),
         data: (departments) {
           if (departments.isEmpty) {
             return const Center(

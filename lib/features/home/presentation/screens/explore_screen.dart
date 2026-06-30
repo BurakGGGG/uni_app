@@ -382,7 +382,17 @@ class _FilterBottomSheet extends ConsumerWidget {
                     Text(loc.exploreCities, style: AppTextStyles.titleMedium),
                     const SizedBox(height: 12),
                     citiesAsync.when(
-                      loading: () => const CircularProgressIndicator(),
+                      loading: () => const Align(
+                        alignment: Alignment.centerLeft,
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(vertical: 8),
+                          child: SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          ),
+                        ),
+                      ),
                       error: (e, st) => Text(loc.exploreCitiesError),
                       data: (cities) {
                         return Wrap(

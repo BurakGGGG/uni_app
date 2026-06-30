@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/widgets/widgets.dart';
+import '../../../../l10n/generated/app_localizations.dart';
 import '../providers/university_providers.dart';
 import '../../../auth/presentation/providers/auth_providers.dart';
 import '../../../reviews/presentation/widgets/review_list.dart';
@@ -21,8 +23,12 @@ class UniReviewsScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Yorumlar')),
       body: uniAsync.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, st) => Center(child: Text('Hata: $e')),
+        loading: () => const ListSkeleton(),
+        error: (e, st) => ErrorState(
+          message: AppLocalizations.of(context).commonError,
+          onRetry: () =>
+              ref.invalidate(universityDetailProvider(universityId)),
+        ),
         data: (uni) {
           if (uni == null) {
             return const Center(child: Text('Üniversite bulunamadı'));
