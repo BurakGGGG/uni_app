@@ -1477,6 +1477,16 @@ class AppLocalizationsEn extends AppLocalizations {
       'Charts appear empty because there are not enough ratings yet.';
 
   @override
+  String get comparisonChartHintTitle => 'New: Pro comparison charts';
+
+  @override
+  String get comparisonChartHintBody =>
+      'Discover radar, heat map and trend charts in the Chart tab.';
+
+  @override
+  String get comparisonChartHintCta => 'Show me';
+
+  @override
   String get comparisonUniversityPickerTitle => 'Compare Universities';
 
   @override

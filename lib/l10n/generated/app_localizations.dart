@@ -2792,6 +2792,24 @@ abstract class AppLocalizations {
   /// **'Henüz yeterli değerlendirme olmadığı için grafikler boş görünüyor.'**
   String get comparisonChartEmptyDesc;
 
+  /// No description provided for @comparisonChartHintTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Yeni: Pro karşılaştırma grafikleri'**
+  String get comparisonChartHintTitle;
+
+  /// No description provided for @comparisonChartHintBody.
+  ///
+  /// In tr, this message translates to:
+  /// **'Radar, ısı haritası ve trend grafiklerini Grafik sekmesinde keşfet.'**
+  String get comparisonChartHintBody;
+
+  /// No description provided for @comparisonChartHintCta.
+  ///
+  /// In tr, this message translates to:
+  /// **'Göster'**
+  String get comparisonChartHintCta;
+
   /// No description provided for @comparisonUniversityPickerTitle.
   ///
   /// In tr, this message translates to:

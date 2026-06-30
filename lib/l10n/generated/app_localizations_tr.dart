@@ -1477,6 +1477,16 @@ class AppLocalizationsTr extends AppLocalizations {
       'Henüz yeterli değerlendirme olmadığı için grafikler boş görünüyor.';
 
   @override
+  String get comparisonChartHintTitle => 'Yeni: Pro karşılaştırma grafikleri';
+
+  @override
+  String get comparisonChartHintBody =>
+      'Radar, ısı haritası ve trend grafiklerini Grafik sekmesinde keşfet.';
+
+  @override
+  String get comparisonChartHintCta => 'Göster';
+
+  @override
   String get comparisonUniversityPickerTitle => 'Üniversite Karşılaştır';
 
   @override

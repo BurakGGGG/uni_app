@@ -31,6 +31,7 @@ import '../widgets/triple_third_uni_picker.dart';
 import '../widgets/university_logo_box.dart';
 import '../widgets/comparison_notes_section.dart';
 import '../../../auth/presentation/providers/auth_providers.dart';
+import '../../../../core/services/feature_discovery_service.dart';
 import 'package:go_router/go_router.dart';
 
 /// Üniversite Karşılaştırma Ekranı — Yeniden Yazım (Gün 3)
@@ -348,6 +349,10 @@ class _TabbedResultViewState extends ConsumerState<_TabbedResultView>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
+  // Pro grafik sekmesi (index 2) için tek seferlik keşif ipucu.
+  static const _chartTabIndex = 2;
+  bool _showChartHint = false;
+
   // ─── Tab tanımları ────────────────────────────────────────────
   static const _tabIcons = [
     Icons.dashboard_rounded,
@@ -363,7 +368,24 @@ class _TabbedResultViewState extends ConsumerState<_TabbedResultView>
     _tabController = TabController(length: 5, vsync: this);
     _tabController.addListener(() {
       if (!_tabController.indexIsChanging) setState(() {});
+      // Kullanıcı Grafik sekmesine geçtiyse ipucunu kapat (görevini gördü).
+      if (_showChartHint && _tabController.index == _chartTabIndex) {
+        _dismissChartHint();
+      }
     });
+    // İpucu: grafik sekmesinde veri varsa ve daha önce gösterilmediyse aç.
+    _showChartHint = widget.result.categoryComparisons.isNotEmpty &&
+        !ref
+            .read(featureDiscoveryProvider)
+            .isCompleted(FeatureDiscoveryService.comparisonChartsCompleted);
+  }
+
+  void _dismissChartHint() {
+    if (!_showChartHint) return;
+    ref
+        .read(featureDiscoveryProvider)
+        .markCompleted(FeatureDiscoveryService.comparisonChartsCompleted);
+    setState(() => _showChartHint = false);
   }
 
   @override
@@ -410,6 +432,112 @@ class _TabbedResultViewState extends ConsumerState<_TabbedResultView>
       builder: (ctx) => _ProNotesPaywallSheet(
         isLoggedIn: isLoggedIn,
         isDark: isDark,
+      ),
+    );
+  }
+
+  /// Pro grafik sekmesini tanıtan tek seferlik ipucu şeridi.
+  Widget _buildChartHint(
+    BuildContext context,
+    AppLocalizations loc,
+    bool isDark,
+  ) {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(16, 0, 16, 4),
+      padding: const EdgeInsets.fromLTRB(12, 10, 8, 10),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            AppColors.tierPro.withValues(alpha: isDark ? 0.18 : 0.12),
+            AppColors.primary.withValues(alpha: isDark ? 0.16 : 0.10),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: AppColors.tierPro.withValues(alpha: 0.35),
+        ),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 34,
+            height: 34,
+            decoration: BoxDecoration(
+              color: AppColors.tierPro.withValues(alpha: 0.18),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.insights_rounded,
+              size: 18,
+              color: AppColors.tierPro,
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  loc.comparisonChartHintTitle,
+                  style: AppTextStyles.labelMedium.copyWith(
+                    fontWeight: FontWeight.w800,
+                    color: isDark ? Colors.white : AppColors.textPrimaryFor(context),
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  loc.comparisonChartHintBody,
+                  style: AppTextStyles.labelSmall.copyWith(
+                    color: isDark
+                        ? Colors.white70
+                        : AppColors.textSecondaryFor(context),
+                    height: 1.3,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 6),
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              InkWell(
+                borderRadius: BorderRadius.circular(20),
+                onTap: () {
+                  _tabController.animateTo(_chartTabIndex);
+                  _dismissChartHint();
+                },
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: AppColors.tierPro,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    loc.comparisonChartHintCta,
+                    style: AppTextStyles.labelSmall.copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          IconButton(
+            visualDensity: VisualDensity.compact,
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+            onPressed: _dismissChartHint,
+            icon: Icon(
+              Icons.close_rounded,
+              size: 18,
+              color: isDark ? Colors.white54 : AppColors.textTertiaryFor(context),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -518,6 +646,9 @@ class _TabbedResultViewState extends ConsumerState<_TabbedResultView>
             },
           ),
         ),
+
+        // ─── Pro Grafik keşif ipucu (tek seferlik) ─────────
+        if (_showChartHint) _buildChartHint(context, loc, isDark),
 
         // ─── Tab İçerikleri ────────────────────────────────
         Expanded(
