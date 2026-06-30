@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../../core/widgets/pressable.dart';
 import '../../domain/models/city_model.dart';
 import 'city_logo.dart';
 
 enum _CityCardVariant { compact, tile }
 
-class CityCard extends StatefulWidget {
+class CityCard extends StatelessWidget {
   final CityModel city;
   final VoidCallback onTap;
   final _CityCardVariant _variant;
@@ -24,54 +25,18 @@ class CityCard extends StatefulWidget {
   }) : _variant = _CityCardVariant.tile;
 
   @override
-  State<CityCard> createState() => _CityCardState();
-}
-
-class _CityCardState extends State<CityCard>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _ctrl;
-  late final Animation<double> _scale;
-
-  @override
-  void initState() {
-    super.initState();
-    _ctrl = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 140),
-      lowerBound: 0.0,
-      upperBound: 0.04,
-    );
-    _scale = _ctrl.drive(Tween(begin: 1.0, end: 0.96));
-  }
-
-  @override
-  void dispose() {
-    _ctrl.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTapDown: (_) => _ctrl.forward(),
-      onTapUp: (_) {
-        _ctrl.reverse();
-        widget.onTap();
+    return Pressable(
+      onTap: onTap,
+      child: switch (_variant) {
+        _CityCardVariant.compact => _buildCompact(context),
+        _CityCardVariant.tile => _buildTile(context),
       },
-      onTapCancel: () => _ctrl.reverse(),
-      child: ScaleTransition(
-        scale: _scale,
-        child: switch (widget._variant) {
-          _CityCardVariant.compact => _buildCompact(),
-          _CityCardVariant.tile => _buildTile(),
-        },
-      ),
     );
   }
 
   // ─── Compact (Ana sayfa horizontal scroll için) ────────────
-  Widget _buildCompact() {
-    final city = widget.city;
+  Widget _buildCompact(BuildContext context) {
     return Container(
       width: 140,
       margin: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
@@ -157,8 +122,7 @@ class _CityCardState extends State<CityCard>
   }
 
   // ─── Tile (AllCitiesScreen grid için) ──────────────────────
-  Widget _buildTile() {
-    final city = widget.city;
+  Widget _buildTile(BuildContext context) {
     return AspectRatio(
       aspectRatio: 1.0, // Kare
       child: Container(

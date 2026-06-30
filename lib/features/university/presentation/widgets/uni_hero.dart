@@ -160,7 +160,7 @@ class _UniHeroState extends ConsumerState<UniHero>
                               errorBuilder: (context, error, stackTrace) => const Icon(
                                 Icons.school_rounded,
                                 size: 40,
-                                color: Colors.grey,
+                                color: AppColors.textTertiary,
                               ),
                             ),
                           ),

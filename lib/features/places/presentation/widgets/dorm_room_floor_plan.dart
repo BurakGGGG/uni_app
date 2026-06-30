@@ -17,7 +17,7 @@ class DormRoomFloorPlan extends StatelessWidget {
         color: AppColors.surfaceFor(context),
         borderRadius: BorderRadius.circular(AppConstants.radiusLg),
         border: Border.all(color: AppColors.info.withValues(alpha: 0.18)),
-        boxShadow: AppColors.softShadow,
+        boxShadow: AppColors.softShadowFor(context),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

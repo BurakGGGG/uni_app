@@ -633,17 +633,8 @@ class _PopularUniCard extends ConsumerWidget {
         (async) => async.value?.contains(university.id) ?? false,
       ),
     );
-    final colors = [
-      AppColors.primary,
-      AppColors.secondary,
-      AppColors.accent,
-      const Color(0xFF10B981),
-      const Color(0xFFF59E0B),
-      const Color(0xFF8B5CF6),
-      const Color(0xFFEC4899),
-      const Color(0xFF14B8A6),
-    ];
-    final color = colors[index % colors.length];
+    // Marka paletiyle uyumlu, küratörlü aksan tonu (rastgele gökkuşağı yerine)
+    final color = AppColors.accentForIndex(index);
 
     final brandColor = university.brandColor ?? color;
 
