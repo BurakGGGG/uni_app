@@ -6,7 +6,6 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../../../l10n/generated/app_localizations.dart';
 
 /// Plus/Pro gerektiren alanlar için reusable lock overlay.
-/// Not: Tier logic'i Kişi A provider'ına bağlanınca `isLocked` gerçek veriden beslenecek.
 class PlusLockOverlay extends StatelessWidget {
   final bool isLocked;
   final String featureName;

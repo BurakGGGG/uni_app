@@ -102,6 +102,58 @@ class AppLocalizationsTr extends AppLocalizations {
   String get aiSummaryRegenerate => 'Yeniden Üret';
 
   @override
+  String get viewProPlans => 'Pro Paketleri İncele';
+
+  @override
+  String get proChartLockedSubtitle => 'Bu grafik Pro paketinde.';
+
+  @override
+  String get watchAdUnlockOneHour => 'Video İzle ve 1 Saat Ücretsiz Aç';
+
+  @override
+  String get adLoading => 'Reklam yükleniyor, lütfen bekleyin…';
+
+  @override
+  String get proChartsUnlockedOneHour =>
+      'Pro grafikler ve özellikler 1 saatliğine başarıyla açıldı!';
+
+  @override
+  String get adFailedRetry =>
+      'Reklam yüklenemedi veya tamamlanmadı. Lütfen tekrar deneyin.';
+
+  @override
+  String get chartHeatmapTitle => 'Kategori Karşılaştırması';
+
+  @override
+  String get chartTrendTitle => '6 Aylık Puan Trendi';
+
+  @override
+  String get chartScatterTitle => 'Taban Puanı × Sıralama';
+
+  @override
+  String get chartScatterXAxis => 'Taban puanı';
+
+  @override
+  String get chartScatterYAxis => 'Sıralama';
+
+  @override
+  String get chartScaleLow => 'Düşük';
+
+  @override
+  String get chartScaleHigh => 'Yüksek';
+
+  @override
+  String get chartNoData => 'Veri yok';
+
+  @override
+  String get chartDepartmentLabel => 'Bölüm';
+
+  @override
+  String tempProBadge(int minutes) {
+    return 'Pro aktif · $minutes dk';
+  }
+
+  @override
   String get watchAdToContinue => 'Reklamı İzle ve Devam Et';
 
   @override
@@ -611,6 +663,39 @@ class AppLocalizationsTr extends AppLocalizations {
   String get commonError => 'Bir hata oluştu';
 
   @override
+  String get paywallPerMonthSuffix => '/ay';
+
+  @override
+  String get paywallPerYearSuffix => '/yıl';
+
+  @override
+  String paywallSaveBadge(int percent) {
+    return '%$percent TASARRUF';
+  }
+
+  @override
+  String paywallYearlySavingsSub(int percent) {
+    return 'Aylığa göre %$percent tasarruf';
+  }
+
+  @override
+  String paywallFreeTrialNote(String duration) {
+    return 'İlk $duration ücretsiz, sonra otomatik yenilenir';
+  }
+
+  @override
+  String get paywallUnitDay => 'gün';
+
+  @override
+  String get paywallUnitWeek => 'hafta';
+
+  @override
+  String get paywallUnitMonth => 'ay';
+
+  @override
+  String get paywallUnitYear => 'yıl';
+
+  @override
   String get commonLoading => 'Yükleniyor...';
 
   @override
@@ -890,15 +975,34 @@ class AppLocalizationsTr extends AppLocalizations {
       'Filtrelerinizi değiştirerek tekrar deneyin.';
 
   @override
+  String get searchGlobalHint => 'Üniversite, bölüm veya şehir ara...';
+
+  @override
+  String get showcaseSearchTitle => 'Hızlı Arama';
+
+  @override
+  String get showcaseSearchDescription =>
+      'Üniversite, bölüm veya şehir ara — istediğin her şeyi anında bul.';
+
+  @override
   String get searchError => 'Arama yapılırken bir hata oluştu.';
 
   @override
   String get searchNoResults => 'Sonuç bulunamadı';
 
   @override
+  String get searchRecentTitle => 'Son Aramalar';
+
+  @override
+  String get searchRecentClear => 'Temizle';
+
+  @override
   String searchNoResultsSub(Object query) {
     return '\"$query\" aramasına uygun üniversite yok.';
   }
+
+  @override
+  String get searchDidYouMean => 'Bunu mu demek istedin?';
 
   @override
   String get searchCampus => 'Kampüslü';
@@ -1371,6 +1475,16 @@ class AppLocalizationsTr extends AppLocalizations {
   @override
   String get comparisonChartEmptyDesc =>
       'Henüz yeterli değerlendirme olmadığı için grafikler boş görünüyor.';
+
+  @override
+  String get comparisonChartHintTitle => 'Yeni: Pro karşılaştırma grafikleri';
+
+  @override
+  String get comparisonChartHintBody =>
+      'Radar, ısı haritası ve trend grafiklerini Grafik sekmesinde keşfet.';
+
+  @override
+  String get comparisonChartHintCta => 'Göster';
 
   @override
   String get comparisonUniversityPickerTitle => 'Üniversite Karşılaştır';

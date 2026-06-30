@@ -7,6 +7,8 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/utils/turkish_compare.dart';
 import '../../../../core/utils/responsive.dart';
+import '../../../../core/widgets/widgets.dart';
+import '../../../../l10n/generated/app_localizations.dart';
 import '../providers/university_providers.dart';
 import '../../domain/models/city_model.dart';
 import '../widgets/city_card.dart';
@@ -26,8 +28,11 @@ class AllCitiesScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: AppColors.backgroundFor(context),
       body: citiesAsync.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text('Hata: $e')),
+        loading: () => const ListSkeleton(),
+        error: (e, _) => ErrorState(
+          message: AppLocalizations.of(context).commonError,
+          onRetry: () => ref.invalidate(citiesProvider),
+        ),
         data: (cities) {
           final filtered = _filter(cities, query);
           final popular = filtered.where((c) => c.appUniversityCount >= 3).toList();

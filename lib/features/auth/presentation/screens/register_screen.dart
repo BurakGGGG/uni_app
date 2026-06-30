@@ -485,7 +485,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                       decoration: BoxDecoration(
                         color: AppColors.surfaceFor(context),
                         borderRadius: BorderRadius.circular(20),
-                        boxShadow: AppColors.cardShadow,
+                        boxShadow: AppColors.cardShadowFor(context),
                       ),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,

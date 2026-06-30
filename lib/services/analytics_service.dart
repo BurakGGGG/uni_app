@@ -255,6 +255,18 @@ class AnalyticsService {
     );
   }
 
+  /// Paywall açıldı — A/B varyantını kullanıcı özelliği olarak ayarlar
+  /// (tüm dönüşüm event'leri bu varyanta göre segmentlenebilir) ve
+  /// bir görüntüleme event'i loglar.
+  Future<void> logPaywallOpened({required String variant}) async {
+    try {
+      await _analytics.setUserProperty(name: 'paywall_variant', value: variant);
+    } catch (e) {
+      debugPrint('[Analytics] setUserProperty paywall_variant failed: $e');
+    }
+    await _safeLog('paywall_opened', {'variant': variant});
+  }
+
   /// Abonelik satın alındı.
   Future<void> logSubscriptionPurchased({
     required String tier,
@@ -278,6 +290,29 @@ class AnalyticsService {
         'daily_comparison_count': dailyComparisonCount,
       },
     );
+  }
+
+  /// Rewarded reklam sonucu — placement bazlı funnel ölçümü.
+  /// [placement] örn: 'pro_chart'. [completed] reward kazanıldıysa true.
+  Future<void> logRewardedAdResult({
+    required String placement,
+    required bool completed,
+  }) async {
+    await _safeLog('rewarded_ad_result', {
+      'placement': placement,
+      'result': completed ? 'completed' : 'dismissed',
+    });
+  }
+
+  /// Rewarded reklamla 1 saatlik geçici Pro erişimi açıldı.
+  /// [source] erişimin açıldığı yer, örn: 'pro_chart'.
+  Future<void> logTempProUnlocked({required String source}) async {
+    await _safeLog('temp_pro_unlocked', {'source': source});
+  }
+
+  /// Native reklam gösterimi (impression). Yalnızca Free kullanıcılara çıkar.
+  Future<void> logNativeAdImpression({String placement = 'explore'}) async {
+    await _safeLog('native_ad_impression', {'placement': placement});
   }
 
   // ═══════════════════════════════════════════════════════════════

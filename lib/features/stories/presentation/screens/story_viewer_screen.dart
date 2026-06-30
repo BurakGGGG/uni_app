@@ -11,6 +11,9 @@ import '../providers/story_providers.dart';
 import '../../domain/models/story_model.dart';
 import '../../../admin/data/analytics_service.dart';
 import '../../../admin/domain/models/analytics_event.dart';
+import '../../../monetization/presentation/providers/subscription_providers.dart';
+import '../../../monetization/domain/enums/subscription_tier.dart';
+import '../../../monetization/data/ad_service.dart';
 
 /// Tam ekran Story görüntüleyici — fotoğraf + video destekli.
 ///
@@ -37,6 +40,7 @@ class _StoryViewerScreenState extends ConsumerState<StoryViewerScreen>
   bool _isPaused = false;
   bool _isMediaLoaded = false;
   bool _isMuted = true;
+  int _storiesViewedCount = 0;
 
   // Video player (null ise image story)
   VideoPlayerController? _videoController;
@@ -55,6 +59,14 @@ class _StoryViewerScreenState extends ConsumerState<StoryViewerScreen>
           _nextStory();
         }
       });
+
+    // Preload interstitial ad for story viewer
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final showAds = ref.read(subscriptionTierProvider).valueOrNull == SubscriptionTier.free;
+      if (showAds) {
+        AdService().preloadInterstitialAd();
+      }
+    });
   }
 
   @override
@@ -91,9 +103,25 @@ class _StoryViewerScreenState extends ConsumerState<StoryViewerScreen>
     }
   }
 
-  void _nextStory() {
+  void _nextStory() async {
     final stories = ref.read(activeStoriesProvider).valueOrNull ?? [];
     if (_currentIndex < stories.length - 1) {
+      final showAds = ref.read(subscriptionTierProvider).valueOrNull == SubscriptionTier.free;
+      if (showAds) {
+        _storiesViewedCount++;
+        if (_storiesViewedCount >= 3) {
+          _storiesViewedCount = 0;
+          _pauseProgress();
+          await AdService().showInterstitialAd();
+          // Resume progress if still mounted
+          if (mounted && _isPaused) {
+            _resumeProgress();
+          }
+        }
+      }
+
+      if (!mounted) return;
+
       setState(() {
         _currentIndex++;
         _isMediaLoaded = false;

@@ -9,6 +9,9 @@ import '../../../university/presentation/providers/university_providers.dart';
 import '../../../university/domain/models/university_model.dart';
 import '../providers/explore_filter_provider.dart';
 import '../../../../core/utils/responsive.dart';
+import '../../../monetization/presentation/providers/subscription_providers.dart';
+import '../../../monetization/domain/enums/subscription_tier.dart';
+import '../../../monetization/presentation/widgets/native_ad_widget.dart';
 
 class ExploreScreen extends ConsumerStatefulWidget {
   const ExploreScreen({super.key});
@@ -199,11 +202,21 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                     );
                   }
 
+                  final showAds = ref.watch(subscriptionTierProvider).valueOrNull == SubscriptionTier.free;
+
                   return ListView.builder(
                     padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
-                    itemCount: filtered.length,
+                    itemCount: showAds
+                        ? filtered.length + (filtered.isEmpty ? 0 : (filtered.length - 1) ~/ 5)
+                        : filtered.length,
                     itemBuilder: (context, index) {
-                      final uni = filtered[index];
+                      if (showAds && (index + 1) % 6 == 0) {
+                        return const NativeAdWidget();
+                      }
+
+                      final uniIndex = showAds ? index - (index ~/ 6) : index;
+                      final uni = filtered[uniIndex];
+
                       return AnimatedListItem(
                         index: index,
                         child: UniCard(
@@ -369,7 +382,17 @@ class _FilterBottomSheet extends ConsumerWidget {
                     Text(loc.exploreCities, style: AppTextStyles.titleMedium),
                     const SizedBox(height: 12),
                     citiesAsync.when(
-                      loading: () => const CircularProgressIndicator(),
+                      loading: () => const Align(
+                        alignment: Alignment.centerLeft,
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(vertical: 8),
+                          child: SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          ),
+                        ),
+                      ),
                       error: (e, st) => Text(loc.exploreCitiesError),
                       data: (cities) {
                         return Wrap(

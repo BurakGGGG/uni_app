@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../domain/enums/subscription_tier.dart';
 import '../providers/subscription_providers.dart';
+import '../providers/temporary_pro_access_provider.dart';
 
 /// Abonelik tier'ına göre içerik gating widget'ı.
 ///
@@ -31,6 +32,14 @@ class SubscriptionGateWidget extends ConsumerWidget {
   /// Kilitli durumda child'ı blur ile göster mi?
   final bool showBlurPreview;
 
+  /// Rewarded reklamla alınan geçici Pro erişimi bu gate'i açabilsin mi?
+  ///
+  /// Yalnızca tamamen client-side hesaplanan özelliklerde (Pro grafikler)
+  /// `true` verilmeli. AI özet gibi sunucu tarafında denetlenen veya
+  /// Plus katmanına ait (bölüm/şehir) özelliklerde `false` kalmalı —
+  /// aksi halde tek bir reklam Plus özelliklerini de açar.
+  final bool allowTemporaryAccess;
+
   const SubscriptionGateWidget({
     super.key,
     required this.requiredTier,
@@ -38,16 +47,22 @@ class SubscriptionGateWidget extends ConsumerWidget {
     this.lockedFallback,
     this.onLocked,
     this.showBlurPreview = false,
+    this.allowTemporaryAccess = false,
   });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final tierAsync = ref.watch(subscriptionTierProvider);
+    final tempAccess = ref.watch(temporaryProAccessProvider);
 
     return tierAsync.when(
       data: (currentTier) {
+        final effectiveTier = (allowTemporaryAccess && tempAccess.hasAccess)
+            ? SubscriptionTier.pro
+            : currentTier;
+
         // Tier yeterli — içeriği göster
-        if (currentTier.satisfies(requiredTier)) {
+        if (effectiveTier.satisfies(requiredTier)) {
           return child;
         }
 

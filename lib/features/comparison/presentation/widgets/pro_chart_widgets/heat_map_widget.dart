@@ -1,9 +1,16 @@
 import 'package:flutter/material.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_text_styles.dart';
+import '../../../../../l10n/generated/app_localizations.dart';
 import 'pro_chart_gate.dart';
 
-class HeatMapWidget extends StatefulWidget {
+/// Kategori karşılaştırma ısı haritası.
+///
+/// Her kategori bir satır; iki üniversitenin değeri renkli hücrelerde yan yana.
+/// Satır bazında daha yüksek değer (kazanan) vurgulanır. Bu yerleşim, kategori
+/// adlarına tam genişlik verdiği için 6 sütuna sıkıştırılmış eski tabloya göre
+/// çok daha okunaklı.
+class HeatMapWidget extends StatelessWidget {
   final String title;
   final List<String> categories; // length: 6
   final List<double> valuesA; // length: 6 (0..5)
@@ -13,7 +20,7 @@ class HeatMapWidget extends StatefulWidget {
 
   const HeatMapWidget({
     super.key,
-    this.title = 'Kategori Isı Haritası',
+    required this.title,
     required this.categories,
     required this.valuesA,
     required this.valuesB,
@@ -21,227 +28,221 @@ class HeatMapWidget extends StatefulWidget {
     required this.labelB,
   });
 
-  @override
-  State<HeatMapWidget> createState() => _HeatMapWidgetState();
-}
-
-class _HeatMapWidgetState extends State<HeatMapWidget> {
-  int? _row; // 0:A, 1:B
-  int? _col; // 0..5
+  static const double _cellWidth = 58;
+  static const double _cellGap = 8;
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final cats = widget.categories.take(6).toList();
-    final a = widget.valuesA.take(6).toList();
-    final b = widget.valuesB.take(6).toList();
+    final loc = AppLocalizations.of(context);
+    final cats = categories.take(6).toList();
+    final a = valuesA.take(6).toList();
+    final b = valuesB.take(6).toList();
 
     return ProChartGate(
-      title: widget.title,
+      title: title,
       child: _card(
+        context: context,
         isDark: isDark,
-        title: widget.title,
+        title: title,
         child: Column(
           children: [
-            _gridHeader(isDark: isDark, categories: cats),
-            const SizedBox(height: 10),
-            _gridRow(
-              isDark: isDark,
-              rowIndex: 0,
-              rowLabel: widget.labelA,
-              values: a,
-              categories: cats,
-            ),
+            _columnHeaders(context, isDark),
             const SizedBox(height: 8),
-            _gridRow(
-              isDark: isDark,
-              rowIndex: 1,
-              rowLabel: widget.labelB,
-              values: b,
-              categories: cats,
-            ),
-            if (_row != null && _col != null) ...[
-              const SizedBox(height: 12),
-              _selectedHint(isDark, cats, a, b),
+            for (var i = 0; i < cats.length; i++) ...[
+              _categoryRow(
+                context: context,
+                isDark: isDark,
+                category: cats[i],
+                valueA: i < a.length ? a[i] : 0,
+                valueB: i < b.length ? b[i] : 0,
+              ),
+              if (i != cats.length - 1) const SizedBox(height: 8),
             ],
+            const SizedBox(height: 14),
+            _scaleLegend(context, isDark, loc),
           ],
-        ),
-        footer: Text(
-          'Hücreye dokun: puanı gör',
-          style: AppTextStyles.labelSmall.copyWith(
-            color: isDark ? Colors.white70 : AppColors.textSecondaryFor(context),
-            fontWeight: FontWeight.w700,
-          ),
         ),
       ),
     );
   }
 
-  Widget _gridHeader({
-    required bool isDark,
-    required List<String> categories,
-  }) {
+  // ─── Sütun başlıkları (üniversite kısa adları + renk noktaları) ──────
+  Widget _columnHeaders(BuildContext context, bool isDark) {
     return Row(
       children: [
-        const SizedBox(width: 86),
-        Expanded(
-          child: Row(
-            children: List.generate(categories.length, (i) {
-              final c = categories[i];
-              final short = c.length > 8 ? '${c.substring(0, 7)}…' : c;
-              return Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 2),
-                  child: Text(
-                    short,
-                    textAlign: TextAlign.center,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: AppTextStyles.labelSmall.copyWith(
-                      color: isDark ? Colors.white70 : AppColors.textSecondaryFor(context),
-                      fontWeight: FontWeight.w800,
-                      fontSize: 10,
-                    ),
-                  ),
-                ),
-              );
-            }),
-          ),
-        ),
+        const Expanded(child: SizedBox.shrink()),
+        _headerCell(context, isDark, labelA, AppColors.primary),
+        const SizedBox(width: _cellGap),
+        _headerCell(context, isDark, labelB, AppColors.secondary),
       ],
     );
   }
 
-  Widget _gridRow({
-    required bool isDark,
-    required int rowIndex,
-    required String rowLabel,
-    required List<double> values,
-    required List<String> categories,
-  }) {
-    return Row(
-      children: [
-        SizedBox(
-          width: 86,
-          child: Text(
-            rowLabel,
+  Widget _headerCell(
+    BuildContext context,
+    bool isDark,
+    String label,
+    Color color,
+  ) {
+    final short = _shortName(label);
+    return SizedBox(
+      width: _cellWidth,
+      child: Column(
+        children: [
+          Container(
+            width: 8,
+            height: 8,
+            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            short,
+            textAlign: TextAlign.center,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: AppTextStyles.labelSmall.copyWith(
-              color: isDark ? Colors.white : AppColors.textPrimaryFor(context),
-              fontWeight: FontWeight.w900,
+              fontSize: 10,
+              fontWeight: FontWeight.w800,
+              color: isDark ? Colors.white70 : AppColors.textSecondaryFor(context),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ─── Kategori satırı (ad + iki değer hücresi) ────────────────────────
+  Widget _categoryRow({
+    required BuildContext context,
+    required bool isDark,
+    required String category,
+    required double valueA,
+    required double valueB,
+  }) {
+    final aWins = valueA > valueB + 0.001;
+    final bWins = valueB > valueA + 0.001;
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.only(right: 10),
+            child: Text(
+              category,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: AppTextStyles.bodySmall.copyWith(
+                fontSize: 12.5,
+                fontWeight: FontWeight.w700,
+                height: 1.2,
+                color: isDark ? Colors.white : AppColors.textPrimaryFor(context),
+              ),
             ),
           ),
         ),
-        Expanded(
-          child: Row(
-            children: List.generate(categories.length, (colIndex) {
-              final v = colIndex < values.length ? values[colIndex] : 0.0;
-              final selected = _row == rowIndex && _col == colIndex;
-              return Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 2),
-                  child: InkWell(
-                    borderRadius: BorderRadius.circular(10),
-                    onTap: () {
-                      setState(() {
-                        if (selected) {
-                          _row = null;
-                          _col = null;
-                        } else {
-                          _row = rowIndex;
-                          _col = colIndex;
-                        }
-                      });
-                      final cat = categories[colIndex];
-                      final who = rowIndex == 0 ? widget.labelA : widget.labelB;
-                      final valText = v.toStringAsFixed(2);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('$who • $cat: $valText'),
-                          duration: const Duration(milliseconds: 900),
-                        ),
-                      );
-                    },
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 220),
-                      curve: Curves.easeOutCubic,
-                      height: 38,
-                      decoration: BoxDecoration(
-                        color: _colorForValue(v).withValues(alpha: isDark ? 0.55 : 0.70),
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(
-                          color: selected
-                              ? (isDark ? Colors.white : Colors.black)
-                                  .withValues(alpha: 0.20)
-                              : (isDark ? Colors.white : Colors.black)
-                                  .withValues(alpha: 0.06),
-                          width: selected ? 1.6 : 1,
-                        ),
-                      ),
-                      child: Center(
-                        child: Text(
-                          v.toStringAsFixed(1),
-                          style: AppTextStyles.labelSmall.copyWith(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w900,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              );
-            }),
-          ),
-        ),
+        _valueCell(isDark, valueA, isWinner: aWins),
+        const SizedBox(width: _cellGap),
+        _valueCell(isDark, valueB, isWinner: bWins),
       ],
     );
   }
 
-  Widget _selectedHint(
-    bool isDark,
-    List<String> cats,
-    List<double> a,
-    List<double> b,
-  ) {
-    final r = _row!;
-    final c = _col!;
-    final label = r == 0 ? widget.labelA : widget.labelB;
-    final cat = cats[c];
-    final v = r == 0 ? (c < a.length ? a[c] : 0.0) : (c < b.length ? b[c] : 0.0);
-
+  Widget _valueCell(bool isDark, double v, {required bool isWinner}) {
+    final base = _colorForValue(v);
     return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      width: _cellWidth,
+      height: 42,
       decoration: BoxDecoration(
-        color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.06),
-        borderRadius: BorderRadius.circular(14),
+        color: base.withValues(alpha: isDark ? 0.55 : 0.82),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: isWinner
+              ? Colors.white.withValues(alpha: 0.95)
+              : Colors.white.withValues(alpha: 0.0),
+          width: isWinner ? 2 : 0,
+        ),
+        boxShadow: isWinner
+            ? [
+                BoxShadow(
+                  color: base.withValues(alpha: 0.45),
+                  blurRadius: 10,
+                  offset: const Offset(0, 3),
+                ),
+              ]
+            : null,
       ),
-      child: Text(
-        '$label • $cat: ${v.toStringAsFixed(2)}',
-        textAlign: TextAlign.center,
-        style: AppTextStyles.bodySmall.copyWith(
-          color: isDark ? Colors.white70 : AppColors.textSecondaryFor(context),
-          fontWeight: FontWeight.w800,
+      child: Center(
+        child: Text(
+          v.toStringAsFixed(1),
+          style: AppTextStyles.bodyMedium.copyWith(
+            color: Colors.white,
+            fontWeight: FontWeight.w900,
+            fontSize: 15,
+          ),
         ),
       ),
+    );
+  }
+
+  // ─── Renk skalası açıklaması (düşük → yüksek) ────────────────────────
+  Widget _scaleLegend(
+    BuildContext context,
+    bool isDark,
+    AppLocalizations loc,
+  ) {
+    final labelStyle = AppTextStyles.labelSmall.copyWith(
+      fontSize: 10,
+      fontWeight: FontWeight.w700,
+      color: isDark ? Colors.white70 : AppColors.textSecondaryFor(context),
+    );
+    return Row(
+      children: [
+        Text(loc.chartScaleLow, style: labelStyle),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Container(
+            height: 8,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(999),
+              gradient: const LinearGradient(
+                colors: [Color(0xFFE74C3C), Color(0xFFF1C40F), Color(0xFF2ECC71)],
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: 8),
+        Text(loc.chartScaleHigh, style: labelStyle),
+      ],
     );
   }
 
   Color _colorForValue(double v) {
     final t = (v / 5.0).clamp(0.0, 1.0);
-    return Color.lerp(const Color(0xFFE74C3C), const Color(0xFF2ECC71), t)!;
+    // Kırmızı → sarı → yeşil (iki kademeli lerp, daha okunaklı orta ton).
+    if (t < 0.5) {
+      return Color.lerp(
+          const Color(0xFFE74C3C), const Color(0xFFF1C40F), t / 0.5)!;
+    }
+    return Color.lerp(
+        const Color(0xFFF1C40F), const Color(0xFF2ECC71), (t - 0.5) / 0.5)!;
+  }
+
+  String _shortName(String name) {
+    final trimmed = name.trim();
+    if (trimmed.length <= 10) return trimmed;
+    final first = trimmed.split(' ').first;
+    return first.length <= 12 ? first : '${first.substring(0, 11)}…';
   }
 
   Widget _card({
+    required BuildContext context,
     required bool isDark,
     required String title,
     required Widget child,
-    Widget? footer,
   }) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 14),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
       decoration: BoxDecoration(
         color: isDark ? Colors.white.withValues(alpha: 0.06) : Colors.white,
         borderRadius: BorderRadius.circular(18),
@@ -255,19 +256,15 @@ class _HeatMapWidgetState extends State<HeatMapWidget> {
           Text(
             title,
             style: AppTextStyles.titleSmall.copyWith(
+              fontSize: 14,
               fontWeight: FontWeight.w900,
               color: isDark ? Colors.white : AppColors.textPrimaryFor(context),
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 14),
           child,
-          if (footer != null) ...[
-            const SizedBox(height: 12),
-            Center(child: footer),
-          ],
         ],
       ),
     );
   }
 }
-

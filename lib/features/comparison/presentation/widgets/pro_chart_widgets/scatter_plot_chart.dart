@@ -2,6 +2,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_text_styles.dart';
+import '../../../../../l10n/generated/app_localizations.dart';
 import 'pro_chart_gate.dart';
 
 class ScatterPoint {
@@ -20,7 +21,7 @@ class ScatterPlotChart extends StatefulWidget {
 
   const ScatterPlotChart({
     super.key,
-    this.title = 'Taban Puan × Sıralama',
+    required this.title,
     required this.pointsA,
     required this.pointsB,
     required this.labelA,
@@ -37,6 +38,7 @@ class _ScatterPlotChartState extends State<ScatterPlotChart> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final loc = AppLocalizations.of(context);
 
     final spotsA = widget.pointsA
         .map((p) => ScatterSpot(p.x, p.y,
@@ -108,7 +110,7 @@ class _ScatterPlotChartState extends State<ScatterPlotChart> {
                         axisNameWidget: Padding(
                           padding: const EdgeInsets.only(top: 8),
                           child: Text(
-                            'Taban puan',
+                            loc.chartScatterXAxis,
                             style: AppTextStyles.labelSmall.copyWith(
                               color: isDark ? Colors.white70 : AppColors.textSecondaryFor(context),
                               fontWeight: FontWeight.w800,
@@ -131,7 +133,7 @@ class _ScatterPlotChartState extends State<ScatterPlotChart> {
                         axisNameWidget: Padding(
                           padding: const EdgeInsets.only(right: 8),
                           child: Text(
-                            'Sıralama',
+                            loc.chartScatterYAxis,
                             style: AppTextStyles.labelSmall.copyWith(
                               color: isDark ? Colors.white70 : AppColors.textSecondaryFor(context),
                               fontWeight: FontWeight.w800,
@@ -175,9 +177,9 @@ class _ScatterPlotChartState extends State<ScatterPlotChart> {
                         getTooltipItems: (spot) {
                           final label = _lookupLabel(spot);
                           return ScatterTooltipItem(
-                            '${label ?? 'Bölüm'}\n'
-                            'Puan: ${spot.x.toStringAsFixed(2)}\n'
-                            'Sıra: ${spot.y.toStringAsFixed(0)}',
+                            '${label ?? loc.chartDepartmentLabel}\n'
+                            '${loc.chartScatterXAxis}: ${spot.x.toStringAsFixed(2)}\n'
+                            '${loc.chartScatterYAxis}: ${spot.y.toStringAsFixed(0)}',
                             textStyle: AppTextStyles.labelSmall.copyWith(
                               color: Colors.white,
                               fontWeight: FontWeight.w700,
@@ -192,7 +194,7 @@ class _ScatterPlotChartState extends State<ScatterPlotChart> {
                 )
               : Center(
                   child: Text(
-                    'Veri yok',
+                    loc.chartNoData,
                     style: AppTextStyles.bodySmall.copyWith(
                       color: isDark ? Colors.white70 : AppColors.textSecondaryFor(context),
                     ),
@@ -245,12 +247,17 @@ class _ScatterPlotChartState extends State<ScatterPlotChart> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        _LegendDot(color: AppColors.primary, label: widget.labelA, isDark: isDark),
+        Flexible(
+          child: _LegendDot(
+              color: AppColors.primary, label: widget.labelA, isDark: isDark),
+        ),
         const SizedBox(width: 18),
-        _LegendDot(
-          color: AppColors.secondary,
-          label: widget.labelB,
-          isDark: isDark,
+        Flexible(
+          child: _LegendDot(
+            color: AppColors.secondary,
+            label: widget.labelB,
+            isDark: isDark,
+          ),
         ),
       ],
     );
@@ -318,11 +325,15 @@ class _LegendDot extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 8),
-        Text(
-          label,
-          style: AppTextStyles.labelSmall.copyWith(
-            fontWeight: FontWeight.w800,
-            color: isDark ? Colors.white70 : AppColors.textSecondaryFor(context),
+        Flexible(
+          child: Text(
+            label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: AppTextStyles.labelSmall.copyWith(
+              fontWeight: FontWeight.w800,
+              color: isDark ? Colors.white70 : AppColors.textSecondaryFor(context),
+            ),
           ),
         ),
       ],

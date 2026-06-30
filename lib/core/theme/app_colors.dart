@@ -190,6 +190,44 @@ class AppColors {
   static const Color loserMuted = Color(0xFFD1D5DB);
   static const Color tieColor = Color(0xFFF59E0B);
 
+  // ─── Harmonik Aksan Paleti ─────────────────────────────────────
+  /// Kart sıralamalarında index'e göre renk vermek için küratörlü,
+  /// marka paletiyle akraba tonlar. Rastgele "gökkuşağı" yerine bu
+  /// mor→pembe→camgöbeği ailesi kullanılır (görsel bütünlük için).
+  static const List<Color> accentPalette = [
+    primary,        // #6C63FF mor
+    gradientPurple, // #8B5CF6 menekşe
+    secondary,      // #FF6584 pembe
+    gradientPink,   // #EC4899 fuşya
+    accent,         // #00D9FF camgöbeği
+    gradientCyan,   // #06B6D4 turkuaz
+  ];
+
+  /// index'e göre uyumlu aksan rengi (kart listeleri, rozetler vb.).
+  static Color accentForIndex(int index) =>
+      accentPalette[index.abs() % accentPalette.length];
+
+  // ─── Dark Mode Elevation (border + yumuşak gölge) ──────────────
+  /// Dark modda yüzeyler border ile ayrılır; derinlik hissini
+  /// tamamlamak için bu çok yumuşak gölgeler eklenir (muddy değil).
+  static const List<BoxShadow> darkCardShadow = [
+    BoxShadow(
+      color: Color(0x4D000000), // siyah ~30%
+      blurRadius: 20,
+      offset: Offset(0, 8),
+      spreadRadius: -4,
+    ),
+  ];
+
+  static const List<BoxShadow> darkSoftShadow = [
+    BoxShadow(
+      color: Color(0x33000000), // siyah ~20%
+      blurRadius: 12,
+      offset: Offset(0, 4),
+      spreadRadius: -2,
+    ),
+  ];
+
   // ═══════════════════════════════════════════════════════════════
   //  Semantic Surface Helpers (Dark/Light Adaptive)
   // ═══════════════════════════════════════════════════════════════
@@ -260,7 +298,7 @@ class AppColors {
   /// Tema duyarlı üçüncül metin rengi
   static Color textTertiaryFor(BuildContext context) {
     return Theme.of(context).brightness == Brightness.dark
-        ? Colors.white.withValues(alpha: 0.38)
+        ? Colors.white.withValues(alpha: 0.46)
         : textTertiary;
   }
 
@@ -278,27 +316,31 @@ class AppColors {
         : borderLight;
   }
 
-  /// Tema duyarlı kart gölgesi
+  /// Tema duyarlı kart gölgesi.
+  /// Dark modda border'a ek olarak çok yumuşak bir gölge ile derinlik verir.
   static List<BoxShadow> cardShadowFor(BuildContext context) {
     return Theme.of(context).brightness == Brightness.dark
-        ? const [] // Dark mode'da gölge yerine border kullanıyoruz
+        ? darkCardShadow
         : cardShadow;
   }
 
-  /// Tema duyarlı hafif gölge
+  /// Tema duyarlı hafif gölge.
   static List<BoxShadow> softShadowFor(BuildContext context) {
     return Theme.of(context).brightness == Brightness.dark
-        ? const []
+        ? darkSoftShadow
         : softShadow;
   }
 
-  /// Tema duyarlı hero gradient
+  /// Tema duyarlı hero gradient.
+  /// Açık temada canlı mor→pembe; karanlık temada bu tonun "gece" hâli:
+  /// muddy bordo yerine bütünlüklü, derin indigo→menekşe (beyaz metinle
+  /// yüksek kontrast, dark surface'le uyumlu).
   static LinearGradient heroGradientFor(BuildContext context) {
     return Theme.of(context).brightness == Brightness.dark
         ? const LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [Color(0xFF231E5B), Color(0xFF5A1C2C)], // Much darker variants for dark mode
+            colors: [Color(0xFF1E1B4B), Color(0xFF3B2F7A)],
           )
         : heroGradient;
   }

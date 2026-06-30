@@ -202,9 +202,12 @@ class _AppShellState extends ConsumerState<AppShell>
                   destinations: [
                     NavigationDestination(
                       icon: const Icon(Icons.home_outlined),
-                      selectedIcon: const Icon(
-                        Icons.home_rounded,
-                        color: AppColors.primary,
+                      selectedIcon: _BounceWhenSelected(
+                        selected: widget.navigationShell.currentIndex == 0,
+                        child: const Icon(
+                          Icons.home_rounded,
+                          color: AppColors.primary,
+                        ),
                       ),
                       label: AppLocalizations.of(context).homeTabHome,
                     ),
@@ -224,9 +227,12 @@ class _AppShellState extends ConsumerState<AppShell>
                       ),
                       child: NavigationDestination(
                         icon: const Icon(Icons.explore_outlined),
-                        selectedIcon: const Icon(
-                          Icons.explore_rounded,
-                          color: AppColors.primary,
+                        selectedIcon: _BounceWhenSelected(
+                          selected: widget.navigationShell.currentIndex == 1,
+                          child: const Icon(
+                            Icons.explore_rounded,
+                            color: AppColors.primary,
+                          ),
                         ),
                         label: AppLocalizations.of(context).homeTabExplore,
                       ),
@@ -255,10 +261,13 @@ class _AppShellState extends ConsumerState<AppShell>
                                   Colors.grey.shade400, BlendMode.srcIn)
                               : null,
                         ),
-                        selectedIcon: SvgPicture.asset(
-                          'assets/icons/compare_icon.svg',
-                          width: 24,
-                          height: 24,
+                        selectedIcon: _BounceWhenSelected(
+                          selected: widget.navigationShell.currentIndex == 2,
+                          child: SvgPicture.asset(
+                            'assets/icons/compare_icon.svg',
+                            width: 24,
+                            height: 24,
+                          ),
                         ),
                         label: AppLocalizations.of(context).homeTabCompare,
                       ),
@@ -279,18 +288,24 @@ class _AppShellState extends ConsumerState<AppShell>
                       ),
                       child: NavigationDestination(
                         icon: const Icon(Icons.list_alt_outlined),
-                        selectedIcon: const Icon(
-                          Icons.list_alt_rounded,
-                          color: AppColors.primary,
+                        selectedIcon: _BounceWhenSelected(
+                          selected: widget.navigationShell.currentIndex == 3,
+                          child: const Icon(
+                            Icons.list_alt_rounded,
+                            color: AppColors.primary,
+                          ),
                         ),
                         label: AppLocalizations.of(context).homeTabFavorites,
                       ),
                     ),
                     NavigationDestination(
                       icon: const Icon(Icons.person_outline_rounded),
-                      selectedIcon: const Icon(
-                        Icons.person_rounded,
-                        color: AppColors.primary,
+                      selectedIcon: _BounceWhenSelected(
+                        selected: widget.navigationShell.currentIndex == 4,
+                        child: const Icon(
+                          Icons.person_rounded,
+                          color: AppColors.primary,
+                        ),
                       ),
                       label: AppLocalizations.of(context).homeTabProfile,
                     ),
@@ -302,6 +317,58 @@ class _AppShellState extends ConsumerState<AppShell>
         ),
       ),
     );
+  }
+}
+
+/// Bottom nav seçili ikonuna, seçildiği anda kısa bir scale "bounce"
+/// uygulayan sarmalayıcı. `selected` false→true olduğunda tek seferlik oynar.
+class _BounceWhenSelected extends StatefulWidget {
+  const _BounceWhenSelected({required this.selected, required this.child});
+
+  final bool selected;
+  final Widget child;
+
+  @override
+  State<_BounceWhenSelected> createState() => _BounceWhenSelectedState();
+}
+
+class _BounceWhenSelectedState extends State<_BounceWhenSelected>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 360),
+  );
+
+  late final Animation<double> _scale = TweenSequence<double>([
+    TweenSequenceItem(
+      tween: Tween(begin: 1.0, end: 1.18)
+          .chain(CurveTween(curve: Curves.easeOut)),
+      weight: 45,
+    ),
+    TweenSequenceItem(
+      tween: Tween(begin: 1.18, end: 1.0)
+          .chain(CurveTween(curve: Curves.easeOutBack)),
+      weight: 55,
+    ),
+  ]).animate(_controller);
+
+  @override
+  void didUpdateWidget(covariant _BounceWhenSelected oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.selected && !oldWidget.selected) {
+      _controller.forward(from: 0);
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ScaleTransition(scale: _scale, child: widget.child);
   }
 }
 

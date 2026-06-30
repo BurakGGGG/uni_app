@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 import '../../../../services/revenuecat_service.dart';
+import '../../../../services/ab_test_service.dart';
+import '../../../../services/analytics_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/state_widgets.dart';
+import '../../../../l10n/generated/app_localizations.dart';
 import '../../domain/models/subscription_model.dart';
 import '../../domain/enums/subscription_tier.dart';
 
@@ -23,6 +26,7 @@ class _PaywallScreenState extends State<PaywallScreen>
   final RevenueCatService _revenueCatService = RevenueCatService();
 
   SubscriptionTier _selectedTier = SubscriptionTier.plus;
+  String _paywallVariant = 'A';
   bool _isYearly = true;
   bool _isPurchasing = false;
   bool _isRestoring = false;
@@ -42,6 +46,16 @@ class _PaywallScreenState extends State<PaywallScreen>
     );
     _fadeAnim = CurvedAnimation(parent: _fadeController, curve: Curves.easeOut);
     _fadeController.forward();
+
+    // ─── A/B paywall varyantı ────────────────────────────────────
+    final raw = ABTestService().getPaywallVariant();
+    _paywallVariant = (raw == 'B' || raw == 'C') ? raw : 'A';
+    // Varyant B: varsayılan olarak Pro'yu öne çıkar (kontrol: Plus).
+    if (_paywallVariant == 'B') {
+      _selectedTier = SubscriptionTier.pro;
+    }
+    AnalyticsService().logPaywallOpened(variant: _paywallVariant);
+
     _loadOfferings();
   }
 
@@ -154,12 +168,14 @@ class _PaywallScreenState extends State<PaywallScreen>
     }
   }
 
-  Package? _resolvePackage() {
+  Package? _resolvePackage() => _resolvePackageFor(_selectedTier, _isYearly);
+
+  Package? _resolvePackageFor(SubscriptionTier tier, bool wantYearly) {
     final offerings = _offerings;
     if (offerings == null || offerings.current == null) return null;
+    if (tier == SubscriptionTier.free) return null;
 
-    final isPlus = _selectedTier == SubscriptionTier.plus;
-    final wantYearly = _isYearly;
+    final isPlus = tier == SubscriptionTier.plus;
     final packages = offerings.current!.availablePackages;
     final wantedProductId = isPlus
         ? (wantYearly
@@ -187,6 +203,23 @@ class _PaywallScreenState extends State<PaywallScreen>
       if (!wantYearly && p.packageType == PackageType.monthly) return p;
     }
     return best;
+  }
+
+  /// Pakette ücretsiz deneme (intro offer, price == 0) varsa kullanıcıya
+  /// gösterilecek metni döndürür; yoksa null (mağazada deneme tanımlı değilse
+  /// sessizce gizlenir).
+  String? _trialLabel(Package? pkg, AppLocalizations loc) {
+    final intro = pkg?.storeProduct.introductoryPrice;
+    if (intro == null || intro.price != 0) return null;
+    final unit = switch (intro.periodUnit) {
+      PeriodUnit.day => loc.paywallUnitDay,
+      PeriodUnit.week => loc.paywallUnitWeek,
+      PeriodUnit.month => loc.paywallUnitMonth,
+      PeriodUnit.year => loc.paywallUnitYear,
+      PeriodUnit.unknown => '',
+    };
+    if (unit.isEmpty || intro.periodNumberOfUnits <= 0) return null;
+    return loc.paywallFreeTrialNote('${intro.periodNumberOfUnits} $unit');
   }
 
   Future<void> _handlePurchase() async {
@@ -252,6 +285,28 @@ class _PaywallScreenState extends State<PaywallScreen>
     final isFree = _selectedTier == SubscriptionTier.free;
     final activeGradient = _activeGradient(_selectedTier);
     final activeColor = _activeColor(_selectedTier);
+    final loc = AppLocalizations.of(context);
+
+    // ─── Gerçek fiyatlar RevenueCat'ten (hardcoded fallback) ──────────
+    final monthlyPkg = _resolvePackageFor(_selectedTier, false);
+    final yearlyPkg = _resolvePackageFor(_selectedTier, true);
+    final monthlyLabel = monthlyPkg != null
+        ? '${monthlyPkg.storeProduct.priceString}${loc.paywallPerMonthSuffix}'
+        : _currentPlan.monthlyPrice;
+    final yearlyLabel = yearlyPkg != null
+        ? '${yearlyPkg.storeProduct.priceString}${loc.paywallPerYearSuffix}'
+        : _currentPlan.yearlyPrice;
+    int? savingsPercent;
+    if (monthlyPkg != null &&
+        yearlyPkg != null &&
+        monthlyPkg.storeProduct.price > 0) {
+      final perMonthYearly = yearlyPkg.storeProduct.price / 12;
+      final pct =
+          ((1 - perMonthYearly / monthlyPkg.storeProduct.price) * 100).round();
+      if (pct > 0) savingsPercent = pct;
+    }
+    final trialText =
+        _trialLabel(_resolvePackageFor(_selectedTier, _isYearly), loc);
 
     return Scaffold(
       backgroundColor: AppColors.backgroundFor(context),
@@ -310,13 +365,39 @@ class _PaywallScreenState extends State<PaywallScreen>
                         )
                       else
                         _PricingCards(
-                          plan: _currentPlan,
+                          monthlyLabel: monthlyLabel,
+                          yearlyLabel: yearlyLabel,
+                          savingsPercent: savingsPercent,
                           isYearly: _isYearly,
                           onSelect: (v) => setState(() => _isYearly = v),
                           color: activeColor,
                           gradient: activeGradient,
                           isDark: isDark,
                         ),
+                      if (!_isLoadingOfferings &&
+                          !_loadError &&
+                          trialText != null) ...[
+                        const SizedBox(height: 10),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.card_giftcard_rounded,
+                                size: 14, color: activeColor),
+                            const SizedBox(width: 6),
+                            Flexible(
+                              child: Text(
+                                trialText,
+                                textAlign: TextAlign.center,
+                                style: AppTextStyles.labelSmall.copyWith(
+                                  color: activeColor,
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 11,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ],
                     const Spacer(),
                     _CtaButton(
@@ -647,7 +728,9 @@ class _FeatureRow extends StatelessWidget {
 
 // ─── Pricing Cards (Aylık + Yıllık stacked) ──────────────────────────
 class _PricingCards extends StatelessWidget {
-  final _PlanData plan;
+  final String monthlyLabel;
+  final String yearlyLabel;
+  final int? savingsPercent;
   final bool isYearly;
   final ValueChanged<bool> onSelect;
   final Color color;
@@ -655,7 +738,9 @@ class _PricingCards extends StatelessWidget {
   final bool isDark;
 
   const _PricingCards({
-    required this.plan,
+    required this.monthlyLabel,
+    required this.yearlyLabel,
+    required this.savingsPercent,
     required this.isYearly,
     required this.onSelect,
     required this.color,
@@ -665,11 +750,12 @@ class _PricingCards extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
     return Column(
       children: [
         _PricingCard(
           title: 'Aylık',
-          price: plan.monthlyPrice,
+          price: monthlyLabel,
           selected: !isYearly,
           onTap: () => onSelect(false),
           color: color,
@@ -684,42 +770,45 @@ class _PricingCards extends StatelessWidget {
             children: [
               _PricingCard(
                 title: 'Yıllık',
-                price: plan.yearlyPrice,
-                subtitle: 'Yılın tamamı için en avantajlı seçenek',
+                price: yearlyLabel,
+                subtitle: savingsPercent != null
+                    ? loc.paywallYearlySavingsSub(savingsPercent!)
+                    : 'Yılın tamamı için en avantajlı seçenek',
                 selected: isYearly,
                 onTap: () => onSelect(true),
                 color: color,
                 gradient: gradient,
                 isDark: isDark,
               ),
-              Positioned(
-                top: -12,
-                left: 18,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(
-                    gradient: gradient,
-                    borderRadius: BorderRadius.circular(8),
-                    boxShadow: [
-                      BoxShadow(
-                        color: color.withValues(alpha: 0.35),
-                        blurRadius: 10,
-                        offset: const Offset(0, 3),
+              if (savingsPercent != null)
+                Positioned(
+                  top: -12,
+                  left: 18,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(
+                      gradient: gradient,
+                      borderRadius: BorderRadius.circular(8),
+                      boxShadow: [
+                        BoxShadow(
+                          color: color.withValues(alpha: 0.35),
+                          blurRadius: 10,
+                          offset: const Offset(0, 3),
+                        ),
+                      ],
+                    ),
+                    child: Text(
+                      loc.paywallSaveBadge(savingsPercent!),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 10,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 0.4,
                       ),
-                    ],
-                  ),
-                  child: const Text(
-                    'TASARRUF %20',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 10,
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: 0.4,
                     ),
                   ),
                 ),
-              ),
             ],
           ),
         ),

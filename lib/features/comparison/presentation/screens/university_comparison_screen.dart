@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
@@ -13,6 +14,9 @@ import '../widgets/comparison_uni_picker.dart';
 import '../widgets/comparison_hero_section.dart';
 import '../widgets/animated_comparison_bar.dart';
 import '../widgets/comparison_radar_chart.dart';
+import '../widgets/pro_chart_widgets/heat_map_widget.dart';
+import '../widgets/pro_chart_widgets/trend_line_chart.dart';
+import '../widgets/pro_chart_widgets/scatter_plot_chart.dart';
 import '../widgets/comparison_stats_table.dart';
 import '../widgets/comparison_share_card.dart';
 import '../widgets/comparison_ai_summary_card.dart';
@@ -28,6 +32,7 @@ import '../widgets/triple_third_uni_picker.dart';
 import '../widgets/university_logo_box.dart';
 import '../widgets/comparison_notes_section.dart';
 import '../../../auth/presentation/providers/auth_providers.dart';
+import '../../../../core/services/feature_discovery_service.dart';
 import 'package:go_router/go_router.dart';
 
 /// Üniversite Karşılaştırma Ekranı — Yeniden Yazım (Gün 3)
@@ -345,6 +350,10 @@ class _TabbedResultViewState extends ConsumerState<_TabbedResultView>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
+  // Pro grafik sekmesi (index 2) için tek seferlik keşif ipucu.
+  static const _chartTabIndex = 2;
+  bool _showChartHint = false;
+
   // ─── Tab tanımları ────────────────────────────────────────────
   static const _tabIcons = [
     Icons.dashboard_rounded,
@@ -360,7 +369,24 @@ class _TabbedResultViewState extends ConsumerState<_TabbedResultView>
     _tabController = TabController(length: 5, vsync: this);
     _tabController.addListener(() {
       if (!_tabController.indexIsChanging) setState(() {});
+      // Kullanıcı Grafik sekmesine geçtiyse ipucunu kapat (görevini gördü).
+      if (_showChartHint && _tabController.index == _chartTabIndex) {
+        _dismissChartHint();
+      }
     });
+    // İpucu: grafik sekmesinde veri varsa ve daha önce gösterilmediyse aç.
+    _showChartHint = widget.result.categoryComparisons.isNotEmpty &&
+        !ref
+            .read(featureDiscoveryProvider)
+            .isCompleted(FeatureDiscoveryService.comparisonChartsCompleted);
+  }
+
+  void _dismissChartHint() {
+    if (!_showChartHint) return;
+    ref
+        .read(featureDiscoveryProvider)
+        .markCompleted(FeatureDiscoveryService.comparisonChartsCompleted);
+    setState(() => _showChartHint = false);
   }
 
   @override
@@ -409,6 +435,117 @@ class _TabbedResultViewState extends ConsumerState<_TabbedResultView>
         isDark: isDark,
       ),
     );
+  }
+
+  /// Pro grafik sekmesini tanıtan tek seferlik ipucu şeridi.
+  Widget _buildChartHint(
+    BuildContext context,
+    AppLocalizations loc,
+    bool isDark,
+  ) {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(16, 0, 16, 4),
+      padding: const EdgeInsets.fromLTRB(12, 10, 8, 10),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            AppColors.tierPro.withValues(alpha: isDark ? 0.18 : 0.12),
+            AppColors.primary.withValues(alpha: isDark ? 0.16 : 0.10),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: AppColors.tierPro.withValues(alpha: 0.35),
+        ),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 34,
+            height: 34,
+            decoration: BoxDecoration(
+              color: AppColors.tierPro.withValues(alpha: 0.18),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.insights_rounded,
+              size: 18,
+              color: AppColors.tierPro,
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  loc.comparisonChartHintTitle,
+                  style: AppTextStyles.labelMedium.copyWith(
+                    fontWeight: FontWeight.w800,
+                    color: isDark ? Colors.white : AppColors.textPrimaryFor(context),
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  loc.comparisonChartHintBody,
+                  style: AppTextStyles.labelSmall.copyWith(
+                    color: isDark
+                        ? Colors.white70
+                        : AppColors.textSecondaryFor(context),
+                    height: 1.3,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 6),
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              InkWell(
+                borderRadius: BorderRadius.circular(20),
+                onTap: () {
+                  _tabController.animateTo(_chartTabIndex);
+                  _dismissChartHint();
+                },
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: AppColors.tierPro,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    loc.comparisonChartHintCta,
+                    style: AppTextStyles.labelSmall.copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          IconButton(
+            visualDensity: VisualDensity.compact,
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+            onPressed: _dismissChartHint,
+            icon: Icon(
+              Icons.close_rounded,
+              size: 18,
+              color: isDark ? Colors.white54 : AppColors.textTertiaryFor(context),
+            ),
+          ),
+        ],
+      ),
+    ).animate().fadeIn(duration: 300.ms).slideY(
+          begin: -0.15,
+          end: 0,
+          duration: 300.ms,
+          curve: Curves.easeOut,
+        );
   }
 
   @override
@@ -515,6 +652,9 @@ class _TabbedResultViewState extends ConsumerState<_TabbedResultView>
             },
           ),
         ),
+
+        // ─── Pro Grafik keşif ipucu (tek seferlik) ─────────
+        if (_showChartHint) _buildChartHint(context, loc, isDark),
 
         // ─── Tab İçerikleri ────────────────────────────────
         Expanded(
@@ -1005,12 +1145,18 @@ class _CategoriesTab extends StatelessWidget {
 
 // ─── Grafik Tab ────────────────────────────────────────────────────
 
-class _ChartTab extends StatelessWidget {
+class _ChartTab extends ConsumerWidget {
   final ComparisonResult result;
   const _ChartTab({required this.result});
 
+  // Trend grafiği için kısa ay etiketleri (örn: Oca, Şub...).
+  static const _monthAbbrTr = [
+    'Oca', 'Şub', 'Mar', 'Nis', 'May', 'Haz',
+    'Tem', 'Ağu', 'Eyl', 'Eki', 'Kas', 'Ara',
+  ];
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     if (result.categoryComparisons.isEmpty) {
       return Center(
         child: Padding(
@@ -1030,11 +1176,92 @@ class _ChartTab extends StatelessWidget {
         ),
       );
     }
+
+    final loc = AppLocalizations.of(context);
+    final pair = ComparisonPair(idA: result.uniA.id, idB: result.uniB.id);
+    final labelA = result.uniA.name;
+    final labelB = result.uniB.name;
+
+    // Isı haritası — bellekteki sonuçtan (gerçek kategori etiketleri, her zaman dolu).
+    final cats = result.categoryComparisons.values.toList();
+
+    // Trend & scatter — Pro veri sağlayıcılar (geçici erişim dahil; Free'de boş).
+    final trendState = ref.watch(ratingTrendProvider(pair)).valueOrNull;
+    final scatter = ref.watch(departmentScatterProvider(pair)).valueOrNull;
+
+    const hPad = EdgeInsets.symmetric(horizontal: 16);
+
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(0, 8, 0, 80),
-      child: ComparisonRadarChart(result: result),
+      child: Column(
+        children: [
+          ComparisonRadarChart(result: result)
+              .animate()
+              .fadeIn(duration: 350.ms)
+              .slideY(begin: 0.12, end: 0, duration: 350.ms, curve: Curves.easeOut),
+          const SizedBox(height: 16),
+          Padding(
+            padding: hPad,
+            child: HeatMapWidget(
+              title: loc.chartHeatmapTitle,
+              categories: cats.map((c) => c.categoryName).toList(),
+              valuesA: cats.map((c) => c.valueA).toList(),
+              valuesB: cats.map((c) => c.valueB).toList(),
+              labelA: labelA,
+              labelB: labelB,
+            ),
+          ).animate().fadeIn(delay: 90.ms, duration: 350.ms).slideY(
+              begin: 0.12, end: 0, delay: 90.ms, duration: 350.ms, curve: Curves.easeOut),
+          const SizedBox(height: 16),
+          Padding(
+            padding: hPad,
+            child: TrendLineChart(
+              title: loc.chartTrendTitle,
+              monthLabels: _trendLabels(trendState),
+              seriesA: _trendSeries(trendState, (p) => p.avgRatingA),
+              seriesB: _trendSeries(trendState, (p) => p.avgRatingB),
+              labelA: labelA,
+              labelB: labelB,
+            ),
+          ).animate().fadeIn(delay: 180.ms, duration: 350.ms).slideY(
+              begin: 0.12, end: 0, delay: 180.ms, duration: 350.ms, curve: Curves.easeOut),
+          const SizedBox(height: 16),
+          Padding(
+            padding: hPad,
+            child: ScatterPlotChart(
+              title: loc.chartScatterTitle,
+              pointsA: _scatterPoints(scatter?.pointsA),
+              pointsB: _scatterPoints(scatter?.pointsB),
+              labelA: labelA,
+              labelB: labelB,
+            ),
+          ).animate().fadeIn(delay: 270.ms, duration: 350.ms).slideY(
+              begin: 0.12, end: 0, delay: 270.ms, duration: 350.ms, curve: Curves.easeOut),
+        ],
+      ),
     );
   }
+
+  List<String> _trendLabels(TrendDataState? s) => s is TrendDataSuccess
+      ? s.points.map((p) => _monthAbbrTr[(p.month.month - 1) % 12]).toList()
+      : const [];
+
+  List<double> _trendSeries(
+    TrendDataState? s,
+    double Function(RatingTrendPoint) sel,
+  ) =>
+      s is TrendDataSuccess ? s.points.map(sel).toList() : const [];
+
+  List<ScatterPoint> _scatterPoints(List<DepartmentScatterPoint>? pts) =>
+      pts == null
+          ? const []
+          : pts
+              .map((p) => ScatterPoint(
+                    x: p.baseScore,
+                    y: p.ranking.toDouble(),
+                    label: p.departmentName,
+                  ))
+              .toList();
 }
 
 // ─── İstatistik Tab ────────────────────────────────────────────────

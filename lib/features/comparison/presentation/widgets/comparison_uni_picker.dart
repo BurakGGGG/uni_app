@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../../core/widgets/widgets.dart';
 import '../../../../core/utils/localized_labels.dart';
 import '../../../../l10n/generated/app_localizations.dart';
 import '../../../university/presentation/providers/university_providers.dart';
@@ -142,9 +143,11 @@ class ComparisonUniPicker extends ConsumerWidget {
                 const Divider(height: 1),
                 Expanded(
                   child: uniListAsync.when(
-                    loading: () =>
-                        const Center(child: CircularProgressIndicator()),
-                    error: (e, _) => Center(child: Text('$e')),
+                    loading: () => const ListSkeleton(),
+                    error: (e, _) => ErrorState(
+                      message: AppLocalizations.of(context).commonError,
+                      onRetry: () => ref.invalidate(allUniversitiesProvider),
+                    ),
                     data: (unis) {
                       final otherId =
                           isA ? selection.uniIdB : selection.uniIdA;

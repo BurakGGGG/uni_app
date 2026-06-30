@@ -1,7 +1,7 @@
 name: uni_app
 description: "ÜniSeç — Üniversite Yaşam Rehberi"
 publish_to: 'none'
-version: 1.0.0+1
+version: 1.0.1+5
 
 environment:
   sdk: ^3.11.4

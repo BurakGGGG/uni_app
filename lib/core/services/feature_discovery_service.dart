@@ -15,6 +15,8 @@ class FeatureDiscoveryService {
 
   // ─── Flag Anahtarları ──────────────────────────────────────────
   static const homeCompleted = 'feature_discovery_home_v1';
+  static const comparisonChartsCompleted =
+      'feature_discovery_comparison_charts_v1';
 
   /// Belirtilen showcase tamamlanmış mı?
   bool isCompleted(String key) => _prefs.getBool(key) ?? false;
@@ -25,6 +27,7 @@ class FeatureDiscoveryService {
   /// Tüm showcase flag'lerini sıfırla (Profil → Rehberi tekrar gör).
   Future<void> resetAll() async {
     await _prefs.remove(homeCompleted);
+    await _prefs.remove(comparisonChartsCompleted);
   }
 }
 

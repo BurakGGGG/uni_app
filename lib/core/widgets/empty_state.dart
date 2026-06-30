@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
 
@@ -77,7 +78,14 @@ class EmptyState extends StatelessWidget {
               action!,
             ],
           ],
-        ),
+        )
+            .animate()
+            .fadeIn(duration: 220.ms)
+            .scale(
+              begin: const Offset(0.96, 0.96),
+              curve: Curves.easeOut,
+              duration: 220.ms,
+            ),
       ),
     ),
     );

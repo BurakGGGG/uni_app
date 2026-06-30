@@ -4,6 +4,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/widgets/pressable.dart';
 import '../../domain/models/place_model.dart';
 import 'place_type_chip.dart';
 
@@ -30,25 +31,13 @@ class PlaceCard extends ConsumerStatefulWidget {
 }
 
 class _PlaceCardState extends ConsumerState<PlaceCard> {
-  bool _isPressed = false;
-
   PlaceModel get place => widget.place;
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTapDown: (_) => setState(() => _isPressed = true),
-      onTapUp: (_) {
-        setState(() => _isPressed = false);
-        widget.onTap?.call();
-      },
-      onTapCancel: () => setState(() => _isPressed = false),
-      child: AnimatedScale(
-        scale: _isPressed ? 0.97 : 1.0,
-        duration: const Duration(milliseconds: 100),
-        curve: Curves.easeInOut,
-        child: _buildCard(),
-      ),
+    return Pressable(
+      onTap: widget.onTap,
+      child: _buildCard(),
     );
   }
 
@@ -59,7 +48,7 @@ class _PlaceCardState extends ConsumerState<PlaceCard> {
         color: AppColors.surfaceFor(context),
         borderRadius: BorderRadius.circular(AppConstants.radiusLg),
         border: Border.all(color: AppColors.borderLightFor(context)),
-        boxShadow: AppColors.softShadow,
+        boxShadow: AppColors.softShadowFor(context),
       ),
       child: Padding(
         padding: const EdgeInsets.all(AppConstants.spacingLg),

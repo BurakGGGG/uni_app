@@ -8,6 +8,9 @@ import '../../domain/models/place_model.dart';
 import '../providers/place_providers.dart';
 import '../providers/place_filter_provider.dart';
 import 'place_card.dart';
+import '../../../monetization/presentation/providers/subscription_providers.dart';
+import '../../../monetization/domain/enums/subscription_tier.dart';
+import '../../../monetization/presentation/widgets/native_ad_widget.dart';
 
 class PlaceList extends ConsumerWidget {
   final String universityId;
@@ -51,20 +54,34 @@ class PlaceList extends ConsumerWidget {
                   )
                 : const _PlacesEmptyState()
             else
-              ListView.builder(
-                shrinkWrap: shrinkWrap,
-                physics: shrinkWrap
-                    ? const NeverScrollableScrollPhysics()
-                    : null,
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                itemCount: filtered.length,
-                itemBuilder: (context, i) {
-                  final place = filtered[i];
-                  return PlaceCard(
-                    place: place,
-                    onTap: () => context.push('/place/${place.id}'),
+              Builder(
+                builder: (context) {
+                  final showAds = ref.watch(subscriptionTierProvider).valueOrNull == SubscriptionTier.free;
+
+                  return ListView.builder(
+                    shrinkWrap: shrinkWrap,
+                    physics: shrinkWrap
+                        ? const NeverScrollableScrollPhysics()
+                        : null,
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    itemCount: showAds
+                        ? filtered.length + (filtered.isEmpty ? 0 : (filtered.length - 1) ~/ 5)
+                        : filtered.length,
+                    itemBuilder: (context, i) {
+                      if (showAds && (i + 1) % 6 == 0) {
+                        return const NativeAdWidget();
+                      }
+
+                      final placeIndex = showAds ? i - (i ~/ 6) : i;
+                      final place = filtered[placeIndex];
+
+                      return PlaceCard(
+                        place: place,
+                        onTap: () => context.push('/place/${place.id}'),
+                      );
+                    },
                   );
-                },
+                }
               ),
           ],
         );

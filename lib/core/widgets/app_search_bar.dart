@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
 import '../constants/app_constants.dart';
+import '../../l10n/generated/app_localizations.dart';
 
 /// Arama çubuğu widget'ı — Keşfet ve Ana Sayfa'da kullanılır
 class AppSearchBar extends StatelessWidget {
-  final String hintText;
+  final String? hintText;
   final ValueChanged<String>? onChanged;
   final VoidCallback? onTap;
   final bool readOnly;
@@ -17,7 +18,7 @@ class AppSearchBar extends StatelessWidget {
 
   const AppSearchBar({
     super.key,
-    this.hintText = 'Üniversite, bölüm veya şehir ara...',
+    this.hintText,
     this.onChanged,
     this.onTap,
     this.readOnly = false,
@@ -30,6 +31,9 @@ class AppSearchBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final effectiveHintText =
+        hintText ?? AppLocalizations.of(context).searchGlobalHint;
+
     return Container(
       height: 52,
       decoration: BoxDecoration(
@@ -56,7 +60,7 @@ class AppSearchBar extends StatelessWidget {
               Expanded(
                 child: readOnly
                     ? Text(
-                        hintText,
+                        effectiveHintText,
                         style: AppTextStyles.searchHint,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -68,7 +72,7 @@ class AppSearchBar extends StatelessWidget {
                         focusNode: focusNode,
                         style: AppTextStyles.bodyMedium,
                         decoration: InputDecoration(
-                          hintText: hintText,
+                          hintText: effectiveHintText,
                           hintStyle: AppTextStyles.searchHint,
                           border: InputBorder.none,
                           enabledBorder: InputBorder.none,

@@ -135,7 +135,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                               color: AppColors.surfaceFor(context),
                               borderRadius: BorderRadius.circular(12),
                               border: Border.all(
-                                  color: AppColors.borderLightFor(context)),
+                                color: AppColors.borderLightFor(context),
+                              ),
                             ),
                             child: const NotificationBell(),
                           ),
@@ -150,18 +151,19 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             // ─── Arama Çubuğu — Showcase Adım 1 ────────────────
             SliverToBoxAdapter(
               child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 12,
+                ),
                 child: Showcase.withWidget(
                   key: AppTourKeys.search,
                   scope: 'app_tour',
                   disableMovingAnimation: true,
                   targetBorderRadius: BorderRadius.circular(16),
                   targetPadding: const EdgeInsets.all(4),
-                  container: const AppShowcaseTooltip(
-                    title: 'Hızlı Arama',
-                    description:
-                        'Üniversite, bölüm veya şehir ara — istediğin her şeyi anında bul.',
+                  container: AppShowcaseTooltip(
+                    title: loc.showcaseSearchTitle,
+                    description: loc.showcaseSearchDescription,
                     currentStep: 1,
                     totalSteps: 7,
                   ),
@@ -197,8 +199,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             // ─── Hero Banner — Showcase Adım 2 ──────────────────
             SliverToBoxAdapter(
               child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 8,
+                ),
                 child: Showcase.withWidget(
                   key: AppTourKeys.hero,
                   scope: 'app_tour',
@@ -229,7 +233,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   ),
                   SizedBox(
                     height: Responsive.cardListHeight(context),
-                    child: ref.watch(popularUniversitiesProvider).when(
+                    child: ref
+                        .watch(popularUniversitiesProvider)
+                        .when(
                           loading: () => const HomeListSkeleton(),
                           error: (e, st) => ErrorStateWidget(
                             message: 'Üniversiteler yüklenemedi',
@@ -242,8 +248,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                               scrollDirection: Axis.horizontal,
                               physics: const ClampingScrollPhysics(),
                               scrollCacheExtent: ScrollCacheExtent.pixels(200),
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 16),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                              ),
                               itemCount: popular.length,
                               itemBuilder: (context, index) {
                                 return RepaintBoundary(
@@ -251,12 +258,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                     index: index,
                                     direction: Axis.horizontal,
                                     slideOffset: 40,
-                                    staggerDelay: const Duration(milliseconds: 80),
+                                    staggerDelay: const Duration(
+                                      milliseconds: 80,
+                                    ),
                                     child: _PopularUniCard(
                                       university: popular[index],
                                       index: index,
                                       onTap: () => context.push(
-                                          '/university/${popular[index].id}'),
+                                        '/university/${popular[index].id}',
+                                      ),
                                     ),
                                   ),
                                 );
@@ -318,12 +328,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               ),
             ),
 
-            ref.watch(recentReviewsProvider).when(
+            ref
+                .watch(recentReviewsProvider)
+                .when(
                   loading: () => const SliverToBoxAdapter(
                     child: HomeListSkeleton(
-                        itemCount: 2,
-                        height: 150,
-                        scrollDirection: Axis.vertical),
+                      itemCount: 2,
+                      height: 150,
+                      scrollDirection: Axis.vertical,
+                    ),
                   ),
                   error: (e, st) => SliverToBoxAdapter(
                     child: ErrorStateWidget(
@@ -340,13 +353,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             padding: const EdgeInsets.all(40),
                             child: Column(
                               children: [
-                                Icon(Icons.rate_review_outlined,
-                                    size: 48,
-                                    color:
-                                        AppColors.textTertiaryFor(context)),
+                                Icon(
+                                  Icons.rate_review_outlined,
+                                  size: 48,
+                                  color: AppColors.textTertiaryFor(context),
+                                ),
                                 const SizedBox(height: 12),
-                                Text(loc.homeNoReviews,
-                                    style: AppTextStyles.titleMedium),
+                                Text(
+                                  loc.homeNoReviews,
+                                  style: AppTextStyles.titleMedium,
+                                ),
                                 Text(
                                   loc.homeFirstReview,
                                   style: AppTextStyles.bodySmall,
@@ -360,35 +376,29 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     }
 
                     return SliverList(
-                      delegate: SliverChildBuilderDelegate(
-                        (context, index) {
-                          final review = reviews[index];
-                          return ReviewCard(
-                            review: review,
-                            compact: true,
-                            showReportMenu: false,
-                            showActions: false,
-                            showTargetInfo: true,
-                            onTap: () {
-                              switch (review.type) {
-                                case ReviewType.department:
-                                  context.push(
-                                      '/department/${review.targetId}');
-                                  break;
-                                case ReviewType.place:
-                                  context
-                                      .push('/place/${review.targetId}');
-                                  break;
-                                case ReviewType.university:
-                                  context.push(
-                                      '/university/${review.targetId}');
-                                  break;
-                              }
-                            },
-                          );
-                        },
-                        childCount: reviews.length,
-                      ),
+                      delegate: SliverChildBuilderDelegate((context, index) {
+                        final review = reviews[index];
+                        return ReviewCard(
+                          review: review,
+                          compact: true,
+                          showReportMenu: false,
+                          showActions: false,
+                          showTargetInfo: true,
+                          onTap: () {
+                            switch (review.type) {
+                              case ReviewType.department:
+                                context.push('/department/${review.targetId}');
+                                break;
+                              case ReviewType.place:
+                                context.push('/place/${review.targetId}');
+                                break;
+                              case ReviewType.university:
+                                context.push('/university/${review.targetId}');
+                                break;
+                            }
+                          },
+                        );
+                      }, childCount: reviews.length),
                     );
                   },
                 ),
@@ -410,6 +420,7 @@ class _HeroBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return GestureDetector(
       onTap: () => context.push('/score-calculator'),
       child: Container(
@@ -421,7 +432,8 @@ class _HeroBanner extends StatelessWidget {
           borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(
-              color: AppColors.primary.withValues(alpha: 0.3),
+              color: AppColors.primary
+                  .withValues(alpha: isDark ? 0.18 : 0.3),
               blurRadius: 24,
               offset: const Offset(0, 8),
             ),
@@ -458,10 +470,11 @@ class _HeroBanner extends StatelessWidget {
                 height: 100,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Colors.white.withValues(alpha: 0.1),
+                  color: Colors.white.withValues(alpha: isDark ? 0.06 : 0.1),
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.secondary.withValues(alpha: 0.3),
+                      color: (isDark ? Colors.white : AppColors.secondary)
+                          .withValues(alpha: isDark ? 0.12 : 0.3),
                       blurRadius: 40,
                       spreadRadius: 20,
                     ),
@@ -473,9 +486,7 @@ class _HeroBanner extends StatelessWidget {
             Positioned.fill(
               child: Opacity(
                 opacity: 0.05,
-                child: CustomPaint(
-                  painter: _GridPatternPainter(),
-                ),
+                child: CustomPaint(painter: _GridPatternPainter()),
               ),
             ),
             // Content
@@ -490,18 +501,24 @@ class _HeroBanner extends StatelessWidget {
                       children: [
                         Container(
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 4),
+                            horizontal: 10,
+                            vertical: 4,
+                          ),
                           decoration: BoxDecoration(
                             color: Colors.white.withValues(alpha: 0.2),
                             borderRadius: BorderRadius.circular(8),
                             border: Border.all(
-                                color: Colors.white.withValues(alpha: 0.3)),
+                              color: Colors.white.withValues(alpha: 0.3),
+                            ),
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              const Icon(Icons.calculate_rounded,
-                                  color: Colors.white, size: 14),
+                              const Icon(
+                                Icons.calculate_rounded,
+                                color: Colors.white,
+                                size: 14,
+                              ),
                               const SizedBox(width: 6),
                               Text(
                                 'YKS 2025',
@@ -528,8 +545,9 @@ class _HeroBanner extends StatelessWidget {
                           children: [
                             Text(
                               loc.homeStart,
-                              style: AppTextStyles.labelLarge
-                                  .copyWith(color: Colors.white),
+                              style: AppTextStyles.labelLarge.copyWith(
+                                color: Colors.white,
+                              ),
                             ),
                             const SizedBox(width: 8),
                             Container(
@@ -538,8 +556,11 @@ class _HeroBanner extends StatelessWidget {
                                 color: Colors.white,
                                 shape: BoxShape.circle,
                               ),
-                              child: const Icon(Icons.arrow_forward_rounded,
-                                  color: AppColors.primary, size: 14),
+                              child: const Icon(
+                                Icons.arrow_forward_rounded,
+                                color: AppColors.primary,
+                                size: 14,
+                              ),
                             ),
                           ],
                         ),
@@ -554,12 +575,16 @@ class _HeroBanner extends StatelessWidget {
                       color: Colors.white.withValues(alpha: 0.15),
                       shape: BoxShape.circle,
                       border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.3),
-                          width: 1.5),
+                        color: Colors.white.withValues(alpha: 0.3),
+                        width: 1.5,
+                      ),
                     ),
                     child: const Center(
-                      child: Icon(Icons.analytics_rounded,
-                          color: Colors.white, size: 36),
+                      child: Icon(
+                        Icons.analytics_rounded,
+                        color: Colors.white,
+                        size: 36,
+                      ),
                     ),
                   ),
                 ],
@@ -604,27 +629,18 @@ class _PopularUniCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isFavorite = ref.watch(
-      favoritesProvider
-          .select((async) => async.value?.contains(university.id) ?? false),
+      favoritesProvider.select(
+        (async) => async.value?.contains(university.id) ?? false,
+      ),
     );
-    final colors = [
-      AppColors.primary,
-      AppColors.secondary,
-      AppColors.accent,
-      const Color(0xFF10B981),
-      const Color(0xFFF59E0B),
-      const Color(0xFF8B5CF6),
-      const Color(0xFFEC4899),
-      const Color(0xFF14B8A6),
-    ];
-    final color = colors[index % colors.length];
+    // Marka paletiyle uyumlu, küratörlü aksan tonu (rastgele gökkuşağı yerine)
+    final color = AppColors.accentForIndex(index);
 
     final brandColor = university.brandColor ?? color;
 
-
-
     return Semantics(
-      label: '${university.name}, ${university.type}${isFavorite ? ', favorilerde' : ''}',
+      label:
+          '${university.name}, ${university.type}${isFavorite ? ', favorilerde' : ''}',
       button: true,
       child: Container(
         width: Responsive.cardWidth(context),
@@ -653,70 +669,76 @@ class _PopularUniCard extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          SizedBox(
-                            width: 52,
-                            height: 52,
-                            child: Image.asset(
-                              university.logoAssetPath,
-                              fit: BoxFit.contain,
-                              semanticLabel: 'Üniversite logosu',
-                              errorBuilder: (context, error, stackTrace) =>
-                                  Container(
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      SizedBox(
+                        width: 52,
+                        height: 52,
+                        child: Image.asset(
+                          university.logoAssetPath,
+                          fit: BoxFit.contain,
+                          semanticLabel: 'Üniversite logosu',
+                          errorBuilder: (context, error, stackTrace) =>
+                              Container(
                                 decoration: BoxDecoration(
                                   color: color.withValues(alpha: 0.12),
                                   borderRadius: BorderRadius.circular(12),
                                 ),
-                                child: Icon(Icons.school_rounded,
-                                    color: color, size: 28),
+                                child: Icon(
+                                  Icons.school_rounded,
+                                  color: color,
+                                  size: 28,
+                                ),
                               ),
-                            ),
-                          ),
-                          _FavoriteHeartButton(
-                            universityId: university.id,
-                            isFavorite: isFavorite,
-                          ),
-                        ],
+                        ),
                       ),
-                      const Spacer(),
-                      // Başlık
-                      Text(
-                        university.name,
-                        style: AppTextStyles.titleMedium,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
+                      _FavoriteHeartButton(
+                        universityId: university.id,
+                        isFavorite: isFavorite,
                       ),
-                      const SizedBox(height: 4),
-                      // Tür rozeti
-                      Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 6, vertical: 2),
-                            decoration: BoxDecoration(
-                              color: (university.type == 'Devlet'
+                    ],
+                  ),
+                  const Spacer(),
+                  // Başlık
+                  Text(
+                    university.name,
+                    style: AppTextStyles.titleMedium,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 4),
+                  // Tür rozeti
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color:
+                              (university.type == 'Devlet'
                                       ? AppColors.stateUni
                                       : AppColors.foundationUni)
                                   .withValues(alpha: 0.12),
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                            child: Text(
-                              university.type,
-                              style: AppTextStyles.labelSmall.copyWith(
-                                color: university.type == 'Devlet'
-                                    ? AppColors.stateUni
-                                    : AppColors.foundationUni,
-                                fontWeight: FontWeight.w600,
-                                fontSize: 9,
-                              ),
-                            ),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          university.type,
+                          style: AppTextStyles.labelSmall.copyWith(
+                            color: university.type == 'Devlet'
+                                ? AppColors.stateUni
+                                : AppColors.foundationUni,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 9,
                           ),
-                        ],
+                        ),
                       ),
                     ],
+                  ),
+                ],
               ),
             ),
           ),
@@ -754,14 +776,13 @@ class _FavoriteHeartButtonState extends ConsumerState<_FavoriteHeartButton>
       duration: const Duration(milliseconds: 350),
     );
 
-    _scaleAnimation = TweenSequence<double>([
-      TweenSequenceItem(tween: Tween(begin: 1.0, end: 1.4), weight: 40),
-      TweenSequenceItem(tween: Tween(begin: 1.4, end: 0.85), weight: 30),
-      TweenSequenceItem(tween: Tween(begin: 0.85, end: 1.0), weight: 30),
-    ]).animate(CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeOutCubic,
-    ));
+    _scaleAnimation = TweenSequence<double>(
+      [
+        TweenSequenceItem(tween: Tween(begin: 1.0, end: 1.4), weight: 40),
+        TweenSequenceItem(tween: Tween(begin: 1.4, end: 0.85), weight: 30),
+        TweenSequenceItem(tween: Tween(begin: 0.85, end: 1.0), weight: 30),
+      ],
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
   }
 
   @override
@@ -783,11 +804,9 @@ class _FavoriteHeartButtonState extends ConsumerState<_FavoriteHeartButton>
     if (user == null) return;
 
     AppHaptic.favoriteToggle();
-    ref.read(favoritesControllerProvider.notifier).toggleFavorite(
-          user.uid,
-          widget.universityId,
-          widget.isFavorite,
-        );
+    ref
+        .read(favoritesControllerProvider.notifier)
+        .toggleFavorite(user.uid, widget.universityId, widget.isFavorite);
   }
 
   @override

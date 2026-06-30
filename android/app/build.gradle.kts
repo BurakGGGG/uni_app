@@ -20,6 +20,10 @@ if (keystorePropertiesFile.exists()) {
 
 val googleTestAdMobAppId = "ca-app-pub-3940256099942544~3347511713"
 val googleTestRewardedAndroidId = "ca-app-pub-3940256099942544/5224354917"
+val googleTestComparisonRewardedAndroidId = "ca-app-pub-3940256099942544/5224354917"
+val googleTestInterstitialAndroidId = "ca-app-pub-3940256099942544/1033173712"
+val googleTestNativeAndroidId = "ca-app-pub-3940256099942544/2247696110"
+val googleTestBannerAndroidId = "ca-app-pub-3940256099942544/6300978111"
 
 fun decodedDartDefines(): Map<String, String> {
     val encodedDefines = (project.findProperty("dart-defines") as? String)
@@ -60,6 +64,10 @@ fun keystoreProperty(name: String): String? {
 
 val configuredAdMobAppId = configuredProperty("ADMOB_APP_ID")
 val configuredAdMobRewardedAndroidId = configuredProperty("ADMOB_REWARDED_ANDROID")
+val configuredAdMobComparisonRewardedAndroidId = configuredProperty("ADMOB_COMPARISON_REWARDED_ANDROID")
+val configuredAdMobInterstitialAndroidId = configuredProperty("ADMOB_INTERSTITIAL_ANDROID")
+val configuredAdMobNativeAndroidId = configuredProperty("ADMOB_NATIVE_ANDROID")
+val configuredAdMobBannerAndroidId = configuredProperty("ADMOB_BANNER_ANDROID")
 val allowTestAdUnits = configuredProperty("ALLOW_TEST_AD_UNITS")
     ?.equals("true", ignoreCase = true) == true
 
@@ -111,6 +119,70 @@ fun validateAndroidReleaseConfig() {
         configuredAdMobRewardedAndroidId != null &&
             !adUnitIdPattern.matches(configuredAdMobRewardedAndroidId) -> {
             missingOrInvalid += "ADMOB_REWARDED_ANDROID gecersiz formatta"
+        }
+    }
+
+    when {
+        configuredAdMobComparisonRewardedAndroidId == null && !allowTestAdUnits -> {
+            missingOrInvalid +=
+                "ADMOB_COMPARISON_REWARDED_ANDROID eksik (--dart-define=ADMOB_COMPARISON_REWARDED_ANDROID=...)"
+        }
+        configuredAdMobComparisonRewardedAndroidId != null &&
+            (configuredAdMobComparisonRewardedAndroidId == googleTestComparisonRewardedAndroidId ||
+                configuredAdMobComparisonRewardedAndroidId.startsWith("ca-app-pub-3940256099942544")) &&
+            !allowTestAdUnits -> {
+            missingOrInvalid += "release build Google test comparison rewarded Ad Unit ID kullanamaz"
+        }
+        configuredAdMobComparisonRewardedAndroidId != null &&
+            !adUnitIdPattern.matches(configuredAdMobComparisonRewardedAndroidId) -> {
+            missingOrInvalid += "ADMOB_COMPARISON_REWARDED_ANDROID gecersiz formatta"
+        }
+    }
+
+    when {
+        configuredAdMobInterstitialAndroidId == null && !allowTestAdUnits -> {
+            missingOrInvalid +=
+                "ADMOB_INTERSTITIAL_ANDROID eksik (--dart-define=ADMOB_INTERSTITIAL_ANDROID=...)"
+        }
+        configuredAdMobInterstitialAndroidId != null &&
+            (configuredAdMobInterstitialAndroidId == googleTestInterstitialAndroidId ||
+                configuredAdMobInterstitialAndroidId.startsWith("ca-app-pub-3940256099942544")) &&
+            !allowTestAdUnits -> {
+            missingOrInvalid += "release build Google test interstitial Ad Unit ID kullanamaz"
+        }
+        configuredAdMobInterstitialAndroidId != null &&
+            !adUnitIdPattern.matches(configuredAdMobInterstitialAndroidId) -> {
+            missingOrInvalid += "ADMOB_INTERSTITIAL_ANDROID gecersiz formatta"
+        }
+    }
+
+    when {
+        configuredAdMobNativeAndroidId == null && !allowTestAdUnits -> {
+            missingOrInvalid +=
+                "ADMOB_NATIVE_ANDROID eksik (--dart-define=ADMOB_NATIVE_ANDROID=...)"
+        }
+        configuredAdMobNativeAndroidId != null &&
+            (configuredAdMobNativeAndroidId == googleTestNativeAndroidId ||
+                configuredAdMobNativeAndroidId.startsWith("ca-app-pub-3940256099942544")) &&
+            !allowTestAdUnits -> {
+            missingOrInvalid += "release build Google test native Ad Unit ID kullanamaz"
+        }
+        configuredAdMobNativeAndroidId != null &&
+            !adUnitIdPattern.matches(configuredAdMobNativeAndroidId) -> {
+            missingOrInvalid += "ADMOB_NATIVE_ANDROID gecersiz formatta"
+        }
+    }
+
+    when {
+        configuredAdMobBannerAndroidId != null &&
+            (configuredAdMobBannerAndroidId == googleTestBannerAndroidId ||
+                configuredAdMobBannerAndroidId.startsWith("ca-app-pub-3940256099942544")) &&
+            !allowTestAdUnits -> {
+            missingOrInvalid += "release build Google test banner Ad Unit ID kullanamaz"
+        }
+        configuredAdMobBannerAndroidId != null &&
+            !adUnitIdPattern.matches(configuredAdMobBannerAndroidId) -> {
+            missingOrInvalid += "ADMOB_BANNER_ANDROID gecersiz formatta"
         }
     }
 

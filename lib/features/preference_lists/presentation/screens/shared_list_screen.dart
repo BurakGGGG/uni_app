@@ -151,7 +151,7 @@ class SharedListScreen extends ConsumerWidget {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 10, vertical: 5),
                       decoration: BoxDecoration(
-                        color: AppColors.surfaceVariant,
+                        color: AppColors.surfaceVariantFor(context),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Row(
@@ -213,7 +213,7 @@ class _SharedItemCard extends StatelessWidget {
         color: AppColors.surfaceFor(context),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.borderLightFor(context)),
-        boxShadow: AppColors.softShadow,
+        boxShadow: AppColors.softShadowFor(context),
       ),
       child: Row(
         children: [
@@ -377,7 +377,7 @@ class _EmptyView extends StatelessWidget {
               width: 80,
               height: 80,
               decoration: BoxDecoration(
-                color: AppColors.surfaceVariant,
+                color: AppColors.surfaceVariantFor(context),
                 shape: BoxShape.circle,
               ),
               child: Icon(

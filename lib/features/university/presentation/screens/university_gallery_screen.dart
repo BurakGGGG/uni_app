@@ -148,7 +148,7 @@ class _UniversityGalleryScreenState extends ConsumerState<UniversityGalleryScree
                               tag: 'photo_${photo.imageUrl}',
                               child: Container(
                                 decoration: BoxDecoration(
-                                  color: AppColors.surfaceVariant,
+                                  color: AppColors.surfaceVariantFor(context),
                                 ),
                                 child: Stack(
                                   fit: StackFit.expand,
