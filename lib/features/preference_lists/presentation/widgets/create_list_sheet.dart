@@ -169,7 +169,7 @@ class _BodyState extends ConsumerState<_Body> {
 
           // Public toggle
           Material(
-            color: AppColors.surfaceVariant.withValues(alpha: 0.5),
+            color: AppColors.surfaceVariantFor(context).withValues(alpha: 0.5),
             borderRadius: BorderRadius.circular(12),
             clipBehavior: Clip.antiAlias,
             child: SwitchListTile(

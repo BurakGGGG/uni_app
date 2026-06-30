@@ -198,7 +198,7 @@ class CityUniversitiesScreen extends ConsumerWidget {
           _KpiChip(
             icon: Icons.school_outlined,
             label: '${city.totalUniversityCount} toplam',
-            color: AppColors.textSecondary,
+            color: AppColors.textSecondaryFor(context),
           ),
         ],
       ),

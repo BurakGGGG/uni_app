@@ -40,7 +40,7 @@ class ReviewList extends ConsumerWidget {
         if (showSortOptions) _buildSortBar(context, ref, sort),
         reviewsAsync.when(
           data: (reviews) {
-            if (reviews.isEmpty) return _buildEmptyState();
+            if (reviews.isEmpty) return _buildEmptyState(context);
             
             final currentUserId = ref.watch(authStateProvider).value?.uid;
 
@@ -154,7 +154,7 @@ class ReviewList extends ConsumerWidget {
     );
   }
 
-  Widget _buildEmptyState() {
+  Widget _buildEmptyState(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(40),
       child: Center(
@@ -163,7 +163,7 @@ class ReviewList extends ConsumerWidget {
             Icon(
               Icons.rate_review_outlined,
               size: 48,
-              color: AppColors.textTertiary.withValues(alpha: 0.5),
+              color: AppColors.textTertiaryFor(context).withValues(alpha: 0.5),
             ),
             const SizedBox(height: 16),
             Text(
@@ -175,7 +175,7 @@ class ReviewList extends ConsumerWidget {
             Text(
               'İlk değerlendiren siz olun!',
               style: AppTextStyles.bodySmall.copyWith(
-                color: AppColors.textSecondary,
+                color: AppColors.textSecondaryFor(context),
               ),
               textAlign: TextAlign.center,
             ),

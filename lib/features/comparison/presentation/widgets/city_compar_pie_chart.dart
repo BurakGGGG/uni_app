@@ -94,7 +94,7 @@ class _LegendDot extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       decoration: BoxDecoration(
-        color: AppColors.surfaceVariant,
+        color: AppColors.surfaceVariantFor(context),
         borderRadius: BorderRadius.circular(999),
       ),
       child: Row(

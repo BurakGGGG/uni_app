@@ -107,7 +107,7 @@ class _Content extends ConsumerWidget {
 
           // Public/Private toggle
           Material(
-            color: AppColors.surfaceVariant.withValues(alpha: 0.5),
+            color: AppColors.surfaceVariantFor(context).withValues(alpha: 0.5),
             borderRadius: BorderRadius.circular(12),
             clipBehavior: Clip.antiAlias,
             child: SwitchListTile(
@@ -254,7 +254,7 @@ class _Content extends ConsumerWidget {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: AppColors.surfaceVariant.withValues(alpha: 0.5),
+                color: AppColors.surfaceVariantFor(context).withValues(alpha: 0.5),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Row(

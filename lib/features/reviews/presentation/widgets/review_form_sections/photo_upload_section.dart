@@ -216,9 +216,9 @@ class _PhotoUploadSectionState extends State<PhotoUploadSection> {
                     imageUrl: widget.uploadedUrls[index],
                     fit: BoxFit.cover,
                     memCacheWidth: 200, // 200px for thumbnail cache
-                    placeholder: (_, _) => Container(color: AppColors.surfaceVariant),
+                    placeholder: (_, _) => Container(color: AppColors.surfaceVariantFor(context)),
                     errorWidget: (_, _, _) => Container(
-                      color: AppColors.surfaceVariant,
+                      color: AppColors.surfaceVariantFor(context),
                       child: Icon(Icons.error_outline, color: AppColors.textTertiaryFor(context)),
                     ),
                   ),

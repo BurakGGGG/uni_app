@@ -92,7 +92,7 @@ class UniCard extends StatelessWidget {
                 
                 // Görsel
                 if (imageUrl != null) ...[
-                  _buildImage(),
+                  _buildImage(context),
                   const SizedBox(width: AppConstants.spacingMd),
                 ],
                 // İçerik
@@ -164,7 +164,7 @@ class UniCard extends StatelessWidget {
     return parts.join(', ');
   }
 
-  Widget _buildImage() {
+  Widget _buildImage(BuildContext context) {
     if (imageUrl != null) {
       return ClipRRect(
         borderRadius: BorderRadius.circular(AppConstants.radiusMd),
@@ -178,14 +178,14 @@ class UniCard extends StatelessWidget {
           placeholder: (context, url) => Container(
             width: 64,
             height: 64,
-            color: AppColors.surfaceVariant,
+            color: AppColors.surfaceVariantFor(context),
           ),
           errorWidget: (context, url, error) => Container(
             width: 64,
             height: 64,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(AppConstants.radiusMd),
-              color: AppColors.surfaceVariant,
+              color: AppColors.surfaceVariantFor(context),
             ),
             child: Icon(
               Icons.school_rounded,
@@ -201,11 +201,11 @@ class UniCard extends StatelessWidget {
       height: 64,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(AppConstants.radiusMd),
-        color: AppColors.surfaceVariant,
+        color: AppColors.surfaceVariantFor(context),
       ),
       child: Icon(
         Icons.school_rounded,
-        color: AppColors.textTertiary,
+        color: AppColors.textTertiaryFor(context),
         size: 28,
       ),
     );

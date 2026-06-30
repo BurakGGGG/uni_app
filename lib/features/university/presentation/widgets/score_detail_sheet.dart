@@ -200,7 +200,7 @@ class _ScoreDetailSheet extends StatelessWidget {
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                               decoration: BoxDecoration(
-                                color: AppColors.surfaceVariant.withValues(alpha: 0.5),
+                                color: AppColors.surfaceVariantFor(context).withValues(alpha: 0.5),
                               ),
                               child: Row(
                                 children: [

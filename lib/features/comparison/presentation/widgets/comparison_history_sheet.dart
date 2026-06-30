@@ -414,7 +414,7 @@ class _LogoCircle extends StatelessWidget {
         imageUrl: src,
         fit: BoxFit.cover,
         memCacheWidth: 96,
-        placeholder: (_, _) => Container(color: AppColors.surfaceVariant),
+        placeholder: (_, _) => Container(color: AppColors.surfaceVariantFor(context)),
         errorWidget: (_, _, _) =>
             Icon(fallbackIcon, size: 18, color: accentColor),
       );
