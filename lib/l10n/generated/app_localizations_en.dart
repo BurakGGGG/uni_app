@@ -103,6 +103,58 @@ class AppLocalizationsEn extends AppLocalizations {
   String get aiSummaryRegenerate => 'Regenerate';
 
   @override
+  String get viewProPlans => 'View Pro Plans';
+
+  @override
+  String get proChartLockedSubtitle => 'This chart is part of the Pro plan.';
+
+  @override
+  String get watchAdUnlockOneHour => 'Watch a Video & Unlock Free for 1 Hour';
+
+  @override
+  String get adLoading => 'Loading ad, please wait…';
+
+  @override
+  String get proChartsUnlockedOneHour =>
+      'Pro charts and features unlocked for 1 hour!';
+
+  @override
+  String get adFailedRetry =>
+      'The ad couldn\'t load or wasn\'t completed. Please try again.';
+
+  @override
+  String get chartHeatmapTitle => 'Category Comparison';
+
+  @override
+  String get chartTrendTitle => '6-Month Rating Trend';
+
+  @override
+  String get chartScatterTitle => 'Base Score × Ranking';
+
+  @override
+  String get chartScatterXAxis => 'Base score';
+
+  @override
+  String get chartScatterYAxis => 'Ranking';
+
+  @override
+  String get chartScaleLow => 'Low';
+
+  @override
+  String get chartScaleHigh => 'High';
+
+  @override
+  String get chartNoData => 'No data';
+
+  @override
+  String get chartDepartmentLabel => 'Department';
+
+  @override
+  String tempProBadge(int minutes) {
+    return 'Pro active · $minutes min';
+  }
+
+  @override
   String get watchAdToContinue => 'Watch Ad to Continue';
 
   @override
@@ -612,6 +664,39 @@ class AppLocalizationsEn extends AppLocalizations {
   String get commonError => 'Something went wrong';
 
   @override
+  String get paywallPerMonthSuffix => '/mo';
+
+  @override
+  String get paywallPerYearSuffix => '/yr';
+
+  @override
+  String paywallSaveBadge(int percent) {
+    return 'SAVE $percent%';
+  }
+
+  @override
+  String paywallYearlySavingsSub(int percent) {
+    return 'Save $percent% vs monthly';
+  }
+
+  @override
+  String paywallFreeTrialNote(String duration) {
+    return 'First $duration free, then auto-renews';
+  }
+
+  @override
+  String get paywallUnitDay => 'days';
+
+  @override
+  String get paywallUnitWeek => 'weeks';
+
+  @override
+  String get paywallUnitMonth => 'months';
+
+  @override
+  String get paywallUnitYear => 'years';
+
+  @override
   String get commonLoading => 'Loading...';
 
   @override
@@ -887,10 +972,26 @@ class AppLocalizationsEn extends AppLocalizations {
   String get exploreNoResultsSub => 'Try changing your filters.';
 
   @override
+  String get searchGlobalHint => 'Search university, department or city...';
+
+  @override
+  String get showcaseSearchTitle => 'Quick Search';
+
+  @override
+  String get showcaseSearchDescription =>
+      'Search university, department or city — find what you need instantly.';
+
+  @override
   String get searchError => 'An error occurred while searching.';
 
   @override
   String get searchNoResults => 'No results found';
+
+  @override
+  String get searchRecentTitle => 'Recent Searches';
+
+  @override
+  String get searchRecentClear => 'Clear';
 
   @override
   String searchNoResultsSub(Object query) {

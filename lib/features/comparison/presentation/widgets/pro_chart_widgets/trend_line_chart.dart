@@ -15,7 +15,7 @@ class TrendLineChart extends StatefulWidget {
 
   const TrendLineChart({
     super.key,
-    this.title = '6 Aylık Rating Trendi',
+    required this.title,
     required this.monthLabels,
     required this.seriesA,
     required this.seriesB,
@@ -251,10 +251,15 @@ class _TrendLineChartState extends State<TrendLineChart> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        _LegendDot(color: AppColors.primary, label: widget.labelA, isDark: isDark),
+        Flexible(
+          child: _LegendDot(
+              color: AppColors.primary, label: widget.labelA, isDark: isDark),
+        ),
         const SizedBox(width: 18),
-        _LegendDot(
-            color: AppColors.secondary, label: widget.labelB, isDark: isDark),
+        Flexible(
+          child: _LegendDot(
+              color: AppColors.secondary, label: widget.labelB, isDark: isDark),
+        ),
       ],
     );
   }
@@ -321,11 +326,15 @@ class _LegendDot extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 8),
-        Text(
-          label,
-          style: AppTextStyles.labelSmall.copyWith(
-            fontWeight: FontWeight.w800,
-            color: isDark ? Colors.white70 : AppColors.textSecondaryFor(context),
+        Flexible(
+          child: Text(
+            label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: AppTextStyles.labelSmall.copyWith(
+              fontWeight: FontWeight.w800,
+              color: isDark ? Colors.white70 : AppColors.textSecondaryFor(context),
+            ),
           ),
         ),
       ],

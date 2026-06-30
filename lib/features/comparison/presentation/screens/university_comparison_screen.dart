@@ -13,6 +13,9 @@ import '../widgets/comparison_uni_picker.dart';
 import '../widgets/comparison_hero_section.dart';
 import '../widgets/animated_comparison_bar.dart';
 import '../widgets/comparison_radar_chart.dart';
+import '../widgets/pro_chart_widgets/heat_map_widget.dart';
+import '../widgets/pro_chart_widgets/trend_line_chart.dart';
+import '../widgets/pro_chart_widgets/scatter_plot_chart.dart';
 import '../widgets/comparison_stats_table.dart';
 import '../widgets/comparison_share_card.dart';
 import '../widgets/comparison_ai_summary_card.dart';
@@ -1005,12 +1008,18 @@ class _CategoriesTab extends StatelessWidget {
 
 // ─── Grafik Tab ────────────────────────────────────────────────────
 
-class _ChartTab extends StatelessWidget {
+class _ChartTab extends ConsumerWidget {
   final ComparisonResult result;
   const _ChartTab({required this.result});
 
+  // Trend grafiği için kısa ay etiketleri (örn: Oca, Şub...).
+  static const _monthAbbrTr = [
+    'Oca', 'Şub', 'Mar', 'Nis', 'May', 'Haz',
+    'Tem', 'Ağu', 'Eyl', 'Eki', 'Kas', 'Ara',
+  ];
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     if (result.categoryComparisons.isEmpty) {
       return Center(
         child: Padding(
@@ -1030,11 +1039,86 @@ class _ChartTab extends StatelessWidget {
         ),
       );
     }
+
+    final loc = AppLocalizations.of(context);
+    final pair = ComparisonPair(idA: result.uniA.id, idB: result.uniB.id);
+    final labelA = result.uniA.name;
+    final labelB = result.uniB.name;
+
+    // Isı haritası — bellekteki sonuçtan (gerçek kategori etiketleri, her zaman dolu).
+    final cats = result.categoryComparisons.values.toList();
+
+    // Trend & scatter — Pro veri sağlayıcılar (geçici erişim dahil; Free'de boş).
+    final trendState = ref.watch(ratingTrendProvider(pair)).valueOrNull;
+    final scatter = ref.watch(departmentScatterProvider(pair)).valueOrNull;
+
+    const hPad = EdgeInsets.symmetric(horizontal: 16);
+
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(0, 8, 0, 80),
-      child: ComparisonRadarChart(result: result),
+      child: Column(
+        children: [
+          ComparisonRadarChart(result: result),
+          const SizedBox(height: 16),
+          Padding(
+            padding: hPad,
+            child: HeatMapWidget(
+              title: loc.chartHeatmapTitle,
+              categories: cats.map((c) => c.categoryName).toList(),
+              valuesA: cats.map((c) => c.valueA).toList(),
+              valuesB: cats.map((c) => c.valueB).toList(),
+              labelA: labelA,
+              labelB: labelB,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Padding(
+            padding: hPad,
+            child: TrendLineChart(
+              title: loc.chartTrendTitle,
+              monthLabels: _trendLabels(trendState),
+              seriesA: _trendSeries(trendState, (p) => p.avgRatingA),
+              seriesB: _trendSeries(trendState, (p) => p.avgRatingB),
+              labelA: labelA,
+              labelB: labelB,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Padding(
+            padding: hPad,
+            child: ScatterPlotChart(
+              title: loc.chartScatterTitle,
+              pointsA: _scatterPoints(scatter?.pointsA),
+              pointsB: _scatterPoints(scatter?.pointsB),
+              labelA: labelA,
+              labelB: labelB,
+            ),
+          ),
+        ],
+      ),
     );
   }
+
+  List<String> _trendLabels(TrendDataState? s) => s is TrendDataSuccess
+      ? s.points.map((p) => _monthAbbrTr[(p.month.month - 1) % 12]).toList()
+      : const [];
+
+  List<double> _trendSeries(
+    TrendDataState? s,
+    double Function(RatingTrendPoint) sel,
+  ) =>
+      s is TrendDataSuccess ? s.points.map(sel).toList() : const [];
+
+  List<ScatterPoint> _scatterPoints(List<DepartmentScatterPoint>? pts) =>
+      pts == null
+          ? const []
+          : pts
+              .map((p) => ScatterPoint(
+                    x: p.baseScore,
+                    y: p.ranking.toDouble(),
+                    label: p.departmentName,
+                  ))
+              .toList();
 }
 
 // ─── İstatistik Tab ────────────────────────────────────────────────

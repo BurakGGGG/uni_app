@@ -48,6 +48,30 @@
   },
   "aiSummaryActive": "Pro analizi aktif",
   "aiSummaryRegenerate": "Yeniden Üret",
+  "viewProPlans": "Pro Paketleri İncele",
+  "proChartLockedSubtitle": "Bu grafik Pro paketinde.",
+  "watchAdUnlockOneHour": "Video İzle ve 1 Saat Ücretsiz Aç",
+  "adLoading": "Reklam yükleniyor, lütfen bekleyin…",
+  "proChartsUnlockedOneHour": "Pro grafikler ve özellikler 1 saatliğine başarıyla açıldı!",
+  "adFailedRetry": "Reklam yüklenemedi veya tamamlanmadı. Lütfen tekrar deneyin.",
+  "chartHeatmapTitle": "Kategori Karşılaştırması",
+  "chartTrendTitle": "6 Aylık Puan Trendi",
+  "chartScatterTitle": "Taban Puanı × Sıralama",
+  "chartScatterXAxis": "Taban puanı",
+  "chartScatterYAxis": "Sıralama",
+  "chartScaleLow": "Düşük",
+  "chartScaleHigh": "Yüksek",
+  "chartNoData": "Veri yok",
+  "chartDepartmentLabel": "Bölüm",
+  "tempProBadge": "Pro aktif · {minutes} dk",
+  "@tempProBadge": {
+    "placeholders": {
+      "minutes": {
+        "type": "int",
+        "example": "59"
+      }
+    }
+  },
   "watchAdToContinue": "Reklamı İzle ve Devam Et",
   "upgradePlus": "Plus'a Geç — Sınırsız",
   "cancelForNow": "Şimdilik Vazgeç",
@@ -253,6 +277,24 @@
   "aiSummaryLimitReachedSimple": "Günlük AI özet hakkın doldu, yarın tekrar dene.",
   "commonRetry": "Tekrar dene",
   "commonError": "Bir hata oluştu",
+  "paywallPerMonthSuffix": "/ay",
+  "paywallPerYearSuffix": "/yıl",
+  "paywallSaveBadge": "%{percent} TASARRUF",
+  "@paywallSaveBadge": {
+    "placeholders": { "percent": { "type": "int" } }
+  },
+  "paywallYearlySavingsSub": "Aylığa göre %{percent} tasarruf",
+  "@paywallYearlySavingsSub": {
+    "placeholders": { "percent": { "type": "int" } }
+  },
+  "paywallFreeTrialNote": "İlk {duration} ücretsiz, sonra otomatik yenilenir",
+  "@paywallFreeTrialNote": {
+    "placeholders": { "duration": { "type": "String" } }
+  },
+  "paywallUnitDay": "gün",
+  "paywallUnitWeek": "hafta",
+  "paywallUnitMonth": "ay",
+  "paywallUnitYear": "yıl",
   "commonLoading": "Yükleniyor...",
   "commonCancel": "İptal",
   "commonSave": "Kaydet",
@@ -361,8 +403,13 @@
   "exploreCitiesError": "Şehirler yüklenemedi",
   "exploreNoResults": "Sonuç bulunamadı",
   "exploreNoResultsSub": "Filtrelerinizi değiştirerek tekrar deneyin.",
+  "searchGlobalHint": "Üniversite, bölüm veya şehir ara...",
+  "showcaseSearchTitle": "Hızlı Arama",
+  "showcaseSearchDescription": "Üniversite, bölüm veya şehir ara — istediğin her şeyi anında bul.",
   "searchError": "Arama yapılırken bir hata oluştu.",
   "searchNoResults": "Sonuç bulunamadı",
+  "searchRecentTitle": "Son Aramalar",
+  "searchRecentClear": "Temizle",
   "searchNoResultsSub": "\"{query}\" aramasına uygun üniversite yok.",
   "searchCampus": "Kampüslü",
   "searchEst": "Kuruluş: {year}",

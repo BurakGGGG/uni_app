@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/shimmer_box.dart';
@@ -155,7 +156,29 @@ class ComparisonAiSummaryCard extends StatelessWidget {
                 fontWeight: FontWeight.w700,
               ),
             ),
-          ] else ...[
+          ],
+          if (blocked && !isLimitReached) ...[
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: () => context.push('/compare/paywall'),
+                icon: const Icon(Icons.rocket_launch_rounded, color: AppColors.primary),
+                label: Text(
+                  loc.viewProPlans,
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  foregroundColor: AppColors.primary,
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+            ),
+          ] else if (!blocked) ...[
             TypewriterText(
               summaryText,
               style: AppTextStyles.bodyMedium.copyWith(

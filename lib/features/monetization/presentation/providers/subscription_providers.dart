@@ -9,6 +9,7 @@ import '../../domain/enums/subscription_tier.dart';
 import '../../domain/models/subscription_model.dart';
 import '../../domain/models/usage_stats_model.dart';
 import '../../../auth/presentation/providers/auth_providers.dart';
+import 'temporary_pro_access_provider.dart';
 
 // ═══════════════════════════════════════════════════════════════
 //  Repository Providers
@@ -158,6 +159,9 @@ final canCompareCitiesProvider = Provider<bool>((ref) {
 
 /// Pro grafik paketi erişimi var mı?
 final canUseProChartsProvider = Provider<bool>((ref) {
+  final tempAccess = ref.watch(temporaryProAccessProvider);
+  if (tempAccess.hasAccess) return true;
+
   final tier = ref.watch(subscriptionTierProvider);
   return tier.when(
     data: (t) => canUseProCharts(t),
@@ -167,6 +171,11 @@ final canUseProChartsProvider = Provider<bool>((ref) {
 });
 
 /// AI karşılaştırma özeti erişimi var mı? (Pro + günlük limit)
+///
+/// NOT: AI özeti Cloud Function ile üretilir ve sunucu gerçek Pro tier'ı
+/// denetler. Rewarded reklamla alınan geçici erişim (temporaryProAccess)
+/// burada KASITLI olarak uygulanmaz — aksi halde UI açılır ama fonksiyon
+/// reddeder. Geçici erişim yalnızca client-side Pro grafikleri açar.
 final canUseAiComparisonProvider = Provider<bool>((ref) {
   final tier = ref.watch(subscriptionTierProvider);
   final canAi = ref.watch(canAiCompareProvider);

@@ -272,6 +272,102 @@ abstract class AppLocalizations {
   /// **'Yeniden Üret'**
   String get aiSummaryRegenerate;
 
+  /// No description provided for @viewProPlans.
+  ///
+  /// In tr, this message translates to:
+  /// **'Pro Paketleri İncele'**
+  String get viewProPlans;
+
+  /// No description provided for @proChartLockedSubtitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bu grafik Pro paketinde.'**
+  String get proChartLockedSubtitle;
+
+  /// No description provided for @watchAdUnlockOneHour.
+  ///
+  /// In tr, this message translates to:
+  /// **'Video İzle ve 1 Saat Ücretsiz Aç'**
+  String get watchAdUnlockOneHour;
+
+  /// No description provided for @adLoading.
+  ///
+  /// In tr, this message translates to:
+  /// **'Reklam yükleniyor, lütfen bekleyin…'**
+  String get adLoading;
+
+  /// No description provided for @proChartsUnlockedOneHour.
+  ///
+  /// In tr, this message translates to:
+  /// **'Pro grafikler ve özellikler 1 saatliğine başarıyla açıldı!'**
+  String get proChartsUnlockedOneHour;
+
+  /// No description provided for @adFailedRetry.
+  ///
+  /// In tr, this message translates to:
+  /// **'Reklam yüklenemedi veya tamamlanmadı. Lütfen tekrar deneyin.'**
+  String get adFailedRetry;
+
+  /// No description provided for @chartHeatmapTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kategori Karşılaştırması'**
+  String get chartHeatmapTitle;
+
+  /// No description provided for @chartTrendTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'6 Aylık Puan Trendi'**
+  String get chartTrendTitle;
+
+  /// No description provided for @chartScatterTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Taban Puanı × Sıralama'**
+  String get chartScatterTitle;
+
+  /// No description provided for @chartScatterXAxis.
+  ///
+  /// In tr, this message translates to:
+  /// **'Taban puanı'**
+  String get chartScatterXAxis;
+
+  /// No description provided for @chartScatterYAxis.
+  ///
+  /// In tr, this message translates to:
+  /// **'Sıralama'**
+  String get chartScatterYAxis;
+
+  /// No description provided for @chartScaleLow.
+  ///
+  /// In tr, this message translates to:
+  /// **'Düşük'**
+  String get chartScaleLow;
+
+  /// No description provided for @chartScaleHigh.
+  ///
+  /// In tr, this message translates to:
+  /// **'Yüksek'**
+  String get chartScaleHigh;
+
+  /// No description provided for @chartNoData.
+  ///
+  /// In tr, this message translates to:
+  /// **'Veri yok'**
+  String get chartNoData;
+
+  /// No description provided for @chartDepartmentLabel.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bölüm'**
+  String get chartDepartmentLabel;
+
+  /// No description provided for @tempProBadge.
+  ///
+  /// In tr, this message translates to:
+  /// **'Pro aktif · {minutes} dk'**
+  String tempProBadge(int minutes);
+
   /// No description provided for @watchAdToContinue.
   ///
   /// In tr, this message translates to:
@@ -1232,6 +1328,60 @@ abstract class AppLocalizations {
   /// **'Bir hata oluştu'**
   String get commonError;
 
+  /// No description provided for @paywallPerMonthSuffix.
+  ///
+  /// In tr, this message translates to:
+  /// **'/ay'**
+  String get paywallPerMonthSuffix;
+
+  /// No description provided for @paywallPerYearSuffix.
+  ///
+  /// In tr, this message translates to:
+  /// **'/yıl'**
+  String get paywallPerYearSuffix;
+
+  /// No description provided for @paywallSaveBadge.
+  ///
+  /// In tr, this message translates to:
+  /// **'%{percent} TASARRUF'**
+  String paywallSaveBadge(int percent);
+
+  /// No description provided for @paywallYearlySavingsSub.
+  ///
+  /// In tr, this message translates to:
+  /// **'Aylığa göre %{percent} tasarruf'**
+  String paywallYearlySavingsSub(int percent);
+
+  /// No description provided for @paywallFreeTrialNote.
+  ///
+  /// In tr, this message translates to:
+  /// **'İlk {duration} ücretsiz, sonra otomatik yenilenir'**
+  String paywallFreeTrialNote(String duration);
+
+  /// No description provided for @paywallUnitDay.
+  ///
+  /// In tr, this message translates to:
+  /// **'gün'**
+  String get paywallUnitDay;
+
+  /// No description provided for @paywallUnitWeek.
+  ///
+  /// In tr, this message translates to:
+  /// **'hafta'**
+  String get paywallUnitWeek;
+
+  /// No description provided for @paywallUnitMonth.
+  ///
+  /// In tr, this message translates to:
+  /// **'ay'**
+  String get paywallUnitMonth;
+
+  /// No description provided for @paywallUnitYear.
+  ///
+  /// In tr, this message translates to:
+  /// **'yıl'**
+  String get paywallUnitYear;
+
   /// No description provided for @commonLoading.
   ///
   /// In tr, this message translates to:
@@ -1754,6 +1904,24 @@ abstract class AppLocalizations {
   /// **'Filtrelerinizi değiştirerek tekrar deneyin.'**
   String get exploreNoResultsSub;
 
+  /// No description provided for @searchGlobalHint.
+  ///
+  /// In tr, this message translates to:
+  /// **'Üniversite, bölüm veya şehir ara...'**
+  String get searchGlobalHint;
+
+  /// No description provided for @showcaseSearchTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Hızlı Arama'**
+  String get showcaseSearchTitle;
+
+  /// No description provided for @showcaseSearchDescription.
+  ///
+  /// In tr, this message translates to:
+  /// **'Üniversite, bölüm veya şehir ara — istediğin her şeyi anında bul.'**
+  String get showcaseSearchDescription;
+
   /// No description provided for @searchError.
   ///
   /// In tr, this message translates to:
@@ -1765,6 +1933,18 @@ abstract class AppLocalizations {
   /// In tr, this message translates to:
   /// **'Sonuç bulunamadı'**
   String get searchNoResults;
+
+  /// No description provided for @searchRecentTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Son Aramalar'**
+  String get searchRecentTitle;
+
+  /// No description provided for @searchRecentClear.
+  ///
+  /// In tr, this message translates to:
+  /// **'Temizle'**
+  String get searchRecentClear;
 
   /// No description provided for @searchNoResultsSub.
   ///

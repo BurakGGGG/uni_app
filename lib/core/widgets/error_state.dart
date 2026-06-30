@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
+import '../../l10n/generated/app_localizations.dart';
 
 /// Standart error UI — async error'lar için.
 /// Tüm `AsyncValue.error` ve catch bloklarında bunu kullan.
@@ -35,6 +36,7 @@ class ErrorState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final padding = compact ? 16.0 : 32.0;
+    final loc = AppLocalizations.of(context);
     return Center(
       child: Padding(
         padding: EdgeInsets.all(padding),
@@ -73,7 +75,7 @@ class ErrorState extends StatelessWidget {
               ElevatedButton.icon(
                 onPressed: onRetry,
                 icon: const Icon(Icons.refresh_rounded, size: 18),
-                label: const Text('Tekrar Dene'),
+                label: Text(loc.retry),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
                   foregroundColor: Colors.white,

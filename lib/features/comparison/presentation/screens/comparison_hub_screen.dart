@@ -6,6 +6,7 @@ import '../../../monetization/presentation/providers/subscription_providers.dart
 import '../../../monetization/presentation/widgets/subscription_gate_widget.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../monetization/presentation/widgets/temporary_pro_badge.dart';
 import '../widgets/comparison_type_card.dart';
 import '../widgets/comparison_history_sheet.dart';
 import '../../../../l10n/generated/app_localizations.dart';
@@ -204,6 +205,8 @@ class _ComparisonHubScreenState extends ConsumerState<ComparisonHubScreen>
             ),
           ),
         ),
+        // Geçici Pro erişimi aktifse kalan süreyi göster.
+        const TemporaryProBadge(),
         // Geçmiş butonu — tüm tier'larda görünür, içerik tier'a göre değişir.
         IconButton(
           icon: Icon(

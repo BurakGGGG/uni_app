@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
 import '../constants/app_constants.dart';
+import '../../l10n/generated/app_localizations.dart';
 
 class EmptyStateWidget extends StatelessWidget {
   final IconData? icon;
@@ -82,6 +83,7 @@ class ErrorStateWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
     return Center(
       child: Padding(
         padding: EdgeInsets.all(compact ? AppConstants.spacingMd : AppConstants.spacingXxxl),
@@ -103,7 +105,7 @@ class ErrorStateWidget extends StatelessWidget {
             ),
             SizedBox(height: compact ? AppConstants.spacingMd : AppConstants.spacingXl),
             Text(
-              'Bir hata oluştu',
+              loc.commonError,
               style: compact ? AppTextStyles.titleMedium : AppTextStyles.headlineSmall,
               textAlign: TextAlign.center,
             ),
@@ -122,7 +124,7 @@ class ErrorStateWidget extends StatelessWidget {
               OutlinedButton.icon(
                 onPressed: onRetry,
                 icon: Icon(Icons.refresh_rounded, size: compact ? 16 : 20),
-                label: const Text('Tekrar Dene'),
+                label: Text(loc.retry),
                 style: compact ? OutlinedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   textStyle: AppTextStyles.labelMedium,
