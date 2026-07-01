@@ -31,6 +31,7 @@ class AllReviewsScreen extends ConsumerWidget {
             backgroundColor: AppColors.primary,
             offset: const Offset(-4, 4),
             child: IconButton(
+              tooltip: 'Filtrele',
               icon: const Icon(Icons.tune_rounded),
               onPressed: () => _showFilterSheet(context, ref),
             ),

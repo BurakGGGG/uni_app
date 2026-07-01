@@ -90,6 +90,7 @@ class _ScoreCalculatorScreenState extends ConsumerState<ScoreCalculatorScreen> {
               ),
             ),
             leading: IconButton(
+              tooltip: 'Geri',
               icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
               onPressed: () => Navigator.maybePop(context),
             ),

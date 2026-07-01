@@ -56,6 +56,7 @@ class _PhotoGalleryScreenState extends State<PhotoGalleryScreen> {
             ),
             child: IconButton(
               icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
+              tooltip: 'Geri',
               onPressed: () => Navigator.pop(context),
             ),
           ),

@@ -89,6 +89,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                 ),
                 title: Text(term, style: AppTextStyles.bodyMedium),
                 trailing: IconButton(
+                  tooltip: 'Geçmişten kaldır',
                   icon: Icon(
                     Icons.close_rounded,
                     size: 18,
@@ -221,6 +222,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
               child: Row(
                 children: [
                   IconButton(
+                    tooltip: 'Geri',
                     onPressed: () => context.pop(),
                     icon: Icon(
                       Icons.arrow_back_rounded,
@@ -254,6 +256,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                       },
                       trailing: query.isNotEmpty
                           ? IconButton(
+                              tooltip: 'Temizle',
                               onPressed: () {
                                 _searchController.clear();
                                 ref.read(searchQueryProvider.notifier).state =

@@ -112,6 +112,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                     backgroundColor: AppColors.primary,
                     offset: const Offset(4, -4),
                     child: IconButton(
+                      tooltip: 'Filtrele',
                       onPressed: () => _showFilterBottomSheet(context),
                       icon: const Icon(Icons.tune_rounded),
                       style: IconButton.styleFrom(

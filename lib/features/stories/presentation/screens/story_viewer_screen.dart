@@ -436,6 +436,7 @@ class _StoryViewerScreenState extends ConsumerState<StoryViewerScreen>
                             clipBehavior: Clip.antiAlias,
                             child: IconButton(
                               onPressed: _toggleMute,
+                              tooltip: _isMuted ? 'Sesi aç' : 'Sesi kapat',
                               icon: Icon(
                                 _isMuted
                                     ? Icons.volume_off_rounded
@@ -452,6 +453,7 @@ class _StoryViewerScreenState extends ConsumerState<StoryViewerScreen>
                           clipBehavior: Clip.antiAlias,
                           child: IconButton(
                             onPressed: () => Navigator.of(context).pop(),
+                            tooltip: 'Kapat',
                             icon: const Icon(
                               Icons.close_rounded,
                               color: Colors.white,

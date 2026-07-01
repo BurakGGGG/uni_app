@@ -78,6 +78,7 @@ class _UniHeroState extends ConsumerState<UniHero>
         child: _frostedIconButton(
           icon: Icons.arrow_back_rounded,
           onTap: () => context.pop(),
+          tooltip: 'Geri',
         ),
       ),
       actions: [
@@ -200,23 +201,26 @@ class _UniHeroState extends ConsumerState<UniHero>
     required bool isFavorite,
     required VoidCallback onTap,
   }) {
-    return Material(
-      color: Colors.white.withValues(alpha: 0.25),
-      shape: const CircleBorder(),
-      child: InkWell(
-        customBorder: const CircleBorder(),
-        onTap: onTap,
-        child: SizedBox(
-          width: 48,
-          height: 48,
-          child: ScaleTransition(
-            scale: _heartScale,
-            child: Icon(
-              isFavorite
-                  ? Icons.favorite_rounded
-                  : Icons.favorite_border_rounded,
-              color: isFavorite ? AppColors.error : Colors.white,
-              size: 22,
+    return Tooltip(
+      message: isFavorite ? 'Favorilerden çıkar' : 'Favorilere ekle',
+      child: Material(
+        color: Colors.white.withValues(alpha: 0.25),
+        shape: const CircleBorder(),
+        child: InkWell(
+          customBorder: const CircleBorder(),
+          onTap: onTap,
+          child: SizedBox(
+            width: 48,
+            height: 48,
+            child: ScaleTransition(
+              scale: _heartScale,
+              child: Icon(
+                isFavorite
+                    ? Icons.favorite_rounded
+                    : Icons.favorite_border_rounded,
+                color: isFavorite ? AppColors.error : Colors.white,
+                size: 22,
+              ),
             ),
           ),
         ),
@@ -228,8 +232,9 @@ class _UniHeroState extends ConsumerState<UniHero>
     required IconData icon,
     required VoidCallback onTap,
     Color iconColor = Colors.white,
+    String? tooltip,
   }) {
-    return Material(
+    final button = Material(
       color: Colors.white.withValues(alpha: 0.25),
       shape: const CircleBorder(),
       child: InkWell(
@@ -242,5 +247,7 @@ class _UniHeroState extends ConsumerState<UniHero>
         ),
       ),
     );
+    if (tooltip == null) return button;
+    return Tooltip(message: tooltip, child: button);
   }
 }

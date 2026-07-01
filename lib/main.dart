@@ -71,9 +71,9 @@ void main() async {
     cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
   );
 
-  // Status bar stilini ayarla
+  // Status bar arka planını şeffaf yap (ikon parlaklığı temaya göre build'de ayarlanır)
   SystemChrome.setSystemUIOverlayStyle(
-    SystemUiOverlayStyle.dark.copyWith(statusBarColor: Colors.transparent),
+    const SystemUiOverlayStyle(statusBarColor: Colors.transparent),
   );
 
   // Tercih edilen oryantasyonlar
@@ -126,6 +126,19 @@ class _UniSecAppState extends ConsumerState<UniSecApp> {
     final router = ref.watch(routerProvider);
     final themeMode = ref.watch(themeProvider);
     final locale = ref.watch(localeProvider);
+
+    // AppBar'sız ekranlar için status bar ikon parlaklığını temaya göre ayarla.
+    final platformBrightness =
+        WidgetsBinding.instance.platformDispatcher.platformBrightness;
+    final isDarkUi = switch (themeMode) {
+      ThemeMode.dark => true,
+      ThemeMode.light => false,
+      ThemeMode.system => platformBrightness == Brightness.dark,
+    };
+    SystemChrome.setSystemUIOverlayStyle(
+      (isDarkUi ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark)
+          .copyWith(statusBarColor: Colors.transparent),
+    );
 
     return MaterialApp.router(
       title: AppConstants.appName,
