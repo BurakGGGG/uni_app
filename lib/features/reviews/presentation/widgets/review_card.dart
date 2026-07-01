@@ -6,9 +6,11 @@ import 'package:cached_network_image/cached_network_image.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/utils/snackbar_helper.dart';
 import '../../../places/presentation/providers/place_providers.dart';
 import '../../../university/presentation/providers/university_providers.dart';
 import '../../domain/models/review_model.dart';
+import '../providers/review_providers.dart';
 import '../../../auth/presentation/providers/auth_providers.dart';
 import 'review_actions_menu.dart';
 import 'like_button.dart';
@@ -19,7 +21,9 @@ import '../../../../l10n/generated/app_localizations.dart';
 /// Tüm yorum gösterimlerinde kullanılacak ortak ReviewCard widget'ı.
 class ReviewCard extends ConsumerWidget {
   // Static decorations — only things that DON'T need context
-  static const _cardBorderRadius = BorderRadius.all(Radius.circular(AppConstants.radiusLg));
+  static const _cardBorderRadius = BorderRadius.all(
+    Radius.circular(AppConstants.radiusLg),
+  );
 
   final ReviewModel review;
   final bool showActions;
@@ -27,7 +31,7 @@ class ReviewCard extends ConsumerWidget {
   final bool showTargetInfo;
   final VoidCallback? onTap;
   final bool compact;
-  final VoidCallback? onDeleted;
+  final Future<void> Function()? onDeleted;
   final VoidCallback? onEdited;
 
   const ReviewCard({
@@ -80,26 +84,30 @@ class ReviewCard extends ConsumerWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                // YENİ — Hedef bilgisi (ana sayfa, tüm yorumlar, yorumlarım için)
-                if (showTargetInfo) _buildTargetHeader(ref),
-                if (showTargetInfo) const SizedBox(height: 10),
+                      // YENİ — Hedef bilgisi (ana sayfa, tüm yorumlar, yorumlarım için)
+                      if (showTargetInfo) _buildTargetHeader(ref),
+                      if (showTargetInfo) const SizedBox(height: 10),
 
-                // Onay bekliyor banner'ı (sadece sahibine ve onaylanmamışsa)
-                if (!review.isApproved && showActions) _buildPendingApprovalBanner(loc),
-                if (!review.isApproved && showActions) const SizedBox(height: 12),
-                _buildHeader(context, ref, loc),
-                const SizedBox(height: 12),
-                _buildComment(),
-                if (!compact && (review.pros.isNotEmpty || review.cons.isNotEmpty)) ...[
-                  const SizedBox(height: 10),
-                  _buildProsConsChips(),
-                ],
-                if (!compact && review.imageUrls.isNotEmpty) ...[
-                  const SizedBox(height: 10),
-                  _buildPhotoGrid(context),
-                ],
-                const SizedBox(height: 10),
-                _buildFooter(context, ref),
+                      // Onay bekliyor banner'ı (sadece sahibine ve onaylanmamışsa)
+                      if (!review.isApproved && showActions)
+                        _buildPendingApprovalBanner(loc),
+                      if (!review.isApproved && showActions)
+                        const SizedBox(height: 12),
+                      _buildHeader(context, ref, loc),
+                      const SizedBox(height: 12),
+                      _buildComment(),
+                      if (!compact &&
+                          (review.pros.isNotEmpty ||
+                              review.cons.isNotEmpty)) ...[
+                        const SizedBox(height: 10),
+                        _buildProsConsChips(),
+                      ],
+                      if (!compact && review.imageUrls.isNotEmpty) ...[
+                        const SizedBox(height: 10),
+                        _buildPhotoGrid(context),
+                      ],
+                      const SizedBox(height: 10),
+                      _buildFooter(context, ref),
                     ],
                   ),
                 ),
@@ -130,7 +138,9 @@ class ReviewCard extends ConsumerWidget {
 
       case ReviewType.department:
         final deptAsync = ref.watch(departmentDetailProvider(review.targetId));
-        final uniAsync = ref.watch(universityDetailProvider(review.universityId));
+        final uniAsync = ref.watch(
+          universityDetailProvider(review.universityId),
+        );
         return _TargetChip(
           icon: Icons.menu_book_rounded,
           label: deptAsync.when(
@@ -148,14 +158,17 @@ class ReviewCard extends ConsumerWidget {
 
       case ReviewType.place:
         final placeAsync = ref.watch(placeDetailProvider(review.targetId));
-        final uniAsync = ref.watch(universityDetailProvider(review.universityId));
+        final uniAsync = ref.watch(
+          universityDetailProvider(review.universityId),
+        );
         return placeAsync.when(
           data: (place) {
             return _TargetChip(
               icon: place?.type.icon ?? Icons.place_rounded,
               label: place?.name ?? 'Mekan',
               subtitle: uniAsync.when(
-                data: (u) => '${place?.type.label ?? "Mekan"} • ${u?.name ?? ""}',
+                data: (u) =>
+                    '${place?.type.label ?? "Mekan"} • ${u?.name ?? ""}',
                 loading: () => place?.type.label ?? 'Mekan Yorumu',
                 error: (err, stack) => 'Mekan Yorumu',
               ),
@@ -194,11 +207,17 @@ class ReviewCard extends ConsumerWidget {
 
   // ─── Header: avatar + isim + üni + rating + menu ──────────────────
 
-  Widget _buildHeader(BuildContext context, WidgetRef ref, AppLocalizations loc) {
+  Widget _buildHeader(
+    BuildContext context,
+    WidgetRef ref,
+    AppLocalizations loc,
+  ) {
     final currentUser = ref.watch(authStateProvider).value;
     final isOwner = currentUser != null && currentUser.uid == review.userId;
-    final displayActions = showActions || isOwner;
-    final displayName = review.isAnonymous ? loc.reviewAnonymousStudent : review.userName;
+    final displayActions = isOwner;
+    final displayName = review.isAnonymous
+        ? loc.reviewAnonymousStudent
+        : review.userName;
     final displayUni = review.isAnonymous ? null : review.userUniversity;
     final photoUrl = review.isAnonymous ? null : review.userPhotoUrl;
 
@@ -217,12 +236,20 @@ class ReviewCard extends ConsumerWidget {
                   ? AppColors.textTertiary.withValues(alpha: 0.15)
                   : AppColors.primary.withValues(alpha: 0.1),
               backgroundImage: photoUrl != null
-                  ? CachedNetworkImageProvider(photoUrl, maxWidth: 80, maxHeight: 80)
+                  ? CachedNetworkImageProvider(
+                      photoUrl,
+                      maxWidth: 80,
+                      maxHeight: 80,
+                    )
                   : null,
               child: photoUrl == null
                   ? Icon(
-                      review.isAnonymous ? Icons.person_off_rounded : Icons.person,
-                      color: review.isAnonymous ? AppColors.textTertiary : AppColors.primary,
+                      review.isAnonymous
+                          ? Icons.person_off_rounded
+                          : Icons.person,
+                      color: review.isAnonymous
+                          ? AppColors.textTertiary
+                          : AppColors.primary,
                       size: compact ? 16 : 20,
                     )
                   : null,
@@ -291,12 +318,31 @@ class ReviewCard extends ConsumerWidget {
             review: review,
             showOwnerActions: displayActions,
             showReportAction: showReportMenu && !displayActions,
-            onEdit: onEdited,
-            onDelete: onDeleted,
+            onEdit: displayActions
+                ? (onEdited ?? () => context.push('/edit-review/${review.id}'))
+                : null,
+            onDelete: displayActions
+                ? (onDeleted ?? () => _deleteReview(context, ref))
+                : null,
           ),
         ],
       ],
     );
+  }
+
+  Future<void> _deleteReview(BuildContext context, WidgetRef ref) async {
+    await ref
+        .read(reviewActionControllerProvider.notifier)
+        .deleteReview(review);
+    invalidateUserProfileAfterReviewChange(ref);
+
+    if (context.mounted) {
+      showAppSnackBar(
+        context,
+        message: 'Yorumunuz başarıyla silindi',
+        isSuccess: true,
+      );
+    }
   }
 
   // ─── Yorum metni (compact: kısa, normal: expandable) ─────────────
@@ -304,8 +350,8 @@ class ReviewCard extends ConsumerWidget {
   Widget _buildComment() {
     if (compact) {
       return Text(
-        review.comment, 
-        maxLines: 2, 
+        review.comment,
+        maxLines: 2,
         overflow: TextOverflow.ellipsis,
         style: AppTextStyles.bodySmall,
       );
@@ -422,7 +468,10 @@ class ReviewCard extends ConsumerWidget {
                   width: 80,
                   height: 80,
                   color: AppColors.surfaceVariantFor(context),
-                  child: Icon(Icons.image, color: AppColors.textTertiaryFor(context)),
+                  child: Icon(
+                    Icons.image,
+                    color: AppColors.textTertiaryFor(context),
+                  ),
                 ),
                 errorWidget: (_, err, stack) => Container(
                   width: 80,
@@ -480,7 +529,11 @@ class ReviewCard extends ConsumerWidget {
       ),
       child: Row(
         children: [
-          Icon(Icons.pending_actions_rounded, color: AppColors.warning, size: 20),
+          Icon(
+            Icons.pending_actions_rounded,
+            color: AppColors.warning,
+            size: 20,
+          ),
           const SizedBox(width: 10),
           Expanded(
             child: Column(
@@ -569,7 +622,11 @@ class _TargetChip extends StatelessWidget {
               ],
             ),
           ),
-          Icon(Icons.chevron_right_rounded, size: 18, color: color.withValues(alpha: 0.6)),
+          Icon(
+            Icons.chevron_right_rounded,
+            size: 18,
+            color: color.withValues(alpha: 0.6),
+          ),
         ],
       ),
     );

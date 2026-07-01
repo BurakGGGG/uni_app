@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/utils/snackbar_helper.dart';
 import '../../../auth/presentation/providers/auth_providers.dart';
 import '../../domain/models/review_model.dart';
 import 'report_dialog.dart';
@@ -15,7 +16,7 @@ class ReviewActionsMenu extends ConsumerWidget {
   final bool showOwnerActions;
   final bool showReportAction;
   final VoidCallback? onEdit;
-  final VoidCallback? onDelete;
+  final Future<void> Function()? onDelete;
 
   const ReviewActionsMenu({
     super.key,
@@ -97,7 +98,7 @@ class ReviewActionsMenu extends ConsumerWidget {
               const SizedBox(height: 16),
 
               // Düzenle
-              if (showOwnerActions)
+              if (showOwnerActions && onEdit != null)
                 _ActionTile(
                   icon: Icons.edit_rounded,
                   label: 'Yorumu Düzenle',
@@ -111,7 +112,7 @@ class ReviewActionsMenu extends ConsumerWidget {
                 ),
 
               // Sil
-              if (showOwnerActions)
+              if (showOwnerActions && onDelete != null)
                 _ActionTile(
                   icon: Icons.delete_outline_rounded,
                   label: 'Yorumu Sil',
@@ -121,7 +122,19 @@ class ReviewActionsMenu extends ConsumerWidget {
                   onTap: () async {
                     Navigator.pop(ctx);
                     final confirmed = await _showDeleteConfirmation(context);
-                    if (confirmed == true) onDelete?.call();
+                    if (confirmed != true || !context.mounted) return;
+
+                    try {
+                      await onDelete?.call();
+                    } catch (_) {
+                      if (context.mounted) {
+                        showAppSnackBar(
+                          context,
+                          message: 'Yorum silinemedi. Lütfen tekrar deneyin.',
+                          isError: true,
+                        );
+                      }
+                    }
                   },
                 ),
 
@@ -199,34 +212,29 @@ class ReviewActionsMenu extends ConsumerWidget {
         actionsAlignment: MainAxisAlignment.center,
         actionsPadding: const EdgeInsets.fromLTRB(24, 0, 24, 20),
         actions: [
-          Expanded(
-            child: OutlinedButton(
-              onPressed: () => Navigator.pop(ctx, false),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: AppColors.textSecondaryFor(context),
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(AppConstants.radiusMd),
-                ),
-                side: BorderSide(color: AppColors.borderLightFor(context)),
+          OutlinedButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: AppColors.textSecondaryFor(context),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(AppConstants.radiusMd),
               ),
-              child: const Text('Vazgeç'),
+              side: BorderSide(color: AppColors.borderLightFor(context)),
             ),
+            child: const Text('Vazgeç'),
           ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: FilledButton(
-              onPressed: () => Navigator.pop(ctx, true),
-              style: FilledButton.styleFrom(
-                backgroundColor: AppColors.error,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(AppConstants.radiusMd),
-                ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: FilledButton.styleFrom(
+              backgroundColor: AppColors.error,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(AppConstants.radiusMd),
               ),
-              child: const Text('Evet, Sil'),
             ),
+            child: const Text('Evet, Sil'),
           ),
         ],
       ),
