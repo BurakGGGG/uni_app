@@ -64,23 +64,18 @@ class ReviewCard extends ConsumerWidget {
         child: InkWell(
           onTap: onTap,
           borderRadius: _cardBorderRadius,
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
+          child: Stack(
             children: [
-              // Edge Accent — yorum puanı rengine göre marka imzası
-              Container(
-                width: 4,
-                decoration: BoxDecoration(
-                  color: AppColors.ratingColor(review.rating),
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(AppConstants.radiusLg),
-                    bottomLeft: Radius.circular(AppConstants.radiusLg),
-                  ),
-                ),
-              ),
-              Expanded(
+              // İçerik — kartın yüksekliğini bu belirler
+              SizedBox(
+                width: double.infinity,
                 child: Padding(
-                  padding: const EdgeInsets.all(AppConstants.spacingLg),
+                  padding: const EdgeInsets.fromLTRB(
+                    AppConstants.spacingLg + 4,
+                    AppConstants.spacingLg,
+                    AppConstants.spacingLg,
+                    AppConstants.spacingLg,
+                  ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -109,6 +104,22 @@ class ReviewCard extends ConsumerWidget {
                       const SizedBox(height: 10),
                       _buildFooter(context, ref),
                     ],
+                  ),
+                ),
+              ),
+              // Edge Accent — yorum puanı rengine göre marka imzası (tam yükseklik)
+              Positioned(
+                left: 0,
+                top: 0,
+                bottom: 0,
+                width: 4,
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: AppColors.ratingColor(review.rating),
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(AppConstants.radiusLg),
+                      bottomLeft: Radius.circular(AppConstants.radiusLg),
+                    ),
                   ),
                 ),
               ),
