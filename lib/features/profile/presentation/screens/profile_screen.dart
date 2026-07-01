@@ -39,7 +39,11 @@ class ProfileScreen extends ConsumerWidget {
               const SizedBox(height: 10),
 
               // ─── Başlık ───────────────────────────────────────
-              Text(loc.profileTitle, style: AppTextStyles.headlineLarge),
+              BrandedScreenHeader(
+                title: loc.profileTitle,
+                titleStyle: AppTextStyles.headlineLarge,
+                padding: EdgeInsets.zero,
+              ),
 
               const SizedBox(height: 24),
 

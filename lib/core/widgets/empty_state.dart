@@ -23,6 +23,11 @@ class EmptyState extends StatelessWidget {
   final Widget? action;
   final bool compact;
 
+  /// Opsiyonel markalı görsel (illüstrasyon/Lottie). Verilirse [icon] daireli
+  /// gösterimi yerine bu widget çizilir. Asset pipeline hazır olduğunda boş
+  /// durumlar buradan markalanır; verilmezse mevcut ikon davranışı korunur.
+  final Widget? illustration;
+
   const EmptyState({
     super.key,
     required this.icon,
@@ -30,6 +35,7 @@ class EmptyState extends StatelessWidget {
     this.message,
     this.action,
     this.compact = false,
+    this.illustration,
   });
 
   @override
@@ -44,21 +50,24 @@ class EmptyState extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Container(
-              width: compact ? 64 : 80,
-              height: compact ? 64 : 80,
-              decoration: BoxDecoration(
-                color: isDark
-                    ? Colors.white.withValues(alpha: 0.06)
-                    : AppColors.surfaceVariant,
-                shape: BoxShape.circle,
+            if (illustration != null)
+              illustration!
+            else
+              Container(
+                width: compact ? 64 : 80,
+                height: compact ? 64 : 80,
+                decoration: BoxDecoration(
+                  color: isDark
+                      ? Colors.white.withValues(alpha: 0.06)
+                      : AppColors.surfaceVariant,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  icon,
+                  size: compact ? 32 : 40,
+                  color: AppColors.textTertiaryFor(context),
+                ),
               ),
-              child: Icon(
-                icon,
-                size: compact ? 32 : 40,
-                color: AppColors.textTertiaryFor(context),
-              ),
-            ),
             SizedBox(height: compact ? 12 : 20),
             Text(
               title,

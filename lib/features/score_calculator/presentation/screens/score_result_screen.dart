@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/widgets/brand_loader.dart';
 import '../providers/score_calculator_providers.dart';
 import '../widgets/university_match_card.dart';
 import '../../../admin/data/analytics_service.dart';
@@ -27,7 +29,7 @@ class ScoreResultScreen extends ConsumerWidget {
       child: Scaffold(
         backgroundColor: AppColors.backgroundFor(context),
       body: resultAsync.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => const BrandLoader(),
         error: (e, st) => Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -134,7 +136,14 @@ class ScoreResultScreen extends ConsumerWidget {
                           fontWeight: FontWeight.w800,
                           fontSize: 52,
                         ),
-                      ),
+                      )
+                          .animate()
+                          .fadeIn(delay: 250.ms, duration: 500.ms)
+                          .scale(
+                            begin: const Offset(0.85, 0.85),
+                            end: const Offset(1, 1),
+                            curve: Curves.easeOutBack,
+                          ),
                       const SizedBox(height: 24),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -146,8 +155,11 @@ class ScoreResultScreen extends ConsumerWidget {
                       ),
                     ],
                   ),
-                ),
-                
+                )
+                    .animate()
+                    .fadeIn(duration: 400.ms)
+                    .slideY(begin: -0.12, end: 0, curve: Curves.easeOut),
+
                 const SizedBox(height: 32),
 
                 // 2025 sıralama uyarısı
@@ -233,7 +245,10 @@ class ScoreResultScreen extends ConsumerWidget {
                       ],
                     ],
                   ),
-                ),
+                )
+                    .animate()
+                    .fadeIn(delay: 150.ms, duration: 400.ms)
+                    .slideY(begin: 0.08, end: 0, curve: Curves.easeOut),
               ],
             ),
           );
