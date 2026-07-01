@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../../core/widgets/animated_list_item.dart';
 import '../../../../l10n/generated/app_localizations.dart';
 import '../../../auth/presentation/providers/auth_providers.dart';
 import '../providers/preference_list_providers.dart';
@@ -67,11 +68,14 @@ class MyListsScreen extends ConsumerWidget {
                   sliver: SliverList.separated(
                     itemCount: lists.length,
                     separatorBuilder: (_, _) => const SizedBox(height: 12),
-                    itemBuilder: (_, i) => _ListCard(
-                      list: lists[i],
-                      onTap: () => context.push('/my-lists/${lists[i].id}'),
-                      onShare: () => ShareListSheet.show(context, lists[i]),
-                      onDelete: () => _confirmDelete(context, ref, lists[i]),
+                    itemBuilder: (_, i) => AnimatedListItem(
+                      index: i,
+                      child: _ListCard(
+                        list: lists[i],
+                        onTap: () => context.push('/my-lists/${lists[i].id}'),
+                        onShare: () => ShareListSheet.show(context, lists[i]),
+                        onDelete: () => _confirmDelete(context, ref, lists[i]),
+                      ),
                     ),
                   ),
                 );

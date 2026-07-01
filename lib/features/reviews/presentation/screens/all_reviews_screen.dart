@@ -119,7 +119,9 @@ class AllReviewsScreen extends ConsumerWidget {
                     final currentUser = ref.watch(authStateProvider).value;
                     final isOwner = currentUser?.uid == review.userId;
 
-                    return ReviewCard(
+                    return AnimatedListItem(
+                      index: i,
+                      child: ReviewCard(
                       review: review,
                       showActions: isOwner,
                       showReportMenu: !isOwner,
@@ -137,6 +139,7 @@ class AllReviewsScreen extends ConsumerWidget {
                             break;
                         }
                       },
+                      ),
                     );
                   },
                 );

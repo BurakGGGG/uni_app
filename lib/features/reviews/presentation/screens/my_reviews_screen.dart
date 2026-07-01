@@ -105,7 +105,9 @@ class MyReviewsScreen extends ConsumerWidget {
                     itemCount: filteredReviews.length,
                     itemBuilder: (_, i) {
                       final r = filteredReviews[i];
-                      return ReviewCard(
+                      return AnimatedListItem(
+                        index: i,
+                        child: ReviewCard(
                         review: r,
                         showActions: true,
                         showReportMenu: false,
@@ -131,6 +133,7 @@ class MyReviewsScreen extends ConsumerWidget {
                             showAppSnackBar(context, message: 'Yorumunuz başarıyla silindi', isSuccess: true);
                           }
                         },
+                        ),
                       );
                     },
                   ),

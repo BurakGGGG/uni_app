@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
@@ -7,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/providers/shared_preferences_provider.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/widgets/app_wordmark.dart';
 import '../../../../core/widgets/force_update_dialog.dart';
 import '../../../../services/force_update_service.dart';
 import '../../../../services/ab_test_service.dart';
@@ -259,14 +259,9 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                   position: _textSlide,
                   child: FadeTransition(
                     opacity: _textFade,
-                    child: Text(
-                      'ÜniSeç',
-                      style: GoogleFonts.spaceGrotesk(
-                        fontSize: 40,
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: -1.8,
-                        color: Colors.white,
-                      ),
+                    child: const AppWordmark.plain(
+                      fontSize: 40,
+                      color: Colors.white,
                     ),
                   ),
                 ),
@@ -277,7 +272,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                 FadeTransition(
                   opacity: _textFade,
                   child: Text(
-                    'Üniversite Yaşam Rehberin',
+                    AppConstants.appTagline,
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w400,

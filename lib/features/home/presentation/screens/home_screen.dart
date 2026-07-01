@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/rendering.dart' show ScrollCacheExtent;
 import '../../../../l10n/generated/app_localizations.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:showcaseview/showcaseview.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
@@ -84,36 +82,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              'Üni',
-                              style: GoogleFonts.spaceGrotesk(
-                                color: AppColors.primary,
-                                fontWeight: FontWeight.w800,
-                                letterSpacing: -1.0,
-                                fontSize: 28,
-                              ),
-                            ),
-                            const SizedBox(width: 3),
-                            SvgPicture.asset(
-                              'assets/icons/compare_icon.svg',
-                              width: 24,
-                              height: 24,
-                            ),
-                            const SizedBox(width: 2),
-                            Text(
-                              'eç',
-                              style: GoogleFonts.spaceGrotesk(
-                                color: AppColors.primary,
-                                fontWeight: FontWeight.w800,
-                                letterSpacing: -1.0,
-                                fontSize: 28,
-                              ),
-                            ),
-                          ],
-                        ),
+                        const AppWordmark(fontSize: 28),
                         // Bildirim ikonu — Showcase Adım 4
                         Showcase.withWidget(
                           key: AppTourKeys.notification,

@@ -55,6 +55,16 @@ class _PlaceCardState extends ConsumerState<PlaceCard> {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Edge Accent — mekan türü rengine göre marka imzası
+            Container(
+              width: 4,
+              height: 64,
+              decoration: BoxDecoration(
+                color: _typeColor(),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(width: 12),
             _buildImage(),
             const SizedBox(width: AppConstants.spacingMd),
             Expanded(child: _buildInfo()),

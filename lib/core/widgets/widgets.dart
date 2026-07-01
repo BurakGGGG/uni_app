@@ -1,6 +1,7 @@
 /// ÜniSeç ortak widget'lar barrel dosyası
 library;
 
+export 'app_wordmark.dart';
 export 'gradient_button.dart';
 export 'uni_card.dart';
 export 'shimmer_loading.dart';

@@ -123,12 +123,15 @@ class _FavoritesScreenState extends ConsumerState<FavoritesScreen> {
                           itemCount: favoriteUnis.length,
                           itemBuilder: (context, index) {
                             final uni = favoriteUnis[index];
-                            return _FavoriteUniCard(
-                              key: ValueKey('fav_${uni.id}'),
-                              university: uni,
-                              onRemove: () => _removeFavorite(ref, uni),
-                              onTap: () =>
-                                  context.push('/university/${uni.id}'),
+                            return AnimatedListItem(
+                              index: index,
+                              child: _FavoriteUniCard(
+                                key: ValueKey('fav_${uni.id}'),
+                                university: uni,
+                                onRemove: () => _removeFavorite(ref, uni),
+                                onTap: () =>
+                                    context.push('/university/${uni.id}'),
+                              ),
                             );
                           },
                         ),

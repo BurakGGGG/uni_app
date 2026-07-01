@@ -2,6 +2,7 @@ import 'dart:math';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -56,6 +57,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
   static final _pages = [
     _PageData(
       icon: Icons.school_rounded,
+      artAsset: 'assets/icons/compare_icon.svg',
       glowColor: AppColors.primary,
       title: "ÜniSeç'e Hoş Geldin",
       description:
@@ -322,6 +324,11 @@ class _OnboardingScreenState extends State<OnboardingScreen>
 
 class _PageData {
   final IconData icon;
+
+  /// Opsiyonel marka görseli (SVG). Verilirse Material [icon] yerine beyaz
+  /// renkli olarak gradient dairenin içinde gösterilir — 1. sayfada ÜniSeç
+  /// swap glyph'i için kullanılır.
+  final String? artAsset;
   final Color glowColor;
   final String title;
   final String description;
@@ -330,6 +337,7 @@ class _PageData {
 
   const _PageData({
     required this.icon,
+    this.artAsset,
     required this.glowColor,
     required this.title,
     required this.description,
@@ -520,6 +528,7 @@ class _PageContent extends StatelessWidget {
         // ── Glowing Icon ──
         _GlowingIcon(
           icon: data.icon,
+          artAsset: data.artAsset,
           color: data.glowColor,
           pulseController: pulseController,
         )
@@ -572,11 +581,13 @@ class _PageContent extends StatelessWidget {
 
 class _GlowingIcon extends StatelessWidget {
   final IconData icon;
+  final String? artAsset;
   final Color color;
   final AnimationController pulseController;
 
   const _GlowingIcon({
     required this.icon,
+    this.artAsset,
     required this.color,
     required this.pulseController,
   });
@@ -634,7 +645,17 @@ class _GlowingIcon extends StatelessWidget {
             ),
           ],
         ),
-        child: Icon(icon, size: 48, color: Colors.white),
+        child: artAsset != null
+            ? SvgPicture.asset(
+                artAsset!,
+                width: 50,
+                height: 50,
+                colorFilter: const ColorFilter.mode(
+                  Colors.white,
+                  BlendMode.srcIn,
+                ),
+              )
+            : Icon(icon, size: 48, color: Colors.white),
       ),
     );
   }

@@ -218,14 +218,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                     ),
                                   ),
                                   const SizedBox(height: 20),
-                                  Text(
-                                    AppConstants.appName,
-                                    style: AppTextStyles.displayMedium.copyWith(
-                                      color: AppColors.textOnSurfaceFor(
-                                        context,
-                                      ),
-                                    ),
-                                  ),
+                                  const AppWordmark(fontSize: 30),
                                   const SizedBox(height: 4),
                                   Text(
                                     AppConstants.appTagline,

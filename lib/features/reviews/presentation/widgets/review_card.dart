@@ -60,11 +60,26 @@ class ReviewCard extends ConsumerWidget {
         child: InkWell(
           onTap: onTap,
           borderRadius: _cardBorderRadius,
-          child: Padding(
-            padding: const EdgeInsets.all(AppConstants.spacingLg),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Edge Accent — yorum puanı rengine göre marka imzası
+              Container(
+                width: 4,
+                decoration: BoxDecoration(
+                  color: AppColors.ratingColor(review.rating),
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(AppConstants.radiusLg),
+                    bottomLeft: Radius.circular(AppConstants.radiusLg),
+                  ),
+                ),
+              ),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(AppConstants.spacingLg),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
                 // YENİ — Hedef bilgisi (ana sayfa, tüm yorumlar, yorumlarım için)
                 if (showTargetInfo) _buildTargetHeader(ref),
                 if (showTargetInfo) const SizedBox(height: 10),
@@ -85,8 +100,11 @@ class ReviewCard extends ConsumerWidget {
                 ],
                 const SizedBox(height: 10),
                 _buildFooter(context, ref),
-              ],
-            ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ),
