@@ -193,25 +193,28 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               child: Column(
                                 children: [
                                   Container(
-                                    width: 72,
-                                    height: 72,
+                                    width: 84,
+                                    height: 84,
                                     decoration: BoxDecoration(
-                                      gradient: AppColors.primaryGradient,
-                                      borderRadius: BorderRadius.circular(20),
+                                      borderRadius: BorderRadius.circular(22),
                                       boxShadow: [
                                         BoxShadow(
                                           color: AppColors.primary.withValues(
                                             alpha: 0.3,
                                           ),
-                                          blurRadius: 20,
-                                          offset: const Offset(0, 8),
+                                          blurRadius: 24,
+                                          offset: const Offset(0, 10),
                                         ),
                                       ],
                                     ),
-                                    child: const Icon(
-                                      Icons.school_rounded,
-                                      color: Colors.white,
-                                      size: 36,
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(22),
+                                      child: Image.asset(
+                                        'assets/icons/unisec-icon-ink-512.png',
+                                        width: 84,
+                                        height: 84,
+                                        fit: BoxFit.cover,
+                                      ),
                                     ),
                                   ),
                                   const SizedBox(height: 20),

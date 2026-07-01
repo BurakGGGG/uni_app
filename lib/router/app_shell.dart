@@ -263,10 +263,14 @@ class _AppShellState extends ConsumerState<AppShell>
                         ),
                         selectedIcon: _BounceWhenSelected(
                           selected: widget.navigationShell.currentIndex == 2,
-                          child: SvgPicture.asset(
-                            'assets/icons/compare_icon.svg',
-                            width: 24,
-                            height: 24,
+                          child: _PulseWhenSelected(
+                            selected:
+                                widget.navigationShell.currentIndex == 2,
+                            child: SvgPicture.asset(
+                              'assets/icons/compare_icon.svg',
+                              width: 24,
+                              height: 24,
+                            ),
                           ),
                         ),
                         label: AppLocalizations.of(context).homeTabCompare,
@@ -369,6 +373,54 @@ class _BounceWhenSelectedState extends State<_BounceWhenSelected>
   @override
   Widget build(BuildContext context) {
     return ScaleTransition(scale: _scale, child: widget.child);
+  }
+}
+
+/// Bottom nav seçili ikonuna, seçildiği anda kısa bir "yanıp sönme"
+/// (opacity pulse) uygulayan sarmalayıcı. `selected` false→true olduğunda
+/// ikon iki kez hafifçe soluklaşıp geri parlar; scale bounce ile birlikte
+/// kullanılabilir.
+class _PulseWhenSelected extends StatefulWidget {
+  const _PulseWhenSelected({required this.selected, required this.child});
+
+  final bool selected;
+  final Widget child;
+
+  @override
+  State<_PulseWhenSelected> createState() => _PulseWhenSelectedState();
+}
+
+class _PulseWhenSelectedState extends State<_PulseWhenSelected>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 720),
+  );
+
+  late final Animation<double> _opacity = TweenSequence<double>([
+    TweenSequenceItem(tween: Tween(begin: 1.0, end: 0.35), weight: 1),
+    TweenSequenceItem(tween: Tween(begin: 0.35, end: 1.0), weight: 1),
+    TweenSequenceItem(tween: Tween(begin: 1.0, end: 0.35), weight: 1),
+    TweenSequenceItem(tween: Tween(begin: 0.35, end: 1.0), weight: 1),
+  ]).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
+
+  @override
+  void didUpdateWidget(covariant _PulseWhenSelected oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.selected && !oldWidget.selected) {
+      _controller.forward(from: 0);
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FadeTransition(opacity: _opacity, child: widget.child);
   }
 }
 
