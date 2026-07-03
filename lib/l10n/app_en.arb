@@ -593,8 +593,9 @@
     }
   },
   "prefListAddDepartment": "Add Department",
-  "prefListSortByRanking": "Sort by Ranking",
+  "prefListSortByScore": "Sort by Score",
   "prefListUndo": "Undo",
+  "prefListsSummary": "{lists} lists · {items} picks",
   "prefListSavedState": "Saved",
   "prefListEmptyItemsTitle": "List is empty",
   "prefListEmptyItemsDesc": "Tap \"Add Department\" to choose a university and department. You can reorder your preferences by dragging or sorting by ranking.",

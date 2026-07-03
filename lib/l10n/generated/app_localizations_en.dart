@@ -1296,10 +1296,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get prefListAddDepartment => 'Add Department';
 
   @override
-  String get prefListSortByRanking => 'Sort by Ranking';
+  String get prefListSortByScore => 'Sort by Score';
 
   @override
   String get prefListUndo => 'Undo';
+
+  @override
+  String prefListsSummary(int lists, int items) {
+    return '$lists lists · $items picks';
+  }
 
   @override
   String get prefListSavedState => 'Saved';

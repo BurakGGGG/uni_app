@@ -2468,17 +2468,23 @@ abstract class AppLocalizations {
   /// **'Bölüm Ekle'**
   String get prefListAddDepartment;
 
-  /// No description provided for @prefListSortByRanking.
+  /// No description provided for @prefListSortByScore.
   ///
   /// In tr, this message translates to:
-  /// **'Sıralamaya Göre'**
-  String get prefListSortByRanking;
+  /// **'Puana Göre Sırala'**
+  String get prefListSortByScore;
 
   /// No description provided for @prefListUndo.
   ///
   /// In tr, this message translates to:
   /// **'Geri Al'**
   String get prefListUndo;
+
+  /// No description provided for @prefListsSummary.
+  ///
+  /// In tr, this message translates to:
+  /// **'{lists} liste · {items} tercih'**
+  String prefListsSummary(int lists, int items);
 
   /// No description provided for @prefListSavedState.
   ///

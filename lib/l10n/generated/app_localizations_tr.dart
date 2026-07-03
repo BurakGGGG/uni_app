@@ -1299,10 +1299,15 @@ class AppLocalizationsTr extends AppLocalizations {
   String get prefListAddDepartment => 'Bölüm Ekle';
 
   @override
-  String get prefListSortByRanking => 'Sıralamaya Göre';
+  String get prefListSortByScore => 'Puana Göre Sırala';
 
   @override
   String get prefListUndo => 'Geri Al';
+
+  @override
+  String prefListsSummary(int lists, int items) {
+    return '$lists liste · $items tercih';
+  }
 
   @override
   String get prefListSavedState => 'Kaydedildi';

@@ -602,8 +602,15 @@
     }
   },
   "prefListAddDepartment": "Bölüm Ekle",
-  "prefListSortByRanking": "Sıralamaya Göre",
+  "prefListSortByScore": "Puana Göre Sırala",
   "prefListUndo": "Geri Al",
+  "prefListsSummary": "{lists} liste · {items} tercih",
+  "@prefListsSummary": {
+    "placeholders": {
+      "lists": {"type": "int"},
+      "items": {"type": "int"}
+    }
+  },
   "prefListSavedState": "Kaydedildi",
   "prefListEmptyItemsTitle": "Liste boş",
   "prefListEmptyItemsDesc": "\"Bölüm Ekle\" butonuna tıklayarak üniversite ve bölüm seç. Tercihlerini sürükleyerek veya sıralamaya göre düzenleyebilirsin.",
