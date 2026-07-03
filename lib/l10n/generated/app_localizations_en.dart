@@ -1374,6 +1374,33 @@ class AppLocalizationsEn extends AppLocalizations {
   String get prefSharedListBackHome => 'Back to Home';
 
   @override
+  String get prefSharedReadOnlyNotice =>
+      'You are viewing this list in read-only mode.';
+
+  @override
+  String get prefSharedCopyButton => 'Copy to My Lists & Edit';
+
+  @override
+  String get prefSharedCopySuccess =>
+      'List copied to your account! You can now edit it.';
+
+  @override
+  String get prefSharedCopyOwnList => 'This list already belongs to you.';
+
+  @override
+  String get prefSharedEditOwnList => 'Edit Your List';
+
+  @override
+  String get prefSharedCopyPaywallTitle => 'Copying is a Plus Feature';
+
+  @override
+  String get prefSharedCopyPaywallDesc =>
+      'You can view this list. Copying it to your account and editing requires a Plus or Pro membership. Copying never changes the owner\'s list — you get your own independent copy.';
+
+  @override
+  String get prefSharedCopyPaywallButton => 'See Plans';
+
+  @override
   String get comparisonHubSubtitle =>
       'What type of comparison do you want to make?';
 

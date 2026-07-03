@@ -1375,6 +1375,33 @@ class AppLocalizationsTr extends AppLocalizations {
   String get prefSharedListBackHome => 'Ana Sayfaya Dön';
 
   @override
+  String get prefSharedReadOnlyNotice =>
+      'Bu listeyi salt görüntüleme modunda inceliyorsun.';
+
+  @override
+  String get prefSharedCopyButton => 'Kendime Kopyala ve Düzenle';
+
+  @override
+  String get prefSharedCopySuccess =>
+      'Liste sana kopyalandı! Artık düzenleyebilirsin.';
+
+  @override
+  String get prefSharedCopyOwnList => 'Bu liste zaten sana ait.';
+
+  @override
+  String get prefSharedEditOwnList => 'Listeni Düzenle';
+
+  @override
+  String get prefSharedCopyPaywallTitle => 'Kopyalamak Plus\'a Özel';
+
+  @override
+  String get prefSharedCopyPaywallDesc =>
+      'Bu listeyi görüntüleyebilirsin. Kendine kopyalayıp düzenlemek Plus ve Pro üyelere özeldir. Kopyaladığında liste sahibinin listesi değişmez — tamamen sana ait yeni bir kopya oluşur.';
+
+  @override
+  String get prefSharedCopyPaywallButton => 'Planları Gör';
+
+  @override
   String get comparisonHubSubtitle =>
       'Hangi tür karşılaştırma yapmak istiyorsun?';
 

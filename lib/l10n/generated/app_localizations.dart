@@ -2606,6 +2606,54 @@ abstract class AppLocalizations {
   /// **'Ana Sayfaya Dön'**
   String get prefSharedListBackHome;
 
+  /// No description provided for @prefSharedReadOnlyNotice.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bu listeyi salt görüntüleme modunda inceliyorsun.'**
+  String get prefSharedReadOnlyNotice;
+
+  /// No description provided for @prefSharedCopyButton.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kendime Kopyala ve Düzenle'**
+  String get prefSharedCopyButton;
+
+  /// No description provided for @prefSharedCopySuccess.
+  ///
+  /// In tr, this message translates to:
+  /// **'Liste sana kopyalandı! Artık düzenleyebilirsin.'**
+  String get prefSharedCopySuccess;
+
+  /// No description provided for @prefSharedCopyOwnList.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bu liste zaten sana ait.'**
+  String get prefSharedCopyOwnList;
+
+  /// No description provided for @prefSharedEditOwnList.
+  ///
+  /// In tr, this message translates to:
+  /// **'Listeni Düzenle'**
+  String get prefSharedEditOwnList;
+
+  /// No description provided for @prefSharedCopyPaywallTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kopyalamak Plus\'a Özel'**
+  String get prefSharedCopyPaywallTitle;
+
+  /// No description provided for @prefSharedCopyPaywallDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bu listeyi görüntüleyebilirsin. Kendine kopyalayıp düzenlemek Plus ve Pro üyelere özeldir. Kopyaladığında liste sahibinin listesi değişmez — tamamen sana ait yeni bir kopya oluşur.'**
+  String get prefSharedCopyPaywallDesc;
+
+  /// No description provided for @prefSharedCopyPaywallButton.
+  ///
+  /// In tr, this message translates to:
+  /// **'Planları Gör'**
+  String get prefSharedCopyPaywallButton;
+
   /// No description provided for @comparisonHubSubtitle.
   ///
   /// In tr, this message translates to:

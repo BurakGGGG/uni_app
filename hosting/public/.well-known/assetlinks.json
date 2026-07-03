@@ -1,0 +1,13 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.unisec.app",
+      "sha256_cert_fingerprints": [
+        "54:35:CB:77:2F:A0:0B:C2:E8:D9:E6:E7:06:D2:92:F5:D2:39:CE:06:22:87:25:26:64:BA:A7:27:5D:46:B8:44",
+        "9F:40:2F:ED:BC:14:CC:A9:9A:30:31:DE:EE:06:D5:56:6C:F8:A1:33:C7:99:DD:D1:8B:3F:EF:5D:C0:20:39:AA"
+      ]
+    }
+  }
+]

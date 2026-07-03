@@ -47,6 +47,19 @@ class PreferenceListController extends StateNotifier<AsyncValue<void>> {
     }
   }
 
+  /// Paylaşılan listeyi kullanıcının kendi hesabına kopyalar (orijinal değişmez).
+  Future<PreferenceListModel> copy(PreferenceListModel source) async {
+    state = const AsyncValue.loading();
+    try {
+      final list = await _repo.copyList(source);
+      state = const AsyncValue.data(null);
+      return list;
+    } catch (e, st) {
+      state = AsyncValue.error(e, st);
+      rethrow;
+    }
+  }
+
   Future<void> update(PreferenceListModel list) async {
     state = const AsyncValue.loading();
     try {

@@ -136,6 +136,7 @@ export { trackAnalyticsEvent } from './analytics/track_event';
 
 // Preference lists
 export { incrementPreferenceListView } from './preference_lists/increment_view';
+export { getPublicPreferenceList } from './preference_lists/get_public_list';
 
 // Admin server-side moderation actions
 export { performAdminModerationAction } from './admin/moderation_actions';
