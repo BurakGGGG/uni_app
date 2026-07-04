@@ -196,10 +196,10 @@ class MyReviewsScreen extends ConsumerWidget {
       onSelected: (_) {
         ref.read(_myReviewFilterProvider.notifier).state = type;
       },
-      backgroundColor: AppColors.surface,
+      backgroundColor: AppColors.surfaceFor(context),
       selectedColor: AppColors.primary.withValues(alpha: 0.12),
       labelStyle: AppTextStyles.labelMedium.copyWith(
-        color: selected ? AppColors.primary : AppColors.textSecondary,
+        color: selected ? AppColors.primary : AppColors.textSecondaryFor(context),
         fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
       ),
       side: BorderSide(

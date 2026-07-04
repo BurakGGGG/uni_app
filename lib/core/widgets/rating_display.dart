@@ -73,7 +73,7 @@ class RatingDisplay extends StatelessWidget {
             height: 6,
             child: LinearProgressIndicator(
               value: percentage,
-              backgroundColor: AppColors.surfaceVariant,
+              backgroundColor: AppColors.surfaceVariantFor(context),
               valueColor: AlwaysStoppedAnimation(color),
             ),
           ),

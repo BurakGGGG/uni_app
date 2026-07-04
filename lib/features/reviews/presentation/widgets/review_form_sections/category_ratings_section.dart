@@ -44,12 +44,12 @@ class CategoryRatingsSection extends StatelessWidget {
           style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondaryFor(context)),
         ),
         const SizedBox(height: 16),
-        ...categories.map((category) => _buildCategoryRow(category)),
+        ...categories.map((category) => _buildCategoryRow(context, category)),
       ],
     );
   }
 
-  Widget _buildCategoryRow(String category) {
+  Widget _buildCategoryRow(BuildContext context, String category) {
     final rating = ratings[category] ?? 0;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
@@ -61,7 +61,9 @@ class CategoryRatingsSection extends StatelessWidget {
               category,
               style: AppTextStyles.bodyMedium.copyWith(
                 fontWeight: rating > 0 ? FontWeight.w600 : FontWeight.w400,
-                color: rating > 0 ? AppColors.textPrimary : AppColors.textSecondary,
+                color: rating > 0
+                    ? AppColors.textPrimaryFor(context)
+                    : AppColors.textSecondaryFor(context),
               ),
             ),
           ),
@@ -78,7 +80,9 @@ class CategoryRatingsSection extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 2),
                     child: Icon(
                       isFilled ? Icons.star_rounded : Icons.star_border_rounded,
-                      color: isFilled ? AppColors.warning : AppColors.textTertiary,
+                      color: isFilled
+                          ? AppColors.warning
+                          : AppColors.textTertiaryFor(context),
                       size: 28,
                     ),
                   ),

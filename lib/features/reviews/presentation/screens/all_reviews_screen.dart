@@ -227,7 +227,7 @@ class _SortChip extends StatelessWidget {
         decoration: BoxDecoration(
           color: selected
               ? AppColors.primary.withValues(alpha: 0.12)
-              : AppColors.surfaceVariant,
+              : AppColors.surfaceVariantFor(context),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: selected
@@ -458,7 +458,7 @@ class _TypeOption extends StatelessWidget {
           decoration: BoxDecoration(
             color: isSelected
                 ? AppColors.primary.withValues(alpha: 0.1)
-                : AppColors.surface,
+                : AppColors.surfaceFor(context),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
               color: isSelected ? AppColors.primary : AppColors.borderLightFor(context),

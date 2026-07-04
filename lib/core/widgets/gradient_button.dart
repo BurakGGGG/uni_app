@@ -102,7 +102,7 @@ class _GradientButtonState extends State<GradientButton> {
 
     // ─── Varyanta göre renk/dolgu/kenarlık ──────────────────────
     final Color contentColor = _isGradient
-        ? AppColors.textOnPrimary
+        ? (enabled ? AppColors.textOnPrimary : AppColors.textTertiaryFor(context))
         : (enabled ? AppColors.primary : AppColors.textTertiaryFor(context));
 
     Gradient? fillGradient;
@@ -114,7 +114,7 @@ class _GradientButtonState extends State<GradientButton> {
     switch (widget._variant) {
       case _GButtonVariant.gradient:
         fillGradient = enabled ? buttonGradient : null;
-        fillColor = enabled ? null : AppColors.border;
+        fillColor = enabled ? null : AppColors.borderFor(context);
         shadow = enabled
             ? [
                 BoxShadow(
