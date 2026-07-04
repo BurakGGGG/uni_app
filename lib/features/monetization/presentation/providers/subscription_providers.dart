@@ -69,6 +69,8 @@ final subscriptionTierProvider =
 
 /// Kullanıcının tam abonelik modelini dinler (Firestore'dan).
 final subscriptionModelProvider = StreamProvider<SubscriptionModel>((ref) {
+  // Login/logout'ta stream'in doğru uid ile yeniden kurulması için izlenir.
+  ref.watch(authStateProvider);
   final repo = ref.watch(subscriptionRepositoryProvider);
   return repo.watchSubscription();
 });
@@ -79,6 +81,8 @@ final subscriptionModelProvider = StreamProvider<SubscriptionModel>((ref) {
 
 /// Günlük kullanım istatistiklerini dinler.
 final usageStatsProvider = StreamProvider<UsageStatsModel>((ref) {
+  // Login/logout'ta stream'in doğru uid ile yeniden kurulması için izlenir.
+  ref.watch(authStateProvider);
   final repo = ref.watch(usageStatsRepositoryProvider);
   return repo.watchUsageStats();
 });

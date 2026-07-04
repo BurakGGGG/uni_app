@@ -55,6 +55,14 @@ final userReviewsProvider = StreamProvider.family<List<ReviewModel>, String>((
   return repository.getUserReviews(userId);
 });
 
+/// Başka bir kullanıcının profilinde gösterilen onaylı yorumlar.
+/// Onaysız yorumlar güvenlik kuralı gereği sorguya dahil edilemez.
+final userPublicReviewsProvider =
+    StreamProvider.family<List<ReviewModel>, String>((ref, userId) {
+  final repository = ref.watch(reviewRepositoryProvider);
+  return repository.getUserPublicReviews(userId);
+});
+
 /// Üniversiteye ait tüm fotoğraflı yorumları (bölüm, mekan, genel) dinleyen ve
 /// düz bir fotoğraf listesine (ReviewPhotoModel) dönüştüren sağlayıcı
 final universityGalleryPhotosProvider =

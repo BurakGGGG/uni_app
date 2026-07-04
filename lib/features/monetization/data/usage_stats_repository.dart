@@ -81,6 +81,9 @@ class UsageStatsRepository {
       return Stream.value(_getGuestStats());
     }
 
+    // Hata burada yutulmaz: handleError içinden değer döndürmek stream'e
+    // fallback yaymaz, provider kalıcı loading'de kalır. Hata provider'a
+    // taşınır; tüketiciler error dalında güvenli varsayılanlarını uygular.
     return ref.snapshots().map((doc) {
       if (!doc.exists) return UsageStatsModel.initial();
 
@@ -92,9 +95,6 @@ class UsageStatsRepository {
       }
 
       return stats;
-    }).handleError((e) {
-      debugPrint('[UsageStatsRepo] watchUsageStats error: $e');
-      return UsageStatsModel.initial();
     });
   }
 

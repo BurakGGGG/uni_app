@@ -189,6 +189,24 @@ class ReviewRepository {
         );
   }
 
+  /// Başka bir kullanıcının profilinde gösterilecek yorumlar.
+  ///
+  /// Güvenlik kuralları onaysız yorumların sadece sahibi tarafından
+  /// okunmasına izin verir; isApproved filtresi olmadan sorgu tümüyle
+  /// permission-denied alır. Bu yüzden [getUserReviews]'tan ayrıdır.
+  Stream<List<ReviewModel>> getUserPublicReviews(String userId) {
+    return _reviewsRef
+        .where('userId', isEqualTo: userId)
+        .where('isApproved', isEqualTo: true)
+        .orderBy('createdAt', descending: true)
+        .snapshots()
+        .map(
+          (snapshot) => snapshot.docs
+              .map((doc) => ReviewModel.fromMap(doc.data(), doc.id))
+              .toList(),
+        );
+  }
+
   // Sprint 4 — Mekana ait yorumları getir (sort destekli)
   Stream<List<ReviewModel>> getPlaceReviews(
     String placeId, {
