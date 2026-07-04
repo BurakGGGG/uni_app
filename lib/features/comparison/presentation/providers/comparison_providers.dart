@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../core/utils/turkish_compare.dart';
 import '../../data/ai_comparison_summary_service.dart';
 import '../../data/city_comparison_repository.dart';
 import '../../data/comparison_repository.dart';
@@ -604,7 +605,7 @@ final departmentPickerDepartmentsProvider =
           final aScore = a.effectiveBaseScore;
           final bScore = b.effectiveBaseScore;
           if (aScore != bScore) return bScore.compareTo(aScore);
-          return a.name.compareTo(b.name);
+          return turkishCompare(a.name, b.name);
         });
 
         return filtered;

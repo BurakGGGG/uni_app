@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../../core/widgets/force_update_dialog.dart';
 import '../../../../l10n/generated/app_localizations.dart';
+import '../../../../services/force_update_service.dart';
 import '../../../auth/presentation/providers/auth_providers.dart';
 import '../../../monetization/domain/enums/subscription_tier.dart';
 import '../../../monetization/presentation/providers/subscription_providers.dart';
@@ -12,14 +15,41 @@ import '../providers/preference_list_providers.dart';
 import '../../domain/models/preference_list_model.dart';
 import '../../../../core/widgets/user_avatar.dart';
 
-class SharedListScreen extends ConsumerWidget {
+class SharedListScreen extends ConsumerStatefulWidget {
   final String shareSlug;
   const SharedListScreen({super.key, required this.shareSlug});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<SharedListScreen> createState() => _SharedListScreenState();
+}
+
+class _SharedListScreenState extends ConsumerState<SharedListScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkForceUpdateOnColdStart();
+    });
+  }
+
+  /// Deep link ile soğuk açılışta splash atlanır, force update /
+  /// bakım modu kontrolü yapılmaz. Bu ekran ilk route ise kontrolü
+  /// burada tekrarla (init idempotent, normal navigasyonda maliyeti yok).
+  Future<void> _checkForceUpdateOnColdStart() async {
+    if (!(ModalRoute.of(context)?.isFirst ?? false)) return;
+    final service = ForceUpdateService();
+    await service.init();
+    if (!mounted) return;
+    final status = service.checkForUpdate(AppConstants.appVersion);
+    if (status.isBlocking) {
+      ForceUpdateDialog.show(context, status);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
-    final listAsync = ref.watch(publicListBySlugProvider(shareSlug));
+    final listAsync = ref.watch(publicListBySlugProvider(widget.shareSlug));
     final isLoggedIn = ref.watch(authStateProvider).value != null;
 
     return Scaffold(
@@ -35,7 +65,7 @@ class SharedListScreen extends ConsumerWidget {
             return Column(
               children: [
                 Expanded(child: _buildList(context, list, isLoggedIn)),
-                _ActionBar(list: list, shareSlug: shareSlug),
+                _ActionBar(list: list, shareSlug: widget.shareSlug),
               ],
             );
           },

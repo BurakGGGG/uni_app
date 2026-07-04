@@ -328,6 +328,22 @@
   "paywallMonthly": "Monthly",
   "paywallYearly": "Yearly",
   "paywallRestore": "Restore purchases",
+  "paywallPackageInfoError": "Couldn't get package info. Please try again.",
+  "paywallPurchaseSuccess": "Purchase successful. Your plan is being updated.",
+  "paywallPurchaseIncomplete": "Purchase was not completed.",
+  "paywallRestoreResult": "Restore result: {tier}",
+  "@paywallRestoreResult": {
+    "placeholders": {
+      "tier": {
+        "type": "String"
+      }
+    }
+  },
+  "paywallOfferingsLoadError": "Something went wrong while loading plans. Please try again.",
+  "paywallSecurityNote": "Secure payment • Cancel anytime",
+  "paywallPurchaseSuccessTitle": "Purchase successful!",
+  "paywallPurchaseSuccessDesc": "Your plan is now active. Enjoy all the features.",
+  "paywallGreat": "Great",
   "reviewWrite": "Write a review",
   "reviewAnonymous": "Anonymous",
   "reviewRatingRequired": "Cannot submit without a rating",

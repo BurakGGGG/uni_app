@@ -337,6 +337,22 @@
   "paywallMonthly": "Aylık",
   "paywallYearly": "Yıllık",
   "paywallRestore": "Satın alımları geri yükle",
+  "paywallPackageInfoError": "Paket bilgisi alınamadı. Tekrar dene.",
+  "paywallPurchaseSuccess": "Satın alma başarılı. Planın güncelleniyor.",
+  "paywallPurchaseIncomplete": "Satın alma tamamlanmadı.",
+  "paywallRestoreResult": "Geri yükleme sonucu: {tier}",
+  "@paywallRestoreResult": {
+    "placeholders": {
+      "tier": {
+        "type": "String"
+      }
+    }
+  },
+  "paywallOfferingsLoadError": "Paketler yüklenirken bir sorun oluştu. Lütfen tekrar dene.",
+  "paywallSecurityNote": "Güvenli ödeme • İstediğinde iptal",
+  "paywallPurchaseSuccessTitle": "Satın alma başarılı!",
+  "paywallPurchaseSuccessDesc": "Planın aktif edildi. Tüm özelliklerin keyfini çıkar.",
+  "paywallGreat": "Harika",
   "reviewWrite": "Yorum yaz",
   "reviewAnonymous": "Anonim",
   "reviewRatingRequired": "Puan vermeden yorum gönderilemez",

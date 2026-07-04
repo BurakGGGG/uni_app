@@ -8,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/constants/app_constants.dart';
+import '../../../../router/redirect_utils.dart';
 
 
 // ═══════════════════════════════════════════════════════════════════════
@@ -15,7 +16,10 @@ import '../../../../core/constants/app_constants.dart';
 // ═══════════════════════════════════════════════════════════════════════
 
 class OnboardingScreen extends StatefulWidget {
-  const OnboardingScreen({super.key});
+  /// Onboarding sonrası dönülecek yerel rota (ör. deep link ile gelindiyse).
+  final String? from;
+
+  const OnboardingScreen({super.key, this.from});
 
   @override
   State<OnboardingScreen> createState() => _OnboardingScreenState();
@@ -160,7 +164,10 @@ class _OnboardingScreenState extends State<OnboardingScreen>
   Future<void> _completeOnboarding() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('onboarding_completed', true);
-    if (mounted) context.go('/login');
+    if (!mounted) return;
+    // Deep link ile gelindiyse hedefe dön (ör. paylaşılan tercih listesi)
+    final target = localRedirectPathFromParam(widget.from);
+    context.go(target ?? '/login');
   }
 
   void _nextPage() {

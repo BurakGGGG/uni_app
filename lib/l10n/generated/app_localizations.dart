@@ -1592,6 +1592,60 @@ abstract class AppLocalizations {
   /// **'Satın alımları geri yükle'**
   String get paywallRestore;
 
+  /// No description provided for @paywallPackageInfoError.
+  ///
+  /// In tr, this message translates to:
+  /// **'Paket bilgisi alınamadı. Tekrar dene.'**
+  String get paywallPackageInfoError;
+
+  /// No description provided for @paywallPurchaseSuccess.
+  ///
+  /// In tr, this message translates to:
+  /// **'Satın alma başarılı. Planın güncelleniyor.'**
+  String get paywallPurchaseSuccess;
+
+  /// No description provided for @paywallPurchaseIncomplete.
+  ///
+  /// In tr, this message translates to:
+  /// **'Satın alma tamamlanmadı.'**
+  String get paywallPurchaseIncomplete;
+
+  /// No description provided for @paywallRestoreResult.
+  ///
+  /// In tr, this message translates to:
+  /// **'Geri yükleme sonucu: {tier}'**
+  String paywallRestoreResult(String tier);
+
+  /// No description provided for @paywallOfferingsLoadError.
+  ///
+  /// In tr, this message translates to:
+  /// **'Paketler yüklenirken bir sorun oluştu. Lütfen tekrar dene.'**
+  String get paywallOfferingsLoadError;
+
+  /// No description provided for @paywallSecurityNote.
+  ///
+  /// In tr, this message translates to:
+  /// **'Güvenli ödeme • İstediğinde iptal'**
+  String get paywallSecurityNote;
+
+  /// No description provided for @paywallPurchaseSuccessTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Satın alma başarılı!'**
+  String get paywallPurchaseSuccessTitle;
+
+  /// No description provided for @paywallPurchaseSuccessDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'Planın aktif edildi. Tüm özelliklerin keyfini çıkar.'**
+  String get paywallPurchaseSuccessDesc;
+
+  /// No description provided for @paywallGreat.
+  ///
+  /// In tr, this message translates to:
+  /// **'Harika'**
+  String get paywallGreat;
+
   /// No description provided for @reviewWrite.
   ///
   /// In tr, this message translates to:

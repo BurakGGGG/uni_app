@@ -806,6 +806,38 @@ class AppLocalizationsTr extends AppLocalizations {
   String get paywallRestore => 'Satın alımları geri yükle';
 
   @override
+  String get paywallPackageInfoError => 'Paket bilgisi alınamadı. Tekrar dene.';
+
+  @override
+  String get paywallPurchaseSuccess =>
+      'Satın alma başarılı. Planın güncelleniyor.';
+
+  @override
+  String get paywallPurchaseIncomplete => 'Satın alma tamamlanmadı.';
+
+  @override
+  String paywallRestoreResult(String tier) {
+    return 'Geri yükleme sonucu: $tier';
+  }
+
+  @override
+  String get paywallOfferingsLoadError =>
+      'Paketler yüklenirken bir sorun oluştu. Lütfen tekrar dene.';
+
+  @override
+  String get paywallSecurityNote => 'Güvenli ödeme • İstediğinde iptal';
+
+  @override
+  String get paywallPurchaseSuccessTitle => 'Satın alma başarılı!';
+
+  @override
+  String get paywallPurchaseSuccessDesc =>
+      'Planın aktif edildi. Tüm özelliklerin keyfini çıkar.';
+
+  @override
+  String get paywallGreat => 'Harika';
+
+  @override
   String get reviewWrite => 'Yorum yaz';
 
   @override

@@ -96,7 +96,7 @@ class UniversityRepository {
     // Önce full cache'den filtrele
     if (_universitiesCache != null && _isCacheValid) {
       final filtered = _universitiesCache!.where((u) => u.type == type).toList();
-      filtered.sort((a, b) => a.name.compareTo(b.name));
+      filtered.sort((a, b) => turkishCompare(a.name, b.name));
       return filtered;
     }
 
@@ -107,7 +107,7 @@ class UniversityRepository {
     final list = snapshot.docs
         .map((doc) => UniversityModel.fromMap(doc.data(), doc.id))
         .toList();
-    list.sort((a, b) => a.name.compareTo(b.name));
+    list.sort((a, b) => turkishCompare(a.name, b.name));
     return list;
   }
 
@@ -154,7 +154,7 @@ class UniversityRepository {
       if (a.type != b.type) {
         return a.type == 'Lisans' ? -1 : 1;
       }
-      return a.name.compareTo(b.name);
+      return turkishCompare(a.name, b.name);
     });
 
     _departmentsCache[uniId] = departments;

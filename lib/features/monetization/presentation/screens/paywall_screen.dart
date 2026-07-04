@@ -231,7 +231,8 @@ class _PaywallScreenState extends State<PaywallScreen>
     final pkg = _resolvePackage();
     if (pkg == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Paket bilgisi alinamadi. Tekrar dene.')),
+        SnackBar(
+            content: Text(AppLocalizations.of(context).paywallPackageInfoError)),
       );
       return;
     }
@@ -239,11 +240,11 @@ class _PaywallScreenState extends State<PaywallScreen>
     final ok = await _revenueCatService.purchasePackage(pkg);
     if (!mounted) return;
     setState(() => _isPurchasing = false);
+    final loc = AppLocalizations.of(context);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(ok
-            ? 'Satin alma basarili. Planin guncelleniyor.'
-            : 'Satin alma tamamlanmadi.'),
+        content: Text(
+            ok ? loc.paywallPurchaseSuccess : loc.paywallPurchaseIncomplete),
       ),
     );
     if (ok) {
@@ -258,7 +259,9 @@ class _PaywallScreenState extends State<PaywallScreen>
     if (!mounted) return;
     setState(() => _isRestoring = false);
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Geri yukleme sonucu: ${tier.label}')),
+      SnackBar(
+          content: Text(
+              AppLocalizations.of(context).paywallRestoreResult(tier.label))),
     );
     if (tier != SubscriptionTier.free) {
       context.pop();
@@ -363,7 +366,7 @@ class _PaywallScreenState extends State<PaywallScreen>
                         Padding(
                           padding: const EdgeInsets.symmetric(vertical: 8),
                           child: ErrorStateWidget(
-                            message: 'Paketler yüklenirken bir sorun oluştu. Lütfen tekrar dene.',
+                            message: loc.paywallOfferingsLoadError,
                             onRetry: _loadOfferings,
                           ),
                         )
@@ -1042,7 +1045,7 @@ class _RestoreButton extends StatelessWidget {
                 child: CircularProgressIndicator(strokeWidth: 2),
               )
             : const Icon(Icons.restore_rounded, size: 18),
-        label: const Text('Satin alimi geri yukle'),
+        label: Text(AppLocalizations.of(context).paywallRestore),
       ),
     );
   }
@@ -1061,7 +1064,7 @@ class _SecurityFooter extends StatelessWidget {
             size: 13, color: AppColors.textTertiaryFor(context)),
         const SizedBox(width: 4),
         Text(
-          'Güvenli ödeme • İstediğinde iptal',
+          AppLocalizations.of(context).paywallSecurityNote,
           style: AppTextStyles.labelSmall.copyWith(
             color: AppColors.textTertiaryFor(context),
             fontSize: 11,
@@ -1223,14 +1226,14 @@ class _PurchaseSuccessDialogState extends State<_PurchaseSuccessDialog>
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  'Satin alma basarili!',
+                  AppLocalizations.of(context).paywallPurchaseSuccessTitle,
                   style: AppTextStyles.titleMedium.copyWith(
                     fontWeight: FontWeight.w900,
                   ),
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Planin aktif edildi. Tum ozelliklerin keyfini cikar.',
+                  AppLocalizations.of(context).paywallPurchaseSuccessDesc,
                   textAlign: TextAlign.center,
                   style: AppTextStyles.bodySmall.copyWith(
                     color: AppColors.textSecondaryFor(context),
@@ -1242,7 +1245,7 @@ class _PurchaseSuccessDialogState extends State<_PurchaseSuccessDialog>
                   width: double.infinity,
                   child: FilledButton(
                     onPressed: () => Navigator.of(context).pop(),
-                    child: const Text('Harika'),
+                    child: Text(AppLocalizations.of(context).paywallGreat),
                   ),
                 ),
               ],

@@ -66,7 +66,7 @@ class AppRoutes {
   static const String favorites = '/favorites';
   static const String profile = '/profile';
   static const String universityDetail = '/university/:uniId';
-  static const String placeDetail = '/university/:uniId/place/:placeId';
+  static const String placeDetail = '/place/:placeId';
   static const String login = '/login';
   static const String register = '/register';
   static const String onboarding = '/onboarding';
@@ -116,9 +116,12 @@ final routerProvider = Provider<GoRouter>((ref) {
         return null;
       }
 
-      // 1. Onboarding bitmemişse
+      // 1. Onboarding bitmemişse — hedef rota (ör. paylaşım deep link'i)
+      // kaybolmasın diye from parametresiyle taşınır
       if (!hasCompletedOnboarding && !isGoingToOnboarding) {
-        return AppRoutes.onboarding;
+        final target = state.uri.toString();
+        if (target == AppRoutes.home) return AppRoutes.onboarding;
+        return routeWithLocalFrom(AppRoutes.onboarding, target);
       }
 
       // 2. Korumalı Rotalar (Sprint 3'te yorum rotaları buraya eklenecek)
@@ -269,7 +272,8 @@ final routerProvider = Provider<GoRouter>((ref) {
       // ─── Auth & Profile Routes ───────────────────────────────────
       GoRoute(
         path: AppRoutes.onboarding,
-        builder: (context, state) => const OnboardingScreen(),
+        builder: (context, state) =>
+            OnboardingScreen(from: state.uri.queryParameters['from']),
       ),
       GoRoute(
         path: AppRoutes.login,
@@ -324,25 +328,12 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) =>
             UniRatingsScreen(universityId: state.pathParameters['uniId']!),
       ),
+      // NOT: Giriş kontrolü global redirect'teki korumalı rota listesinde
+      // yapılır (/write-review oradadır). Route seviyesinde currentUserProvider
+      // okumak, provider henüz yüklenmemişken giriş yapmış kullanıcıyı da
+      // login'e fırlatan bir yarış durumu yaratıyordu.
       GoRoute(
         path: '/write-review/:type/:targetId',
-        redirect: (context, state) {
-          final userAsync = ProviderScope.containerOf(
-            context,
-          ).read(currentUserProvider);
-          final user = userAsync.valueOrNull;
-          if (user == null) {
-            final encodedPath = Uri.encodeComponent(state.uri.toString());
-            return '/login?from=$encodedPath';
-          }
-          if (!user.isVerifiedStudent) {
-            // İleride verify-email rotası olursa oraya da atılabilir.
-            // Şimdilik null döndürüp yazmasını engelleyemeyiz çünkü verify-email rotası yok,
-            // router redirect içinde snackbar da gösteremeyiz.
-            // Bu yüzden ui da engellemek daha mantıklı, ama istenen bu:
-          }
-          return null;
-        },
         builder: (context, state) {
           final typeStr = state.pathParameters['type']!;
           final targetId = state.pathParameters['targetId']!;

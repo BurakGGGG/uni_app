@@ -806,6 +806,39 @@ class AppLocalizationsEn extends AppLocalizations {
   String get paywallRestore => 'Restore purchases';
 
   @override
+  String get paywallPackageInfoError =>
+      'Couldn\'t get package info. Please try again.';
+
+  @override
+  String get paywallPurchaseSuccess =>
+      'Purchase successful. Your plan is being updated.';
+
+  @override
+  String get paywallPurchaseIncomplete => 'Purchase was not completed.';
+
+  @override
+  String paywallRestoreResult(String tier) {
+    return 'Restore result: $tier';
+  }
+
+  @override
+  String get paywallOfferingsLoadError =>
+      'Something went wrong while loading plans. Please try again.';
+
+  @override
+  String get paywallSecurityNote => 'Secure payment • Cancel anytime';
+
+  @override
+  String get paywallPurchaseSuccessTitle => 'Purchase successful!';
+
+  @override
+  String get paywallPurchaseSuccessDesc =>
+      'Your plan is now active. Enjoy all the features.';
+
+  @override
+  String get paywallGreat => 'Great';
+
+  @override
   String get reviewWrite => 'Write a review';
 
   @override

@@ -169,9 +169,16 @@ class UsageStatsRepository {
       });
       debugPrint('[UsageStatsRepo] Daily stats reset for new day');
     } catch (e) {
-      // Doküman yoksa oluştur
+      // Doküman yoksa sıfırdan oluştur — create kuralı tüm sayaçların 0
+      // olmasını şart koşar, bu yüzden mevcut sayaçlar taşınamaz.
       if (e is FirebaseException && e.code == 'not-found') {
-        await ref.set(resetted.toFirestore());
+        final fresh = UsageStatsModel.initial();
+        try {
+          await ref.set(fresh.toFirestore());
+        } catch (e2) {
+          debugPrint('[UsageStatsRepo] resetDailyStats create error: $e2');
+        }
+        return fresh;
       }
       debugPrint('[UsageStatsRepo] resetDailyStats error: $e');
     }
