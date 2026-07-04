@@ -189,12 +189,20 @@ class _PaywallScreenState extends State<PaywallScreen>
     Package? best;
     for (final p in packages) {
       final id = p.identifier.toLowerCase();
+      final productId = p.storeProduct.identifier.toLowerCase();
       final matchPlan = id.contains(wantedProductId.toLowerCase()) ||
+          productId.contains(wantedProductId.toLowerCase()) ||
           (isPlus ? id.contains('plus') : id.contains('pro'));
       if (!matchPlan) continue;
+      // Custom package identifier'larda packageType monthly/annual gelmez;
+      // dönem eşleşmesini identifier üzerinden de yap.
       final matchPeriod = wantYearly
-          ? p.packageType == PackageType.annual
-          : p.packageType == PackageType.monthly;
+          ? (p.packageType == PackageType.annual ||
+              id.contains('yearly') ||
+              productId.contains('yearly'))
+          : (p.packageType == PackageType.monthly ||
+              id.contains('monthly') ||
+              productId.contains('monthly'));
       if (matchPeriod) return p;
       best ??= p;
     }
