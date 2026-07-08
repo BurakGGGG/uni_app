@@ -216,13 +216,13 @@ class _FavoritesScreenState extends ConsumerState<FavoritesScreen> {
     final user = ref.read(authStateProvider).value;
     if (user == null) return;
 
+    final favoritesNotifier = ref.read(favoritesControllerProvider.notifier);
+
     // Animasyon için hemen gizle
     setState(() => _removingIds.add(uni.id));
 
     // Favoriyi sil
-    ref
-        .read(favoritesControllerProvider.notifier)
-        .toggleFavorite(user.uid, uni.id, true);
+    favoritesNotifier.toggleFavorite(user.uid, uni.id, true);
 
     // Undo snackbar
     ScaffoldMessenger.of(context).clearSnackBars();
@@ -239,11 +239,12 @@ class _FavoritesScreenState extends ConsumerState<FavoritesScreen> {
           label: 'GERİ AL',
           textColor: AppColors.primary,
           onPressed: () {
-            // Geri ekle
-            ref
-                .read(favoritesControllerProvider.notifier)
-                .toggleFavorite(user.uid, uni.id, false);
-            setState(() => _removingIds.remove(uni.id));
+            // Geri ekle — SnackBar ekran kapandıktan sonra da yaşayabilir;
+            // ölü ref/setState kullanmamak için notifier'ı önceden yakala.
+            favoritesNotifier.toggleFavorite(user.uid, uni.id, false);
+            if (mounted) {
+              setState(() => _removingIds.remove(uni.id));
+            }
           },
         ),
       ),
