@@ -468,18 +468,21 @@ class _StoryTile extends ConsumerWidget {
           TextButton(
             onPressed: () async {
               Navigator.pop(ctx);
+              // await sonrası tile ağaçtan kalkabilir; messenger'ı önce yakala,
+              // ref'i yalnızca widget hâlâ mount'luysa kullan.
+              final messenger = ScaffoldMessenger.of(context);
               await ref
                   .read(storyUploadControllerProvider.notifier)
                   .archiveStory(story.id);
-              _invalidateProviders(ref);
               if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Story arşivlendi'),
-                    behavior: SnackBarBehavior.floating,
-                  ),
-                );
+                _invalidateProviders(ref);
               }
+              messenger.showSnackBar(
+                const SnackBar(
+                  content: Text('Story arşivlendi'),
+                  behavior: SnackBarBehavior.floating,
+                ),
+              );
             },
             child: const Text('Arşivle'),
           ),
@@ -489,18 +492,19 @@ class _StoryTile extends ConsumerWidget {
   }
 
   void _reactivate(BuildContext context, WidgetRef ref) async {
+    final messenger = ScaffoldMessenger.of(context);
     await ref
         .read(storyUploadControllerProvider.notifier)
         .reactivateStory(story.id);
-    _invalidateProviders(ref);
     if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Story tekrar aktifleştirildi'),
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
+      _invalidateProviders(ref);
     }
+    messenger.showSnackBar(
+      const SnackBar(
+        content: Text('Story tekrar aktifleştirildi'),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
   }
 
   void _confirmPermanentDelete(BuildContext context, WidgetRef ref) {
@@ -520,18 +524,19 @@ class _StoryTile extends ConsumerWidget {
           TextButton(
             onPressed: () async {
               Navigator.pop(ctx);
+              final messenger = ScaffoldMessenger.of(context);
               await ref
                   .read(storyUploadControllerProvider.notifier)
                   .permanentlyDeleteStory(story);
-              _invalidateProviders(ref);
               if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Story kalıcı olarak silindi'),
-                    behavior: SnackBarBehavior.floating,
-                  ),
-                );
+                _invalidateProviders(ref);
               }
+              messenger.showSnackBar(
+                const SnackBar(
+                  content: Text('Story kalıcı olarak silindi'),
+                  behavior: SnackBarBehavior.floating,
+                ),
+              );
             },
             child: Text('Sil', style: TextStyle(color: AppColors.error)),
           ),

@@ -519,22 +519,32 @@ class AuthRepository {
     final user = _auth.currentUser;
     if (user == null) return false;
 
-    // 1. Firebase Auth kullanıcı nesnesini sunucudan yenile
-    await user.reload();
+    try {
+      // 1. Firebase Auth kullanıcı nesnesini sunucudan yenile
+      await user.reload();
 
-    // 2. Token'ı zorla yenile — emailVerified claim'i ancak böyle güncellenir
-    final refreshedUser = _auth.currentUser;
-    if (refreshedUser == null) return false;
-    await refreshedUser.getIdToken(true);
+      // 2. Token'ı zorla yenile — emailVerified claim'i ancak böyle güncellenir
+      final refreshedUser = _auth.currentUser;
+      if (refreshedUser == null) return false;
+      await refreshedUser.getIdToken(true);
 
-    if (refreshedUser.emailVerified &&
-        refreshedUser.email != null &&
-        refreshedUser.email!.toLowerCase().endsWith('.edu.tr')) {
-      await _functions.httpsCallable('verifyStudentUniversity').call();
-      clearCache(); // Cache'i temizle ki güncel veriyi çeksin
-      return true;
+      if (refreshedUser.emailVerified &&
+          refreshedUser.email != null &&
+          refreshedUser.email!.toLowerCase().endsWith('.edu.tr')) {
+        await _functions.httpsCallable('verifyStudentUniversity').call();
+        clearCache(); // Cache'i temizle ki güncel veriyi çeksin
+        return true;
+      }
+      return false;
+    } on FirebaseException catch (e) {
+      // Ağ hatası (network-request-failed vb.) crash olmamalı;
+      // doğrulanmamış kabul et, kullanıcı tekrar deneyebilir.
+      debugPrint('[AuthRepository] reloadAndCheckVerification: ${e.code}');
+      return false;
+    } catch (e) {
+      debugPrint('[AuthRepository] reloadAndCheckVerification error: $e');
+      return false;
     }
-    return false;
   }
 
   // ─── Doğrulama Maili Tekrar Gönder ────────────────────────────
