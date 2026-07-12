@@ -1,0 +1,685 @@
+{
+  "sourceRef": "c97bb6b1",
+  "lisans": {
+    "Alman Dili ve Edebiyatı": [
+      "DİL"
+    ],
+    "Almanca Mütercim ve Tercümanlık": [
+      "DİL"
+    ],
+    "Almanca Öğretmenliği": [
+      "DİL"
+    ],
+    "Amerikan Kültürü ve Edebiyatı": [
+      "DİL"
+    ],
+    "Arkeoloji": [
+      "EA"
+    ],
+    "Bahçe Bitkileri": [
+      "SAY"
+    ],
+    "Bankacılık ve Sigortacılık": [
+      "EA"
+    ],
+    "Beslenme ve Diyetetik": [
+      "SAY"
+    ],
+    "Bilgi ve Belge Yönetimi": [
+      "EA"
+    ],
+    "Bilgisayar Mühendisliği": [
+      "SAY"
+    ],
+    "Bilgisayar ve Öğretim Teknolojileri Öğretmenliği": [
+      "SAY"
+    ],
+    "Bitki Koruma": [
+      "SAY"
+    ],
+    "Biyokimya": [
+      "SAY"
+    ],
+    "Biyoloji": [
+      "SAY"
+    ],
+    "Biyomedikal Mühendisliği": [
+      "SAY"
+    ],
+    "Biyosistem Mühendisliği": [
+      "SAY"
+    ],
+    "Coğrafya": [
+      "SÖZ"
+    ],
+    "Denizcilik İşletmeleri Yönetimi": [
+      "EA"
+    ],
+    "Dil ve Konuşma Terapisi": [
+      "SAY"
+    ],
+    "Diş Hekimliği": [
+      "SAY"
+    ],
+    "Ebelik": [
+      "SAY"
+    ],
+    "Eczacılık": [
+      "SAY"
+    ],
+    "Ekonometri": [
+      "EA"
+    ],
+    "Elektrik-Elektronik Mühendisliği": [
+      "SAY"
+    ],
+    "Endüstri Mühendisliği": [
+      "SAY"
+    ],
+    "Endüstriyel Tasarım": [
+      "SAY"
+    ],
+    "Felsefe": [
+      "EA"
+    ],
+    "Fen Bilgisi Öğretmenliği": [
+      "SAY"
+    ],
+    "Finans ve Bankacılık": [
+      "EA"
+    ],
+    "Fizik": [
+      "SAY"
+    ],
+    "Fizyoterapi ve Rehabilitasyon": [
+      "SAY"
+    ],
+    "Fransız Dili ve Edebiyatı": [
+      "DİL"
+    ],
+    "Fransızca Öğretmenliği": [
+      "DİL"
+    ],
+    "Gastronomi ve Mutfak Sanatları": [
+      "SÖZ"
+    ],
+    "Gazetecilik": [
+      "SÖZ"
+    ],
+    "Görsel İletişim Tasarımı": [
+      "SÖZ"
+    ],
+    "Gıda Mühendisliği": [
+      "SAY"
+    ],
+    "Halkla İlişkiler ve Tanıtım": [
+      "SÖZ"
+    ],
+    "Havacılık Yönetimi": [
+      "EA"
+    ],
+    "Hemşirelik": [
+      "SAY"
+    ],
+    "Hukuk": [
+      "EA"
+    ],
+    "Kamu Yönetimi": [
+      "EA"
+    ],
+    "Kimya": [
+      "SAY"
+    ],
+    "Kimya Mühendisliği": [
+      "SAY"
+    ],
+    "Kimya Öğretmenliği": [
+      "SAY"
+    ],
+    "Makine Mühendisliği": [
+      "SAY"
+    ],
+    "Maliye": [
+      "EA"
+    ],
+    "Matematik": [
+      "SAY"
+    ],
+    "Matematik Öğretmenliği": [
+      "SAY"
+    ],
+    "Medya ve İletişim": [
+      "SÖZ"
+    ],
+    "Mekatronik Mühendisliği": [
+      "SAY"
+    ],
+    "Metalurji ve Malzeme Mühendisliği": [
+      "SAY"
+    ],
+    "Mimarlık": [
+      "SAY"
+    ],
+    "Moda Tasarımı": [
+      "EA"
+    ],
+    "Moleküler Biyoloji ve Genetik": [
+      "SAY"
+    ],
+    "Mühendislik ve Doğa Bilimleri Programları": [
+      "SAY"
+    ],
+    "Odyoloji": [
+      "SAY"
+    ],
+    "Okul Öncesi Öğretmenliği": [
+      "SÖZ"
+    ],
+    "Orman Mühendisliği": [
+      "SAY"
+    ],
+    "Otomotiv Mühendisliği": [
+      "SAY"
+    ],
+    "Pazarlama": [
+      "EA"
+    ],
+    "Peyzaj Mimarlığı": [
+      "SAY"
+    ],
+    "Psikoloji": [
+      "EA"
+    ],
+    "Radyo, Televizyon ve Sinema": [
+      "SÖZ"
+    ],
+    "Rehberlik ve Psikolojik Danışmanlık": [
+      "EA"
+    ],
+    "Reklamcılık": [
+      "SÖZ"
+    ],
+    "Rekreasyon Yönetimi": [
+      "SÖZ"
+    ],
+    "Rus Dili ve Edebiyatı": [
+      "DİL"
+    ],
+    "Sanat Tarihi": [
+      "SÖZ"
+    ],
+    "Sanat ve Sosyal Bilimler Programları": [
+      "EA"
+    ],
+    "Sağlık Yönetimi": [
+      "EA"
+    ],
+    "Siyaset Bilimi ve Kamu Yönetimi": [
+      "EA"
+    ],
+    "Siyaset Bilimi ve Uluslararası İlişkiler": [
+      "EA"
+    ],
+    "Sosyal Bilgiler Öğretmenliği": [
+      "SÖZ"
+    ],
+    "Sosyal Hizmet": [
+      "EA"
+    ],
+    "Sosyoloji": [
+      "EA"
+    ],
+    "Su Ürünleri Mühendisliği": [
+      "SAY"
+    ],
+    "Sınıf Öğretmenliği": [
+      "EA"
+    ],
+    "Tarih": [
+      "SÖZ"
+    ],
+    "Tarla Bitkileri": [
+      "SAY"
+    ],
+    "Tarım Ekonomisi": [
+      "EA"
+    ],
+    "Tarım Makineleri ve Teknolojileri Mühendisliği": [
+      "SAY"
+    ],
+    "Tarımsal Biyoteknoloji": [
+      "SAY"
+    ],
+    "Tarımsal Yapılar ve Sulama": [
+      "SAY"
+    ],
+    "Tekstil Mühendisliği": [
+      "SAY"
+    ],
+    "Toprak Bilimi ve Bitki Besleme": [
+      "SAY"
+    ],
+    "Turizm Rehberliği": [
+      "DİL"
+    ],
+    "Turizm İşletmeciliği": [
+      "EA"
+    ],
+    "Türk Dili ve Edebiyatı": [
+      "SÖZ"
+    ],
+    "Türk Dili ve Edebiyatı Öğretmenliği": [
+      "SÖZ"
+    ],
+    "Türkçe Öğretmenliği": [
+      "SÖZ"
+    ],
+    "Tıp": [
+      "SAY"
+    ],
+    "Uluslararası Ticaret ve Finansman": [
+      "EA"
+    ],
+    "Uluslararası Ticaret ve Lojistik": [
+      "EA"
+    ],
+    "Uluslararası Ticaret ve İşletmecilik": [
+      "EA"
+    ],
+    "Uluslararası İlişkiler": [
+      "EA"
+    ],
+    "Uçak Mühendisliği": [
+      "SAY"
+    ],
+    "Veteriner": [
+      "SAY"
+    ],
+    "Yazılım Mühendisliği": [
+      "SAY"
+    ],
+    "Yönetim Bilimleri Programları": [
+      "EA"
+    ],
+    "Yönetim Bilişim Sistemleri": [
+      "EA"
+    ],
+    "Zootekni": [
+      "SAY"
+    ],
+    "Çalışma Ekonomisi ve Endüstri İlişkileri": [
+      "EA"
+    ],
+    "Çağdaş Türk Lehçeleri ve Edebiyatları": [
+      "SÖZ"
+    ],
+    "Çevre Mühendisliği": [
+      "SAY"
+    ],
+    "Çocuk Gelişimi": [
+      "EA"
+    ],
+    "Özel Eğitim Öğretmenliği": [
+      "SÖZ"
+    ],
+    "İktisat": [
+      "EA"
+    ],
+    "İlahiyat": [
+      "SÖZ"
+    ],
+    "İlköğretim Matematik Öğretmenliği": [
+      "SAY"
+    ],
+    "İngiliz Dili ve Edebiyatı": [
+      "DİL"
+    ],
+    "İngilizce Mütercim ve Tercümanlık": [
+      "DİL"
+    ],
+    "İngilizce Öğretmenliği": [
+      "DİL"
+    ],
+    "İnsan Kaynakları Yönetimi": [
+      "EA"
+    ],
+    "İnşaat Mühendisliği": [
+      "SAY"
+    ],
+    "İstatistik": [
+      "SAY"
+    ],
+    "İç Mimarlık": [
+      "SAY"
+    ],
+    "İşletme": [
+      "EA"
+    ],
+    "Şehir ve Bölge Planlama": [
+      "SAY"
+    ]
+  },
+  "onlisans": {
+    "Acil Durum ve Afet Yönetimi": [
+      "TYT"
+    ],
+    "Alternatif Enerji Kaynakları Teknolojisi": [
+      "TYT"
+    ],
+    "Ameliyathane Hizmetleri": [
+      "TYT"
+    ],
+    "Anestezi": [
+      "TYT"
+    ],
+    "Ağız ve Diş Sağlığı": [
+      "TYT"
+    ],
+    "Aşçılık": [
+      "TYT"
+    ],
+    "Bahçe Tarımı": [
+      "TYT"
+    ],
+    "Bankacılık ve Sigortacılık": [
+      "TYT"
+    ],
+    "Basım ve Yayım Teknolojileri": [
+      "TYT"
+    ],
+    "Bilgisayar Programcılığı": [
+      "TYT"
+    ],
+    "Bilgisayar Teknolojisi": [
+      "TYT"
+    ],
+    "Bilişim Güvenliği Teknolojisi": [
+      "TYT"
+    ],
+    "Bitki Koruma": [
+      "TYT"
+    ],
+    "Biyokimya": [
+      "TYT"
+    ],
+    "Biyomedikal Cihaz Teknolojisi": [
+      "TYT"
+    ],
+    "Büro Yönetimi ve Yönetici Asistanlığı": [
+      "TYT"
+    ],
+    "Coğrafi Bilgi Sistemleri": [
+      "TYT"
+    ],
+    "Deniz ve Liman İşletmeciliği": [
+      "TYT"
+    ],
+    "Diyaliz": [
+      "TYT"
+    ],
+    "Diş Protez Teknolojisi": [
+      "TYT"
+    ],
+    "Doğalgaz ve Tesisatı Teknolojisi": [
+      "TYT"
+    ],
+    "Dış Ticaret": [
+      "TYT"
+    ],
+    "Eczane Hizmetleri": [
+      "TYT"
+    ],
+    "Elektrik": [
+      "TYT"
+    ],
+    "Elektrik Enerjisi Üretim, İletim ve Dağıtımı": [
+      "TYT"
+    ],
+    "Elektronik Haberleşme Teknolojisi": [
+      "TYT"
+    ],
+    "Elektronik Teknolojisi": [
+      "TYT"
+    ],
+    "Elektronörofizyoloji": [
+      "TYT"
+    ],
+    "Emlak Yönetimi": [
+      "TYT"
+    ],
+    "Endüstriyel Kalıpçılık": [
+      "TYT"
+    ],
+    "Engelli Bakımı ve Rehabilitasyon": [
+      "TYT"
+    ],
+    "Fizyoterapi": [
+      "TYT"
+    ],
+    "Geleneksel El Sanatları": [
+      "TYT"
+    ],
+    "Giyim Üretim Teknolojisi": [
+      "TYT"
+    ],
+    "Grafik Tasarımı": [
+      "TYT"
+    ],
+    "Gıda Kalite Kontrolü ve Analizi": [
+      "TYT"
+    ],
+    "Gıda Teknolojisi": [
+      "TYT"
+    ],
+    "Halkla İlişkiler ve Tanıtım": [
+      "TYT"
+    ],
+    "Harita ve Kadastro": [
+      "TYT"
+    ],
+    "Kaynak Teknolojisi": [
+      "TYT"
+    ],
+    "Kimya Teknolojisi": [
+      "TYT"
+    ],
+    "Kontrol ve Otomasyon Teknolojisi": [
+      "TYT"
+    ],
+    "Kuyumculuk ve Takı Tasarımı": [
+      "TYT"
+    ],
+    "Laborant ve Veteriner Sağlık": [
+      "TYT"
+    ],
+    "Laboratuvar Teknolojisi": [
+      "TYT"
+    ],
+    "Lojistik": [
+      "TYT"
+    ],
+    "Madencilik Teknolojisi": [
+      "TYT"
+    ],
+    "Makine": [
+      "TYT"
+    ],
+    "Makine Resim ve Konstrüksiyonu": [
+      "TYT"
+    ],
+    "Maliye": [
+      "TYT"
+    ],
+    "Medya ve İletişim": [
+      "TYT"
+    ],
+    "Mekatronik": [
+      "TYT"
+    ],
+    "Mimari Dekoratif Sanatlar": [
+      "TYT"
+    ],
+    "Mimari Restorasyon": [
+      "TYT"
+    ],
+    "Mobilya ve Dekorasyon": [
+      "TYT"
+    ],
+    "Moda Tasarımı": [
+      "TYT"
+    ],
+    "Muhasebe ve Vergi Uygulamaları": [
+      "TYT"
+    ],
+    "Odyometri": [
+      "TYT"
+    ],
+    "Optisyenlik": [
+      "TYT"
+    ],
+    "Organik Tarım": [
+      "TYT"
+    ],
+    "Ormancılık ve Orman Ürünleri": [
+      "TYT"
+    ],
+    "Ortopedik Protez ve Ortez": [
+      "TYT"
+    ],
+    "Otomotiv Teknolojisi": [
+      "TYT"
+    ],
+    "Patoloji Laboratuvar Teknikleri": [
+      "TYT"
+    ],
+    "Pazarlama": [
+      "TYT"
+    ],
+    "Peyzaj ve Süs Bitkileri Yetiştiriciliği": [
+      "TYT"
+    ],
+    "Posta Hizmetleri": [
+      "TYT"
+    ],
+    "Radyo ve Televizyon Programcılığı": [
+      "TYT"
+    ],
+    "Radyoterapi": [
+      "TYT"
+    ],
+    "Reklamcılık": [
+      "TYT"
+    ],
+    "Saç Bakımı ve Güzellik Hizmetleri": [
+      "TYT"
+    ],
+    "Sağlık Kurumları İşletmeciliği": [
+      "TYT"
+    ],
+    "Sivil Hava Ulaştırma İşletmeciliği": [
+      "TYT"
+    ],
+    "Sivil Havacılık Kabin Hizmetleri": [
+      "TYT"
+    ],
+    "Sivil Savunma ve İtfaiyecilik": [
+      "TYT"
+    ],
+    "Sosyal Güvenlik": [
+      "TYT"
+    ],
+    "Sosyal Hizmetler": [
+      "TYT"
+    ],
+    "Spor Yönetimi": [
+      "TYT"
+    ],
+    "Tapu ve Kadastro": [
+      "TYT"
+    ],
+    "Tarım Makineleri": [
+      "TYT"
+    ],
+    "Tekstil Teknolojisi": [
+      "TYT"
+    ],
+    "Turist Rehberliği": [
+      "TYT"
+    ],
+    "Turizm ve Otel İşletmeciliği": [
+      "TYT"
+    ],
+    "Turizm ve Seyahat Hizmetleri": [
+      "TYT"
+    ],
+    "Tıbbi Dokümantasyon ve Sekreterlik": [
+      "TYT"
+    ],
+    "Tıbbi Görüntüleme Teknikleri": [
+      "TYT"
+    ],
+    "Tıbbi Laboratuvar Teknikleri": [
+      "TYT"
+    ],
+    "Tıbbi Tanıtım ve Pazarlama": [
+      "TYT"
+    ],
+    "Tıbbi ve Aromatik Bitkiler": [
+      "TYT"
+    ],
+    "Ulaştırma ve Trafik Hizmetleri": [
+      "TYT"
+    ],
+    "Uygulamalı İngilizce Çevirmenlik": [
+      "TYT"
+    ],
+    "Uçak Teknolojisi": [
+      "TYT"
+    ],
+    "Yapı Denetimi": [
+      "TYT"
+    ],
+    "Yaşlı Bakımı": [
+      "TYT"
+    ],
+    "Yerel Yönetimler": [
+      "TYT"
+    ],
+    "Çağrı Merkezi Hizmetleri": [
+      "TYT"
+    ],
+    "Çocuk Gelişimi": [
+      "TYT"
+    ],
+    "Özel Güvenlik ve Koruma": [
+      "TYT"
+    ],
+    "İklimlendirme ve Soğutma Teknolojisi": [
+      "TYT"
+    ],
+    "İlahiyat": [
+      "TYT"
+    ],
+    "İlk ve Acil Yardım": [
+      "TYT"
+    ],
+    "İnsan Kaynakları Yönetimi": [
+      "TYT"
+    ],
+    "İnternet ve Ağ Teknolojileri": [
+      "TYT"
+    ],
+    "İnşaat Teknolojisi": [
+      "TYT"
+    ],
+    "İç Mekan Tasarımı": [
+      "TYT"
+    ],
+    "İş Sağlığı ve Güvenliği": [
+      "TYT"
+    ],
+    "İşletme Yönetimi": [
+      "TYT"
+    ]
+  }
+}

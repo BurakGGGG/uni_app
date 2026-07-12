@@ -213,7 +213,8 @@ class UniversityRepository {
   }
 
   // ─── Arama ────────────────────────────────────────────────────
-  // 30 üniversite olduğu için client-side arama yeterli
+  // ~100 üniversite ölçeğinde client-side arama yeterli (tek koleksiyon
+  // okuması cache'leniyor); belirgin büyümede sunucu tarafına taşınmalı.
 
   Future<List<UniversityModel>> searchUniversities(String query) async {
     if (query.trim().isEmpty) return [];

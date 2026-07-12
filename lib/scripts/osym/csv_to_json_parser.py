@@ -28,58 +28,8 @@ from collections import OrderedDict, defaultdict
 CSV_PATH = "/home/burak/uni_app/taban_puanları/yokatlas-dataset-2025/tum_bolumler.csv"
 OUTPUT_PATH = "/home/burak/uni_app/assets/data/department_scores.json"
 
-UNI_MAPPING = {
-    'İSTANBUL TEKNİK ÜNİVERSİTESİ': 'itu',
-    'İSTANBUL ÜNİVERSİTESİ': 'istanbul_uni',
-    'YILDIZ TEKNİK ÜNİVERSİTESİ': 'yildiz_teknik',
-    'ORTA DOĞU TEKNİK ÜNİVERSİTESİ': 'odtu',
-    'HACETTEPE ÜNİVERSİTESİ': 'hacettepe',
-    'ANKARA ÜNİVERSİTESİ': 'ankara_uni',
-    'GAZİ ÜNİVERSİTESİ': 'gazi',
-    'EGE ÜNİVERSİTESİ': 'ege',
-    'DOKUZ EYLÜL ÜNİVERSİTESİ': 'dokuz_eylul',
-    'AKDENİZ ÜNİVERSİTESİ': 'akdeniz',
-    'ALANYA ALAADDİN KEYKUBAT ÜNİVERSİTESİ': 'alanya',
-    'ANADOLU ÜNİVERSİTESİ': 'anadolu',
-    'ESKİŞEHİR OSMANGAZİ ÜNİVERSİTESİ': 'ogu',
-    'ESKİŞEHİR TEKNİK ÜNİVERSİTESİ': 'estu',
-    'BURSA ULUDAĞ ÜNİVERSİTESİ': 'uludag',
-    'BURSA TEKNİK ÜNİVERSİTESİ': 'btu',
-    'ÇANAKKALE ONSEKİZ MART ÜNİVERSİTESİ': 'comu',
-    'SİVAS CUMHURİYET ÜNİVERSİTESİ': 'cumhuriyet',
-    'SİVAS BİLİM VE TEKNOLOJİ ÜNİVERSİTESİ': 'sivas_btu',
-    'KARADENİZ TEKNİK ÜNİVERSİTESİ': 'ktu',
-    'TRABZON ÜNİVERSİTESİ': 'trabzon_uni',
-    'MERSİN ÜNİVERSİTESİ': 'mersin_uni',
-    'TARSUS ÜNİVERSİTESİ': 'tarsus',
-    'MARMARA ÜNİVERSİTESİ': 'marmara',
-    'ANKARA HACI BAYRAM VELİ ÜNİVERSİTESİ': 'hacibayram',
-    'İZMİR DEMOKRASİ ÜNİVERSİTESİ': 'izmir_demokrasi',
-    'İZMİR KATİP ÇELEBİ ÜNİVERSİTESİ': 'izmir_katipcelebi',
-    'İSTANBUL AYDIN ÜNİVERSİTESİ': 'aydin',
-    'İSTANBUL GELİŞİM ÜNİVERSİTESİ': 'gelisim',
-    'İSTANBUL MEDİPOL ÜNİVERSİTESİ': 'medipol',
-    'HİTİT ÜNİVERSİTESİ': 'hitit',
-    'ERCİYES ÜNİVERSİTESİ': 'erciyes',
-    'İNÖNÜ ÜNİVERSİTESİ': 'inonu',
-    'ONDOKUZ MAYIS ÜNİVERSİTESİ': 'omu',
-    'SELÇUK ÜNİVERSİTESİ': 'selcuk',
-    'KÜTAHYA DUMLUPINAR ÜNİVERSİTESİ': 'dpu',
-    'KOCAELİ ÜNİVERSİTESİ': 'kocaeli',
-    'SAKARYA ÜNİVERSİTESİ': 'sakarya',
-    'BOLU ABANT İZZET BAYSAL ÜNİVERSİTESİ': 'ibu',
-    'ZONGULDAK BÜLENT ECEVİT ÜNİVERSİTESİ': 'beun',
-    'VAN YÜZÜNCÜ YIL ÜNİVERSİTESİ': 'yyu',
-    'ATATÜRK ÜNİVERSİTESİ': 'atauni',
-    'GAZİANTEP ÜNİVERSİTESİ': 'gantep',
-    'ÇUKUROVA ÜNİVERSİTESİ': 'cu',
-    'PAMUKKALE ÜNİVERSİTESİ': 'pau',
-    'KAHRAMANMARAŞ SÜTÇÜ İMAM ÜNİVERSİTESİ': 'ksu',
-    'MANİSA CELÂL BAYAR ÜNİVERSİTESİ': 'cbu',
-    'SÜLEYMAN DEMİREL ÜNİVERSİTESİ': 'sdu',
-    'KARABÜK ÜNİVERSİTESİ': 'karabuk',
-    'TOKAT GAZİOSMANPAŞA ÜNİVERSİTESİ': 'gop',
-}
+from uni_mapping import UNI_MAPPING
+from dept_ids import make_dept_id
 
 SCORE_TYPE_MAP = {
     'SAYISAL': 'SAY',
@@ -89,91 +39,23 @@ SCORE_TYPE_MAP = {
     'TYT': 'TYT',
 }
 
-# Lisans allowlist: CSV'deki tam isim → izinli puan türleri set'i
-LISANS_ALLOWLIST = {
-    'Hukuk': {'EA'},
-    'Tıp': {'SAY'},
-    'Rehberlik ve Psikolojik Danışmanlık': {'EA'},
-    'Mimarlık': {'SAY'},
-    'İnşaat Mühendisliği': {'SAY'},
-    'Diş Hekimliği': {'SAY'},
-    'Sınıf Öğretmenliği': {'EA'},
-    'Eczacılık': {'SAY'},
-    'Psikoloji': {'EA'},
-    'Hemşirelik': {'SAY'},
-    'Bilgisayar Mühendisliği': {'SAY'},
-    'Makine Mühendisliği': {'SAY'},
-    'İşletme': {'EA'},
-    'Elektrik-Elektronik Mühendisliği': {'SAY'},
-    'Fizyoterapi ve Rehabilitasyon': {'SAY'},
-    'Endüstri Mühendisliği': {'SAY'},
-    'İktisat': {'EA'},
-    'Uluslararası İlişkiler': {'EA'},
-    'Türk Dili ve Edebiyatı': {'SÖZ'},
-    'Özel Eğitim Öğretmenliği': {'SÖZ'},
-    'İlahiyat': {'SÖZ'},
-    'Okul Öncesi Öğretmenliği': {'SÖZ'},
-    'Beslenme ve Diyetetik': {'SAY'},
-    'Veteriner': {'SAY'},                # CSV ismi (Veterinerlik DEĞİL)
-    'Ebelik': {'SAY'},
-    'Gastronomi ve Mutfak Sanatları': {'SÖZ'},
-    'Türkçe Öğretmenliği': {'SÖZ'},
-    'Çocuk Gelişimi': {'EA'},            # Lisans EA — önlisansla çakışır, _onl ile ayrılır
-    'İç Mimarlık ve Çevre Tasarımı': {'EA'},
-    'İngilizce Öğretmenliği': {'DİL'},
-    'İlköğretim Matematik Öğretmenliği': {'SAY'},
-    'Havacılık Yönetimi': {'SAY'},
-    'Sağlık Yönetimi': {'SAY', 'EA'},   # Hem SAY hem EA versiyonları var
-    'Acil Yardım ve Afet Yönetimi': {'SAY'},
-    'İngiliz Dili ve Edebiyatı': {'DİL'},
-    'İngilizce Mütercim ve Tercümanlık': {'DİL'},  # CSV "Mütercim-Tercümanlık" yerine
-    'Dil ve Konuşma Terapisi': {'SAY'},
-    'Mekatronik Mühendisliği': {'SAY'},
-    'Fen Bilgisi Öğretmenliği': {'SAY'},
-    'Gıda Mühendisliği': {'SAY'},
-    'Odyoloji': {'SAY'},
-    'Tarımsal Genetik Mühendisliği': {'SAY'},
-    'Uçak Mühendisliği': {'SAY'},
-    'Maliye': {'EA'},
-    'Çalışma Ekonomisi ve Endüstri İlişkileri': {'EA'},
-    'Kamu Yönetimi': {'EA'},
-    'Sosyal Hizmet': {'EA'},
-    'Yönetim Bilişim Sistemleri': {'EA'},
-    'Gazetecilik': {'SÖZ'},
-    'Radyo, Televizyon ve Sinema': {'SÖZ'},
-    'Türk Dili ve Edebiyatı Öğretmenliği': {'SÖZ'},
-}
+# Bölüm allowlist'i üretimdeki katalogdan türetilir (bkz. v2_extract_allowlist.py).
+# Elle liste tutulmaz; katalog genişletilecekse wide_allowlist.json yeniden üretilir.
+_WIDE = json.loads(
+    (Path(__file__).resolve().parent / 'wide_allowlist.json').read_text(encoding='utf-8'))
+LISANS_ALLOWLIST = {k: set(v) for k, v in _WIDE['lisans'].items()}
+ONLISANS_ALLOWLIST = {k: set(v) for k, v in _WIDE['onlisans'].items()}
 
-# Önlisans allowlist (rövaçtaki 10 program)
-ONLISANS_ALLOWLIST = {
-    'Bilgisayar Programcılığı': {'TYT'},
-    'İlk ve Acil Yardım': {'TYT'},        # Seed slug "ilk_ve_acil_yardim_paramedik"a yazılır
-    'Adalet': {'TYT'},
-    'Aşçılık': {'TYT'},
-    'Lojistik': {'TYT'},
-    'Anestezi': {'TYT'},
-    'Tıbbi Görüntüleme Teknikleri': {'TYT'},
-    'Tıbbi Dokümantasyon ve Sekreterlik': {'TYT'},
-    'Dış Ticaret': {'TYT'},
-    'Çocuk Gelişimi': {'TYT'},            # önlisans varyantı, _onl suffix ile
-}
-
-# CSV ismi → seed slug override (DB'de seed-side slug ile eşleşsin diye)
-SEED_SLUG_OVERRIDE_LISANS = {
-    'Veteriner': 'veterinerlik',
-}
-SEED_SLUG_OVERRIDE_ONLISANS = {
-    'İlk ve Acil Yardım': 'ilk_ve_acil_yardim_paramedik',
-}
-
-# Lisans/Önlisans çakışan isimler (önlisans dokümanına _onl eki gerekir)
-ONLISANS_SUFFIX_FOR = {'Çocuk Gelişimi'}
+# Lisans/Önlisans çakışan isimler (önlisans dokümanına _onl eki gerekir).
+# Dinamik: iki listede de geçen her ad çakışma adayıdır.
+ONLISANS_SUFFIX_FOR = set(LISANS_ALLOWLIST) & set(ONLISANS_ALLOWLIST)
 
 # Skipped: kuruma adına / mesleki kontenjanlar (her zaman atılır)
 SKIP_TAGS = {
     'M.T.O.K.',
     'Milli Savunma Bakanlığı Adına',
     'İçişleri Bakanlığı Adına',
+    'KKTC Uyruklu',
 }
 
 
@@ -272,23 +154,13 @@ def main():
             is_onlisans = row[11].strip() == '1'
 
             # Allowlist eşlemesi
-            if is_onlisans:
-                allowlist = ONLISANS_ALLOWLIST
-                slug_override_map = SEED_SLUG_OVERRIDE_ONLISANS
-            else:
-                allowlist = LISANS_ALLOWLIST
-                slug_override_map = SEED_SLUG_OVERRIDE_LISANS
-
+            allowlist = ONLISANS_ALLOWLIST if is_onlisans else LISANS_ALLOWLIST
             allowed_types = allowlist.get(dept_name)
             if not allowed_types or score_type not in allowed_types:
                 continue
 
-            # DB doc id belirleme
-            override_slug = slug_override_map.get(dept_name)
-            base_slug = override_slug if override_slug else slugify(dept_name)
-            if is_onlisans and dept_name in ONLISANS_SUFFIX_FOR:
-                base_slug = base_slug + '_onl'
-            dept_id = f'{uni_id}_{base_slug}'
+            # DB doc id belirleme (prod id'leri korunur — bkz. dept_ids.py)
+            dept_id = make_dept_id(uni_id, dept_name, is_onlisans, ONLISANS_SUFFIX_FOR)
 
             ranking = safe_int(row[156])
             quota = safe_int(row[150])
