@@ -7,6 +7,7 @@ import '../../../../core/utils/haptic.dart';
 import '../../domain/models/university_model.dart';
 import '../../../favorites/presentation/providers/favorites_providers.dart';
 import '../../../auth/presentation/providers/auth_providers.dart';
+import '../../../reviews/presentation/services/review_prompt_service.dart';
 
 class UniHero extends ConsumerStatefulWidget {
   final UniversityModel uni;
@@ -59,6 +60,17 @@ class _UniHeroState extends ConsumerState<UniHero>
     _heartController.forward(from: 0);
     ref.read(favoritesControllerProvider.notifier)
        .toggleFavorite(user.uid, widget.uni.id, isFavorite);
+
+    // Favoriye EKLEME anı, yorum istemek için güçlü bir sinyal —
+    // kalp animasyonu bittikten sonra uygunsa bottom sheet göster.
+    if (!isFavorite) {
+      Future.delayed(const Duration(milliseconds: 1200), () {
+        if (!mounted) return;
+        ref
+            .read(reviewPromptServiceProvider)
+            .maybePromptAfterFavorite(context, ref, widget.uni);
+      });
+    }
   }
 
   @override

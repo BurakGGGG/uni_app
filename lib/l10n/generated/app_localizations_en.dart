@@ -1080,6 +1080,69 @@ class AppLocalizationsEn extends AppLocalizations {
   String get uniDetailSeeAllReviews => 'See all reviews';
 
   @override
+  String get googleReviewsTitle => 'Google Reviews';
+
+  @override
+  String get googleReviewsTileSubtitle => 'Ratings from Google Maps users';
+
+  @override
+  String googleReviewsCount(int count) {
+    return '$count ratings';
+  }
+
+  @override
+  String get googleReviewsAttribution => 'Reviews are provided by Google';
+
+  @override
+  String get reviewBadgeOwnUniversity => 'Student at this university';
+
+  @override
+  String get reviewBadgeOtherUniversity => 'Student at another university';
+
+  @override
+  String get reviewPromptTitleOwn => 'Rate your university';
+
+  @override
+  String get reviewPromptTitleOther => 'Rate this university';
+
+  @override
+  String reviewPromptBodyOwn(String uniName) {
+    return 'Share your $uniName experience and guide the students coming after you.';
+  }
+
+  @override
+  String reviewPromptBodyOther(String uniName) {
+    return 'If you know $uniName, sharing your experience helps students making their choice.';
+  }
+
+  @override
+  String get reviewPromptCta => 'Write a review';
+
+  @override
+  String get reviewPromptLater => 'Maybe later';
+
+  @override
+  String get reviewPromptNever => 'Don\'t show again';
+
+  @override
+  String get badgeFirstReview => 'First Review';
+
+  @override
+  String get badgeFirstReviewDesc => 'You published your first review';
+
+  @override
+  String get badgeDetailedReviewer => 'Detailed Reviewer';
+
+  @override
+  String get badgeDetailedReviewerDesc => 'You published 3 or more reviews';
+
+  @override
+  String get badgeHelpful => 'Helpful';
+
+  @override
+  String get badgeHelpfulDesc => 'Your reviews received 10 likes in total';
+
+  @override
   String get uniDetailPlaces => 'Places';
 
   @override

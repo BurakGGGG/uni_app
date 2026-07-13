@@ -112,12 +112,9 @@ export const submitReview = onCall(
       throw new HttpsError('failed-precondition', 'Kullanıcı profili bulunamadı.');
     }
     const profile = profileSnap.data() ?? {};
-    if (profile.universityId !== universityId) {
-      throw new HttpsError(
-        'failed-precondition',
-        'Yalnızca kendi üniversiteniz için yorum gönderebilirsiniz.',
-      );
-    }
+    // Doğrulanmış her öğrenci her üniversiteye yorum yazabilir; kendi
+    // üniversitesi olup olmadığı etiket olarak karta yansır (isOwnUniversity).
+    const isOwnUniversity = profile.universityId === universityId;
 
     const rate = await enforceRateLimit(
       `review_create_${uid}`,
@@ -163,6 +160,7 @@ export const submitReview = onCall(
       imageUrls,
       likes: 0,
       isAnonymous,
+      isOwnUniversity,
       isApproved: false,
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),

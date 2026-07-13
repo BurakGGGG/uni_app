@@ -455,6 +455,46 @@
   },
   "uniDetailNoReviews": "Henüz yorum yok",
   "uniDetailSeeAllReviews": "Tüm yorumları gör",
+  "googleReviewsTitle": "Google Yorumları",
+  "googleReviewsTileSubtitle": "Google Haritalar kullanıcılarının değerlendirmeleri",
+  "googleReviewsCount": "{count} değerlendirme",
+  "@googleReviewsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "googleReviewsAttribution": "Yorumlar Google tarafından sağlanmaktadır",
+  "reviewBadgeOwnUniversity": "Bu üniversitenin öğrencisi",
+  "reviewBadgeOtherUniversity": "Başka üniversiteden öğrenci",
+  "reviewPromptTitleOwn": "Üniversiteni değerlendir",
+  "reviewPromptTitleOther": "Bu üniversiteyi değerlendir",
+  "reviewPromptBodyOwn": "{uniName} deneyimini paylaş, senden sonraki öğrencilere yol göster.",
+  "@reviewPromptBodyOwn": {
+    "placeholders": {
+      "uniName": {
+        "type": "String"
+      }
+    }
+  },
+  "reviewPromptBodyOther": "{uniName} hakkında bilgin varsa deneyimini paylaşarak tercih yapacak öğrencilere yardımcı olabilirsin.",
+  "@reviewPromptBodyOther": {
+    "placeholders": {
+      "uniName": {
+        "type": "String"
+      }
+    }
+  },
+  "reviewPromptCta": "Yorum yaz",
+  "reviewPromptLater": "Daha sonra",
+  "reviewPromptNever": "Bir daha gösterme",
+  "badgeFirstReview": "İlk Yorum",
+  "badgeFirstReviewDesc": "İlk yorumunu yayınladın",
+  "badgeDetailedReviewer": "Detaylı Yorumcu",
+  "badgeDetailedReviewerDesc": "3 veya daha fazla yorum yayınladın",
+  "badgeHelpful": "Faydalı",
+  "badgeHelpfulDesc": "Yorumların toplam 10 beğeni aldı",
   "uniDetailPlaces": "Mekanlar",
   "uniDetailPlacesSubtitle": "{count} mekan",
   "@uniDetailPlacesSubtitle": {

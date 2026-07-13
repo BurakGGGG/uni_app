@@ -16,6 +16,7 @@ import '../widgets/change_password_dialog.dart';
 import '../widgets/guest_profile_card.dart';
 import '../widgets/user_profile_card.dart';
 import '../widgets/profile_stats_row.dart';
+import '../widgets/badges_row.dart';
 import '../widgets/profile_settings_section.dart';
 import '../widgets/settings_bottom_sheet.dart';
 
@@ -82,7 +83,15 @@ class ProfileScreen extends ConsumerWidget {
                 data: (user) {
                   if (user == null) return const SizedBox.shrink();
                   return currentUser.when(
-                    data: (profile) => ProfileStatsRow(profile: profile),
+                    data: (profile) => Column(
+                      children: [
+                        ProfileStatsRow(profile: profile),
+                        if (profile != null) ...[
+                          const SizedBox(height: 16),
+                          BadgesRow(earnedBadges: profile.badges),
+                        ],
+                      ],
+                    ),
                     loading: () => const SizedBox.shrink(),
                     error: (e, st) => const SizedBox.shrink(),
                   );

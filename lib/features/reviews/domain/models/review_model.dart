@@ -25,6 +25,10 @@ class ReviewModel {
   final List<String> imageUrls; // Yorum fotoğrafları
   final int likes;
   final bool isAnonymous;
+  // Yazar bu üniversitenin öğrencisi mi? Server (submitReview) yazar.
+  // Eski dokümanlarda alan yok — o dönem kural gereği hepsi kendi
+  // üniversitesine yazılmıştı, bu yüzden varsayılan true.
+  final bool isOwnUniversity;
   final bool isApproved; // Moderasyon durumu
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -46,6 +50,7 @@ class ReviewModel {
     this.imageUrls = const [],
     this.likes = 0,
     this.isAnonymous = false,
+    this.isOwnUniversity = true,
     this.isApproved = false,
     required this.createdAt,
     required this.updatedAt,
@@ -80,6 +85,7 @@ class ReviewModel {
       imageUrls: List<String>.from(map['imageUrls'] ?? []),
       likes: (map['likes'] as num?)?.toInt() ?? 0,
       isAnonymous: map['isAnonymous'] ?? false,
+      isOwnUniversity: map['isOwnUniversity'] ?? true,
       isApproved: map['isApproved'] ?? false,
       createdAt: (map['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
       updatedAt: (map['updatedAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
@@ -103,6 +109,7 @@ class ReviewModel {
       'imageUrls': imageUrls,
       'likes': likes,
       'isAnonymous': isAnonymous,
+      'isOwnUniversity': isOwnUniversity,
       'isApproved': isApproved,
       'createdAt': Timestamp.fromDate(createdAt),
       'updatedAt': Timestamp.fromDate(updatedAt),
@@ -126,6 +133,7 @@ class ReviewModel {
     List<String>? imageUrls,
     int? likes,
     bool? isAnonymous,
+    bool? isOwnUniversity,
     bool? isApproved,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -147,6 +155,7 @@ class ReviewModel {
       imageUrls: imageUrls ?? this.imageUrls,
       likes: likes ?? this.likes,
       isAnonymous: isAnonymous ?? this.isAnonymous,
+      isOwnUniversity: isOwnUniversity ?? this.isOwnUniversity,
       isApproved: isApproved ?? this.isApproved,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,

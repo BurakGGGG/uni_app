@@ -2090,6 +2090,120 @@ abstract class AppLocalizations {
   /// **'Tüm yorumları gör'**
   String get uniDetailSeeAllReviews;
 
+  /// No description provided for @googleReviewsTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Google Yorumları'**
+  String get googleReviewsTitle;
+
+  /// No description provided for @googleReviewsTileSubtitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Google Haritalar kullanıcılarının değerlendirmeleri'**
+  String get googleReviewsTileSubtitle;
+
+  /// No description provided for @googleReviewsCount.
+  ///
+  /// In tr, this message translates to:
+  /// **'{count} değerlendirme'**
+  String googleReviewsCount(int count);
+
+  /// No description provided for @googleReviewsAttribution.
+  ///
+  /// In tr, this message translates to:
+  /// **'Yorumlar Google tarafından sağlanmaktadır'**
+  String get googleReviewsAttribution;
+
+  /// No description provided for @reviewBadgeOwnUniversity.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bu üniversitenin öğrencisi'**
+  String get reviewBadgeOwnUniversity;
+
+  /// No description provided for @reviewBadgeOtherUniversity.
+  ///
+  /// In tr, this message translates to:
+  /// **'Başka üniversiteden öğrenci'**
+  String get reviewBadgeOtherUniversity;
+
+  /// No description provided for @reviewPromptTitleOwn.
+  ///
+  /// In tr, this message translates to:
+  /// **'Üniversiteni değerlendir'**
+  String get reviewPromptTitleOwn;
+
+  /// No description provided for @reviewPromptTitleOther.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bu üniversiteyi değerlendir'**
+  String get reviewPromptTitleOther;
+
+  /// No description provided for @reviewPromptBodyOwn.
+  ///
+  /// In tr, this message translates to:
+  /// **'{uniName} deneyimini paylaş, senden sonraki öğrencilere yol göster.'**
+  String reviewPromptBodyOwn(String uniName);
+
+  /// No description provided for @reviewPromptBodyOther.
+  ///
+  /// In tr, this message translates to:
+  /// **'{uniName} hakkında bilgin varsa deneyimini paylaşarak tercih yapacak öğrencilere yardımcı olabilirsin.'**
+  String reviewPromptBodyOther(String uniName);
+
+  /// No description provided for @reviewPromptCta.
+  ///
+  /// In tr, this message translates to:
+  /// **'Yorum yaz'**
+  String get reviewPromptCta;
+
+  /// No description provided for @reviewPromptLater.
+  ///
+  /// In tr, this message translates to:
+  /// **'Daha sonra'**
+  String get reviewPromptLater;
+
+  /// No description provided for @reviewPromptNever.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bir daha gösterme'**
+  String get reviewPromptNever;
+
+  /// No description provided for @badgeFirstReview.
+  ///
+  /// In tr, this message translates to:
+  /// **'İlk Yorum'**
+  String get badgeFirstReview;
+
+  /// No description provided for @badgeFirstReviewDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'İlk yorumunu yayınladın'**
+  String get badgeFirstReviewDesc;
+
+  /// No description provided for @badgeDetailedReviewer.
+  ///
+  /// In tr, this message translates to:
+  /// **'Detaylı Yorumcu'**
+  String get badgeDetailedReviewer;
+
+  /// No description provided for @badgeDetailedReviewerDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'3 veya daha fazla yorum yayınladın'**
+  String get badgeDetailedReviewerDesc;
+
+  /// No description provided for @badgeHelpful.
+  ///
+  /// In tr, this message translates to:
+  /// **'Faydalı'**
+  String get badgeHelpful;
+
+  /// No description provided for @badgeHelpfulDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'Yorumların toplam 10 beğeni aldı'**
+  String get badgeHelpfulDesc;
+
   /// No description provided for @uniDetailPlaces.
   ///
   /// In tr, this message translates to:

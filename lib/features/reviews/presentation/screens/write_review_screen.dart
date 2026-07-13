@@ -803,7 +803,7 @@ class _WriteReviewScreenState extends ConsumerState<WriteReviewScreen> {
           onChanged: (_) => setState(() {}),
           decoration: const InputDecoration(
             hintText:
-                'Üniversiteniz hakkında diğer öğrencilere faydalı olabilecek deneyimlerinizi paylaşın...',
+                'Bu üniversite hakkında diğer öğrencilere faydalı olabilecek deneyimlerinizi paylaşın...',
             alignLabelWithHint: true,
           ),
           validator: (val) {

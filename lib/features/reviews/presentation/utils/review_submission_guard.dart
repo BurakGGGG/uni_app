@@ -41,16 +41,8 @@ Future<void> openWriteReviewIfAllowed({
     return;
   }
 
-  if (profile.universityId != universityId) {
-    showAppSnackBar(
-      context,
-      message:
-          'Yalnızca kendi üniversitenize bağlı içeriklere yorum yazabilirsiniz.',
-      isError: true,
-    );
-    return;
-  }
-
+  // Doğrulanmış her öğrenci her üniversiteye yorum yazabilir; kendi
+  // üniversitesi olup olmadığı server tarafında etiketlenir (isOwnUniversity).
   try {
     final status = await ref
         .read(reviewRepositoryProvider)

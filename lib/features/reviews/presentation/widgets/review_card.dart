@@ -291,6 +291,39 @@ class ReviewCard extends ConsumerWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
+              if (!compact) ...[
+                const SizedBox(height: 2),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      review.isOwnUniversity
+                          ? Icons.verified_rounded
+                          : Icons.school_outlined,
+                      size: 12,
+                      color: review.isOwnUniversity
+                          ? AppColors.success
+                          : AppColors.textTertiaryFor(context),
+                    ),
+                    const SizedBox(width: 3),
+                    Flexible(
+                      child: Text(
+                        review.isOwnUniversity
+                            ? loc.reviewBadgeOwnUniversity
+                            : loc.reviewBadgeOtherUniversity,
+                        style: AppTextStyles.labelSmall.copyWith(
+                          fontSize: 10,
+                          color: review.isOwnUniversity
+                              ? AppColors.success
+                              : AppColors.textTertiaryFor(context),
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ],
           ),
         ),

@@ -44,25 +44,16 @@ class NotificationPreferencesNotifier
     NotificationPreferences updated;
     switch (key) {
       case 'reviewLikedEnabled':
-        updated = NotificationPreferences(
-          reviewLikedEnabled: value,
-          reviewModeratedEnabled: current.reviewModeratedEnabled,
-          favoriteNewReviewEnabled: current.favoriteNewReviewEnabled,
-        );
+        updated = current.copyWith(reviewLikedEnabled: value);
         break;
       case 'reviewModeratedEnabled':
-        updated = NotificationPreferences(
-          reviewLikedEnabled: current.reviewLikedEnabled,
-          reviewModeratedEnabled: value,
-          favoriteNewReviewEnabled: current.favoriteNewReviewEnabled,
-        );
+        updated = current.copyWith(reviewModeratedEnabled: value);
         break;
       case 'favoriteNewReviewEnabled':
-        updated = NotificationPreferences(
-          reviewLikedEnabled: current.reviewLikedEnabled,
-          reviewModeratedEnabled: current.reviewModeratedEnabled,
-          favoriteNewReviewEnabled: value,
-        );
+        updated = current.copyWith(favoriteNewReviewEnabled: value);
+        break;
+      case 'reviewCampaignEnabled':
+        updated = current.copyWith(reviewCampaignEnabled: value);
         break;
       default:
         return;

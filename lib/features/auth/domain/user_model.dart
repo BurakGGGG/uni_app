@@ -14,6 +14,9 @@ class UserModel {
   final String? bio;
   final String role;
   final int reviewCount;
+  // Rozetler: badgeId -> verildiği an. Yalnızca server yazar
+  // (award_badges.ts); bu yüzden toMap()'e bilinçli olarak dahil değil.
+  final Map<String, DateTime> badges;
   final List<String> fcmTokens;
   final NotificationPreferences notificationPrefs;
   final DateTime createdAt;
@@ -32,6 +35,7 @@ class UserModel {
     this.bio,
     this.role = 'user',
     this.reviewCount = 0,
+    this.badges = const {},
     this.fcmTokens = const [],
     this.notificationPrefs = const NotificationPreferences(),
     required this.createdAt,
@@ -53,6 +57,7 @@ class UserModel {
       bio: map['bio'],
       role: map['role'] ?? 'user',
       reviewCount: map['reviewCount'] ?? 0,
+      badges: _parseBadges(map['badges']),
       fcmTokens: List<String>.from(map['fcmTokens'] ?? []),
       notificationPrefs: NotificationPreferences.fromMap(
         map['notificationPrefs'] as Map<String, dynamic>?,
@@ -97,6 +102,7 @@ class UserModel {
     String? bio,
     String? role,
     int? reviewCount,
+    Map<String, DateTime>? badges,
     List<String>? fcmTokens,
     NotificationPreferences? notificationPrefs,
     DateTime? lastLoginAt,
@@ -114,6 +120,7 @@ class UserModel {
       bio: bio ?? this.bio,
       role: role ?? this.role,
       reviewCount: reviewCount ?? this.reviewCount,
+      badges: badges ?? this.badges,
       fcmTokens: fcmTokens ?? this.fcmTokens,
       notificationPrefs: notificationPrefs ?? this.notificationPrefs,
       createdAt: createdAt,
@@ -123,6 +130,17 @@ class UserModel {
 
   /// edu.tr email kontrolü
   bool get hasEduEmail => email.toLowerCase().endsWith('.edu.tr');
+
+  static Map<String, DateTime> _parseBadges(dynamic raw) {
+    if (raw is! Map) return const {};
+    final result = <String, DateTime>{};
+    raw.forEach((key, value) {
+      if (key is String && value is Timestamp) {
+        result[key] = value.toDate();
+      }
+    });
+    return result;
+  }
 
   /// Legacy role alanı. Yetki kontrolü Firebase Auth custom claim üzerinden yapılır.
   @Deprecated(
@@ -150,11 +168,13 @@ class NotificationPreferences {
   final bool reviewLikedEnabled;
   final bool reviewModeratedEnabled;
   final bool favoriteNewReviewEnabled;
+  final bool reviewCampaignEnabled;
 
   const NotificationPreferences({
     this.reviewLikedEnabled = true,
     this.reviewModeratedEnabled = true,
     this.favoriteNewReviewEnabled = true,
+    this.reviewCampaignEnabled = true,
   });
 
   factory NotificationPreferences.fromMap(Map<String, dynamic>? map) {
@@ -163,6 +183,7 @@ class NotificationPreferences {
       reviewLikedEnabled: map['reviewLikedEnabled'] ?? true,
       reviewModeratedEnabled: map['reviewModeratedEnabled'] ?? true,
       favoriteNewReviewEnabled: map['favoriteNewReviewEnabled'] ?? true,
+      reviewCampaignEnabled: map['reviewCampaignEnabled'] ?? true,
     );
   }
 
@@ -170,7 +191,25 @@ class NotificationPreferences {
     'reviewLikedEnabled': reviewLikedEnabled,
     'reviewModeratedEnabled': reviewModeratedEnabled,
     'favoriteNewReviewEnabled': favoriteNewReviewEnabled,
+    'reviewCampaignEnabled': reviewCampaignEnabled,
   };
+
+  NotificationPreferences copyWith({
+    bool? reviewLikedEnabled,
+    bool? reviewModeratedEnabled,
+    bool? favoriteNewReviewEnabled,
+    bool? reviewCampaignEnabled,
+  }) {
+    return NotificationPreferences(
+      reviewLikedEnabled: reviewLikedEnabled ?? this.reviewLikedEnabled,
+      reviewModeratedEnabled:
+          reviewModeratedEnabled ?? this.reviewModeratedEnabled,
+      favoriteNewReviewEnabled:
+          favoriteNewReviewEnabled ?? this.favoriteNewReviewEnabled,
+      reviewCampaignEnabled:
+          reviewCampaignEnabled ?? this.reviewCampaignEnabled,
+    );
+  }
 }
 
 /// Auth durumu

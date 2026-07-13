@@ -1082,6 +1082,71 @@ class AppLocalizationsTr extends AppLocalizations {
   String get uniDetailSeeAllReviews => 'Tüm yorumları gör';
 
   @override
+  String get googleReviewsTitle => 'Google Yorumları';
+
+  @override
+  String get googleReviewsTileSubtitle =>
+      'Google Haritalar kullanıcılarının değerlendirmeleri';
+
+  @override
+  String googleReviewsCount(int count) {
+    return '$count değerlendirme';
+  }
+
+  @override
+  String get googleReviewsAttribution =>
+      'Yorumlar Google tarafından sağlanmaktadır';
+
+  @override
+  String get reviewBadgeOwnUniversity => 'Bu üniversitenin öğrencisi';
+
+  @override
+  String get reviewBadgeOtherUniversity => 'Başka üniversiteden öğrenci';
+
+  @override
+  String get reviewPromptTitleOwn => 'Üniversiteni değerlendir';
+
+  @override
+  String get reviewPromptTitleOther => 'Bu üniversiteyi değerlendir';
+
+  @override
+  String reviewPromptBodyOwn(String uniName) {
+    return '$uniName deneyimini paylaş, senden sonraki öğrencilere yol göster.';
+  }
+
+  @override
+  String reviewPromptBodyOther(String uniName) {
+    return '$uniName hakkında bilgin varsa deneyimini paylaşarak tercih yapacak öğrencilere yardımcı olabilirsin.';
+  }
+
+  @override
+  String get reviewPromptCta => 'Yorum yaz';
+
+  @override
+  String get reviewPromptLater => 'Daha sonra';
+
+  @override
+  String get reviewPromptNever => 'Bir daha gösterme';
+
+  @override
+  String get badgeFirstReview => 'İlk Yorum';
+
+  @override
+  String get badgeFirstReviewDesc => 'İlk yorumunu yayınladın';
+
+  @override
+  String get badgeDetailedReviewer => 'Detaylı Yorumcu';
+
+  @override
+  String get badgeDetailedReviewerDesc => '3 veya daha fazla yorum yayınladın';
+
+  @override
+  String get badgeHelpful => 'Faydalı';
+
+  @override
+  String get badgeHelpfulDesc => 'Yorumların toplam 10 beğeni aldı';
+
+  @override
   String get uniDetailPlaces => 'Mekanlar';
 
   @override

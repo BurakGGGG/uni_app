@@ -26,6 +26,25 @@ class ReviewRepository {
     return ReviewModel.fromMap(doc.data()!, doc.id);
   }
 
+  /// Kullanıcı bu hedefe daha önce yorum yazmış mı? (tek seferlik sorgu)
+  ///
+  /// Rules owner okumasına izin verir; onay beklemedeki yorumlar da sayılır
+  /// ki kullanıcıya gereksiz "yorum yaz" istemi gösterilmesin.
+  Future<bool> hasUserReviewed({
+    required String userId,
+    required String targetId,
+    required ReviewType type,
+  }) async {
+    final snap = await _firestore
+        .collection('reviews')
+        .where('userId', isEqualTo: userId)
+        .where('targetId', isEqualTo: targetId)
+        .where('type', isEqualTo: type.name)
+        .limit(1)
+        .get();
+    return snap.docs.isNotEmpty;
+  }
+
   Future<void> addReview(ReviewModel review) async {
     try {
       await _functions

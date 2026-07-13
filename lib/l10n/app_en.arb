@@ -446,6 +446,46 @@
   },
   "uniDetailNoReviews": "No reviews yet",
   "uniDetailSeeAllReviews": "See all reviews",
+  "googleReviewsTitle": "Google Reviews",
+  "googleReviewsTileSubtitle": "Ratings from Google Maps users",
+  "googleReviewsCount": "{count} ratings",
+  "@googleReviewsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "googleReviewsAttribution": "Reviews are provided by Google",
+  "reviewBadgeOwnUniversity": "Student at this university",
+  "reviewBadgeOtherUniversity": "Student at another university",
+  "reviewPromptTitleOwn": "Rate your university",
+  "reviewPromptTitleOther": "Rate this university",
+  "reviewPromptBodyOwn": "Share your {uniName} experience and guide the students coming after you.",
+  "@reviewPromptBodyOwn": {
+    "placeholders": {
+      "uniName": {
+        "type": "String"
+      }
+    }
+  },
+  "reviewPromptBodyOther": "If you know {uniName}, sharing your experience helps students making their choice.",
+  "@reviewPromptBodyOther": {
+    "placeholders": {
+      "uniName": {
+        "type": "String"
+      }
+    }
+  },
+  "reviewPromptCta": "Write a review",
+  "reviewPromptLater": "Maybe later",
+  "reviewPromptNever": "Don't show again",
+  "badgeFirstReview": "First Review",
+  "badgeFirstReviewDesc": "You published your first review",
+  "badgeDetailedReviewer": "Detailed Reviewer",
+  "badgeDetailedReviewerDesc": "You published 3 or more reviews",
+  "badgeHelpful": "Helpful",
+  "badgeHelpfulDesc": "Your reviews received 10 likes in total",
   "uniDetailPlaces": "Places",
   "uniDetailPlacesSubtitle": "{count} places",
   "@uniDetailPlacesSubtitle": {
