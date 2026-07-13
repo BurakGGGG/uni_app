@@ -62,6 +62,10 @@ class UniversityModel {
   final int? placeCount;
   final Map<String, int>? placeBreakdown;
 
+  // Google Places place_id — canlı Google yorumları için (getGoogleReviews CF).
+  // Places politikası gereği yalnızca place_id saklanır, yorum içeriği saklanmaz.
+  final String? googlePlaceId;
+
   UniversityModel({
     required this.id,
     required this.cityId,
@@ -83,6 +87,7 @@ class UniversityModel {
     this.brandUseDarkOverlay = false,
     this.placeCount,
     this.placeBreakdown,
+    this.googlePlaceId,
   });
 
   // ── Tüm üniversiteler için logo-bazlı gradient fallback renkleri ──
@@ -307,6 +312,7 @@ class UniversityModel {
       placeBreakdown: (map['placeBreakdown'] as Map<String, dynamic>?)?.map(
         (key, value) => MapEntry(key, (value as num).toInt()),
       ),
+      googlePlaceId: map['googlePlaceId'] as String?,
     );
   }
   Map<String, dynamic> toMap() {
@@ -330,6 +336,7 @@ class UniversityModel {
       'brandUseDarkOverlay': brandUseDarkOverlay,
       if (placeCount != null) 'placeCount': placeCount,
       if (placeBreakdown != null) 'placeBreakdown': placeBreakdown,
+      if (googlePlaceId != null) 'googlePlaceId': googlePlaceId,
     };
   }
 }

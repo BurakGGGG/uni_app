@@ -20,7 +20,8 @@
         "Istanbul Teknik"
       ],
       "brandPrimaryHex": "#1A237E",
-      "brandSecondaryHex": "#283593"
+      "brandSecondaryHex": "#283593",
+      "googlePlaceId": "ChIJ1-qyJMK1yhQRGRaXhEuYKEo"
     },
     {
       "id": "istanbul_uni",
@@ -41,7 +42,8 @@
         "İÜ"
       ],
       "brandPrimaryHex": "#1B5E20",
-      "brandSecondaryHex": "#2E7D32"
+      "brandSecondaryHex": "#2E7D32",
+      "googlePlaceId": "ChIJ42s83I25yhQRemLN24uSUU8"
     },
     {
       "id": "yildiz_teknik",
@@ -63,7 +65,8 @@
         "Yıldız"
       ],
       "brandPrimaryHex": "#FFB300",
-      "brandSecondaryHex": "#0D47A1"
+      "brandSecondaryHex": "#0D47A1",
+      "googlePlaceId": "ChIJayli1q-3yhQRN8TakoQIjIM"
     },
     {
       "id": "odtu",
@@ -86,7 +89,8 @@
         "Orta Doğu"
       ],
       "brandPrimaryHex": "#D32F2F",
-      "brandSecondaryHex": "#EF5350"
+      "brandSecondaryHex": "#EF5350",
+      "googlePlaceId": "ChIJg8DwVEdG0xQRdc9dprmCPBw"
     },
     {
       "id": "hacettepe",
@@ -108,7 +112,8 @@
         "Hacettepe"
       ],
       "brandPrimaryHex": "#D32F2F",
-      "brandSecondaryHex": "#EF5350"
+      "brandSecondaryHex": "#EF5350",
+      "googlePlaceId": "ChIJRbHxxERO0xQRFDNuoRkgTl4"
     },
     {
       "id": "ankara_uni",
@@ -129,7 +134,8 @@
         "AÜ"
       ],
       "brandPrimaryHex": "#0D47A1",
-      "brandSecondaryHex": "#FFB300"
+      "brandSecondaryHex": "#FFB300",
+      "googlePlaceId": "ChIJB3sGcN1O0xQR_A3vU0p22LI"
     },
     {
       "id": "gazi",
@@ -151,7 +157,8 @@
         "Gazi"
       ],
       "brandPrimaryHex": "#0D47A1",
-      "brandSecondaryHex": "#4DD0E1"
+      "brandSecondaryHex": "#4DD0E1",
+      "googlePlaceId": "ChIJ43LVK9pO0xQRJ5l7rrlESQw"
     },
     {
       "id": "ege",
@@ -173,7 +180,8 @@
         "Ege"
       ],
       "brandPrimaryHex": "#0D47A1",
-      "brandSecondaryHex": "#1976D2"
+      "brandSecondaryHex": "#1976D2",
+      "googlePlaceId": "ChIJhwG2E9Z8uRQR6r4WmHQM9pI"
     },
     {
       "id": "dokuz_eylul",
@@ -195,7 +203,8 @@
         "Dokuz Eylül"
       ],
       "brandPrimaryHex": "#1A237E",
-      "brandSecondaryHex": "#303F9F"
+      "brandSecondaryHex": "#303F9F",
+      "googlePlaceId": "ChIJwSQk-o5huRQRgRJRJA83fDg"
     },
     {
       "id": "akdeniz",
@@ -217,7 +226,8 @@
         "Akdeniz"
       ],
       "brandPrimaryHex": "#E65100",
-      "brandSecondaryHex": "#FF6D00"
+      "brandSecondaryHex": "#FF6D00",
+      "googlePlaceId": "ChIJGcg768SRwxQRdEHi9okAwyk"
     },
     {
       "id": "alanya",
@@ -239,7 +249,8 @@
         "Alanya"
       ],
       "brandPrimaryHex": "#0277BD",
-      "brandSecondaryHex": "#039BE5"
+      "brandSecondaryHex": "#039BE5",
+      "googlePlaceId": "ChIJWXUfjXmRwxQRETm7R97SH-Y"
     },
     {
       "id": "anadolu",
@@ -261,7 +272,8 @@
         "Anadolu"
       ],
       "brandPrimaryHex": "#212121",
-      "brandSecondaryHex": "#424242"
+      "brandSecondaryHex": "#424242",
+      "googlePlaceId": "ChIJ8zP3ZOcVzBQRAc6SzLBuHzk"
     },
     {
       "id": "ogu",
@@ -283,7 +295,8 @@
         "Osmangazi"
       ],
       "brandPrimaryHex": "#00ACC1",
-      "brandSecondaryHex": "#0D47A1"
+      "brandSecondaryHex": "#0D47A1",
+      "googlePlaceId": "ChIJ2bvB3kMWzBQRu0DUyW5vg0w"
     },
     {
       "id": "estu",
@@ -304,7 +317,8 @@
         "ESTÜ"
       ],
       "brandPrimaryHex": "#800000",
-      "brandSecondaryHex": "#500000"
+      "brandSecondaryHex": "#500000",
+      "googlePlaceId": "ChIJY2ywUdY_zBQR0Y0N_cQ2ilg"
     },
     {
       "id": "uludag",
@@ -326,7 +340,8 @@
         "Uludağ"
       ],
       "brandPrimaryHex": "#00ACC1",
-      "brandSecondaryHex": "#0D47A1"
+      "brandSecondaryHex": "#0D47A1",
+      "googlePlaceId": "ChIJYfCdlf8NyhQRjEmrD0-g1Nw"
     },
     {
       "id": "btu",
@@ -347,7 +362,8 @@
         "BTÜ"
       ],
       "brandPrimaryHex": "#0D47A1",
-      "brandSecondaryHex": "#1976D2"
+      "brandSecondaryHex": "#1976D2",
+      "googlePlaceId": "ChIJp6v42bc-yhQRRzSZEVdAfhI"
     },
     {
       "id": "comu",
@@ -369,7 +385,8 @@
         "18 Mart"
       ],
       "brandPrimaryHex": "#D32F2F",
-      "brandSecondaryHex": "#212121"
+      "brandSecondaryHex": "#212121",
+      "googlePlaceId": "ChIJ_Zy5qSyosRQRBInqEq2xA_g"
     },
     {
       "id": "cumhuriyet",
@@ -391,7 +408,8 @@
         "Cumhuriyet"
       ],
       "brandPrimaryHex": "#D32F2F",
-      "brandSecondaryHex": "#B71C1C"
+      "brandSecondaryHex": "#B71C1C",
+      "googlePlaceId": "ChIJVSwYMGVTeUARHPekHeL23nM"
     },
     {
       "id": "sivas_btu",
@@ -412,7 +430,8 @@
         "SBTÜ"
       ],
       "brandPrimaryHex": "#1A237E",
-      "brandSecondaryHex": "#283593"
+      "brandSecondaryHex": "#283593",
+      "googlePlaceId": "ChIJ7VOdR4BUeUARC0SmwtU7HJA"
     },
     {
       "id": "ktu",
@@ -434,7 +453,8 @@
         "Karadeniz Teknik"
       ],
       "brandPrimaryHex": "#1A237E",
-      "brandSecondaryHex": "#1565C0"
+      "brandSecondaryHex": "#1565C0",
+      "googlePlaceId": "ChIJ-Z4Y9_U7ZEAR3NJnKIFXNkI"
     },
     {
       "id": "trabzon_uni",
@@ -455,7 +475,8 @@
         "TRÜ"
       ],
       "brandPrimaryHex": "#004D40",
-      "brandSecondaryHex": "#00695C"
+      "brandSecondaryHex": "#00695C",
+      "googlePlaceId": "ChIJfQwDkkkUZEARYMEEMSLn0W4"
     },
     {
       "id": "mersin_uni",
@@ -476,7 +497,8 @@
         "MEÜ"
       ],
       "brandPrimaryHex": "#E65100",
-      "brandSecondaryHex": "#FF8F00"
+      "brandSecondaryHex": "#FF8F00",
+      "googlePlaceId": "ChIJcT9aPcmKJxURDpJ3v7xGuH4"
     },
     {
       "id": "tarsus",
@@ -497,7 +519,8 @@
         "TÜ"
       ],
       "brandPrimaryHex": "#1A237E",
-      "brandSecondaryHex": "#1976D2"
+      "brandSecondaryHex": "#1976D2",
+      "googlePlaceId": "ChIJVVVVle7gJxUR6PL8xQF9MXY"
     },
     {
       "id": "marmara",
@@ -519,7 +542,8 @@
         "Marmara"
       ],
       "brandPrimaryHex": "#0D47A1",
-      "brandSecondaryHex": "#1565C0"
+      "brandSecondaryHex": "#1565C0",
+      "googlePlaceId": "ChIJw2JOso7HyhQRfN_V3UjsrvY"
     },
     {
       "id": "hacibayram",
@@ -541,7 +565,8 @@
         "Hacı Bayram"
       ],
       "brandPrimaryHex": "#212121",
-      "brandSecondaryHex": "#D32F2F"
+      "brandSecondaryHex": "#D32F2F",
+      "googlePlaceId": "ChIJTcuzokJP0xQRkxqlk8t2f9M"
     },
     {
       "id": "izmir_demokrasi",
@@ -562,7 +587,8 @@
         "İDÜ"
       ],
       "brandPrimaryHex": "#795548",
-      "brandSecondaryHex": "#C62828"
+      "brandSecondaryHex": "#C62828",
+      "googlePlaceId": "ChIJsVAyzQLcuxQRZYYu-IC3C9s"
     },
     {
       "id": "izmir_katipcelebi",
@@ -584,7 +610,8 @@
         "Katip Çelebi"
       ],
       "brandPrimaryHex": "#B71C1C",
-      "brandSecondaryHex": "#880E4F"
+      "brandSecondaryHex": "#880E4F",
+      "googlePlaceId": "ChIJ8QtOb6bQuxQRFLBFylIo4LQ"
     },
     {
       "id": "aydin",
@@ -606,7 +633,8 @@
         "Aydın"
       ],
       "brandPrimaryHex": "#0D47A1",
-      "brandSecondaryHex": "#1565C0"
+      "brandSecondaryHex": "#1565C0",
+      "googlePlaceId": "ChIJbWBZ25ajyhQRtOkU63sUlGU"
     },
     {
       "id": "gelisim",
@@ -628,7 +656,8 @@
         "Gelişim"
       ],
       "brandPrimaryHex": "#1A237E",
-      "brandSecondaryHex": "#283593"
+      "brandSecondaryHex": "#283593",
+      "googlePlaceId": "ChIJXTeNCPWgyhQRM3u8KYuJVfw"
     },
     {
       "id": "medipol",
@@ -649,7 +678,8 @@
         "Medipol"
       ],
       "brandPrimaryHex": "#1A237E",
-      "brandSecondaryHex": "#757575"
+      "brandSecondaryHex": "#757575",
+      "googlePlaceId": "ChIJl5uO2srLyhQR07af5ePyYe8"
     },
     {
       "id": "hitit",
@@ -671,7 +701,8 @@
         "Hitit"
       ],
       "brandPrimaryHex": "#FF8F00",
-      "brandSecondaryHex": "#1A237E"
+      "brandSecondaryHex": "#1A237E",
+      "googlePlaceId": "ChIJdZ5fU1PVgEARSDWTPOaYQZA"
     },
     {
       "id": "erciyes",
@@ -692,7 +723,8 @@
         "ERÜ"
       ],
       "brandPrimaryHex": "#1A3C8F",
-      "brandSecondaryHex": "#C41E3A"
+      "brandSecondaryHex": "#C41E3A",
+      "googlePlaceId": "ChIJZTRXsIANKxURAAszI8Zf5cY"
     },
     {
       "id": "inonu",
@@ -713,7 +745,8 @@
         "İnönü"
       ],
       "brandPrimaryHex": "#F5A623",
-      "brandSecondaryHex": "#C88B18"
+      "brandSecondaryHex": "#C88B18",
+      "googlePlaceId": "ChIJe-1-QU84dkARSKNGdkpfE_A"
     },
     {
       "id": "omu",
@@ -734,7 +767,8 @@
         "OMÜ"
       ],
       "brandPrimaryHex": "#3B5998",
-      "brandSecondaryHex": "#C0392B"
+      "brandSecondaryHex": "#C0392B",
+      "googlePlaceId": "ChIJzX7dZ5F-iEARExS_Hf0xw9Q"
     },
     {
       "id": "selcuk",
@@ -755,7 +789,8 @@
         "SÜ"
       ],
       "brandPrimaryHex": "#D4A817",
-      "brandSecondaryHex": "#8B7312"
+      "brandSecondaryHex": "#8B7312",
+      "googlePlaceId": "ChIJl0lkyheN0BQRjCEMoh-A218"
     },
     {
       "id": "dpu",
@@ -776,7 +811,8 @@
         "DPÜ"
       ],
       "brandPrimaryHex": "#3D348B",
-      "brandSecondaryHex": "#6A5ACD"
+      "brandSecondaryHex": "#6A5ACD",
+      "googlePlaceId": "ChIJcQ9GJMFGyRQRtCUGjb9ZJik"
     },
     {
       "id": "kocaeli",
@@ -797,7 +833,8 @@
         "KOÜ"
       ],
       "brandPrimaryHex": "#1B9E5F",
-      "brandSecondaryHex": "#2C3E50"
+      "brandSecondaryHex": "#2C3E50",
+      "googlePlaceId": "ChIJRf4p9q1byxQRVYdOI0moH8g"
     },
     {
       "id": "sakarya",
@@ -818,7 +855,8 @@
         "SAÜ"
       ],
       "brandPrimaryHex": "#1A3478",
-      "brandSecondaryHex": "#2C5AA0"
+      "brandSecondaryHex": "#2C5AA0",
+      "googlePlaceId": "ChIJ11h5l_KtzBQRA0z5hKhvmcc"
     },
     {
       "id": "ibu",
@@ -840,7 +878,8 @@
         "BAİBÜ"
       ],
       "brandPrimaryHex": "#1B7A3D",
-      "brandSecondaryHex": "#2E4C8A"
+      "brandSecondaryHex": "#2E4C8A",
+      "googlePlaceId": "ChIJKxgViy5AnUARnVV7oDSzAio"
     },
     {
       "id": "beun",
@@ -861,7 +900,8 @@
         "BEÜN"
       ],
       "brandPrimaryHex": "#D32F2F",
-      "brandSecondaryHex": "#B71C1C"
+      "brandSecondaryHex": "#B71C1C",
+      "googlePlaceId": "ChIJp7jSfXl7nEARkOvkrd18pUY"
     },
     {
       "id": "yyu",
@@ -882,7 +922,8 @@
         "YYÜ"
       ],
       "brandPrimaryHex": "#1A5276",
-      "brandSecondaryHex": "#5DADE2"
+      "brandSecondaryHex": "#5DADE2",
+      "googlePlaceId": "ChIJ0cZ4dzVjEkAR4rqM2DqjSE4"
     },
     {
       "id": "atauni",
@@ -903,7 +944,8 @@
         "ATAÜNİ"
       ],
       "brandPrimaryHex": "#2E3A6E",
-      "brandSecondaryHex": "#C9A94E"
+      "brandSecondaryHex": "#C9A94E",
+      "googlePlaceId": "ChIJz99KOeBebkARReVtVyEvFAI"
     },
     {
       "id": "gantep",
@@ -924,7 +966,8 @@
         "GAÜN"
       ],
       "brandPrimaryHex": "#1A2D5A",
-      "brandSecondaryHex": "#C0392B"
+      "brandSecondaryHex": "#C0392B",
+      "googlePlaceId": "ChIJv024qEbhMRURwHqNz3Xy-3Q"
     },
     {
       "id": "cu",
@@ -945,7 +988,8 @@
         "ÇÜ"
       ],
       "brandPrimaryHex": "#1E7B2C",
-      "brandSecondaryHex": "#0E5C1E"
+      "brandSecondaryHex": "#0E5C1E",
+      "googlePlaceId": "ChIJoynFdNSNKBURzZW5SIfvNLo"
     },
     {
       "id": "pau",
@@ -966,7 +1010,8 @@
         "PAÜ"
       ],
       "brandPrimaryHex": "#1A4C7A",
-      "brandSecondaryHex": "#4A90D9"
+      "brandSecondaryHex": "#4A90D9",
+      "googlePlaceId": "ChIJ____v9JMxhQRrFSSuCoQIXw"
     },
     {
       "id": "ksu",
@@ -987,7 +1032,8 @@
         "KSÜ"
       ],
       "brandPrimaryHex": "#343278",
-      "brandSecondaryHex": "#C0392B"
+      "brandSecondaryHex": "#C0392B",
+      "googlePlaceId": "ChIJ6Ru5PQrdLRURYxkgQtTM2QM"
     },
     {
       "id": "cbu",
@@ -1008,7 +1054,8 @@
         "MCBÜ"
       ],
       "brandPrimaryHex": "#1A3478",
-      "brandSecondaryHex": "#4DC4E0"
+      "brandSecondaryHex": "#4DC4E0",
+      "googlePlaceId": "ChIJZ_S0WWGEuRQREw8wXephA_g"
     },
     {
       "id": "sdu",
@@ -1029,7 +1076,8 @@
         "SDÜ"
       ],
       "brandPrimaryHex": "#D42B2B",
-      "brandSecondaryHex": "#8B1A1A"
+      "brandSecondaryHex": "#8B1A1A",
+      "googlePlaceId": "ChIJGax-ydfJxRQRKts5Ahaxsyo"
     },
     {
       "id": "karabuk",
@@ -1050,7 +1098,8 @@
         "KBÜ"
       ],
       "brandPrimaryHex": "#3B6FA0",
-      "brandSecondaryHex": "#C0392B"
+      "brandSecondaryHex": "#C0392B",
+      "googlePlaceId": "EkRLxLFsYXZ1emxhciwgS2FyYWLDvGsgw5xudi4geW9sdSwgS2FyYWLDvGsgTWVya2V6L0thcmFiw7xrLCBUw7xya2l5ZSIuKiwKFAoSCUXoYhJaU4NAEd6S3HLKStvYEhQKEgmj9FXKNVODQBFUqfC46knBWA"
     },
     {
       "id": "gop",
@@ -1071,7 +1120,8 @@
         "TOGÜ"
       ],
       "brandPrimaryHex": "#008B8B",
-      "brandSecondaryHex": "#4A1558"
+      "brandSecondaryHex": "#4A1558",
+      "googlePlaceId": "ChIJx9-LpK65fUAR57n3BQkLTNQ"
     },
     {
       "id": "asbu",
@@ -1093,7 +1143,8 @@
       ],
       "brandPrimaryHex": "#752645",
       "brandSecondaryHex": "#E4C4A8",
-      "_v2New": true
+      "_v2New": true,
+      "googlePlaceId": "ChIJNUiblmFO0xQRNo7yFBdnyjA"
     },
     {
       "id": "aybu",
@@ -1115,7 +1166,8 @@
       ],
       "brandPrimaryHex": "#00C0D8",
       "brandSecondaryHex": "#002E78",
-      "_v2New": true
+      "_v2New": true,
+      "googlePlaceId": "ChIJe3CPABxM0xQRmS4Xvz8XWJo"
     },
     {
       "id": "atilim",
@@ -1137,7 +1189,8 @@
       ],
       "brandPrimaryHex": "#233574",
       "brandSecondaryHex": "#F20410",
-      "_v2New": true
+      "_v2New": true,
+      "googlePlaceId": "ChIJPYha-H1A0xQR355nGLzduNk"
     },
     {
       "id": "bahcesehir",
@@ -1160,7 +1213,8 @@
       ],
       "brandPrimaryHex": "#03519F",
       "brandSecondaryHex": "#023A72",
-      "_v2New": true
+      "_v2New": true,
+      "googlePlaceId": "ChIJY7nDoqK3yhQRGYV7gbnRcXY"
     },
     {
       "id": "baskent",
@@ -1182,7 +1236,8 @@
       ],
       "brandPrimaryHex": "#DE2027",
       "brandSecondaryHex": "#9F171C",
-      "_v2New": true
+      "_v2New": true,
+      "googlePlaceId": "ChIJS67_ATk50xQRtlEDkz_VdRU"
     },
     {
       "id": "bogazici",
@@ -1205,7 +1260,8 @@
       ],
       "brandPrimaryHex": "#134A8F",
       "brandSecondaryHex": "#0D3566",
-      "_v2New": true
+      "_v2New": true,
+      "googlePlaceId": "ChIJc637R__JyhQRDs1GXJiVZL0"
     },
     {
       "id": "galatasaray",
@@ -1228,7 +1284,8 @@
       ],
       "brandPrimaryHex": "#F6C21D",
       "brandSecondaryHex": "#A20807",
-      "_v2New": true
+      "_v2New": true,
+      "googlePlaceId": "ChIJkQGbULi3yhQRQCDiiZs25aM"
     },
     {
       "id": "bilkent",
@@ -1250,7 +1307,8 @@
       ],
       "brandPrimaryHex": "#678FBE",
       "brandSecondaryHex": "#E2081D",
-      "_v2New": true
+      "_v2New": true,
+      "googlePlaceId": "ChIJkQW7ShJH0xQRVC6B8-S79V8"
     },
     {
       "id": "bilgi",
@@ -1272,7 +1330,8 @@
       ],
       "brandPrimaryHex": "#DA2D2A",
       "brandSecondaryHex": "#C13E40",
-      "_v2New": true
+      "_v2New": true,
+      "googlePlaceId": "ChIJSV2cCc6wyhQRJEatcsFfZp8"
     },
     {
       "id": "iuc",
@@ -1295,7 +1354,8 @@
       ],
       "brandPrimaryHex": "#10243D",
       "brandSecondaryHex": "#AB8D3F",
-      "_v2New": true
+      "_v2New": true,
+      "googlePlaceId": "ChIJsdgdhamhyhQRqkOnLW37IRI"
     },
     {
       "id": "izmir_ekonomi",
@@ -1318,7 +1378,8 @@
       ],
       "brandPrimaryHex": "#FF7100",
       "brandSecondaryHex": "#B75100",
-      "_v2New": true
+      "_v2New": true,
+      "googlePlaceId": "ChIJoYsFKUXcuxQRIOnWt-DOaY4"
     },
     {
       "id": "iyte",
@@ -1340,7 +1401,8 @@
       ],
       "brandPrimaryHex": "#920213",
       "brandSecondaryHex": "#69010D",
-      "_v2New": true
+      "_v2New": true,
+      "googlePlaceId": "ChIJVbxjpp7K6kURB-mbFq8NPfM"
     },
     {
       "id": "kadir_has",
@@ -1363,7 +1425,8 @@
       ],
       "brandPrimaryHex": "#065494",
       "brandSecondaryHex": "#043C6A",
-      "_v2New": true
+      "_v2New": true,
+      "googlePlaceId": "ChIJo7ihPvG5yhQRdXc57B7YQXw"
     },
     {
       "id": "koc",
@@ -1385,7 +1448,8 @@
       ],
       "brandPrimaryHex": "#AE162B",
       "brandSecondaryHex": "#7D0F1E",
-      "_v2New": true
+      "_v2New": true,
+      "googlePlaceId": "ChIJLx5P-5Pgn0ARUFOEXCiJG7U"
     },
     {
       "id": "msgsu",
@@ -1407,7 +1471,8 @@
       ],
       "brandPrimaryHex": "#050390",
       "brandSecondaryHex": "#030267",
-      "_v2New": true
+      "_v2New": true,
+      "googlePlaceId": "ChIJmWkdelK2yhQR59I7ObfZUpM"
     },
     {
       "id": "ozyegin",
@@ -1430,7 +1495,8 @@
       ],
       "brandPrimaryHex": "#004B93",
       "brandSecondaryHex": "#CE0068",
-      "_v2New": true
+      "_v2New": true,
+      "googlePlaceId": "ChIJp7dz7CDSyhQRqQh07h_nTQY"
     },
     {
       "id": "sabanci",
@@ -1452,7 +1518,8 @@
       ],
       "brandPrimaryHex": "#004288",
       "brandSecondaryHex": "#002F61",
-      "_v2New": true
+      "_v2New": true,
+      "googlePlaceId": "ChIJg1umVADZyhQRF5A9NGkUgVg"
     },
     {
       "id": "sbu",
@@ -1475,7 +1542,8 @@
       ],
       "brandPrimaryHex": "#295075",
       "brandSecondaryHex": "#862A46",
-      "_v2New": true
+      "_v2New": true,
+      "googlePlaceId": "ChIJPer0QD64yhQRANsj6Z6JEc8"
     },
     {
       "id": "tobb_etu",
@@ -1498,7 +1566,8 @@
       ],
       "brandPrimaryHex": "#1B47A1",
       "brandSecondaryHex": "#F38B21",
-      "_v2New": true
+      "_v2New": true,
+      "googlePlaceId": "ChIJqzP36bdI0xQR2ONks_PNG98"
     },
     {
       "id": "turk_alman",
@@ -1521,7 +1590,8 @@
       ],
       "brandPrimaryHex": "#86CAD6",
       "brandSecondaryHex": "#292C37",
-      "_v2New": true
+      "_v2New": true,
+      "googlePlaceId": "ChIJ8cGKOx_LyhQReif_oAN_TnM"
     },
     {
       "id": "yasar",
@@ -1543,7 +1613,8 @@
       ],
       "brandPrimaryHex": "#00519B",
       "brandSecondaryHex": "#003A6F",
-      "_v2New": true
+      "_v2New": true,
+      "googlePlaceId": "ChIJg0SJuTR9uRQRmWLvl0Kkzgw"
     },
     {
       "id": "yeditepe",
@@ -1565,7 +1636,8 @@
       ],
       "brandPrimaryHex": "#005296",
       "brandSecondaryHex": "#009145",
-      "_v2New": true
+      "_v2New": true,
+      "googlePlaceId": "ChIJHVV4ve_FyhQRJcn35slKrC0"
     },
     {
       "id": "balikesir_uni",
@@ -1588,7 +1660,8 @@
       ],
       "brandPrimaryHex": "#0C8C88",
       "brandSecondaryHex": "#086461",
-      "_v2New": true
+      "_v2New": true,
+      "googlePlaceId": "ChIJqU7lj00AtxQR5V77mxafa-I"
     },
     {
       "id": "adu",
@@ -1610,7 +1683,8 @@
       ],
       "brandPrimaryHex": "#2A388E",
       "brandSecondaryHex": "#1E2866",
-      "_v2New": true
+      "_v2New": true,
+      "googlePlaceId": "ChIJnRyaU3MruRQRsNFd3Zw-RUI"
     },
     {
       "id": "harran",
@@ -1633,7 +1707,8 @@
       ],
       "brandPrimaryHex": "#E0D000",
       "brandSecondaryHex": "#1579AE",
-      "_v2New": true
+      "_v2New": true,
+      "googlePlaceId": "ChIJ45SHVXhdNBURYJsgU74nh6Q"
     },
     {
       "id": "msku",
@@ -1655,7 +1730,8 @@
       ],
       "brandPrimaryHex": "#2C318D",
       "brandSecondaryHex": "#990F26",
-      "_v2New": true
+      "_v2New": true,
+      "googlePlaceId": "ChIJV0c7JslzvxQRpLcRCfogEDo"
     },
     {
       "id": "firat",
@@ -1678,7 +1754,8 @@
       ],
       "brandPrimaryHex": "#821342",
       "brandSecondaryHex": "#5D0D2F",
-      "_v2New": true
+      "_v2New": true,
+      "googlePlaceId": "ChIJTZPs8EPAdkARmrz-valU2pc"
     },
     {
       "id": "aku",
@@ -1701,7 +1778,8 @@
       ],
       "brandPrimaryHex": "#005E9D",
       "brandSecondaryHex": "#004371",
-      "_v2New": true
+      "_v2New": true,
+      "googlePlaceId": "ChIJ68dvsXMYzxQRCK6S4FWIpKs"
     },
     {
       "id": "dicle",
@@ -1724,7 +1802,8 @@
       ],
       "brandPrimaryHex": "#E2B241",
       "brandSecondaryHex": "#A2802E",
-      "_v2New": true
+      "_v2New": true,
+      "googlePlaceId": "ChIJGZyPC3MgdUARGB9XduDg-mo"
     },
     {
       "id": "giresun_uni",
@@ -1747,7 +1826,8 @@
       ],
       "brandPrimaryHex": "#111A9E",
       "brandSecondaryHex": "#1C9605",
-      "_v2New": true
+      "_v2New": true,
+      "googlePlaceId": "ChIJwVr_p6ZsY0ARLnswX-2J1iM"
     },
     {
       "id": "maku",
@@ -1769,7 +1849,8 @@
       ],
       "brandPrimaryHex": "#3A2666",
       "brandSecondaryHex": "#291B49",
-      "_v2New": true
+      "_v2New": true,
+      "googlePlaceId": "ChIJCQJHzh8sxBQRDLhrL6UbISI"
     },
     {
       "id": "nevu",
@@ -1791,7 +1872,8 @@
       ],
       "brandPrimaryHex": "#B62C2D",
       "brandSecondaryHex": "#E4A73F",
-      "_v2New": true
+      "_v2New": true,
+      "googlePlaceId": "ChIJsRDB1YllKhUR0dNHK7ulvhY"
     },
     {
       "id": "trakya",
@@ -1814,7 +1896,8 @@
       ],
       "brandPrimaryHex": "#D1A348",
       "brandSecondaryHex": "#22388D",
-      "_v2New": true
+      "_v2New": true,
+      "googlePlaceId": "ChIJ3WG26bM6sxQR98PolOCtNuw"
     },
     {
       "id": "kastamonu_uni",
@@ -1837,7 +1920,8 @@
       ],
       "brandPrimaryHex": "#D44143",
       "brandSecondaryHex": "#352838",
-      "_v2New": true
+      "_v2New": true,
+      "googlePlaceId": "EkZLdXpleWtlbnQsIEthc3RhbW9udSDDnG52LiwgMzcxNTAgS2FzdGFtb251IE1lcmtlei9LYXN0YW1vbnUsIFTDvHJraXllIi4qLAoUChIJA1rYqgL7hEARTf8rcDMAqHMSFAoSCZE4FkAS-oRAETLVESmgsBnY"
     },
     {
       "id": "yobu",
@@ -1860,7 +1944,8 @@
       ],
       "brandPrimaryHex": "#E11A1E",
       "brandSecondaryHex": "#F6B7B6",
-      "_v2New": true
+      "_v2New": true,
+      "googlePlaceId": "ChIJzc9ItgR6gEAR1SPq1XdJTDk"
     },
     {
       "id": "gumushane_uni",
@@ -1883,7 +1968,8 @@
       ],
       "brandPrimaryHex": "#D0092C",
       "brandSecondaryHex": "#95061F",
-      "_v2New": true
+      "_v2New": true,
+      "googlePlaceId": "ChIJFwOr-ygaZUARp6z3z2He37o"
     },
     {
       "id": "mku",
@@ -1905,7 +1991,8 @@
       ],
       "brandPrimaryHex": "#99161B",
       "brandSecondaryHex": "#D89A59",
-      "_v2New": true
+      "_v2New": true,
+      "googlePlaceId": "ChIJKcPsmT3CJRURZw2Ywy-GQp8"
     },
     {
       "id": "amasya_uni",
@@ -1927,7 +2014,8 @@
       ],
       "brandPrimaryHex": "#E42317",
       "brandSecondaryHex": "#099844",
-      "_v2New": true
+      "_v2New": true,
+      "googlePlaceId": "ChIJ27H8YWduh0ARre-hOQ0d2pU"
     },
     {
       "id": "nku",
@@ -1949,7 +2037,8 @@
       ],
       "brandPrimaryHex": "#000EA0",
       "brandSecondaryHex": "#000A73",
-      "_v2New": true
+      "_v2New": true,
+      "googlePlaceId": "ChIJqZN9uf30tBQRvap5QbTO9Ac"
     },
     {
       "id": "bingol_uni",
@@ -1972,7 +2061,8 @@
       ],
       "brandPrimaryHex": "#93CAEC",
       "brandSecondaryHex": "#F2823E",
-      "_v2New": true
+      "_v2New": true,
+      "googlePlaceId": "ChIJW8BvNdzPc0ARsJP1cDg3KAE"
     },
     {
       "id": "ebyu",
@@ -1994,7 +2084,8 @@
       ],
       "brandPrimaryHex": "#273970",
       "brandSecondaryHex": "#9A8245",
-      "_v2New": true
+      "_v2New": true,
+      "googlePlaceId": "ChIJf2CGmdkMcEARXi5rlsj8RlA"
     },
     {
       "id": "duzce_uni",
@@ -2017,7 +2108,8 @@
       ],
       "brandPrimaryHex": "#003B74",
       "brandSecondaryHex": "#002A53",
-      "_v2New": true
+      "_v2New": true,
+      "googlePlaceId": "ChIJk4bJYdugnUARbR74ImQaQus"
     },
     {
       "id": "kku",
@@ -2040,7 +2132,8 @@
       ],
       "brandPrimaryHex": "#2168B2",
       "brandSecondaryHex": "#ED2129",
-      "_v2New": true
+      "_v2New": true,
+      "googlePlaceId": "ChIJeUlhavXggUARTN-Or86EvfU"
     },
     {
       "id": "adiyaman_uni",
@@ -2063,7 +2156,8 @@
       ],
       "brandPrimaryHex": "#0072B6",
       "brandSecondaryHex": "#005283",
-      "_v2New": true
+      "_v2New": true,
+      "googlePlaceId": "ChIJgRK1I4cRMxURHMvR27Gm4O4"
     },
     {
       "id": "isubu",
@@ -2085,7 +2179,8 @@
       ],
       "brandPrimaryHex": "#22499A",
       "brandSecondaryHex": "#6AC9C9",
-      "_v2New": true
+      "_v2New": true,
+      "googlePlaceId": "ChIJn_RW1Vm3xRQRQ7AmRyq3liM"
     },
     {
       "id": "erbakan",
@@ -2108,7 +2203,8 @@
       ],
       "brandPrimaryHex": "#305A8B",
       "brandSecondaryHex": "#224064",
-      "_v2New": true
+      "_v2New": true,
+      "googlePlaceId": "ChIJNxR7UqSF0BQRKoUxBApJ1WM"
     },
     {
       "id": "klu",
@@ -2131,7 +2227,8 @@
       ],
       "brandPrimaryHex": "#0E437B",
       "brandSecondaryHex": "#0A3058",
-      "_v2New": true
+      "_v2New": true,
+      "googlePlaceId": "ChIJ_6ACnGpTp0ARryBiYnvWj70"
     },
     {
       "id": "artuklu",
@@ -2154,7 +2251,8 @@
       ],
       "brandPrimaryHex": "#901860",
       "brandSecondaryHex": "#671145",
-      "_v2New": true
+      "_v2New": true,
+      "googlePlaceId": "ChIJr9j5dhiPCkAR5rRV_c8Kx6s"
     },
     {
       "id": "kafkas",
@@ -2177,7 +2275,8 @@
       ],
       "brandPrimaryHex": "#00B3C1",
       "brandSecondaryHex": "#174395",
-      "_v2New": true
+      "_v2New": true,
+      "googlePlaceId": "ChIJJ_zQ2t-OaUARa7Eshfj4ARo"
     },
     {
       "id": "subu",
@@ -2199,7 +2298,8 @@
       ],
       "brandPrimaryHex": "#003BAB",
       "brandSecondaryHex": "#009F4E",
-      "_v2New": true
+      "_v2New": true,
+      "googlePlaceId": "ChIJA2B4BUGtzBQRyyirWT9Rs4k"
     },
     {
       "id": "ohu",
@@ -2221,7 +2321,8 @@
       ],
       "brandPrimaryHex": "#0091A7",
       "brandSecondaryHex": "#006878",
-      "_v2New": true
+      "_v2New": true,
+      "googlePlaceId": "ChIJXeFaurDdKRUR_FOYzConwM8"
     },
     {
       "id": "bitlis_eren",
@@ -2244,7 +2345,8 @@
       ],
       "brandPrimaryHex": "#0BAFC7",
       "brandSecondaryHex": "#077E8F",
-      "_v2New": true
+      "_v2New": true,
+      "googlePlaceId": "ChIJvW-z_946DUAR7jHPGyAB0EM"
     },
     {
       "id": "kaeu",
@@ -2266,7 +2368,8 @@
       ],
       "brandPrimaryHex": "#004FA1",
       "brandSecondaryHex": "#56AF27",
-      "_v2New": true
+      "_v2New": true,
+      "googlePlaceId": "ChIJkSJ7-tJy1RQRcs0AVzgUW38"
     },
     {
       "id": "aksaray_uni",
@@ -2289,7 +2392,8 @@
       ],
       "brandPrimaryHex": "#167DBC",
       "brandSecondaryHex": "#0F5A87",
-      "_v2New": true
+      "_v2New": true,
+      "googlePlaceId": "ChIJ72ENK_hv1hQR8Qi9fLcoVT4"
     },
     {
       "id": "acu",
@@ -2312,7 +2416,8 @@
       ],
       "brandPrimaryHex": "#1F793B",
       "brandSecondaryHex": "#16572A",
-      "_v2New": true
+      "_v2New": true,
+      "googlePlaceId": "ChIJafTSYUd2aEARDhJnVD9WAbw"
     }
   ]
 }
