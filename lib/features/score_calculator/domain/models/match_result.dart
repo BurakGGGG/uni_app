@@ -8,6 +8,12 @@ enum MatchCategory {
   dream,      // 🔴 Hayal — henüz yetmiyor ama yakınsın
 }
 
+/// Eşleşmenin hangi sinyale göre kategorize edildiği (rozet metni için).
+enum MatchBasis {
+  score, // taban puanı farkı
+  rank,  // başarı sıralaması marjı
+}
+
 /// Tek bir üniversite-bölüm eşleşmesi
 class UniversityMatch {
   final DepartmentModel department;
@@ -17,6 +23,9 @@ class UniversityMatch {
   final int? departmentRanking;
   final double scoreDifference; // pozitif = senin puanın yüksek
 
+  /// Kategori hangi sinyalden çıktı (rozet metni ve sıralama için).
+  final MatchBasis matchBasis;
+
   const UniversityMatch({
     required this.department,
     required this.university,
@@ -24,6 +33,7 @@ class UniversityMatch {
     required this.departmentBaseScore,
     this.departmentRanking,
     required this.scoreDifference,
+    this.matchBasis = MatchBasis.score,
   });
 }
 

@@ -10,6 +10,9 @@ import '../providers/score_calculator_providers.dart';
 import '../widgets/university_match_card.dart';
 import '../../../admin/data/analytics_service.dart';
 import '../../../admin/domain/models/analytics_event.dart';
+import '../../../preference_wizard/domain/models/student_score_profile.dart';
+import '../../../preference_wizard/presentation/providers/preference_wizard_providers.dart';
+import '../../domain/models/match_result.dart';
 
 
 class ScoreResultScreen extends ConsumerWidget {
@@ -241,8 +244,11 @@ class ScoreResultScreen extends ConsumerWidget {
                           color: const Color(0xFFEF4444),
                         ),
                         ...result.dream.map((m) => UniversityMatchCard(match: m)),
-                        const SizedBox(height: 32),
+                        const SizedBox(height: 16),
                       ],
+
+                      _WizardTransferCta(result: result),
+                      const SizedBox(height: 32),
                     ],
                   ),
                 )
@@ -281,6 +287,79 @@ class ScoreResultScreen extends ConsumerWidget {
               style: TextStyle(
                 color: AppColors.primary,
                 fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _WizardTransferCta extends ConsumerWidget {
+  final CalculationResult result;
+  const _WizardTransferCta({required this.result});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.secondary.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.secondary.withValues(alpha: 0.25)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.smart_toy_rounded,
+                  color: AppColors.secondary, size: 24),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  'Bu puanla tüm bölümleri gör',
+                  style: AppTextStyles.titleSmall
+                      .copyWith(fontWeight: FontWeight.w800),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Text(
+            'Tercih Robotu bu puanı kullanarak tüm alanlarda Garanti / Hedef / '
+            'Riskli programları listeler ve tercih listeni kurmana yardım eder.',
+            style: AppTextStyles.bodySmall.copyWith(
+              color: AppColors.textSecondaryFor(context),
+              height: 1.4,
+            ),
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            height: 46,
+            child: FilledButton.icon(
+              onPressed: () async {
+                await ref.read(studentScoreProfileProvider.notifier).save(
+                      StudentScoreProfile(
+                        scoreType: result.scoreType,
+                        placementScore: result.calculatedScore,
+                        year: 2025,
+                        updatedAt: DateTime.now(),
+                      ),
+                    );
+                if (context.mounted) {
+                  context.push('/preference-wizard/results');
+                }
+              },
+              icon: const Icon(Icons.arrow_forward_rounded, size: 18),
+              label: const Text('Tercih robotuna aktar'),
+              style: FilledButton.styleFrom(
+                backgroundColor: AppColors.secondary,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
             ),
           ),

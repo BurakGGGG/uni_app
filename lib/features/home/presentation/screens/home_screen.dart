@@ -190,6 +190,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               ),
             ),
 
+            // ─── Tercih Robotu Banner ───────────────────────────────
+            const SliverToBoxAdapter(
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(20, 0, 20, 8),
+                child: _WizardBanner(),
+              ),
+            ),
+
             // ─── Popüler Üniversiteler ──────────────────────────────
             SliverToBoxAdapter(
               child: Column(
@@ -382,6 +390,75 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 }
 
 // ─── Widget Components ──────────────────────────────────────────────
+
+class _WizardBanner extends StatelessWidget {
+  const _WizardBanner();
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      borderRadius: BorderRadius.circular(18),
+      child: InkWell(
+        onTap: () => context.push('/preference-wizard'),
+        borderRadius: BorderRadius.circular(18),
+        child: Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: AppColors.secondary.withValues(alpha: 0.08),
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(
+              color: AppColors.secondary.withValues(alpha: 0.25),
+            ),
+          ),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: AppColors.secondary.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(
+                  Icons.smart_toy_rounded,
+                  color: AppColors.secondary,
+                  size: 24,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Tercih Robotu',
+                      style: AppTextStyles.titleSmall.copyWith(
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      'Puanına uygun programları bul, listeni kur',
+                      style: AppTextStyles.labelSmall.copyWith(
+                        color: AppColors.textSecondaryFor(context),
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+              Icon(
+                Icons.chevron_right_rounded,
+                color: AppColors.textTertiaryFor(context),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
 
 class _HeroBanner extends StatelessWidget {
   const _HeroBanner();

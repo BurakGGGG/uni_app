@@ -27,12 +27,14 @@ import '../../../places/presentation/widgets/place_card.dart';
 import '../../../google_reviews/presentation/widgets/google_reviews_section.dart';
 
 import '../../domain/models/department_model.dart';
+import '../../../preference_wizard/presentation/widgets/feasibility_chip.dart';
 
 import '../widgets/uni_hero.dart';
 import '../widgets/uni_info_strip.dart';
 import '../widgets/uni_section.dart';
 import '../../../admin/data/analytics_service.dart';
 import '../../../admin/presentation/widgets/analytics_once_tracker.dart';
+import '../../../../services/engagement_service.dart';
 import '../../../../core/utils/responsive.dart';
 
 class UniversityDetailScreen extends ConsumerWidget {
@@ -404,6 +406,8 @@ class _DepartmentsPreview extends StatelessWidget {
                             ),
                           ),
                         ),
+                        FeasibilityChip.forDepartment(d, compact: true),
+                        const SizedBox(width: 8),
                         Icon(
                           Icons.arrow_forward_ios_rounded,
                           size: 14,

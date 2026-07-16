@@ -11,6 +11,7 @@ import '../../../university/domain/models/university_model.dart';
 import '../../../university/domain/models/department_model.dart';
 import '../../../university/presentation/widgets/score_badge.dart';
 import '../../domain/models/preference_list_model.dart';
+import '../../domain/preference_item_builder.dart';
 
 class DepartmentPickerSheet {
   static Future<PreferenceItem?> show(BuildContext context) {
@@ -427,34 +428,13 @@ class _DeptList extends ConsumerWidget {
             dept: filtered[i],
             onTap: () => Navigator.pop(
               context,
-              _buildPreferenceItem(uni, filtered[i]),
+              buildPreferenceItem(uni, filtered[i]),
             ),
           ),
         );
       },
     );
   }
-}
-
-PreferenceItem _buildPreferenceItem(UniversityModel uni, DepartmentModel dept) {
-  final score = dept.scoreData;
-  return PreferenceItem(
-    deptId: dept.id,
-    uniId: uni.id,
-    order: 0,
-    deptName: dept.name,
-    uniName: uni.name,
-    uniLogoUrl: uni.logoAssetPath,
-    faculty: dept.faculty,
-    deptType: dept.type,
-    language: dept.language,
-    scoreType: score?.scoreType ?? dept.scoreType,
-    baseScore: score?.baseScore ?? dept.baseScore,
-    ranking: score?.ranking ?? dept.ranking,
-    quota: score?.quota ?? dept.quota,
-    placedCount: score?.placedCount,
-    uniBrandHex: uni.brandPrimaryHex,
-  );
 }
 
 class _DeptCard extends StatelessWidget {

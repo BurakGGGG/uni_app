@@ -191,5 +191,26 @@ extension DepartmentScoreFallback on DepartmentModel {
 
   /// scoreType (legacy) veya scoreData.scoreType
   String? get effectiveScoreType => scoreType ?? scoreData?.scoreType;
+
+  /// Eşleştirme için referans başarı sıralaması: "en güncel mevcut (>0)" sıralama.
+  ///
+  /// 2025 verisinde `ranking` çoğunlukla 0 olduğundan, sıfırsa `previousYears`'ın
+  /// en büyük yılından başlayarak ilk `ranking > 0` değerine düşer. Hiçbiri yoksa
+  /// legacy `ranking` alanına bakar, o da yoksa null döner.
+  int? get rankingForMatching {
+    final sd = scoreData;
+    if (sd != null) {
+      if (sd.ranking > 0) return sd.ranking;
+      final years = sd.previousYears.keys.toList()
+        ..sort((a, b) => b.compareTo(a));
+      for (final y in years) {
+        final r = sd.previousYears[y]!.ranking;
+        if (r > 0) return r;
+      }
+    }
+    final legacy = ranking;
+    if (legacy != null && legacy > 0) return legacy;
+    return null;
+  }
 }
 
