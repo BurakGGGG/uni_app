@@ -7,8 +7,11 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../../score_calculator/domain/models/match_result.dart';
 import '../../../university/domain/models/department_model.dart';
 import '../../../university/presentation/widgets/score_badge.dart';
+import '../../domain/similar_programs.dart';
+import '../providers/preference_wizard_providers.dart';
 import 'add_to_list_sheet.dart';
 import 'feasibility_chip.dart';
+import 'similar_programs_sheet.dart';
 
 /// Tercih robotu öneri kartı — üni logosu/marka, bölüm, taban/sıralama/kontenjan
 /// mini-stat, uygunluk rozeti ve "+ Listeye ekle".
@@ -25,6 +28,13 @@ class WizardRecommendationCard extends ConsumerWidget {
     final quota = dept.scoreData?.quota ?? dept.quota;
     final placed = dept.scoreData?.placedCount;
     final scoreType = dept.effectiveScoreType;
+    final desc = dept.description?.trim() ?? '';
+    final isScholarship = desc.contains('Burslu');
+    // "(Burslu)" çip olarak gösterildiğinden metinden çıkar.
+    final descText = desc.replaceAll('(Burslu)', '').trim();
+    final trendDelta = dept.scoreData?.yearOverYearDelta;
+    final notFilled =
+        placed != null && quota != null && quota > 0 && placed < quota;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
@@ -79,6 +89,48 @@ class WizardRecommendationCard extends ConsumerWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
+                    if (isScholarship || descText.isNotEmpty) ...[
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          if (isScholarship)
+                            Container(
+                              margin: const EdgeInsets.only(right: 6),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 6, vertical: 2),
+                              decoration: BoxDecoration(
+                                color:
+                                    AppColors.warning.withValues(alpha: 0.14),
+                                borderRadius: BorderRadius.circular(6),
+                                border: Border.all(
+                                  color:
+                                      AppColors.warning.withValues(alpha: 0.4),
+                                ),
+                              ),
+                              child: Text(
+                                'Burslu',
+                                style: AppTextStyles.labelSmall.copyWith(
+                                  color: AppColors.warning,
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 10,
+                                ),
+                              ),
+                            ),
+                          if (descText.isNotEmpty)
+                            Flexible(
+                              child: Text(
+                                descText,
+                                style: AppTextStyles.labelSmall.copyWith(
+                                  color: AppColors.textTertiaryFor(context),
+                                  fontSize: 10.5,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                        ],
+                      ),
+                    ],
                   ],
                 ),
               ),
@@ -97,6 +149,26 @@ class WizardRecommendationCard extends ConsumerWidget {
                 value: match.departmentBaseScore.toStringAsFixed(1),
                 color: AppColors.primary,
               ),
+              // Geçen yıla göre taban trendi: yükselen taban = zorlaşıyor.
+              if (trendDelta != null && trendDelta.abs() >= 1)
+                Padding(
+                  padding: const EdgeInsets.only(left: 3),
+                  child: Tooltip(
+                    message: '${dept.scoreData!.year - 1}→'
+                        '${dept.scoreData!.year}: '
+                        '${trendDelta > 0 ? '+' : ''}'
+                        '${trendDelta.toStringAsFixed(1)} puan',
+                    child: Icon(
+                      trendDelta > 0
+                          ? Icons.north_east_rounded
+                          : Icons.south_east_rounded,
+                      size: 13,
+                      color: trendDelta > 0
+                          ? AppColors.error
+                          : AppColors.success,
+                    ),
+                  ),
+                ),
               if (ranking != null && ranking > 0) ...[
                 const SizedBox(width: 10),
                 FeasibilityMiniStat(
@@ -117,6 +189,26 @@ class WizardRecommendationCard extends ConsumerWidget {
               ],
             ],
           ),
+          if (notFilled) ...[
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                const Icon(Icons.event_seat_rounded,
+                    size: 13, color: AppColors.info),
+                const SizedBox(width: 5),
+                Expanded(
+                  child: Text(
+                    'Geçen yıl kontenjan boş kaldı ($placed/$quota yerleşti)',
+                    style: AppTextStyles.labelSmall.copyWith(
+                      color: AppColors.info,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 11,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
           const SizedBox(height: 12),
           Row(
             children: [
@@ -154,9 +246,44 @@ class WizardRecommendationCard extends ConsumerWidget {
               ),
             ],
           ),
+          if (match.category == MatchCategory.dream)
+            Align(
+              alignment: Alignment.centerLeft,
+              child: TextButton.icon(
+                onPressed: () => _showSimilar(context, ref),
+                icon: const Icon(Icons.alt_route_rounded, size: 15),
+                label: const Text('Benzer ama ulaşılabilir programlar'),
+                style: TextButton.styleFrom(
+                  foregroundColor: AppColors.primary,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  minimumSize: Size.zero,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  textStyle: AppTextStyles.labelSmall
+                      .copyWith(fontWeight: FontWeight.w700),
+                ),
+              ),
+            ),
         ],
       ),
     );
+  }
+
+  /// Alternatifler dokunuşta hesaplanır — her kart build'inde tüm eşleşme
+  /// listesini taramamak için.
+  void _showSimilar(BuildContext context, WidgetRef ref) {
+    final result = ref.read(preferenceMatchResultProvider).valueOrNull;
+    final picks =
+        result == null ? const <UniversityMatch>[] : similarReachable(match, result);
+    if (picks.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Bu programa yakın ulaşılabilir alternatif bulunamadı'),
+        ),
+      );
+      return;
+    }
+    showSimilarProgramsSheet(context, match, picks);
   }
 
   static String _formatRank(int rank) {

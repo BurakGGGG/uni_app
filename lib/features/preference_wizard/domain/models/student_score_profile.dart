@@ -34,6 +34,10 @@ class StudentScoreProfile {
 
   bool get hasRank => rank != null && rank! > 0;
 
+  /// Puan girilmemiş (sadece sıralamayla giriş) profillerde false —
+  /// bu durumda eşleştirme yalnızca sıralama-bazlı çalışır.
+  bool get hasScore => placementScore > 0;
+
   StudentScoreProfile copyWith({
     String? scoreType,
     double? placementScore,

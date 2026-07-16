@@ -5,6 +5,7 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../../../l10n/generated/app_localizations.dart';
 import '../../../university/presentation/widgets/score_badge.dart';
 import '../../../preference_wizard/presentation/widgets/feasibility_chip.dart';
+import '../../../preference_wizard/presentation/widgets/list_health_panel.dart';
 import '../providers/preference_list_providers.dart';
 import '../../domain/models/preference_list_model.dart';
 import '../widgets/share_list_sheet.dart';
@@ -337,6 +338,8 @@ class _ListEditScreenState extends ConsumerState<ListEditScreen> {
                 ],
                 const SizedBox(height: 14),
                 _ListSummaryCard(list: list.copyWith(items: items)),
+                const SizedBox(height: 12),
+                ListHealthPanel(items: items),
               ],
             ),
           ),

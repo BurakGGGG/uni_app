@@ -38,7 +38,9 @@ class _PreferenceWizardScreenState
     final existing = ref.read(studentScoreProfileProvider);
     if (existing != null) {
       _scoreType = existing.scoreType;
-      _scoreCtrl.text = existing.placementScore.toStringAsFixed(2);
+      if (existing.hasScore) {
+        _scoreCtrl.text = existing.placementScore.toStringAsFixed(2);
+      }
       if (existing.hasRank) _rankCtrl.text = existing.rank.toString();
     }
   }
@@ -51,23 +53,29 @@ class _PreferenceWizardScreenState
   }
 
   Future<void> _saveAndSeeResults() async {
-    final score =
-        double.tryParse(_scoreCtrl.text.trim().replaceAll(',', '.'));
+    final scoreText = _scoreCtrl.text.trim();
+    final score = double.tryParse(scoreText.replaceAll(',', '.'));
+    final rank = int.tryParse(_rankCtrl.text.trim().replaceAll('.', ''));
+    final hasRank = rank != null && rank > 0;
+
     if (_scoreType.isEmpty) {
       setState(() => _error = 'Puan türünü seç');
       return;
     }
-    if (score == null || score <= 0) {
+    if (scoreText.isNotEmpty && (score == null || score <= 0)) {
       setState(() => _error = 'Geçerli bir yerleştirme puanı gir');
       return;
     }
-    final rank = int.tryParse(_rankCtrl.text.trim().replaceAll('.', ''));
+    if ((score == null || score <= 0) && !hasRank) {
+      setState(() => _error = 'Puan veya sıralamadan en az birini gir');
+      return;
+    }
 
     final profile = StudentScoreProfile(
       scoreType: _scoreType,
-      placementScore: score,
-      rank: (rank != null && rank > 0) ? rank : null,
-      year: 2025,
+      placementScore: (score != null && score > 0) ? score : 0,
+      rank: hasRank ? rank : null,
+      year: DateTime.now().year,
       updatedAt: DateTime.now(),
     );
     await ref.read(studentScoreProfileProvider.notifier).save(profile);
@@ -145,14 +153,15 @@ class _PreferenceWizardScreenState
               const SizedBox(height: 14),
               _NumberField(
                 controller: _rankCtrl,
-                label: 'Başarı sıralaman (opsiyonel)',
+                label: 'Başarı sıralaman',
                 hint: 'Örn. 45000',
                 allowDecimal: false,
+                onChanged: (_) => setState(() => _error = null),
               ),
               const SizedBox(height: 6),
               Text(
-                'Sıralama girersen eşleştirme sıralama-öncelikli yapılır; boş '
-                'bırakırsan yalnızca puanla eşleştirilir.',
+                'Puan veya sıralamadan birini girmen yeterli. Sıralama '
+                'girersen eşleştirme sıralama-öncelikli yapılır.',
                 style: AppTextStyles.labelSmall.copyWith(
                   color: AppColors.textTertiaryFor(context),
                   height: 1.4,

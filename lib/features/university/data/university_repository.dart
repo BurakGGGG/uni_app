@@ -255,6 +255,7 @@ class UniversityRepository {
         'type': s['type'],
         'language': s['language'],
         'duration': s['duration'],
+        'description': s['description'],
         'baseScore': s['baseScore'],
         'ranking': s['ranking'],
         'quota': s['quota'],

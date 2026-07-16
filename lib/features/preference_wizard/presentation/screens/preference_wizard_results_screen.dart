@@ -289,11 +289,15 @@ class _SummaryHeader extends StatelessWidget {
           ),
           child: Row(
             children: [
-              _Pill(
-                  label: 'Puan',
-                  value: '${score.toStringAsFixed(1)} $scoreType'),
+              // Puansız (sadece sıralamayla) profillerde puan pili gizlenir.
+              if (score > 0)
+                _Pill(
+                    label: 'Puan',
+                    value: '${score.toStringAsFixed(1)} $scoreType')
+              else if (rank != null)
+                _Pill(label: 'Sıralama', value: '${_fmt(rank!)} $scoreType'),
               const SizedBox(width: 10),
-              if (rank != null)
+              if (score > 0 && rank != null)
                 _Pill(label: 'Sıralama', value: _fmt(rank!))
               else
                 _Pill(label: 'Eşleşen', value: '$total program'),

@@ -21,6 +21,7 @@ class WizardFilter {
   final Set<String> uniTypes; // 'Devlet' / 'Vakıf'
   final Set<String> languages; // 'Türkçe' / 'İngilizce'
   final Set<String> programTypes; // 'Lisans' / 'Önlisans'
+  final bool onlyScholarship; // description'ında "Burslu" geçen programlar
   final String deptQuery; // serbest metin bölüm/fakülte arama
   final WizardSort sort;
 
@@ -29,6 +30,7 @@ class WizardFilter {
     this.uniTypes = const {},
     this.languages = const {},
     this.programTypes = const {},
+    this.onlyScholarship = false,
     this.deptQuery = '',
     this.sort = WizardSort.fit,
   });
@@ -38,6 +40,7 @@ class WizardFilter {
       uniTypes.isNotEmpty ||
       languages.isNotEmpty ||
       programTypes.isNotEmpty ||
+      onlyScholarship ||
       deptQuery.trim().isNotEmpty;
 
   int get activeFilterCount =>
@@ -45,6 +48,7 @@ class WizardFilter {
       uniTypes.length +
       languages.length +
       programTypes.length +
+      (onlyScholarship ? 1 : 0) +
       (deptQuery.trim().isEmpty ? 0 : 1);
 
   WizardFilter copyWith({
@@ -52,6 +56,7 @@ class WizardFilter {
     Set<String>? uniTypes,
     Set<String>? languages,
     Set<String>? programTypes,
+    bool? onlyScholarship,
     String? deptQuery,
     WizardSort? sort,
   }) {
@@ -60,6 +65,7 @@ class WizardFilter {
       uniTypes: uniTypes ?? this.uniTypes,
       languages: languages ?? this.languages,
       programTypes: programTypes ?? this.programTypes,
+      onlyScholarship: onlyScholarship ?? this.onlyScholarship,
       deptQuery: deptQuery ?? this.deptQuery,
       sort: sort ?? this.sort,
     );

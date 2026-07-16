@@ -37,8 +37,10 @@ MatchCategory categorizeByRank(int studentRank, int programRank) {
 /// Bir program için öğrenci profiline göre kategori + hangi sinyale dayandığı.
 ///
 /// Rank varsa ve programın kullanılabilir referans sıralaması varsa sıralama
-/// birincildir; değilse taban puanına düşer.
-({MatchCategory category, MatchBasis basis}) categorizeDepartment(
+/// birincildir; değilse taban puanına düşer. Profil puansızsa (sadece
+/// sıralamayla giriş) ve programın referans sıralaması da yoksa kategori
+/// verilemez — null döner, çağıran programı atlar.
+({MatchCategory category, MatchBasis basis})? categorizeDepartment(
   StudentScoreProfile profile,
   DepartmentModel dept,
 ) {
@@ -49,6 +51,7 @@ MatchCategory categorizeByRank(int studentRank, int programRank) {
       basis: MatchBasis.rank,
     );
   }
+  if (!profile.hasScore) return null;
   return (
     category: categorizeByScore(profile.placementScore, dept.effectiveBaseScore),
     basis: MatchBasis.score,
@@ -135,6 +138,10 @@ class PreferenceMatchEngine {
           !filter.programTypes.contains(dept.type)) {
         continue;
       }
+      if (filter.onlyScholarship &&
+          !(dept.description?.contains('Burslu') ?? false)) {
+        continue;
+      }
       if (query.isNotEmpty &&
           !dept.name.toLowerCase().contains(query) &&
           !dept.faculty.toLowerCase().contains(query)) {
@@ -142,13 +149,15 @@ class PreferenceMatchEngine {
       }
 
       final result = categorizeDepartment(profile, dept);
+      if (result == null) continue; // puansız profil + sıralamasız program
       final match = UniversityMatch(
         department: dept,
         university: uni,
         category: result.category,
         departmentBaseScore: baseScore,
         departmentRanking: dept.rankingForMatching,
-        scoreDifference: profile.placementScore - baseScore,
+        scoreDifference:
+            profile.hasScore ? profile.placementScore - baseScore : 0,
         matchBasis: result.basis,
       );
 
@@ -165,9 +174,9 @@ class PreferenceMatchEngine {
       }
     }
 
-    _sortCategory(guaranteed, filter.sort, isGuaranteed: true);
-    _sortCategory(target, filter.sort, isGuaranteed: false);
-    _sortCategory(dream, filter.sort, isGuaranteed: false);
+    _sortCategory(guaranteed, filter.sort, profile, isGuaranteed: true);
+    _sortCategory(target, filter.sort, profile, isGuaranteed: false);
+    _sortCategory(dream, filter.sort, profile, isGuaranteed: false);
 
     return PreferenceMatchResult(
       guaranteed: guaranteed,
@@ -178,7 +187,8 @@ class PreferenceMatchEngine {
 
   static void _sortCategory(
     List<UniversityMatch> list,
-    WizardSort sort, {
+    WizardSort sort,
+    StudentScoreProfile profile, {
     required bool isGuaranteed,
   }) {
     switch (sort) {
@@ -208,6 +218,14 @@ class PreferenceMatchEngine {
           list.sort(
             (a, b) => b.departmentBaseScore.compareTo(a.departmentBaseScore),
           );
+        } else if (!profile.hasScore && profile.hasRank) {
+          // Puansız profil: öğrencinin sıralamasına en yakın programlar önce.
+          final rank = profile.rank!;
+          int proximity(UniversityMatch m) {
+            final r = m.departmentRanking;
+            return (r != null && r > 0) ? (r - rank).abs() : 1 << 30;
+          }
+          list.sort((a, b) => proximity(a).compareTo(proximity(b)));
         } else {
           // Puana en yakın olanlar önce.
           list.sort(

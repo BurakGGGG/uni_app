@@ -14,6 +14,7 @@ DepartmentModel _fromAssetRecord(Map<String, dynamic> s) {
     'type': s['type'],
     'language': s['language'],
     'duration': s['duration'],
+    'description': s['description'],
     'baseScore': s['baseScore'],
     'ranking': s['ranking'],
     'quota': s['quota'],
@@ -73,6 +74,16 @@ void main() {
     // Eşleştirme motorunun çalışması için verinin büyük kısmı dolu olmalı.
     expect(withBase, greaterThan(7000));
     expect(withRanking, greaterThan(7000));
+  });
+
+  test('Burslu varyantları description üzerinden ayırt edilebiliyor', () {
+    final burslu = scores
+        .where((s) => (s['description'] as String?)?.contains('Burslu') ??
+            false)
+        .toList();
+    expect(burslu.length, greaterThan(500));
+    final dept = _fromAssetRecord(burslu.first);
+    expect(dept.description, contains('Burslu'));
   });
 
   test('previousYears geçmiş sıralamaları parse ediliyor', () {

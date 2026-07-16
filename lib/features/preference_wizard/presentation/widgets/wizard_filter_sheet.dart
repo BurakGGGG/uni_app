@@ -115,6 +115,13 @@ class _Body extends ConsumerWidget {
                         uniTypes: _toggle(filter.uniTypes, t),
                       ),
                     ),
+                  _Choice(
+                    label: 'Sadece burslu',
+                    selected: filter.onlyScholarship,
+                    onTap: () => notifier.state = filter.copyWith(
+                      onlyScholarship: !filter.onlyScholarship,
+                    ),
+                  ),
                 ],
               ),
               const SizedBox(height: 20),

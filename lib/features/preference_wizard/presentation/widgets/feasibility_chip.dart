@@ -58,11 +58,16 @@ class FeasibilityChip extends ConsumerWidget {
     }
 
     final st = scoreType?.toUpperCase();
-    final base = baseScore ?? 0;
-    // Farklı puan türü ya da taban puanı yok — kıyaslanamaz.
-    if (st == null || st != profile.scoreType.toUpperCase() || base <= 0) {
+    // Farklı puan türü — kıyaslanamaz.
+    if (st == null || st != profile.scoreType.toUpperCase()) {
       return const SizedBox.shrink();
     }
+    final base = baseScore ?? 0;
+    final refRank = (ranking != null && ranking! > 0) ? ranking : null;
+    final canUseRank = profile.hasRank && refRank != null;
+    final canUseScore = profile.hasScore && base > 0;
+    // Ne sıralama ne puan sinyali var — kıyaslanamaz.
+    if (!canUseRank && !canUseScore) return const SizedBox.shrink();
 
     if (enforceGate) {
       final tier = ref.watch(subscriptionTierProvider).valueOrNull;
@@ -70,10 +75,9 @@ class FeasibilityChip extends ConsumerWidget {
       if (!hasPlus) return _LockedChip(compact: compact);
     }
 
-    final refRank = (ranking != null && ranking! > 0) ? ranking : null;
     final MatchCategory category;
     final MatchBasis basis;
-    if (profile.hasRank && refRank != null) {
+    if (canUseRank) {
       category = categorizeByRank(profile.rank!, refRank);
       basis = MatchBasis.rank;
     } else {
