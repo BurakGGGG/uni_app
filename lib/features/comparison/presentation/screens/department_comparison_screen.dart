@@ -1320,7 +1320,7 @@ class _RankingYearCard extends StatefulWidget {
 }
 
 class _RankingYearCardState extends State<_RankingYearCard> {
-  int _selectedYear = 2024; // Default 2024 (en son açıklanan)
+  int _selectedYear = 2025; // En son açıklanan yıl
 
   Map<int, int> _getRankings(DepartmentModel dept) {
     final rankings = <int, int>{};

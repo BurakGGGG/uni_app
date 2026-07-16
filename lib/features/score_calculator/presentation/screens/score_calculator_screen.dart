@@ -279,38 +279,6 @@ class _ScoreCalculatorScreenState extends ConsumerState<ScoreCalculatorScreen> {
                           );
                         }).toList(),
                       ),
-                      // 2025 uyarısı
-                      if (input.selectedYear == 2025)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 12),
-                          child: Container(
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: AppColors.warning.withValues(alpha: 0.08),
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(
-                                  color: AppColors.warning.withValues(alpha: 0.3)),
-                            ),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Icon(Icons.info_outline_rounded,
-                                    color: AppColors.warning, size: 20),
-                                const SizedBox(width: 8),
-                                Expanded(
-                                  child: Text(
-                                    '2025 yılı için sıralama verisi henüz mevcut değil. '
-                                    'Sonuçlarda sıralama bilgisi gösterilmeyecektir.',
-                                    style: AppTextStyles.bodySmall.copyWith(
-                                      color: AppColors.warning,
-                                      height: 1.4,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
                     ],
                   ),
                 ),
