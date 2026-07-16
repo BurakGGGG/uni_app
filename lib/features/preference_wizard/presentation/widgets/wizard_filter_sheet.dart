@@ -79,6 +79,7 @@ class _Body extends ConsumerWidget {
               _SectionTitle('Sıralama'),
               Wrap(
                 spacing: 8,
+                runSpacing: 8,
                 children: [
                   _Choice(
                     label: 'Uygunluğa göre',
@@ -91,6 +92,12 @@ class _Body extends ConsumerWidget {
                     selected: filter.sort == WizardSort.baseDesc,
                     onTap: () => notifier.state =
                         filter.copyWith(sort: WizardSort.baseDesc),
+                  ),
+                  _Choice(
+                    label: 'Başarı sıralaması',
+                    selected: filter.sort == WizardSort.rankAsc,
+                    onTap: () => notifier.state =
+                        filter.copyWith(sort: WizardSort.rankAsc),
                   ),
                 ],
               ),

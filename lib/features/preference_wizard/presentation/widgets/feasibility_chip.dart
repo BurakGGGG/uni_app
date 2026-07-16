@@ -121,19 +121,19 @@ class FeasibilityChip extends ConsumerWidget {
     switch (category) {
       case MatchCategory.guaranteed:
         return const _ChipStyle(
-          label: 'Garanti',
+          label: 'Yüksek şans',
           color: AppColors.success,
-          icon: Icons.verified_rounded,
+          icon: Icons.thumb_up_alt_rounded,
         );
       case MatchCategory.target:
         return const _ChipStyle(
-          label: 'Hedef',
+          label: 'Ulaşılabilir',
           color: AppColors.warning,
           icon: Icons.adjust_rounded,
         );
       case MatchCategory.dream:
         return const _ChipStyle(
-          label: 'Riskli',
+          label: 'Zorlayıcı',
           color: AppColors.error,
           icon: Icons.bolt_rounded,
         );

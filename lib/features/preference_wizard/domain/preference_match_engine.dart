@@ -187,9 +187,24 @@ class PreferenceMatchEngine {
           (a, b) => b.departmentBaseScore.compareTo(a.departmentBaseScore),
         );
         break;
+      case WizardSort.rankAsc:
+        // İyi (küçük) sıralama önce; sıralaması olmayan programlar sona.
+        list.sort((a, b) {
+          final ra = a.departmentRanking;
+          final rb = b.departmentRanking;
+          final va = (ra != null && ra > 0) ? ra : null;
+          final vb = (rb != null && rb > 0) ? rb : null;
+          if (va == null && vb == null) {
+            return b.departmentBaseScore.compareTo(a.departmentBaseScore);
+          }
+          if (va == null) return 1;
+          if (vb == null) return -1;
+          return va.compareTo(vb);
+        });
+        break;
       case WizardSort.fit:
         if (isGuaranteed) {
-          // En yüksek tabanlı garantiler önce (en "değerli" güvenli tercihler).
+          // En yüksek tabanlılar önce (en "değerli" güvenli tercihler).
           list.sort(
             (a, b) => b.departmentBaseScore.compareTo(a.departmentBaseScore),
           );

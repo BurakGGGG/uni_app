@@ -31,8 +31,34 @@ class _PreferenceWizardResultsScreenState
     extends ConsumerState<PreferenceWizardResultsScreen> {
   bool _trackedMatch = false;
 
+  /// Seçili kategori sekmesi (null = tümü görünür).
+  MatchCategory? _focus;
+
+  late final TextEditingController _searchCtrl;
+
+  @override
+  void initState() {
+    super.initState();
+    _searchCtrl =
+        TextEditingController(text: ref.read(wizardFilterProvider).deptQuery);
+  }
+
+  @override
+  void dispose() {
+    _searchCtrl.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
+    // Filtreler dışarıdan sıfırlanırsa (sheet'teki "Temizle" / boş-durum
+    // butonu) arama kutusunu da temizle.
+    ref.listen<WizardFilter>(wizardFilterProvider, (_, next) {
+      if (next.deptQuery.isEmpty && _searchCtrl.text.isNotEmpty) {
+        _searchCtrl.clear();
+      }
+    });
+
     final profile = ref.watch(studentScoreProfileProvider);
     final resultAsync = ref.watch(preferenceMatchResultProvider);
     final tier = ref.watch(subscriptionTierProvider).valueOrNull;
@@ -108,30 +134,41 @@ class _PreferenceWizardResultsScreenState
                   total: result.total,
                 ),
               ),
+              SliverToBoxAdapter(child: _SearchField(controller: _searchCtrl)),
               if (result.total == 0)
                 SliverFillRemaining(
                   hasScrollBody: false,
                   child: _EmptyResults(hasFilter: filter.hasAnyFilter),
                 )
               else ...[
-                ..._categorySlivers(
-                  context,
-                  result,
-                  MatchCategory.guaranteed,
-                  hasPlus,
+                SliverToBoxAdapter(
+                  child: _CategoryBar(
+                    result: result,
+                    focus: _focus,
+                    onChanged: (c) => setState(() => _focus = c),
+                  ),
                 ),
-                ..._categorySlivers(
-                  context,
-                  result,
-                  MatchCategory.target,
-                  hasPlus,
-                ),
-                ..._categorySlivers(
-                  context,
-                  result,
-                  MatchCategory.dream,
-                  hasPlus,
-                ),
+                if (_focus == null || _focus == MatchCategory.guaranteed)
+                  ..._categorySlivers(
+                    context,
+                    result,
+                    MatchCategory.guaranteed,
+                    hasPlus,
+                  ),
+                if (_focus == null || _focus == MatchCategory.target)
+                  ..._categorySlivers(
+                    context,
+                    result,
+                    MatchCategory.target,
+                    hasPlus,
+                  ),
+                if (_focus == null || _focus == MatchCategory.dream)
+                  ..._categorySlivers(
+                    context,
+                    result,
+                    MatchCategory.dream,
+                    hasPlus,
+                  ),
                 SliverToBoxAdapter(
                   child: _AutoBuildCta(hasPlus: hasPlus, result: result),
                 ),
@@ -210,11 +247,11 @@ class _PreferenceWizardResultsScreenState
   static _CategoryMeta _categoryMeta(MatchCategory c) {
     switch (c) {
       case MatchCategory.guaranteed:
-        return const _CategoryMeta('🟢 Garanti', AppColors.success);
+        return const _CategoryMeta('🟢 Yüksek şans', AppColors.success);
       case MatchCategory.target:
-        return const _CategoryMeta('🟡 Hedef', AppColors.warning);
+        return const _CategoryMeta('🟡 Ulaşılabilir', AppColors.warning);
       case MatchCategory.dream:
-        return const _CategoryMeta('🔴 Riskli / Şansını dene', AppColors.error);
+        return const _CategoryMeta('🔴 Zorlayıcı', AppColors.error);
     }
   }
 }
@@ -240,25 +277,54 @@ class _SummaryHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.fromLTRB(20, 12, 20, 4),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        gradient: AppColors.heroGradient,
-        borderRadius: BorderRadius.circular(18),
-      ),
-      child: Row(
-        children: [
-          _Pill(label: 'Puan', value: '${score.toStringAsFixed(1)} $scoreType'),
-          const SizedBox(width: 10),
-          if (rank != null)
-            _Pill(label: 'Sıralama', value: _fmt(rank!))
-          else
-            _Pill(label: 'Eşleşen', value: '$total program'),
-          const Spacer(),
-          const Icon(Icons.smart_toy_rounded, color: Colors.white, size: 30),
-        ],
-      ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          margin: const EdgeInsets.fromLTRB(20, 12, 20, 4),
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            gradient: AppColors.heroGradientFor(context),
+            borderRadius: BorderRadius.circular(18),
+          ),
+          child: Row(
+            children: [
+              _Pill(
+                  label: 'Puan',
+                  value: '${score.toStringAsFixed(1)} $scoreType'),
+              const SizedBox(width: 10),
+              if (rank != null)
+                _Pill(label: 'Sıralama', value: _fmt(rank!))
+              else
+                _Pill(label: 'Eşleşen', value: '$total program'),
+              const Spacer(),
+              const Icon(Icons.smart_toy_rounded,
+                  color: Colors.white, size: 30),
+            ],
+          ),
+        ),
+        // Kesinlik iddiası yok — öneriler geçmiş yıl verisine dayalı tahmin.
+        Padding(
+          padding: const EdgeInsets.fromLTRB(24, 6, 24, 0),
+          child: Row(
+            children: [
+              Icon(Icons.info_outline_rounded,
+                  size: 13, color: AppColors.textTertiaryFor(context)),
+              const SizedBox(width: 5),
+              Expanded(
+                child: Text(
+                  'Öneriler geçmiş yıl verilerine dayalı tahmindir, '
+                  'yerleşme garantisi vermez.',
+                  style: AppTextStyles.labelSmall.copyWith(
+                    color: AppColors.textTertiaryFor(context),
+                    fontSize: 10.5,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
@@ -299,6 +365,167 @@ class _Pill extends StatelessWidget {
             style: AppTextStyles.titleSmall
                 .copyWith(color: Colors.white, fontWeight: FontWeight.w800),
           ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Sonuç içinde bölüm/fakülte araması — binlerce kayıt elle gezilmesin.
+/// `wizardFilterProvider.deptQuery`'yi günceller (motor zaten filtreliyor).
+class _SearchField extends ConsumerWidget {
+  final TextEditingController controller;
+  const _SearchField({required this.controller});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    void setQuery(String value) {
+      final notifier = ref.read(wizardFilterProvider.notifier);
+      notifier.state = notifier.state.copyWith(deptQuery: value);
+    }
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+      child: TextField(
+        controller: controller,
+        onChanged: setQuery,
+        textInputAction: TextInputAction.search,
+        style: AppTextStyles.bodyMedium,
+        decoration: InputDecoration(
+          hintText: 'Bölüm veya fakülte ara (örn. Bilgisayar)',
+          hintStyle: AppTextStyles.bodyMedium.copyWith(
+            color: AppColors.textTertiaryFor(context),
+          ),
+          prefixIcon: Icon(
+            Icons.search_rounded,
+            size: 20,
+            color: AppColors.textTertiaryFor(context),
+          ),
+          suffixIcon: controller.text.isEmpty
+              ? null
+              : IconButton(
+                  tooltip: 'Temizle',
+                  icon: Icon(
+                    Icons.close_rounded,
+                    size: 18,
+                    color: AppColors.textTertiaryFor(context),
+                  ),
+                  onPressed: () {
+                    controller.clear();
+                    setQuery('');
+                  },
+                ),
+          isDense: true,
+          filled: true,
+          fillColor:
+              AppColors.surfaceVariantFor(context).withValues(alpha: 0.7),
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(14),
+            borderSide: BorderSide.none,
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(14),
+            borderSide: BorderSide(color: AppColors.borderLightFor(context)),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(14),
+            borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Kategorilere hızlı odaklanma sekmeleri: Yüksek şans / Ulaşılabilir /
+/// Zorlayıcı. Seçiliye tekrar dokununca tümü görünür.
+class _CategoryBar extends StatelessWidget {
+  final PreferenceMatchResult result;
+  final MatchCategory? focus;
+  final ValueChanged<MatchCategory?> onChanged;
+
+  const _CategoryBar({
+    required this.result,
+    required this.focus,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    Widget chip(String label, MatchCategory category, Color color) {
+      final selected = focus == category;
+      final count = result.forCategory(category).length;
+      return Expanded(
+        child: GestureDetector(
+          onTap: () => onChanged(selected ? null : category),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 150),
+            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+            decoration: BoxDecoration(
+              color: selected
+                  ? color.withValues(alpha: 0.14)
+                  : Colors.transparent,
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(
+                color: selected ? color : Colors.transparent,
+              ),
+            ),
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Row(
+                children: [
+                  Container(
+                    width: 8,
+                    height: 8,
+                    decoration:
+                        BoxDecoration(color: color, shape: BoxShape.circle),
+                  ),
+                  const SizedBox(width: 5),
+                  Text(
+                    label,
+                    style: AppTextStyles.labelSmall.copyWith(
+                      color: selected
+                          ? color
+                          : AppColors.textSecondaryFor(context),
+                      fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(width: 3),
+                  Text(
+                    '$count',
+                    style: AppTextStyles.labelSmall.copyWith(
+                      color: selected
+                          ? color
+                          : AppColors.textTertiaryFor(context),
+                      fontWeight: FontWeight.w700,
+                      fontSize: 10,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    return Container(
+      margin: const EdgeInsets.fromLTRB(20, 10, 20, 0),
+      padding: const EdgeInsets.all(4),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceVariantFor(context),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: AppColors.borderLightFor(context)),
+      ),
+      child: Row(
+        children: [
+          chip('Yüksek şans', MatchCategory.guaranteed, AppColors.success),
+          const SizedBox(width: 4),
+          chip('Ulaşılabilir', MatchCategory.target, AppColors.warning),
+          const SizedBox(width: 4),
+          chip('Zorlayıcı', MatchCategory.dream, AppColors.error),
         ],
       ),
     );

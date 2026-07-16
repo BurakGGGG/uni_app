@@ -396,64 +396,127 @@ class _WizardBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: Colors.transparent,
-      borderRadius: BorderRadius.circular(18),
-      child: InkWell(
-        onTap: () => context.push('/preference-wizard'),
-        borderRadius: BorderRadius.circular(18),
-        child: Container(
-          padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(
-            color: AppColors.secondary.withValues(alpha: 0.08),
-            borderRadius: BorderRadius.circular(18),
-            border: Border.all(
-              color: AppColors.secondary.withValues(alpha: 0.25),
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return GestureDetector(
+      onTap: () => context.push('/preference-wizard'),
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: AppColors.secondaryGradientFor(context),
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.secondary
+                  .withValues(alpha: isDark ? 0.15 : 0.28),
+              blurRadius: 18,
+              offset: const Offset(0, 6),
             ),
-          ),
-          child: Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(10),
+          ],
+        ),
+        clipBehavior: Clip.hardEdge,
+        child: Stack(
+          children: [
+            // Hero ile aynı dil: köşe parıltıları
+            Positioned(
+              right: -30,
+              top: -30,
+              child: Container(
+                width: 110,
+                height: 110,
                 decoration: BoxDecoration(
-                  color: AppColors.secondary.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Icon(
-                  Icons.smart_toy_rounded,
-                  color: AppColors.secondary,
-                  size: 24,
+                  shape: BoxShape.circle,
+                  color: Colors.white.withValues(alpha: 0.12),
                 ),
               ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Tercih Robotu',
-                      style: AppTextStyles.titleSmall.copyWith(
-                        fontWeight: FontWeight.w800,
-                      ),
+            ),
+            Positioned(
+              left: -20,
+              bottom: -40,
+              child: Container(
+                width: 90,
+                height: 90,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.white.withValues(alpha: 0.08),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(11),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.18),
+                      shape: BoxShape.circle,
                     ),
-                    const SizedBox(height: 2),
-                    Text(
-                      'Puanına uygun programları bul, listeni kur',
-                      style: AppTextStyles.labelSmall.copyWith(
-                        color: AppColors.textSecondaryFor(context),
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                    child: const Icon(
+                      Icons.smart_toy_rounded,
+                      color: Colors.white,
+                      size: 26,
                     ),
-                  ],
-                ),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 2,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.2),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            '2026 TERCİH DÖNEMİ',
+                            style: AppTextStyles.labelSmall.copyWith(
+                              color: Colors.white,
+                              fontSize: 9,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: 0.6,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 5),
+                        Text(
+                          'Tercih Robotu',
+                          style: AppTextStyles.titleMedium.copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          'Puanına uygun programları bul, listeni kur',
+                          style: AppTextStyles.labelSmall.copyWith(
+                            color: Colors.white.withValues(alpha: 0.9),
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.18),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.arrow_forward_rounded,
+                      color: Colors.white,
+                      size: 18,
+                    ),
+                  ),
+                ],
               ),
-              Icon(
-                Icons.chevron_right_rounded,
-                color: AppColors.textTertiaryFor(context),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

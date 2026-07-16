@@ -1,10 +1,15 @@
 /// Tercih robotu sonuç sıralama seçeneği.
 enum WizardSort {
-  /// Uygunluğa göre (kategori içi: garantiler taban desc, diğerleri puana yakınlık).
+  /// Uygunluğa göre (kategori içi: yüksek şanslılar taban desc, diğerleri
+  /// puana yakınlık).
   fit,
 
   /// Taban puanına göre azalan.
   baseDesc,
+
+  /// Başarı sıralamasına göre artan (iyi sıralama önce; sıralaması olmayanlar
+  /// sona).
+  rankAsc,
 }
 
 /// Tercih robotu filtreleri. Tümü opsiyonel; boş küme = filtre yok.

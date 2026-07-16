@@ -368,6 +368,19 @@ class AppColors {
         : heroGradient;
   }
 
+  /// Tema duyarlı secondary gradient.
+  /// Açık temada canlı pembe; karanlık temada derin gül→ahududu (beyaz metinle
+  /// yüksek kontrast, dark surface'i boğmayan doygunluk).
+  static LinearGradient secondaryGradientFor(BuildContext context) {
+    return Theme.of(context).brightness == Brightness.dark
+        ? const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [Color(0xFF4A1B2B), Color(0xFF7E2F4C)],
+          )
+        : secondaryGradient;
+  }
+
   /// Tema duyarlı kart gradient
   static LinearGradient cardGradientFor(BuildContext context) {
     return Theme.of(context).brightness == Brightness.dark

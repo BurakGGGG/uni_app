@@ -222,7 +222,7 @@ class ScoreResultScreen extends ConsumerWidget {
 
                       if (result.guaranteed.isNotEmpty) ...[
                         _CategoryHeader(
-                          title: '🟢 Rahat Yerleşirsin',
+                          title: '🟢 Yüksek şans',
                           color: const Color(0xFF10B981),
                         ),
                         ...result.guaranteed.map((m) => UniversityMatchCard(match: m)),
@@ -231,7 +231,7 @@ class ScoreResultScreen extends ConsumerWidget {
 
                       if (result.target.isNotEmpty) ...[
                         _CategoryHeader(
-                          title: '🟡 Sınırda (Hedef)',
+                          title: '🟡 Ulaşılabilir',
                           color: const Color(0xFFF59E0B),
                         ),
                         ...result.target.map((m) => UniversityMatchCard(match: m)),
@@ -240,7 +240,7 @@ class ScoreResultScreen extends ConsumerWidget {
 
                       if (result.dream.isNotEmpty) ...[
                         _CategoryHeader(
-                          title: '🔴 Zorlayabilir',
+                          title: '🔴 Zorlayıcı',
                           color: const Color(0xFFEF4444),
                         ),
                         ...result.dream.map((m) => UniversityMatchCard(match: m)),
@@ -328,8 +328,8 @@ class _WizardTransferCta extends ConsumerWidget {
           ),
           const SizedBox(height: 6),
           Text(
-            'Tercih Robotu bu puanı kullanarak tüm alanlarda Garanti / Hedef / '
-            'Riskli programları listeler ve tercih listeni kurmana yardım eder.',
+            'Tercih Robotu bu puanı kullanarak tüm alanlardaki programları '
+            'şans durumuna göre listeler ve tercih listeni kurmana yardım eder.',
             style: AppTextStyles.bodySmall.copyWith(
               color: AppColors.textSecondaryFor(context),
               height: 1.4,

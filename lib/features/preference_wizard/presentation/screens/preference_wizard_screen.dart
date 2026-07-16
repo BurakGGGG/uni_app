@@ -115,7 +115,13 @@ class _PreferenceWizardScreenState
                         _scoreType = t;
                         _error = null;
                       }),
+                      backgroundColor: AppColors.surfaceVariantFor(context),
                       selectedColor: AppColors.primary.withValues(alpha: 0.15),
+                      side: BorderSide(
+                        color: _scoreType == t
+                            ? AppColors.primary
+                            : AppColors.borderLightFor(context),
+                      ),
                       labelStyle: TextStyle(
                         color: _scoreType == t
                             ? AppColors.primary
@@ -213,7 +219,7 @@ class _Header extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        gradient: AppColors.heroGradient,
+        gradient: AppColors.heroGradientFor(context),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Row(
@@ -233,8 +239,8 @@ class _Header extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Puanını gir, tüm alanlarda Garanti / Hedef / Riskli '
-                  'programları gör ve tek dokunuşla listene ekle.',
+                  'Puanını gir, sana uygun programları şans durumuna göre '
+                  'gruplu gör ve tek dokunuşla listene ekle.',
                   style: AppTextStyles.labelSmall.copyWith(
                     color: Colors.white.withValues(alpha: 0.9),
                     height: 1.4,

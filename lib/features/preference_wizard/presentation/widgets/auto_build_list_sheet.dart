@@ -178,19 +178,19 @@ class _AutoBuildBodyState extends ConsumerState<_AutoBuildBody> {
             Row(
               children: [
                 _CompChip(
-                  label: 'Garanti',
+                  label: 'Yüksek şans',
                   count: _count(MatchCategory.guaranteed),
                   color: AppColors.success,
                 ),
                 const SizedBox(width: 8),
                 _CompChip(
-                  label: 'Hedef',
+                  label: 'Ulaşılabilir',
                   count: _count(MatchCategory.target),
                   color: AppColors.warning,
                 ),
                 const SizedBox(width: 8),
                 _CompChip(
-                  label: 'Riskli',
+                  label: 'Zorlayıcı',
                   count: _count(MatchCategory.dream),
                   color: AppColors.error,
                 ),
@@ -198,8 +198,9 @@ class _AutoBuildBodyState extends ConsumerState<_AutoBuildBody> {
             ),
             const SizedBox(height: 12),
             Text(
-              'Programlar taban puanına göre sıralanır — yüksek/riskli tercihler '
-              'üstte, garantiler altta. Oluşturduktan sonra listeyi düzenleyebilirsin.',
+              'Programlar taban puanına göre sıralanır — zorlayıcı tercihler '
+              'üstte, yüksek şanslılar altta. Oluşturduktan sonra listeyi '
+              'düzenleyebilirsin.',
               style: AppTextStyles.labelSmall.copyWith(
                 color: AppColors.textSecondaryFor(context),
                 height: 1.4,
