@@ -4,6 +4,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../l10n/generated/app_localizations.dart';
 import '../../../university/presentation/widgets/score_badge.dart';
+import '../../../preference_wizard/presentation/widgets/feasibility_chip.dart';
 import '../providers/preference_list_providers.dart';
 import '../../domain/models/preference_list_model.dart';
 import '../widgets/share_list_sheet.dart';
@@ -792,6 +793,12 @@ class _ItemCard extends StatelessWidget {
                           spacing: 6,
                           runSpacing: 6,
                           children: [
+                            FeasibilityChip(
+                              scoreType: item.scoreType,
+                              baseScore: item.baseScore,
+                              ranking: item.ranking,
+                              compact: true,
+                            ),
                             if (item.baseScore != null && item.baseScore! > 0)
                               _MiniStat(
                                 icon: Icons.trending_up_rounded,

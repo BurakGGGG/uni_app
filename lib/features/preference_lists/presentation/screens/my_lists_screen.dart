@@ -621,6 +621,25 @@ class _EmptyState extends StatelessWidget {
                 height: 1.5,
               ),
             ),
+            const SizedBox(height: 24),
+            OutlinedButton.icon(
+              onPressed: () => context.push('/preference-wizard'),
+              icon: const Icon(Icons.smart_toy_rounded, size: 18),
+              label: const Text('Tercih Robotu ile doldur'),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: AppColors.secondary,
+                side: BorderSide(
+                  color: AppColors.secondary.withValues(alpha: 0.4),
+                ),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 18,
+                  vertical: 12,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
+              ),
+            ),
           ],
         ),
       ),

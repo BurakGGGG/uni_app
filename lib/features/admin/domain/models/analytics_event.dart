@@ -22,6 +22,11 @@ enum AnalyticsEvent {
   preferenceListShared('totalPreferenceListShares', 'preferenceListShares'),
   comparisonShared('totalComparisonShares', 'comparisonShares'),
 
+  // Tercih Robotu
+  preferenceWizardOpened('totalPreferenceWizardOpened', 'preferenceWizardOpened'),
+  preferenceWizardMatched('totalPreferenceWizardMatched', 'preferenceWizardMatched'),
+  preferenceAutoListCreated('totalPreferenceAutoLists', 'preferenceAutoLists'),
+
   // Monetizasyon
   paywallShown('totalPaywallShown', 'paywallShown'),
   adWatched('totalAdWatched', 'adWatched'),

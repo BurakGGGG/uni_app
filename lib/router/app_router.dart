@@ -44,6 +44,8 @@ import '../features/preference_lists/presentation/screens/list_edit_screen.dart'
 import '../features/preference_lists/presentation/screens/shared_list_screen.dart';
 import '../features/score_calculator/presentation/screens/score_calculator_screen.dart';
 import '../features/score_calculator/presentation/screens/score_result_screen.dart';
+import '../features/preference_wizard/presentation/screens/preference_wizard_screen.dart';
+import '../features/preference_wizard/presentation/screens/preference_wizard_results_screen.dart';
 import '../features/admin/presentation/screens/admin_panel_screen.dart';
 import '../features/admin/presentation/screens/admin_story_panel_screen.dart';
 import '../features/admin/presentation/screens/admin_reports_screen.dart';
@@ -87,6 +89,8 @@ class AppRoutes {
   static const String adminSuggestions = '/admin/suggestions';
   static const String suggestPlace = '/suggest-place';
   static const String forbidden = '/403';
+  static const String preferenceWizard = '/preference-wizard';
+  static const String preferenceWizardResults = '/preference-wizard/results';
 }
 
 /// GoRouter konfigürasyon provider'ı
@@ -453,6 +457,16 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/score-result',
         builder: (context, state) => const ScoreResultScreen(),
+      ),
+
+      // ─── Tercih Robotu ────────────────────────────────────────────
+      GoRoute(
+        path: AppRoutes.preferenceWizard,
+        builder: (context, state) => const PreferenceWizardScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.preferenceWizardResults,
+        builder: (context, state) => const PreferenceWizardResultsScreen(),
       ),
 
       // ─── Shell Route (Bottom Navigation) ─────────────────────────

@@ -30,6 +30,15 @@ const analyticsEvents = {
   preferenceListCreated: ['totalPreferenceLists', 'preferenceLists'],
   preferenceListShared: ['totalPreferenceListShares', 'preferenceListShares'],
   comparisonShared: ['totalComparisonShares', 'comparisonShares'],
+  preferenceWizardOpened: [
+    'totalPreferenceWizardOpened',
+    'preferenceWizardOpened',
+  ],
+  preferenceWizardMatched: [
+    'totalPreferenceWizardMatched',
+    'preferenceWizardMatched',
+  ],
+  preferenceAutoListCreated: ['totalPreferenceAutoLists', 'preferenceAutoLists'],
   paywallShown: ['totalPaywallShown', 'paywallShown'],
   adWatched: ['totalAdWatched', 'adWatched'],
   subscriptionPurchased: ['totalSubscriptionPurchased', 'subscriptionPurchased'],
