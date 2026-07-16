@@ -40,6 +40,7 @@ Future<void> deleteMissingDepartments() async {
   final keptForReviews = <String>[];
 
   for (final doc in snap.docs) {
+    if (doc.id.startsWith('_')) continue; // _meta sürüm dokümanı — dokunma
     if (validIds.contains(doc.id)) continue;
     final reviewCount = (doc.data()['reviewCount'] as num?)?.toInt() ?? 0;
     if (reviewCount > 0) {

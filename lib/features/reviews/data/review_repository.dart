@@ -6,6 +6,18 @@ import '../domain/models/review_model.dart';
 import '../../admin/data/analytics_service.dart';
 import '../../admin/domain/models/analytics_event.dart';
 
+/// Öne çıkan yorumları en beğeniden en aza, eşitlikte en yeniden en eskiye
+/// sıralar ve ilk [limit] tanesini döndürür. Firestore'un tek `orderBy(likes)`
+/// sorgusunun üstüne istemci tarafı ikincil sıralama; yeni indeks gerektirmez.
+List<ReviewModel> sortTopReviews(List<ReviewModel> reviews, {int limit = 5}) {
+  final sorted = [...reviews]..sort((a, b) {
+    final byLikes = b.likes.compareTo(a.likes);
+    if (byLikes != 0) return byLikes;
+    return b.createdAt.compareTo(a.createdAt);
+  });
+  return sorted.take(limit).toList();
+}
+
 /// Yorum repository — Sprint 3'te doldurulacak
 ///
 /// Firestore path: reviews/{reviewId}
@@ -24,6 +36,25 @@ class ReviewRepository {
     final doc = await _firestore.collection('reviews').doc(reviewId).get();
     if (!doc.exists || doc.data() == null) return null;
     return ReviewModel.fromMap(doc.data()!, doc.id);
+  }
+
+  /// Kullanıcı bu hedefe daha önce yorum yazmış mı? (tek seferlik sorgu)
+  ///
+  /// Rules owner okumasına izin verir; onay beklemedeki yorumlar da sayılır
+  /// ki kullanıcıya gereksiz "yorum yaz" istemi gösterilmesin.
+  Future<bool> hasUserReviewed({
+    required String userId,
+    required String targetId,
+    required ReviewType type,
+  }) async {
+    final snap = await _firestore
+        .collection('reviews')
+        .where('userId', isEqualTo: userId)
+        .where('targetId', isEqualTo: targetId)
+        .where('type', isEqualTo: type.name)
+        .limit(1)
+        .get();
+    return snap.docs.isNotEmpty;
   }
 
   Future<void> addReview(ReviewModel review) async {
@@ -177,9 +208,47 @@ class ReviewRepository {
         );
   }
 
+  /// Ana sayfa vitrini için en beğenilen onaylı yorumlar.
+  ///
+  /// Mevcut `(isApproved ASC, likes DESC)` bileşik indeksi kullanılır
+  /// (yeni indeks gerekmez). İkincil sıralama (createdAt) istemci tarafında
+  /// yapılır: hem yeni bir indeks gereksinimini önler hem de tüm beğeniler
+  /// 0 iken sıralamayı en tazeye düşürerek zarifçe bozulur.
+  Stream<List<ReviewModel>> getTopReviews({int limit = 5}) {
+    return _reviewsRef
+        .where('isApproved', isEqualTo: true)
+        .orderBy('likes', descending: true)
+        .limit(15)
+        .snapshots()
+        .map((snapshot) {
+          final reviews = snapshot.docs
+              .map((doc) => ReviewModel.fromMap(doc.data(), doc.id))
+              .toList();
+          return sortTopReviews(reviews, limit: limit);
+        });
+  }
+
   Stream<List<ReviewModel>> getUserReviews(String userId) {
     return _reviewsRef
         .where('userId', isEqualTo: userId)
+        .orderBy('createdAt', descending: true)
+        .snapshots()
+        .map(
+          (snapshot) => snapshot.docs
+              .map((doc) => ReviewModel.fromMap(doc.data(), doc.id))
+              .toList(),
+        );
+  }
+
+  /// Başka bir kullanıcının profilinde gösterilecek yorumlar.
+  ///
+  /// Güvenlik kuralları onaysız yorumların sadece sahibi tarafından
+  /// okunmasına izin verir; isApproved filtresi olmadan sorgu tümüyle
+  /// permission-denied alır. Bu yüzden [getUserReviews]'tan ayrıdır.
+  Stream<List<ReviewModel>> getUserPublicReviews(String userId) {
+    return _reviewsRef
+        .where('userId', isEqualTo: userId)
+        .where('isApproved', isEqualTo: true)
         .orderBy('createdAt', descending: true)
         .snapshots()
         .map(

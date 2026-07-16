@@ -25,58 +25,8 @@ EXISTING_JSON = "/home/burak/uni_app/assets/data/department_scores.json"
 OUTPUT_PATH = "/home/burak/uni_app/assets/data/department_scores.json"
 
 # ── Üniversite eşleme ──
-UNI_MAPPING = {
-    'İSTANBUL TEKNİK ÜNİVERSİTESİ': 'itu',
-    'İSTANBUL ÜNİVERSİTESİ': 'istanbul_uni',
-    'YILDIZ TEKNİK ÜNİVERSİTESİ': 'yildiz_teknik',
-    'ORTA DOĞU TEKNİK ÜNİVERSİTESİ': 'odtu',
-    'HACETTEPE ÜNİVERSİTESİ': 'hacettepe',
-    'ANKARA ÜNİVERSİTESİ': 'ankara_uni',
-    'GAZİ ÜNİVERSİTESİ': 'gazi',
-    'EGE ÜNİVERSİTESİ': 'ege',
-    'DOKUZ EYLÜL ÜNİVERSİTESİ': 'dokuz_eylul',
-    'AKDENİZ ÜNİVERSİTESİ': 'akdeniz',
-    'ALANYA ALAADDİN KEYKUBAT ÜNİVERSİTESİ': 'alanya',
-    'ANADOLU ÜNİVERSİTESİ': 'anadolu',
-    'ESKİŞEHİR OSMANGAZİ ÜNİVERSİTESİ': 'ogu',
-    'ESKİŞEHİR TEKNİK ÜNİVERSİTESİ': 'estu',
-    'BURSA ULUDAĞ ÜNİVERSİTESİ': 'uludag',
-    'BURSA TEKNİK ÜNİVERSİTESİ': 'btu',
-    'ÇANAKKALE ONSEKİZ MART ÜNİVERSİTESİ': 'comu',
-    'SİVAS CUMHURİYET ÜNİVERSİTESİ': 'cumhuriyet',
-    'SİVAS BİLİM VE TEKNOLOJİ ÜNİVERSİTESİ': 'sivas_btu',
-    'KARADENİZ TEKNİK ÜNİVERSİTESİ': 'ktu',
-    'TRABZON ÜNİVERSİTESİ': 'trabzon_uni',
-    'MERSİN ÜNİVERSİTESİ': 'mersin_uni',
-    'TARSUS ÜNİVERSİTESİ': 'tarsus',
-    'MARMARA ÜNİVERSİTESİ': 'marmara',
-    'ANKARA HACI BAYRAM VELİ ÜNİVERSİTESİ': 'hacibayram',
-    'İZMİR DEMOKRASİ ÜNİVERSİTESİ': 'izmir_demokrasi',
-    'İZMİR KATİP ÇELEBİ ÜNİVERSİTESİ': 'izmir_katipcelebi',
-    'İSTANBUL AYDIN ÜNİVERSİTESİ': 'aydin',
-    'İSTANBUL GELİŞİM ÜNİVERSİTESİ': 'gelisim',
-    'İSTANBUL MEDİPOL ÜNİVERSİTESİ': 'medipol',
-    'HİTİT ÜNİVERSİTESİ': 'hitit',
-    'ERCİYES ÜNİVERSİTESİ': 'erciyes',
-    'İNÖNÜ ÜNİVERSİTESİ': 'inonu',
-    'ONDOKUZ MAYIS ÜNİVERSİTESİ': 'omu',
-    'SELÇUK ÜNİVERSİTESİ': 'selcuk',
-    'KÜTAHYA DUMLUPINAR ÜNİVERSİTESİ': 'dpu',
-    'KOCAELİ ÜNİVERSİTESİ': 'kocaeli',
-    'SAKARYA ÜNİVERSİTESİ': 'sakarya',
-    'BOLU ABANT İZZET BAYSAL ÜNİVERSİTESİ': 'ibu',
-    'ZONGULDAK BÜLENT ECEVİT ÜNİVERSİTESİ': 'beun',
-    'VAN YÜZÜNCÜ YIL ÜNİVERSİTESİ': 'yyu',
-    'ATATÜRK ÜNİVERSİTESİ': 'atauni',
-    'GAZİANTEP ÜNİVERSİTESİ': 'gantep',
-    'ÇUKUROVA ÜNİVERSİTESİ': 'cu',
-    'PAMUKKALE ÜNİVERSİTESİ': 'pau',
-    'KAHRAMANMARAŞ SÜTÇÜ İMAM ÜNİVERSİTESİ': 'ksu',
-    'MANİSA CELÂL BAYAR ÜNİVERSİTESİ': 'cbu',
-    'SÜLEYMAN DEMİREL ÜNİVERSİTESİ': 'sdu',
-    'KARABÜK ÜNİVERSİTESİ': 'karabuk',
-    'TOKAT GAZİOSMANPAŞA ÜNİVERSİTESİ': 'gop',
-}
+from uni_mapping import UNI_MAPPING
+from dept_ids import make_dept_id
 
 SCORE_TYPE_MAP = {
     'SAYISAL': 'SAY',
@@ -86,81 +36,16 @@ SCORE_TYPE_MAP = {
     'TYT': 'TYT',
 }
 
-LISANS_ALLOWLIST = {
-    'Hukuk': {'EA'},
-    'Tıp': {'SAY'},
-    'Rehberlik ve Psikolojik Danışmanlık': {'EA'},
-    'Mimarlık': {'SAY'},
-    'İnşaat Mühendisliği': {'SAY'},
-    'Diş Hekimliği': {'SAY'},
-    'Sınıf Öğretmenliği': {'EA'},
-    'Eczacılık': {'SAY'},
-    'Psikoloji': {'EA'},
-    'Hemşirelik': {'SAY'},
-    'Bilgisayar Mühendisliği': {'SAY'},
-    'Makine Mühendisliği': {'SAY'},
-    'İşletme': {'EA'},
-    'Elektrik-Elektronik Mühendisliği': {'SAY'},
-    'Fizyoterapi ve Rehabilitasyon': {'SAY'},
-    'Endüstri Mühendisliği': {'SAY'},
-    'İktisat': {'EA'},
-    'Uluslararası İlişkiler': {'EA'},
-    'Türk Dili ve Edebiyatı': {'SÖZ'},
-    'Özel Eğitim Öğretmenliği': {'SÖZ'},
-    'İlahiyat': {'SÖZ'},
-    'Okul Öncesi Öğretmenliği': {'SÖZ'},
-    'Beslenme ve Diyetetik': {'SAY'},
-    'Veteriner': {'SAY'},
-    'Ebelik': {'SAY'},
-    'Gastronomi ve Mutfak Sanatları': {'SÖZ'},
-    'Türkçe Öğretmenliği': {'SÖZ'},
-    'Çocuk Gelişimi': {'EA'},
-    'İç Mimarlık ve Çevre Tasarımı': {'EA'},
-    'İngilizce Öğretmenliği': {'DİL'},
-    'İlköğretim Matematik Öğretmenliği': {'SAY'},
-    'Havacılık Yönetimi': {'SAY'},
-    'Sağlık Yönetimi': {'SAY', 'EA'},
-    'Acil Yardım ve Afet Yönetimi': {'SAY'},
-    'İngiliz Dili ve Edebiyatı': {'DİL'},
-    'İngilizce Mütercim ve Tercümanlık': {'DİL'},
-    'Dil ve Konuşma Terapisi': {'SAY'},
-    'Mekatronik Mühendisliği': {'SAY'},
-    'Fen Bilgisi Öğretmenliği': {'SAY'},
-    'Gıda Mühendisliği': {'SAY'},
-    'Odyoloji': {'SAY'},
-    'Tarımsal Genetik Mühendisliği': {'SAY'},
-    'Uçak Mühendisliği': {'SAY'},
-    'Maliye': {'EA'},
-    'Çalışma Ekonomisi ve Endüstri İlişkileri': {'EA'},
-    'Kamu Yönetimi': {'EA'},
-    'Sosyal Hizmet': {'EA'},
-    'Yönetim Bilişim Sistemleri': {'EA'},
-    'Gazetecilik': {'SÖZ'},
-    'Radyo, Televizyon ve Sinema': {'SÖZ'},
-    'Türk Dili ve Edebiyatı Öğretmenliği': {'SÖZ'},
-}
+# Bölüm allowlist'i üretimdeki katalogdan türetilir (bkz. v2_extract_allowlist.py).
+# Elle liste tutulmaz; katalog genişletilecekse wide_allowlist.json yeniden üretilir.
+_WIDE = json.loads(
+    (Path(__file__).resolve().parent / 'wide_allowlist.json').read_text(encoding='utf-8'))
+LISANS_ALLOWLIST = {k: set(v) for k, v in _WIDE['lisans'].items()}
+ONLISANS_ALLOWLIST = {k: set(v) for k, v in _WIDE['onlisans'].items()}
 
-ONLISANS_ALLOWLIST = {
-    'Bilgisayar Programcılığı': {'TYT'},
-    'İlk ve Acil Yardım': {'TYT'},
-    'Adalet': {'TYT'},
-    'Aşçılık': {'TYT'},
-    'Lojistik': {'TYT'},
-    'Anestezi': {'TYT'},
-    'Tıbbi Görüntüleme Teknikleri': {'TYT'},
-    'Tıbbi Dokümantasyon ve Sekreterlik': {'TYT'},
-    'Dış Ticaret': {'TYT'},
-    'Çocuk Gelişimi': {'TYT'},
-}
-
-SEED_SLUG_OVERRIDE_LISANS = {
-    'Veteriner': 'veterinerlik',
-}
-SEED_SLUG_OVERRIDE_ONLISANS = {
-    'İlk ve Acil Yardım': 'ilk_ve_acil_yardim_paramedik',
-}
-
-ONLISANS_SUFFIX_FOR = {'Çocuk Gelişimi'}
+# Lisans/Önlisans çakışan isimler (önlisans dokümanına _onl eki gerekir).
+# Dinamik: iki listede de geçen her ad çakışma adayıdır.
+ONLISANS_SUFFIX_FOR = set(LISANS_ALLOWLIST) & set(ONLISANS_ALLOWLIST)
 
 SKIP_TAGS = {
     'M.T.O.K.',
@@ -208,13 +93,22 @@ def safe_int(val):
         return 0
 
 
+# Uzun anahtar önce: 'İSTANBUL ÜNİVERSİTESİ-CERRAHPAŞA' satırı
+# 'İSTANBUL ÜNİVERSİTESİ'ne düşmesin
+_KEYS_BY_LENGTH = sorted(UNI_MAPPING, key=len, reverse=True)
+
+
 def match_uni(excel_name: str) -> str | None:
     excel_name = excel_name.strip()
     if excel_name in UNI_MAPPING:
         return UNI_MAPPING[excel_name]
-    for key, slug in UNI_MAPPING.items():
+    for key in _KEYS_BY_LENGTH:
         if excel_name.startswith(key):
-            return slug
+            # Anahtar sonrası ' ' veya '(' gelmeli — '-CERRAHPAŞA' gibi
+            # devam eden adlar farklı üniversitedir
+            rest = excel_name[len(key):]
+            if rest == '' or rest[0] in ' (':
+                return UNI_MAPPING[key]
     return None
 
 
@@ -315,7 +209,6 @@ def process_rows(all_rows: list[dict]) -> dict[str, dict]:
 
         is_onlisans = row['is_onlisans']
         allowlist = ONLISANS_ALLOWLIST if is_onlisans else LISANS_ALLOWLIST
-        slug_override_map = SEED_SLUG_OVERRIDE_ONLISANS if is_onlisans else SEED_SLUG_OVERRIDE_LISANS
 
         allowed_types = allowlist.get(base_name)
         if not allowed_types or score_type not in allowed_types:
@@ -327,11 +220,8 @@ def process_rows(all_rows: list[dict]) -> dict[str, dict]:
             skipped_score += 1
             continue
 
-        override_slug = slug_override_map.get(base_name)
-        base_slug = override_slug if override_slug else slugify(base_name)
-        if is_onlisans and base_name in ONLISANS_SUFFIX_FOR:
-            base_slug = base_slug + '_onl'
-        dept_id = f'{uni_id}_{base_slug}'
+        # DB doc id belirleme (prod id'leri korunur — bkz. dept_ids.py)
+        dept_id = make_dept_id(uni_id, base_name, is_onlisans, ONLISANS_SUFFIX_FOR)
 
         quota = safe_int(row['kontenjan'])
         placed = safe_int(row['yerlesen'])
@@ -383,10 +273,12 @@ def merge_with_existing(new_2025: dict[str, dict], existing_path: str) -> list[d
             if 'previousYears' in old and old['previousYears']:
                 prev_years.update(old['previousYears'])
             old_year = old.get('year', 2024)
-            prev_years[str(old_year)] = {
-                'baseScore': old['baseScore'],
-                'ranking': old.get('ranking', 0),
-            }
+            if old_year != 2025:  # idempotent: 2. çalıştırmada 2025 previousYears'a sızmasın
+                prev_years[str(old_year)] = {
+                    'baseScore': old['baseScore'],
+                    'ranking': old.get('ranking', 0),
+                }
+            prev_years.pop('2025', None)
 
             results.append({
                 'deptId': dept_id,

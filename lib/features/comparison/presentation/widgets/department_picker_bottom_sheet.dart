@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/utils/localized_labels.dart';
+import '../../../../core/utils/turkish_compare.dart';
 import '../../../../core/widgets/widgets.dart';
 import '../../../../l10n/generated/app_localizations.dart';
 import '../../../university/domain/models/department_model.dart';
@@ -494,7 +495,7 @@ class _DeptList extends ConsumerWidget {
           final ba = a.baseScore ?? a.scoreData?.baseScore ?? 0;
           final bb = b.baseScore ?? b.scoreData?.baseScore ?? 0;
           if (ba != bb) return bb.compareTo(ba);
-          return a.name.compareTo(b.name);
+          return turkishCompare(a.name, b.name);
         });
 
         // Bölüm adı filtresi: sadece eşleşen bölümleri göster

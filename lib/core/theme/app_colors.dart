@@ -207,6 +207,29 @@ class AppColors {
   static Color accentForIndex(int index) =>
       accentPalette[index.abs() % accentPalette.length];
 
+  // ─── Chart / Veri Görselleştirme Renkleri ──────────────────────
+  /// Grafik/istatistik serileri için tokenler. Serilerin çoğu mevcut
+  /// semantik tokenleri (info/success/warning/error/gradient*) yeniden
+  /// kullanır; aşağıdakiler yalnızca grafiklerde gereken ek tonlardır.
+  static const Color chartIndigo = Color(0xFF6366F1);
+  static const Color chartSky = Color(0xFF0EA5E9);
+  static const Color chartYellow = Color(0xFFEAB308);
+  static const Color chartAmberDark = Color(0xFFD97706);
+  static const Color chartRedDark = Color(0xFFDC2626);
+
+  /// Grafiklerde sırayla kullanılabilecek küratörlü seri paleti.
+  static const List<Color> chartPalette = [
+    info, // #3B82F6
+    success, // #10B981
+    gradientPurple, // #8B5CF6
+    gradientCyan, // #06B6D4
+    warning, // #F59E0B
+    error, // #EF4444
+    chartIndigo, // #6366F1
+    chartSky, // #0EA5E9
+    chartYellow, // #EAB308
+  ];
+
   // ─── Dark Mode Elevation (border + yumuşak gölge) ──────────────
   /// Dark modda yüzeyler border ile ayrılır; derinlik hissini
   /// tamamlamak için bu çok yumuşak gölgeler eklenir (muddy değil).
@@ -343,6 +366,19 @@ class AppColors {
             colors: [Color(0xFF1E1B4B), Color(0xFF3B2F7A)],
           )
         : heroGradient;
+  }
+
+  /// Tema duyarlı secondary gradient.
+  /// Açık temada canlı pembe; karanlık temada derin gül→ahududu (beyaz metinle
+  /// yüksek kontrast, dark surface'i boğmayan doygunluk).
+  static LinearGradient secondaryGradientFor(BuildContext context) {
+    return Theme.of(context).brightness == Brightness.dark
+        ? const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [Color(0xFF4A1B2B), Color(0xFF7E2F4C)],
+          )
+        : secondaryGradient;
   }
 
   /// Tema duyarlı kart gradient

@@ -319,6 +319,7 @@ describe('Firestore Security Rules - users hardening', () => {
     await assertFails(ref.update({ isVerifiedStudent: true }));
     await assertFails(ref.update({ reviewCount: 999 }));
     await assertFails(ref.update({ fcmTokens: ['token'] }));
+    await assertFails(ref.update({ badges: { first_review: new Date() } }));
   });
 
   it('other users cannot read private user docs', async () => {
@@ -382,6 +383,56 @@ describe('Firestore Security Rules - users hardening', () => {
           createdAt: new Date(),
           updatedAt: new Date(),
         }),
+    );
+  });
+
+  it('owner can read their engagement stats but cannot write them', async () => {
+    await seedUser('user_1');
+    await testEnv.withSecurityRulesDisabled(async (context) => {
+      await context
+        .firestore()
+        .collection('users')
+        .doc('user_1')
+        .collection('stats')
+        .doc('engagement')
+        .set({ currentStreak: 3, viewedUniversityCount: 12 });
+    });
+
+    const ctx = authed('user_1');
+    const ref = ctx
+      .firestore()
+      .collection('users')
+      .doc('user_1')
+      .collection('stats')
+      .doc('engagement');
+
+    await assertSucceeds(ref.get());
+    await assertFails(ref.set({ currentStreak: 999 }));
+    await assertFails(ref.update({ viewedUniversityCount: 999 }));
+  });
+
+  it('other users cannot read engagement stats', async () => {
+    await seedUser('user_1');
+    await seedUser('user_2');
+    await testEnv.withSecurityRulesDisabled(async (context) => {
+      await context
+        .firestore()
+        .collection('users')
+        .doc('user_1')
+        .collection('stats')
+        .doc('engagement')
+        .set({ currentStreak: 3 });
+    });
+
+    const ctx = authed('user_2');
+    await assertFails(
+      ctx
+        .firestore()
+        .collection('users')
+        .doc('user_1')
+        .collection('stats')
+        .doc('engagement')
+        .get(),
     );
   });
 });

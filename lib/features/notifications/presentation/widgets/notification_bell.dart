@@ -19,12 +19,15 @@ class NotificationBell extends ConsumerWidget {
         onPressed: () {
           final user = ref.read(authStateProvider).value;
           if (user == null) {
+            // SnackBar bu widget'tan uzun yaşayabilir; aksiyona basıldığında
+            // context ölü olabileceği için router'ı şimdiden yakala.
+            final router = GoRouter.of(context);
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: const Text('Bildirimleri görmek için giriş yapın'),
                 action: SnackBarAction(
                   label: 'Giriş Yap',
-                  onPressed: () => context.push('/login?from=/notifications'),
+                  onPressed: () => router.push('/login?from=/notifications'),
                 ),
                 behavior: SnackBarBehavior.floating,
               ),

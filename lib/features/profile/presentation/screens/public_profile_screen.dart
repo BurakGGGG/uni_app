@@ -55,11 +55,11 @@ class _ProfileContent extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final reviewsAsync = ref.watch(userReviewsProvider(userId));
+    final reviewsAsync = ref.watch(userPublicReviewsProvider(userId));
 
-    // Sadece onaylı VE anonim olmayan yorumları göster (privacy)
+    // Anonim yorumları gösterme (privacy) — onay filtresi sorguda uygulanır
     final approvedReviews = reviewsAsync.valueOrNull
-            ?.where((r) => r.isApproved && !r.isAnonymous)
+            ?.where((r) => !r.isAnonymous)
             .toList() ??
         [];
 

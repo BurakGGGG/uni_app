@@ -5,11 +5,15 @@ const messaging = admin.messaging();
 
 interface SendNotificationOptions {
   userId: string;
-  type: 'review_liked' | 'review_moderated' | 'favorite_new_review';
+  type: 'review_liked' | 'review_moderated' | 'favorite_new_review' | 'review_campaign';
   title: string;
   body: string;
   data?: Record<string, string>;
-  prefKey: 'reviewLikedEnabled' | 'reviewModeratedEnabled' | 'favoriteNewReviewEnabled';
+  prefKey:
+    | 'reviewLikedEnabled'
+    | 'reviewModeratedEnabled'
+    | 'favoriteNewReviewEnabled'
+    | 'reviewCampaignEnabled';
 }
 
 /**

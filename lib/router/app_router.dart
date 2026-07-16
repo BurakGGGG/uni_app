@@ -24,6 +24,7 @@ import '../features/auth/presentation/screens/onboarding_screen.dart';
 import '../features/auth/presentation/screens/login_screen.dart';
 import '../features/auth/presentation/screens/register_screen.dart';
 import '../features/profile/presentation/screens/edit_profile_screen.dart';
+import '../features/profile/presentation/screens/badges_screen.dart';
 import '../features/university/presentation/screens/university_detail_screen.dart';
 import '../features/university/presentation/screens/department_detail_screen.dart';
 import '../features/university/presentation/screens/uni_departments_screen.dart';
@@ -44,6 +45,8 @@ import '../features/preference_lists/presentation/screens/list_edit_screen.dart'
 import '../features/preference_lists/presentation/screens/shared_list_screen.dart';
 import '../features/score_calculator/presentation/screens/score_calculator_screen.dart';
 import '../features/score_calculator/presentation/screens/score_result_screen.dart';
+import '../features/preference_wizard/presentation/screens/preference_wizard_screen.dart';
+import '../features/preference_wizard/presentation/screens/preference_wizard_results_screen.dart';
 import '../features/admin/presentation/screens/admin_panel_screen.dart';
 import '../features/admin/presentation/screens/admin_story_panel_screen.dart';
 import '../features/admin/presentation/screens/admin_reports_screen.dart';
@@ -66,11 +69,12 @@ class AppRoutes {
   static const String favorites = '/favorites';
   static const String profile = '/profile';
   static const String universityDetail = '/university/:uniId';
-  static const String placeDetail = '/university/:uniId/place/:placeId';
+  static const String placeDetail = '/place/:placeId';
   static const String login = '/login';
   static const String register = '/register';
   static const String onboarding = '/onboarding';
   static const String editProfile = '/edit-profile';
+  static const String badges = '/badges';
   static const String cityDetail = '/city/:cityId';
   static const String departmentDetail = '/department/:deptId';
   static const String allCities = '/cities';
@@ -87,6 +91,8 @@ class AppRoutes {
   static const String adminSuggestions = '/admin/suggestions';
   static const String suggestPlace = '/suggest-place';
   static const String forbidden = '/403';
+  static const String preferenceWizard = '/preference-wizard';
+  static const String preferenceWizardResults = '/preference-wizard/results';
 }
 
 /// GoRouter konfigürasyon provider'ı
@@ -116,9 +122,12 @@ final routerProvider = Provider<GoRouter>((ref) {
         return null;
       }
 
-      // 1. Onboarding bitmemişse
+      // 1. Onboarding bitmemişse — hedef rota (ör. paylaşım deep link'i)
+      // kaybolmasın diye from parametresiyle taşınır
       if (!hasCompletedOnboarding && !isGoingToOnboarding) {
-        return AppRoutes.onboarding;
+        final target = state.uri.toString();
+        if (target == AppRoutes.home) return AppRoutes.onboarding;
+        return routeWithLocalFrom(AppRoutes.onboarding, target);
       }
 
       // 2. Korumalı Rotalar (Sprint 3'te yorum rotaları buraya eklenecek)
@@ -269,7 +278,8 @@ final routerProvider = Provider<GoRouter>((ref) {
       // ─── Auth & Profile Routes ───────────────────────────────────
       GoRoute(
         path: AppRoutes.onboarding,
-        builder: (context, state) => const OnboardingScreen(),
+        builder: (context, state) =>
+            OnboardingScreen(from: state.uri.queryParameters['from']),
       ),
       GoRoute(
         path: AppRoutes.login,
@@ -324,25 +334,12 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) =>
             UniRatingsScreen(universityId: state.pathParameters['uniId']!),
       ),
+      // NOT: Giriş kontrolü global redirect'teki korumalı rota listesinde
+      // yapılır (/write-review oradadır). Route seviyesinde currentUserProvider
+      // okumak, provider henüz yüklenmemişken giriş yapmış kullanıcıyı da
+      // login'e fırlatan bir yarış durumu yaratıyordu.
       GoRoute(
         path: '/write-review/:type/:targetId',
-        redirect: (context, state) {
-          final userAsync = ProviderScope.containerOf(
-            context,
-          ).read(currentUserProvider);
-          final user = userAsync.valueOrNull;
-          if (user == null) {
-            final encodedPath = Uri.encodeComponent(state.uri.toString());
-            return '/login?from=$encodedPath';
-          }
-          if (!user.isVerifiedStudent) {
-            // İleride verify-email rotası olursa oraya da atılabilir.
-            // Şimdilik null döndürüp yazmasını engelleyemeyiz çünkü verify-email rotası yok,
-            // router redirect içinde snackbar da gösteremeyiz.
-            // Bu yüzden ui da engellemek daha mantıklı, ama istenen bu:
-          }
-          return null;
-        },
         builder: (context, state) {
           final typeStr = state.pathParameters['type']!;
           final targetId = state.pathParameters['targetId']!;
@@ -396,6 +393,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/my-reviews',
         builder: (context, state) => const MyReviewsScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.badges,
+        builder: (context, state) => const BadgesScreen(),
       ),
       GoRoute(
         path: AppRoutes.departmentDetail,
@@ -462,6 +463,16 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/score-result',
         builder: (context, state) => const ScoreResultScreen(),
+      ),
+
+      // ─── Tercih Robotu ────────────────────────────────────────────
+      GoRoute(
+        path: AppRoutes.preferenceWizard,
+        builder: (context, state) => const PreferenceWizardScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.preferenceWizardResults,
+        builder: (context, state) => const PreferenceWizardResultsScreen(),
       ),
 
       // ─── Shell Route (Bottom Navigation) ─────────────────────────

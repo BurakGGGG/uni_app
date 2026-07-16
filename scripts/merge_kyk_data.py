@@ -19,25 +19,7 @@ SCRAPED_PATH = os.path.join(SCRIPT_DIR, "..", "assets", "data", "kyk_dorms_scrap
 OUTPUT_PATH = os.path.join(SCRIPT_DIR, "..", "assets", "data", "places_seed.json")
 
 # Üniversite -> Şehir mapping
-UNI_CITY = {
-    "uludag": "bursa", "btu": "bursa",
-    "estu": "eskisehir", "anadolu": "eskisehir", "ogu": "eskisehir",
-    "ktu": "trabzon", "trabzon_uni": "trabzon",
-    "hitit": "corum",
-    "itu": "istanbul", "yildiz_teknik": "istanbul", "marmara": "istanbul",
-    "istanbul_uni": "istanbul", "aydin": "istanbul", "medipol": "istanbul", "gelisim": "istanbul",
-    "mersin_uni": "mersin", "tarsus": "mersin",
-    "akdeniz": "antalya", "alanya": "antalya",
-    "comu": "canakkale",
-    "cumhuriyet": "sivas", "sivas_btu": "sivas",
-    "odtu": "ankara", "ankara_uni": "ankara", "hacettepe": "ankara", "hacibayram": "ankara", "gazi": "ankara",
-    "izmir_katipcelebi": "izmir", "dokuz_eylul": "izmir", "ege": "izmir", "izmir_demokrasi": "izmir",
-    "erciyes": "kayseri", "inonu": "malatya", "omu": "samsun", "selcuk": "konya",
-    "dpu": "kutahya", "kocaeli": "kocaeli", "sakarya": "sakarya", "ibu": "bolu",
-    "beun": "zonguldak", "yyu": "van", "atauni": "erzurum", "gantep": "gaziantep",
-    "cu": "adana", "pau": "denizli", "ksu": "kahramanmaras", "cbu": "manisa",
-    "sdu": "isparta", "karabuk": "karabuk", "gop": "tokat",
-}
+from v2_city_maps import UNI_CITY
 
 
 def normalize(name):

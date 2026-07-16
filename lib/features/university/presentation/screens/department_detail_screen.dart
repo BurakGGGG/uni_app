@@ -16,6 +16,8 @@ import '../../../auth/presentation/providers/auth_providers.dart';
 import '../widgets/score_badge.dart';
 import '../widgets/score_trend_chart.dart';
 import '../widgets/score_detail_sheet.dart';
+import '../../../preference_wizard/presentation/providers/preference_wizard_providers.dart';
+import '../../../preference_wizard/presentation/widgets/feasibility_chip.dart';
 import '../../../admin/data/analytics_service.dart';
 import '../../../admin/domain/models/analytics_event.dart';
 import '../../../admin/presentation/widgets/analytics_once_tracker.dart';
@@ -179,6 +181,15 @@ class DepartmentDetailScreen extends ConsumerWidget {
                   ).animate().fadeIn(delay: 200.ms, duration: 400.ms),
 
                   const SizedBox(height: 16),
+
+                  // ─── Uygunluk Rozeti (senin puanınla) ─────────────
+                  if (ref.watch(studentScoreProfileProvider) != null) ...[
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: FeasibilityChip.forDepartment(dept),
+                    ),
+                    const SizedBox(height: 12),
+                  ],
 
                   // ─── Taban Puan Kartı ─────────────────────────────
                   if (dept.scoreData != null) ...[

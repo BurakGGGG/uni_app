@@ -1,5 +1,6 @@
 import { onDocumentWritten } from 'firebase-functions/v2/firestore';
 import * as admin from 'firebase-admin';
+import { evaluateHelpfulBadge } from '../badges/award_badges';
 
 const db = admin.firestore();
 
@@ -22,5 +23,10 @@ export const syncReviewLikeCount = onDocumentWritten(
       },
       { merge: true },
     );
+
+    const authorId = reviewSnap.data()?.userId;
+    if (typeof authorId === 'string' && authorId.length > 0) {
+      await evaluateHelpfulBadge(authorId);
+    }
   },
 );

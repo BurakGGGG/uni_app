@@ -1592,6 +1592,60 @@ abstract class AppLocalizations {
   /// **'Satın alımları geri yükle'**
   String get paywallRestore;
 
+  /// No description provided for @paywallPackageInfoError.
+  ///
+  /// In tr, this message translates to:
+  /// **'Paket bilgisi alınamadı. Tekrar dene.'**
+  String get paywallPackageInfoError;
+
+  /// No description provided for @paywallPurchaseSuccess.
+  ///
+  /// In tr, this message translates to:
+  /// **'Satın alma başarılı. Planın güncelleniyor.'**
+  String get paywallPurchaseSuccess;
+
+  /// No description provided for @paywallPurchaseIncomplete.
+  ///
+  /// In tr, this message translates to:
+  /// **'Satın alma tamamlanmadı.'**
+  String get paywallPurchaseIncomplete;
+
+  /// No description provided for @paywallRestoreResult.
+  ///
+  /// In tr, this message translates to:
+  /// **'Geri yükleme sonucu: {tier}'**
+  String paywallRestoreResult(String tier);
+
+  /// No description provided for @paywallOfferingsLoadError.
+  ///
+  /// In tr, this message translates to:
+  /// **'Paketler yüklenirken bir sorun oluştu. Lütfen tekrar dene.'**
+  String get paywallOfferingsLoadError;
+
+  /// No description provided for @paywallSecurityNote.
+  ///
+  /// In tr, this message translates to:
+  /// **'Güvenli ödeme • İstediğinde iptal'**
+  String get paywallSecurityNote;
+
+  /// No description provided for @paywallPurchaseSuccessTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Satın alma başarılı!'**
+  String get paywallPurchaseSuccessTitle;
+
+  /// No description provided for @paywallPurchaseSuccessDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'Planın aktif edildi. Tüm özelliklerin keyfini çıkar.'**
+  String get paywallPurchaseSuccessDesc;
+
+  /// No description provided for @paywallGreat.
+  ///
+  /// In tr, this message translates to:
+  /// **'Harika'**
+  String get paywallGreat;
+
   /// No description provided for @reviewWrite.
   ///
   /// In tr, this message translates to:
@@ -1801,6 +1855,12 @@ abstract class AppLocalizations {
   /// In tr, this message translates to:
   /// **'Son Yorumlar'**
   String get homeRecentReviews;
+
+  /// No description provided for @homeTopReviews.
+  ///
+  /// In tr, this message translates to:
+  /// **'Öne Çıkan Yorumlar'**
+  String get homeTopReviews;
 
   /// No description provided for @homeNoReviews.
   ///
@@ -2035,6 +2095,498 @@ abstract class AppLocalizations {
   /// In tr, this message translates to:
   /// **'Tüm yorumları gör'**
   String get uniDetailSeeAllReviews;
+
+  /// No description provided for @uniDetailWriteFirstReview.
+  ///
+  /// In tr, this message translates to:
+  /// **'İlk yorumu sen yaz'**
+  String get uniDetailWriteFirstReview;
+
+  /// No description provided for @googleReviewsTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Google Yorumları'**
+  String get googleReviewsTitle;
+
+  /// No description provided for @googleReviewsTileSubtitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Google Haritalar kullanıcılarının değerlendirmeleri'**
+  String get googleReviewsTileSubtitle;
+
+  /// No description provided for @googleReviewsCount.
+  ///
+  /// In tr, this message translates to:
+  /// **'{count} değerlendirme'**
+  String googleReviewsCount(int count);
+
+  /// No description provided for @googleReviewsAttribution.
+  ///
+  /// In tr, this message translates to:
+  /// **'Yorumlar Google tarafından sağlanmaktadır'**
+  String get googleReviewsAttribution;
+
+  /// No description provided for @reviewBadgeOwnUniversity.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bu üniversitenin öğrencisi'**
+  String get reviewBadgeOwnUniversity;
+
+  /// No description provided for @reviewBadgeOtherUniversity.
+  ///
+  /// In tr, this message translates to:
+  /// **'Başka üniversiteden öğrenci'**
+  String get reviewBadgeOtherUniversity;
+
+  /// No description provided for @reviewPromptTitleOwn.
+  ///
+  /// In tr, this message translates to:
+  /// **'Üniversiteni değerlendir'**
+  String get reviewPromptTitleOwn;
+
+  /// No description provided for @reviewPromptTitleOther.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bu üniversiteyi değerlendir'**
+  String get reviewPromptTitleOther;
+
+  /// No description provided for @reviewPromptBodyOwn.
+  ///
+  /// In tr, this message translates to:
+  /// **'{uniName} deneyimini paylaş, senden sonraki öğrencilere yol göster.'**
+  String reviewPromptBodyOwn(String uniName);
+
+  /// No description provided for @reviewPromptBodyOther.
+  ///
+  /// In tr, this message translates to:
+  /// **'{uniName} hakkında bilgin varsa deneyimini paylaşarak tercih yapacak öğrencilere yardımcı olabilirsin.'**
+  String reviewPromptBodyOther(String uniName);
+
+  /// No description provided for @reviewPromptCta.
+  ///
+  /// In tr, this message translates to:
+  /// **'Yorum yaz'**
+  String get reviewPromptCta;
+
+  /// No description provided for @reviewPromptLater.
+  ///
+  /// In tr, this message translates to:
+  /// **'Daha sonra'**
+  String get reviewPromptLater;
+
+  /// No description provided for @reviewPromptNever.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bir daha gösterme'**
+  String get reviewPromptNever;
+
+  /// No description provided for @badgeFirstReview.
+  ///
+  /// In tr, this message translates to:
+  /// **'İlk Yorum'**
+  String get badgeFirstReview;
+
+  /// No description provided for @badgeFirstReviewDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'İlk onaylı yorumunu yaz'**
+  String get badgeFirstReviewDesc;
+
+  /// No description provided for @badgeDetailedReviewer.
+  ///
+  /// In tr, this message translates to:
+  /// **'Detaylı Yorumcu'**
+  String get badgeDetailedReviewer;
+
+  /// No description provided for @badgeDetailedReviewerDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'3 onaylı yorum yaz'**
+  String get badgeDetailedReviewerDesc;
+
+  /// No description provided for @badgeHelpful.
+  ///
+  /// In tr, this message translates to:
+  /// **'Faydalı'**
+  String get badgeHelpful;
+
+  /// No description provided for @badgeHelpfulDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'Yorumların toplam 10 beğeni alsın'**
+  String get badgeHelpfulDesc;
+
+  /// No description provided for @badgeProlificReviewer.
+  ///
+  /// In tr, this message translates to:
+  /// **'Usta Yorumcu'**
+  String get badgeProlificReviewer;
+
+  /// No description provided for @badgeProlificReviewerDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'10 onaylı yorum yaz'**
+  String get badgeProlificReviewerDesc;
+
+  /// No description provided for @badgeReviewLegend.
+  ///
+  /// In tr, this message translates to:
+  /// **'Efsane Yorumcu'**
+  String get badgeReviewLegend;
+
+  /// No description provided for @badgeReviewLegendDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'25 onaylı yorum yaz'**
+  String get badgeReviewLegendDesc;
+
+  /// No description provided for @badgeCommunityHero.
+  ///
+  /// In tr, this message translates to:
+  /// **'Topluluk Kahramanı'**
+  String get badgeCommunityHero;
+
+  /// No description provided for @badgeCommunityHeroDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'Yorumların toplam 50 beğeni alsın'**
+  String get badgeCommunityHeroDesc;
+
+  /// No description provided for @badgeLikeMagnet.
+  ///
+  /// In tr, this message translates to:
+  /// **'Beğeni Mıknatısı'**
+  String get badgeLikeMagnet;
+
+  /// No description provided for @badgeLikeMagnetDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'Yorumların toplam 150 beğeni alsın'**
+  String get badgeLikeMagnetDesc;
+
+  /// No description provided for @badgeCollector.
+  ///
+  /// In tr, this message translates to:
+  /// **'Koleksiyoncu'**
+  String get badgeCollector;
+
+  /// No description provided for @badgeCollectorDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'5 üniversiteyi favorilerine ekle'**
+  String get badgeCollectorDesc;
+
+  /// No description provided for @badgeMasterCollector.
+  ///
+  /// In tr, this message translates to:
+  /// **'Hazine Avcısı'**
+  String get badgeMasterCollector;
+
+  /// No description provided for @badgeMasterCollectorDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'15 üniversiteyi favorilerine ekle'**
+  String get badgeMasterCollectorDesc;
+
+  /// No description provided for @badgeExplorer.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kaşif'**
+  String get badgeExplorer;
+
+  /// No description provided for @badgeExplorerDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'10 farklı üniversiteyi incele'**
+  String get badgeExplorerDesc;
+
+  /// No description provided for @badgeWanderer.
+  ///
+  /// In tr, this message translates to:
+  /// **'Gezgin'**
+  String get badgeWanderer;
+
+  /// No description provided for @badgeWandererDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'30 farklı üniversiteyi incele'**
+  String get badgeWandererDesc;
+
+  /// No description provided for @badgeCartographer.
+  ///
+  /// In tr, this message translates to:
+  /// **'Harita Ustası'**
+  String get badgeCartographer;
+
+  /// No description provided for @badgeCartographerDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'60 farklı üniversiteyi incele'**
+  String get badgeCartographerDesc;
+
+  /// No description provided for @badgeCityTraveler.
+  ///
+  /// In tr, this message translates to:
+  /// **'Şehir Gezgini'**
+  String get badgeCityTraveler;
+
+  /// No description provided for @badgeCityTravelerDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'5 farklı şehri keşfet'**
+  String get badgeCityTravelerDesc;
+
+  /// No description provided for @badgeAnalyst.
+  ///
+  /// In tr, this message translates to:
+  /// **'Analist'**
+  String get badgeAnalyst;
+
+  /// No description provided for @badgeAnalystDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'5 karşılaştırma yap'**
+  String get badgeAnalystDesc;
+
+  /// No description provided for @badgeStrategist.
+  ///
+  /// In tr, this message translates to:
+  /// **'Stratejist'**
+  String get badgeStrategist;
+
+  /// No description provided for @badgeStrategistDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'20 karşılaştırma yap'**
+  String get badgeStrategistDesc;
+
+  /// No description provided for @badgeAmbassador.
+  ///
+  /// In tr, this message translates to:
+  /// **'Elçi'**
+  String get badgeAmbassador;
+
+  /// No description provided for @badgeAmbassadorDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'3 kez paylaşım yap'**
+  String get badgeAmbassadorDesc;
+
+  /// No description provided for @badgeSuperAmbassador.
+  ///
+  /// In tr, this message translates to:
+  /// **'Marka Elçisi'**
+  String get badgeSuperAmbassador;
+
+  /// No description provided for @badgeSuperAmbassadorDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'10 kez paylaşım yap'**
+  String get badgeSuperAmbassadorDesc;
+
+  /// No description provided for @badgeStreakStarter.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kıvılcım'**
+  String get badgeStreakStarter;
+
+  /// No description provided for @badgeStreakStarterDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'3 gün üst üste uygulamaya gir'**
+  String get badgeStreakStarterDesc;
+
+  /// No description provided for @badgeStreakKeeper.
+  ///
+  /// In tr, this message translates to:
+  /// **'Alev Ustası'**
+  String get badgeStreakKeeper;
+
+  /// No description provided for @badgeStreakKeeperDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'7 gün üst üste uygulamaya gir'**
+  String get badgeStreakKeeperDesc;
+
+  /// No description provided for @badgeStreakMaster.
+  ///
+  /// In tr, this message translates to:
+  /// **'Sönmeyen Alev'**
+  String get badgeStreakMaster;
+
+  /// No description provided for @badgeStreakMasterDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'30 gün üst üste uygulamaya gir'**
+  String get badgeStreakMasterDesc;
+
+  /// No description provided for @badgeLoyalMember.
+  ///
+  /// In tr, this message translates to:
+  /// **'Sadık Üye'**
+  String get badgeLoyalMember;
+
+  /// No description provided for @badgeLoyalMemberDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'30 gündür aramızda ol'**
+  String get badgeLoyalMemberDesc;
+
+  /// No description provided for @badgeVeteran.
+  ///
+  /// In tr, this message translates to:
+  /// **'Emektar'**
+  String get badgeVeteran;
+
+  /// No description provided for @badgeVeteranDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'1 yıldır aramızda ol'**
+  String get badgeVeteranDesc;
+
+  /// No description provided for @badgeProfileComplete.
+  ///
+  /// In tr, this message translates to:
+  /// **'Vitrin'**
+  String get badgeProfileComplete;
+
+  /// No description provided for @badgeProfileCompleteDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'Profilini tamamla: fotoğraf, tanıtım, bölüm ve sınıf'**
+  String get badgeProfileCompleteDesc;
+
+  /// No description provided for @badgeVerifiedScholar.
+  ///
+  /// In tr, this message translates to:
+  /// **'Onaylı Öğrenci'**
+  String get badgeVerifiedScholar;
+
+  /// No description provided for @badgeVerifiedScholarDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'edu.tr e-postanla öğrenciliğini doğrula'**
+  String get badgeVerifiedScholarDesc;
+
+  /// No description provided for @badgeEarlyAdopter.
+  ///
+  /// In tr, this message translates to:
+  /// **'İlk Nesil'**
+  String get badgeEarlyAdopter;
+
+  /// No description provided for @badgeEarlyAdopterDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'Uygulamanın ilk kullanıcılarından oldun'**
+  String get badgeEarlyAdopterDesc;
+
+  /// No description provided for @badgesScreenTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Rozetlerim'**
+  String get badgesScreenTitle;
+
+  /// No description provided for @badgesEarnedCount.
+  ///
+  /// In tr, this message translates to:
+  /// **'{earned}/{total}'**
+  String badgesEarnedCount(int earned, int total);
+
+  /// No description provided for @badgesSeeAll.
+  ///
+  /// In tr, this message translates to:
+  /// **'Tümünü Gör'**
+  String get badgesSeeAll;
+
+  /// No description provided for @badgeProgressLabel.
+  ///
+  /// In tr, this message translates to:
+  /// **'{current}/{target}'**
+  String badgeProgressLabel(int current, int target);
+
+  /// No description provided for @badgeEarnedOn.
+  ///
+  /// In tr, this message translates to:
+  /// **'{date} tarihinde kazanıldı'**
+  String badgeEarnedOn(String date);
+
+  /// No description provided for @badgeLockedLabel.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kilitli'**
+  String get badgeLockedLabel;
+
+  /// No description provided for @badgeCelebrationTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Yeni Rozet Kazandın!'**
+  String get badgeCelebrationTitle;
+
+  /// No description provided for @badgeCelebrationAction.
+  ///
+  /// In tr, this message translates to:
+  /// **'Harika!'**
+  String get badgeCelebrationAction;
+
+  /// No description provided for @badgeCelebrationSecondary.
+  ///
+  /// In tr, this message translates to:
+  /// **'Rozetlerim'**
+  String get badgeCelebrationSecondary;
+
+  /// No description provided for @badgeCategoryReviewer.
+  ///
+  /// In tr, this message translates to:
+  /// **'Yorumcu'**
+  String get badgeCategoryReviewer;
+
+  /// No description provided for @badgeCategoryHero.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kahraman'**
+  String get badgeCategoryHero;
+
+  /// No description provided for @badgeCategoryCollection.
+  ///
+  /// In tr, this message translates to:
+  /// **'Koleksiyon'**
+  String get badgeCategoryCollection;
+
+  /// No description provided for @badgeCategoryExplorer.
+  ///
+  /// In tr, this message translates to:
+  /// **'Keşif'**
+  String get badgeCategoryExplorer;
+
+  /// No description provided for @badgeCategoryAnalyst.
+  ///
+  /// In tr, this message translates to:
+  /// **'Analiz'**
+  String get badgeCategoryAnalyst;
+
+  /// No description provided for @badgeCategoryAmbassador.
+  ///
+  /// In tr, this message translates to:
+  /// **'Paylaşım'**
+  String get badgeCategoryAmbassador;
+
+  /// No description provided for @badgeCategoryStreak.
+  ///
+  /// In tr, this message translates to:
+  /// **'Seri'**
+  String get badgeCategoryStreak;
+
+  /// No description provided for @badgeCategoryMembership.
+  ///
+  /// In tr, this message translates to:
+  /// **'Üyelik'**
+  String get badgeCategoryMembership;
+
+  /// No description provided for @badgeCategorySpecial.
+  ///
+  /// In tr, this message translates to:
+  /// **'Özel'**
+  String get badgeCategorySpecial;
 
   /// No description provided for @uniDetailPlaces.
   ///
@@ -2468,17 +3020,23 @@ abstract class AppLocalizations {
   /// **'Bölüm Ekle'**
   String get prefListAddDepartment;
 
-  /// No description provided for @prefListSortByRanking.
+  /// No description provided for @prefListSortByScore.
   ///
   /// In tr, this message translates to:
-  /// **'Sıralamaya Göre'**
-  String get prefListSortByRanking;
+  /// **'Puana Göre Sırala'**
+  String get prefListSortByScore;
 
   /// No description provided for @prefListUndo.
   ///
   /// In tr, this message translates to:
   /// **'Geri Al'**
   String get prefListUndo;
+
+  /// No description provided for @prefListsSummary.
+  ///
+  /// In tr, this message translates to:
+  /// **'{lists} liste · {items} tercih'**
+  String prefListsSummary(int lists, int items);
 
   /// No description provided for @prefListSavedState.
   ///
@@ -2605,6 +3163,54 @@ abstract class AppLocalizations {
   /// In tr, this message translates to:
   /// **'Ana Sayfaya Dön'**
   String get prefSharedListBackHome;
+
+  /// No description provided for @prefSharedReadOnlyNotice.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bu listeyi salt görüntüleme modunda inceliyorsun.'**
+  String get prefSharedReadOnlyNotice;
+
+  /// No description provided for @prefSharedCopyButton.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kendime Kopyala ve Düzenle'**
+  String get prefSharedCopyButton;
+
+  /// No description provided for @prefSharedCopySuccess.
+  ///
+  /// In tr, this message translates to:
+  /// **'Liste sana kopyalandı! Artık düzenleyebilirsin.'**
+  String get prefSharedCopySuccess;
+
+  /// No description provided for @prefSharedCopyOwnList.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bu liste zaten sana ait.'**
+  String get prefSharedCopyOwnList;
+
+  /// No description provided for @prefSharedEditOwnList.
+  ///
+  /// In tr, this message translates to:
+  /// **'Listeni Düzenle'**
+  String get prefSharedEditOwnList;
+
+  /// No description provided for @prefSharedCopyPaywallTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kopyalamak Plus\'a Özel'**
+  String get prefSharedCopyPaywallTitle;
+
+  /// No description provided for @prefSharedCopyPaywallDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bu listeyi görüntüleyebilirsin. Kendine kopyalayıp düzenlemek Plus ve Pro üyelere özeldir. Kopyaladığında liste sahibinin listesi değişmez — tamamen sana ait yeni bir kopya oluşur.'**
+  String get prefSharedCopyPaywallDesc;
+
+  /// No description provided for @prefSharedCopyPaywallButton.
+  ///
+  /// In tr, this message translates to:
+  /// **'Planları Gör'**
+  String get prefSharedCopyPaywallButton;
 
   /// No description provided for @comparisonHubSubtitle.
   ///

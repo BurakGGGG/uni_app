@@ -4,6 +4,8 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../l10n/generated/app_localizations.dart';
 import '../../../university/presentation/widgets/score_badge.dart';
+import '../../../preference_wizard/presentation/widgets/feasibility_chip.dart';
+import '../../../preference_wizard/presentation/widgets/list_health_panel.dart';
 import '../providers/preference_list_providers.dart';
 import '../../domain/models/preference_list_model.dart';
 import '../widgets/share_list_sheet.dart';
@@ -104,9 +106,7 @@ class _ListEditScreenState extends ConsumerState<ListEditScreen> {
       );
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(AppLocalizations.of(context).prefListSaveError('$e')),
         ),
@@ -126,9 +126,7 @@ class _ListEditScreenState extends ConsumerState<ListEditScreen> {
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Text(loc.prefListDeleteTitle),
-        content: Text(
-          loc.prefListDeleteConfirm(list.title),
-        ),
+        content: Text(loc.prefListDeleteConfirm(list.title)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
@@ -171,24 +169,32 @@ class _ListEditScreenState extends ConsumerState<ListEditScreen> {
     }
   }
 
-  void _sortByRankingAscending(PreferenceListModel list) {
+  void _sortByScoreDescending(PreferenceListModel list) {
     final current = _effectiveItems(list);
     if (current.length < 2) return;
 
-    // Sıralama (ranking) küçük = daha iyi (1. sıra en iyi). Bu yüzden artan sıralama:
-    // ranking'i olmayan veya 0 olan öğeler en sona düşer.
+    // Taban puanı yüksek olan üste. Verilerde ranking çoğunlukla 0 geldiği
+    // için birincil ölçüt baseScore'dur; puanı olmayanlar listenin sonuna
+    // düşer ve kendi aralarında (varsa) başarı sıralamasına göre dizilir.
     setState(() {
       _previousOrderBeforeSort = _normalizedItems(current);
       final sorted = [...current]
         ..sort((a, b) {
-          final aRank = (a.ranking == null || a.ranking! <= 0)
-              ? double.infinity
-              : a.ranking!.toDouble();
-          final bRank = (b.ranking == null || b.ranking! <= 0)
-              ? double.infinity
-              : b.ranking!.toDouble();
-          final rankCompare = aRank.compareTo(bRank);
-          if (rankCompare != 0) return rankCompare;
+          final aScore = (a.baseScore ?? 0) > 0 ? a.baseScore! : null;
+          final bScore = (b.baseScore ?? 0) > 0 ? b.baseScore! : null;
+
+          if (aScore != null || bScore != null) {
+            if (aScore == null) return 1; // puanı olmayan sona
+            if (bScore == null) return -1;
+            final scoreCompare = bScore.compareTo(aScore); // yüksek puan önce
+            if (scoreCompare != 0) return scoreCompare;
+          } else {
+            // İkisinin de puanı yok → ranking küçük olan (daha iyi) önce.
+            final aRank = (a.ranking ?? 0) > 0 ? a.ranking! : 1 << 30;
+            final bRank = (b.ranking ?? 0) > 0 ? b.ranking! : 1 << 30;
+            final rankCompare = aRank.compareTo(bRank);
+            if (rankCompare != 0) return rankCompare;
+          }
           return a.order.compareTo(b.order);
         });
       _draftItems = _normalizedItems(sorted);
@@ -332,6 +338,8 @@ class _ListEditScreenState extends ConsumerState<ListEditScreen> {
                 ],
                 const SizedBox(height: 14),
                 _ListSummaryCard(list: list.copyWith(items: items)),
+                const SizedBox(height: 12),
+                ListHealthPanel(items: items),
               ],
             ),
           ),
@@ -342,7 +350,7 @@ class _ListEditScreenState extends ConsumerState<ListEditScreen> {
             child: _ActionBar(
               canUndo: _previousOrderBeforeSort != null,
               canSort: items.length > 1,
-              onSort: () => _sortByRankingAscending(list),
+              onSort: () => _sortByScoreDescending(list),
               onUndo: _undoSort,
             ),
           ),
@@ -477,7 +485,7 @@ class _ActionBar extends StatelessWidget {
             ),
             icon: const Icon(Icons.sort_rounded, size: 18),
             label: Text(
-              loc.prefListSortByRanking,
+              loc.prefListSortByScore,
               style: const TextStyle(fontWeight: FontWeight.w700),
             ),
           ),
@@ -560,7 +568,7 @@ class _ListSummaryCard extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: list.isPublic
                       ? AppColors.success.withValues(alpha: 0.10)
-                      : AppColors.surfaceVariant,
+                      : AppColors.surfaceVariantFor(context),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Row(
@@ -575,9 +583,7 @@ class _ListSummaryCard extends StatelessWidget {
                     ),
                     const SizedBox(width: 5),
                     Text(
-                      list.isPublic
-                          ? loc.commonPublicLong
-                          : loc.commonPrivate,
+                      list.isPublic ? loc.commonPublicLong : loc.commonPrivate,
                       style: AppTextStyles.labelSmall.copyWith(
                         color: list.isPublic
                             ? AppColors.success
@@ -790,6 +796,12 @@ class _ItemCard extends StatelessWidget {
                           spacing: 6,
                           runSpacing: 6,
                           children: [
+                            FeasibilityChip(
+                              scoreType: item.scoreType,
+                              baseScore: item.baseScore,
+                              ranking: item.ranking,
+                              compact: true,
+                            ),
                             if (item.baseScore != null && item.baseScore! > 0)
                               _MiniStat(
                                 icon: Icons.trending_up_rounded,
@@ -946,38 +958,45 @@ class _GradientBorderButton extends StatelessWidget {
             borderRadius: BorderRadius.circular(10.5),
           ),
           child: Center(
-            child: child ??
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    if (icon != null) ...[
-                      ShaderMask(
-                        shaderCallback: (bounds) =>
-                            gradient.createShader(bounds),
-                        child: Icon(
-                          icon,
-                          size: 20,
-                          color: enabled ? Colors.white : AppColors.textTertiary,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                    ],
-                    if (label != null)
-                      ShaderMask(
-                        shaderCallback: (bounds) =>
-                            gradient.createShader(bounds),
-                        child: Text(
-                          label!,
-                          style: TextStyle(
-                            fontWeight: FontWeight.w700,
-                            fontSize: 15,
+            child:
+                child ??
+                // Dar ekranlarda ikon+etiket taşmasın diye ölçeklenerek sığar.
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (icon != null) ...[
+                        ShaderMask(
+                          shaderCallback: (bounds) =>
+                              gradient.createShader(bounds),
+                          child: Icon(
+                            icon,
+                            size: 20,
                             color: enabled
                                 ? Colors.white
-                                : AppColors.textTertiary,
+                                : AppColors.textTertiaryFor(context),
                           ),
                         ),
-                      ),
-                  ],
+                        const SizedBox(width: 8),
+                      ],
+                      if (label != null)
+                        ShaderMask(
+                          shaderCallback: (bounds) =>
+                              gradient.createShader(bounds),
+                          child: Text(
+                            label!,
+                            style: TextStyle(
+                              fontWeight: FontWeight.w700,
+                              fontSize: 15,
+                              color: enabled
+                                  ? Colors.white
+                                  : AppColors.textTertiaryFor(context),
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
                 ),
           ),
         ),

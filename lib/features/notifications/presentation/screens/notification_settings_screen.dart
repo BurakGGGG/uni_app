@@ -95,6 +95,17 @@ class _NotificationSettingsScreenState
                     .read(notificationPreferencesProvider.notifier)
                     .toggle('favoriteNewReviewEnabled', v),
               ),
+              _SettingTile(
+                icon: Icons.rate_review_rounded,
+                iconColor: AppColors.primary,
+                title: 'Değerlendirme hatırlatması',
+                subtitle:
+                    'Üniversiteni değerlendirmen için ara sıra hatırlatma gönder',
+                value: prefs.reviewCampaignEnabled,
+                onChanged: (v) => ref
+                    .read(notificationPreferencesProvider.notifier)
+                    .toggle('reviewCampaignEnabled', v),
+              ),
               const SizedBox(height: 24),
               _buildSectionTitle('Bilgi'),
               Padding(

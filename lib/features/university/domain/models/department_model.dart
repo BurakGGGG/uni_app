@@ -12,6 +12,9 @@ class DepartmentModel {
   final String? scoreType; // SAY, EA, SÖZ, DİL, TYT
   final int duration; // Yıl (2 veya 4+)
   final int? quota; // Kontenjan
+  /// ÖSYM kılavuz eki: "(Burslu)", "(İngilizce)" vb. — aynı adlı program
+  /// varyantlarını ayırt eder.
+  final String? description;
 
   // ── Sprint 3 — Yorum Sistemi İçin Rating Alanları ──────────────
   final double avgRating;
@@ -35,6 +38,7 @@ class DepartmentModel {
     this.scoreType,
     this.duration = 4,
     this.quota,
+    this.description,
     this.avgRating = 0.0,
     this.reviewCount = 0,
     this.categoryRatings = const {},
@@ -55,6 +59,7 @@ class DepartmentModel {
       scoreType: map['scoreType'] as String?,
       duration: map['duration'] ?? (map['type'] == 'Önlisans' ? 2 : 4),
       quota: map['quota'] as int?,
+      description: map['description'] as String?,
       avgRating: (map['avgRating'] as num?)?.toDouble() ?? 0.0,
       reviewCount: (map['reviewCount'] as num?)?.toInt() ?? 0,
       categoryRatings: Map<String, double>.from(
@@ -81,6 +86,7 @@ class DepartmentModel {
       'scoreType': scoreType,
       'duration': duration,
       'quota': quota,
+      if (description != null) 'description': description,
       'avgRating': avgRating,
       'reviewCount': reviewCount,
       'categoryRatings': categoryRatings,
@@ -191,5 +197,26 @@ extension DepartmentScoreFallback on DepartmentModel {
 
   /// scoreType (legacy) veya scoreData.scoreType
   String? get effectiveScoreType => scoreType ?? scoreData?.scoreType;
+
+  /// Eşleştirme için referans başarı sıralaması: "en güncel mevcut (>0)" sıralama.
+  ///
+  /// 2025 verisinde `ranking` çoğunlukla 0 olduğundan, sıfırsa `previousYears`'ın
+  /// en büyük yılından başlayarak ilk `ranking > 0` değerine düşer. Hiçbiri yoksa
+  /// legacy `ranking` alanına bakar, o da yoksa null döner.
+  int? get rankingForMatching {
+    final sd = scoreData;
+    if (sd != null) {
+      if (sd.ranking > 0) return sd.ranking;
+      final years = sd.previousYears.keys.toList()
+        ..sort((a, b) => b.compareTo(a));
+      for (final y in years) {
+        final r = sd.previousYears[y]!.ranking;
+        if (r > 0) return r;
+      }
+    }
+    final legacy = ranking;
+    if (legacy != null && legacy > 0) return legacy;
+    return null;
+  }
 }
 

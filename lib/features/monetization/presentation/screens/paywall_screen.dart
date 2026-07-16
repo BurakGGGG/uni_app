@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 import '../../../../services/revenuecat_service.dart';
@@ -188,12 +189,20 @@ class _PaywallScreenState extends State<PaywallScreen>
     Package? best;
     for (final p in packages) {
       final id = p.identifier.toLowerCase();
+      final productId = p.storeProduct.identifier.toLowerCase();
       final matchPlan = id.contains(wantedProductId.toLowerCase()) ||
+          productId.contains(wantedProductId.toLowerCase()) ||
           (isPlus ? id.contains('plus') : id.contains('pro'));
       if (!matchPlan) continue;
+      // Custom package identifier'larda packageType monthly/annual gelmez;
+      // dönem eşleşmesini identifier üzerinden de yap.
       final matchPeriod = wantYearly
-          ? p.packageType == PackageType.annual
-          : p.packageType == PackageType.monthly;
+          ? (p.packageType == PackageType.annual ||
+              id.contains('yearly') ||
+              productId.contains('yearly'))
+          : (p.packageType == PackageType.monthly ||
+              id.contains('monthly') ||
+              productId.contains('monthly'));
       if (matchPeriod) return p;
       best ??= p;
     }
@@ -230,7 +239,8 @@ class _PaywallScreenState extends State<PaywallScreen>
     final pkg = _resolvePackage();
     if (pkg == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Paket bilgisi alinamadi. Tekrar dene.')),
+        SnackBar(
+            content: Text(AppLocalizations.of(context).paywallPackageInfoError)),
       );
       return;
     }
@@ -238,11 +248,11 @@ class _PaywallScreenState extends State<PaywallScreen>
     final ok = await _revenueCatService.purchasePackage(pkg);
     if (!mounted) return;
     setState(() => _isPurchasing = false);
+    final loc = AppLocalizations.of(context);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(ok
-            ? 'Satin alma basarili. Planin guncelleniyor.'
-            : 'Satin alma tamamlanmadi.'),
+        content: Text(
+            ok ? loc.paywallPurchaseSuccess : loc.paywallPurchaseIncomplete),
       ),
     );
     if (ok) {
@@ -257,7 +267,9 @@ class _PaywallScreenState extends State<PaywallScreen>
     if (!mounted) return;
     setState(() => _isRestoring = false);
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Geri yukleme sonucu: ${tier.label}')),
+      SnackBar(
+          content: Text(
+              AppLocalizations.of(context).paywallRestoreResult(tier.label))),
     );
     if (tier != SubscriptionTier.free) {
       context.pop();
@@ -324,7 +336,11 @@ class _PaywallScreenState extends State<PaywallScreen>
                       selected: _selectedTier,
                       onTap: _onTierTap,
                       isDark: isDark,
-                    ),
+                    ).animate().slideY(
+                          begin: -0.25,
+                          duration: 450.ms,
+                          curve: Curves.easeOutCubic,
+                        ),
                     const SizedBox(height: 14),
                     _PaywallHeader(
                       tier: _selectedTier,
@@ -332,14 +348,24 @@ class _PaywallScreenState extends State<PaywallScreen>
                       gradient: activeGradient,
                       color: activeColor,
                       isDark: isDark,
-                    ),
+                    ).animate().slideY(
+                          begin: 0.18,
+                          duration: 450.ms,
+                          delay: 80.ms,
+                          curve: Curves.easeOutCubic,
+                        ),
                     const SizedBox(height: 14),
                     Flexible(
                       child: _FeatureChecklist(
                         features: _currentPlan.features,
                         color: activeColor,
                         isDark: isDark,
-                      ),
+                      ).animate().slideY(
+                            begin: 0.12,
+                            duration: 450.ms,
+                            delay: 160.ms,
+                            curve: Curves.easeOutCubic,
+                          ),
                     ),
                     if (!isFree) ...[
                       const SizedBox(height: 18),
@@ -348,7 +374,7 @@ class _PaywallScreenState extends State<PaywallScreen>
                         Padding(
                           padding: const EdgeInsets.symmetric(vertical: 8),
                           child: ErrorStateWidget(
-                            message: 'Paketler yüklenirken bir sorun oluştu. Lütfen tekrar dene.',
+                            message: loc.paywallOfferingsLoadError,
                             onRetry: _loadOfferings,
                           ),
                         )
@@ -373,7 +399,12 @@ class _PaywallScreenState extends State<PaywallScreen>
                           color: activeColor,
                           gradient: activeGradient,
                           isDark: isDark,
-                        ),
+                        ).animate().slideY(
+                              begin: 0.14,
+                              duration: 450.ms,
+                              delay: 240.ms,
+                              curve: Curves.easeOutCubic,
+                            ),
                       if (!_isLoadingOfferings &&
                           !_loadError &&
                           trialText != null) ...[
@@ -410,7 +441,12 @@ class _PaywallScreenState extends State<PaywallScreen>
                       onTap: _isPurchasing || _isRestoring
                           ? null
                           : _handlePurchase,
-                    ),
+                    ).animate().slideY(
+                          begin: 0.22,
+                          duration: 500.ms,
+                          delay: 320.ms,
+                          curve: Curves.easeOutBack,
+                        ),
                     const SizedBox(height: 4),
                     _RestoreButton(
                       onTap: _isPurchasing || _isRestoring
@@ -1017,7 +1053,7 @@ class _RestoreButton extends StatelessWidget {
                 child: CircularProgressIndicator(strokeWidth: 2),
               )
             : const Icon(Icons.restore_rounded, size: 18),
-        label: const Text('Satin alimi geri yukle'),
+        label: Text(AppLocalizations.of(context).paywallRestore),
       ),
     );
   }
@@ -1036,7 +1072,7 @@ class _SecurityFooter extends StatelessWidget {
             size: 13, color: AppColors.textTertiaryFor(context)),
         const SizedBox(width: 4),
         Text(
-          'Güvenli ödeme • İstediğinde iptal',
+          AppLocalizations.of(context).paywallSecurityNote,
           style: AppTextStyles.labelSmall.copyWith(
             color: AppColors.textTertiaryFor(context),
             fontSize: 11,
@@ -1198,14 +1234,14 @@ class _PurchaseSuccessDialogState extends State<_PurchaseSuccessDialog>
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  'Satin alma basarili!',
+                  AppLocalizations.of(context).paywallPurchaseSuccessTitle,
                   style: AppTextStyles.titleMedium.copyWith(
                     fontWeight: FontWeight.w900,
                   ),
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Planin aktif edildi. Tum ozelliklerin keyfini cikar.',
+                  AppLocalizations.of(context).paywallPurchaseSuccessDesc,
                   textAlign: TextAlign.center,
                   style: AppTextStyles.bodySmall.copyWith(
                     color: AppColors.textSecondaryFor(context),
@@ -1217,7 +1253,7 @@ class _PurchaseSuccessDialogState extends State<_PurchaseSuccessDialog>
                   width: double.infinity,
                   child: FilledButton(
                     onPressed: () => Navigator.of(context).pop(),
-                    child: const Text('Harika'),
+                    child: Text(AppLocalizations.of(context).paywallGreat),
                   ),
                 ),
               ],

@@ -340,7 +340,7 @@ class _Field extends StatelessWidget {
           color: AppColors.textTertiaryFor(context),
         ),
         filled: true,
-        fillColor: AppColors.surfaceVariant.withValues(alpha: 0.7),
+        fillColor: AppColors.surfaceVariantFor(context).withValues(alpha: 0.7),
         counterText: '',
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 14,

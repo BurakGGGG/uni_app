@@ -1,4 +1,9 @@
+import 'dart:convert';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart' show rootBundle;
+
 import '../../../core/utils/turkish_compare.dart';
 import '../domain/models/city_model.dart';
 import '../domain/models/university_model.dart';
@@ -96,7 +101,7 @@ class UniversityRepository {
     // Önce full cache'den filtrele
     if (_universitiesCache != null && _isCacheValid) {
       final filtered = _universitiesCache!.where((u) => u.type == type).toList();
-      filtered.sort((a, b) => a.name.compareTo(b.name));
+      filtered.sort((a, b) => turkishCompare(a.name, b.name));
       return filtered;
     }
 
@@ -107,7 +112,7 @@ class UniversityRepository {
     final list = snapshot.docs
         .map((doc) => UniversityModel.fromMap(doc.data(), doc.id))
         .toList();
-    list.sort((a, b) => a.name.compareTo(b.name));
+    list.sort((a, b) => turkishCompare(a.name, b.name));
     return list;
   }
 
@@ -154,7 +159,7 @@ class UniversityRepository {
       if (a.type != b.type) {
         return a.type == 'Lisans' ? -1 : 1;
       }
-      return a.name.compareTo(b.name);
+      return turkishCompare(a.name, b.name);
     });
 
     _departmentsCache[uniId] = departments;
@@ -166,18 +171,106 @@ class UniversityRepository {
       return _allDepartmentsCache!;
     }
 
-    // Tüm bölümleri çekmek için (Score Calculator gibi yerlerde kullanılır)
-    // Server yükünü azaltmak için öncelikle cache varsa cache kullanmayı denemek de iyi olabilir ama
-    // source: Source.serverAndCache Firestore mantığında zaten offline'da cache, online'da serverAndCache yapıyor.
+    // ÖNEMLİ (maliyet): `departments` koleksiyonu migration ile
+    // assets/data/department_scores.json'dan birebir yazılır. 7.386 dokümanı
+    // toplu çekmek her seferinde 7.386 okuma faturalandırır — bunun yerine
+    // sürüm eşleşiyorsa aynı veri asset'ten kurulur (1 okuma: _meta kontrolü).
+    // Not: asset'te avgRating/reviewCount yoktur; bu toplu liste yalnızca
+    // puan/eşleştirme akışlarında kullanıldığından sorun olmaz. Yorum verisi
+    // gereken detay ekranları Firestore'dan okumaya devam eder.
+    try {
+      if (await _isAssetScoresCurrent()) {
+        _allDepartmentsCache = await _loadDepartmentsFromAsset();
+        return _allDepartmentsCache!;
+      }
+    } catch (_) {
+      // Asset okunamadı/bozuk — Firestore'a düş.
+    }
+
+    // Asset eski (uygulama güncellenmemiş) — Firestore'dan tam çekim.
     final snapshot = await _firestore
         .collection('departments')
         .get(const GetOptions(source: Source.serverAndCache));
-    
+
     _allDepartmentsCache = snapshot.docs
+        .where((doc) => !doc.id.startsWith('_')) // _meta sürüm dokümanını atla
         .map((doc) => DepartmentModel.fromMap(doc.data(), doc.id))
         .toList();
-        
+
     return _allDepartmentsCache!;
+  }
+
+  // ── Asset tabanlı toplu bölüm verisi ──────────────────────────
+
+  static const String _scoresAssetPath = 'assets/data/department_scores.json';
+  List<DepartmentModel>? _assetDepartmentsCache;
+  String? _assetScoresVersion;
+
+  /// Firestore'daki veri sürümü (`departments/_meta`) asset ile aynı mı?
+  ///
+  /// `_meta` henüz yoksa ya da okunamazsa (offline dahil) asset güncel kabul
+  /// edilir — asset her koşulda çalışan yerel kaynaktır. Sürüm farklıysa
+  /// (eski uygulama + yeni migration) detay ekranlarıyla tutarlılık için
+  /// Firestore'a düşülür.
+  Future<bool> _isAssetScoresCurrent() async {
+    String? remoteVersion;
+    try {
+      final meta = await _firestore
+          .collection('departments')
+          .doc('_meta')
+          .get(const GetOptions(source: Source.serverAndCache))
+          .timeout(const Duration(seconds: 5));
+      remoteVersion = meta.data()?['version'] as String?;
+    } catch (_) {
+      // _meta okunamadı (offline/izin/timeout) — asset güncel kabul edilir.
+      return true;
+    }
+    if (remoteVersion == null) return true;
+    // Parse hatası buradan yukarı fırlar → getAllDepartments Firestore'a düşer.
+    await _parseScoresAssetIfNeeded();
+    return remoteVersion == _assetScoresVersion;
+  }
+
+  Future<List<DepartmentModel>> _loadDepartmentsFromAsset() async {
+    await _parseScoresAssetIfNeeded();
+    return _assetDepartmentsCache!;
+  }
+
+  Future<void> _parseScoresAssetIfNeeded() async {
+    if (_assetDepartmentsCache != null) return;
+
+    final jsonStr = await rootBundle.loadString(_scoresAssetPath);
+    // Büyük JSON'u ana isolate dışında çöz (kare düşürmemek için).
+    final data = await compute(_decodeJsonMap, jsonStr);
+    _assetScoresVersion = data['version'] as String?;
+
+    final scores = (data['scores'] as List).cast<Map<String, dynamic>>();
+    _assetDepartmentsCache = scores.map((s) {
+      // Migration'ın Firestore'a yazdığı doküman şekliyle birebir aynı —
+      // bkz. lib/scripts/department_scores_migration.dart
+      return DepartmentModel.fromMap({
+        'universityId': s['universityId'],
+        'name': s['name'],
+        'faculty': s['faculty'],
+        'type': s['type'],
+        'language': s['language'],
+        'duration': s['duration'],
+        'description': s['description'],
+        'baseScore': s['baseScore'],
+        'ranking': s['ranking'],
+        'quota': s['quota'],
+        'scoreType': s['scoreType'],
+        'scoreData': {
+          'year': s['year'],
+          'scoreType': s['scoreType'],
+          'baseScore': s['baseScore'],
+          'ranking': s['ranking'],
+          'quota': s['quota'],
+          'placedCount': s['placedCount'],
+          'previousYears': s['previousYears'] ?? {},
+        },
+      }, s['deptId'] as String);
+    }).toList();
   }
 
   Future<DepartmentModel?> getDepartment(String deptId) async {
@@ -213,7 +306,8 @@ class UniversityRepository {
   }
 
   // ─── Arama ────────────────────────────────────────────────────
-  // 30 üniversite olduğu için client-side arama yeterli
+  // ~100 üniversite ölçeğinde client-side arama yeterli (tek koleksiyon
+  // okuması cache'leniyor); belirgin büyümede sunucu tarafına taşınmalı.
 
   Future<List<UniversityModel>> searchUniversities(String query) async {
     if (query.trim().isEmpty) return [];
@@ -246,3 +340,7 @@ class UniversityRepository {
     }).toList();
   }
 }
+
+/// `compute` ile ayrı isolate'ta çalışır — top-level olmak zorunda.
+Map<String, dynamic> _decodeJsonMap(String source) =>
+    json.decode(source) as Map<String, dynamic>;

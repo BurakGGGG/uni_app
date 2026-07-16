@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
-import '../../../../core/constants/app_constants.dart';
+import '../../../../core/widgets/brand_loader.dart';
 import '../providers/score_calculator_providers.dart';
 import '../widgets/university_match_card.dart';
 import '../../../admin/data/analytics_service.dart';
 import '../../../admin/domain/models/analytics_event.dart';
+import '../../../preference_wizard/domain/models/student_score_profile.dart';
+import '../../../preference_wizard/presentation/providers/preference_wizard_providers.dart';
+import '../../domain/models/match_result.dart';
 
 
 class ScoreResultScreen extends ConsumerWidget {
@@ -16,8 +20,6 @@ class ScoreResultScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final resultAsync = ref.watch(calculationResultProvider);
-    final selectedYear = ref.watch(scoreInputProvider).selectedYear;
-    final isYear2025 = selectedYear == 2025;
 
     return PopScope(
       canPop: false,
@@ -27,7 +29,7 @@ class ScoreResultScreen extends ConsumerWidget {
       child: Scaffold(
         backgroundColor: AppColors.backgroundFor(context),
       body: resultAsync.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => const BrandLoader(),
         error: (e, st) => Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -134,7 +136,14 @@ class ScoreResultScreen extends ConsumerWidget {
                           fontWeight: FontWeight.w800,
                           fontSize: 52,
                         ),
-                      ),
+                      )
+                          .animate()
+                          .fadeIn(delay: 250.ms, duration: 500.ms)
+                          .scale(
+                            begin: const Offset(0.85, 0.85),
+                            end: const Offset(1, 1),
+                            curve: Curves.easeOutBack,
+                          ),
                       const SizedBox(height: 24),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -146,40 +155,13 @@ class ScoreResultScreen extends ConsumerWidget {
                       ),
                     ],
                   ),
-                ),
-                
+                )
+                    .animate()
+                    .fadeIn(duration: 400.ms)
+                    .slideY(begin: -0.12, end: 0, curve: Curves.easeOut),
+
                 const SizedBox(height: 32),
 
-                // 2025 sıralama uyarısı
-                if (isYear2025)
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
-                    child: Container(
-                      padding: const EdgeInsets.all(14),
-                      decoration: BoxDecoration(
-                        color: AppColors.warning.withValues(alpha: 0.08),
-                        borderRadius: BorderRadius.circular(AppConstants.radiusMd),
-                        border: Border.all(color: AppColors.warning.withValues(alpha: 0.3)),
-                      ),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Icon(Icons.info_outline_rounded, color: AppColors.warning, size: 20),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: Text(
-                              '2025 yılı için sıralama verisi henüz mevcut değildir. '
-                              'Kartlarda sıralama bilgisi gösterilmemektedir.',
-                              style: AppTextStyles.bodySmall.copyWith(
-                                color: AppColors.warning, height: 1.4,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                
                 // Matches
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -207,7 +189,7 @@ class ScoreResultScreen extends ConsumerWidget {
 
                       if (result.guaranteed.isNotEmpty) ...[
                         _CategoryHeader(
-                          title: '🟢 Rahat Yerleşirsin',
+                          title: '🟢 Yüksek şans',
                           color: const Color(0xFF10B981),
                         ),
                         ...result.guaranteed.map((m) => UniversityMatchCard(match: m)),
@@ -216,7 +198,7 @@ class ScoreResultScreen extends ConsumerWidget {
 
                       if (result.target.isNotEmpty) ...[
                         _CategoryHeader(
-                          title: '🟡 Sınırda (Hedef)',
+                          title: '🟡 Ulaşılabilir',
                           color: const Color(0xFFF59E0B),
                         ),
                         ...result.target.map((m) => UniversityMatchCard(match: m)),
@@ -225,15 +207,21 @@ class ScoreResultScreen extends ConsumerWidget {
 
                       if (result.dream.isNotEmpty) ...[
                         _CategoryHeader(
-                          title: '🔴 Zorlayabilir',
+                          title: '🔴 Zorlayıcı',
                           color: const Color(0xFFEF4444),
                         ),
                         ...result.dream.map((m) => UniversityMatchCard(match: m)),
-                        const SizedBox(height: 32),
+                        const SizedBox(height: 16),
                       ],
+
+                      _WizardTransferCta(result: result),
+                      const SizedBox(height: 32),
                     ],
                   ),
-                ),
+                )
+                    .animate()
+                    .fadeIn(delay: 150.ms, duration: 400.ms)
+                    .slideY(begin: 0.08, end: 0, curve: Curves.easeOut),
               ],
             ),
           );
@@ -266,6 +254,79 @@ class ScoreResultScreen extends ConsumerWidget {
               style: TextStyle(
                 color: AppColors.primary,
                 fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _WizardTransferCta extends ConsumerWidget {
+  final CalculationResult result;
+  const _WizardTransferCta({required this.result});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.secondary.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.secondary.withValues(alpha: 0.25)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.smart_toy_rounded,
+                  color: AppColors.secondary, size: 24),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  'Bu puanla tüm bölümleri gör',
+                  style: AppTextStyles.titleSmall
+                      .copyWith(fontWeight: FontWeight.w800),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Text(
+            'Tercih Robotu bu puanı kullanarak tüm alanlardaki programları '
+            'şans durumuna göre listeler ve tercih listeni kurmana yardım eder.',
+            style: AppTextStyles.bodySmall.copyWith(
+              color: AppColors.textSecondaryFor(context),
+              height: 1.4,
+            ),
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            height: 46,
+            child: FilledButton.icon(
+              onPressed: () async {
+                await ref.read(studentScoreProfileProvider.notifier).save(
+                      StudentScoreProfile(
+                        scoreType: result.scoreType,
+                        placementScore: result.calculatedScore,
+                        year: 2025,
+                        updatedAt: DateTime.now(),
+                      ),
+                    );
+                if (context.mounted) {
+                  context.push('/preference-wizard/results');
+                }
+              },
+              icon: const Icon(Icons.arrow_forward_rounded, size: 18),
+              label: const Text('Tercih robotuna aktar'),
+              style: FilledButton.styleFrom(
+                backgroundColor: AppColors.secondary,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
             ),
           ),

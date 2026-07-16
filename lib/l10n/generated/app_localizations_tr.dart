@@ -806,6 +806,38 @@ class AppLocalizationsTr extends AppLocalizations {
   String get paywallRestore => 'Satın alımları geri yükle';
 
   @override
+  String get paywallPackageInfoError => 'Paket bilgisi alınamadı. Tekrar dene.';
+
+  @override
+  String get paywallPurchaseSuccess =>
+      'Satın alma başarılı. Planın güncelleniyor.';
+
+  @override
+  String get paywallPurchaseIncomplete => 'Satın alma tamamlanmadı.';
+
+  @override
+  String paywallRestoreResult(String tier) {
+    return 'Geri yükleme sonucu: $tier';
+  }
+
+  @override
+  String get paywallOfferingsLoadError =>
+      'Paketler yüklenirken bir sorun oluştu. Lütfen tekrar dene.';
+
+  @override
+  String get paywallSecurityNote => 'Güvenli ödeme • İstediğinde iptal';
+
+  @override
+  String get paywallPurchaseSuccessTitle => 'Satın alma başarılı!';
+
+  @override
+  String get paywallPurchaseSuccessDesc =>
+      'Planın aktif edildi. Tüm özelliklerin keyfini çıkar.';
+
+  @override
+  String get paywallGreat => 'Harika';
+
+  @override
   String get reviewWrite => 'Yorum yaz';
 
   @override
@@ -919,6 +951,9 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get homeRecentReviews => 'Son Yorumlar';
+
+  @override
+  String get homeTopReviews => 'Öne Çıkan Yorumlar';
 
   @override
   String get homeNoReviews => 'Henüz yorum yok';
@@ -1048,6 +1083,268 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get uniDetailSeeAllReviews => 'Tüm yorumları gör';
+
+  @override
+  String get uniDetailWriteFirstReview => 'İlk yorumu sen yaz';
+
+  @override
+  String get googleReviewsTitle => 'Google Yorumları';
+
+  @override
+  String get googleReviewsTileSubtitle =>
+      'Google Haritalar kullanıcılarının değerlendirmeleri';
+
+  @override
+  String googleReviewsCount(int count) {
+    return '$count değerlendirme';
+  }
+
+  @override
+  String get googleReviewsAttribution =>
+      'Yorumlar Google tarafından sağlanmaktadır';
+
+  @override
+  String get reviewBadgeOwnUniversity => 'Bu üniversitenin öğrencisi';
+
+  @override
+  String get reviewBadgeOtherUniversity => 'Başka üniversiteden öğrenci';
+
+  @override
+  String get reviewPromptTitleOwn => 'Üniversiteni değerlendir';
+
+  @override
+  String get reviewPromptTitleOther => 'Bu üniversiteyi değerlendir';
+
+  @override
+  String reviewPromptBodyOwn(String uniName) {
+    return '$uniName deneyimini paylaş, senden sonraki öğrencilere yol göster.';
+  }
+
+  @override
+  String reviewPromptBodyOther(String uniName) {
+    return '$uniName hakkında bilgin varsa deneyimini paylaşarak tercih yapacak öğrencilere yardımcı olabilirsin.';
+  }
+
+  @override
+  String get reviewPromptCta => 'Yorum yaz';
+
+  @override
+  String get reviewPromptLater => 'Daha sonra';
+
+  @override
+  String get reviewPromptNever => 'Bir daha gösterme';
+
+  @override
+  String get badgeFirstReview => 'İlk Yorum';
+
+  @override
+  String get badgeFirstReviewDesc => 'İlk onaylı yorumunu yaz';
+
+  @override
+  String get badgeDetailedReviewer => 'Detaylı Yorumcu';
+
+  @override
+  String get badgeDetailedReviewerDesc => '3 onaylı yorum yaz';
+
+  @override
+  String get badgeHelpful => 'Faydalı';
+
+  @override
+  String get badgeHelpfulDesc => 'Yorumların toplam 10 beğeni alsın';
+
+  @override
+  String get badgeProlificReviewer => 'Usta Yorumcu';
+
+  @override
+  String get badgeProlificReviewerDesc => '10 onaylı yorum yaz';
+
+  @override
+  String get badgeReviewLegend => 'Efsane Yorumcu';
+
+  @override
+  String get badgeReviewLegendDesc => '25 onaylı yorum yaz';
+
+  @override
+  String get badgeCommunityHero => 'Topluluk Kahramanı';
+
+  @override
+  String get badgeCommunityHeroDesc => 'Yorumların toplam 50 beğeni alsın';
+
+  @override
+  String get badgeLikeMagnet => 'Beğeni Mıknatısı';
+
+  @override
+  String get badgeLikeMagnetDesc => 'Yorumların toplam 150 beğeni alsın';
+
+  @override
+  String get badgeCollector => 'Koleksiyoncu';
+
+  @override
+  String get badgeCollectorDesc => '5 üniversiteyi favorilerine ekle';
+
+  @override
+  String get badgeMasterCollector => 'Hazine Avcısı';
+
+  @override
+  String get badgeMasterCollectorDesc => '15 üniversiteyi favorilerine ekle';
+
+  @override
+  String get badgeExplorer => 'Kaşif';
+
+  @override
+  String get badgeExplorerDesc => '10 farklı üniversiteyi incele';
+
+  @override
+  String get badgeWanderer => 'Gezgin';
+
+  @override
+  String get badgeWandererDesc => '30 farklı üniversiteyi incele';
+
+  @override
+  String get badgeCartographer => 'Harita Ustası';
+
+  @override
+  String get badgeCartographerDesc => '60 farklı üniversiteyi incele';
+
+  @override
+  String get badgeCityTraveler => 'Şehir Gezgini';
+
+  @override
+  String get badgeCityTravelerDesc => '5 farklı şehri keşfet';
+
+  @override
+  String get badgeAnalyst => 'Analist';
+
+  @override
+  String get badgeAnalystDesc => '5 karşılaştırma yap';
+
+  @override
+  String get badgeStrategist => 'Stratejist';
+
+  @override
+  String get badgeStrategistDesc => '20 karşılaştırma yap';
+
+  @override
+  String get badgeAmbassador => 'Elçi';
+
+  @override
+  String get badgeAmbassadorDesc => '3 kez paylaşım yap';
+
+  @override
+  String get badgeSuperAmbassador => 'Marka Elçisi';
+
+  @override
+  String get badgeSuperAmbassadorDesc => '10 kez paylaşım yap';
+
+  @override
+  String get badgeStreakStarter => 'Kıvılcım';
+
+  @override
+  String get badgeStreakStarterDesc => '3 gün üst üste uygulamaya gir';
+
+  @override
+  String get badgeStreakKeeper => 'Alev Ustası';
+
+  @override
+  String get badgeStreakKeeperDesc => '7 gün üst üste uygulamaya gir';
+
+  @override
+  String get badgeStreakMaster => 'Sönmeyen Alev';
+
+  @override
+  String get badgeStreakMasterDesc => '30 gün üst üste uygulamaya gir';
+
+  @override
+  String get badgeLoyalMember => 'Sadık Üye';
+
+  @override
+  String get badgeLoyalMemberDesc => '30 gündür aramızda ol';
+
+  @override
+  String get badgeVeteran => 'Emektar';
+
+  @override
+  String get badgeVeteranDesc => '1 yıldır aramızda ol';
+
+  @override
+  String get badgeProfileComplete => 'Vitrin';
+
+  @override
+  String get badgeProfileCompleteDesc =>
+      'Profilini tamamla: fotoğraf, tanıtım, bölüm ve sınıf';
+
+  @override
+  String get badgeVerifiedScholar => 'Onaylı Öğrenci';
+
+  @override
+  String get badgeVerifiedScholarDesc =>
+      'edu.tr e-postanla öğrenciliğini doğrula';
+
+  @override
+  String get badgeEarlyAdopter => 'İlk Nesil';
+
+  @override
+  String get badgeEarlyAdopterDesc => 'Uygulamanın ilk kullanıcılarından oldun';
+
+  @override
+  String get badgesScreenTitle => 'Rozetlerim';
+
+  @override
+  String badgesEarnedCount(int earned, int total) {
+    return '$earned/$total';
+  }
+
+  @override
+  String get badgesSeeAll => 'Tümünü Gör';
+
+  @override
+  String badgeProgressLabel(int current, int target) {
+    return '$current/$target';
+  }
+
+  @override
+  String badgeEarnedOn(String date) {
+    return '$date tarihinde kazanıldı';
+  }
+
+  @override
+  String get badgeLockedLabel => 'Kilitli';
+
+  @override
+  String get badgeCelebrationTitle => 'Yeni Rozet Kazandın!';
+
+  @override
+  String get badgeCelebrationAction => 'Harika!';
+
+  @override
+  String get badgeCelebrationSecondary => 'Rozetlerim';
+
+  @override
+  String get badgeCategoryReviewer => 'Yorumcu';
+
+  @override
+  String get badgeCategoryHero => 'Kahraman';
+
+  @override
+  String get badgeCategoryCollection => 'Koleksiyon';
+
+  @override
+  String get badgeCategoryExplorer => 'Keşif';
+
+  @override
+  String get badgeCategoryAnalyst => 'Analiz';
+
+  @override
+  String get badgeCategoryAmbassador => 'Paylaşım';
+
+  @override
+  String get badgeCategoryStreak => 'Seri';
+
+  @override
+  String get badgeCategoryMembership => 'Üyelik';
+
+  @override
+  String get badgeCategorySpecial => 'Özel';
 
   @override
   String get uniDetailPlaces => 'Mekanlar';
@@ -1299,10 +1596,15 @@ class AppLocalizationsTr extends AppLocalizations {
   String get prefListAddDepartment => 'Bölüm Ekle';
 
   @override
-  String get prefListSortByRanking => 'Sıralamaya Göre';
+  String get prefListSortByScore => 'Puana Göre Sırala';
 
   @override
   String get prefListUndo => 'Geri Al';
+
+  @override
+  String prefListsSummary(int lists, int items) {
+    return '$lists liste · $items tercih';
+  }
 
   @override
   String get prefListSavedState => 'Kaydedildi';
@@ -1373,6 +1675,33 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get prefSharedListBackHome => 'Ana Sayfaya Dön';
+
+  @override
+  String get prefSharedReadOnlyNotice =>
+      'Bu listeyi salt görüntüleme modunda inceliyorsun.';
+
+  @override
+  String get prefSharedCopyButton => 'Kendime Kopyala ve Düzenle';
+
+  @override
+  String get prefSharedCopySuccess =>
+      'Liste sana kopyalandı! Artık düzenleyebilirsin.';
+
+  @override
+  String get prefSharedCopyOwnList => 'Bu liste zaten sana ait.';
+
+  @override
+  String get prefSharedEditOwnList => 'Listeni Düzenle';
+
+  @override
+  String get prefSharedCopyPaywallTitle => 'Kopyalamak Plus\'a Özel';
+
+  @override
+  String get prefSharedCopyPaywallDesc =>
+      'Bu listeyi görüntüleyebilirsin. Kendine kopyalayıp düzenlemek Plus ve Pro üyelere özeldir. Kopyaladığında liste sahibinin listesi değişmez — tamamen sana ait yeni bir kopya oluşur.';
+
+  @override
+  String get prefSharedCopyPaywallButton => 'Planları Gör';
 
   @override
   String get comparisonHubSubtitle =>

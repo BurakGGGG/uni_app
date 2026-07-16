@@ -117,6 +117,18 @@ class DepartmentScoresMigration {
       }
     }
 
+    // ── 4. Sürüm meta dokümanı ──
+    // Client (UniversityRepository.getAllDepartments) bu sürümü asset ile
+    // karşılaştırır; eşleşiyorsa toplu okumayı Firestore yerine asset'ten
+    // yapar (7.386 okuma yerine 1 okuma).
+    await _db.collection('departments').doc('_meta').set({
+      'version': data['version'],
+      'lastUpdated': data['lastUpdated'],
+      'count': scores.length,
+      'migratedAt': FieldValue.serverTimestamp(),
+    });
+    debugPrint('🏷️ _meta yazıldı (version: ${data['version']})');
+
     final report = MigrationReport(
       total: scores.length,
       successful: totalWritten,

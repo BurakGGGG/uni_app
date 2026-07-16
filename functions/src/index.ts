@@ -90,6 +90,9 @@ export {
 // Sprint 4 — Department yorumları aggregation
 export { aggregateDepartmentRatings } from './aggregations/aggregate_department_ratings';
 
+// Yorum canlandırma — canlı Google yorumları (kota korumalı, içerik saklanmaz)
+export { getGoogleReviews } from './places/get_google_reviews';
+
 // Sprint 11 (Karşılaştırma 6.4) — Place sayım denormalizasyonu
 export { recomputePlaceCount } from './aggregations/recompute_place_count';
 
@@ -99,6 +102,9 @@ export { onReviewModerated } from './notifications/on_review_moderated';
 export { onNewReviewForFavorite } from './notifications/on_new_review_for_favorite';
 export { cleanupExpiredNotifications } from './notifications/cleanup_expired';
 export { cleanupStaleTokens } from './notifications/cleanup_stale_tokens';
+// TODO(kampanya): Uygulama sürümü (reviewCampaignEnabled toggle'ı) Play'de
+// yayınlandıktan sonra bu export'u açıp deploy et — kampanya o zaman başlar.
+// export { sendReviewCampaign } from './notifications/review_campaign';
 export { syncReviewLikeCount } from './reviews/sync_review_like_count';
 export { submitReview, getReviewSubmissionStatus } from './reviews/submit_review';
 
@@ -134,8 +140,14 @@ export {
 // Server-side analytics counters
 export { trackAnalyticsEvent } from './analytics/track_event';
 
+// Rozet sistemi — istemci etkileşim olayları + rozet değerlendirme
+export { recordEngagementEvent } from './badges/record_engagement_event';
+// Rozet sistemi — favori rozetleri sunucu-otoriter (Firestore trigger)
+export { syncUserFavoriteBadges } from './favorites/sync_favorite_badges';
+
 // Preference lists
 export { incrementPreferenceListView } from './preference_lists/increment_view';
+export { getPublicPreferenceList } from './preference_lists/get_public_list';
 
 // Admin server-side moderation actions
 export { performAdminModerationAction } from './admin/moderation_actions';

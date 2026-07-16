@@ -806,6 +806,39 @@ class AppLocalizationsEn extends AppLocalizations {
   String get paywallRestore => 'Restore purchases';
 
   @override
+  String get paywallPackageInfoError =>
+      'Couldn\'t get package info. Please try again.';
+
+  @override
+  String get paywallPurchaseSuccess =>
+      'Purchase successful. Your plan is being updated.';
+
+  @override
+  String get paywallPurchaseIncomplete => 'Purchase was not completed.';
+
+  @override
+  String paywallRestoreResult(String tier) {
+    return 'Restore result: $tier';
+  }
+
+  @override
+  String get paywallOfferingsLoadError =>
+      'Something went wrong while loading plans. Please try again.';
+
+  @override
+  String get paywallSecurityNote => 'Secure payment • Cancel anytime';
+
+  @override
+  String get paywallPurchaseSuccessTitle => 'Purchase successful!';
+
+  @override
+  String get paywallPurchaseSuccessDesc =>
+      'Your plan is now active. Enjoy all the features.';
+
+  @override
+  String get paywallGreat => 'Great';
+
+  @override
   String get reviewWrite => 'Write a review';
 
   @override
@@ -918,6 +951,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get homeRecentReviews => 'Recent Reviews';
+
+  @override
+  String get homeTopReviews => 'Featured Reviews';
 
   @override
   String get homeNoReviews => 'No reviews yet';
@@ -1045,6 +1081,267 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get uniDetailSeeAllReviews => 'See all reviews';
+
+  @override
+  String get uniDetailWriteFirstReview => 'Write the first review';
+
+  @override
+  String get googleReviewsTitle => 'Google Reviews';
+
+  @override
+  String get googleReviewsTileSubtitle => 'Ratings from Google Maps users';
+
+  @override
+  String googleReviewsCount(int count) {
+    return '$count ratings';
+  }
+
+  @override
+  String get googleReviewsAttribution => 'Reviews are provided by Google';
+
+  @override
+  String get reviewBadgeOwnUniversity => 'Student at this university';
+
+  @override
+  String get reviewBadgeOtherUniversity => 'Student at another university';
+
+  @override
+  String get reviewPromptTitleOwn => 'Rate your university';
+
+  @override
+  String get reviewPromptTitleOther => 'Rate this university';
+
+  @override
+  String reviewPromptBodyOwn(String uniName) {
+    return 'Share your $uniName experience and guide the students coming after you.';
+  }
+
+  @override
+  String reviewPromptBodyOther(String uniName) {
+    return 'If you know $uniName, sharing your experience helps students making their choice.';
+  }
+
+  @override
+  String get reviewPromptCta => 'Write a review';
+
+  @override
+  String get reviewPromptLater => 'Maybe later';
+
+  @override
+  String get reviewPromptNever => 'Don\'t show again';
+
+  @override
+  String get badgeFirstReview => 'First Review';
+
+  @override
+  String get badgeFirstReviewDesc => 'Write your first approved review';
+
+  @override
+  String get badgeDetailedReviewer => 'Detailed Reviewer';
+
+  @override
+  String get badgeDetailedReviewerDesc => 'Write 3 approved reviews';
+
+  @override
+  String get badgeHelpful => 'Helpful';
+
+  @override
+  String get badgeHelpfulDesc => 'Get 10 total likes on your reviews';
+
+  @override
+  String get badgeProlificReviewer => 'Master Reviewer';
+
+  @override
+  String get badgeProlificReviewerDesc => 'Write 10 approved reviews';
+
+  @override
+  String get badgeReviewLegend => 'Review Legend';
+
+  @override
+  String get badgeReviewLegendDesc => 'Write 25 approved reviews';
+
+  @override
+  String get badgeCommunityHero => 'Community Hero';
+
+  @override
+  String get badgeCommunityHeroDesc => 'Get 50 total likes on your reviews';
+
+  @override
+  String get badgeLikeMagnet => 'Like Magnet';
+
+  @override
+  String get badgeLikeMagnetDesc => 'Get 150 total likes on your reviews';
+
+  @override
+  String get badgeCollector => 'Collector';
+
+  @override
+  String get badgeCollectorDesc => 'Add 5 universities to your favorites';
+
+  @override
+  String get badgeMasterCollector => 'Treasure Hunter';
+
+  @override
+  String get badgeMasterCollectorDesc =>
+      'Add 15 universities to your favorites';
+
+  @override
+  String get badgeExplorer => 'Explorer';
+
+  @override
+  String get badgeExplorerDesc => 'View 10 different universities';
+
+  @override
+  String get badgeWanderer => 'Wanderer';
+
+  @override
+  String get badgeWandererDesc => 'View 30 different universities';
+
+  @override
+  String get badgeCartographer => 'Cartographer';
+
+  @override
+  String get badgeCartographerDesc => 'View 60 different universities';
+
+  @override
+  String get badgeCityTraveler => 'City Traveler';
+
+  @override
+  String get badgeCityTravelerDesc => 'Explore 5 different cities';
+
+  @override
+  String get badgeAnalyst => 'Analyst';
+
+  @override
+  String get badgeAnalystDesc => 'Make 5 comparisons';
+
+  @override
+  String get badgeStrategist => 'Strategist';
+
+  @override
+  String get badgeStrategistDesc => 'Make 20 comparisons';
+
+  @override
+  String get badgeAmbassador => 'Ambassador';
+
+  @override
+  String get badgeAmbassadorDesc => 'Share 3 times';
+
+  @override
+  String get badgeSuperAmbassador => 'Brand Ambassador';
+
+  @override
+  String get badgeSuperAmbassadorDesc => 'Share 10 times';
+
+  @override
+  String get badgeStreakStarter => 'Spark';
+
+  @override
+  String get badgeStreakStarterDesc => 'Open the app 3 days in a row';
+
+  @override
+  String get badgeStreakKeeper => 'Flame Keeper';
+
+  @override
+  String get badgeStreakKeeperDesc => 'Open the app 7 days in a row';
+
+  @override
+  String get badgeStreakMaster => 'Eternal Flame';
+
+  @override
+  String get badgeStreakMasterDesc => 'Open the app 30 days in a row';
+
+  @override
+  String get badgeLoyalMember => 'Loyal Member';
+
+  @override
+  String get badgeLoyalMemberDesc => 'Be a member for 30 days';
+
+  @override
+  String get badgeVeteran => 'Veteran';
+
+  @override
+  String get badgeVeteranDesc => 'Be a member for a year';
+
+  @override
+  String get badgeProfileComplete => 'Showcase';
+
+  @override
+  String get badgeProfileCompleteDesc =>
+      'Complete your profile: photo, bio, department and grade';
+
+  @override
+  String get badgeVerifiedScholar => 'Verified Student';
+
+  @override
+  String get badgeVerifiedScholarDesc =>
+      'Verify your student status with your edu.tr email';
+
+  @override
+  String get badgeEarlyAdopter => 'First Generation';
+
+  @override
+  String get badgeEarlyAdopterDesc => 'You were among the app\'s first users';
+
+  @override
+  String get badgesScreenTitle => 'My Badges';
+
+  @override
+  String badgesEarnedCount(int earned, int total) {
+    return '$earned/$total';
+  }
+
+  @override
+  String get badgesSeeAll => 'See All';
+
+  @override
+  String badgeProgressLabel(int current, int target) {
+    return '$current/$target';
+  }
+
+  @override
+  String badgeEarnedOn(String date) {
+    return 'Earned on $date';
+  }
+
+  @override
+  String get badgeLockedLabel => 'Locked';
+
+  @override
+  String get badgeCelebrationTitle => 'You Earned a New Badge!';
+
+  @override
+  String get badgeCelebrationAction => 'Awesome!';
+
+  @override
+  String get badgeCelebrationSecondary => 'My Badges';
+
+  @override
+  String get badgeCategoryReviewer => 'Reviewer';
+
+  @override
+  String get badgeCategoryHero => 'Hero';
+
+  @override
+  String get badgeCategoryCollection => 'Collection';
+
+  @override
+  String get badgeCategoryExplorer => 'Exploration';
+
+  @override
+  String get badgeCategoryAnalyst => 'Analysis';
+
+  @override
+  String get badgeCategoryAmbassador => 'Sharing';
+
+  @override
+  String get badgeCategoryStreak => 'Streak';
+
+  @override
+  String get badgeCategoryMembership => 'Membership';
+
+  @override
+  String get badgeCategorySpecial => 'Special';
 
   @override
   String get uniDetailPlaces => 'Places';
@@ -1296,10 +1593,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get prefListAddDepartment => 'Add Department';
 
   @override
-  String get prefListSortByRanking => 'Sort by Ranking';
+  String get prefListSortByScore => 'Sort by Score';
 
   @override
   String get prefListUndo => 'Undo';
+
+  @override
+  String prefListsSummary(int lists, int items) {
+    return '$lists lists · $items picks';
+  }
 
   @override
   String get prefListSavedState => 'Saved';
@@ -1372,6 +1674,33 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get prefSharedListBackHome => 'Back to Home';
+
+  @override
+  String get prefSharedReadOnlyNotice =>
+      'You are viewing this list in read-only mode.';
+
+  @override
+  String get prefSharedCopyButton => 'Copy to My Lists & Edit';
+
+  @override
+  String get prefSharedCopySuccess =>
+      'List copied to your account! You can now edit it.';
+
+  @override
+  String get prefSharedCopyOwnList => 'This list already belongs to you.';
+
+  @override
+  String get prefSharedEditOwnList => 'Edit Your List';
+
+  @override
+  String get prefSharedCopyPaywallTitle => 'Copying is a Plus Feature';
+
+  @override
+  String get prefSharedCopyPaywallDesc =>
+      'You can view this list. Copying it to your account and editing requires a Plus or Pro membership. Copying never changes the owner\'s list — you get your own independent copy.';
+
+  @override
+  String get prefSharedCopyPaywallButton => 'See Plans';
 
   @override
   String get comparisonHubSubtitle =>

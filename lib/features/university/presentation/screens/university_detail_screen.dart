@@ -15,6 +15,7 @@ import '../../domain/models/university_model.dart';
 import '../../../auth/presentation/providers/auth_providers.dart';
 
 import '../../../reviews/presentation/providers/review_providers.dart';
+import '../../../reviews/presentation/services/review_prompt_service.dart';
 import '../../../reviews/presentation/utils/review_submission_guard.dart';
 import '../../../reviews/domain/models/review_model.dart';
 import '../../../reviews/presentation/widgets/review_card.dart';
@@ -23,13 +24,17 @@ import '../../../places/presentation/providers/place_providers.dart';
 import '../../../places/domain/models/place_model.dart';
 import '../../../places/presentation/widgets/place_card.dart';
 
+import '../../../google_reviews/presentation/widgets/google_reviews_section.dart';
+
 import '../../domain/models/department_model.dart';
+import '../../../preference_wizard/presentation/widgets/feasibility_chip.dart';
 
 import '../widgets/uni_hero.dart';
 import '../widgets/uni_info_strip.dart';
 import '../widgets/uni_section.dart';
 import '../../../admin/data/analytics_service.dart';
 import '../../../admin/presentation/widgets/analytics_once_tracker.dart';
+import '../../../../services/engagement_service.dart';
 import '../../../../core/utils/responsive.dart';
 
 class UniversityDetailScreen extends ConsumerWidget {
@@ -79,10 +84,21 @@ class _Body extends ConsumerWidget {
     final placesAsync = ref.watch(placesByUniversityProvider(uni.id));
 
     return AnalyticsOnceTracker(
-      onTrack: () => AnalyticsService.instance.trackUniversityView(
-        universityId: uni.id,
-        universityName: uni.name,
-      ),
+      onTrack: () {
+        AnalyticsService.instance.trackUniversityView(
+          universityId: uni.id,
+          universityName: uni.name,
+        );
+        EngagementService.instance.recordUniversityViewed(uni.id);
+        // 3. ziyarette uygunsa "deneyimini paylaş" istemi — ekran otursun
+        // diye kısa gecikmeli.
+        Future.delayed(const Duration(seconds: 2), () {
+          if (!context.mounted) return;
+          ref
+              .read(reviewPromptServiceProvider)
+              .recordVisitAndMaybePrompt(context, ref, uni);
+        });
+      },
       child: RefreshIndicator(
         onRefresh: () async {
           ref.read(placeRepositoryProvider).clearCache();
@@ -147,12 +163,19 @@ class _Body extends ConsumerWidget {
                   // Yorumlar section
                   UniSection(
                     title: loc.uniDetailReviews,
+                    // Yerel yorum yoksa "Henüz yorum yok" gösterme —
+                    // altındaki Google Yorumları bölümü kendini anlatır.
                     subtitle: uni.reviewCount > 0
                         ? loc.uniDetailReviewsSubtitle(uni.reviewCount)
-                        : loc.uniDetailNoReviews,
-                    ctaText: loc.uniDetailSeeAllReviews,
-                    onCtaTap: () =>
-                        context.push('/university/${uni.id}/reviews'),
+                        : null,
+                    // Yorum yoksa CTA'yı ilk yorum yazma davetine çevir
+                    // (first_review rozet hunisi).
+                    ctaText: uni.reviewCount > 0
+                        ? loc.uniDetailSeeAllReviews
+                        : loc.uniDetailWriteFirstReview,
+                    onCtaTap: uni.reviewCount > 0
+                        ? () => context.push('/university/${uni.id}/reviews')
+                        : () => _startFirstReview(context, ref, uni),
                     child: _ReviewsPreview(
                       reviewsAsync: reviewsAsync,
                       onRetry: () => ref.invalidate(
@@ -165,6 +188,9 @@ class _Body extends ConsumerWidget {
                       ),
                     ),
                   ),
+
+                  // Google yorumları (canlı, saklanmaz — kota dolunca gizlenir)
+                  GoogleReviewsSection(uni: uni),
 
                   const SizedBox(height: 80),
                 ],
@@ -388,6 +414,8 @@ class _DepartmentsPreview extends StatelessWidget {
                             ),
                           ),
                         ),
+                        FeasibilityChip.forDepartment(d, compact: true),
+                        const SizedBox(width: 8),
                         Icon(
                           Icons.arrow_forward_ios_rounded,
                           size: 14,
@@ -593,6 +621,28 @@ Future<void> _launchUrl(String urlString) async {
   if (await canLaunchUrl(url)) {
     await launchUrl(url, mode: LaunchMode.externalApplication);
   }
+}
+
+/// "İlk yorumu sen yaz" CTA'sı — _ActionButtons'takiyle aynı edu.tr gating'i.
+void _startFirstReview(
+  BuildContext context,
+  WidgetRef ref,
+  UniversityModel uni,
+) {
+  final user = ref.read(authStateProvider).value;
+  final isEduUser =
+      user != null && (user.email?.endsWith('.edu.tr') ?? false);
+  if (!isEduUser) {
+    _showReviewInfoSheet(context, user: user);
+    return;
+  }
+  openWriteReviewIfAllowed(
+    context: context,
+    ref: ref,
+    type: ReviewType.university,
+    targetId: uni.id,
+    universityId: uni.id,
+  );
 }
 
 void _showReviewInfoSheet(BuildContext context, {required dynamic user}) {

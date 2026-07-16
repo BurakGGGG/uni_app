@@ -9,6 +9,7 @@ import '../../domain/models/preference_list_model.dart';
 import '../providers/preference_list_providers.dart';
 import '../../../admin/data/analytics_service.dart';
 import '../../../admin/domain/models/analytics_event.dart';
+import '../../../../services/engagement_service.dart';
 
 class ShareListSheet {
   static Future<void> show(BuildContext context, PreferenceListModel list) {
@@ -300,6 +301,7 @@ class _Content extends ConsumerWidget {
         '$preview$extra\n\n'
         '${list.publicUrl}';
     AnalyticsService.instance.trackEvent(AnalyticsEvent.preferenceListShared);
+    EngagementService.instance.recordShare();
     Share.share(text, subject: list.title);
   }
 }

@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tercih Listesi — ÜniSeç</title>
+<meta name="description" content="ÜniSeç'te paylaşılan bir üniversite tercih listesini görüntüle.">
+<meta property="og:title" content="ÜniSeç — Tercih Listesi">
+<meta property="og:description" content="Seninle bir üniversite tercih listesi paylaşıldı. ÜniSeç ile görüntüle.">
+<meta property="og:image" content="https://unisec-e36e1.web.app/icon-512.png">
+<meta property="og:type" content="website">
+<link rel="icon" type="image/png" href="/icon-192.png">
+<style>
+  :root {
+    --primary: #6C63FF;
+    --primary-dark: #4A42DB;
+    --secondary: #FF6584;
+    --bg: #F8F9FA;
+    --surface: #FFFFFF;
+    --text: #1A1B25;
+    --text-2: #5F6270;
+    --text-3: #9A9DAB;
+    --border: #ECEDF1;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #12131A;
+      --surface: #1C1E28;
+      --text: #F2F3F7;
+      --text-2: #A7AAB8;
+      --text-3: #6F7280;
+      --border: #2A2C38;
+    }
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+    padding-bottom: 110px; /* sticky CTA alanı */
+  }
+  .wrap { max-width: 560px; margin: 0 auto; padding: 20px; }
+
+  /* Üst bar */
+  .topbar { display: flex; align-items: center; gap: 10px; padding: 4px 0 18px; }
+  .topbar img { width: 36px; height: 36px; border-radius: 9px; }
+  .topbar .name { font-weight: 800; font-size: 18px; letter-spacing: -0.3px; }
+  .topbar .tag { margin-left: auto; font-size: 12px; color: var(--text-3); }
+
+  .badge {
+    display: inline-block; background: rgba(108,99,255,.12); color: var(--primary);
+    font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 8px; margin-bottom: 12px;
+  }
+  h1 { font-size: 24px; font-weight: 800; letter-spacing: -0.5px; line-height: 1.25; }
+  .desc { margin-top: 6px; color: var(--text-2); font-size: 14.5px; line-height: 1.45; }
+
+  .meta { display: flex; align-items: center; gap: 10px; margin: 16px 0 20px; }
+  .avatar {
+    width: 36px; height: 36px; border-radius: 50%; background: var(--primary);
+    color: #fff; font-weight: 700; font-size: 15px;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    background-size: cover; background-position: center;
+  }
+  .meta .who { flex: 1; min-width: 0; }
+  .meta .who b { display: block; font-size: 14.5px; }
+  .meta .who span { font-size: 12px; color: var(--text-2); }
+  .count {
+    background: var(--surface); border: 1px solid var(--border);
+    font-size: 12px; font-weight: 700; color: var(--text-2);
+    padding: 5px 10px; border-radius: 12px; white-space: nowrap;
+  }
+
+  /* Liste kartları */
+  .item {
+    display: flex; gap: 12px; align-items: flex-start;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 16px; padding: 12px; margin-bottom: 10px;
+  }
+  .num {
+    width: 40px; height: 40px; border-radius: 12px; flex-shrink: 0;
+    background: rgba(108,99,255,.12); color: var(--primary);
+    font-weight: 800; font-size: 16px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .item .body { min-width: 0; flex: 1; }
+  .item .dept { font-weight: 700; font-size: 14.5px; line-height: 1.3; }
+  .item .uni { font-size: 12.5px; color: var(--text-2); margin-top: 2px; }
+  .pills { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .pill {
+    font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 8px;
+    background: rgba(108,99,255,.10); color: var(--primary);
+  }
+  .pill.rank { background: rgba(255,171,0,.12); color: #B7791F; }
+  .pill.quota { background: rgba(6,182,212,.12); color: #0891B2; }
+  .pill.type { background: rgba(255,101,132,.12); color: var(--secondary); }
+
+  /* Durumlar */
+  .state { text-align: center; padding: 72px 24px; }
+  .state .ico { font-size: 46px; margin-bottom: 14px; }
+  .state h2 { font-size: 19px; font-weight: 800; margin-bottom: 6px; }
+  .state p { color: var(--text-2); font-size: 14px; line-height: 1.5; }
+  .spinner {
+    width: 34px; height: 34px; margin: 90px auto; border-radius: 50%;
+    border: 3px solid rgba(108,99,255,.2); border-top-color: var(--primary);
+    animation: spin .8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Alt CTA */
+  .cta {
+    position: fixed; left: 0; right: 0; bottom: 0;
+    background: var(--surface); border-top: 1px solid var(--border);
+    padding: 12px 20px calc(12px + env(safe-area-inset-bottom));
+  }
+  .cta-inner { max-width: 560px; margin: 0 auto; display: flex; gap: 10px; }
+  .btn {
+    flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px;
+    height: 50px; border-radius: 14px; font-size: 15px; font-weight: 700;
+    text-decoration: none; transition: opacity .15s;
+  }
+  .btn:active { opacity: .8; }
+  .btn-primary { background: var(--primary); color: #fff; }
+  .btn-outline { background: transparent; color: var(--primary); border: 1.5px solid var(--primary); }
+  .note { text-align: center; font-size: 11.5px; color: var(--text-3); margin-top: 8px; }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <img src="/icon-192.png" alt="ÜniSeç">
+      <span class="name">ÜniSeç</span>
+      <span class="tag">Üniversite Yaşam Rehberin</span>
+    </div>
+    <div id="content"><div class="spinner"></div></div>
+  </div>
+
+  <div class="cta">
+    <div class="cta-inner" id="ctaButtons">
+      <a class="btn btn-primary" id="storeBtn"
+         href="https://play.google.com/store/apps/details?id=com.unisec.app">
+        Google Play'den İndir
+      </a>
+    </div>
+    <div class="note">Listeyi kaydetmek ve düzenlemek için ÜniSeç uygulamasını kullan.</div>
+  </div>
+
+<script>
+(function () {
+  // Firestore'da App Check enforcement aktif olduğundan veri, public alanları
+  // dönen Cloud Function üzerinden okunur (getPublicPreferenceList).
+  var API_URL = 'https://europe-west1-unisec-e36e1.cloudfunctions.net/getPublicPreferenceList';
+  var PLAY_URL = 'https://play.google.com/store/apps/details?id=com.unisec.app';
+  var content = document.getElementById('content');
+
+  // ── Slug'ı çıkar: /list/{slug} ──
+  var m = location.pathname.match(/^\/list\/([A-Za-z0-9]+)\/?$/);
+  var slug = m ? m[1] : null;
+
+  // ── Android'de "Uygulamada Aç" butonu ekle ──
+  var isAndroid = /Android/i.test(navigator.userAgent);
+  if (isAndroid && slug) {
+    var intentUrl = 'intent://unisec-e36e1.web.app/list/' + slug +
+      '#Intent;scheme=https;package=com.unisec.app;S.browser_fallback_url=' +
+      encodeURIComponent(PLAY_URL) + ';end';
+    var openBtn = document.createElement('a');
+    openBtn.className = 'btn btn-outline';
+    openBtn.href = intentUrl;
+    openBtn.textContent = 'Uygulamada Aç';
+    document.getElementById('ctaButtons').appendChild(openBtn);
+  }
+
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
+  function fmtRank(r) {
+    if (r >= 1000000) return (r / 1000000).toFixed(1) + 'M';
+    if (r >= 1000) return Math.round(r / 1000) + 'B';
+    return String(r);
+  }
+
+  function notFound() {
+    content.innerHTML =
+      '<div class="state">' +
+      '<div class="ico">🔗</div>' +
+      '<h2>Liste bulunamadı</h2>' +
+      '<p>Bu tercih listesi gizlenmiş veya silinmiş olabilir.<br>ÜniSeç uygulamasından kendi listeni oluşturabilirsin.</p>' +
+      '</div>';
+  }
+
+  function render(list) {
+    var items = Array.isArray(list.items) ? list.items.slice() : [];
+    items.sort(function (a, b) { return (a.order || 0) - (b.order || 0); });
+
+    var initial = (list.userName || 'Ö').trim().charAt(0).toUpperCase();
+    var avatar = list.userPhotoUrl
+      ? '<div class="avatar" style="background-image:url(\'' + esc(list.userPhotoUrl) + '\')"></div>'
+      : '<div class="avatar">' + esc(initial) + '</div>';
+
+    var html =
+      '<span class="badge">TERCİH LİSTESİ</span>' +
+      '<h1>' + esc(list.title) + '</h1>' +
+      (list.description ? '<p class="desc">' + esc(list.description) + '</p>' : '') +
+      '<div class="meta">' + avatar +
+      '<div class="who"><b>' + esc(list.userName || 'Öğrenci') + '</b><span>Liste sahibi</span></div>' +
+      '<span class="count">' + items.length + ' tercih</span></div>';
+
+    if (!items.length) {
+      html += '<div class="state"><div class="ico">📭</div><h2>Liste henüz boş</h2>' +
+              '<p>Bu listeye henüz tercih eklenmemiş.</p></div>';
+    } else {
+      items.forEach(function (it, i) {
+        var pills = '';
+        if (it.scoreType) pills += '<span class="pill type">' + esc(it.scoreType) + '</span>';
+        if (it.baseScore > 0) pills += '<span class="pill">' + it.baseScore.toFixed(2) + ' puan</span>';
+        if (it.ranking > 0) pills += '<span class="pill rank">' + fmtRank(it.ranking) + ' sıralama</span>';
+        if (it.quota > 0) pills += '<span class="pill quota">' + (it.placedCount ? it.placedCount + '/' : '') + it.quota + ' kontenjan</span>';
+        html +=
+          '<div class="item"><div class="num">' + (i + 1) + '</div><div class="body">' +
+          '<div class="dept">' + esc(it.deptName) + '</div>' +
+          '<div class="uni">' + esc(it.uniName) + '</div>' +
+          (pills ? '<div class="pills">' + pills + '</div>' : '') +
+          '</div></div>';
+      });
+    }
+    content.innerHTML = html;
+    document.title = esc(list.title) + ' — ÜniSeç';
+  }
+
+  if (!slug) { notFound(); return; }
+
+  fetch(API_URL + '?slug=' + encodeURIComponent(slug.toLowerCase()))
+    .then(function (r) {
+      if (!r.ok) throw new Error('not-found');
+      return r.json();
+    })
+    .then(render)
+    .catch(notFound);
+})();
+</script>
+</body>
+</html>

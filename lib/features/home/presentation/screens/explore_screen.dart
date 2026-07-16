@@ -78,16 +78,14 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // ─── Header ──────────────────────────────────────────
-            Padding(
-              padding: EdgeInsets.fromLTRB(Responsive.horizontalPadding(context), 16, Responsive.horizontalPadding(context), 0),
-              child: Text(loc.exploreTitle, style: AppTextStyles.displaySmall),
-            ),
-            const SizedBox(height: 4),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: Responsive.horizontalPadding(context)),
-              child: Text(
-                loc.exploreSubtitle,
-                style: AppTextStyles.bodySmall,
+            BrandedScreenHeader(
+              title: loc.exploreTitle,
+              subtitle: loc.exploreSubtitle,
+              padding: EdgeInsets.fromLTRB(
+                Responsive.horizontalPadding(context),
+                16,
+                Responsive.horizontalPadding(context),
+                0,
               ),
             ),
 
@@ -112,6 +110,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                     backgroundColor: AppColors.primary,
                     offset: const Offset(4, -4),
                     child: IconButton(
+                      tooltip: 'Filtrele',
                       onPressed: () => _showFilterBottomSheet(context),
                       icon: const Icon(Icons.tune_rounded),
                       style: IconButton.styleFrom(

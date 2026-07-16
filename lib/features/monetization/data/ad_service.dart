@@ -18,7 +18,7 @@ class AdService {
   static Future<void>? _consentInfoUpdateFuture;
 
   final Map<_RewardedAdPlacement, RewardedAd> _rewardedAds = {};
-  final Set<_RewardedAdPlacement> _loadingRewardedAds = {};
+  final Map<_RewardedAdPlacement, Future<void>> _rewardedLoadFutures = {};
 
   Future<void> initialize() => _ensureInitialized();
 
@@ -133,15 +133,6 @@ class AdService {
     defaultValue: 'ca-app-pub-3940256099942544/4411468910', // Test ID
   );
 
-  static const _androidBannerId = String.fromEnvironment(
-    'ADMOB_BANNER_ANDROID',
-    defaultValue: 'ca-app-pub-3940256099942544/6300978111', // Test ID
-  );
-  static const _iosBannerId = String.fromEnvironment(
-    'ADMOB_BANNER_IOS',
-    defaultValue: 'ca-app-pub-3940256099942544/2934735716', // Test ID
-  );
-
   static const _androidNativeId = String.fromEnvironment(
     'ADMOB_NATIVE_ANDROID',
     defaultValue: 'ca-app-pub-3940256099942544/2247696110', // Test ID
@@ -182,12 +173,6 @@ class AdService {
     throw UnsupportedError('Interstitial ad bu platformda desteklenmiyor');
   }
 
-  String get bannerAdUnitId {
-    if (Platform.isAndroid) return _androidBannerId;
-    if (Platform.isIOS) return _iosBannerId;
-    throw UnsupportedError('Banner ad bu platformda desteklenmiyor');
-  }
-
   String get nativeAdUnitId {
     if (Platform.isAndroid) return _androidNativeId;
     if (Platform.isIOS) return _iosNativeId;
@@ -202,16 +187,25 @@ class AdService {
     return _preloadRewardedAd(_RewardedAdPlacement.comparison);
   }
 
-  Future<void> _preloadRewardedAd(_RewardedAdPlacement placement) async {
-    await _ensureInitialized();
-    if (kIsWeb ||
-        _rewardedAds[placement] != null ||
-        _loadingRewardedAds.contains(placement)) {
-      return;
+  /// Reklamı yükler ve gerçekten hazır (ya da başarısız) olana kadar bekler.
+  /// Aynı placement için eşzamanlı çağrılar tek bir yükleme future'ını paylaşır.
+  Future<void> _preloadRewardedAd(_RewardedAdPlacement placement) {
+    if (kIsWeb || _rewardedAds[placement] != null) {
+      return Future<void>.value();
     }
+    return _rewardedLoadFutures.putIfAbsent(
+      placement,
+      () => _loadRewardedAd(placement)
+          .whenComplete(() => _rewardedLoadFutures.remove(placement)),
+    );
+  }
 
-    _loadingRewardedAds.add(placement);
+  Future<void> _loadRewardedAd(_RewardedAdPlacement placement) async {
+    await _ensureInitialized();
+    if (kIsWeb || _rewardedAds[placement] != null) return;
+
     final logName = _rewardedAdLogNameFor(placement);
+    final loaded = Completer<void>();
     try {
       await RewardedAd.load(
         adUnitId: _rewardedAdUnitIdFor(placement),
@@ -219,19 +213,24 @@ class AdService {
         rewardedAdLoadCallback: RewardedAdLoadCallback(
           onAdLoaded: (ad) {
             _rewardedAds[placement] = ad;
-            _loadingRewardedAds.remove(placement);
             debugPrint('[AdService] $logName loaded');
+            if (!loaded.isCompleted) loaded.complete();
           },
           onAdFailedToLoad: (error) {
             _rewardedAds.remove(placement);
-            _loadingRewardedAds.remove(placement);
             debugPrint('[AdService] $logName load failed: $error');
+            if (!loaded.isCompleted) loaded.complete();
           },
         ),
       );
+      // Ad, callback ile geldiği için yükleme tamamlanana kadar bekle.
+      await loaded.future.timeout(
+        const Duration(seconds: 10),
+        onTimeout: () => debugPrint('[AdService] $logName load timed out'),
+      );
     } catch (e) {
-      _loadingRewardedAds.remove(placement);
       debugPrint('[AdService] preload $logName error: $e');
+      if (!loaded.isCompleted) loaded.complete();
     }
   }
 
@@ -251,8 +250,6 @@ class AdService {
 
     if (_rewardedAds[placement] == null) {
       await _preloadRewardedAd(placement);
-      // İlk yükleme async callback ile geldiği için anlık hazır olmayabilir.
-      await Future<void>.delayed(const Duration(milliseconds: 300));
     }
 
     final ad = _rewardedAds[placement];
@@ -292,13 +289,19 @@ class AdService {
   }
 
   InterstitialAd? _interstitialAd;
-  bool _isInterstitialLoading = false;
+  Future<void>? _interstitialLoadFuture;
 
-  Future<void> preloadInterstitialAd() async {
+  Future<void> preloadInterstitialAd() {
+    if (kIsWeb || _interstitialAd != null) return Future<void>.value();
+    return _interstitialLoadFuture ??= _loadInterstitialAd()
+        .whenComplete(() => _interstitialLoadFuture = null);
+  }
+
+  Future<void> _loadInterstitialAd() async {
     await _ensureInitialized();
-    if (kIsWeb || _interstitialAd != null || _isInterstitialLoading) return;
+    if (kIsWeb || _interstitialAd != null) return;
 
-    _isInterstitialLoading = true;
+    final loaded = Completer<void>();
     try {
       await InterstitialAd.load(
         adUnitId: _interstitialAdUnitId,
@@ -306,19 +309,24 @@ class AdService {
         adLoadCallback: InterstitialAdLoadCallback(
           onAdLoaded: (ad) {
             _interstitialAd = ad;
-            _isInterstitialLoading = false;
             debugPrint('[AdService] Interstitial ad loaded');
+            if (!loaded.isCompleted) loaded.complete();
           },
           onAdFailedToLoad: (error) {
             _interstitialAd = null;
-            _isInterstitialLoading = false;
             debugPrint('[AdService] Interstitial load failed: $error');
+            if (!loaded.isCompleted) loaded.complete();
           },
         ),
       );
+      await loaded.future.timeout(
+        const Duration(seconds: 10),
+        onTimeout: () =>
+            debugPrint('[AdService] Interstitial load timed out'),
+      );
     } catch (e) {
-      _isInterstitialLoading = false;
       debugPrint('[AdService] preloadInterstitialAd error: $e');
+      if (!loaded.isCompleted) loaded.complete();
     }
   }
 
@@ -328,7 +336,6 @@ class AdService {
 
     if (_interstitialAd == null) {
       await preloadInterstitialAd();
-      await Future<void>.delayed(const Duration(milliseconds: 300));
     }
 
     final ad = _interstitialAd;

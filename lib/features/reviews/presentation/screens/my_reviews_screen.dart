@@ -6,6 +6,7 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/utils/snackbar_helper.dart';
 import '../../../../core/widgets/widgets.dart';
 import '../../../auth/presentation/providers/auth_providers.dart';
+import '../../../profile/presentation/widgets/badge_showcase.dart';
 import '../../domain/models/review_model.dart';
 import '../providers/review_providers.dart';
 import '../widgets/review_card.dart';
@@ -46,8 +47,15 @@ class MyReviewsScreen extends ConsumerWidget {
 
             final pendingCount = reviews.where((r) => !r.isApproved).length;
 
+            final profile = ref.watch(currentUserProvider).value;
+
             return Column(
               children: [
+                if (profile != null)
+                  const Padding(
+                    padding: EdgeInsets.fromLTRB(16, 16, 16, 0),
+                    child: BadgeShowcase(),
+                  ),
                 if (pendingCount > 0)
                   Container(
                     margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
@@ -105,7 +113,9 @@ class MyReviewsScreen extends ConsumerWidget {
                     itemCount: filteredReviews.length,
                     itemBuilder: (_, i) {
                       final r = filteredReviews[i];
-                      return ReviewCard(
+                      return AnimatedListItem(
+                        index: i,
+                        child: ReviewCard(
                         review: r,
                         showActions: true,
                         showReportMenu: false,
@@ -131,6 +141,7 @@ class MyReviewsScreen extends ConsumerWidget {
                             showAppSnackBar(context, message: 'Yorumunuz başarıyla silindi', isSuccess: true);
                           }
                         },
+                        ),
                       );
                     },
                   ),
@@ -193,10 +204,10 @@ class MyReviewsScreen extends ConsumerWidget {
       onSelected: (_) {
         ref.read(_myReviewFilterProvider.notifier).state = type;
       },
-      backgroundColor: AppColors.surface,
+      backgroundColor: AppColors.surfaceFor(context),
       selectedColor: AppColors.primary.withValues(alpha: 0.12),
       labelStyle: AppTextStyles.labelMedium.copyWith(
-        color: selected ? AppColors.primary : AppColors.textSecondary,
+        color: selected ? AppColors.primary : AppColors.textSecondaryFor(context),
         fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
       ),
       side: BorderSide(

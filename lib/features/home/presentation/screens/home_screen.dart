@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/rendering.dart' show ScrollCacheExtent;
 import '../../../../l10n/generated/app_localizations.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:showcaseview/showcaseview.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
@@ -84,36 +82,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              'Üni',
-                              style: GoogleFonts.spaceGrotesk(
-                                color: AppColors.primary,
-                                fontWeight: FontWeight.w800,
-                                letterSpacing: -1.0,
-                                fontSize: 28,
-                              ),
-                            ),
-                            const SizedBox(width: 3),
-                            SvgPicture.asset(
-                              'assets/icons/compare_icon.svg',
-                              width: 24,
-                              height: 24,
-                            ),
-                            const SizedBox(width: 2),
-                            Text(
-                              'eç',
-                              style: GoogleFonts.spaceGrotesk(
-                                color: AppColors.primary,
-                                fontWeight: FontWeight.w800,
-                                letterSpacing: -1.0,
-                                fontSize: 28,
-                              ),
-                            ),
-                          ],
-                        ),
+                        const AppWordmark(fontSize: 28),
                         // Bildirim ikonu — Showcase Adım 4
                         Showcase.withWidget(
                           key: AppTourKeys.notification,
@@ -221,6 +190,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               ),
             ),
 
+            // ─── Tercih Robotu Banner ───────────────────────────────
+            const SliverToBoxAdapter(
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(20, 0, 20, 8),
+                child: _WizardBanner(),
+              ),
+            ),
+
             // ─── Popüler Üniversiteler ──────────────────────────────
             SliverToBoxAdapter(
               child: Column(
@@ -321,7 +298,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             // ─── Son Yorumlar ───────────────────────────────────────
             SliverToBoxAdapter(
               child: SectionHeader(
-                title: loc.homeRecentReviews,
+                title: loc.homeTopReviews,
                 actionText: loc.homeSeeAll,
                 padding: const EdgeInsets.fromLTRB(20, 16, 12, 4),
                 onAction: () => context.push('/all-reviews'),
@@ -329,7 +306,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             ),
 
             ref
-                .watch(recentReviewsProvider)
+                .watch(topReviewsProvider)
                 .when(
                   loading: () => const SliverToBoxAdapter(
                     child: HomeListSkeleton(
@@ -341,7 +318,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   error: (e, st) => SliverToBoxAdapter(
                     child: ErrorStateWidget(
                       message: 'Yorumlar yüklenemedi',
-                      onRetry: () => ref.invalidate(recentReviewsProvider),
+                      onRetry: () => ref.invalidate(topReviewsProvider),
                       compact: true,
                     ),
                   ),
@@ -413,6 +390,138 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 }
 
 // ─── Widget Components ──────────────────────────────────────────────
+
+class _WizardBanner extends StatelessWidget {
+  const _WizardBanner();
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return GestureDetector(
+      onTap: () => context.push('/preference-wizard'),
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: AppColors.secondaryGradientFor(context),
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.secondary
+                  .withValues(alpha: isDark ? 0.15 : 0.28),
+              blurRadius: 18,
+              offset: const Offset(0, 6),
+            ),
+          ],
+        ),
+        clipBehavior: Clip.hardEdge,
+        child: Stack(
+          children: [
+            // Hero ile aynı dil: köşe parıltıları
+            Positioned(
+              right: -30,
+              top: -30,
+              child: Container(
+                width: 110,
+                height: 110,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.white.withValues(alpha: 0.12),
+                ),
+              ),
+            ),
+            Positioned(
+              left: -20,
+              bottom: -40,
+              child: Container(
+                width: 90,
+                height: 90,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.white.withValues(alpha: 0.08),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(11),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.18),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.smart_toy_rounded,
+                      color: Colors.white,
+                      size: 26,
+                    ),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 2,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.2),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            '2026 TERCİH DÖNEMİ',
+                            style: AppTextStyles.labelSmall.copyWith(
+                              color: Colors.white,
+                              fontSize: 9,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: 0.6,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 5),
+                        Text(
+                          'Tercih Robotu',
+                          style: AppTextStyles.titleMedium.copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          'Puanına uygun programları bul, listeni kur',
+                          style: AppTextStyles.labelSmall.copyWith(
+                            color: Colors.white.withValues(alpha: 0.9),
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.18),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.arrow_forward_rounded,
+                      color: Colors.white,
+                      size: 18,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
 
 class _HeroBanner extends StatelessWidget {
   const _HeroBanner();

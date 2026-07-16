@@ -328,6 +328,22 @@
   "paywallMonthly": "Monthly",
   "paywallYearly": "Yearly",
   "paywallRestore": "Restore purchases",
+  "paywallPackageInfoError": "Couldn't get package info. Please try again.",
+  "paywallPurchaseSuccess": "Purchase successful. Your plan is being updated.",
+  "paywallPurchaseIncomplete": "Purchase was not completed.",
+  "paywallRestoreResult": "Restore result: {tier}",
+  "@paywallRestoreResult": {
+    "placeholders": {
+      "tier": {
+        "type": "String"
+      }
+    }
+  },
+  "paywallOfferingsLoadError": "Something went wrong while loading plans. Please try again.",
+  "paywallSecurityNote": "Secure payment • Cancel anytime",
+  "paywallPurchaseSuccessTitle": "Purchase successful!",
+  "paywallPurchaseSuccessDesc": "Your plan is now active. Enjoy all the features.",
+  "paywallGreat": "Great",
   "reviewWrite": "Write a review",
   "reviewAnonymous": "Anonymous",
   "reviewRatingRequired": "Cannot submit without a rating",
@@ -377,6 +393,7 @@
   "homeCities": "Cities",
   "homeCitiesLoadError": "Failed to load cities",
   "homeRecentReviews": "Recent Reviews",
+  "homeTopReviews": "Featured Reviews",
   "homeNoReviews": "No reviews yet",
   "homeFirstReview": "Be the first to write a review!",
   "homeAssistantTitle": "Preference Assistant",
@@ -430,6 +447,136 @@
   },
   "uniDetailNoReviews": "No reviews yet",
   "uniDetailSeeAllReviews": "See all reviews",
+  "uniDetailWriteFirstReview": "Write the first review",
+  "googleReviewsTitle": "Google Reviews",
+  "googleReviewsTileSubtitle": "Ratings from Google Maps users",
+  "googleReviewsCount": "{count} ratings",
+  "@googleReviewsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "googleReviewsAttribution": "Reviews are provided by Google",
+  "reviewBadgeOwnUniversity": "Student at this university",
+  "reviewBadgeOtherUniversity": "Student at another university",
+  "reviewPromptTitleOwn": "Rate your university",
+  "reviewPromptTitleOther": "Rate this university",
+  "reviewPromptBodyOwn": "Share your {uniName} experience and guide the students coming after you.",
+  "@reviewPromptBodyOwn": {
+    "placeholders": {
+      "uniName": {
+        "type": "String"
+      }
+    }
+  },
+  "reviewPromptBodyOther": "If you know {uniName}, sharing your experience helps students making their choice.",
+  "@reviewPromptBodyOther": {
+    "placeholders": {
+      "uniName": {
+        "type": "String"
+      }
+    }
+  },
+  "reviewPromptCta": "Write a review",
+  "reviewPromptLater": "Maybe later",
+  "reviewPromptNever": "Don't show again",
+  "badgeFirstReview": "First Review",
+  "badgeFirstReviewDesc": "Write your first approved review",
+  "badgeDetailedReviewer": "Detailed Reviewer",
+  "badgeDetailedReviewerDesc": "Write 3 approved reviews",
+  "badgeHelpful": "Helpful",
+  "badgeHelpfulDesc": "Get 10 total likes on your reviews",
+  "badgeProlificReviewer": "Master Reviewer",
+  "badgeProlificReviewerDesc": "Write 10 approved reviews",
+  "badgeReviewLegend": "Review Legend",
+  "badgeReviewLegendDesc": "Write 25 approved reviews",
+  "badgeCommunityHero": "Community Hero",
+  "badgeCommunityHeroDesc": "Get 50 total likes on your reviews",
+  "badgeLikeMagnet": "Like Magnet",
+  "badgeLikeMagnetDesc": "Get 150 total likes on your reviews",
+  "badgeCollector": "Collector",
+  "badgeCollectorDesc": "Add 5 universities to your favorites",
+  "badgeMasterCollector": "Treasure Hunter",
+  "badgeMasterCollectorDesc": "Add 15 universities to your favorites",
+  "badgeExplorer": "Explorer",
+  "badgeExplorerDesc": "View 10 different universities",
+  "badgeWanderer": "Wanderer",
+  "badgeWandererDesc": "View 30 different universities",
+  "badgeCartographer": "Cartographer",
+  "badgeCartographerDesc": "View 60 different universities",
+  "badgeCityTraveler": "City Traveler",
+  "badgeCityTravelerDesc": "Explore 5 different cities",
+  "badgeAnalyst": "Analyst",
+  "badgeAnalystDesc": "Make 5 comparisons",
+  "badgeStrategist": "Strategist",
+  "badgeStrategistDesc": "Make 20 comparisons",
+  "badgeAmbassador": "Ambassador",
+  "badgeAmbassadorDesc": "Share 3 times",
+  "badgeSuperAmbassador": "Brand Ambassador",
+  "badgeSuperAmbassadorDesc": "Share 10 times",
+  "badgeStreakStarter": "Spark",
+  "badgeStreakStarterDesc": "Open the app 3 days in a row",
+  "badgeStreakKeeper": "Flame Keeper",
+  "badgeStreakKeeperDesc": "Open the app 7 days in a row",
+  "badgeStreakMaster": "Eternal Flame",
+  "badgeStreakMasterDesc": "Open the app 30 days in a row",
+  "badgeLoyalMember": "Loyal Member",
+  "badgeLoyalMemberDesc": "Be a member for 30 days",
+  "badgeVeteran": "Veteran",
+  "badgeVeteranDesc": "Be a member for a year",
+  "badgeProfileComplete": "Showcase",
+  "badgeProfileCompleteDesc": "Complete your profile: photo, bio, department and grade",
+  "badgeVerifiedScholar": "Verified Student",
+  "badgeVerifiedScholarDesc": "Verify your student status with your edu.tr email",
+  "badgeEarlyAdopter": "First Generation",
+  "badgeEarlyAdopterDesc": "You were among the app's first users",
+  "badgesScreenTitle": "My Badges",
+  "badgesEarnedCount": "{earned}/{total}",
+  "@badgesEarnedCount": {
+    "placeholders": {
+      "earned": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "badgesSeeAll": "See All",
+  "badgeProgressLabel": "{current}/{target}",
+  "@badgeProgressLabel": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "target": {
+        "type": "int"
+      }
+    }
+  },
+  "badgeEarnedOn": "Earned on {date}",
+  "@badgeEarnedOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "badgeLockedLabel": "Locked",
+  "badgeCelebrationTitle": "You Earned a New Badge!",
+  "badgeCelebrationAction": "Awesome!",
+  "badgeCelebrationSecondary": "My Badges",
+  "badgeCategoryReviewer": "Reviewer",
+  "badgeCategoryHero": "Hero",
+  "badgeCategoryCollection": "Collection",
+  "badgeCategoryExplorer": "Exploration",
+  "badgeCategoryAnalyst": "Analysis",
+  "badgeCategoryAmbassador": "Sharing",
+  "badgeCategoryStreak": "Streak",
+  "badgeCategoryMembership": "Membership",
+  "badgeCategorySpecial": "Special",
   "uniDetailPlaces": "Places",
   "uniDetailPlacesSubtitle": "{count} places",
   "@uniDetailPlacesSubtitle": {
@@ -593,8 +740,9 @@
     }
   },
   "prefListAddDepartment": "Add Department",
-  "prefListSortByRanking": "Sort by Ranking",
+  "prefListSortByScore": "Sort by Score",
   "prefListUndo": "Undo",
+  "prefListsSummary": "{lists} lists · {items} picks",
   "prefListSavedState": "Saved",
   "prefListEmptyItemsTitle": "List is empty",
   "prefListEmptyItemsDesc": "Tap \"Add Department\" to choose a university and department. You can reorder your preferences by dragging or sorting by ranking.",
@@ -630,6 +778,14 @@
   "prefSharedListEmptyDesc": "There are no preferences in this list yet.",
   "prefSharedListHiddenOrDeleted": "This list may have been deleted or marked private.",
   "prefSharedListBackHome": "Back to Home",
+  "prefSharedReadOnlyNotice": "You are viewing this list in read-only mode.",
+  "prefSharedCopyButton": "Copy to My Lists & Edit",
+  "prefSharedCopySuccess": "List copied to your account! You can now edit it.",
+  "prefSharedCopyOwnList": "This list already belongs to you.",
+  "prefSharedEditOwnList": "Edit Your List",
+  "prefSharedCopyPaywallTitle": "Copying is a Plus Feature",
+  "prefSharedCopyPaywallDesc": "You can view this list. Copying it to your account and editing requires a Plus or Pro membership. Copying never changes the owner's list — you get your own independent copy.",
+  "prefSharedCopyPaywallButton": "See Plans",
   "comparisonHubSubtitle": "What type of comparison do you want to make?",
   "comparisonHistoryTitle": "Comparison History",
   "comparisonHistoryTooltip": "Comparison history",

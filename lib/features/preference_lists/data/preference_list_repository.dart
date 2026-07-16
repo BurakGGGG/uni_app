@@ -168,6 +168,64 @@ class PreferenceListRepository {
     return PreferenceListModel.fromMap(doc.data(), doc.id);
   }
 
+  /// Paylaşılan bir listeyi mevcut kullanıcının hesabına kopyala (fork).
+  ///
+  /// Orijinal liste ASLA değişmez: yeni doc, yeni slug, kopya sahibi mevcut
+  /// kullanıcı olur ve kopya gizli (isPublic=false) başlar. Sahibinin kişisel
+  /// notları kopyaya dahil edilmez.
+  Future<PreferenceListModel> copyList(PreferenceListModel source) async {
+    final user = _auth.currentUser;
+    if (user == null) throw Exception('Giriş yapmalısınız');
+    final author = await _loadCurrentAuthor(user);
+
+    // Limit kontrolü (createList ile aynı kural)
+    final myLists = await _listsRef
+        .where('userId', isEqualTo: user.uid)
+        .count()
+        .get();
+    final count = myLists.count ?? 0;
+    if (count >= PreferenceListModel.maxLists) {
+      throw Exception(
+        'En fazla ${PreferenceListModel.maxLists} liste oluşturabilirsiniz.',
+      );
+    }
+
+    final slug = await _findUniqueSlug();
+    final now = DateTime.now();
+    final docRef = _listsRef.doc();
+
+    // Notlar liste sahibine özeldir — kopyaya taşınmaz.
+    final copiedItems = <PreferenceItem>[];
+    for (var i = 0; i < source.items.length; i++) {
+      final item = source.items[i].copyWith(order: i + 1);
+      copiedItems.add(
+        PreferenceItem.fromMap(item.toMap()..remove('note')),
+      );
+    }
+
+    final list = PreferenceListModel(
+      id: docRef.id,
+      userId: user.uid,
+      userName: author.displayName,
+      userPhotoUrl: author.photoUrl,
+      title: _validateTitle(source.title),
+      description: source.description,
+      isPublic: false,
+      shareSlug: slug,
+      items: copiedItems,
+      createdAt: now,
+      updatedAt: now,
+    );
+
+    await docRef.set({
+      ...list.toMap(),
+      'createdAt': FieldValue.serverTimestamp(),
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
+    AnalyticsService.instance.trackEvent(AnalyticsEvent.preferenceListCreated);
+    return list;
+  }
+
   /// Liste'ye öğe ekle
   Future<void> addItem(String listId, PreferenceItem item) async {
     final user = _auth.currentUser;

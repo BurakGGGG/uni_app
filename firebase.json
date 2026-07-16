@@ -1,1 +1,64 @@
-{"firestore":{"rules":"firestore.rules","indexes":"firestore.indexes.json"},"functions":{"source":"functions"},"storage":{"rules":"storage.rules"},"flutter":{"platforms":{"android":{"default":{"projectId":"unisec-e36e1","appId":"1:267910282750:android:29017a5ae36387536f54af","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"unisec-e36e1","configurations":{"android":"1:267910282750:android:29017a5ae36387536f54af","ios":"1:267910282750:ios:410ae7ebb0b387396f54af","macos":"1:267910282750:ios:410ae7ebb0b387396f54af","web":"1:267910282750:web:66cbd763a86766476f54af","windows":"1:267910282750:web:04d133b47482bfd56f54af"}}}}}}
+{
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  },
+  "functions": {
+    "source": "functions"
+  },
+  "storage": {
+    "rules": "storage.rules"
+  },
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "unisec-e36e1",
+          "appId": "1:267910282750:android:29017a5ae36387536f54af",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "unisec-e36e1",
+          "configurations": {
+            "android": "1:267910282750:android:29017a5ae36387536f54af",
+            "ios": "1:267910282750:ios:410ae7ebb0b387396f54af",
+            "macos": "1:267910282750:ios:410ae7ebb0b387396f54af",
+            "web": "1:267910282750:web:66cbd763a86766476f54af",
+            "windows": "1:267910282750:web:04d133b47482bfd56f54af"
+          }
+        }
+      }
+    }
+  },
+  "hosting": {
+    "public": "hosting/public",
+    "ignore": [
+      "firebase.json",
+      "**/node_modules/**"
+    ],
+    "headers": [
+      {
+        "source": "/.well-known/assetlinks.json",
+        "headers": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Cache-Control",
+            "value": "public, max-age=3600"
+          }
+        ]
+      }
+    ],
+    "rewrites": [
+      {
+        "source": "/list/**",
+        "destination": "/list.html"
+      }
+    ],
+    "site": "unisec-e36e1"
+  }
+}

@@ -37,6 +37,8 @@ class AppNotification {
         return Icons.shield_rounded;
       case NotificationType.favoriteNewReview:
         return Icons.fiber_new_rounded;
+      case NotificationType.reviewCampaign:
+        return Icons.rate_review_rounded;
     }
   }
 
@@ -48,6 +50,8 @@ class AppNotification {
         return AppColors.success;
       case NotificationType.favoriteNewReview:
         return AppColors.info;
+      case NotificationType.reviewCampaign:
+        return AppColors.primary;
     }
   }
 

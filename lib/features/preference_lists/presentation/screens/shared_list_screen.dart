@@ -1,23 +1,55 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../../core/widgets/force_update_dialog.dart';
 import '../../../../l10n/generated/app_localizations.dart';
+import '../../../../services/force_update_service.dart';
 import '../../../auth/presentation/providers/auth_providers.dart';
+import '../../../monetization/domain/enums/subscription_tier.dart';
+import '../../../monetization/presentation/providers/subscription_providers.dart';
 import '../../../university/presentation/widgets/score_badge.dart';
 import '../providers/preference_list_providers.dart';
 import '../../domain/models/preference_list_model.dart';
 import '../../../../core/widgets/user_avatar.dart';
 
-class SharedListScreen extends ConsumerWidget {
+class SharedListScreen extends ConsumerStatefulWidget {
   final String shareSlug;
   const SharedListScreen({super.key, required this.shareSlug});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<SharedListScreen> createState() => _SharedListScreenState();
+}
+
+class _SharedListScreenState extends ConsumerState<SharedListScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkForceUpdateOnColdStart();
+    });
+  }
+
+  /// Deep link ile soğuk açılışta splash atlanır, force update /
+  /// bakım modu kontrolü yapılmaz. Bu ekran ilk route ise kontrolü
+  /// burada tekrarla (init idempotent, normal navigasyonda maliyeti yok).
+  Future<void> _checkForceUpdateOnColdStart() async {
+    if (!(ModalRoute.of(context)?.isFirst ?? false)) return;
+    final service = ForceUpdateService();
+    await service.init();
+    if (!mounted) return;
+    final status = service.checkForUpdate(AppConstants.appVersion);
+    if (status.isBlocking) {
+      ForceUpdateDialog.show(context, status);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
-    final listAsync = ref.watch(publicListBySlugProvider(shareSlug));
+    final listAsync = ref.watch(publicListBySlugProvider(widget.shareSlug));
     final isLoggedIn = ref.watch(authStateProvider).value != null;
 
     return Scaffold(
@@ -30,7 +62,12 @@ class SharedListScreen extends ConsumerWidget {
           error: (e, _) => _NotFoundView(message: loc.prefSharedListLoadError),
           data: (list) {
             if (list == null) return const _NotFoundView();
-            return _buildList(context, list, isLoggedIn);
+            return Column(
+              children: [
+                Expanded(child: _buildList(context, list, isLoggedIn)),
+                _ActionBar(list: list, shareSlug: widget.shareSlug),
+              ],
+            );
           },
         ),
       ),
@@ -195,6 +232,254 @@ class SharedListScreen extends ConsumerWidget {
             ),
           ),
       ],
+    );
+  }
+}
+
+/// Alt aksiyon çubuğu: salt görüntüleme bildirimi + kopyalama/düzenleme aksiyonu.
+///
+/// - Liste sahibi → kendi listesini düzenlemeye gider.
+/// - Plus/Pro → listeyi kendi hesabına kopyalar (orijinal DEĞİŞMEZ).
+/// - Free → paywall yönlendirmeli bilgi sheet'i.
+/// - Giriş yapmamış → login'e yönlendirilir (dönüşte buraya gelir).
+class _ActionBar extends ConsumerStatefulWidget {
+  final PreferenceListModel list;
+  final String shareSlug;
+  const _ActionBar({required this.list, required this.shareSlug});
+
+  @override
+  ConsumerState<_ActionBar> createState() => _ActionBarState();
+}
+
+class _ActionBarState extends ConsumerState<_ActionBar> {
+  bool _busy = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
+    final user = ref.watch(authStateProvider).valueOrNull;
+    final isOwner = user != null && user.uid == widget.list.userId;
+    // Stream'i canlı tut: tıklama anında tier değeri hazır olsun (autoDispose).
+    ref.watch(subscriptionTierProvider);
+
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.surfaceFor(context),
+        border: Border(
+          top: BorderSide(color: AppColors.borderLightFor(context)),
+        ),
+      ),
+      padding: const EdgeInsets.fromLTRB(20, 12, 20, 16),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.visibility_outlined,
+                size: 14,
+                color: AppColors.textTertiaryFor(context),
+              ),
+              const SizedBox(width: 6),
+              Flexible(
+                child: Text(
+                  isOwner
+                      ? loc.prefSharedCopyOwnList
+                      : loc.prefSharedReadOnlyNotice,
+                  style: AppTextStyles.labelSmall.copyWith(
+                    color: AppColors.textTertiaryFor(context),
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          SizedBox(
+            width: double.infinity,
+            height: 50,
+            child: ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                elevation: 0,
+              ),
+              onPressed: _busy ? null : () => _onPressed(isOwner),
+              icon: _busy
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.white,
+                      ),
+                    )
+                  : Icon(
+                      isOwner
+                          ? Icons.edit_rounded
+                          : Icons.copy_all_rounded,
+                      size: 20,
+                    ),
+              label: Text(
+                isOwner ? loc.prefSharedEditOwnList : loc.prefSharedCopyButton,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 15,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _onPressed(bool isOwner) async {
+    final loc = AppLocalizations.of(context);
+
+    // Sahibi kendisi → düzenleme ekranına git.
+    if (isOwner) {
+      context.push('/my-lists/${widget.list.id}');
+      return;
+    }
+
+    // Giriş yapılmamış → login'e yönlendir, dönüşte bu sayfaya gelsin.
+    final user = ref.read(authStateProvider).valueOrNull;
+    if (user == null) {
+      final from = Uri.encodeComponent('/list/${widget.shareSlug}');
+      context.push('/login?from=$from');
+      return;
+    }
+
+    // Free kullanıcı → paywall yönlendirmeli bilgi sheet'i.
+    final tier = ref.read(subscriptionTierProvider).valueOrNull ??
+        SubscriptionTier.free;
+    if (!tier.satisfies(SubscriptionTier.plus)) {
+      _showUpsellSheet();
+      return;
+    }
+
+    // Plus/Pro → kopyala ve düzenlemeye git (orijinal liste değişmez).
+    setState(() => _busy = true);
+    try {
+      final copy = await ref
+          .read(preferenceListControllerProvider.notifier)
+          .copy(widget.list);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(loc.prefSharedCopySuccess),
+          duration: const Duration(seconds: 3),
+        ),
+      );
+      context.push('/my-lists/${copy.id}');
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            loc.errorGeneral(
+              e.toString().replaceFirst('Exception: ', ''),
+            ),
+          ),
+        ),
+      );
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  void _showUpsellSheet() {
+    final loc = AppLocalizations.of(context);
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppColors.surfaceFor(context),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      ),
+      builder: (sheetContext) => Padding(
+        padding: const EdgeInsets.fromLTRB(24, 16, 24, 28),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                margin: const EdgeInsets.only(bottom: 20),
+                decoration: BoxDecoration(
+                  color: AppColors.borderLightFor(sheetContext),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            Center(
+              child: Container(
+                width: 64,
+                height: 64,
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withValues(alpha: 0.10),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.workspace_premium_rounded,
+                  color: AppColors.primary,
+                  size: 32,
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              loc.prefSharedCopyPaywallTitle,
+              textAlign: TextAlign.center,
+              style: AppTextStyles.titleLarge.copyWith(
+                fontWeight: FontWeight.w700,
+                letterSpacing: -0.3,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              loc.prefSharedCopyPaywallDesc,
+              textAlign: TextAlign.center,
+              style: AppTextStyles.bodyMedium.copyWith(
+                color: AppColors.textSecondaryFor(sheetContext),
+                height: 1.5,
+              ),
+            ),
+            const SizedBox(height: 24),
+            SizedBox(
+              height: 50,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  elevation: 0,
+                ),
+                onPressed: () {
+                  Navigator.pop(sheetContext);
+                  context.push('/compare/paywall');
+                },
+                child: Text(
+                  loc.prefSharedCopyPaywallButton,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 15,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

@@ -81,6 +81,9 @@ class UsageStatsRepository {
       return Stream.value(_getGuestStats());
     }
 
+    // Hata burada yutulmaz: handleError içinden değer döndürmek stream'e
+    // fallback yaymaz, provider kalıcı loading'de kalır. Hata provider'a
+    // taşınır; tüketiciler error dalında güvenli varsayılanlarını uygular.
     return ref.snapshots().map((doc) {
       if (!doc.exists) return UsageStatsModel.initial();
 
@@ -92,9 +95,6 @@ class UsageStatsRepository {
       }
 
       return stats;
-    }).handleError((e) {
-      debugPrint('[UsageStatsRepo] watchUsageStats error: $e');
-      return UsageStatsModel.initial();
     });
   }
 
@@ -169,9 +169,16 @@ class UsageStatsRepository {
       });
       debugPrint('[UsageStatsRepo] Daily stats reset for new day');
     } catch (e) {
-      // Doküman yoksa oluştur
+      // Doküman yoksa sıfırdan oluştur — create kuralı tüm sayaçların 0
+      // olmasını şart koşar, bu yüzden mevcut sayaçlar taşınamaz.
       if (e is FirebaseException && e.code == 'not-found') {
-        await ref.set(resetted.toFirestore());
+        final fresh = UsageStatsModel.initial();
+        try {
+          await ref.set(fresh.toFirestore());
+        } catch (e2) {
+          debugPrint('[UsageStatsRepo] resetDailyStats create error: $e2');
+        }
+        return fresh;
       }
       debugPrint('[UsageStatsRepo] resetDailyStats error: $e');
     }

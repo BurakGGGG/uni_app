@@ -1,5 +1,6 @@
 import { onDocumentWritten } from 'firebase-functions/v2/firestore';
 import * as admin from 'firebase-admin';
+import { evaluateReviewCountBadges } from '../badges/award_badges';
 
 const db = admin.firestore();
 
@@ -38,4 +39,6 @@ async function recomputeUserReviewCount(userId: string): Promise<void> {
     },
     { merge: true },
   );
+
+  await evaluateReviewCountBadges(userId, reviews.size);
 }

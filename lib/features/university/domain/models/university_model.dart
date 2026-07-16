@@ -62,6 +62,10 @@ class UniversityModel {
   final int? placeCount;
   final Map<String, int>? placeBreakdown;
 
+  // Google Places place_id — canlı Google yorumları için (getGoogleReviews CF).
+  // Places politikası gereği yalnızca place_id saklanır, yorum içeriği saklanmaz.
+  final String? googlePlaceId;
+
   UniversityModel({
     required this.id,
     required this.cityId,
@@ -83,6 +87,7 @@ class UniversityModel {
     this.brandUseDarkOverlay = false,
     this.placeCount,
     this.placeBreakdown,
+    this.googlePlaceId,
   });
 
   // ── Tüm üniversiteler için logo-bazlı gradient fallback renkleri ──
@@ -168,6 +173,63 @@ class UniversityModel {
     'karabuk':           ['#3B6FA0', '#C0392B'],  // Mavi → Kırmızı
     // ── Tokat ──
     'gop':               ['#008B8B', '#4A1558'],  // Teal → Mor
+
+    // ── v2 yeni üniversiteler (logodan otomatik çıkarım) ──
+    'adiyaman_uni':   ['#0072B6', '#005283'],  // Adıyaman Üniversitesi
+    'aku':            ['#005E9D', '#004371'],  // Afyon Kocatepe Üniversitesi
+    'aksaray_uni':    ['#167DBC', '#0F5A87'],  // Aksaray Üniversitesi
+    'amasya_uni':     ['#E42317', '#099844'],  // Amasya Üniversitesi
+    'asbu':           ['#752645', '#E4C4A8'],  // Ankara Sosyal Bilimler Üniversitesi
+    'aybu':           ['#00C0D8', '#002E78'],  // Ankara Yıldırım Beyazıt Üniversitesi
+    'acu':            ['#1F793B', '#16572A'],  // Artvin Çoruh Üniversitesi
+    'atilim':         ['#233574', '#F20410'],  // Atılım Üniversitesi
+    'adu':            ['#2A388E', '#1E2866'],  // Aydın Adnan Menderes Üniversitesi
+    'bahcesehir':     ['#03519F', '#023A72'],  // Bahçeşehir Üniversitesi
+    'balikesir_uni':  ['#0C8C88', '#086461'],  // Balıkesir Üniversitesi
+    'baskent':        ['#DE2027', '#9F171C'],  // Başkent Üniversitesi
+    'bingol_uni':     ['#93CAEC', '#F2823E'],  // Bingöl Üniversitesi
+    'bitlis_eren':    ['#0BAFC7', '#077E8F'],  // Bitlis Eren Üniversitesi
+    'bogazici':       ['#134A8F', '#0D3566'],  // Boğaziçi Üniversitesi
+    'maku':           ['#3A2666', '#291B49'],  // Burdur Mehmet Akif Ersoy Üniversitesi
+    'dicle':          ['#E2B241', '#A2802E'],  // Dicle Üniversitesi
+    'duzce_uni':      ['#003B74', '#002A53'],  // Düzce Üniversitesi
+    'ebyu':           ['#273970', '#9A8245'],  // Erzincan Binali Yıldırım Üniversitesi
+    'firat':          ['#821342', '#5D0D2F'],  // Fırat Üniversitesi
+    'galatasaray':    ['#F6C21D', '#A20807'],  // Galatasaray Üniversitesi
+    'giresun_uni':    ['#111A9E', '#1C9605'],  // Giresun Üniversitesi
+    'gumushane_uni':  ['#D0092C', '#95061F'],  // Gümüşhane Üniversitesi
+    'harran':         ['#E0D000', '#1579AE'],  // Harran Üniversitesi
+    'mku':            ['#99161B', '#D89A59'],  // Hatay Mustafa Kemal Üniversitesi
+    'isubu':          ['#22499A', '#6AC9C9'],  // Isparta Uygulamalı Bilimler Üniversitesi
+    'kadir_has':      ['#065494', '#043C6A'],  // Kadir Has Üniversitesi
+    'kafkas':         ['#00B3C1', '#174395'],  // Kafkas Üniversitesi
+    'kastamonu_uni':  ['#D44143', '#352838'],  // Kastamonu Üniversitesi
+    'koc':            ['#AE162B', '#7D0F1E'],  // Koç Üniversitesi
+    'klu':            ['#0E437B', '#0A3058'],  // Kırklareli Üniversitesi
+    'kku':            ['#2168B2', '#ED2129'],  // Kırıkkale Üniversitesi
+    'kaeu':           ['#004FA1', '#56AF27'],  // Kırşehir Ahi Evran Üniversitesi
+    'artuklu':        ['#901860', '#671145'],  // Mardin Artuklu Üniversitesi
+    'msgsu':          ['#050390', '#030267'],  // Mimar Sinan Güzel Sanatlar Üniversitesi
+    'msku':           ['#2C318D', '#990F26'],  // Muğla Sıtkı Koçman Üniversitesi
+    'erbakan':        ['#305A8B', '#224064'],  // Necmettin Erbakan Üniversitesi
+    'nevu':           ['#B62C2D', '#E4A73F'],  // Nevşehir Hacı Bektaş Veli Üniversitesi
+    'ohu':            ['#0091A7', '#006878'],  // Niğde Ömer Halisdemir Üniversitesi
+    'sabanci':        ['#004288', '#002F61'],  // Sabancı Üniversitesi
+    'subu':           ['#003BAB', '#009F4E'],  // Sakarya Uygulamalı Bilimler Üniversitesi
+    'sbu':            ['#295075', '#862A46'],  // Sağlık Bilimleri Üniversitesi
+    'tobb_etu':       ['#1B47A1', '#F38B21'],  // TOBB Ekonomi ve Teknoloji Üniversitesi
+    'nku':            ['#000EA0', '#000A73'],  // Tekirdağ Namık Kemal Üniversitesi
+    'trakya':         ['#D1A348', '#22388D'],  // Trakya Üniversitesi
+    'turk_alman':     ['#86CAD6', '#292C37'],  // Türk-Alman Üniversitesi
+    'yasar':          ['#00519B', '#003A6F'],  // Yaşar Üniversitesi
+    'yeditepe':       ['#005296', '#009145'],  // Yeditepe Üniversitesi
+    'yobu':           ['#E11A1E', '#F6B7B6'],  // Yozgat Bozok Üniversitesi
+    'ozyegin':        ['#004B93', '#CE0068'],  // Özyeğin Üniversitesi
+    'bilkent':        ['#678FBE', '#E2081D'],  // İhsan Doğramacı Bilkent Üniversitesi
+    'bilgi':          ['#DA2D2A', '#C13E40'],  // İstanbul Bilgi Üniversitesi
+    'iuc':            ['#10243D', '#AB8D3F'],  // İstanbul Üniversitesi-Cerrahpaşa
+    'izmir_ekonomi':  ['#FF7100', '#B75100'],  // İzmir Ekonomi Üniversitesi
+    'iyte':           ['#920213', '#69010D'],  // İzmir Yüksek Teknoloji Enstitüsü
   };
 
   /// Firestore veya fallback'ten primary hex rengi döner.
@@ -250,6 +312,7 @@ class UniversityModel {
       placeBreakdown: (map['placeBreakdown'] as Map<String, dynamic>?)?.map(
         (key, value) => MapEntry(key, (value as num).toInt()),
       ),
+      googlePlaceId: map['googlePlaceId'] as String?,
     );
   }
   Map<String, dynamic> toMap() {
@@ -273,6 +336,7 @@ class UniversityModel {
       'brandUseDarkOverlay': brandUseDarkOverlay,
       if (placeCount != null) 'placeCount': placeCount,
       if (placeBreakdown != null) 'placeBreakdown': placeBreakdown,
+      if (googlePlaceId != null) 'googlePlaceId': googlePlaceId,
     };
   }
 }

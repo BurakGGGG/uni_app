@@ -13,6 +13,7 @@ export function buildPublicProfileData(
     bio: nullableString(data.bio),
     isVerifiedStudent: data.isVerifiedStudent === true,
     reviewCount: typeof data.reviewCount === 'number' ? data.reviewCount : 0,
+    badges: badgesOrEmpty(data.badges),
     createdAt: data.createdAt ?? admin.firestore.FieldValue.serverTimestamp(),
     updatedAt: admin.firestore.FieldValue.serverTimestamp(),
   };
@@ -24,4 +25,10 @@ function stringOrEmpty(value: unknown): string {
 
 function nullableString(value: unknown): string | null {
   return typeof value === 'string' && value.trim().length > 0 ? value : null;
+}
+
+function badgesOrEmpty(value: unknown): Record<string, unknown> {
+  return value !== null && typeof value === 'object' && !Array.isArray(value)
+    ? (value as Record<string, unknown>)
+    : {};
 }

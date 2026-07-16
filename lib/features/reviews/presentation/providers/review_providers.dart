@@ -39,11 +39,11 @@ final departmentReviewsProvider =
       return repository.getDepartmentReviews(departmentId);
     });
 
-/// Ana sayfada gösterilecek son yorumları dinleyen sağlayıcı
-final recentReviewsProvider = StreamProvider<List<ReviewModel>>((ref) {
+/// Ana sayfada gösterilecek öne çıkan (en beğenilen) yorumları dinleyen sağlayıcı
+final topReviewsProvider = StreamProvider<List<ReviewModel>>((ref) {
   ref.keepAlive();
   final repository = ref.watch(reviewRepositoryProvider);
-  return repository.getRecentReviews(limit: 5);
+  return repository.getTopReviews(limit: 5);
 });
 
 /// Kullanıcının kendi yaptığı yorumları dinleyen sağlayıcı
@@ -53,6 +53,14 @@ final userReviewsProvider = StreamProvider.family<List<ReviewModel>, String>((
 ) {
   final repository = ref.watch(reviewRepositoryProvider);
   return repository.getUserReviews(userId);
+});
+
+/// Başka bir kullanıcının profilinde gösterilen onaylı yorumlar.
+/// Onaysız yorumlar güvenlik kuralı gereği sorguya dahil edilemez.
+final userPublicReviewsProvider =
+    StreamProvider.family<List<ReviewModel>, String>((ref, userId) {
+  final repository = ref.watch(reviewRepositoryProvider);
+  return repository.getUserPublicReviews(userId);
 });
 
 /// Üniversiteye ait tüm fotoğraflı yorumları (bölüm, mekan, genel) dinleyen ve
@@ -223,6 +231,7 @@ class ReviewActionController extends StateNotifier<AsyncValue<void>> {
       state = const AsyncValue.data(null);
     } catch (e, st) {
       state = AsyncValue.error(e, st);
+      Error.throwWithStackTrace(e, st);
     }
   }
 }

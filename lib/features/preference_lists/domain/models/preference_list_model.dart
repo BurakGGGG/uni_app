@@ -32,7 +32,12 @@ class PreferenceListModel {
   static const int maxItems = 24;     // ÖSYM tercih limiti
   static const int maxLists = 10;     // Bir kullanıcı max 10 liste
 
-  String get publicUrl => 'https://unisec.app/list/$shareSlug';
+  /// Paylaşım linki — Firebase Hosting domain'i (hosting/public'te sunulur).
+  /// unisec.app satın alınıp Hosting'e bağlanınca burası güncellenebilir;
+  /// web.app linkleri çalışmaya devam eder.
+  static const String shareBaseUrl = 'https://unisec-e36e1.web.app';
+
+  String get publicUrl => '$shareBaseUrl/list/$shareSlug';
 
   factory PreferenceListModel.fromMap(Map<String, dynamic> m, String id) {
     final items = (m['items'] as List?) ?? [];

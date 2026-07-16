@@ -11,6 +11,8 @@ import '../../../../core/widgets/widgets.dart';
 import '../providers/university_providers.dart';
 import '../../domain/models/city_model.dart';
 import '../../domain/models/university_model.dart';
+import '../../../admin/presentation/widgets/analytics_once_tracker.dart';
+import '../../../../services/engagement_service.dart';
 
 final _cityUniFilterProvider = StateProvider.family.autoDispose<String?, String>(
   (ref, cityId) => null,
@@ -28,7 +30,9 @@ class CityUniversitiesScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: AppColors.backgroundFor(context),
-      body: RefreshIndicator(
+      body: AnalyticsOnceTracker(
+        onTrack: () => EngagementService.instance.recordCityViewed(cityId),
+        child: RefreshIndicator(
         color: AppColors.primary,
         onRefresh: () async {
           ref.invalidate(cityDetailProvider(cityId));
@@ -164,6 +168,7 @@ class CityUniversitiesScreen extends ConsumerWidget {
               },
             ),
           ],
+          ),
         ),
       ),
     );

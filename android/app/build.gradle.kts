@@ -23,7 +23,6 @@ val googleTestRewardedAndroidId = "ca-app-pub-3940256099942544/5224354917"
 val googleTestComparisonRewardedAndroidId = "ca-app-pub-3940256099942544/5224354917"
 val googleTestInterstitialAndroidId = "ca-app-pub-3940256099942544/1033173712"
 val googleTestNativeAndroidId = "ca-app-pub-3940256099942544/2247696110"
-val googleTestBannerAndroidId = "ca-app-pub-3940256099942544/6300978111"
 
 fun decodedDartDefines(): Map<String, String> {
     val encodedDefines = (project.findProperty("dart-defines") as? String)
@@ -67,7 +66,6 @@ val configuredAdMobRewardedAndroidId = configuredProperty("ADMOB_REWARDED_ANDROI
 val configuredAdMobComparisonRewardedAndroidId = configuredProperty("ADMOB_COMPARISON_REWARDED_ANDROID")
 val configuredAdMobInterstitialAndroidId = configuredProperty("ADMOB_INTERSTITIAL_ANDROID")
 val configuredAdMobNativeAndroidId = configuredProperty("ADMOB_NATIVE_ANDROID")
-val configuredAdMobBannerAndroidId = configuredProperty("ADMOB_BANNER_ANDROID")
 val allowTestAdUnits = configuredProperty("ALLOW_TEST_AD_UNITS")
     ?.equals("true", ignoreCase = true) == true
 
@@ -170,19 +168,6 @@ fun validateAndroidReleaseConfig() {
         configuredAdMobNativeAndroidId != null &&
             !adUnitIdPattern.matches(configuredAdMobNativeAndroidId) -> {
             missingOrInvalid += "ADMOB_NATIVE_ANDROID gecersiz formatta"
-        }
-    }
-
-    when {
-        configuredAdMobBannerAndroidId != null &&
-            (configuredAdMobBannerAndroidId == googleTestBannerAndroidId ||
-                configuredAdMobBannerAndroidId.startsWith("ca-app-pub-3940256099942544")) &&
-            !allowTestAdUnits -> {
-            missingOrInvalid += "release build Google test banner Ad Unit ID kullanamaz"
-        }
-        configuredAdMobBannerAndroidId != null &&
-            !adUnitIdPattern.matches(configuredAdMobBannerAndroidId) -> {
-            missingOrInvalid += "ADMOB_BANNER_ANDROID gecersiz formatta"
         }
     }
 

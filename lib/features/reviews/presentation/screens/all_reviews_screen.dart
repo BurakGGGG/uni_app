@@ -31,6 +31,7 @@ class AllReviewsScreen extends ConsumerWidget {
             backgroundColor: AppColors.primary,
             offset: const Offset(-4, 4),
             child: IconButton(
+              tooltip: 'Filtrele',
               icon: const Icon(Icons.tune_rounded),
               onPressed: () => _showFilterSheet(context, ref),
             ),
@@ -118,7 +119,9 @@ class AllReviewsScreen extends ConsumerWidget {
                     final currentUser = ref.watch(authStateProvider).value;
                     final isOwner = currentUser?.uid == review.userId;
 
-                    return ReviewCard(
+                    return AnimatedListItem(
+                      index: i,
+                      child: ReviewCard(
                       review: review,
                       showActions: isOwner,
                       showReportMenu: !isOwner,
@@ -136,6 +139,7 @@ class AllReviewsScreen extends ConsumerWidget {
                             break;
                         }
                       },
+                      ),
                     );
                   },
                 );
@@ -223,7 +227,7 @@ class _SortChip extends StatelessWidget {
         decoration: BoxDecoration(
           color: selected
               ? AppColors.primary.withValues(alpha: 0.12)
-              : AppColors.surfaceVariant,
+              : AppColors.surfaceVariantFor(context),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: selected
@@ -454,7 +458,7 @@ class _TypeOption extends StatelessWidget {
           decoration: BoxDecoration(
             color: isSelected
                 ? AppColors.primary.withValues(alpha: 0.1)
-                : AppColors.surface,
+                : AppColors.surfaceFor(context),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
               color: isSelected ? AppColors.primary : AppColors.borderLightFor(context),

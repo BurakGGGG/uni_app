@@ -41,17 +41,23 @@
               android:name="io.flutter.embedding.android.NormalTheme"
               android:resource="@style/NormalTheme"
               />
+            <!-- go_router'ın gelen App Link'leri işleyebilmesi için -->
+            <meta-data
+              android:name="flutter_deeplinking_enabled"
+              android:value="true" />
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
 
-            <!-- Deep linking for unisec.app -->
+            <!-- App Links: paylaşım linkleri (assetlinks.json Firebase Hosting'te sunulur).
+                 NOT: Doğrulanamayan bir host (ör. DNS'i olmayan unisec.app) eklenirse
+                 Android 6-11'de TÜM hostların otomatik doğrulaması bozulur. -->
             <intent-filter android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="https" android:host="unisec.app" />
+                <data android:scheme="https" android:host="unisec-e36e1.web.app" android:pathPrefix="/list" />
             </intent-filter>
         </activity>
         <!-- image_cropper: Kırpma ekranı activity'si -->

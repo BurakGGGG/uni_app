@@ -55,13 +55,16 @@ class _StoryViewerScreenState extends ConsumerState<StoryViewerScreen>
       vsync: this,
       duration: _imageDuration,
     )..addStatusListener((status) {
-        if (status == AnimationStatus.completed) {
+        // Controller dispose sırasında da tetiklenebilir; ref/setState
+        // kullanan _nextStory yalnızca widget hayattayken çağrılmalı.
+        if (status == AnimationStatus.completed && mounted) {
           _nextStory();
         }
       });
 
     // Preload interstitial ad for story viewer
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
       final showAds = ref.read(subscriptionTierProvider).valueOrNull == SubscriptionTier.free;
       if (showAds) {
         AdService().preloadInterstitialAd();
@@ -71,9 +74,9 @@ class _StoryViewerScreenState extends ConsumerState<StoryViewerScreen>
 
   @override
   void dispose() {
-    if (_viewedIds.isNotEmpty) {
-      ref.read(seenStoryIdsProvider.notifier).markAsSeen(_viewedIds);
-    }
+    // Not: görülen story'ler _markCurrentViewed içinde anlık olarak
+    // kaydedildiği için burada ref kullanmaya gerek yok (dispose sırasında
+    // ref erişimi "Cannot use ref after dispose" crash'i üretiyordu).
     _progressController.dispose();
     _videoController?.dispose();
     super.dispose();
@@ -104,6 +107,7 @@ class _StoryViewerScreenState extends ConsumerState<StoryViewerScreen>
   }
 
   void _nextStory() async {
+    if (!mounted) return;
     final stories = ref.read(activeStoriesProvider).valueOrNull ?? [];
     if (_currentIndex < stories.length - 1) {
       final showAds = ref.read(subscriptionTierProvider).valueOrNull == SubscriptionTier.free;
@@ -436,6 +440,7 @@ class _StoryViewerScreenState extends ConsumerState<StoryViewerScreen>
                             clipBehavior: Clip.antiAlias,
                             child: IconButton(
                               onPressed: _toggleMute,
+                              tooltip: _isMuted ? 'Sesi aç' : 'Sesi kapat',
                               icon: Icon(
                                 _isMuted
                                     ? Icons.volume_off_rounded
@@ -452,6 +457,7 @@ class _StoryViewerScreenState extends ConsumerState<StoryViewerScreen>
                           clipBehavior: Clip.antiAlias,
                           child: IconButton(
                             onPressed: () => Navigator.of(context).pop(),
+                            tooltip: 'Kapat',
                             icon: const Icon(
                               Icons.close_rounded,
                               color: Colors.white,

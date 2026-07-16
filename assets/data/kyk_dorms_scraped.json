@@ -1,9 +1,9 @@
 {
   "meta": {
     "source": "https://www.kykyurtlar.com/",
-    "scraped_at": "2026-06-06 17:25:19",
-    "total_cities": 30,
-    "total_dorms": 449,
+    "scraped_at": "2026-07-12 03:40:18",
+    "total_cities": 60,
+    "total_dorms": 686,
     "note": "Veriler GSB KYK web sitesinin kamuya açık bilgilerinden derlenmiştir."
   },
   "cities": {
@@ -103,37 +103,388 @@
         }
       ]
     },
+    "adiyaman": {
+      "city_name": "Adıyaman",
+      "dorm_count": 6,
+      "dorms": [
+        {
+          "name": "Besni Servi M.erdemoğlu Kyk Kız Ve Erkek Yurdu",
+          "address": "KAYMAKAM HASAN TÜTÜN MAH. Yurt Sok. No:2",
+          "phone": "(0416) 311 0014",
+          "latitude": 37.6890817,
+          "longitude": 37.8150893,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/5692DRW3S6FXLVWD.jpg",
+          "gender": "Kız",
+          "city": "Adıyaman"
+        },
+        {
+          "name": "Adıyaman Kyk Kız Öğrenci Yurdu",
+          "address": "Altınşehir Mah. Atatürk Bulvarı no: 1/E - 1/F",
+          "phone": "(0416) 223 1306",
+          "latitude": 37.7440363,
+          "longitude": 38.2293154,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/31496CPOTONXWGJN.jpg",
+          "gender": "Kız",
+          "city": "Adıyaman"
+        },
+        {
+          "name": "Safvan Bin Muattal Kyk Kız Öğrenci Yurdu",
+          "address": "ALTINŞEHİR MAH. 3052.SK NO:2 ADIYAMAN",
+          "phone": "(0312) 551 6000",
+          "latitude": 37.7379346,
+          "longitude": 38.2226536,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/DP5ISIVLO6UZ1XGL.jpg",
+          "gender": "Kız",
+          "city": "Adıyaman"
+        },
+        {
+          "name": "Kahta Kyk Kız Ve Erkek Öğrenci Yurdu",
+          "address": "(A BLOK) KARŞIYAKA MAH.MUSTAFA KEMAL  C.NO:74 KAHTA",
+          "phone": "(0312) 551 6000",
+          "latitude": 37.7996776,
+          "longitude": 38.6168413,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/HBX4PVWMBAY2AWA7.jpg",
+          "gender": "Kız",
+          "city": "Adıyaman"
+        },
+        {
+          "name": "Veysel Karani Kyk Erkek Öğrenci Yurdu",
+          "address": "ALTINŞEHİR MAH.ÜNİVERSİTE CD.  NO .11",
+          "phone": "(0416) 202 0307",
+          "latitude": 37.7410247,
+          "longitude": 38.220264,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/S2S7FFYHURCXDIYD.jpg",
+          "gender": "Erkek",
+          "city": "Adıyaman"
+        },
+        {
+          "name": "Yediyaman Kyk Erkek Öğrenci Yurdu",
+          "address": "Altınşehir Mah. 30163 Sokak. No: 5 ADIYAMAN",
+          "phone": "(0312) 551 6000",
+          "latitude": 37.7438089,
+          "longitude": 38.2210386,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/VBI7894NP7SB6VO8.jpg",
+          "gender": "Erkek",
+          "city": "Adıyaman"
+        }
+      ]
+    },
+    "afyonkarahisar": {
+      "city_name": "Afyonkarahisar",
+      "dorm_count": 13,
+      "dorms": [
+        {
+          "name": "Esma Sultan Kyk Kız Ve Erkek Öğrenci Yurdu",
+          "address": "ZAFER MAHALLESİ GÜLHANE CADDESİ NO:76 AFYONKARAHİSAR/SANDIKLI",
+          "phone": "(0272) 515 1611",
+          "latitude": 38.6237174,
+          "longitude": 30.2697572,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/ZBLIU6YYI6CKXY7P.jpg",
+          "gender": "Kız",
+          "city": "Afyonkarahisar"
+        },
+        {
+          "name": "Şuhut Kyk Kız Ve Erkek Öğrenci Yurdu",
+          "address": "TAŞLICA MH. RÜZGARLI SK. NO:1 ŞUHUT /AFYONKARAHİSAR",
+          "phone": "(0272) 718 1096",
+          "latitude": 38.5433485,
+          "longitude": 30.5402894,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/ZEFBUYBK5FTBZ3O4.jpg",
+          "gender": "Kız",
+          "city": "Afyonkarahisar"
+        },
+        {
+          "name": "Emirdağ  Kyk Kız Ve Erkek Öğrenci Yurdu",
+          "address": "Yeni Mahalle Eskişehir Caddesi No:60",
+          "phone": "(0272) 442 4348",
+          "latitude": 39.0226769,
+          "longitude": 31.1507023,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/8G9DIFBOQ4HB9QQI.jpg",
+          "gender": "Kız",
+          "city": "Afyonkarahisar"
+        },
+        {
+          "name": "Dinar Kyk Kız Ve Erkek Öğrenci Yurdu",
+          "address": "Hürriyet Mahallesi Altıncı Mevlana Sokak No:1  Dinar/AFYONKARAHİSAR",
+          "phone": "(0272) 353 5059",
+          "latitude": 38.1519572,
+          "longitude": 30.0008986,
+          "image_url": "https://www.kykyurtlar.com/img/no_image.jpg",
+          "gender": "Kız",
+          "city": "Afyonkarahisar"
+        },
+        {
+          "name": "Bayat Kyk Kız Ve Erkek Öğrenci Yurdu",
+          "address": "Cumhuriyet Mahallesi Bağyeri Sokak No:10",
+          "phone": "(0272) 491 3315",
+          "latitude": 38.9799524,
+          "longitude": 30.919529,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/HGTL3BHQ7XZEKMS8.jpg",
+          "gender": "Kız",
+          "city": "Afyonkarahisar"
+        },
+        {
+          "name": "Bolvadin Kyk Kız Öğrenci Yurdu",
+          "address": "YENİCE MAHALLESİ ALPARSLAN GÜMÜŞ SOKAK NO:1/1 BOLVADİN/AFYONKARAHİSAR",
+          "phone": "(0272) 611 3388",
+          "latitude": 38.7109595,
+          "longitude": 31.0361924,
+          "image_url": "https://www.kykyurtlar.com/img/no_image.jpg",
+          "gender": "Kız",
+          "city": "Afyonkarahisar"
+        },
+        {
+          "name": "Kamil Miras Kyk Erkek Öğrenci Yurdu",
+          "address": "ERENLER MAH.2775. SOKAK NO:19 AFYONKARAHİSAR",
+          "phone": "(0272) 228 1182",
+          "latitude": 38.8181894,
+          "longitude": 30.53636,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/285DVITT7U2QB1H7.jpg",
+          "gender": "Erkek",
+          "city": "Afyonkarahisar"
+        },
+        {
+          "name": "Bolvadin Kyk Erkek Öğrenci Yurdu",
+          "address": "YUKARI GÖKÇE YAYLA MAHALLESİ ÖMER YAZICI SOKAK NO:28 BOLVADİN/AFYONKARAHİSAR",
+          "phone": "(0272) 612 6771",
+          "latitude": 38.7294444,
+          "longitude": 31.0510892,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/3WTHV9NELDF1ERF8.jpg",
+          "gender": "Erkek",
+          "city": "Afyonkarahisar"
+        },
+        {
+          "name": "Abdürrahim Mısri Kyk Erkek Öğrenci Yurdu",
+          "address": "ERENLER MAH. 2763 SK. NO:2 AFYONKARAHİSAR",
+          "phone": "(0272) 502 0781",
+          "latitude": 38.8181818,
+          "longitude": 30.537837,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/W575G1JFM4E62RML.jpg",
+          "gender": "Erkek",
+          "city": "Afyonkarahisar"
+        },
+        {
+          "name": "Çay Kyk Kız Öğrenci Yurdu",
+          "address": "Şirinevler Mah. Uzun Sok. No:52 Çay/Afyonkarahisar",
+          "phone": "(0272) 632 4021",
+          "latitude": 38.5932102,
+          "longitude": 31.0160983,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/EB7MDI7ZW36TTYLQ.jpg",
+          "gender": "Kız",
+          "city": "Afyonkarahisar",
+          "district": "Cay"
+        },
+        {
+          "name": "Destine Hatun Kyk Kız Öğrenci Yurdu",
+          "address": "ERENLER MAH. 2773 SOKAK NO:40 MERKEZ/AFYONKARAHİSAR",
+          "phone": "(0272) 228 1248",
+          "latitude": 38.7946241,
+          "longitude": 30.5033786,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/M9B6S8C7GGU7NXD8.jpg",
+          "gender": "Kız",
+          "city": "Afyonkarahisar",
+          "district": "Merkez"
+        },
+        {
+          "name": "Bacım Sultan Kyk Kız Öğrenci Yurdu",
+          "address": "Erenler Mah. 2773 Sokak No:42 Afyonkarahisar",
+          "phone": "(0272) 228 1521",
+          "latitude": 38.8212235,
+          "longitude": 30.5331053,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/2CU7TNBLKA3JKU9U.jpg",
+          "gender": "Kız",
+          "city": "Afyonkarahisar",
+          "district": "Merkez"
+        },
+        {
+          "name": "Afyon Çiğiltepe Kyk Kız Öğrenci Yurdu",
+          "address": "BATTALGAZİ MAH.ANS KAMPÜSÜ KÜME EVLER NO:1/11 AFYONKARAHİSAR",
+          "phone": "(0272) 228 1025",
+          "latitude": 38.783046,
+          "longitude": 30.4984345,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/Q8B2QPE6FI5E82PI.jpg",
+          "gender": "Kız",
+          "city": "Afyonkarahisar",
+          "district": "Merkez"
+        }
+      ]
+    },
+    "aksaray": {
+      "city_name": "Aksaray",
+      "dorm_count": 9,
+      "dorms": [
+        {
+          "name": "Ortaköy Kyk Kız Ve Erkek Öğrenci Yurdu",
+          "address": "A BLOK ERKEK ADRESİ: MEHMET AKİF ERSOY MAHALLESİ BAHÇELER CAD. NO:166 68400 ORTAKÖY",
+          "phone": "(0382) 351 6121",
+          "latitude": 38.7435269,
+          "longitude": 34.0378845,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/6DF9X6W4ZYMTO6HW.jpg",
+          "gender": "Kız",
+          "city": "Aksaray"
+        },
+        {
+          "name": "Güzelyurt Kyk Kız Ve Erkek Öğrenci Yurdu",
+          "address": "YUKARI MAHALLE HASAN HÜSEYİN DEMİRCİOĞLU CADDESİ NO:7 GÜZELYURT AKSARAY",
+          "phone": "(0382) 451 2427",
+          "latitude": 38.2774684,
+          "longitude": 34.3705684,
+          "image_url": "https://www.kykyurtlar.com/img/no_image.jpg",
+          "gender": "Kız",
+          "city": "Aksaray"
+        },
+        {
+          "name": "Alime Hatun Kyk Kız Öğrenci Yurdu",
+          "address": "BAHÇESARAY MAH. 173 CAD. ALİME HATUN KIZ ÖĞRENCİ YURDU  NO: 4 / 1 MERKEZ / AKSARAY",
+          "phone": "(0382) 216 1700",
+          "latitude": 38.3419976,
+          "longitude": 33.969371,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/QUTJZDAJV9PYL5RM.jpg",
+          "gender": "Kız",
+          "city": "Aksaray"
+        },
+        {
+          "name": "Mahperi Hatun Kyk Kız Öğrenci Yurdu",
+          "address": "Bahçesaray Mah. 135/NECMETTİN ERBAKAN BULVARI No:99/1 Aksaray/MERKEZ",
+          "phone": "(0382) 216 1550",
+          "latitude": 38.330749,
+          "longitude": 33.9737079,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/OA62L9OACSJ9CZX8.jpg",
+          "gender": "Kız",
+          "city": "Aksaray"
+        },
+        {
+          "name": "Aksaray Kyk Kız Öğrenci Yurdu",
+          "address": "ARATOL İSTİKLAL MAHALLESİ NECMETTİN ERBAKAN BULVARI 34 NOLU SOKAK NO:17 AKSARAY",
+          "phone": "(0382) 505 0105",
+          "latitude": 38.3510451,
+          "longitude": 33.9566104,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/AD3DE6IE1BYALLPB.jpg",
+          "gender": "Kız",
+          "city": "Aksaray"
+        },
+        {
+          "name": "Aksaray Cemaleddin Aksarayi Kyk Kız Öğrenci Yurdu",
+          "address": "BAHÇESARAY MAH. 170. CADDE NO:34 AKSARAY ÜNİVERSİTESİ KAMPÜSÜ AKSARAY",
+          "phone": "(0382) 215 0103",
+          "latitude": 38.3290219,
+          "longitude": 33.9810706,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/9GBVCMNNHJ7QLOD6.jpg",
+          "gender": "Kız",
+          "city": "Aksaray"
+        },
+        {
+          "name": "Aksaray Kyk Erkek Öğrenci Yurdu",
+          "address": "Tacin Mah. 46. cadde 1889 sok. No:22 Merkez/ AKSARAY",
+          "phone": "(0382) 215 8967",
+          "latitude": 38.3741164,
+          "longitude": 33.9901074,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/D6YA9S1AQVSIWQO7.jpg",
+          "gender": "Erkek",
+          "city": "Aksaray"
+        },
+        {
+          "name": "Hamidi Veli Kyk Erkek Öğrenci Yurdu",
+          "address": "HACILAR HARMANI MAHALLESİ 15 TEMMUZ ŞEHİTLER BULVARI NO:58 MERKEZ/ AKSARAY",
+          "phone": "(0382) 505 0101",
+          "latitude": 38.353107,
+          "longitude": 33.9759469,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/H1X4P54CG8IQ13UF.jpg",
+          "gender": "Erkek",
+          "city": "Aksaray"
+        },
+        {
+          "name": "Sultan Mesud Kyk Erkek Öğrenci Yurdu",
+          "address": "Pamucak Mah.905. SOKAK. NO:16 AKSARAY",
+          "phone": "(0382) 204 0010",
+          "latitude": 38.3706915,
+          "longitude": 34.017736,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/U9JKLUWOMS2CBA1E.jpg",
+          "gender": "Erkek",
+          "city": "Aksaray"
+        }
+      ]
+    },
+    "amasya": {
+      "city_name": "Amasya",
+      "dorm_count": 7,
+      "dorms": [
+        {
+          "name": "Suluova Kyk Kız Öğrenci Yurdu",
+          "address": "YENİ MAHALLE GİZLİ SOKAK NO:11 SULUOVA/AMASYA",
+          "phone": "(0312) 551 6000",
+          "latitude": 40.8223005,
+          "longitude": 35.6559243,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/DSIUVTHBPTQQH6OE.jpg",
+          "gender": "Kız",
+          "city": "Amasya"
+        },
+        {
+          "name": "Amasya Yeşilırmak Kyk Kız Öğrenci Yurdu",
+          "address": "ŞEYHCUİ MAHALLESİ FIRAT YILMAZ ÇAKIROĞLU CADDESİ AMASYA/MERKEZ",
+          "phone": "(0358) 252 6213",
+          "latitude": 40.6505482,
+          "longitude": 35.7950272,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/SCMIJ58IBU6R923A.jpg",
+          "gender": "Kız",
+          "city": "Amasya"
+        },
+        {
+          "name": "Hüsnüşah Hatun Kyk Kız Öğrenci Yurdu",
+          "address": "Şeyhcui Mah. Gökhan Sk. No:11 MERKEZ/ AMASYA",
+          "phone": "(0358) 252 7850",
+          "latitude": 40.6555523,
+          "longitude": 35.7971419,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/8HAUROQ3PSXE7FT4.jpg",
+          "gender": "Kız",
+          "city": "Amasya"
+        },
+        {
+          "name": "Merzifon Kyk Kız Öğrenci Yurdu",
+          "address": "Müdürlük A Blok :Cami Cedit Mah. Atatürk Bulvarı. No:1",
+          "phone": "(0358) 513 4267",
+          "latitude": 40.3897365,
+          "longitude": 33.0376792,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/GJ31WGZDV9B7NL7I.jpg",
+          "gender": "Kız",
+          "city": "Amasya"
+        },
+        {
+          "name": "Kara Mustafa Paşa Kyk Erkek Öğrenci Yurdu",
+          "address": "A Blok (Müdürlük) Bahçelievler Mah. Taştan Sönmez Cad. No:27",
+          "phone": "(0358) 513 4269",
+          "latitude": 40.874633,
+          "longitude": 35.4538307,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/M1L6F6I75WETM7BO.jpg",
+          "gender": "Erkek",
+          "city": "Amasya"
+        },
+        {
+          "name": "Amasya Kyk Erkek Öğrenci Yurdu",
+          "address": "Akbilek Mahallesi Kemal Nehrozoğlu Caddesi No:69",
+          "phone": "(0358) 252 6213",
+          "latitude": 40.6509319,
+          "longitude": 35.7976843,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/SPYYWYGYNX78Z4GG.jpg",
+          "gender": "Erkek",
+          "city": "Amasya"
+        },
+        {
+          "name": "Sultan Bayezid Kyk Erkek Öğrenci Yurdu",
+          "address": "KOZA MAHALLESİ ŞEHİT ALİ BİLGİÇ CADDESİ CİHANGİR SOKAK NO:79/4 AMASYA",
+          "phone": "(0312) 551 6000",
+          "latitude": 40.6031569,
+          "longitude": 35.8127834,
+          "image_url": "https://www.kykyurtlar.com/img/no_image.jpg",
+          "gender": "Erkek",
+          "city": "Amasya"
+        }
+      ]
+    },
     "ankara": {
       "city_name": "Ankara",
       "dorm_count": 45,
       "dorms": [
-        {
-          "name": "Yunus Emre Kyk Erkek Öğrenci Yurdu",
-          "phone": "(0312) 310 3242",
-          "latitude": 39.9453196,
-          "longitude": 32.8519552,
-          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/HZI1O44ZSD3M94GH.jpg",
-          "gender": "Erkek",
-          "city": "Ankara"
-        },
-        {
-          "name": "Ankara Hacı Bayram Veli Kyk Erkek Öğrenci Yurdu",
-          "phone": "(0312) 312 1795",
-          "latitude": 39.9461647,
-          "longitude": 32.8536331,
-          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/PXI5SWXX48TZC4FM.jpg",
-          "gender": "Erkek",
-          "city": "Ankara"
-        },
-        {
-          "name": "Ulus Kyk Erkek Öğrenci Yurdu",
-          "phone": "(0312) 310 2090",
-          "latitude": 39.9217004,
-          "longitude": 32.855163,
-          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/EIIBWU16KFEYYCCU.jpg",
-          "gender": "Erkek",
-          "city": "Ankara"
-        },
         {
           "name": "RADA Loft Angora - Öğrenci Yurdu",
           "phone": "(0532) 452 8592",
@@ -213,6 +564,33 @@
           "longitude": 32.7078051,
           "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/D5VCQA79SM59Q64R.jpg",
           "gender": "Karma",
+          "city": "Ankara"
+        },
+        {
+          "name": "Yunus Emre Kyk Erkek Öğrenci Yurdu",
+          "phone": "(0312) 310 3242",
+          "latitude": 39.9453196,
+          "longitude": 32.8519552,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/HZI1O44ZSD3M94GH.jpg",
+          "gender": "Erkek",
+          "city": "Ankara"
+        },
+        {
+          "name": "Ankara Hacı Bayram Veli Kyk Erkek Öğrenci Yurdu",
+          "phone": "(0312) 312 1795",
+          "latitude": 39.9461647,
+          "longitude": 32.8536331,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/PXI5SWXX48TZC4FM.jpg",
+          "gender": "Erkek",
+          "city": "Ankara"
+        },
+        {
+          "name": "Ulus Kyk Erkek Öğrenci Yurdu",
+          "phone": "(0312) 310 2090",
+          "latitude": 39.9217004,
+          "longitude": 32.855163,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/EIIBWU16KFEYYCCU.jpg",
+          "gender": "Erkek",
           "city": "Ankara"
         },
         {
@@ -744,6 +1122,475 @@
         }
       ]
     },
+    "artvin": {
+      "city_name": "Artvin",
+      "dorm_count": 7,
+      "dorms": [
+        {
+          "name": "Hopa Kyk Kız Ve Erkek Öğrenci Yurdu",
+          "address": "Merkez Kuledibi Mahallesi 16. Sokak No: 8/1 Hopa/ ARTVİN.",
+          "phone": "(0466) 351 1164",
+          "latitude": 41.3989764,
+          "longitude": 41.4238799,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/AQX7CQP1AMBRYC6Z.jpg",
+          "gender": "Kız",
+          "city": "Artvin"
+        },
+        {
+          "name": "Hamdi Efendi Kyk Kız Ve Erkek Öğrenci Yurdu",
+          "address": "Yeni Yol Mah. Yeni Yol Merkez Küme Evler  No:79 BORÇKA/ ARTVİN",
+          "phone": "(0466) 415 1059",
+          "latitude": 41.3636999,
+          "longitude": 41.6769113,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/1A5E63FPLAR7UVEK.jpg",
+          "gender": "Kız",
+          "city": "Artvin"
+        },
+        {
+          "name": "Nedime Lütfiye Günal Kyk Kız Ve Erkek Yurdu",
+          "address": "Aşağı Hacılar Mahallesi Yüksel BÜYÜKLÜ Caddesi  No: 17 Arhavi/ARTVİN",
+          "phone": "(0466) 312 7850",
+          "latitude": 41.3569118,
+          "longitude": 41.3130458,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/995RA2CE5IMAAXAK.jpg",
+          "gender": "Kız",
+          "city": "Artvin"
+        },
+        {
+          "name": "Şavşat Kyk Kız Öğrenci Yurdu",
+          "address": "Söğütlü Mahallesi Anayol Üzeri No: 44 Şavşat/ARTVİN",
+          "phone": "(0466) 517 1024",
+          "latitude": 41.2553391,
+          "longitude": 42.34428,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/W36BTCZYEEWLADYQ.jpg",
+          "gender": "Kız",
+          "city": "Artvin"
+        },
+        {
+          "name": "Şah Sultan Kyk Kız ve Erkek Öğrenci Yurdu",
+          "address": "Yeni Mahalle Edip DİNÇ Sokak No: 28/1 Merkez/ARTVİN",
+          "phone": "(0466) 212 6357",
+          "latitude": 40.4628577,
+          "longitude": 32.6948922,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/NVAVYDF48VLGRT9J.jpg",
+          "gender": "Kız",
+          "city": "Artvin"
+        },
+        {
+          "name": "Çoruh Kyk Kız Öğrenci Yurdu",
+          "address": "Seyitler Köyü Çarbiyet Mahallesi No: 119/6-1 Merkez/ARTTVİN",
+          "phone": "(0466) 238 2420",
+          "latitude": 41.1901187,
+          "longitude": 41.8206881,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/VG9UUCBH4BV6UXTO.jpg",
+          "gender": "Kız",
+          "city": "Artvin"
+        },
+        {
+          "name": "Artvin Kyk Erkek Öğrenci Yurdu",
+          "address": "Orta Mahalle Mesken Sokak No:7 ARTVİN",
+          "phone": "(0466) 212 3196",
+          "latitude": 41.1843489,
+          "longitude": 41.8236957,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/S18NRFRKJ9MQUVGB.jpg",
+          "gender": "Erkek",
+          "city": "Artvin"
+        }
+      ]
+    },
+    "aydin": {
+      "city_name": "Aydın",
+      "dorm_count": 10,
+      "dorms": [
+        {
+          "name": "Adnan Menderes Kyk Kız ve Erkek Öğrenci Yurdu",
+          "address": "IŞIKLI MAH.NO:802 EFELER/AYDIN",
+          "phone": "(0256) 247 0354",
+          "latitude": 37.8316824,
+          "longitude": 27.7956962,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/GNQV258M3KFOEID7.jpg",
+          "gender": "Kız",
+          "city": "Aydın"
+        },
+        {
+          "name": "Efe Ayşe Kyk Kız ve Erkek Öğrenci Yurdu Müdürlüğü",
+          "address": "BAYRAKLI DEDE MAHALLESİ TURGUT ÖZAL BULVARI 4.SOK NO 14/3 KUŞADASI AYDIN",
+          "phone": "(0256) 618 4297",
+          "latitude": 37.872505,
+          "longitude": 27.271574,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/93HAQRXEGTDLD9NS.jpg",
+          "gender": "Kız",
+          "city": "Aydın"
+        },
+        {
+          "name": "Koçarlı Kyk Kız Ve Erkek Öğrenci Yurdu",
+          "address": "CİHAN SOKAK  YENİ MAHALLE NO:29 KOÇARLI AYDIN",
+          "phone": "(0256) 761 2895",
+          "latitude": 37.7606447,
+          "longitude": 27.6959362,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/4VHTK3DEV1RO2MFE.jpg",
+          "gender": "Kız",
+          "city": "Aydın"
+        },
+        {
+          "name": "Sultanhisar Kyk Kız Ve Erkek Öğrenci Yurdu",
+          "address": "A-BLOK:HİSAR MH. KOŞUYOLU CD. NO:1/2 SULTANHİSAR-AYDIN",
+          "phone": "(0256) 351 3444",
+          "latitude": 37.8870234,
+          "longitude": 28.1589047,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/DSG9WBEZWLKPOEUY.jpg",
+          "gender": "Kız",
+          "city": "Aydın"
+        },
+        {
+          "name": "Hacı Mustafa Efendizade Kyk Erkek Öğrenci Yurdu",
+          "address": "SÜMER MAHALLESİ 483.SOKAK NO:1 NAZİLLİ/AYDIN",
+          "phone": "(0312) 551 6000",
+          "latitude": 37.8880241,
+          "longitude": 28.3185327,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/5BC9A87WEQ54AZYY.jpg",
+          "gender": "Erkek",
+          "city": "Aydın"
+        },
+        {
+          "name": "Nazilli Kyk Erkek Öğrenci Yurdu",
+          "address": "YEŞİL MAHALLE 646. SOK. NO:2 NAZİLLİ/AYDIN",
+          "phone": "(0256) 315 5789",
+          "latitude": 37.9203237,
+          "longitude": 28.3428551,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/O8FTGREQNAZ9KJI7.jpg",
+          "gender": "Erkek",
+          "city": "Aydın"
+        },
+        {
+          "name": "Karacasu Kyk Erkek Öğrenci Yurdu Müdürlüğü",
+          "address": "KÜÇÜKDAĞLI MAHALLESİ CEMALPAŞA CADDESİ NO:85 KARACASU AYDIN",
+          "phone": "(0312) 551 6000",
+          "latitude": 37.7262479,
+          "longitude": 28.5943343,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/ZEDPVG8AC7N98CUO.jpg",
+          "gender": "Erkek",
+          "city": "Aydın"
+        },
+        {
+          "name": "İsabeyli Kyk Kız Öğrenci Yurdu (nazilli)",
+          "address": "1) A BLOK =İSABEYLİ MAHALLESİ KAHRAMAN CADDESİ NO:32/1NAZİLLİ/AYDIN2)B BLOK=İSABEYLİ MAHALLESİ KAHRAMAN CADDESİ NO:32/1NAZİLLİ/AYDIN3) C BLOK= İSABEYLİ MAHALLESİ TEVFİK BEY CAD. NO:2 NAZİLLİ/AYDIN",
+          "phone": "(0256) 347 7322",
+          "latitude": 37.9109011,
+          "longitude": 28.2644031,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/Z95X9TMVGH4A9MDE.jpg",
+          "gender": "Kız",
+          "city": "Aydın"
+        },
+        {
+          "name": "Gevherhan Sultan Kyk Kız Öğrenci Yurdu",
+          "address": "İSABEYLİ MAH. 1014 SOK.NO:7/1 NAZİLLİ/AYDIN",
+          "phone": "(0256) 347 6627",
+          "latitude": 37.9059879,
+          "longitude": 28.3075843,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/HQ9VEGSO97SNVUIL.jpg",
+          "gender": "Kız",
+          "city": "Aydın"
+        },
+        {
+          "name": "Meryem Yazıcıoğlu Kyk Kız Öğrenci Yurdu",
+          "address": "YENİKENT MAHALLESİ 51. CADDE 89. SOKAK NO:8/3 SÖKE / AYDIN",
+          "phone": "(0256) 502 1649",
+          "latitude": 37.7684892,
+          "longitude": 27.3925724,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/R5SIQ6N4GL548FSM.jpg",
+          "gender": "Kız",
+          "city": "Aydın",
+          "district": "Soke"
+        }
+      ]
+    },
+    "balikesir": {
+      "city_name": "Balıkesir",
+      "dorm_count": 18,
+      "dorms": [
+        {
+          "name": "Yarbay Vecihibey Kyk Kız Öğrenci Yurdu",
+          "address": "YENİ MAHALLE ŞEHİT TNK. TEĞMEN DOĞUŞ URAN CADDESİ NO:9 BANDIRMA BALIKESİR",
+          "phone": "(0266) 738 1096",
+          "latitude": 40.3408083,
+          "longitude": 27.9335231,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/G3XP2IEE3QFEVM17.jpg",
+          "gender": "Kız",
+          "city": "Balıkesir"
+        },
+        {
+          "name": "Zağnos Paşa Kyk Erkek Öğrenci Yurdu",
+          "address": "17 Eylül Üniversitesi Kampüs Yerleşkesi Yeni Mahalle Ş. AST. Mustafa Soner Varlık Cad. No:23 Bandırma/ Balıkesir",
+          "phone": "(0312) 551 6000",
+          "latitude": 40.3337017,
+          "longitude": 27.9395614,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/BN5JP7LZGN31PKC7.jpg",
+          "gender": "Erkek",
+          "city": "Balıkesir"
+        },
+        {
+          "name": "Bandırma Kuş Cenneti Kyk Erkek Öğrenci Yurdu",
+          "address": "Altıyüzevler mahallesi 146. Sok. No : 8/5 Bandırma",
+          "phone": "(0312) 551 6000",
+          "latitude": 40.3356856,
+          "longitude": 27.9950304,
+          "image_url": "https://www.kykyurtlar.com/img/no_image.jpg",
+          "gender": "Erkek",
+          "city": "Balıkesir"
+        },
+        {
+          "name": "Altıeylül Kyk Kız Öğrenci Yurdu",
+          "address": "ÇAĞIŞ MAHALLESİ ÇAĞIŞ 15 SOKAK NO:21 BİGADİÇ/BALIKESİR",
+          "phone": "(0312) 551 6000",
+          "latitude": 39.5273391,
+          "longitude": 28.017506,
+          "image_url": "https://www.kykyurtlar.com/img/no_image.jpg",
+          "gender": "Kız",
+          "city": "Balıkesir"
+        },
+        {
+          "name": "Burhaniye Kyk Kız Öğrenci Yurdu",
+          "address": "ÖREN MAH. ENVER GÜRELİ CADDESİ NO:80/1 BURHANİYE/BALIKESİR",
+          "phone": "(0266) 412 1117",
+          "latitude": 39.5012667,
+          "longitude": 26.9509753,
+          "image_url": "https://www.kykyurtlar.com/img/no_image.jpg",
+          "gender": "Kız",
+          "city": "Balıkesir"
+        },
+        {
+          "name": "Karesi Kyk Erkek Öğrenci Yurdu",
+          "address": "Atatürk Mahallesi Eski Bandırma Cad. No : 30 Karesi Ada:8233 Parsel:2",
+          "latitude": 39.6515004,
+          "longitude": 27.8918678,
+          "image_url": "https://www.kykyurtlar.com/img/no_image.jpg",
+          "gender": "Erkek",
+          "city": "Balıkesir"
+        },
+        {
+          "name": "Edremit Kyk Kız ve Erkek Öğrenci Yurdu",
+          "address": "Balıkesir Edremit Tuzcumurat Mah. Hamdibey Cad. No:170 1743 Ada 2 Parsel",
+          "phone": "(0312) 551 6000",
+          "latitude": 39.6056008,
+          "longitude": 27.0383951,
+          "image_url": "https://www.kykyurtlar.com/img/no_image.jpg",
+          "gender": "Kız",
+          "city": "Balıkesir"
+        },
+        {
+          "name": "Ayvalık Kyk Kız Ve Erkek Öğrenci Yurdu",
+          "address": "ALİ ÇETİNKAYA MAHALLESİ ATATÜRK BULVARI NO:83 AYVALIK/ BALIKESİR",
+          "phone": "(0266) 331 0600",
+          "latitude": 39.3326743,
+          "longitude": 26.704106,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/IKMN6TBOBKIHHTBE.jpg",
+          "gender": "Kız",
+          "city": "Balıkesir"
+        },
+        {
+          "name": "Fatma Ana Kyk Kız Öğrenci Yurdu",
+          "address": "YENİ MAHALLE  ŞEHİT TNK. TEĞMEN DOĞUŞ URAN CADDESİ NO:9/6 BANDIRMA BALIKESİR",
+          "phone": "(0266) 502 4464",
+          "latitude": 40.3492975,
+          "longitude": 27.9213102,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/BRJYNCBTEC15Z245.jpg",
+          "gender": "Kız",
+          "city": "Balıkesir"
+        },
+        {
+          "name": "Bandırma Kyk Kız Öğrenci Yurdu",
+          "address": "600 EVLER MAH. ATATÜRK CD. 23.SK. NO:121 Bandırma/BALIKESİR",
+          "phone": "(0266) 721 3088",
+          "latitude": 40.3329358,
+          "longitude": 27.9924274,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/LVHMFVP8NRDMM8M8.jpg",
+          "gender": "Kız",
+          "city": "Balıkesir",
+          "district": "Bandirma"
+        },
+        {
+          "name": "Ayhan Songar Kyk Erkek Öğrenci Yurdu",
+          "address": "KAYACIK MAH. ÇANAKKALE ŞEHİTLERİ CD. KÜME EVLERİ CK1-3 B BLOK AYHAN SONGAR YURT MÜDÜRLÜĞÜ  BANDIRMA BALIKESİR",
+          "phone": "(0266) 715 2004",
+          "latitude": 40.2225026,
+          "longitude": 26.0789154,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/QYRANFTFU5WPO23X.jpg",
+          "gender": "Erkek",
+          "city": "Balıkesir",
+          "district": "Bandirma"
+        },
+        {
+          "name": "Bigadiç Kyk Kız Öğrenci Yurdu",
+          "address": "KUYU MAH. PİRSULTAN ABDAL CAD. NO:37 BİGADİÇ/BALIKESİR",
+          "phone": "(0266) 614 1050",
+          "latitude": 39.640818,
+          "longitude": 27.8808696,
+          "image_url": "https://www.kykyurtlar.com/img/no_image.jpg",
+          "gender": "Kız",
+          "city": "Balıkesir",
+          "district": "Bigadic"
+        },
+        {
+          "name": "Hasan Basri Çantay Kyk Erkek Öğrenci Yurdu",
+          "address": "ÇAĞIŞ MAHALLESİ B.M SOKAK NO:327 D:1 ÜNİVERSİTE KAMPÜSÜ ÇAĞIŞ YERLEŞKESİ  BALIKESİR",
+          "phone": "(0266) 612 1440",
+          "latitude": 39.5262894,
+          "longitude": 28.0151636,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/7RGW2LJ8TQMLI2II.jpg",
+          "gender": "Erkek",
+          "city": "Balıkesir",
+          "district": "Bigadic"
+        },
+        {
+          "name": "Balıkesir Kyk Kız Öğrenci Yurdu",
+          "address": "ÇAĞIŞ MAHALLESİ ÇAĞIŞ 15 SOKAK NO:29 BİGADİÇ/BALIKESİR",
+          "phone": "(0266) 502 4112",
+          "latitude": 39.5281732,
+          "longitude": 28.0176748,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/P1OGX6L6LA9CMJ7V.jpg",
+          "gender": "Kız",
+          "city": "Balıkesir",
+          "district": "Bigadic"
+        },
+        {
+          "name": "Dursunbey Kyk Kız Ve Erkek Öğrenci Yurdu",
+          "address": "CEBECİ MAH. SUÇIKTI BULVARI NO:28 DURSUNBEY/BALIKESİR",
+          "phone": "(0266) 662 1484",
+          "latitude": 39.5881089,
+          "longitude": 28.6213276,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/964DM2NHH2WBVFSY.jpg",
+          "gender": "Kız",
+          "city": "Balıkesir",
+          "district": "Dursunbey"
+        },
+        {
+          "name": "Muhyiddini Rumi Kyk Erkek Öğrenci Yurdu",
+          "address": "ERKEK BLOK: BAHÇELİEVLER MAH. RAUF DENKTAŞ BULVARI NO : 7",
+          "phone": "(0266) 414 1121",
+          "latitude": 39.5906038,
+          "longitude": 26.8850009,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/JCOMZLBKS1BE42EM.jpg",
+          "gender": "Erkek",
+          "city": "Balıkesir",
+          "district": "Edremit"
+        },
+        {
+          "name": "Gönenli Mehmet Efendi Kyk Kız Ve Erkek Yurdu",
+          "address": "KARŞIYAKA MAHALLESİ 4000 sokak No:26 Gönen/BALIKESİR",
+          "phone": "(0266) 502 0301",
+          "latitude": 40.1139802,
+          "longitude": 27.6297267,
+          "image_url": "https://www.kykyurtlar.com/img/no_image.jpg",
+          "gender": "Kız",
+          "city": "Balıkesir",
+          "district": "Gonen"
+        },
+        {
+          "name": "Manyas Kyk Kız Öğrenci Yurdu",
+          "address": "YENİ MAHALLE MİLLİ EGEMENLİK CADDESİ NO: 85 MANYAS /BALIKESİR",
+          "phone": "(0266) 818 2021",
+          "latitude": 39.9863676,
+          "longitude": 28.1618537,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/RT5ZC8R3VRYFFYMW.jpg",
+          "gender": "Kız",
+          "city": "Balıkesir",
+          "district": "Susurluk"
+        }
+      ]
+    },
+    "bingol": {
+      "city_name": "Bingöl",
+      "dorm_count": 4,
+      "dorms": [
+        {
+          "name": "Bingöl Kyk Kız Öğrenci Yurdu",
+          "address": "SELAHADDİN EYYUBİ MAH. OSMAN ESENGÜN CAD. NO:9 BİNGÖL",
+          "phone": "(0426) 214 1711",
+          "latitude": 38.8831826,
+          "longitude": 40.4833378,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/F1GCESCFG1BIDMTO.jpg",
+          "gender": "Kız",
+          "city": "Bingöl"
+        },
+        {
+          "name": "Pir Ali Bey Kyk Kız Öğrenci Yurdu",
+          "address": "KALEÖNÜ MAHALLESİ TARIM SOKAK ABDULKADİR SARI PARKI YANI   BİNGÖL",
+          "phone": "(0426) 232 7035",
+          "latitude": 38.9063473,
+          "longitude": 40.5349653,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/QOZKXQQVA6XPGPZS.jpg",
+          "gender": "Kız",
+          "city": "Bingöl"
+        },
+        {
+          "name": "Bingöl Kyk Erkek Öğrenci Yurdu",
+          "address": "Şehit Mustafa Gündoğdu Mah. Zeki Ergezen Bulvarı Emniyet Yanı No:1/18",
+          "phone": "(0426) 213 8967",
+          "latitude": 38.886965,
+          "longitude": 40.5173954,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/SYYIAGY9V79SEE1C.jpg",
+          "gender": "Erkek",
+          "city": "Bingöl"
+        },
+        {
+          "name": "Mürsel Paşa Kyk Erkek Öğrenci Yurdu",
+          "address": "Kültür Mahallesi Kınalı Caddesi Alparslan Sokak No:55",
+          "phone": "(0426) 213 1075",
+          "latitude": 38.886965,
+          "longitude": 40.5173954,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/AL6GCEHVTUB4ROE7.jpg",
+          "gender": "Erkek",
+          "city": "Bingöl"
+        }
+      ]
+    },
+    "bitlis": {
+      "city_name": "Bitlis",
+      "dorm_count": 4,
+      "dorms": [
+        {
+          "name": "Adilcevaz Kyk Kız Ve Erkek Öğrenci Yurdu",
+          "address": "ALACAATLI Mah. ÜNİVERSİTE Cad. KYK Apt. No: 36 / 1 ADİLCEVAZ / BİTLİS",
+          "phone": "(0434) 311 3134",
+          "latitude": 38.8193751,
+          "longitude": 42.7397178,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/RJ7RLEU5ZI5WWL5J.jpg",
+          "gender": "Kız",
+          "city": "Bitlis"
+        },
+        {
+          "name": "Tatvan Kyk Kız Öğrenci Yurdu",
+          "address": "KARŞIYAKA MAH. 222 CAD. NO:2 TATVAN/BİTLİS",
+          "phone": "(0312) 551 6000",
+          "latitude": 38.5265272,
+          "longitude": 42.2664024,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/U581IYW3GP9CTF2T.jpg",
+          "gender": "Kız",
+          "city": "Bitlis"
+        },
+        {
+          "name": "Beşminare Kyk Erkek Öğrenci Yurdu",
+          "address": "BEŞMİNARE MAHALLESİ AHMET EREN CADDESİ NO:229 / MERKEZ / BİTLİS",
+          "phone": "(0434) 226 2347",
+          "latitude": 38.4492515,
+          "longitude": 42.1427543,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/PS8VN3IGZ3TRS6GX.jpg",
+          "gender": "Erkek",
+          "city": "Bitlis"
+        },
+        {
+          "name": "Bitlis Kyk Kız Öğrenci Yurdu",
+          "address": "Beş Minare Mah.Ahmet EREN Cad.No:417 Rahva/BİTLİS",
+          "phone": "(0434) 228 3023",
+          "latitude": 38.430563,
+          "longitude": 42.1120461,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/UUBN7A6LXV1X8IZL.jpg",
+          "gender": "Kız",
+          "city": "Bitlis"
+        }
+      ]
+    },
     "bolu": {
       "city_name": "Bolu",
       "dorm_count": 11,
@@ -798,22 +1645,22 @@
           "city": "Bolu"
         },
         {
-          "name": "Hayreddin Tokadi Kyk Kız Öğrenci Yurdu",
-          "address": "Abant İzzet Baysal Üniversitesi Gölköy Yerleşkesi BOLU",
-          "phone": "(0374) 253 4111",
-          "latitude": 40.7143314,
-          "longitude": 31.5108698,
-          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/RU8TTLQO3KXRD4KP.jpg",
-          "gender": "Kız",
-          "city": "Bolu"
-        },
-        {
           "name": "Bolu Gölköy Kyk Kız Öğrenci Yurdu",
           "address": "KARAKÖY MAHALLESİ -KARAKÖY SOK. NO:21 MERKEZ/BOLU",
           "phone": "(0374) 253 5330",
           "latitude": 40.7241516,
           "longitude": 31.5301007,
           "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/L1IXX5QT5U3AD2P6.jpg",
+          "gender": "Kız",
+          "city": "Bolu"
+        },
+        {
+          "name": "Hayreddin Tokadi Kyk Kız Öğrenci Yurdu",
+          "address": "Abant İzzet Baysal Üniversitesi Gölköy Yerleşkesi BOLU",
+          "phone": "(0374) 253 4111",
+          "latitude": 40.7143314,
+          "longitude": 31.5108698,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/RU8TTLQO3KXRD4KP.jpg",
           "gender": "Kız",
           "city": "Bolu"
         },
@@ -828,22 +1675,22 @@
           "city": "Bolu"
         },
         {
-          "name": "Bolu İzzet Baysal Kyk Kız Öğrenci Yurdu",
-          "address": "A.İ.B.Ü Gölköy Kampüsü Karaköy Mah. Karaköy Cad.No:14 BOLU",
-          "phone": "(0374) 253 4646",
-          "latitude": 40.8877192,
-          "longitude": 29.1609828,
-          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/9TCHBQO5JDAUJG68.jpg",
-          "gender": "Kız",
-          "city": "Bolu"
-        },
-        {
           "name": "Seyyide Nefise Kyk Kız Öğrenci Yurdu",
           "address": "SEYYİDE NEFİSE YURT MÜDÜRLÜĞÜ KARAKÖY MAHALLESİ 15 TEMMUZ DEMOKRASİ BULVARI NO:76 BOLU",
           "phone": "(0374) 253 4205",
           "latitude": 36.7799191,
           "longitude": 31.435365,
           "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/XC24TR596QWGMMSF.jpg",
+          "gender": "Kız",
+          "city": "Bolu"
+        },
+        {
+          "name": "Bolu İzzet Baysal Kyk Kız Öğrenci Yurdu",
+          "address": "A.İ.B.Ü Gölköy Kampüsü Karaköy Mah. Karaköy Cad.No:14 BOLU",
+          "phone": "(0374) 253 4646",
+          "latitude": 40.8877192,
+          "longitude": 29.1609828,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/9TCHBQO5JDAUJG68.jpg",
           "gender": "Kız",
           "city": "Bolu"
         },
@@ -857,6 +1704,72 @@
           "gender": "Erkek",
           "city": "Bolu",
           "district": "Merkez"
+        }
+      ]
+    },
+    "burdur": {
+      "city_name": "Burdur",
+      "dorm_count": 6,
+      "dorms": [
+        {
+          "name": "Bucak Kyk Kız Öğrenci Yurdu",
+          "address": "Cami mah. Bozkurt Cad.310 sok. no:21 BUCAK",
+          "phone": "(0248) 325 0079",
+          "latitude": 37.4618478,
+          "longitude": 30.6045418,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/KYBIV79Q6OCMWSHW.jpg",
+          "gender": "Kız",
+          "city": "Burdur"
+        },
+        {
+          "name": "Gölhisar Kyk Kız Ve Erkek Öğrenci Yurdu",
+          "address": "KONAK MAH. MEHMET AKİF ERSOY BULVARI NO:292 GÖLHİSAR/BURDUR",
+          "phone": "(0248) 411 5002",
+          "latitude": 37.1584483,
+          "longitude": 29.5207909,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/FOPF3HD3IBO31O7X.jpg",
+          "gender": "Kız",
+          "city": "Burdur"
+        },
+        {
+          "name": "Burdur Kyk Kız ve Erkek Öğrenci Yurdu",
+          "address": "ARMAĞAN İLCİ MAH.ŞEHİT RIZA ÇELİK CAD. NO:2/1 BURDUR",
+          "phone": "(0248) 233 6603",
+          "latitude": 37.7212893,
+          "longitude": 30.2458959,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/V8NLUCUG8NHGV9HD.jpg",
+          "gender": "Kız",
+          "city": "Burdur"
+        },
+        {
+          "name": "Safahat Kyk Kız Öğrenci Yurdu",
+          "address": "ARMAĞAN İLCİ MAH. ŞEHİT RIZA ÇELİK CAD. NO:4/22-23 BURDUR",
+          "phone": "(0248) 233 4312",
+          "latitude": 37.7212893,
+          "longitude": 30.2458959,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/LLX336MCWCK6VGZ6.jpg",
+          "gender": "Kız",
+          "city": "Burdur"
+        },
+        {
+          "name": "Asımın Nesli Kyk Erkek Öğrenci Yurdu",
+          "address": "DEĞİRMENLER MAH.CEVAT SAYILI BULVARI NO:120/19            BURDUR",
+          "phone": "(0248) 277 2050",
+          "latitude": 37.7409145,
+          "longitude": 30.3055757,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/6BBPZYMQN9WK1CQF.jpg",
+          "gender": "Erkek",
+          "city": "Burdur"
+        },
+        {
+          "name": "Fereli Sinan Efendi Kyk Erkek Öğrenci Yurdu",
+          "address": "DEĞİRMENLER  MAHALLESİ CEVAT SAYILI CADDESİ (MAKÜ İSTİKLAL YERLEŞKESİ) NO:120/18 BURDUR / MERKEZ",
+          "phone": "(0248) 277 2188",
+          "latitude": 37.7409145,
+          "longitude": 30.3055757,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/YDM4TJ77PXYDMYKZ.jpg",
+          "gender": "Erkek",
+          "city": "Burdur"
         }
       ]
     },
@@ -1310,6 +2223,472 @@
         }
       ]
     },
+    "diyarbakir": {
+      "city_name": "Diyarbakır",
+      "dorm_count": 3,
+      "dorms": [
+        {
+          "name": "Süleyman Bin Halid Kyk Kız Öğrenci Yurdu",
+          "address": "BAĞCILAR MAHALLESİ URFA YOLU ÜZERİ 1205 SK. NO: 2/B BAĞLAR - DİYARBAKIR",
+          "phone": "(0412) 502 9715",
+          "latitude": 37.9218137,
+          "longitude": 40.1509798,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/A2DQO24OJ87PMOT9.jpg",
+          "gender": "Kız",
+          "city": "Diyarbakır"
+        },
+        {
+          "name": "Diyarbakır Selahattin Eyyubi Kyk Erkek Yurdu",
+          "address": "KITIBIL MAH. HAYATİ AVŞAR CAD.NO:4/A  SUR/DİYARBAKIR",
+          "phone": "(0412) 248 8496",
+          "latitude": 37.9310909,
+          "longitude": 40.2565537,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/796NCZP2Z4HG1LQS.jpg",
+          "gender": "Erkek",
+          "city": "Diyarbakır"
+        },
+        {
+          "name": "Halid Bin Velid Kyk Erkek Öğrenci Yurdu",
+          "address": "BAĞCILAR MAH.1214. SOK NO:8 BAĞLAR/DİYARBAKIR",
+          "phone": "(0312) 551 6000",
+          "latitude": 37.9099356,
+          "longitude": 40.1431418,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/26VZ4GLUSQXCYSA3.jpg",
+          "gender": "Erkek",
+          "city": "Diyarbakır"
+        }
+      ]
+    },
+    "duzce": {
+      "city_name": "Düzce",
+      "dorm_count": 10,
+      "dorms": [
+        {
+          "name": "Mahpeyker Sultan Kyk Kız Öğrenci Yurdu",
+          "address": "Yörük Köyü(Mücavir) Merkez, Konuralp 500. Cadde No:141 Merkez / Düzce",
+          "phone": "(0380) 542 1220",
+          "latitude": 40.9011312,
+          "longitude": 31.1872487,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/6193CPPHKYKOB41E.jpg",
+          "gender": "Kız",
+          "city": "Düzce"
+        },
+        {
+          "name": "Akçakoca Kyk Kız Ve Erkek Öğrenci Yurdu",
+          "address": "A BLOK :Osmaniye Mah.Evrim Sk.No:3\t---    B BLOK:Yalı Mah.Bahadır Yalçın Cad. No:40/C       Akçakoca/DÜZCE",
+          "phone": "(0380) 611 4985",
+          "latitude": 41.0737696,
+          "longitude": 31.1563122,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/Z1B5BU9YD9AW6ZA1.jpg",
+          "gender": "Kız",
+          "city": "Düzce"
+        },
+        {
+          "name": "Düzce Konuralp Kyk Kız Öğrenci Yurdu",
+          "address": "Yörükler köyü merkez yörük köyü sokak bağlantı yolu no:47",
+          "phone": "(0380) 542 1356",
+          "latitude": 40.9015433,
+          "longitude": 31.1856332,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/M7RGF4P67D3XWX7I.jpg",
+          "gender": "Kız",
+          "city": "Düzce"
+        },
+        {
+          "name": "Necla Pekolcay Kyk Kız Öğrenci Yurdu",
+          "address": "Şehit Bayram Gökmen Mahallesi 252. Sokak no:18",
+          "phone": "(0380) 541 2676",
+          "latitude": 40.893581,
+          "longitude": 31.162743,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/VY573EV6SWYDURH1.jpg",
+          "gender": "Kız",
+          "city": "Düzce"
+        },
+        {
+          "name": "Cahit Zarifoğlu Kyk Erkek Öğrenci Yurdu",
+          "address": "Orhangazi Mahallesi 436. Cadde 7 Konuralp",
+          "phone": "(0380) 502 0530",
+          "latitude": 40.90506,
+          "longitude": 31.16993,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/ZTV6BGMNWTBTPNEV.jpg",
+          "gender": "Erkek",
+          "city": "Düzce"
+        },
+        {
+          "name": "Düzce Avni Akyol Kyk Erkek Öğrenci Yurdu",
+          "address": "FEVZİÇAKMAK MAH.BOLU CAD. D-100 KARAYOLU ÜZERİ SOĞANCI MEVKİİ NO:234",
+          "phone": "(0380) 524 2190",
+          "latitude": 40.827917,
+          "longitude": 31.186009,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/6XM4IO2E1ENB18XE.jpg",
+          "gender": "Erkek",
+          "city": "Düzce"
+        },
+        {
+          "name": "Aliye İzzet Begoviç Kyk Erkek Öğrenci Yurdu",
+          "address": "BEYCİLER MAHALLESİ 1758. SOKAK NO.9",
+          "phone": "(0380) 526 1005",
+          "latitude": 40.864915,
+          "longitude": 31.179337,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/SI6ZOXS4KFFWDPQT.jpg",
+          "gender": "Erkek",
+          "city": "Düzce"
+        },
+        {
+          "name": "Hafız Hasan Şen Kyk Erkek Öğrenci Yurdu",
+          "address": "GÜZELBAHÇE MAH. 4.DÜZCE BULVARI NO: 25",
+          "phone": "(0380) 411 6045",
+          "latitude": 40.8607563,
+          "longitude": 31.2291158,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/8M82U55BRCW772M4.jpg",
+          "gender": "Erkek",
+          "city": "Düzce"
+        },
+        {
+          "name": "Raziye Begüm Sultan Kyk Kız Öğrenci Yurdu",
+          "address": "Şehit Bayram Gökmen Mh. 252.Sk. Konuralp",
+          "phone": "(0380) 541 2028",
+          "latitude": 40.894045,
+          "longitude": 31.161346,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/QZC7TBA93F15X62T.jpg",
+          "gender": "Kız",
+          "city": "Düzce"
+        },
+        {
+          "name": "Zahidül Kevseri Kyk Kız Öğrenci Yurdu",
+          "address": "GÜZEL BAHÇE MAH. 6. DÜZCE BULVARI NO:3 KALICI KONUTLAR",
+          "phone": "(0312) 551 6000",
+          "latitude": 40.8527967,
+          "longitude": 31.1595166,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/SPJ8939XM3VTXLHZ.jpg",
+          "gender": "Kız",
+          "city": "Düzce",
+          "district": "Merkez"
+        }
+      ]
+    },
+    "edirne": {
+      "city_name": "Edirne",
+      "dorm_count": 12,
+      "dorms": [
+        {
+          "name": "Meriç Kyk Kız Öğrenci Yurdu",
+          "address": "FATİH MAHALLESİ MUSABEYLİ KÜME EVLER 112/125 C MERKEZ / EDİRNE",
+          "phone": "(0312) 551 6000",
+          "latitude": 41.6503887,
+          "longitude": 26.6182246,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/B2AY8WKTP1BE7EMR.jpg",
+          "gender": "Kız",
+          "city": "Edirne"
+        },
+        {
+          "name": "Edirne Kyk Erkek Öğrenci Yurdu",
+          "address": "1. MURAT MAHALLESİ CUMHUR DENİZ UYSAL SK. NO:1 MERKEZ/EDİRNE",
+          "phone": "(0284) 235 2741",
+          "latitude": 41.6685561,
+          "longitude": 26.5787846,
+          "image_url": "https://www.kykyurtlar.com/img/no_image.jpg",
+          "gender": "Erkek",
+          "city": "Edirne"
+        },
+        {
+          "name": "İpsala Kyk Kız Ve Erkek Öğrenci Yurdu",
+          "address": "Bayrambey Mah. Enez Cad. No:180 İPSALA-EDİRNE",
+          "phone": "(0312) 551 6000",
+          "latitude": 40.9118654,
+          "longitude": 26.3751155,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/AB7YBG4IFICRBOM6.jpg",
+          "gender": "Kız",
+          "city": "Edirne"
+        },
+        {
+          "name": "Selimiye Kyk Kız Öğrenci Yurdu",
+          "address": "KOCASİNAN MAH.E5 KARAYOLU CAD. NO:78 EDİRNE",
+          "phone": "(0284) 235 7702",
+          "latitude": 41.6265502,
+          "longitude": 26.5892271,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/OQ61ZFZZRDC71ST4.jpg",
+          "gender": "Kız",
+          "city": "Edirne"
+        },
+        {
+          "name": "Edirne Kyk Kız Öğrenci Yurdu",
+          "address": "Kocasinan Mah.E5 Karayolu Cad. No:78 Merkez/   EDİRNE",
+          "phone": "(0284) 236 4446",
+          "latitude": 41.6323904,
+          "longitude": 26.5848251,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/X4SLC84W8THGAMJZ.jpg",
+          "gender": "Kız",
+          "city": "Edirne"
+        },
+        {
+          "name": "Sedefkar Mehmed Ağa Kyk Kız Öğrenci Yurdu",
+          "address": "Kocasinan Mah. E-5 Karayolu Üzeri No:97 Z-2 Merkez/EDİRNE",
+          "phone": "(0284) 235 7658",
+          "latitude": 41.6488617,
+          "longitude": 26.5601273,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/D9JATW7OUWQC8F5Z.jpg",
+          "gender": "Kız",
+          "city": "Edirne"
+        },
+        {
+          "name": "Gülşeni Kyk Kız Öğrenci Yurdu",
+          "address": "Atatürk Mahallesi 20001 Sk. No: 6/A   EDİRNE",
+          "phone": "(0284) 214 0510",
+          "latitude": 41.6747422,
+          "longitude": 26.5768269,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/CTO7VPJEP347Q6E1.jpg",
+          "gender": "Kız",
+          "city": "Edirne"
+        },
+        {
+          "name": "Sultan Çelebi Mehmet Yurt Müdürlüğü",
+          "address": "BARUTLUK MAHALLESİ  20117 SOKAK NO:2 MERKEZ/EDİRNE",
+          "phone": "(0284) 235 2740",
+          "latitude": 41.6887906,
+          "longitude": 26.5603443,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/4RETCRLPUSCFNSGL.jpg",
+          "gender": "Karma",
+          "city": "Edirne"
+        },
+        {
+          "name": "Keşan Kyk Kız Öğrenci Yurdu",
+          "address": "BÜYÜK CAMİ MAH.DEVRİM SOK. NO 2/1/1 KEŞAN EDİRNE",
+          "phone": "(0284) 715 2068",
+          "latitude": 40.8557945,
+          "longitude": 26.6269244,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/EXJTMPT2U1Z64OO6.jpg",
+          "gender": "Kız",
+          "city": "Edirne"
+        },
+        {
+          "name": "Gazi Evrenos Kyk Erkek Öğrenci Yurdu",
+          "address": "19 Kasım ve Hacı İlbey Blokları: Yeni Mah. Mustafa Fehmi Kubilay Cad. No:1/A Keşan/EDİRNE",
+          "phone": "(0284) 714 4388",
+          "latitude": 40.8463196,
+          "longitude": 26.645207,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/J5ZNLLJB9IAF55VL.jpg",
+          "gender": "Erkek",
+          "city": "Edirne",
+          "district": "Kesan"
+        },
+        {
+          "name": "Sultan II. Murat Kyk Erkek Öğrenci Yurdu",
+          "address": "Kocasinan Mahallesi Patika Sokak  Dış Kapı No: 3/1 Otogar Arkası Merkez-EDİRNE",
+          "phone": "(0284) 226 0382",
+          "latitude": 41.6578809,
+          "longitude": 26.5857863,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/X31HO21TTZJCG438.jpg",
+          "gender": "Erkek",
+          "city": "Edirne",
+          "district": "Merkez"
+        },
+        {
+          "name": "Uzunköprü Kyk Kız Öğrenci Yurdu",
+          "address": "CUMHURİYET MAH. LALE SOK No: 1    UZUNKÖPRÜ/EDİRNE",
+          "phone": "(0284) 518 1370",
+          "latitude": 41.2592461,
+          "longitude": 26.6485391,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/UH5JKJGMXRW17PDG.jpg",
+          "gender": "Kız",
+          "city": "Edirne",
+          "district": "Uzunkopru"
+        }
+      ]
+    },
+    "elazig": {
+      "city_name": "Elazığ",
+      "dorm_count": 7,
+      "dorms": [
+        {
+          "name": "Sare Ana Kyk Kız Öğrenci Yurdu",
+          "address": "Üniversite mah.Zübeyde Hanım Cad. Fırat Üniversitesi Girişi :262/1  sare Ana Yurt Müdürlüğü M-19/1 Elazığ",
+          "phone": "(0424) 241 1200",
+          "latitude": 38.6741801,
+          "longitude": 39.1914744,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/HQYXRWFSM5H33RMU.jpg",
+          "gender": "Kız",
+          "city": "Elazığ"
+        },
+        {
+          "name": "Fethi Sekin Kyk Kız Öğrenci Yurdu",
+          "address": "Ataşehir Mahallesi Kibar Sokak No:48 Merkez/Elazığ",
+          "phone": "(0424) 247 8477",
+          "latitude": 38.6537562,
+          "longitude": 39.1580482,
+          "image_url": "https://www.kykyurtlar.com/img/no_image.jpg",
+          "gender": "Kız",
+          "city": "Elazığ"
+        },
+        {
+          "name": "Harput Kyk Kız Öğrenci Yurdu",
+          "address": "ÜNİVERSİTE MAHALLESİ ZÜBEYDE HANIM CADDESİ NO:131/1 MERKEZ/ELAZIĞ",
+          "phone": "(0424) 247 0018",
+          "latitude": 38.6718726,
+          "longitude": 39.1897929,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/ZP8CYDLSRO17ISF1.jpg",
+          "gender": "Kız",
+          "city": "Elazığ"
+        },
+        {
+          "name": "İzzetpaşa Kyk Kız Öğrenci Yurdu",
+          "address": "( İZZETPAŞA KIZ YURDU ) Şahinkaya Köyü . Şahinkaya Küme Evleri No : 2/1 Elazığ",
+          "phone": "(0424) 502 0455",
+          "latitude": 38.6932342,
+          "longitude": 39.1354662,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/U9RSGOMUL9Z9UYA7.jpg",
+          "gender": "Kız",
+          "city": "Elazığ"
+        },
+        {
+          "name": "Ahmet Kabaklı Kyk Erkek Öğrenci Yurdu",
+          "address": "ÇAYDA ÇIRA MAHALLESİ ANGUZU BABA SOKAK. NO:50-50/1 ELAZIĞ",
+          "phone": "(0312) 551 6000",
+          "latitude": 38.6923514,
+          "longitude": 39.1694962,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/QXYW35VIR3NV8DDY.jpg",
+          "gender": "Erkek",
+          "city": "Elazığ"
+        },
+        {
+          "name": "Ömer Bilginoğlu Kyk Erkek Öğrenci Yurdu",
+          "address": "ATAŞEHİR MAHALLESİ MAZI SOKAK NO:4 ELAZIĞ",
+          "phone": "(0424) 247 6891",
+          "latitude": 38.6556288,
+          "longitude": 39.1534629,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/SH1SU8838ZQYX15S.jpg",
+          "gender": "Erkek",
+          "city": "Elazığ"
+        },
+        {
+          "name": "Elazığ Fırat Kyk Erkek Öğrenci Yurdu",
+          "address": "KÜLTÜR  MAH.ÇAVULDUR SK. NO : 6",
+          "phone": "(0424) 234 0752",
+          "latitude": 38.6726719,
+          "longitude": 39.2099912,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/ZP51Q82LIJIXHDKU.jpg",
+          "gender": "Erkek",
+          "city": "Elazığ"
+        }
+      ]
+    },
+    "erzincan": {
+      "city_name": "Erzincan",
+      "dorm_count": 11,
+      "dorms": [
+        {
+          "name": "Çayırlı Davut Sulari Kyk Kız ve Erkek Yurdu",
+          "address": "Erzincan kyk kız yurdu, kyk erkek yurdu, devlet yurdu ve kyk yurt ücretleri için sitemizi inceleyin!",
+          "phone": "(0446) 311 2202",
+          "latitude": 39.8053936,
+          "longitude": 40.0317408,
+          "image_url": "https://www.kykyurtlar.com/img/no_image.jpg",
+          "gender": "Kız",
+          "city": "Erzincan"
+        },
+        {
+          "name": "İliç Dursun Yıldırım Kyk Kız ve Erkek Yurdu",
+          "address": "Fatih Mahallesi. Yeni Şehir Caddesi No:9/1 İLİÇ / ERZİNCAN",
+          "phone": "(0446) 711 2436",
+          "latitude": 39.4638261,
+          "longitude": 38.5589964,
+          "image_url": "https://www.kykyurtlar.com/img/no_image.jpg",
+          "gender": "Kız",
+          "city": "Erzincan"
+        },
+        {
+          "name": "Üzümlü Ciminli Baba Kyk Kız ve Erkek Yurdu",
+          "address": "Erzincan kyk kız yurdu, kyk erkek yurdu, devlet yurdu ve kyk yurt ücretleri için sitemizi inceleyin!",
+          "phone": "(0446) 411 2044",
+          "latitude": 39.7050787,
+          "longitude": 39.6898745,
+          "image_url": "https://www.kykyurtlar.com/img/no_image.jpg",
+          "gender": "Kız",
+          "city": "Erzincan"
+        },
+        {
+          "name": "Refahiye Sydv Kyk Kız Ve Erkek Öğrenci Yurdu",
+          "address": "ERZİNCAN CADDESİ YENİ DOĞAN MAHALLESİ  NO:8 REFAHİYE ERZİNCAN",
+          "phone": "(0446) 611 2713",
+          "latitude": 39.8999235,
+          "longitude": 38.7667888,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/HQ85T5XLJFL53ENU.jpg",
+          "gender": "Kız",
+          "city": "Erzincan"
+        },
+        {
+          "name": "Kemah Kyk Kız Ve Erkek Öğrenci Yurdu",
+          "address": "Göğüsbağı Mah. Behiçsadi Abbasoğlu Cad. M.Y.O. Kampüsü",
+          "phone": "(0446) 511 2337",
+          "latitude": 39.6000782,
+          "longitude": 39.023304,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/71C3IPY7O48EDTMD.jpg",
+          "gender": "Kız",
+          "city": "Erzincan"
+        },
+        {
+          "name": "Kemaliye Osman Nuri Akın Kyk Kız Ve Erkek Yurdu",
+          "address": "GENÇAĞA MAHALLESİ DEMİRCİLER SOKAK NO:3 KEMALİYE ERZİNCAN",
+          "phone": "(0446) 751 2861",
+          "latitude": 39.2632869,
+          "longitude": 38.4952056,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/GKB3EOUKKJH4GX7I.jpg",
+          "gender": "Kız",
+          "city": "Erzincan"
+        },
+        {
+          "name": "Tercan M.Refik Şimşek Kyk Kız Ve Erkek Yurdu",
+          "address": "YAVUZ SELİM MAH.32.SOKAK NO:27 TERCAN - ERZİNCAN",
+          "phone": "(0446) 441 3145",
+          "latitude": 39.7712713,
+          "longitude": 40.3875391,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/IPEPXTBCWH5Q8GBV.jpg",
+          "gender": "Kız",
+          "city": "Erzincan"
+        },
+        {
+          "name": "Terzibaba Kyk Kız Öğrenci Yurdu",
+          "address": "Mimar Sinan Mah. Sivas Cad. OR-KA YURT Apt.  no:20/20 Merkez/ Erzincan",
+          "phone": "(0446) 236 2504",
+          "latitude": 39.7969875,
+          "longitude": 39.3809565,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/GJJYRIRH6PJZMFPP.jpg",
+          "gender": "Kız",
+          "city": "Erzincan"
+        },
+        {
+          "name": "Erzincan Mengücek Gazi Kyk Kız Öğrenci Yurdu",
+          "address": "YALNIZBAĞ MAH.SİVAS YOLU ÜZERİ NO:32/3  YALNIZBAĞ BELDESİ/ ERZİNCAN",
+          "phone": "(0446) 220 0014",
+          "latitude": 39.8980426,
+          "longitude": 38.9305623,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/YBIXYP4K84XIU52Y.jpg",
+          "gender": "Kız",
+          "city": "Erzincan"
+        },
+        {
+          "name": "Pir Muhammed Bahaeddin Kyk Erkek Öğrenci Yurdu",
+          "address": "BARIŞ MAHALLESİ 10.SOKAK NO:4 ULALAR BELDESİ/ERZİNCAN",
+          "phone": "(0446) 502 0399",
+          "latitude": 39.753466,
+          "longitude": 39.4409527,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/E3V62KYVJ37X2VAT.jpg",
+          "gender": "Erkek",
+          "city": "Erzincan",
+          "district": "Merkez"
+        },
+        {
+          "name": "Piri Sami Kyk Erkek Öğrenci Yurdu Müdürlüğü",
+          "address": "BARIŞ MAH. GÜNEY CADDESİ NO:3  ULALAR BELDESİ/ERZİNCAN",
+          "phone": "(0446) 502 0412",
+          "latitude": 39.7532631,
+          "longitude": 39.4246474,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/ZE1XB1PMDPBICH7E.jpg",
+          "gender": "Erkek",
+          "city": "Erzincan",
+          "district": "Merkez"
+        }
+      ]
+    },
     "erzurum": {
       "city_name": "Erzurum",
       "dorm_count": 16,
@@ -1693,6 +3072,254 @@
           "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/O93HFCRCKQ634BCM.jpg",
           "gender": "Kız",
           "city": "Gaziantep"
+        }
+      ]
+    },
+    "giresun": {
+      "city_name": "Giresun",
+      "dorm_count": 9,
+      "dorms": [
+        {
+          "name": "Tirebolu Kyk Kız Ve Erkek Öğrenci Yurdu",
+          "address": "Demirci Mah.1.Cad.No:3 Tirebolu",
+          "phone": "(0454) 429 3465",
+          "latitude": 41.0057329,
+          "longitude": 38.8546116,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/KTHQMWLWE6CS1LBB.jpg",
+          "gender": "Kız",
+          "city": "Giresun"
+        },
+        {
+          "name": "Aziz Hüseyin Gökçe Kyk Kız Öğrenci Yurdu",
+          "address": "Hükümet Cad.No:13 Keşap/ GİRESUN",
+          "phone": "(0454) 666 2222",
+          "latitude": 40.915929,
+          "longitude": 38.5097458,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/TYIDSMDAKTG9Y1WZ.jpg",
+          "gender": "Kız",
+          "city": "Giresun"
+        },
+        {
+          "name": "Alucra Kyk Kız Ve Erkek Öğrenci Yurdu",
+          "address": "HÜRRİYET CADDESİ YUNUS EMRE MAHALLESİ NO:83 ALUCRA GİRESUN",
+          "phone": "(0454) 777 0007",
+          "latitude": 40.3228612,
+          "longitude": 38.7589552,
+          "image_url": "https://www.kykyurtlar.com/img/no_image.jpg",
+          "gender": "Kız",
+          "city": "Giresun"
+        },
+        {
+          "name": "Şebinkarahisar Kyk Kız Ve Erkek Öğrenci Yurdu",
+          "address": "BÜLBÜL MAH. PTT CAD. ASYA PASAJI. NO:4/P",
+          "phone": "(0454) 711 3032",
+          "latitude": 40.9042433,
+          "longitude": 38.3091939,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/ODCD6Q4SEV5SSJR3.jpg",
+          "gender": "Kız",
+          "city": "Giresun"
+        },
+        {
+          "name": "Eynesil Kyk Kız Öğrenci Yurdu",
+          "address": "Gümüşçay Mah. Avukat Bilal Güdük cad. No:4/1 Eynesil / GİRESUN",
+          "phone": "(0454) 582 0038",
+          "latitude": 41.0653713,
+          "longitude": 39.1414214,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/H8TXIEERJL4WWBY6.jpg",
+          "gender": "Kız",
+          "city": "Giresun"
+        },
+        {
+          "name": "Esma Serhat Hatun Kyk Kız Öğrenci Yurdu",
+          "address": "GÜRE MAHALLESİ ŞEHİT PİYADE ASTSUBAY KIDEMLİ BAŞÇAVUŞ ÖMER HALİS DEMİR CADDESİ NO:36 GİRESUN",
+          "phone": "(0454) 215 1001",
+          "latitude": 40.9175319,
+          "longitude": 38.3904643,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/97QNSOVV1MCUO1VT.jpg",
+          "gender": "Kız",
+          "city": "Giresun"
+        },
+        {
+          "name": "Giresun Sahil Kyk Kız ve Erkek Öğrenci Yurdu",
+          "address": "GAZİLER MAH. PROF.AHMET TANER KIŞLALI CAD.NO:36 GİRESUN",
+          "phone": "(0312) 551 6000",
+          "latitude": 40.9157578,
+          "longitude": 38.3217453,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/DDIO8ZHW9MH6ZE8T.jpg",
+          "gender": "Kız",
+          "city": "Giresun"
+        },
+        {
+          "name": "Seyyid Vakkas Kyk Erkek Öğrenci Yurdu",
+          "address": "KAVAKLAR MH. GEDİKKAYA CD. NO:68 GİRESUN",
+          "phone": "(0454) 213 1415",
+          "latitude": 40.9111617,
+          "longitude": 38.4021434,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/QR1SQ77227FI6W2J.jpg",
+          "gender": "Erkek",
+          "city": "Giresun"
+        },
+        {
+          "name": "Giresun Kyk Kız ve Erkek Öğrenci Yurdu",
+          "address": "KALE MAHALLESİ GAZİ MUSTAFA KEMAL BULVARI NO:26 MERKEZ/GİRESUN",
+          "phone": "(0454) 214 1676",
+          "latitude": 40.9155787,
+          "longitude": 38.4162104,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/LOQ6IN3UUTVE43MS.jpg",
+          "gender": "Kız",
+          "city": "Giresun"
+        }
+      ]
+    },
+    "gumushane": {
+      "city_name": "Gümüşhane",
+      "dorm_count": 7,
+      "dorms": [
+        {
+          "name": "Osman Nuri Efendi Kyk Kız Öğrenci Yurdu",
+          "address": "AHMET YESEVİ MAH.17 ŞUBAT BULVARI NO:102/2 KELKİT/GÜMÜŞHANE",
+          "phone": "(0456) 317 2042",
+          "latitude": 40.1320686,
+          "longitude": 39.4192889,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/NPU3RT6X76GCHBGB.jpg",
+          "gender": "Kız",
+          "city": "Gümüşhane"
+        },
+        {
+          "name": "Mustafa Gül Kyk Kız Ve Erkek Öğrenci Yurdu",
+          "address": "ŞİRAN MYO KAMPÜSÜ KARACA MAHALLESİ HOCA AHMET YESEVİ CADDESİ NO:5/1 ŞİRAN/GÜMÜŞHANE",
+          "phone": "(0456) 511 7470",
+          "latitude": 40.1907422,
+          "longitude": 39.125598,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/KB6FYAPZTIT9HBY4.jpg",
+          "gender": "Kız",
+          "city": "Gümüşhane"
+        },
+        {
+          "name": "Hacı Şaban Cengiz Kyk Kız Ve Erkek Öğrenci Yurdu",
+          "address": "MERKEZ MAHALLESİ KUŞBURNU KÜME EVLERİ NO:12 TORUL/GÜMÜŞHANE",
+          "phone": "(0312) 551 6000",
+          "latitude": 40.5530945,
+          "longitude": 39.2756448,
+          "image_url": "https://www.kykyurtlar.com/img/no_image.jpg",
+          "gender": "Kız",
+          "city": "Gümüşhane"
+        },
+        {
+          "name": "Zeynep Ana Kyk Kız Öğrenci Yurdu",
+          "address": "BAĞLARBAŞI MAH. KAZIM KARABEKİR CD. NO:61/D GÜMÜŞHANE",
+          "phone": "(0456) 233 7048",
+          "latitude": 40.4366103,
+          "longitude": 39.5103348,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/ZMC2FDG3W128VGG8.jpg",
+          "gender": "Kız",
+          "city": "Gümüşhane"
+        },
+        {
+          "name": "Ahmet Ziyaüddin Gümüşhanevi Kyk Erkek Yurdu",
+          "address": "BAĞLARBAŞI MAH.ŞAHBENDERLER SEMTİ KÜME EVLERİ   NO:28 GÜMÜŞHANE",
+          "phone": "(0456) 233 7022",
+          "latitude": 40.4313186,
+          "longitude": 39.4972143,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/JQBAJY4TFYL5KB22.jpg",
+          "gender": "Erkek",
+          "city": "Gümüşhane"
+        },
+        {
+          "name": "Gümüşhane Halit Zarbun Kyk Kız Öğrenci Yurdu",
+          "address": "KARŞIYAKA MAH. OSMAN BEY CD. NO.35 GÜMÜŞHANE",
+          "phone": "(0456) 213 4790",
+          "latitude": 40.4484922,
+          "longitude": 39.4750257,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/7DO82M36ECVYGJRG.jpg",
+          "gender": "Kız",
+          "city": "Gümüşhane"
+        },
+        {
+          "name": "Gümüşhane Kyk Kız Öğrenci Yurdu",
+          "address": "KAZIM KARABEKİR CAD. BAĞLARBAŞI MAH. KAMPÜS İÇİ NO:79",
+          "phone": "(0456) 233 7161",
+          "latitude": 40.4356109,
+          "longitude": 39.512452,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/ODNJN6ZK8E1T3GVN.jpg",
+          "gender": "Kız",
+          "city": "Gümüşhane"
+        }
+      ]
+    },
+    "hatay": {
+      "city_name": "Hatay",
+      "dorm_count": 7,
+      "dorms": [
+        {
+          "name": "Gaziye Hatun Kyk Kız Öğrenci Yurdu",
+          "address": "MEYDAN MAH.543. SOK NO:6 İSKENDERUN /HATAY",
+          "phone": "(0326) 615 3314",
+          "latitude": 36.5730661,
+          "longitude": 36.1501555,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/7Z69SDKV6K9VS59S.jpg",
+          "gender": "Kız",
+          "city": "Hatay"
+        },
+        {
+          "name": "İskenderun Kyk Erkek Öğrenci Yurdu",
+          "address": "SAKARYA MAHALLESİ PROF. MUAMMER AKSOY CADDESİ NO.144/1  İSKENDERUN/HATAY",
+          "phone": "(0326) 615 2515",
+          "latitude": 36.5894187,
+          "longitude": 36.1863701,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/4RG9ZJFQB5SIZRJX.jpg",
+          "gender": "Erkek",
+          "city": "Hatay"
+        },
+        {
+          "name": "Muhyiddin İbni Arabi Kyk Erkek Öğrenci Yurdu",
+          "address": "BARBAROS MAHALLESİ 137/1 SOKAK NO: 4 İSKENDERUN",
+          "phone": "(0326) 613 5946",
+          "latitude": 36.5848379,
+          "longitude": 36.163339,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/GIH44T81XZ1FU23V.jpg",
+          "gender": "Erkek",
+          "city": "Hatay"
+        },
+        {
+          "name": "Tayfur Sökmen Kyk Kız Öğrenci Yurdu",
+          "address": "M.K.Ü TAYFUR SÖKMEN KAMPUS İÇİ ANTAKYA/HATAY",
+          "phone": "(0326) 245 5401",
+          "latitude": 36.3279629,
+          "longitude": 36.1900543,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/NL9AK61GRVPAS8T5.jpg",
+          "gender": "Kız",
+          "city": "Hatay"
+        },
+        {
+          "name": "Antakya Kyk Kız Öğrenci Yurdu",
+          "address": "ESKİ İSKENDERUN YOLU ÜZERİ DERİNCE MAH. YURT SOK. NO:2 ANTAKYA/HATAY",
+          "phone": "(0326) 267 3117",
+          "latitude": 36.3082531,
+          "longitude": 36.1945646,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/9FAFAHISNV9A3IPQ.jpg",
+          "gender": "Kız",
+          "city": "Hatay"
+        },
+        {
+          "name": "Cemil Meriç Kyk Erkek Öğrenci Yurdu",
+          "address": "DERİNCE MAHALLESİ YURT SOK.NO:4-3 ANTAKYA/HATAY",
+          "phone": "(0326) 267 3084",
+          "latitude": 36.3069137,
+          "longitude": 36.1904504,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/54SXMG1UDK5DDF4T.jpg",
+          "gender": "Erkek",
+          "city": "Hatay"
+        },
+        {
+          "name": "Yayladağı Kyk Kız Öğrenci Yurdu",
+          "address": "Tutlu Bahçe Mah. Vali Temel Koçaklar Sok. No:22  Yayladağı/ HATAY",
+          "phone": "(0326) 471 3313",
+          "latitude": 35.9035446,
+          "longitude": 36.0568019,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/B8KVUOGLH5HTOZOD.jpg",
+          "gender": "Kız",
+          "city": "Hatay"
         }
       ]
     },
@@ -2681,26 +4308,6 @@
           "city": "Karabük"
         },
         {
-          "name": "Asiye Hatun Kyk Kız Öğrenci Yurdu",
-          "address": "KILAVUZLAR KÖYÜ ÖTEKARŞIKÜME  KBÜ KAMPÜS İÇİ NO:11/1 KARABÜK /MERKEZ",
-          "phone": "(0370) 433 4449",
-          "latitude": 41.20392,
-          "longitude": 32.66017,
-          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/R8Q1PX7IKGKHNYZS.jpg",
-          "gender": "Kız",
-          "city": "Karabük"
-        },
-        {
-          "name": "Hubbi Hatun Kyk Kız Öğrenci Yurdu",
-          "address": "ÜNİVERSİTE MAHALLESİ YURT SOKAK  NO:5",
-          "phone": "(0370) 433 4299",
-          "latitude": 41.222161,
-          "longitude": 32.648319,
-          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/RJULEEYWNY8ZQJHU.jpg",
-          "gender": "Kız",
-          "city": "Karabük"
-        },
-        {
           "name": "Karabük Taşkent Kyk Kız Öğrenci Yurdu",
           "address": "YEŞİL MAH.TAŞKENT CAD.NO:19",
           "phone": "(0370) 412 1123",
@@ -2719,6 +4326,188 @@
           "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/HPAFO6BT38LWCFY2.jpg",
           "gender": "Kız",
           "city": "Karabük"
+        },
+        {
+          "name": "Hubbi Hatun Kyk Kız Öğrenci Yurdu",
+          "address": "ÜNİVERSİTE MAHALLESİ YURT SOKAK  NO:5",
+          "phone": "(0370) 433 4299",
+          "latitude": 41.222161,
+          "longitude": 32.648319,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/RJULEEYWNY8ZQJHU.jpg",
+          "gender": "Kız",
+          "city": "Karabük"
+        },
+        {
+          "name": "Asiye Hatun Kyk Kız Öğrenci Yurdu",
+          "address": "KILAVUZLAR KÖYÜ ÖTEKARŞIKÜME  KBÜ KAMPÜS İÇİ NO:11/1 KARABÜK /MERKEZ",
+          "phone": "(0370) 433 4449",
+          "latitude": 41.20392,
+          "longitude": 32.66017,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/R8Q1PX7IKGKHNYZS.jpg",
+          "gender": "Kız",
+          "city": "Karabük"
+        }
+      ]
+    },
+    "kars": {
+      "city_name": "Kars",
+      "dorm_count": 8,
+      "dorms": [
+        {
+          "name": "Sarıkamış 100.Yıl Şehitleri Kyk Kız Ve Erkek Öğren",
+          "address": "YENİ Mah. ERZURUM YOLU Cad. ÖĞRENCİ YURDU Sit. No: 415 / Z01 SARIKAMIŞ / KARS",
+          "phone": "(0474) 413 7866",
+          "latitude": 40.1032194,
+          "longitude": 41.3543356,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/2F376GPUL861G64M.jpg",
+          "gender": "Kız",
+          "city": "Kars"
+        },
+        {
+          "name": "Kars Hasan Harakani Kyk Kız Öğrenci Yurdu",
+          "address": "ŞEHİTLER MAHALLESİ AHMET ARSLAN CADDESİ NO:70 KARS",
+          "phone": "(0474) 225 1433",
+          "latitude": 40.5773357,
+          "longitude": 43.064504,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/Y2XM7X5UEFQDXN9Y.jpg",
+          "gender": "Kız",
+          "city": "Kars"
+        },
+        {
+          "name": "Şeref Taşlıova Kyk Kız Öğrenci Yurdu",
+          "address": "ŞEHİTLER MAHALLESİ AHMET ARSLAN CADDESİ ALKAŞ İNŞAAT C BLOK NO:71/C KARS",
+          "phone": "(0474) 225 1845",
+          "latitude": 40.5839442,
+          "longitude": 43.078206,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/3KDJT4T5K6SORMJ9.jpg",
+          "gender": "Kız",
+          "city": "Kars"
+        },
+        {
+          "name": "Murat Çobanoğlu Kyk Kız Öğrenci Yurdu",
+          "address": "YENİŞEHİR MAHALLESİ DUMANLI SOKAK NO:70 MERKEZ/KARS",
+          "phone": "(0312) 551 6000",
+          "latitude": 40.5818924,
+          "longitude": 43.0809509,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/UY4C1MXI61NQ1L7U.jpg",
+          "gender": "Kız",
+          "city": "Kars"
+        },
+        {
+          "name": "Nuri Paşa Kyk Kız Öğrenci Yurdu Müdürlüğü",
+          "address": "YENİŞEHİR MAHALLESİ İSMAİL AYTEMİZ BULVARI NO:152/B MERKEZ KARS",
+          "phone": "(0474) 213 5044",
+          "latitude": 40.5930611,
+          "longitude": 43.0839315,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/6ZTGUO6OY8RSPO33.jpg",
+          "gender": "Kız",
+          "city": "Kars"
+        },
+        {
+          "name": "Serhat Kyk Kız Öğrenci Yurdu Müdürlüğü",
+          "address": "YENİŞEHİR MAHALLESİ DUMANLI SOKAK NO:84 MERKEZ KARS",
+          "phone": "(0474) 213 6098",
+          "latitude": 40.6108699,
+          "longitude": 43.1014343,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/G5UGTC49HRMJDAHC.jpg",
+          "gender": "Kız",
+          "city": "Kars"
+        },
+        {
+          "name": "Kars  Kyk Erkek Öğrenci Yurdu",
+          "address": "PAŞAÇAYIRI MAH. RAUF DENKTAŞ CAD  NO: 156-E",
+          "phone": "(0474) 242 7138",
+          "latitude": 40.5965257,
+          "longitude": 43.0137975,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/XNE3WN4O3G1MWHRZ.jpg",
+          "gender": "Erkek",
+          "city": "Kars"
+        },
+        {
+          "name": "İpekyolu Kyk Erkek Öğrenci Yurdu",
+          "address": "PAŞAÇAYIR MAHALLESİ RAUF DENKTAŞ CADDESİ NO:410 MERKEZ/KARS",
+          "phone": "(0312) 551 6000",
+          "latitude": 40.5965257,
+          "longitude": 43.0137975,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/XO69NDR4I2NUN1IL.jpg",
+          "gender": "Erkek",
+          "city": "Kars"
+        }
+      ]
+    },
+    "kastamonu": {
+      "city_name": "Kastamonu",
+      "dorm_count": 7,
+      "dorms": [
+        {
+          "name": "Tosya Kyk Kız Öğrenci Yurdu",
+          "address": "YAVUZ SELİM MAH. ŞEHİT CELAL YAVUZ SOK. NO:25 TOSYA",
+          "phone": "(0312) 551 6000",
+          "latitude": 41.0074913,
+          "longitude": 34.0633292,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/YSUV858N5NWPQK9D.jpg",
+          "gender": "Kız",
+          "city": "Kastamonu"
+        },
+        {
+          "name": "Fatma Aliye Hanım Kyk Kız Öğrenci Yurdu",
+          "address": "KUZEYKENT MAH.METEHAN SOK.NO:22   KASTAMONU",
+          "phone": "(0366) 215 2818",
+          "latitude": 41.4321801,
+          "longitude": 33.7870929,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/EHPPOSADHHJE142P.jpg",
+          "gender": "Kız",
+          "city": "Kastamonu"
+        },
+        {
+          "name": "Baharzade Feride Hanım Kyk Kız Öğrenci Yurdu",
+          "address": "KUZEYKENT MAHALLESİ ORG. ATİLLA ATEŞ PAŞA CADDESİ NO:15/BP ÜNİVERSİTE YERLEŞKESİ / KASTAMONU",
+          "phone": "(0366) 502 0143",
+          "latitude": 41.4313622,
+          "longitude": 33.7642167,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/SQCDTLFEEDFEXWEF.jpg",
+          "gender": "Kız",
+          "city": "Kastamonu"
+        },
+        {
+          "name": "Kastamonu Hüma Hatun Kyk Kız Öğrenci Yurdu",
+          "address": "KUZEYKENT MAH.BİLGİN SK. NO:10/D KASTAMONU",
+          "phone": "(0366) 215 2701",
+          "latitude": 41.4285643,
+          "longitude": 33.7706603,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/YRZFG49XI7VVFARL.jpg",
+          "gender": "Kız",
+          "city": "Kastamonu"
+        },
+        {
+          "name": "Abana Kyk Erkek Öğrenci Yurdu",
+          "address": "MERKEZ MAHALLESİ ZEKAYİ SÜMER SOKAK NO:6 ABANA/KASTAMONU",
+          "phone": "(0312) 551 6000",
+          "latitude": 41.9757092,
+          "longitude": 34.0037531,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/EDFTXEYWNDLOCVM9.jpg",
+          "gender": "Erkek",
+          "city": "Kastamonu"
+        },
+        {
+          "name": "Şeyh Şaban I Veli Kyk Erkek Öğrenci Yurdu.",
+          "address": "KUZEYKENT MAH. 61. SOK. 152. CAD. NO:7 MERKEZ/KASTAMONU",
+          "phone": "(0366) 215 6671",
+          "latitude": 41.4339031,
+          "longitude": 33.7582854,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/28SNW6J398MI3HDV.jpg",
+          "gender": "Erkek",
+          "city": "Kastamonu"
+        },
+        {
+          "name": "Kastamonu Kyk Erkek Öğrenci Yurdu",
+          "address": "KUZEYKENT MAHALLESİ KAMİL DEMİRCİOĞLU CAD. NO:34/2 KUZEYKENT KASTAMONU",
+          "phone": "(0366) 215 0913",
+          "latitude": 41.4285283,
+          "longitude": 33.7780436,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/O8CKX1PZFIT3Q327.jpg",
+          "gender": "Erkek",
+          "city": "Kastamonu"
         }
       ]
     },
@@ -2890,6 +4679,234 @@
           "gender": "Kız",
           "city": "Kayseri",
           "district": "Talas"
+        }
+      ]
+    },
+    "kirikkale": {
+      "city_name": "Kırıkkale",
+      "dorm_count": 7,
+      "dorms": [
+        {
+          "name": "Keskin Kyk Kız Ve Erkek Öğrenci Yurdu",
+          "address": "A BLOK (ERKEK YURDU ) KIRŞEHİR YOLU ÜSTÜ KESKİN MYO KAMPÜSÜ NO:66 71800 KESKİN/KIRIKKALE",
+          "phone": "(0312) 551 6000",
+          "latitude": 39.6497204,
+          "longitude": 33.61948,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/NNKXNIP4JTRRA1IL.jpg",
+          "gender": "Kız",
+          "city": "Kırıkkale"
+        },
+        {
+          "name": "Kırıkkale Hatice Hanım Kyk Kız Öğrenci Yurdu",
+          "address": "Yenişehir Mah. Yurtkur Cad. No:11/D",
+          "phone": "(0318) 357 2553",
+          "latitude": 39.8729852,
+          "longitude": 33.4550542,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/TBEHQFYD8GYT4WGY.jpg",
+          "gender": "Kız",
+          "city": "Kırıkkale"
+        },
+        {
+          "name": "Ümmü Hatun Kyk Kız Öğrenci Yurdu",
+          "address": "YENİŞEHİR MAHALLESİ YURTKUR CADDESİ 294 SOKAK NO:1",
+          "phone": "(0318) 310 1058",
+          "latitude": 39.8743816,
+          "longitude": 33.4529345,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/JS1U5TFNNHS83NIT.jpg",
+          "gender": "Kız",
+          "city": "Kırıkkale"
+        },
+        {
+          "name": "Kırıkkale Kızılırmak Kyk Kız Öğrenci Yurdu",
+          "address": "YENİŞEHİR MAH. YURTKUR CAD.275 SK. NO:4 YAHŞİHAN/KIRIKKALE",
+          "phone": "(0318) 357 2708",
+          "latitude": 39.8736299,
+          "longitude": 33.4538692,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/M5897XNYLAJW1LER.jpg",
+          "gender": "Kız",
+          "city": "Kırıkkale"
+        },
+        {
+          "name": "Kaletepe Kyk Kız Öğrenci Yurdu Müdürlüğü",
+          "address": "YENİŞEHİR MAH. YURTKUR CAD. 276. SK. NO:10 YAHŞİHAN/KIRIKKALE",
+          "phone": "(0312) 551 6000",
+          "latitude": 39.8736299,
+          "longitude": 33.4538692,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/QV67Q1LPOH23TQZS.jpg",
+          "gender": "Kız",
+          "city": "Kırıkkale"
+        },
+        {
+          "name": "Hamidiye Kyk Erkek Öğrenci Yurdu",
+          "address": "YENİŞEHİR MAH. YURTKUR CAD. 259 SK. NO:2",
+          "phone": "(0318) 310 1075",
+          "latitude": 39.8691573,
+          "longitude": 33.4489653,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/CMULLD5AZCCCZCFM.jpg",
+          "gender": "Erkek",
+          "city": "Kırıkkale"
+        },
+        {
+          "name": "Türkan Hatun Kyk Erkek Öğrenci Yurdu",
+          "address": "YENİŞEHİR MAH.294/1 SK. NO:1/B",
+          "phone": "(0318) 310 0024",
+          "latitude": 39.8736299,
+          "longitude": 33.4538692,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/6K31IMEVW217VW1J.jpg",
+          "gender": "Erkek",
+          "city": "Kırıkkale"
+        }
+      ]
+    },
+    "kirklareli": {
+      "city_name": "Kırklareli",
+      "dorm_count": 8,
+      "dorms": [
+        {
+          "name": "Lüleburgaz Kyk Kız Öğrenci Yurdu",
+          "address": "8 Kasım Mahallesi, Kavak Sokak, NO:1/F B2 Blok Lüleburgaz/KIRKLARELİ",
+          "phone": "(0288) 415 7741",
+          "latitude": 41.3894731,
+          "longitude": 27.3467617,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/Z9EMTE8CR1AQ5EL6.jpg",
+          "gender": "Kız",
+          "city": "Kırklareli"
+        },
+        {
+          "name": "Babaeski Kyk Kız Öğrenci Yurdu",
+          "address": "TAŞKÖPRÜ KÖYÜ NO: 73-73/1 BABAESKİ/KIRKLARELİ",
+          "phone": "(0288) 502 0024",
+          "latitude": 41.4642549,
+          "longitude": 27.0132856,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/TF5BY7OGDAGYIRXD.jpg",
+          "gender": "Kız",
+          "city": "Kırklareli"
+        },
+        {
+          "name": "Hundi Hatun Kyk Kız Öğrenci Yurdu",
+          "address": "KAYALI MEVKİİ KARAKOÇ KÖYÜ KIRKLARELİ ÜNİVERSİTESİ KAYALI KAMPÜSÜ KARŞISI /KIRKLARELİ",
+          "phone": "(0288) 212 0275",
+          "latitude": 41.79667,
+          "longitude": 27.1625656,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/II19EXOI8R7PTUL7.jpg",
+          "gender": "Kız",
+          "city": "Kırklareli"
+        },
+        {
+          "name": "Evladı Fatihan Kyk Kız Öğrenci Yurdu",
+          "address": "KAYALI MEVKİİ KARAKOÇ KÖYÜ KIRKLARELİ ÜNİVERSİTESİ KAYALI KAMPÜSÜ KARŞISI/KIRKLARELİ",
+          "phone": "(0288) 214 5071",
+          "latitude": 41.79667,
+          "longitude": 27.1625656,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/S81JG7XWREDWCC6S.jpg",
+          "gender": "Kız",
+          "city": "Kırklareli"
+        },
+        {
+          "name": "Mehmed Eşref Efendi Kyk Erkek Öğrenci Yurdu",
+          "address": "İSTİKLAL MAH. İST. ASFALTI YOLU 27. SOK.NO:3/3 KÜMEEVLERİ / KEPİRTEPE",
+          "phone": "(0288) 502 0230",
+          "latitude": 41.090181,
+          "longitude": 27.292667,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/7J29N5LWHK1XDAUF.jpg",
+          "gender": "Erkek",
+          "city": "Kırklareli"
+        },
+        {
+          "name": "Kırklareli Kyk Erkek Öğrenci Yurdu",
+          "address": "KARAHIDIR MAH. OKUL YOLU SOK. NO:34/ KIRKLARELİ",
+          "phone": "(0288) 212 1341",
+          "latitude": 41.7193159,
+          "longitude": 27.1933263,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/UZG6B649KTERCQ1V.jpg",
+          "gender": "Erkek",
+          "city": "Kırklareli"
+        },
+        {
+          "name": "Ahmet Cevdet Paşa Kyk Erkek Öğrenci Yurdu",
+          "address": "Ahmet Cevdet Paşa Yurt Müdürlüğü: Karakoç Köyü Mevkii Kofçaz Yolu 7. Km. No:192 / KIRKLARELİ",
+          "phone": "(0288) 502 0016",
+          "latitude": 41.7521566,
+          "longitude": 27.2161769,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/RWJIXOCP39TVG84M.jpg",
+          "gender": "Erkek",
+          "city": "Kırklareli"
+        },
+        {
+          "name": "Şemsettin Sami Kyk Erkek Öğrenci Yurdu",
+          "address": "ŞEMSETTİN SAMİ ÖĞRENCİ YURDU",
+          "phone": "(0288) 214 4113",
+          "latitude": 41.7190558,
+          "longitude": 27.1898279,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/CHGJZKE6D29IDX47.jpg",
+          "gender": "Erkek",
+          "city": "Kırklareli"
+        }
+      ]
+    },
+    "kirsehir": {
+      "city_name": "Kırşehir",
+      "dorm_count": 6,
+      "dorms": [
+        {
+          "name": "Neşet Ertaş Kyk Erkek Öğrenci Yurdu",
+          "address": "Bağbaşı Mahallesi Yurt Sokak No:7/3-1 Ahi Evran Üniversitesi Yerleşkesi Merkez/KIRŞEHİR",
+          "phone": "(0312) 551 6000",
+          "latitude": 39.1476035,
+          "longitude": 34.1145778,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/PXUN8G7N1INOPOX8.jpg",
+          "gender": "Erkek",
+          "city": "Kırşehir"
+        },
+        {
+          "name": "Kaman Kyk Kız Ve Erkek Öğrenci Yurdu",
+          "address": "HACIPINAR MAH. ŞEHİT BAHTİYAR ŞİMŞEK CADDESİ 974.SOKAK NO:1 KAMAN/KIRŞEHİR",
+          "phone": "(0386) 712 6070",
+          "latitude": 39.3545888,
+          "longitude": 33.6943096,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/K9WMUZ4C8QN7A89V.jpg",
+          "gender": "Kız",
+          "city": "Kırşehir"
+        },
+        {
+          "name": "Kırşehir Ahi Evran Kyk Kız Öğrenci Yurdu",
+          "address": "BAĞBAŞI MAHALLESİ ŞEHİT NECDET YAĞIZ CAD. NO:141/1 KIRŞEHİR MERKEZ",
+          "phone": "(0386) 214 4448",
+          "latitude": 39.1488319,
+          "longitude": 34.1356886,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/2K1AWWGGEZ47E3NF.jpg",
+          "gender": "Kız",
+          "city": "Kırşehir"
+        },
+        {
+          "name": "Elvin Buğra Arslan Kyk Kız Ve Erkek Öğrenci Yurdu",
+          "address": "A BLOK (KIZ ÖĞRENCİ) YENİCE MAH. ANKARA-KAYSERİ ASFALTI CAD. NO:32 40500 MUCUR KIRŞEHİR",
+          "phone": "(0386) 812 3991",
+          "latitude": 39.3276313,
+          "longitude": 31.8297952,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/GM8CU84E8CRDKOVL.jpg",
+          "gender": "Kız",
+          "city": "Kırşehir"
+        },
+        {
+          "name": "Mecidiye Kyk Kız Öğrenci Yurdu",
+          "address": "BOYALIK MAHALLESİ GÜVENTÜRK CAD.NO:50 ÇİÇEKDAĞI/KIRŞEHİR",
+          "phone": "(0386) 612 3030",
+          "latitude": 39.6028621,
+          "longitude": 34.4154376,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/TQHO8OBAWHJRCQ3Y.jpg",
+          "gender": "Kız",
+          "city": "Kırşehir"
+        },
+        {
+          "name": "Saliha Sultan Kyk Kız Öğrenci Yurdu",
+          "address": "BAĞBAŞI MAH. NEŞET ERTAŞ BULVARI 910 SOK NO:2",
+          "phone": "3862144132",
+          "latitude": 39.1456382,
+          "longitude": 34.1443819,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/S67UVPVHPYLYHR1G.jpg",
+          "gender": "Kız",
+          "city": "Kırşehir"
         }
       ]
     },
@@ -3066,6 +5083,33 @@
       "dorm_count": 33,
       "dorms": [
         {
+          "name": "Fahrünnisa Hatun Kyk Kız Öğrenci Yurdu",
+          "phone": "(0332) 255 0062",
+          "latitude": 37.9719523,
+          "longitude": 32.5121982,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/GG2D6GI1VAH4CQ2X.jpg",
+          "gender": "Kız",
+          "city": "Konya"
+        },
+        {
+          "name": "Ereğli Kyk Kız Öğrenci Yurdu",
+          "phone": "(0332) 712 1553",
+          "latitude": 37.6012016,
+          "longitude": 33.7858794,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/PICCZOOF29775YGJ.jpg",
+          "gender": "Kız",
+          "city": "Konya"
+        },
+        {
+          "name": "Ali Ulvi Kurucu Kyk Kız Öğrenci Yurdu",
+          "phone": "(0332) 261 0561",
+          "latitude": 37.995908,
+          "longitude": 32.524012,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/NVXRLUHYHKRBJCRI.jpg",
+          "gender": "Kız",
+          "city": "Konya"
+        },
+        {
           "name": "Konya Kimya Hatun Kyk Kız Öğrenci Yurdu",
           "phone": "(0332) 290 2915",
           "latitude": 38.0108738,
@@ -3111,29 +5155,12 @@
           "city": "Konya"
         },
         {
-          "name": "Fahrünnisa Hatun Kyk Kız Öğrenci Yurdu",
-          "phone": "(0332) 255 0062",
-          "latitude": 37.9719523,
-          "longitude": 32.5121982,
-          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/GG2D6GI1VAH4CQ2X.jpg",
-          "gender": "Kız",
-          "city": "Konya"
-        },
-        {
-          "name": "Ereğli Kyk Kız Öğrenci Yurdu",
-          "phone": "(0332) 712 1553",
-          "latitude": 37.6012016,
-          "longitude": 33.7858794,
-          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/PICCZOOF29775YGJ.jpg",
-          "gender": "Kız",
-          "city": "Konya"
-        },
-        {
-          "name": "Ali Ulvi Kurucu Kyk Kız Öğrenci Yurdu",
-          "phone": "(0332) 261 0561",
-          "latitude": 37.995908,
-          "longitude": 32.524012,
-          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/NVXRLUHYHKRBJCRI.jpg",
+          "name": "Cihanbeyli Kyk Kız ve Erkek Öğrenci Yurdu",
+          "address": "Karşıyaka Mh. 60768. Sk. No:4 Cihanbeyli / KONYA",
+          "phone": "(0332) 673 1125",
+          "latitude": 38.644914,
+          "longitude": 32.9226186,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/D3AUWR1WWK8U6IJB.jpg",
           "gender": "Kız",
           "city": "Konya"
         },
@@ -3147,13 +5174,23 @@
           "city": "Konya"
         },
         {
-          "name": "Cihanbeyli Kyk Kız ve Erkek Öğrenci Yurdu",
-          "address": "Karşıyaka Mh. 60768. Sk. No:4 Cihanbeyli / KONYA",
-          "phone": "(0332) 673 1125",
-          "latitude": 38.644914,
-          "longitude": 32.9226186,
-          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/D3AUWR1WWK8U6IJB.jpg",
+          "name": "Meram Kyk Kız Öğrenci Yurdu",
+          "address": "Köyceğiz Mah. Demeç Sokak. No:48/5 Meram/KONYA",
+          "phone": "(0312) 551 6000",
+          "latitude": 37.8674577,
+          "longitude": 32.4028744,
+          "image_url": "https://www.kykyurtlar.com/img/no_image.jpg",
           "gender": "Kız",
+          "city": "Konya"
+        },
+        {
+          "name": "Hacıveyiszade Kyk Erkek Öğrenci Yurdu",
+          "address": "Köyceğiz Mah. Demeç Sok. No:44/3 Meram/KONYA",
+          "phone": "(0332) 501 1393",
+          "latitude": 37.8744473,
+          "longitude": 32.4107949,
+          "image_url": "https://www.kykyurtlar.com/img/no_image.jpg",
+          "gender": "Erkek",
           "city": "Konya"
         },
         {
@@ -3202,26 +5239,6 @@
           "longitude": 32.514969,
           "image_url": "https://www.kykyurtlar.com/img/no_image.jpg",
           "gender": "Kız",
-          "city": "Konya"
-        },
-        {
-          "name": "Meram Kyk Kız Öğrenci Yurdu",
-          "address": "Köyceğiz Mah. Demeç Sokak. No:48/5 Meram/KONYA",
-          "phone": "(0312) 551 6000",
-          "latitude": 37.8674577,
-          "longitude": 32.4028744,
-          "image_url": "https://www.kykyurtlar.com/img/no_image.jpg",
-          "gender": "Kız",
-          "city": "Konya"
-        },
-        {
-          "name": "Hacıveyiszade Kyk Erkek Öğrenci Yurdu",
-          "address": "Köyceğiz Mah. Demeç Sok. No:44/3 Meram/KONYA",
-          "phone": "(0332) 501 1393",
-          "latitude": 37.8744473,
-          "longitude": 32.4107949,
-          "image_url": "https://www.kykyurtlar.com/img/no_image.jpg",
-          "gender": "Erkek",
           "city": "Konya"
         },
         {
@@ -3703,6 +5720,32 @@
         }
       ]
     },
+    "mardin": {
+      "city_name": "Mardin",
+      "dorm_count": 2,
+      "dorms": [
+        {
+          "name": "Mardin Kyk Kız Öğrenci Yurdu",
+          "address": "Yalım Mah. 217. Sokak No:33/1 Artuklu/MARDİN",
+          "phone": "(0482) 502 0506",
+          "latitude": 37.3213737,
+          "longitude": 40.7275491,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/QHB9XVHFJC67SWCU.jpg",
+          "gender": "Kız",
+          "city": "Mardin"
+        },
+        {
+          "name": "Kasımiye Kyk Erkek Öğrenci Yurdu",
+          "address": "NUR MAH. YURT CAD. NO: 3/1 ARTUKLU ÜNV. KAMPÜS İÇİ",
+          "phone": "(0482) 212 9664",
+          "latitude": 37.3362086,
+          "longitude": 40.6907707,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/57VMXEFR6A9R2JSH.jpg",
+          "gender": "Erkek",
+          "city": "Mardin"
+        }
+      ]
+    },
     "mersin": {
       "city_name": "Mersin",
       "dorm_count": 9,
@@ -3715,6 +5758,16 @@
           "longitude": 34.862251,
           "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/2DHQ69EHFMC2PN2N.jpg",
           "gender": "Kız",
+          "city": "Mersin"
+        },
+        {
+          "name": "Mersin GSB Erkek Yurdu",
+          "address": "İhsaniye Mahallesi 4932. Sokak No:22A YURTKUR ÖĞRENCİ YURDU (Kamu) AKDENİZ/MERSİN",
+          "phone": "(0324) 502 2813",
+          "latitude": 36.8039081,
+          "longitude": 34.6165265,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/WIEQP5QHJ1MNGU3F.jpg",
+          "gender": "Erkek",
           "city": "Mersin"
         },
         {
@@ -3734,16 +5787,6 @@
           "longitude": 34.5345967,
           "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/JBH935T7RZDQM12J.jpg",
           "gender": "Kız",
-          "city": "Mersin"
-        },
-        {
-          "name": "Mersin GSB Erkek Yurdu",
-          "address": "İhsaniye Mahallesi 4932. Sokak No:22A YURTKUR ÖĞRENCİ YURDU (Kamu) AKDENİZ/MERSİN",
-          "phone": "(0324) 502 2813",
-          "latitude": 36.8039081,
-          "longitude": 34.6165265,
-          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/WIEQP5QHJ1MNGU3F.jpg",
-          "gender": "Erkek",
           "city": "Mersin"
         },
         {
@@ -3798,20 +5841,320 @@
         }
       ]
     },
+    "mugla": {
+      "city_name": "Muğla",
+      "dorm_count": 8,
+      "dorms": [
+        {
+          "name": "Fethiye Kyk Kız Öğrenci Yurdu Müdürlüğü",
+          "address": "ESENKÖY MAHALLESİ CUMHURİYET BULVARI (KRC) NO:717 FETHİYE/MUĞLA",
+          "phone": "(0252) 502 5116",
+          "latitude": 36.6380318,
+          "longitude": 29.2294788,
+          "image_url": "https://www.kykyurtlar.com/img/no_image.jpg",
+          "gender": "Kız",
+          "city": "Muğla"
+        },
+        {
+          "name": "Marmaris Kyk Kız ve Erkek Öğrenci Yurdu",
+          "address": "İÇMELER GÖLENYE MAH. HALİDE EDİP ADIVAR CAD. NO:51 MUĞLA/MARMARİS",
+          "latitude": 36.7880687,
+          "longitude": 28.210156,
+          "image_url": "https://www.kykyurtlar.com/img/no_image.jpg",
+          "gender": "Kız",
+          "city": "Muğla"
+        },
+        {
+          "name": "Fethiye Sıtkı Mefharet Koçman Kyk Erkek Yurdu",
+          "address": "KARAÇULHA MAH. ÜNİVERSİTE CAD.168 SOK. NO:5 FETHİYE MUĞLAKARAÇULHA /FETHİYE",
+          "phone": "(0252) 646 5131",
+          "latitude": 36.6568042,
+          "longitude": 29.1994166,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/1Y6M5KAMBVSF963M.jpg",
+          "gender": "Erkek",
+          "city": "Muğla"
+        },
+        {
+          "name": "Milas Kyk Kız Ve Erkek Öğrenci Yurdu",
+          "address": "İsmet Paşa Mahallesi Sodra Doğakent Evleri No: 91 Milas/MUĞLA",
+          "phone": "(0312) 551 6000",
+          "latitude": 37.3020943,
+          "longitude": 27.7699531,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/C8IP4PVCDUX99M33.jpg",
+          "gender": "Kız",
+          "city": "Muğla"
+        },
+        {
+          "name": "Muğla Ortaca Kyk Kız Ve Erkek Öğrenci Yurdu",
+          "address": "KARABURUN Mah. 524 Sok. YURT BİNASI Sitesi No:10 ORTACA/MUĞLA",
+          "phone": "(0252) 282 9892",
+          "latitude": 36.8422613,
+          "longitude": 28.7384234,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/HQXMQVKLJLZK4LED.jpg",
+          "gender": "Kız",
+          "city": "Muğla"
+        },
+        {
+          "name": "Muğla Milli Piyango Kyk Kız Öğrenci Yurdu",
+          "address": "KÖTEKLİ MAH.SITKI KOÇMAN CADDESİ NO:10/6 MENTEŞE/MUĞLA",
+          "phone": "(0252) 223 8588",
+          "latitude": 37.1738899,
+          "longitude": 28.3717223,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/478SETCJZT5TCGX2.jpg",
+          "gender": "Kız",
+          "city": "Muğla"
+        },
+        {
+          "name": "Şahidi Kyk Kız Öğrenci Yurdu",
+          "address": "KÖTEKLİ MAH. DENİZLİ YOLU BULVARI. 232 SOKAK. NO: 48 MUĞLA",
+          "phone": "(0252) 223 8612",
+          "latitude": 37.1695291,
+          "longitude": 28.3799604,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/IN1HIXOTM7ZJ122S.jpg",
+          "gender": "Kız",
+          "city": "Muğla"
+        },
+        {
+          "name": "Muğla Kyk Erkek Öğrenci Yurdu",
+          "address": "Kötekli Mah. Sıtkı Koçman Cad. No:14/2 İç kapı:1 Menteşe / MUĞLA",
+          "phone": "(0252) 223 8011",
+          "latitude": 37.1720287,
+          "longitude": 28.3741373,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/3RG2PR9G441XUN29.jpg",
+          "gender": "Erkek",
+          "city": "Muğla"
+        }
+      ]
+    },
+    "nevsehir": {
+      "city_name": "Nevşehir",
+      "dorm_count": 12,
+      "dorms": [
+        {
+          "name": "Kozaklı Kyk Kız Öğrenci Yurdu",
+          "address": "EMEK MAH KAPLICA CAD. 4 NOLU SOK DIŞ KAPI:125 KOZAKLI/NEVŞEHİR",
+          "phone": "(0312) 551 6000",
+          "latitude": 39.2087123,
+          "longitude": 34.8593766,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/PJ4HKOKBPA88SV4H.jpg",
+          "gender": "Kız",
+          "city": "Nevşehir"
+        },
+        {
+          "name": "Nevşehir Kyk Erkek Öğrenci Yurdu",
+          "address": "2000 EVLER MAHALLESİ YURTKUR ALANI (KÜME EVLERİ) NO:5 MERKEZ NEVŞEHİR",
+          "phone": "(0384) 212 1918",
+          "latitude": 38.6784594,
+          "longitude": 34.743982,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/ORB6O4N4TXU3WCNF.jpg",
+          "gender": "Erkek",
+          "city": "Nevşehir"
+        },
+        {
+          "name": "Başhisar Kyk Erkek Öğrenci Yurdu",
+          "address": "Bahçelievler Mah. 28 Cad. Dış Kapı No: 40 Ürgüp/ Nevşehir",
+          "phone": "(0312) 551 6000",
+          "latitude": 38.649615,
+          "longitude": 34.942307,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/3UVJ68W61RODCRS8.jpg",
+          "gender": "Erkek",
+          "city": "Nevşehir"
+        },
+        {
+          "name": "Ürgüp Kyk Kız Öğrenci Yurdu",
+          "address": "D KIZ BLOĞU : TEMENNİ Mah. DOLAY-1 Sok. No: 1 ÜRGÜP/NEVŞEHİR A,B,C BLOĞU: FATİH MAHALLESİ 12.CAD 3. SOKAK NO:11 ÜRGÜP/NEVŞEHİR",
+          "phone": "(0384) 341 2043",
+          "latitude": 38.6341893,
+          "longitude": 34.6687305,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/MY92DGXOQM2BGPKR.jpg",
+          "gender": "Kız",
+          "city": "Nevşehir"
+        },
+        {
+          "name": "Avanos Kyk Kız Ve Erkek Öğrenci Yurdu",
+          "address": "A Blok (Müdürlük): Bahçelievler Mah. Mithat Dülge Cad. No:47 Avanos/Nevşehir,",
+          "phone": "(0384) 511 2392",
+          "latitude": 38.7160362,
+          "longitude": 34.8467261,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/47GS7YJN7SWHQHRB.jpg",
+          "gender": "Kız",
+          "city": "Nevşehir"
+        },
+        {
+          "name": "Hünkar Kyk Kız Ve Erkek Öğrenci Yurdu",
+          "address": "Zir Mah. Prof. Dr. Rıza AYHAN Cad. No.21 Hacıbektaş/NEVŞEHİR",
+          "phone": "(0384) 441 3558",
+          "latitude": 38.954798,
+          "longitude": 34.5490535,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/XIIPNUEJIQURAJRZ.jpg",
+          "gender": "Kız",
+          "city": "Nevşehir"
+        },
+        {
+          "name": "Fatıma Sultan Kyk Kız Öğrenci Yurdu",
+          "address": "2000 EVLER MAHALLESİ ZÜBEYDE HANIM CADDESİ NO:278  MERKEZ /NEVŞEHİR",
+          "phone": "(0384) 215 2372",
+          "latitude": 38.6550597,
+          "longitude": 34.7307955,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/8M1NHPYBX6GJZQ5M.jpg",
+          "gender": "Kız",
+          "city": "Nevşehir"
+        },
+        {
+          "name": "Ayşe Hümaşah Sultan Kyk Kız Öğrenci Yurdu",
+          "address": "2000 EVLER MAH. YURTKUR ALANI KÜME EVLERİ No: 3 NEVŞEHİR",
+          "phone": "(0312) 551 6000",
+          "latitude": 38.6572615,
+          "longitude": 34.7207705,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/W2K4AFTEEGDY59Z4.jpg",
+          "gender": "Kız",
+          "city": "Nevşehir"
+        },
+        {
+          "name": "Nevşehir Kyk Kız Öğrenci Yurdu",
+          "address": "AVANOS YOLU ÜZERİ KARAYAZI MEVKİİ ÜNİVERSİTE KAMPÜS KARŞISI NEVŞEHİR",
+          "phone": "(0384) 213 2985",
+          "latitude": 38.7135152,
+          "longitude": 34.8384476,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/XD14SXFK3LX11D2B.jpg",
+          "gender": "Kız",
+          "city": "Nevşehir"
+        },
+        {
+          "name": "Gülşehir Kyk Kız Öğrenci Yurdu",
+          "address": "KARAVEZİR MAHALLESİ MEHMET GALİP UYSAL CADDESİ NO:29 GÜLŞEHİR/NEVŞEHİR",
+          "phone": "(0312) 551 6000",
+          "latitude": 38.7496735,
+          "longitude": 34.6104068,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/FKGEEUZAC31Y5M2N.jpg",
+          "gender": "Kız",
+          "city": "Nevşehir",
+          "district": "Gulsehir"
+        },
+        {
+          "name": "Hacı Bektaş-ı Veli Kyk Erkek Öğrenci Yurdu",
+          "address": "GÜZELYURT MAH. VEFA KÜÇÜK CADDESİ NO:9 NEVŞEHİR",
+          "phone": "(0384) 215 4409",
+          "latitude": 38.6443262,
+          "longitude": 34.7306568,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/3892U7S94F1IXTXI.jpg",
+          "gender": "Erkek",
+          "city": "Nevşehir",
+          "district": "Merkez"
+        },
+        {
+          "name": "Haluk Nur Baki Kyk Erkek Öğrenci Yurdu",
+          "address": "2000 evler Mah. 74.sokak No:3 Merkez/NEVŞEHİR",
+          "phone": "(0384) 215 4155",
+          "latitude": 38.6501148,
+          "longitude": 34.7012709,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/CXSCM6DZ2ZGJ1PV3.jpg",
+          "gender": "Erkek",
+          "city": "Nevşehir",
+          "district": "Merkez"
+        }
+      ]
+    },
+    "nigde": {
+      "city_name": "Niğde",
+      "dorm_count": 9,
+      "dorms": [
+        {
+          "name": "Ulukışla Kyk Kız Ve Erkek Öğrenci Yurdu",
+          "address": "ALPAĞUT MAH. KILAN CAD.SELİM SOK. NO:3 ULUKIŞLA/NİĞDE",
+          "phone": "(0388) 511 3001",
+          "latitude": 37.5477824,
+          "longitude": 34.4801693,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/CJ7ZGJRDHCDOTTWE.jpg",
+          "gender": "Kız",
+          "city": "Niğde"
+        },
+        {
+          "name": "Sultan I. Kılıçarslan Kyk Kız Öğrenci Yurdu",
+          "address": "TEVFİK ÇALIN CAD. CUMHURİYET MAH. NİĞDE ÖMER HALİSDEMİR ÜNİVERSİTESİ KAMPÜS ALANI 51100",
+          "phone": "(0388) 225 4599",
+          "latitude": 37.9328452,
+          "longitude": 34.6183035,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/QYH9LWKMOQ95UT8W.jpg",
+          "gender": "Kız",
+          "city": "Niğde"
+        },
+        {
+          "name": "Fadimana Halisdemir Kyk Kız Öğrenci Yurdu",
+          "address": "CUMHURİYET MAH. ÖMER HALİSDEMİR ÜNİVERSİTESİ KÜME EVLERİ FADİMANA HALİSDEMİR KIZ ÖĞRENCİ YURDU  NO:31/2   MERKEZ/NİĞDE",
+          "phone": "(0388) 225 4715",
+          "latitude": 37.9344929,
+          "longitude": 34.6168919,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/YZGZUE7N896KG39D.jpg",
+          "gender": "Kız",
+          "city": "Niğde"
+        },
+        {
+          "name": "Bor Kyk Kız Öğrenci Yurdu",
+          "address": "Fatih Mahallesi Yüksek Okullar Caddesi No-12-51700 BOR/NİĞDE",
+          "phone": "(0388) 311 6690",
+          "latitude": 37.8844388,
+          "longitude": 34.5679544,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/YUBAGQ3PEA156QQD.jpg",
+          "gender": "Kız",
+          "city": "Niğde"
+        },
+        {
+          "name": "Sultan II. Kılıçarslan Kyk Kız Öğrenci Yurdu",
+          "address": "ÖMER HALİSDEMİR ÜNİVERSİTESİ YERLEŞKESİ CUMHURİYET MAH. DIŞ KAPI NO:29 NİĞDE",
+          "phone": "(0312) 551 6000",
+          "latitude": 37.9224713,
+          "longitude": 34.5467806,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/QPRY8ONV5TP2I19H.jpg",
+          "gender": "Kız",
+          "city": "Niğde"
+        },
+        {
+          "name": "Ahmet Kuddusi Kyk Erkek Öğrenci Yurdu",
+          "address": "Cığızoğlu Osman efendi Mahallesi Orhan Batı Bulvarı  No:158  Bor/NİĞDE",
+          "phone": "(0312) 551 6000",
+          "latitude": 37.9253016,
+          "longitude": 34.5882962,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/N34SZOQEAXFT7LRW.jpg",
+          "gender": "Erkek",
+          "city": "Niğde"
+        },
+        {
+          "name": "Ömer Halisdemir Kyk Erkek Öğrenci Yurdu",
+          "address": "CUMHURİYET MAH. TEYFİKÇALIN CADDESİ MERKEZ/NİĞDE",
+          "phone": "(0388) 225 2512",
+          "latitude": 37.9455198,
+          "longitude": 34.6126109,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/K48YRP1PA1FE78K4.jpg",
+          "gender": "Erkek",
+          "city": "Niğde"
+        },
+        {
+          "name": "Niğde Milli Piyango Kyk Erkek Öğrenci Yurdu",
+          "address": "CUMHURİYET Mah. ÖMER HALİSDEMİR ÜNİVERSİTESİ KÜME EVLERİ MİLLİ PİYANGO ERKEK ÖĞRENCİ YURDU  No: 25 /2 / MERKEZ / NİĞDE",
+          "phone": "(0388) 225 0181",
+          "latitude": 37.9355029,
+          "longitude": 34.6129768,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/HJVJDP31YBEWZHJA.jpg",
+          "gender": "Erkek",
+          "city": "Niğde"
+        },
+        {
+          "name": "Niğde Ertuğrulgazi Kyk Erkek Öğrenci Yurdu",
+          "address": "AŞAĞI KAYABAŞI MAH.SEÇKİN SOKAK NO:5 NİĞDE",
+          "phone": "(0312) 551 6000",
+          "latitude": 37.9607658,
+          "longitude": 34.6418772,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/T5VIJQQYYZGQIJH1.jpg",
+          "gender": "Erkek",
+          "city": "Niğde"
+        }
+      ]
+    },
     "sakarya": {
       "city_name": "Sakarya",
       "dorm_count": 12,
       "dorms": [
-        {
-          "name": "Karasu Kyk Kız ve Erkek Öğrenci Yurdu",
-          "address": "AZİZİYE MAHALLESİ 543.SOKAK NO:20 KARASU/SAKARYA",
-          "phone": "(0264) 718 6671",
-          "latitude": 41.0923751,
-          "longitude": 30.7160288,
-          "image_url": "https://www.kykyurtlar.com/img/no_image.jpg",
-          "gender": "Kız",
-          "city": "Sakarya"
-        },
         {
           "name": "Akyazı Kyk Kız ve Erkek Öğrenci Yurdu",
           "address": "İnönü Mahallesi D-140 Caddesi No:307 AKYAZI/SAKARYA",
@@ -3819,6 +6162,16 @@
           "latitude": 40.6628922,
           "longitude": 30.596779,
           "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/Y98QH6XXOD5F1HNN.jpg",
+          "gender": "Kız",
+          "city": "Sakarya"
+        },
+        {
+          "name": "Karasu Kyk Kız ve Erkek Öğrenci Yurdu",
+          "address": "AZİZİYE MAHALLESİ 543.SOKAK NO:20 KARASU/SAKARYA",
+          "phone": "(0264) 718 6671",
+          "latitude": 41.0923751,
+          "longitude": 30.7160288,
+          "image_url": "https://www.kykyurtlar.com/img/no_image.jpg",
           "gender": "Kız",
           "city": "Sakarya"
         },
@@ -4101,6 +6454,62 @@
         }
       ]
     },
+    "sanliurfa": {
+      "city_name": "Şanlıurfa",
+      "dorm_count": 5,
+      "dorms": [
+        {
+          "name": "Şifa Hatun Kyk Kız Ve Erkek Öğrenci Yurdu",
+          "address": "MEYDAN MAHALLESİ ŞAİR NAMIK EKREM CADDESİ NO: 36 (TOKİ KONUTLARI YANI) BİRECİK/ŞANLIURFA",
+          "phone": "(0414) 502 2455",
+          "latitude": 37.0259717,
+          "longitude": 37.9557189,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/EOGTFPHP7Y1UQT6K.jpg",
+          "gender": "Kız",
+          "city": "Şanlıurfa"
+        },
+        {
+          "name": "Harran Kyk Kız Öğrenci Yurdu (ş.urfa)",
+          "address": "GÜLVEREN MAHALLESİ OSMANBEY KAMPÜS  YOLU SOKAK NO: 32 HALİLİYE /ŞANLIURFA",
+          "phone": "(0414) 344 0053",
+          "latitude": 37.1733803,
+          "longitude": 38.997345,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/PV2NUBNOL6INB8PJ.jpg",
+          "gender": "Kız",
+          "city": "Şanlıurfa"
+        },
+        {
+          "name": "Şanlıurfa Kyk Kız Öğrenci Yurdu",
+          "address": "REFAHİYE MAHALLESİ ABDULKADİR KARAHAN CADDESİ NO:7 HALİLİYE ŞANLIURFA",
+          "phone": "(0414) 312 9951",
+          "latitude": 37.1768954,
+          "longitude": 38.8016962,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/1ITQOIEPZPILOS52.jpg",
+          "gender": "Kız",
+          "city": "Şanlıurfa"
+        },
+        {
+          "name": "Hacer Ana Kyk Kız Öğrenci Yurdu",
+          "address": "Gülveren Mahallesi Osmanbey Kampüs Yolu Sokak No: 70 Haliliye / Şanlıurfa",
+          "phone": "(0414) 376 1042",
+          "latitude": 37.1733803,
+          "longitude": 38.997345,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/4NOP7GUKHJ5USG7R.jpg",
+          "gender": "Kız",
+          "city": "Şanlıurfa"
+        },
+        {
+          "name": "Mehmet Akif İnan Kyk Erkek Öğrenci Yurdu",
+          "address": "PAŞABAĞI MAHALLESİ 765. SOKAK NO:25 HALİLİYE ŞANLIURFA",
+          "phone": "(0414) 315 5096",
+          "latitude": 37.1605709,
+          "longitude": 38.8031903,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/Z46JGO7G4G9ET2B5.jpg",
+          "gender": "Erkek",
+          "city": "Şanlıurfa"
+        }
+      ]
+    },
     "sivas": {
       "city_name": "Sivas",
       "dorm_count": 10,
@@ -4205,6 +6614,72 @@
           "gender": "Kız",
           "city": "Sivas",
           "district": "Sarkisla"
+        }
+      ]
+    },
+    "tekirdag": {
+      "city_name": "Tekirdağ",
+      "dorm_count": 6,
+      "dorms": [
+        {
+          "name": "Günebakan Kyk Kız Öğrenci Yurdu",
+          "address": "NAMIK KEMAL MAHALLESİ PROF.DR. CEMİL CANGİR CADDESİ NO:16/8 SÜLEYMANPAŞA/TEKİRDAĞ",
+          "phone": "(0282) 293 2067",
+          "latitude": 40.9946623,
+          "longitude": 27.5826598,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/IM8HDDEKT9NOVUN1.jpg",
+          "gender": "Kız",
+          "city": "Tekirdağ"
+        },
+        {
+          "name": "Dr. Sadık Ahmet Kyk Erkek Öğrenci Yurdu",
+          "address": "Köseilyas Mah.Beyler Cad.No:68 Süleymanpaşa/ TEKİRDAĞ",
+          "phone": "(0312) 551 6000",
+          "latitude": 41.0165832,
+          "longitude": 27.5875505,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/F41DBHSPL6DUOHG8.jpg",
+          "gender": "Erkek",
+          "city": "Tekirdağ"
+        },
+        {
+          "name": "Tekirdağ Kyk Kız Öğrenci Yurdu",
+          "address": "NAMIK KEMAL MAHALLESİ PROF.DR. CEMİL CANGİR CADDESİ NO : 8/7",
+          "phone": "(0282) 293 1433",
+          "latitude": 40.9947653,
+          "longitude": 27.5807574,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/CXJRSK5BSUW9XRQX.jpg",
+          "gender": "Kız",
+          "city": "Tekirdağ"
+        },
+        {
+          "name": "Çorlu Kyk Kız Öğrenci Yurdu",
+          "address": "ŞEYHSİNAN MAH. İBRİŞİM SOK. TREND BULVAR APT. NO:68 ÇORLU TEKİRDAĞ",
+          "phone": "(0312) 551 6000",
+          "latitude": 41.156668,
+          "longitude": 27.7838791,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/GI5VJBKUXMEBKMOD.jpg",
+          "gender": "Kız",
+          "city": "Tekirdağ"
+        },
+        {
+          "name": "Çorlu Kyk Erkek Öğrenci Yurdu",
+          "address": "Silahtarağa Mah. Üniversite 1. Sok.",
+          "phone": "(0282) 650 1815",
+          "latitude": 41.1818073,
+          "longitude": 27.8169883,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/O3J1L42M5HBEXP8C.jpg",
+          "gender": "Erkek",
+          "city": "Tekirdağ"
+        },
+        {
+          "name": "Süleymanpaşa Kyk Kız Öğrenci Yurdu",
+          "address": "DEĞİRMENALTI MAHALLESİ ASLI SOKAK NO: 1/A SÜLEYMANPAŞA / TEKİRDAĞ",
+          "phone": "(0282) 293 4979",
+          "latitude": 40.9879839,
+          "longitude": 27.5802563,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/F1YI3BCGGCK2SJ1Q.jpg",
+          "gender": "Kız",
+          "city": "Tekirdağ"
         }
       ]
     },
@@ -4604,6 +7079,102 @@
           "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/R6L6AI55LL8PN1HH.jpg",
           "gender": "Erkek",
           "city": "Van"
+        }
+      ]
+    },
+    "yozgat": {
+      "city_name": "Yozgat",
+      "dorm_count": 9,
+      "dorms": [
+        {
+          "name": "Sorgun Kyk Kız ve Erkek Öğrenci Yurdu",
+          "address": "Ahmet Efendi Mahallesi 3560.Cadde No : 3 Sorgun/YOZGAT",
+          "phone": "(0312) 551 6000",
+          "latitude": 39.8208154,
+          "longitude": 35.1563794,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/SVBLM27T91UFU43E.jpg",
+          "gender": "Kız",
+          "city": "Yozgat"
+        },
+        {
+          "name": "Yerköy Molla Hüsrev Kyk Kız Ve Erkek Öğrenci Yurdu",
+          "address": "HAŞİM KILIÇ MAHALLESİ ŞEHİT ERDAL AYTAÇ CADDESİ NO:21/A YERKÖY YOZGAT",
+          "phone": "(0312) 551 6000",
+          "latitude": 39.6362208,
+          "longitude": 34.4626951,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/YW352M9POCPRO8EM.jpg",
+          "gender": "Kız",
+          "city": "Yozgat"
+        },
+        {
+          "name": "Akdağmadeni Kyk Kız Ve Erkek Öğrenci Yurdu",
+          "address": "A BLOK (ERKEK): Gültepe Mah. Barbaros Cad. No: 7/1",
+          "phone": "(0354) 314 1759",
+          "latitude": 39.6630874,
+          "longitude": 35.8651968,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/MR7B5GFROLQD8SDA.jpg",
+          "gender": "Kız",
+          "city": "Yozgat"
+        },
+        {
+          "name": "Yozgat Kyk Kız Öğrenci Yurdu",
+          "address": "ÇAPANOĞLU MH. CEMİL ÇİÇEK CAD. NO:292",
+          "phone": "(0354) 242 1069",
+          "latitude": 39.8053044,
+          "longitude": 34.779865,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/KOB1KXUGKXVR1G8K.jpg",
+          "gender": "Kız",
+          "city": "Yozgat"
+        },
+        {
+          "name": "Yozgat Sürmeli Kyk Kız Öğrenci Yurdu",
+          "address": "ÇAPANOĞLU MAHALLESİ CEMİL ÇİÇEK CADDESİ NO:302 YOZGAT",
+          "phone": "(0354) 502 1210",
+          "latitude": 39.8103654,
+          "longitude": 34.7758086,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/7WAM33Z58GA5DEDG.jpg",
+          "gender": "Kız",
+          "city": "Yozgat"
+        },
+        {
+          "name": "Kınalı Hasan Kyk Kız Öğrenci Yurdu",
+          "address": "ÇAPANOĞLU MAHALLESİ CEMİL ÇİÇEK CADDESİ NO:228 MERKEZ/YOZGAT",
+          "phone": "(0354) 502 2293",
+          "latitude": 39.8053044,
+          "longitude": 34.7758086,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/CFBQO2AFIFWMEE8F.jpg",
+          "gender": "Kız",
+          "city": "Yozgat"
+        },
+        {
+          "name": "Yozgat Esentepe Kyk Erkek Öğrenci Yurdu",
+          "address": "BAHÇEŞEHİR MAH. ADNAN MENDERES BULVARI NO:306",
+          "phone": "(0354) 212 5595",
+          "latitude": 39.8286845,
+          "longitude": 34.8323502,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/ESFXUMO7CCMZ7QBI.jpg",
+          "gender": "Erkek",
+          "city": "Yozgat"
+        },
+        {
+          "name": "Ahmet Efendi Kyk Erkek Öğrenci Yurdu",
+          "address": "ÇAPANOĞLU MH CEMİL ÇİÇEK CD N: 262",
+          "phone": "(0354) 290 1616",
+          "latitude": 39.8042762,
+          "longitude": 34.7790524,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/LN6JOIKMN8A44443.jpg",
+          "gender": "Erkek",
+          "city": "Yozgat"
+        },
+        {
+          "name": "Çamlık Kyk Erkek Öğrenci Yurdu",
+          "address": "ÇAPANOĞLU MAHALLESİ CEMİL ÇİÇEK CADDESİ NO:158  YOZGAT",
+          "phone": "(0354) 502 1014",
+          "latitude": 39.8053044,
+          "longitude": 34.7750108,
+          "image_url": "https://www.kykyurtlar.com/kykyurtlar/upload/logo/3/DXVCHGAH258CTBVG.jpg",
+          "gender": "Erkek",
+          "city": "Yozgat"
         }
       ]
     },

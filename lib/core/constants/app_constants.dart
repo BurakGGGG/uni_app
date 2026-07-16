@@ -4,8 +4,11 @@ class AppConstants {
 
   // ─── Uygulama Bilgileri ───────────────────────────────────────────
   static const String appName = 'ÜniSeç';
-  static const String appTagline = 'Hayalindeki üniversiteyi keşfet';
-  static const String appVersion = '1.0.0';
+  static const String appTagline = 'Üniversite Yaşam Rehberin';
+
+  /// pubspec.yaml `version` alanıyla birlikte güncellenmeli —
+  /// force update kontrolü ve ayarlar ekranı bu değeri kullanır.
+  static const String appVersion = '1.0.1';
 
   /// Firebase Google Sign-In web client ID (google-services.json client_type: 3)
   static const String googleWebClientId =

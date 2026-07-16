@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart' show ScrollCacheExtent;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:timeago/timeago.dart' as timeago;
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../../core/widgets/animated_list_item.dart';
 import '../../../../l10n/generated/app_localizations.dart';
 import '../../../auth/presentation/providers/auth_providers.dart';
 import '../providers/preference_list_providers.dart';
@@ -36,12 +38,30 @@ class MyListsScreen extends ConsumerWidget {
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(20, 28, 20, 20),
-                child: Text(
-                  loc.prefListsTitle,
-                  style: AppTextStyles.headlineMedium.copyWith(
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: -0.5,
-                  ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      loc.prefListsTitle,
+                      style: AppTextStyles.headlineMedium.copyWith(
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: -0.5,
+                      ),
+                    ),
+                    if ((listsAsync.valueOrNull?.isNotEmpty ?? false)) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        loc.prefListsSummary(
+                          listsAsync.value!.length,
+                          listsAsync.value!
+                              .fold<int>(0, (sum, l) => sum + l.items.length),
+                        ),
+                        style: AppTextStyles.bodySmall.copyWith(
+                          color: AppColors.textSecondaryFor(context),
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
               ),
             ),
@@ -67,11 +87,14 @@ class MyListsScreen extends ConsumerWidget {
                   sliver: SliverList.separated(
                     itemCount: lists.length,
                     separatorBuilder: (_, _) => const SizedBox(height: 12),
-                    itemBuilder: (_, i) => _ListCard(
-                      list: lists[i],
-                      onTap: () => context.push('/my-lists/${lists[i].id}'),
-                      onShare: () => ShareListSheet.show(context, lists[i]),
-                      onDelete: () => _confirmDelete(context, ref, lists[i]),
+                    itemBuilder: (_, i) => AnimatedListItem(
+                      index: i,
+                      child: _ListCard(
+                        list: lists[i],
+                        onTap: () => context.push('/my-lists/${lists[i].id}'),
+                        onShare: () => ShareListSheet.show(context, lists[i]),
+                        onDelete: () => _confirmDelete(context, ref, lists[i]),
+                      ),
                     ),
                   ),
                 );
@@ -173,6 +196,8 @@ class _ListCard extends StatelessWidget {
     final filled = list.items.length;
     const max = PreferenceListModel.maxItems;
     final progress = (filled / max).clamp(0.0, 1.0);
+    final locale = Localizations.localeOf(context).languageCode;
+    final updatedAgo = timeago.format(list.updatedAt, locale: locale);
 
     return Material(
       color: AppColors.surfaceFor(context),
@@ -198,12 +223,19 @@ class _ListCard extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: AppColors.primary.withValues(alpha: 0.10),
-                      borderRadius: BorderRadius.circular(12),
+                      gradient: AppColors.heroGradient,
+                      borderRadius: BorderRadius.circular(13),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.primary.withValues(alpha: 0.28),
+                          blurRadius: 10,
+                          offset: const Offset(0, 3),
+                        ),
+                      ],
                     ),
                     child: const Icon(
                       Icons.format_list_numbered_rounded,
-                      color: AppColors.primary,
+                      color: Colors.white,
                       size: 22,
                     ),
                   ),
@@ -221,20 +253,45 @@ class _ListCard extends StatelessWidget {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
-                        if (list.description.isNotEmpty) ...[
-                          const SizedBox(height: 2),
-                          Text(
-                            list.description,
-                            style: AppTextStyles.labelSmall.copyWith(
-                              color: AppColors.textSecondaryFor(context),
+                        const SizedBox(height: 2),
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.schedule_rounded,
+                              size: 12,
+                              color: AppColors.textTertiaryFor(context),
                             ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ],
+                            const SizedBox(width: 4),
+                            Text(
+                              updatedAgo,
+                              style: AppTextStyles.labelSmall.copyWith(
+                                color: AppColors.textTertiaryFor(context),
+                              ),
+                            ),
+                            if (list.description.isNotEmpty) ...[
+                              Text(
+                                '  ·  ',
+                                style: AppTextStyles.labelSmall.copyWith(
+                                  color: AppColors.textTertiaryFor(context),
+                                ),
+                              ),
+                              Expanded(
+                                child: Text(
+                                  list.description,
+                                  style: AppTextStyles.labelSmall.copyWith(
+                                    color: AppColors.textSecondaryFor(context),
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
                       ],
                     ),
                   ),
+                  const SizedBox(width: 8),
                   _ListActionsButton(onShare: onShare, onDelete: onDelete),
                 ],
               ),
@@ -269,6 +326,14 @@ class _ListCard extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 16),
+                  if (list.isPublic && list.viewCount > 0) ...[
+                    _StatusChip(
+                      icon: Icons.remove_red_eye_rounded,
+                      label: '${list.viewCount}',
+                      color: AppColors.info,
+                    ),
+                    const SizedBox(width: 8),
+                  ],
                   _StatusChip(
                     icon: list.isPublic
                         ? Icons.public_rounded
@@ -301,7 +366,7 @@ class _ListActionsButton extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: AppColors.textTertiary.withValues(alpha: 0.08),
+          color: AppColors.textTertiaryFor(context).withValues(alpha: 0.08),
           borderRadius: BorderRadius.circular(8),
         ),
         child: Icon(
@@ -339,7 +404,8 @@ class _ListActionsButton extends StatelessWidget {
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: AppColors.textTertiary.withValues(alpha: 0.3),
+                  color: AppColors.textTertiaryFor(context)
+                      .withValues(alpha: 0.3),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -553,6 +619,25 @@ class _EmptyState extends StatelessWidget {
               style: AppTextStyles.bodyMedium.copyWith(
                 color: AppColors.textSecondaryFor(context),
                 height: 1.5,
+              ),
+            ),
+            const SizedBox(height: 24),
+            OutlinedButton.icon(
+              onPressed: () => context.push('/preference-wizard'),
+              icon: const Icon(Icons.smart_toy_rounded, size: 18),
+              label: const Text('Tercih Robotu ile doldur'),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: AppColors.secondary,
+                side: BorderSide(
+                  color: AppColors.secondary.withValues(alpha: 0.4),
+                ),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 18,
+                  vertical: 12,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
               ),
             ),
           ],

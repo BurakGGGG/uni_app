@@ -103,3 +103,6 @@ android/app/build/
 .env.production
 android/.kotlin/
 taban_puanlar*/
+
+# Firebase Hosting deploy cache
+.firebase/

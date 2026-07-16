@@ -36,12 +36,15 @@ class LikeButton extends ConsumerWidget {
     return InkWell(
       onTap: () {
         if (user == null) {
+          // SnackBar bu widget'tan uzun yaşayabilir; aksiyona basıldığında
+          // context ölü olabileceği için router'ı şimdiden yakala.
+          final router = GoRouter.of(context);
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: const Text('Beğenmek için giriş yapın'),
               action: SnackBarAction(
                 label: 'Giriş Yap',
-                onPressed: () => context.push('/login'),
+                onPressed: () => router.push('/login'),
               ),
               behavior: SnackBarBehavior.floating,
             ),
