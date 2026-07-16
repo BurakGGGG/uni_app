@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../score_calculator/domain/models/match_result.dart';
+import '../../../university/domain/models/department_model.dart';
 import '../../../university/presentation/widgets/score_badge.dart';
 import 'add_to_list_sheet.dart';
 import 'feasibility_chip.dart';

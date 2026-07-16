@@ -34,7 +34,6 @@ import '../widgets/uni_info_strip.dart';
 import '../widgets/uni_section.dart';
 import '../../../admin/data/analytics_service.dart';
 import '../../../admin/presentation/widgets/analytics_once_tracker.dart';
-import '../../../../services/engagement_service.dart';
 import '../../../../core/utils/responsive.dart';
 
 class UniversityDetailScreen extends ConsumerWidget {
