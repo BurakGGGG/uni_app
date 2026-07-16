@@ -393,6 +393,7 @@
   "homeCities": "Cities",
   "homeCitiesLoadError": "Failed to load cities",
   "homeRecentReviews": "Recent Reviews",
+  "homeTopReviews": "Featured Reviews",
   "homeNoReviews": "No reviews yet",
   "homeFirstReview": "Be the first to write a review!",
   "homeAssistantTitle": "Preference Assistant",
@@ -446,6 +447,7 @@
   },
   "uniDetailNoReviews": "No reviews yet",
   "uniDetailSeeAllReviews": "See all reviews",
+  "uniDetailWriteFirstReview": "Write the first review",
   "googleReviewsTitle": "Google Reviews",
   "googleReviewsTileSubtitle": "Ratings from Google Maps users",
   "googleReviewsCount": "{count} ratings",
@@ -481,11 +483,100 @@
   "reviewPromptLater": "Maybe later",
   "reviewPromptNever": "Don't show again",
   "badgeFirstReview": "First Review",
-  "badgeFirstReviewDesc": "You published your first review",
+  "badgeFirstReviewDesc": "Write your first approved review",
   "badgeDetailedReviewer": "Detailed Reviewer",
-  "badgeDetailedReviewerDesc": "You published 3 or more reviews",
+  "badgeDetailedReviewerDesc": "Write 3 approved reviews",
   "badgeHelpful": "Helpful",
-  "badgeHelpfulDesc": "Your reviews received 10 likes in total",
+  "badgeHelpfulDesc": "Get 10 total likes on your reviews",
+  "badgeProlificReviewer": "Master Reviewer",
+  "badgeProlificReviewerDesc": "Write 10 approved reviews",
+  "badgeReviewLegend": "Review Legend",
+  "badgeReviewLegendDesc": "Write 25 approved reviews",
+  "badgeCommunityHero": "Community Hero",
+  "badgeCommunityHeroDesc": "Get 50 total likes on your reviews",
+  "badgeLikeMagnet": "Like Magnet",
+  "badgeLikeMagnetDesc": "Get 150 total likes on your reviews",
+  "badgeCollector": "Collector",
+  "badgeCollectorDesc": "Add 5 universities to your favorites",
+  "badgeMasterCollector": "Treasure Hunter",
+  "badgeMasterCollectorDesc": "Add 15 universities to your favorites",
+  "badgeExplorer": "Explorer",
+  "badgeExplorerDesc": "View 10 different universities",
+  "badgeWanderer": "Wanderer",
+  "badgeWandererDesc": "View 30 different universities",
+  "badgeCartographer": "Cartographer",
+  "badgeCartographerDesc": "View 60 different universities",
+  "badgeCityTraveler": "City Traveler",
+  "badgeCityTravelerDesc": "Explore 5 different cities",
+  "badgeAnalyst": "Analyst",
+  "badgeAnalystDesc": "Make 5 comparisons",
+  "badgeStrategist": "Strategist",
+  "badgeStrategistDesc": "Make 20 comparisons",
+  "badgeAmbassador": "Ambassador",
+  "badgeAmbassadorDesc": "Share 3 times",
+  "badgeSuperAmbassador": "Brand Ambassador",
+  "badgeSuperAmbassadorDesc": "Share 10 times",
+  "badgeStreakStarter": "Spark",
+  "badgeStreakStarterDesc": "Open the app 3 days in a row",
+  "badgeStreakKeeper": "Flame Keeper",
+  "badgeStreakKeeperDesc": "Open the app 7 days in a row",
+  "badgeStreakMaster": "Eternal Flame",
+  "badgeStreakMasterDesc": "Open the app 30 days in a row",
+  "badgeLoyalMember": "Loyal Member",
+  "badgeLoyalMemberDesc": "Be a member for 30 days",
+  "badgeVeteran": "Veteran",
+  "badgeVeteranDesc": "Be a member for a year",
+  "badgeProfileComplete": "Showcase",
+  "badgeProfileCompleteDesc": "Complete your profile: photo, bio, department and grade",
+  "badgeVerifiedScholar": "Verified Student",
+  "badgeVerifiedScholarDesc": "Verify your student status with your edu.tr email",
+  "badgeEarlyAdopter": "First Generation",
+  "badgeEarlyAdopterDesc": "You were among the app's first users",
+  "badgesScreenTitle": "My Badges",
+  "badgesEarnedCount": "{earned}/{total}",
+  "@badgesEarnedCount": {
+    "placeholders": {
+      "earned": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "badgesSeeAll": "See All",
+  "badgeProgressLabel": "{current}/{target}",
+  "@badgeProgressLabel": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "target": {
+        "type": "int"
+      }
+    }
+  },
+  "badgeEarnedOn": "Earned on {date}",
+  "@badgeEarnedOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "badgeLockedLabel": "Locked",
+  "badgeCelebrationTitle": "You Earned a New Badge!",
+  "badgeCelebrationAction": "Awesome!",
+  "badgeCelebrationSecondary": "My Badges",
+  "badgeCategoryReviewer": "Reviewer",
+  "badgeCategoryHero": "Hero",
+  "badgeCategoryCollection": "Collection",
+  "badgeCategoryExplorer": "Exploration",
+  "badgeCategoryAnalyst": "Analysis",
+  "badgeCategoryAmbassador": "Sharing",
+  "badgeCategoryStreak": "Streak",
+  "badgeCategoryMembership": "Membership",
+  "badgeCategorySpecial": "Special",
   "uniDetailPlaces": "Places",
   "uniDetailPlacesSubtitle": "{count} places",
   "@uniDetailPlacesSubtitle": {

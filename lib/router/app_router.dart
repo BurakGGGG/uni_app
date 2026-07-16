@@ -24,6 +24,7 @@ import '../features/auth/presentation/screens/onboarding_screen.dart';
 import '../features/auth/presentation/screens/login_screen.dart';
 import '../features/auth/presentation/screens/register_screen.dart';
 import '../features/profile/presentation/screens/edit_profile_screen.dart';
+import '../features/profile/presentation/screens/badges_screen.dart';
 import '../features/university/presentation/screens/university_detail_screen.dart';
 import '../features/university/presentation/screens/department_detail_screen.dart';
 import '../features/university/presentation/screens/uni_departments_screen.dart';
@@ -73,6 +74,7 @@ class AppRoutes {
   static const String register = '/register';
   static const String onboarding = '/onboarding';
   static const String editProfile = '/edit-profile';
+  static const String badges = '/badges';
   static const String cityDetail = '/city/:cityId';
   static const String departmentDetail = '/department/:deptId';
   static const String allCities = '/cities';
@@ -391,6 +393,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/my-reviews',
         builder: (context, state) => const MyReviewsScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.badges,
+        builder: (context, state) => const BadgesScreen(),
       ),
       GoRoute(
         path: AppRoutes.departmentDetail,

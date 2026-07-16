@@ -298,7 +298,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             // ─── Son Yorumlar ───────────────────────────────────────
             SliverToBoxAdapter(
               child: SectionHeader(
-                title: loc.homeRecentReviews,
+                title: loc.homeTopReviews,
                 actionText: loc.homeSeeAll,
                 padding: const EdgeInsets.fromLTRB(20, 16, 12, 4),
                 onAction: () => context.push('/all-reviews'),
@@ -306,7 +306,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             ),
 
             ref
-                .watch(recentReviewsProvider)
+                .watch(topReviewsProvider)
                 .when(
                   loading: () => const SliverToBoxAdapter(
                     child: HomeListSkeleton(
@@ -318,7 +318,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   error: (e, st) => SliverToBoxAdapter(
                     child: ErrorStateWidget(
                       message: 'Yorumlar yüklenemedi',
-                      onRetry: () => ref.invalidate(recentReviewsProvider),
+                      onRetry: () => ref.invalidate(topReviewsProvider),
                       compact: true,
                     ),
                   ),

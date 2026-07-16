@@ -34,6 +34,7 @@ import '../widgets/uni_info_strip.dart';
 import '../widgets/uni_section.dart';
 import '../../../admin/data/analytics_service.dart';
 import '../../../admin/presentation/widgets/analytics_once_tracker.dart';
+import '../../../../services/engagement_service.dart';
 import '../../../../core/utils/responsive.dart';
 
 class UniversityDetailScreen extends ConsumerWidget {
@@ -88,6 +89,7 @@ class _Body extends ConsumerWidget {
           universityId: uni.id,
           universityName: uni.name,
         );
+        EngagementService.instance.recordUniversityViewed(uni.id);
         // 3. ziyarette uygunsa "deneyimini paylaş" istemi — ekran otursun
         // diye kısa gecikmeli.
         Future.delayed(const Duration(seconds: 2), () {
@@ -161,12 +163,19 @@ class _Body extends ConsumerWidget {
                   // Yorumlar section
                   UniSection(
                     title: loc.uniDetailReviews,
+                    // Yerel yorum yoksa "Henüz yorum yok" gösterme —
+                    // altındaki Google Yorumları bölümü kendini anlatır.
                     subtitle: uni.reviewCount > 0
                         ? loc.uniDetailReviewsSubtitle(uni.reviewCount)
-                        : loc.uniDetailNoReviews,
-                    ctaText: loc.uniDetailSeeAllReviews,
-                    onCtaTap: () =>
-                        context.push('/university/${uni.id}/reviews'),
+                        : null,
+                    // Yorum yoksa CTA'yı ilk yorum yazma davetine çevir
+                    // (first_review rozet hunisi).
+                    ctaText: uni.reviewCount > 0
+                        ? loc.uniDetailSeeAllReviews
+                        : loc.uniDetailWriteFirstReview,
+                    onCtaTap: uni.reviewCount > 0
+                        ? () => context.push('/university/${uni.id}/reviews')
+                        : () => _startFirstReview(context, ref, uni),
                     child: _ReviewsPreview(
                       reviewsAsync: reviewsAsync,
                       onRetry: () => ref.invalidate(
@@ -612,6 +621,28 @@ Future<void> _launchUrl(String urlString) async {
   if (await canLaunchUrl(url)) {
     await launchUrl(url, mode: LaunchMode.externalApplication);
   }
+}
+
+/// "İlk yorumu sen yaz" CTA'sı — _ActionButtons'takiyle aynı edu.tr gating'i.
+void _startFirstReview(
+  BuildContext context,
+  WidgetRef ref,
+  UniversityModel uni,
+) {
+  final user = ref.read(authStateProvider).value;
+  final isEduUser =
+      user != null && (user.email?.endsWith('.edu.tr') ?? false);
+  if (!isEduUser) {
+    _showReviewInfoSheet(context, user: user);
+    return;
+  }
+  openWriteReviewIfAllowed(
+    context: context,
+    ref: ref,
+    type: ReviewType.university,
+    targetId: uni.id,
+    universityId: uni.id,
+  );
 }
 
 void _showReviewInfoSheet(BuildContext context, {required dynamic user}) {

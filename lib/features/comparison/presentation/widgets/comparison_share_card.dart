@@ -10,6 +10,7 @@ import '../../../../l10n/generated/app_localizations.dart';
 import '../../domain/models/comparison_result.dart';
 import '../../../admin/data/analytics_service.dart';
 import '../../../admin/domain/models/analytics_event.dart';
+import '../../../../services/engagement_service.dart';
 
 enum ShareFormat {
   instagramStory(width: 1080, height: 1920),
@@ -142,6 +143,7 @@ class ComparisonShareCard extends StatelessWidget {
           '${result.uniA.name} vs ${result.uniB.name} — ${loc.comparisonHubTitle} | ÜniSeç\n\n$shareLink',
     );
     AnalyticsService.instance.trackEvent(AnalyticsEvent.comparisonShared);
+    EngagementService.instance.recordShare();
   }
 
   @override

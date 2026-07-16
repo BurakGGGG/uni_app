@@ -140,6 +140,11 @@ export {
 // Server-side analytics counters
 export { trackAnalyticsEvent } from './analytics/track_event';
 
+// Rozet sistemi — istemci etkileşim olayları + rozet değerlendirme
+export { recordEngagementEvent } from './badges/record_engagement_event';
+// Rozet sistemi — favori rozetleri sunucu-otoriter (Firestore trigger)
+export { syncUserFavoriteBadges } from './favorites/sync_favorite_badges';
+
 // Preference lists
 export { incrementPreferenceListView } from './preference_lists/increment_view';
 export { getPublicPreferenceList } from './preference_lists/get_public_list';

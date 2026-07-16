@@ -402,6 +402,7 @@
   "homeCities": "Şehirler",
   "homeCitiesLoadError": "Şehirler yüklenemedi",
   "homeRecentReviews": "Son Yorumlar",
+  "homeTopReviews": "Öne Çıkan Yorumlar",
   "homeNoReviews": "Henüz yorum yok",
   "homeFirstReview": "İlk yorumu yazan siz olun!",
   "homeAssistantTitle": "Tercih Asistanı",
@@ -455,6 +456,7 @@
   },
   "uniDetailNoReviews": "Henüz yorum yok",
   "uniDetailSeeAllReviews": "Tüm yorumları gör",
+  "uniDetailWriteFirstReview": "İlk yorumu sen yaz",
   "googleReviewsTitle": "Google Yorumları",
   "googleReviewsTileSubtitle": "Google Haritalar kullanıcılarının değerlendirmeleri",
   "googleReviewsCount": "{count} değerlendirme",
@@ -490,11 +492,100 @@
   "reviewPromptLater": "Daha sonra",
   "reviewPromptNever": "Bir daha gösterme",
   "badgeFirstReview": "İlk Yorum",
-  "badgeFirstReviewDesc": "İlk yorumunu yayınladın",
+  "badgeFirstReviewDesc": "İlk onaylı yorumunu yaz",
   "badgeDetailedReviewer": "Detaylı Yorumcu",
-  "badgeDetailedReviewerDesc": "3 veya daha fazla yorum yayınladın",
+  "badgeDetailedReviewerDesc": "3 onaylı yorum yaz",
   "badgeHelpful": "Faydalı",
-  "badgeHelpfulDesc": "Yorumların toplam 10 beğeni aldı",
+  "badgeHelpfulDesc": "Yorumların toplam 10 beğeni alsın",
+  "badgeProlificReviewer": "Usta Yorumcu",
+  "badgeProlificReviewerDesc": "10 onaylı yorum yaz",
+  "badgeReviewLegend": "Efsane Yorumcu",
+  "badgeReviewLegendDesc": "25 onaylı yorum yaz",
+  "badgeCommunityHero": "Topluluk Kahramanı",
+  "badgeCommunityHeroDesc": "Yorumların toplam 50 beğeni alsın",
+  "badgeLikeMagnet": "Beğeni Mıknatısı",
+  "badgeLikeMagnetDesc": "Yorumların toplam 150 beğeni alsın",
+  "badgeCollector": "Koleksiyoncu",
+  "badgeCollectorDesc": "5 üniversiteyi favorilerine ekle",
+  "badgeMasterCollector": "Hazine Avcısı",
+  "badgeMasterCollectorDesc": "15 üniversiteyi favorilerine ekle",
+  "badgeExplorer": "Kaşif",
+  "badgeExplorerDesc": "10 farklı üniversiteyi incele",
+  "badgeWanderer": "Gezgin",
+  "badgeWandererDesc": "30 farklı üniversiteyi incele",
+  "badgeCartographer": "Harita Ustası",
+  "badgeCartographerDesc": "60 farklı üniversiteyi incele",
+  "badgeCityTraveler": "Şehir Gezgini",
+  "badgeCityTravelerDesc": "5 farklı şehri keşfet",
+  "badgeAnalyst": "Analist",
+  "badgeAnalystDesc": "5 karşılaştırma yap",
+  "badgeStrategist": "Stratejist",
+  "badgeStrategistDesc": "20 karşılaştırma yap",
+  "badgeAmbassador": "Elçi",
+  "badgeAmbassadorDesc": "3 kez paylaşım yap",
+  "badgeSuperAmbassador": "Marka Elçisi",
+  "badgeSuperAmbassadorDesc": "10 kez paylaşım yap",
+  "badgeStreakStarter": "Kıvılcım",
+  "badgeStreakStarterDesc": "3 gün üst üste uygulamaya gir",
+  "badgeStreakKeeper": "Alev Ustası",
+  "badgeStreakKeeperDesc": "7 gün üst üste uygulamaya gir",
+  "badgeStreakMaster": "Sönmeyen Alev",
+  "badgeStreakMasterDesc": "30 gün üst üste uygulamaya gir",
+  "badgeLoyalMember": "Sadık Üye",
+  "badgeLoyalMemberDesc": "30 gündür aramızda ol",
+  "badgeVeteran": "Emektar",
+  "badgeVeteranDesc": "1 yıldır aramızda ol",
+  "badgeProfileComplete": "Vitrin",
+  "badgeProfileCompleteDesc": "Profilini tamamla: fotoğraf, tanıtım, bölüm ve sınıf",
+  "badgeVerifiedScholar": "Onaylı Öğrenci",
+  "badgeVerifiedScholarDesc": "edu.tr e-postanla öğrenciliğini doğrula",
+  "badgeEarlyAdopter": "İlk Nesil",
+  "badgeEarlyAdopterDesc": "Uygulamanın ilk kullanıcılarından oldun",
+  "badgesScreenTitle": "Rozetlerim",
+  "badgesEarnedCount": "{earned}/{total}",
+  "@badgesEarnedCount": {
+    "placeholders": {
+      "earned": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "badgesSeeAll": "Tümünü Gör",
+  "badgeProgressLabel": "{current}/{target}",
+  "@badgeProgressLabel": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "target": {
+        "type": "int"
+      }
+    }
+  },
+  "badgeEarnedOn": "{date} tarihinde kazanıldı",
+  "@badgeEarnedOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "badgeLockedLabel": "Kilitli",
+  "badgeCelebrationTitle": "Yeni Rozet Kazandın!",
+  "badgeCelebrationAction": "Harika!",
+  "badgeCelebrationSecondary": "Rozetlerim",
+  "badgeCategoryReviewer": "Yorumcu",
+  "badgeCategoryHero": "Kahraman",
+  "badgeCategoryCollection": "Koleksiyon",
+  "badgeCategoryExplorer": "Keşif",
+  "badgeCategoryAnalyst": "Analiz",
+  "badgeCategoryAmbassador": "Paylaşım",
+  "badgeCategoryStreak": "Seri",
+  "badgeCategoryMembership": "Üyelik",
+  "badgeCategorySpecial": "Özel",
   "uniDetailPlaces": "Mekanlar",
   "uniDetailPlacesSubtitle": "{count} mekan",
   "@uniDetailPlacesSubtitle": {

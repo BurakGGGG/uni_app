@@ -39,11 +39,11 @@ final departmentReviewsProvider =
       return repository.getDepartmentReviews(departmentId);
     });
 
-/// Ana sayfada gösterilecek son yorumları dinleyen sağlayıcı
-final recentReviewsProvider = StreamProvider<List<ReviewModel>>((ref) {
+/// Ana sayfada gösterilecek öne çıkan (en beğenilen) yorumları dinleyen sağlayıcı
+final topReviewsProvider = StreamProvider<List<ReviewModel>>((ref) {
   ref.keepAlive();
   final repository = ref.watch(reviewRepositoryProvider);
-  return repository.getRecentReviews(limit: 5);
+  return repository.getTopReviews(limit: 5);
 });
 
 /// Kullanıcının kendi yaptığı yorumları dinleyen sağlayıcı

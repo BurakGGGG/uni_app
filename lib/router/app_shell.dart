@@ -10,8 +10,11 @@ import '../core/services/feature_discovery_service.dart';
 import '../l10n/generated/app_localizations.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../core/providers/shared_preferences_provider.dart';
 import '../features/auth/presentation/providers/auth_providers.dart';
 import '../features/university/presentation/providers/university_providers.dart';
+import '../features/profile/presentation/widgets/badge_celebration_listener.dart';
+import '../services/engagement_service.dart';
 
 /// Ana uygulama kabuğu — Bottom Navigation Bar ile 5 tab
 class AppShell extends ConsumerStatefulWidget {
@@ -53,6 +56,7 @@ class _AppShellState extends ConsumerState<AppShell>
     // Uygulama ilk açılışında edu.tr doğrulamasını kontrol et (token'ı yenile)
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _checkVerification();
+      _recordDailyAppOpen();
       // Veriyi home render'dan sonra prefetch et — 2sn gecikme ile CPU/network yükü azalır
       Future.delayed(const Duration(seconds: 2), () {
         if (!mounted) return;
@@ -114,7 +118,15 @@ class _AppShellState extends ConsumerState<AppShell>
     if (state == AppLifecycleState.resumed) {
       // Uygulama arka plandan geri döndüğünde tekrar kontrol et
       _checkVerification();
+      _recordDailyAppOpen();
     }
+  }
+
+  /// Rozet streak'i için günde bir kez app_open olayı gönderir.
+  void _recordDailyAppOpen() {
+    EngagementService.instance.maybeRecordAppOpen(
+      ref.read(sharedPreferencesProvider),
+    );
   }
 
   Future<void> _checkVerification() async {
@@ -164,7 +176,9 @@ class _AppShellState extends ConsumerState<AppShell>
           });
         },
         child: Scaffold(
-          body: OfflineBanner(child: widget.navigationShell),
+          body: BadgeCelebrationListener(
+            child: OfflineBanner(child: widget.navigationShell),
+          ),
           bottomNavigationBar: Container(
             decoration: BoxDecoration(
               color: AppColors.surfaceFor(context),

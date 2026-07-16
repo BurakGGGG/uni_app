@@ -36,6 +36,8 @@ class FavoritesRepository {
 
     // Analytics: favorilere eklendi
     AnalyticsService.instance.trackEvent(AnalyticsEvent.favoriteAdded);
+    // NOT: Koleksiyon rozetleri sunucu tarafı Firestore trigger'ı
+    // (syncUserFavoriteBadges) ile verilir — istemci olayı gerekmez.
     
     // YENİ — Eğer kullanıcı `favoriteNewReviewEnabled: false` ise unsubscribe
     final user = await _firestore.collection('users').doc(uid).get();

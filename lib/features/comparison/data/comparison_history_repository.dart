@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import '../domain/models/comparison_history_entry.dart';
 import '../../admin/data/analytics_service.dart';
 import '../../admin/domain/models/analytics_event.dart';
+import '../../../services/engagement_service.dart';
 
 /// Kullanıcı başına en fazla bu kadar geçmiş kaydı tutulur.
 /// Aşıldığında en eski kayıtlar otomatik silinir (FIFO).
@@ -82,6 +83,7 @@ class ComparisonHistoryRepository {
 
       // Analytics: karşılaştırma yapıldı
       AnalyticsService.instance.trackEvent(AnalyticsEvent.comparisonMade);
+      EngagementService.instance.recordComparisonMade();
     } catch (e) {
       // Geçmiş kayıt başarısız olsa bile asıl karşılaştırma akışını bozma
       debugPrint('[ComparisonHistory] record failed: $e');

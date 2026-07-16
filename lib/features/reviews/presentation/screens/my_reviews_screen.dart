@@ -6,7 +6,7 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/utils/snackbar_helper.dart';
 import '../../../../core/widgets/widgets.dart';
 import '../../../auth/presentation/providers/auth_providers.dart';
-import '../../../profile/presentation/widgets/badges_row.dart';
+import '../../../profile/presentation/widgets/badge_showcase.dart';
 import '../../domain/models/review_model.dart';
 import '../providers/review_providers.dart';
 import '../widgets/review_card.dart';
@@ -52,12 +52,9 @@ class MyReviewsScreen extends ConsumerWidget {
             return Column(
               children: [
                 if (profile != null)
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-                    child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: BadgesRow(earnedBadges: profile.badges),
-                    ),
+                  const Padding(
+                    padding: EdgeInsets.fromLTRB(16, 16, 16, 0),
+                    child: BadgeShowcase(),
                   ),
                 if (pendingCount > 0)
                   Container(

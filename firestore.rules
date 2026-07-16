@@ -400,6 +400,14 @@ service cloud.firestore {
       allow delete: if false;
     }
 
+    // ─── Engagement istatistikleri (rozet ilerlemesi) ────────────
+    // Yalnız server yazar (recordEngagementEvent callable +
+    // evaluateHelpfulBadge); istemci sadece kendi ilerlemesini okur.
+    match /users/{userId}/stats/{docId} {
+      allow read: if isOwner(userId);
+      allow write: if false;
+    }
+
     // ─── AI Özet Cache ───────────────────────────────────────────
     match /aiSummaryCache/{cacheKey} {
       allow read: if isAuthenticated();

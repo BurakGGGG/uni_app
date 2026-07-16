@@ -14,6 +14,7 @@ import '../../../../l10n/generated/app_localizations.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../../auth/presentation/providers/auth_providers.dart';
 import '../widgets/delete_account_dialog.dart';
+import '../../../../services/engagement_service.dart';
 
 /// Profil düzenleme ekranı
 class EditProfileScreen extends ConsumerStatefulWidget {
@@ -156,6 +157,9 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
 
       // Provider'ı yenile
       ref.invalidate(currentUserProvider);
+
+      // Rozet: profil tamamlama değerlendirmesini tetikle
+      EngagementService.instance.recordProfileUpdated();
 
       if (mounted) {
         showAppSnackBar(

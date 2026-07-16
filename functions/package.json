@@ -10,6 +10,7 @@
     "deploy": "firebase deploy --only functions",
     "logs": "firebase functions:log",
     "backfill:public-profiles": "npm run build && node lib/scripts/backfill_public_profiles.js",
+    "backfill:badges": "npm run build && node lib/scripts/backfill_badges.js",
     "backfill:google-place-ids": "npm run build && node lib/scripts/backfill_google_place_ids.js",
     "admin:sync-claims": "npm run build && node lib/scripts/sync_admin_claims.js"
   },
