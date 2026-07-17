@@ -43,17 +43,23 @@ class ListHealthReport {
 }
 
 /// Tek bir liste öğesini profile göre kategorize eder; kıyaslanamıyorsa null.
-/// Öncelik motorla aynı: sıralama → taban puan.
+/// Öncelik motorla aynı: sıralama (gerçek → [estimatedStudentRank] tahmini)
+/// → taban puan. Tahmini sırayı çağıran hesaplar (saflık korunur) —
+/// `RankEstimator.estimateRank(profile.placementScore, profile.scoreType)`.
 MatchCategory? categorizeListItem(
   PreferenceItem item,
-  StudentScoreProfile profile,
-) {
+  StudentScoreProfile profile, {
+  int? estimatedStudentRank,
+}) {
   final st = item.scoreType?.toUpperCase();
   if (st == null || st != profile.scoreType.toUpperCase()) return null;
 
+  final studentRank =
+      profile.hasRank ? profile.rank : estimatedStudentRank;
   final itemRank = item.ranking;
-  if (profile.hasRank && itemRank != null && itemRank > 0) {
-    return categorizeByRank(profile.rank!, itemRank);
+  if (studentRank != null && studentRank > 0 &&
+      itemRank != null && itemRank > 0) {
+    return categorizeByRank(studentRank, itemRank);
   }
   final base = item.baseScore;
   if (profile.hasScore && base != null && base > 0) {
@@ -64,8 +70,9 @@ MatchCategory? categorizeListItem(
 
 ListHealthReport analyzeListHealth(
   List<PreferenceItem> items,
-  StudentScoreProfile profile,
-) {
+  StudentScoreProfile profile, {
+  int? estimatedStudentRank,
+}) {
   final sorted = [...items]..sort((a, b) => a.order.compareTo(b.order));
 
   var guaranteed = 0;
@@ -76,7 +83,8 @@ ListHealthReport analyzeListHealth(
   PreferenceItem? firstTarget;
 
   for (final item in sorted) {
-    switch (categorizeListItem(item, profile)) {
+    switch (categorizeListItem(item, profile,
+        estimatedStudentRank: estimatedStudentRank)) {
       case MatchCategory.guaranteed:
         guaranteed++;
         firstGuaranteed ??= item;

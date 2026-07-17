@@ -312,7 +312,8 @@ class _WizardTransferCta extends ConsumerWidget {
                       StudentScoreProfile(
                         scoreType: result.scoreType,
                         placementScore: result.calculatedScore,
-                        year: 2025,
+                        // Robot giriş ekranıyla aynı: profil yılı = bu yıl.
+                        year: DateTime.now().year,
                         updatedAt: DateTime.now(),
                       ),
                     );

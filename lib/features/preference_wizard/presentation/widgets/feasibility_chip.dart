@@ -64,7 +64,11 @@ class FeasibilityChip extends ConsumerWidget {
     }
     final base = baseScore ?? 0;
     final refRank = (ranking != null && ranking! > 0) ? ranking : null;
-    final canUseRank = profile.hasRank && refRank != null;
+    // Öğrenci sırası: gerçek sıra > puandan tahmin (eğri hazırsa) > yok.
+    // Tahminci yüklenene dek puan yoluna düşer — rozet yine gösterilir.
+    final estimator = ref.watch(rankEstimatorProvider).valueOrNull;
+    final student = resolveStudentRank(profile, estimator: estimator);
+    final canUseRank = student != null && refRank != null;
     final canUseScore = profile.hasScore && base > 0;
     // Ne sıralama ne puan sinyali var — kıyaslanamaz.
     if (!canUseRank && !canUseScore) return const SizedBox.shrink();
@@ -78,18 +82,28 @@ class FeasibilityChip extends ConsumerWidget {
     final MatchCategory category;
     final MatchBasis basis;
     if (canUseRank) {
-      category = categorizeByRank(profile.rank!, refRank);
-      basis = MatchBasis.rank;
+      category = categorizeByRank(student.rank, refRank);
+      basis = student.basis;
     } else {
       category = categorizeByScore(profile.placementScore, base);
       basis = MatchBasis.score;
     }
 
     final style = _styleFor(category);
-    final tooltip = basis == MatchBasis.rank && profile.hasRank
-        ? 'Sıralaman ${profile.rank} · taban sıralama ~$refRank'
-        : 'Puanın ${profile.placementScore.toStringAsFixed(1)} · taban '
-            '${base.toStringAsFixed(1)}';
+    final String tooltip;
+    switch (basis) {
+      case MatchBasis.rank:
+        tooltip = 'Sıralaman ${student!.rank} · taban sıralama ~$refRank';
+        break;
+      case MatchBasis.estimatedRank:
+        tooltip = 'Tahmini sıralaman ~${student!.rank} · taban sıralama '
+            '~$refRank';
+        break;
+      case MatchBasis.score:
+        tooltip = 'Puanın ${profile.placementScore.toStringAsFixed(1)} · '
+            'taban ${base.toStringAsFixed(1)}';
+        break;
+    }
 
     return Tooltip(
       message: tooltip,

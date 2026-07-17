@@ -46,7 +46,13 @@ class ListHealthPanel extends ConsumerWidget {
       );
     }
 
-    final report = analyzeListHealth(items, profile);
+    // Sırasız (yalnız puanlı) profilde tahmini sırayla motorla aynı yol.
+    final estimator = ref.watch(rankEstimatorProvider).valueOrNull;
+    final estimatedRank = profile.hasRank || !profile.hasScore
+        ? null
+        : estimator?.estimateRank(profile.placementScore, profile.scoreType);
+    final report = analyzeListHealth(items, profile,
+        estimatedStudentRank: estimatedRank);
     if (report.rated == 0 && report.unrated == 0) {
       return const SizedBox.shrink();
     }

@@ -200,23 +200,37 @@ extension DepartmentScoreFallback on DepartmentModel {
 
   /// Eşleştirme için referans başarı sıralaması: "en güncel mevcut (>0)" sıralama.
   ///
-  /// 2025 verisinde `ranking` çoğunlukla 0 olduğundan, sıfırsa `previousYears`'ın
-  /// en büyük yılından başlayarak ilk `ranking > 0` değerine düşer. Hiçbiri yoksa
-  /// legacy `ranking` alanına bakar, o da yoksa null döner.
-  int? get rankingForMatching {
+  /// 2025 verisinde 90 programda (%1,2) `ranking` 0 olduğundan, sıfırsa
+  /// `previousYears`'ın en büyük yılından başlayarak ilk `ranking > 0` değerine
+  /// düşer. Hiçbiri yoksa legacy `ranking` alanına bakar, o da yoksa null döner.
+  int? get rankingForMatching => rankingForMatchingWithYear?.rank;
+
+  /// [rankingForMatching] + sıranın hangi yıldan geldiği. Legacy `ranking`
+  /// alanına düşüldüyse yıl bilinmez → `year: 0`.
+  ({int rank, int year})? get rankingForMatchingWithYear {
     final sd = scoreData;
     if (sd != null) {
-      if (sd.ranking > 0) return sd.ranking;
+      if (sd.ranking > 0) return (rank: sd.ranking, year: sd.year);
       final years = sd.previousYears.keys.toList()
         ..sort((a, b) => b.compareTo(a));
       for (final y in years) {
         final r = sd.previousYears[y]!.ranking;
-        if (r > 0) return r;
+        if (r > 0) return (rank: r, year: y);
       }
     }
     final legacy = ranking;
-    if (legacy != null && legacy > 0) return legacy;
+    if (legacy != null && legacy > 0) return (rank: legacy, year: 0);
     return null;
+  }
+
+  /// Referans sıranın bir önceki yıldaki karşılığı (trend/oynaklık sinyali
+  /// için). Referans yıl y ise y-1'in sırası; yoksa null.
+  int? get previousRankingForMatching {
+    final sd = scoreData;
+    final ref = rankingForMatchingWithYear;
+    if (sd == null || ref == null || ref.year == 0) return null;
+    final prev = sd.previousYears[ref.year - 1];
+    return (prev != null && prev.ranking > 0) ? prev.ranking : null;
   }
 }
 
