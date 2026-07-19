@@ -10,8 +10,9 @@ enum MatchCategory {
 
 /// Eşleşmenin hangi sinyale göre kategorize edildiği (rozet metni için).
 enum MatchBasis {
-  score, // taban puanı farkı
-  rank,  // başarı sıralaması marjı
+  score, // taban puanı farkı (son çare)
+  rank, // başarı sıralaması marjı (öğrencinin gerçek sırası)
+  estimatedRank, // puandan tahmin edilen sıra marjı
 }
 
 /// Tek bir üniversite-bölüm eşleşmesi
@@ -26,6 +27,14 @@ class UniversityMatch {
   /// Kategori hangi sinyalden çıktı (rozet metni ve sıralama için).
   final MatchBasis matchBasis;
 
+  /// Sürekli uygunluk skoru 0-100 (yalnız sıra-bazlı eşleşmelerde; puan-farkı
+  /// son çare yolunda null). Kategori bu skordan türer.
+  final int? fitScore;
+
+  /// Referans taban sırasının ait olduğu YKS yılı (bayat veri etiketi için;
+  /// legacy veride yıl bilinmiyorsa null).
+  final int? refRankYear;
+
   const UniversityMatch({
     required this.department,
     required this.university,
@@ -34,6 +43,8 @@ class UniversityMatch {
     this.departmentRanking,
     required this.scoreDifference,
     this.matchBasis = MatchBasis.score,
+    this.fitScore,
+    this.refRankYear,
   });
 }
 

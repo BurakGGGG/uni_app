@@ -4,6 +4,9 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../assistant/domain/robot_brain.dart';
+import '../../../assistant/presentation/widgets/robot_avatar.dart';
+import '../../../assistant/presentation/widgets/robot_speech_bubble.dart';
 import '../../../monetization/domain/enums/subscription_tier.dart';
 import '../../../monetization/presentation/providers/subscription_providers.dart';
 import '../../../preference_lists/domain/models/preference_list_model.dart';
@@ -25,7 +28,7 @@ class ListHealthPanel extends ConsumerWidget {
     final profile = ref.watch(studentScoreProfileProvider);
     if (profile == null || profile.scoreType.isEmpty) {
       return _CtaCard(
-        icon: Icons.smart_toy_rounded,
+        leading: const RobotAvatar(size: 26, animated: false),
         title: 'Listenin sağlığını gör',
         subtitle: 'Puanını ya da sıralamanı gir, listenin dengesini ve '
             'risklerini analiz edelim.',
@@ -46,10 +49,17 @@ class ListHealthPanel extends ConsumerWidget {
       );
     }
 
-    final report = analyzeListHealth(items, profile);
+    // Sırasız (yalnız puanlı) profilde tahmini sırayla motorla aynı yol.
+    final estimator = ref.watch(rankEstimatorProvider).valueOrNull;
+    final estimatedRank = profile.hasRank || !profile.hasScore
+        ? null
+        : estimator?.estimateRank(profile.placementScore, profile.scoreType);
+    final report = analyzeListHealth(items, profile,
+        estimatedStudentRank: estimatedRank);
     if (report.rated == 0 && report.unrated == 0) {
       return const SizedBox.shrink();
     }
+    final robotMsg = RobotBrain.listHealthComment(report);
 
     return Container(
       padding: const EdgeInsets.all(14),
@@ -63,8 +73,7 @@ class ListHealthPanel extends ConsumerWidget {
         children: [
           Row(
             children: [
-              const Icon(Icons.monitor_heart_rounded,
-                  size: 18, color: AppColors.primary),
+              RobotAvatar(size: 22, animated: false, mood: robotMsg.mood),
               const SizedBox(width: 8),
               Text(
                 'Liste Sağlığı',
@@ -112,6 +121,8 @@ class ListHealthPanel extends ConsumerWidget {
             ),
             const SizedBox(height: 12),
           ],
+          RobotSpeechBubble(message: robotMsg, dense: true, typewriter: false),
+          const SizedBox(height: 10),
           for (final note in report.notes) _NoteRow(note: note),
           if (report.likelyPlacement != null) ...[
             const SizedBox(height: 10),
@@ -271,18 +282,20 @@ class _NoteRow extends StatelessWidget {
 }
 
 class _CtaCard extends StatelessWidget {
-  final IconData icon;
+  final IconData? icon;
+  final Widget? leading;
   final Color? iconColor;
   final String title;
   final String subtitle;
   final VoidCallback onTap;
   const _CtaCard({
-    required this.icon,
+    this.icon,
+    this.leading,
     this.iconColor,
     required this.title,
     required this.subtitle,
     required this.onTap,
-  });
+  }) : assert(icon != null || leading != null);
 
   @override
   Widget build(BuildContext context) {
@@ -298,7 +311,7 @@ class _CtaCard extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Icon(icon, size: 22, color: color),
+            leading ?? Icon(icon, size: 22, color: color),
             const SizedBox(width: 12),
             Expanded(
               child: Column(

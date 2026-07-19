@@ -6,6 +6,10 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../admin/data/analytics_service.dart';
 import '../../../admin/domain/models/analytics_event.dart';
+import '../../../assistant/domain/robot_mood.dart';
+import '../../../assistant/domain/robot_scripts.dart';
+import '../../../assistant/presentation/providers/assistant_providers.dart';
+import '../../../assistant/presentation/widgets/robot_avatar.dart';
 import '../../../monetization/domain/enums/subscription_tier.dart';
 import '../../../monetization/presentation/providers/subscription_providers.dart';
 import '../../../score_calculator/domain/models/match_result.dart';
@@ -13,8 +17,12 @@ import '../../domain/models/wizard_filter.dart';
 import '../../domain/preference_match_engine.dart';
 import '../providers/preference_wizard_providers.dart';
 import '../widgets/auto_build_list_sheet.dart';
+import '../widgets/compare_matches_sheet.dart';
+import '../widgets/wizard_category_bar.dart';
+import '../widgets/wizard_empty_state.dart';
 import '../widgets/wizard_filter_sheet.dart';
 import '../widgets/wizard_recommendation_card.dart';
+import '../widgets/wizard_summary_header.dart';
 
 /// Ücretsiz kullanıcıya kategori başına gösterilen sonuç sayısı.
 const int _kFreePerCategory = 3;
@@ -34,7 +42,33 @@ class _PreferenceWizardResultsScreenState
   /// Seçili kategori sekmesi (null = tümü görünür).
   MatchCategory? _focus;
 
+  /// Karşılaştırma için uzun basışla seçilen program id'leri (en çok 3).
+  final Set<String> _compareIds = {};
+
   late final TextEditingController _searchCtrl;
+
+  void _toggleCompare(String deptId) {
+    setState(() {
+      if (!_compareIds.remove(deptId)) {
+        if (_compareIds.length >= 3) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+                content: Text('En fazla 3 program karşılaştırılabilir')),
+          );
+          return;
+        }
+        _compareIds.add(deptId);
+      }
+    });
+  }
+
+  void _showCompare(PreferenceMatchResult result) {
+    final all = [...result.guaranteed, ...result.target, ...result.dream];
+    final picks =
+        all.where((m) => _compareIds.contains(m.department.id)).toList();
+    if (picks.length < 2) return;
+    showCompareMatchesSheet(context, picks);
+  }
 
   @override
   void initState() {
@@ -81,6 +115,20 @@ class _PreferenceWizardResultsScreenState
 
     return Scaffold(
       backgroundColor: AppColors.backgroundFor(context),
+      floatingActionButton: _compareIds.length >= 2 &&
+              resultAsync.valueOrNull != null
+          ? FloatingActionButton.extended(
+              onPressed: () => _showCompare(resultAsync.value!),
+              backgroundColor: AppColors.primary,
+              icon: const Icon(Icons.compare_arrows_rounded,
+                  color: Colors.white),
+              label: Text(
+                'Karşılaştır (${_compareIds.length})',
+                style: const TextStyle(
+                    color: Colors.white, fontWeight: FontWeight.bold),
+              ),
+            )
+          : null,
       appBar: AppBar(
         backgroundColor: AppColors.backgroundFor(context),
         elevation: 0,
@@ -104,10 +152,22 @@ class _PreferenceWizardResultsScreenState
         ],
       ),
       body: resultAsync.when(
-        loading: () => const Center(
-          child: CircularProgressIndicator(color: AppColors.primary),
+        loading: () => Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const RobotAvatar(size: 72, mood: RobotMood.thinking),
+              const SizedBox(height: 14),
+              Text(
+                kResultsLoadingText,
+                style: AppTextStyles.bodyMedium.copyWith(
+                  color: AppColors.textSecondaryFor(context),
+                ),
+              ),
+            ],
+          ),
         ),
-        error: (e, _) => Center(child: Text('Bir hata oluştu: $e')),
+        error: (e, _) => const WizardErrorState(),
         data: (result) {
           if (result == null) {
             return Center(
@@ -127,27 +187,43 @@ class _PreferenceWizardResultsScreenState
           return CustomScrollView(
             slivers: [
               SliverToBoxAdapter(
-                child: _SummaryHeader(
+                child: WizardSummaryHeader(
                   scoreType: profile.scoreType,
                   score: profile.placementScore,
                   rank: profile.hasRank ? profile.rank : null,
                   total: result.total,
+                  message:
+                      ref.watch(robotResultsMessageProvider).valueOrNull,
                 ),
               ),
               SliverToBoxAdapter(child: _SearchField(controller: _searchCtrl)),
               if (result.total == 0)
                 SliverFillRemaining(
                   hasScrollBody: false,
-                  child: _EmptyResults(hasFilter: filter.hasAnyFilter),
+                  child: WizardEmptyResults(hasFilter: filter.hasAnyFilter),
                 )
               else ...[
                 SliverToBoxAdapter(
-                  child: _CategoryBar(
+                  child: WizardCategoryBar(
                     result: result,
                     focus: _focus,
                     onChanged: (c) => setState(() => _focus = c),
                   ),
                 ),
+                if (_compareIds.isEmpty)
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(24, 8, 24, 0),
+                      child: Text(
+                        'İpucu: iki programı karşılaştırmak için kartlara '
+                        'uzun bas.',
+                        style: AppTextStyles.labelSmall.copyWith(
+                          color: AppColors.textTertiaryFor(context),
+                          fontSize: 10.5,
+                        ),
+                      ),
+                    ),
+                  ),
                 if (_focus == null || _focus == MatchCategory.guaranteed)
                   ..._categorySlivers(
                     context,
@@ -231,7 +307,11 @@ class _PreferenceWizardResultsScreenState
         padding: const EdgeInsets.symmetric(horizontal: 20),
         sliver: SliverList.builder(
           itemCount: shown.length,
-          itemBuilder: (_, i) => WizardRecommendationCard(match: shown[i]),
+          itemBuilder: (_, i) => WizardRecommendationCard(
+            match: shown[i],
+            selected: _compareIds.contains(shown[i].department.id),
+            onLongPress: () => _toggleCompare(shown[i].department.id),
+          ),
         ),
       ),
       if (hiddenCount > 0)
@@ -260,119 +340,6 @@ class _CategoryMeta {
   final String title;
   final Color color;
   const _CategoryMeta(this.title, this.color);
-}
-
-class _SummaryHeader extends StatelessWidget {
-  final String scoreType;
-  final double score;
-  final int? rank;
-  final int total;
-
-  const _SummaryHeader({
-    required this.scoreType,
-    required this.score,
-    required this.rank,
-    required this.total,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          margin: const EdgeInsets.fromLTRB(20, 12, 20, 4),
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            gradient: AppColors.heroGradientFor(context),
-            borderRadius: BorderRadius.circular(18),
-          ),
-          child: Row(
-            children: [
-              // Puansız (sadece sıralamayla) profillerde puan pili gizlenir.
-              if (score > 0)
-                _Pill(
-                    label: 'Puan',
-                    value: '${score.toStringAsFixed(1)} $scoreType')
-              else if (rank != null)
-                _Pill(label: 'Sıralama', value: '${_fmt(rank!)} $scoreType'),
-              const SizedBox(width: 10),
-              if (score > 0 && rank != null)
-                _Pill(label: 'Sıralama', value: _fmt(rank!))
-              else
-                _Pill(label: 'Eşleşen', value: '$total program'),
-              const Spacer(),
-              const Icon(Icons.smart_toy_rounded,
-                  color: Colors.white, size: 30),
-            ],
-          ),
-        ),
-        // Kesinlik iddiası yok — öneriler geçmiş yıl verisine dayalı tahmin.
-        Padding(
-          padding: const EdgeInsets.fromLTRB(24, 6, 24, 0),
-          child: Row(
-            children: [
-              Icon(Icons.info_outline_rounded,
-                  size: 13, color: AppColors.textTertiaryFor(context)),
-              const SizedBox(width: 5),
-              Expanded(
-                child: Text(
-                  'Öneriler geçmiş yıl verilerine dayalı tahmindir, '
-                  'yerleşme garantisi vermez.',
-                  style: AppTextStyles.labelSmall.copyWith(
-                    color: AppColors.textTertiaryFor(context),
-                    fontSize: 10.5,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  static String _fmt(int rank) {
-    final s = rank.toString();
-    final buf = StringBuffer();
-    for (var i = 0; i < s.length; i++) {
-      if (i > 0 && (s.length - i) % 3 == 0) buf.write('.');
-      buf.write(s[i]);
-    }
-    return buf.toString();
-  }
-}
-
-class _Pill extends StatelessWidget {
-  final String label;
-  final String value;
-  const _Pill({required this.label, required this.value});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.18),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label,
-            style: AppTextStyles.labelSmall
-                .copyWith(color: Colors.white.withValues(alpha: 0.85)),
-          ),
-          Text(
-            value,
-            style: AppTextStyles.titleSmall
-                .copyWith(color: Colors.white, fontWeight: FontWeight.w800),
-          ),
-        ],
-      ),
-    );
-  }
 }
 
 /// Sonuç içinde bölüm/fakülte araması — binlerce kayıt elle gezilmesin.
@@ -438,99 +405,6 @@ class _SearchField extends ConsumerWidget {
             borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
           ),
         ),
-      ),
-    );
-  }
-}
-
-/// Kategorilere hızlı odaklanma sekmeleri: Yüksek şans / Ulaşılabilir /
-/// Zorlayıcı. Seçiliye tekrar dokununca tümü görünür.
-class _CategoryBar extends StatelessWidget {
-  final PreferenceMatchResult result;
-  final MatchCategory? focus;
-  final ValueChanged<MatchCategory?> onChanged;
-
-  const _CategoryBar({
-    required this.result,
-    required this.focus,
-    required this.onChanged,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    Widget chip(String label, MatchCategory category, Color color) {
-      final selected = focus == category;
-      final count = result.forCategory(category).length;
-      return Expanded(
-        child: GestureDetector(
-          onTap: () => onChanged(selected ? null : category),
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 150),
-            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
-            decoration: BoxDecoration(
-              color: selected
-                  ? color.withValues(alpha: 0.14)
-                  : Colors.transparent,
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(
-                color: selected ? color : Colors.transparent,
-              ),
-            ),
-            child: FittedBox(
-              fit: BoxFit.scaleDown,
-              child: Row(
-                children: [
-                  Container(
-                    width: 8,
-                    height: 8,
-                    decoration:
-                        BoxDecoration(color: color, shape: BoxShape.circle),
-                  ),
-                  const SizedBox(width: 5),
-                  Text(
-                    label,
-                    style: AppTextStyles.labelSmall.copyWith(
-                      color: selected
-                          ? color
-                          : AppColors.textSecondaryFor(context),
-                      fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-                    ),
-                  ),
-                  const SizedBox(width: 3),
-                  Text(
-                    '$count',
-                    style: AppTextStyles.labelSmall.copyWith(
-                      color: selected
-                          ? color
-                          : AppColors.textTertiaryFor(context),
-                      fontWeight: FontWeight.w700,
-                      fontSize: 10,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      );
-    }
-
-    return Container(
-      margin: const EdgeInsets.fromLTRB(20, 10, 20, 0),
-      padding: const EdgeInsets.all(4),
-      decoration: BoxDecoration(
-        color: AppColors.surfaceVariantFor(context),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.borderLightFor(context)),
-      ),
-      child: Row(
-        children: [
-          chip('Yüksek şans', MatchCategory.guaranteed, AppColors.success),
-          const SizedBox(width: 4),
-          chip('Ulaşılabilir', MatchCategory.target, AppColors.warning),
-          const SizedBox(width: 4),
-          chip('Zorlayıcı', MatchCategory.dream, AppColors.error),
-        ],
       ),
     );
   }
@@ -653,46 +527,3 @@ class _AutoBuildCta extends ConsumerWidget {
   }
 }
 
-class _EmptyResults extends ConsumerWidget {
-  final bool hasFilter;
-  const _EmptyResults({required this.hasFilter});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.search_off_rounded,
-                size: 56, color: AppColors.textTertiaryFor(context)),
-            const SizedBox(height: 16),
-            Text(
-              hasFilter ? 'Filtrelere uyan program yok' : 'Eşleşen program yok',
-              style:
-                  AppTextStyles.titleMedium.copyWith(fontWeight: FontWeight.w700),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              hasFilter
-                  ? 'Filtreleri gevşetmeyi dene.'
-                  : 'Puan türünü ve puanını kontrol et.',
-              textAlign: TextAlign.center,
-              style: AppTextStyles.bodyMedium
-                  .copyWith(color: AppColors.textSecondaryFor(context)),
-            ),
-            if (hasFilter) ...[
-              const SizedBox(height: 16),
-              OutlinedButton(
-                onPressed: () => ref.read(wizardFilterProvider.notifier).state =
-                    const WizardFilter(),
-                child: const Text('Filtreleri temizle'),
-              ),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
-}

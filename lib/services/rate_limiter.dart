@@ -100,6 +100,13 @@ class AppRateLimiters {
     window: const Duration(minutes: 1),
   );
 
+  /// AI öneri zenginleştirme (Üni robotu) — dakikada 3 istek.
+  /// Sunucu penceresi daha geniş (12/dk); bu istemci emniyeti.
+  static final aiRecommendation = RateLimiter(
+    maxRequests: 3,
+    window: const Duration(minutes: 1),
+  );
+
   /// Genel karşılaştırma — dakikada 10 istek.
   static final comparison = RateLimiter(
     maxRequests: 10,
@@ -121,6 +128,7 @@ class AppRateLimiters {
   /// Tüm limiter'ları sıfırla (kullanıcı değişikliğinde).
   static void resetAll() {
     aiComparison.reset();
+    aiRecommendation.reset();
     comparison.reset();
     reviewSubmit.reset();
     search.reset();

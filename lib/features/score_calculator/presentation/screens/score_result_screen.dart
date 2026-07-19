@@ -9,6 +9,8 @@ import '../providers/score_calculator_providers.dart';
 import '../widgets/university_match_card.dart';
 import '../../../admin/data/analytics_service.dart';
 import '../../../admin/domain/models/analytics_event.dart';
+import '../../../assistant/domain/robot_mood.dart';
+import '../../../assistant/presentation/widgets/robot_avatar.dart';
 import '../../../preference_wizard/domain/models/student_score_profile.dart';
 import '../../../preference_wizard/presentation/providers/preference_wizard_providers.dart';
 import '../../domain/models/match_result.dart';
@@ -281,8 +283,12 @@ class _WizardTransferCta extends ConsumerWidget {
         children: [
           Row(
             children: [
-              const Icon(Icons.smart_toy_rounded,
-                  color: AppColors.secondary, size: 24),
+              const RobotAvatar(
+                size: 28,
+                animated: false,
+                mood: RobotMood.happy,
+                bodyColor: AppColors.secondary,
+              ),
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
@@ -295,8 +301,8 @@ class _WizardTransferCta extends ConsumerWidget {
           ),
           const SizedBox(height: 6),
           Text(
-            'Tercih Robotu bu puanı kullanarak tüm alanlardaki programları '
-            'şans durumuna göre listeler ve tercih listeni kurmana yardım eder.',
+            'Bu puanla sana neler bulabileceğime bakalım mı? Programları '
+            'şans durumuna göre gruplar, listeni kurmana yardım ederim.',
             style: AppTextStyles.bodySmall.copyWith(
               color: AppColors.textSecondaryFor(context),
               height: 1.4,
@@ -312,7 +318,8 @@ class _WizardTransferCta extends ConsumerWidget {
                       StudentScoreProfile(
                         scoreType: result.scoreType,
                         placementScore: result.calculatedScore,
-                        year: 2025,
+                        // Robot giriş ekranıyla aynı: profil yılı = bu yıl.
+                        year: DateTime.now().year,
                         updatedAt: DateTime.now(),
                       ),
                     );

@@ -1,5 +1,6 @@
 import 'models/score_input.dart';
 import 'models/match_result.dart';
+import '../../preference_wizard/domain/preference_match_engine.dart';
 import '../../university/domain/models/department_model.dart';
 import '../../university/domain/models/university_model.dart';
 
@@ -184,14 +185,8 @@ class ScoreCalculatorEngine {
       final depBaseScore = dept.effectiveBaseScore;
       final diff = placementScore - depBaseScore;
 
-      MatchCategory category;
-      if (diff >= 2) {
-        category = MatchCategory.guaranteed;
-      } else if (diff >= -3) {
-        category = MatchCategory.target;
-      } else {
-        category = MatchCategory.dream;
-      }
+      // Eşikler match_constants.dart'ta — robotla aynı kaynak.
+      final category = categorizeByScore(placementScore, depBaseScore);
 
       // Seçilen yıla göre sıralama verisini çöz
       final ranking = _resolveRanking(dept, input.selectedYear);

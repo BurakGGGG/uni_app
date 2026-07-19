@@ -4,9 +4,13 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../assistant/domain/robot_scripts.dart';
+import '../../../assistant/presentation/providers/assistant_providers.dart';
+import '../../../assistant/presentation/widgets/robot_avatar.dart';
 import '../../../score_calculator/domain/models/match_result.dart';
 import '../../../university/domain/models/department_model.dart';
 import '../../../university/presentation/widgets/score_badge.dart';
+import '../../domain/match_reason.dart';
 import '../../domain/similar_programs.dart';
 import '../providers/preference_wizard_providers.dart';
 import 'add_to_list_sheet.dart';
@@ -14,10 +18,19 @@ import 'feasibility_chip.dart';
 import 'similar_programs_sheet.dart';
 
 /// Tercih robotu öneri kartı — üni logosu/marka, bölüm, taban/sıralama/kontenjan
-/// mini-stat, uygunluk rozeti ve "+ Listeye ekle".
+/// mini-stat, uygunluk rozeti, fit skoru, gerekçe ve "+ Listeye ekle".
+/// [onLongPress] verilirse uzun basış karşılaştırma seçimini değiştirir;
+/// [selected] kart çerçevesini vurgular.
 class WizardRecommendationCard extends ConsumerWidget {
   final UniversityMatch match;
-  const WizardRecommendationCard({super.key, required this.match});
+  final bool selected;
+  final VoidCallback? onLongPress;
+  const WizardRecommendationCard({
+    super.key,
+    required this.match,
+    this.selected = false,
+    this.onLongPress,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -32,19 +45,39 @@ class WizardRecommendationCard extends ConsumerWidget {
     final isScholarship = desc.contains('Burslu');
     // "(Burslu)" çip olarak gösterildiğinden metinden çıkar.
     final descText = desc.replaceAll('(Burslu)', '').trim();
-    final trendDelta = dept.scoreData?.yearOverYearDelta;
-    final notFilled =
-        placed != null && quota != null && quota > 0 && placed < quota;
+    // Trend/boş kontenjan artık gerekçe satırında — çift gösterim yok.
+    final profile = ref.watch(studentScoreProfileProvider);
+    final reasons =
+        profile == null ? const <MatchReason>[] : buildMatchReasons(match, profile);
+    // Faz 2: Pro'da LLM'in ilk önerilere yazdığı kişisel not (yoksa null).
+    final robotNote =
+        ref.watch(robotCardNotesProvider)['${uni.id}_${dept.id}'];
+    final categoryColor = _categoryColor(match.category);
+    // Referans sıra eski yıldansa mini-stat etiketi yılı söyler.
+    final staleYear = match.refRankYear != null &&
+            dept.scoreData != null &&
+            match.refRankYear! < dept.scoreData!.year
+        ? match.refRankYear
+        : null;
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 10),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: AppColors.surfaceFor(context),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.borderLightFor(context)),
-      ),
-      child: Column(
+    return GestureDetector(
+      onLongPress: onLongPress,
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 10),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: selected
+              ? AppColors.primary.withValues(alpha: 0.06)
+              : AppColors.surfaceFor(context),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: selected
+                ? AppColors.primary
+                : AppColors.borderLightFor(context),
+            width: selected ? 1.5 : 1,
+          ),
+        ),
+        child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
@@ -142,6 +175,10 @@ class WizardRecommendationCard extends ConsumerWidget {
             children: [
               // Uygunluk çipi — grup başlığı zaten kategoriyi verdiğinden gate yok.
               FeasibilityChip.forDepartment(dept, enforceGate: false, compact: true),
+              if (match.fitScore != null) ...[
+                const SizedBox(width: 6),
+                _FitMeter(fit: match.fitScore!, color: categoryColor),
+              ],
               const Spacer(),
               FeasibilityMiniStat(
                 icon: Icons.trending_up_rounded,
@@ -149,33 +186,15 @@ class WizardRecommendationCard extends ConsumerWidget {
                 value: match.departmentBaseScore.toStringAsFixed(1),
                 color: AppColors.primary,
               ),
-              // Geçen yıla göre taban trendi: yükselen taban = zorlaşıyor.
-              if (trendDelta != null && trendDelta.abs() >= 1)
-                Padding(
-                  padding: const EdgeInsets.only(left: 3),
-                  child: Tooltip(
-                    message: '${dept.scoreData!.year - 1}→'
-                        '${dept.scoreData!.year}: '
-                        '${trendDelta > 0 ? '+' : ''}'
-                        '${trendDelta.toStringAsFixed(1)} puan',
-                    child: Icon(
-                      trendDelta > 0
-                          ? Icons.north_east_rounded
-                          : Icons.south_east_rounded,
-                      size: 13,
-                      color: trendDelta > 0
-                          ? AppColors.error
-                          : AppColors.success,
-                    ),
-                  ),
-                ),
               if (ranking != null && ranking > 0) ...[
                 const SizedBox(width: 10),
                 FeasibilityMiniStat(
                   icon: Icons.emoji_events_rounded,
-                  label: 'Sıra',
+                  label: staleYear != null ? '$staleYear sırası' : 'Sıra',
                   value: _formatRank(ranking),
-                  color: AppColors.warning,
+                  color: staleYear != null
+                      ? AppColors.textTertiaryFor(context)
+                      : AppColors.warning,
                 ),
               ],
               if (quota != null && quota > 0) ...[
@@ -189,25 +208,13 @@ class WizardRecommendationCard extends ConsumerWidget {
               ],
             ],
           ),
-          if (notFilled) ...[
+          if (reasons.isNotEmpty) ...[
             const SizedBox(height: 8),
-            Row(
-              children: [
-                const Icon(Icons.event_seat_rounded,
-                    size: 13, color: AppColors.info),
-                const SizedBox(width: 5),
-                Expanded(
-                  child: Text(
-                    'Geçen yıl kontenjan boş kaldı ($placed/$quota yerleşti)',
-                    style: AppTextStyles.labelSmall.copyWith(
-                      color: AppColors.info,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 11,
-                    ),
-                  ),
-                ),
-              ],
-            ),
+            _ReasonLine(reasons: reasons, color: categoryColor),
+          ],
+          if (robotNote != null) ...[
+            const SizedBox(height: 8),
+            _RobotNote(text: robotNote),
           ],
           const SizedBox(height: 12),
           Row(
@@ -265,6 +272,7 @@ class WizardRecommendationCard extends ConsumerWidget {
               ),
             ),
         ],
+        ),
       ),
     );
   }
@@ -290,6 +298,147 @@ class WizardRecommendationCard extends ConsumerWidget {
     if (rank >= 1000000) return '${(rank / 1000000).toStringAsFixed(1)}M';
     if (rank >= 1000) return '${(rank / 1000).toStringAsFixed(0)}B';
     return '$rank';
+  }
+
+  static Color _categoryColor(MatchCategory category) {
+    switch (category) {
+      case MatchCategory.guaranteed:
+        return AppColors.success;
+      case MatchCategory.target:
+        return AppColors.warning;
+      case MatchCategory.dream:
+        return AppColors.error;
+    }
+  }
+}
+
+/// Kompakt uygunluk göstergesi: mini halka + "%73 uyum".
+class _FitMeter extends StatelessWidget {
+  final int fit;
+  final Color color;
+  const _FitMeter({required this.fit, required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return Tooltip(
+      message: 'Uygunluk skoru — sıralama marjı, taban trendi ve doluluk '
+          'sinyallerinden hesaplanır',
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SizedBox(
+            width: 16,
+            height: 16,
+            child: CircularProgressIndicator(
+              value: fit / 100,
+              strokeWidth: 2.5,
+              color: color,
+              backgroundColor: color.withValues(alpha: 0.15),
+            ),
+          ),
+          const SizedBox(width: 5),
+          Text(
+            '%$fit uyum',
+            style: AppTextStyles.labelSmall.copyWith(
+              color: color,
+              fontWeight: FontWeight.w700,
+              fontSize: 10.5,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Üni'nin LLM'den gelen kişisel notu (yalnız Pro, ilk 3 öneri).
+class _RobotNote extends StatelessWidget {
+  final String text;
+  const _RobotNote({required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+      decoration: BoxDecoration(
+        color: AppColors.primary.withValues(alpha: 0.06),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Padding(
+            padding: EdgeInsets.only(top: 1),
+            child: RobotAvatar(size: 16, animated: false),
+          ),
+          const SizedBox(width: 6),
+          Expanded(
+            child: Text.rich(
+              TextSpan(
+                children: [
+                  TextSpan(
+                    text: "$kRobotName'nin notu: ",
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.primary,
+                    ),
+                  ),
+                  TextSpan(text: text),
+                ],
+              ),
+              style: AppTextStyles.labelSmall.copyWith(
+                color: AppColors.textSecondaryFor(context),
+                fontSize: 11,
+                height: 1.3,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Tek satırlık "neden bu öneri" gerekçesi: ana cümle + kısa etiketler.
+class _ReasonLine extends StatelessWidget {
+  final List<MatchReason> reasons;
+  final Color color;
+  const _ReasonLine({required this.reasons, required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    // Kartta dürtme etiketi gösterilmez — başlıktaki banner zaten söylüyor.
+    final visible = reasons
+        .where((r) => r.kind != MatchReasonKind.estimatedNudge)
+        .toList();
+    if (visible.isEmpty) return const SizedBox.shrink();
+    final text = visible.map((r) => r.text).join(' · ');
+
+    return Tooltip(
+      message: text,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(top: 1.5),
+            child: Icon(Icons.auto_awesome_rounded, size: 12, color: color),
+          ),
+          const SizedBox(width: 5),
+          Expanded(
+            child: Text(
+              text,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: AppTextStyles.labelSmall.copyWith(
+                color: AppColors.textSecondaryFor(context),
+                fontSize: 11,
+                height: 1.25,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 
