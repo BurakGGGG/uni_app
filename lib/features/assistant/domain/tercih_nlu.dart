@@ -58,7 +58,115 @@ class TercihNlu {
   static final RegExp _binRe = RegExp(r'^bin(ler)?(de|e|i|ce)?$');
   static final RegExp _milyonRe = RegExp(r'^milyon(lar)?(da|a|u)?$');
 
+  /// Klausel ayracı: "İzmir olsun ama İstanbul olmasın".
+  static final RegExp _clauseSplitRe =
+      RegExp(r'\b(?:ama|fakat|ancak|lakin)\b', caseSensitive: false);
+
   WizardIntent parse(String utterance) {
+    final clauses = utterance
+        .split(_clauseSplitRe)
+        .where((c) => c.trim().isNotEmpty)
+        .toList();
+    if (clauses.isEmpty) return const WizardIntent();
+
+    String? scoreType;
+    int? rank;
+    double? score;
+    bool? onlyScholarship;
+    final cityIds = <String>{}, uniTypes = <String>{};
+    final languages = <String>{}, programTypes = <String>{};
+    final interestKeys = <String>{};
+    final depts = <DeptIntent>[];
+    final removeCityIds = <String>{}, removeUniTypes = <String>{};
+    final removeLanguages = <String>{}, removeProgramTypes = <String>{};
+    final removeInterestKeys = <String>{};
+    final removeDepts = <DeptIntent>[];
+    final unresolved = <String>[];
+
+    void addDeptTo(List<DeptIntent> list, DeptIntent d) {
+      if (!list.any((e) => e.query == d.query)) list.add(d);
+    }
+
+    for (final clause in clauses) {
+      final c = _parseClause(clause);
+      if (_isNegatedClause(clause)) {
+        // Olumsuz klausel: varlıklar taslaktan ÇIKARILIR. Sayısal alanlar
+        // alınmaz ("önlisans olmasın" türetilmiş TYT'yi de taşımasın).
+        removeCityIds.addAll(c.cityIds);
+        removeUniTypes.addAll(c.uniTypes);
+        removeLanguages.addAll(c.languages);
+        removeProgramTypes.addAll(c.programTypes);
+        removeInterestKeys.addAll(c.interestKeys);
+        for (final d in c.depts) {
+          addDeptTo(removeDepts, d);
+        }
+        // "burslu istemiyorum" → şart kalksın.
+        if (c.onlyScholarship == true) onlyScholarship = false;
+      } else {
+        scoreType ??= c.scoreType;
+        rank ??= c.rank;
+        score ??= c.score;
+        cityIds.addAll(c.cityIds);
+        uniTypes.addAll(c.uniTypes);
+        languages.addAll(c.languages);
+        programTypes.addAll(c.programTypes);
+        interestKeys.addAll(c.interestKeys);
+        for (final d in c.depts) {
+          addDeptTo(depts, d);
+        }
+        onlyScholarship ??= c.onlyScholarship;
+      }
+      if (c.unresolved.isNotEmpty) unresolved.add(c.unresolved);
+    }
+
+    return WizardIntent(
+      scoreType: scoreType,
+      rank: rank,
+      score: score,
+      cityIds: cityIds,
+      uniTypes: uniTypes,
+      languages: languages,
+      programTypes: programTypes,
+      onlyScholarship: onlyScholarship,
+      depts: depts,
+      interestKeys: interestKeys,
+      unresolved: unresolved.join(' '),
+      removeCityIds: removeCityIds,
+      removeUniTypes: removeUniTypes,
+      removeLanguages: removeLanguages,
+      removeProgramTypes: removeProgramTypes,
+      removeDepts: removeDepts,
+      removeInterestKeys: removeInterestKeys,
+    );
+  }
+
+  /// Klauselde olumsuzluk var mı ("istemiyorum", "olmasın", "hariç"…).
+  /// "İstanbul olmaz mı?" bir ÖNERİDİR — 'mı' takip eden 'olmaz' sayılmaz.
+  static bool _isNegatedClause(String clause) {
+    final tokens = _fold(clause).split(' ');
+    for (var i = 0; i < tokens.length; i++) {
+      final t = tokens[i];
+      if (t == 'olmaz' &&
+          i + 1 < tokens.length &&
+          tokens[i + 1].startsWith('mi')) {
+        continue;
+      }
+      if (_isNegationToken(t)) return true;
+    }
+    return false;
+  }
+
+  static bool _isNegationToken(String t) =>
+      t.startsWith('istemi') || // istemiyorum, istemiyoruz
+      t.startsWith('isteme') || // istemem, istemez, istemeyiz
+      t == 'olmasin' ||
+      t == 'olmaz' ||
+      t == 'haric' ||
+      t.startsWith('cikar') || // çıkar, çıkart
+      t == 'kaldir' ||
+      t == 'sil';
+
+  WizardIntent _parseClause(String utterance) {
     // 1) Sayı literallerini yakala, yer tutucuya çevir — fold noktalamayı
     //    sildiği için "80.000" önce güvenceye alınmalı.
     final numbers = <double>[];
@@ -303,6 +411,7 @@ class TercihNlu {
       if (used[i] || t.length < 2) continue;
       if (chatStopwords.contains(t)) continue;
       if (_isRankKeyword(t) || _isScoreKeyword(t)) continue;
+      if (_isNegationToken(t)) continue;
       if (_binRe.hasMatch(t) || _milyonRe.hasMatch(t) || t == 'yuzde') {
         continue;
       }

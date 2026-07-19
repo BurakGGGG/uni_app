@@ -137,6 +137,20 @@ class ChatWizardController extends StateNotifier<ChatWizardState> {
     }
   }
 
+  /// Kilitli serbest-yazı alanına dokunuş: Üni tatlı bir "yakında"
+  /// balonu basar. Üst üste dokunuşta tekrar etmez (spam olmasın).
+  void pokeLockedInput() {
+    final last = state.turns.isEmpty ? null : state.turns.last;
+    if (last is UniChatTurn &&
+        last.message.id == RobotScripts.chatComingSoon.id) {
+      return;
+    }
+    state = state.copyWith(turns: [
+      ...state.turns,
+      UniChatTurn(RobotScripts.chatComingSoon.toMessage()),
+    ]);
+  }
+
   Future<ChatEffect> tapChip(ChatChip chip) async {
     if (state.busy) return ChatEffect.none;
     state = state.copyWith(turns: [...state.turns, UserChatTurn(chip.label)]);

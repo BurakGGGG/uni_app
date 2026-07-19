@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -152,6 +154,9 @@ class _PreferenceWizardResultsScreenState
         ],
       ),
       body: resultAsync.when(
+        // Filtre/arama değişince eski liste yerinde kalsın: arama kutusu
+        // sökülmez, klavye kapanmaz; yalnız İLK yükleme robotu gösterir.
+        skipLoadingOnReload: true,
         loading: () => Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -344,22 +349,58 @@ class _CategoryMeta {
 
 /// Sonuç içinde bölüm/fakülte araması — binlerce kayıt elle gezilmesin.
 /// `wizardFilterProvider.deptQuery`'yi günceller (motor zaten filtreliyor).
-class _SearchField extends ConsumerWidget {
+///
+/// Her tuşta motor koşmasın diye yazma bittikten sonra uygulanır
+/// (debounce); klavyedeki arama tuşu anında uygular.
+class _SearchField extends ConsumerStatefulWidget {
   final TextEditingController controller;
   const _SearchField({required this.controller});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    void setQuery(String value) {
-      final notifier = ref.read(wizardFilterProvider.notifier);
-      notifier.state = notifier.state.copyWith(deptQuery: value);
-    }
+  ConsumerState<_SearchField> createState() => _SearchFieldState();
+}
 
+class _SearchFieldState extends ConsumerState<_SearchField> {
+  static const _debounceDelay = Duration(seconds: 3);
+  Timer? _debounce;
+
+  TextEditingController get controller => widget.controller;
+
+  @override
+  void initState() {
+    super.initState();
+    // Temizle (X) ikonunun görünürlüğü metne bağlı.
+    controller.addListener(_onControllerChanged);
+  }
+
+  @override
+  void dispose() {
+    _debounce?.cancel();
+    controller.removeListener(_onControllerChanged);
+    super.dispose();
+  }
+
+  void _onControllerChanged() => setState(() {});
+
+  void _apply(String value) {
+    _debounce?.cancel();
+    final notifier = ref.read(wizardFilterProvider.notifier);
+    notifier.state = notifier.state.copyWith(deptQuery: value);
+  }
+
+  void _onChanged(String value) {
+    _debounce?.cancel();
+    _debounce = Timer(_debounceDelay, () => _apply(value));
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
       child: TextField(
         controller: controller,
-        onChanged: setQuery,
+        onChanged: _onChanged,
+        onSubmitted: _apply,
         textInputAction: TextInputAction.search,
         style: AppTextStyles.bodyMedium,
         decoration: InputDecoration(
@@ -383,7 +424,7 @@ class _SearchField extends ConsumerWidget {
                   ),
                   onPressed: () {
                     controller.clear();
-                    setQuery('');
+                    _apply('');
                   },
                 ),
           isDense: true,

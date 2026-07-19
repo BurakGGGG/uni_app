@@ -612,7 +612,6 @@ class _EmptyState extends StatelessWidget {
               icon: const RobotAvatar(
                 size: 18,
                 animated: false,
-                bodyColor: AppColors.secondary,
               ),
               label: const Text('Tercih Robotu ile doldur'),
               style: OutlinedButton.styleFrom(

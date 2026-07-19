@@ -65,10 +65,16 @@ class WizardSummaryHeader extends StatelessWidget {
                   else
                     _Pill(label: 'Eşleşen', value: '$total program'),
                   const Spacer(),
-                  RobotAvatar(
-                    size: 40,
-                    mood: message?.mood ?? RobotMood.happy,
-                    bodyColor: Colors.white,
+                  Container(
+                    padding: const EdgeInsets.all(5),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.92),
+                      shape: BoxShape.circle,
+                    ),
+                    child: RobotAvatar(
+                      size: 40,
+                      mood: message?.mood ?? RobotMood.happy,
+                    ),
                   ),
                 ],
               ),

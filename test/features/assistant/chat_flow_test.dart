@@ -232,7 +232,8 @@ void main() {
       expect(r.effect, ChatEffect.goResults);
     });
 
-    test('Bilgilerimi güncelle → dolu taslakla onay özeti', () {
+    test('Bilgilerimi güncelle → taze yürüyüş, eski bilgiyle onaya ATLAMAZ',
+        () {
       final start = flow.start(profile: profile);
       final r = flow.handleChip(
         chipLabeled(start.chips, 'Bilgilerimi güncelle'),
@@ -240,8 +241,13 @@ void main() {
         step: start.step,
       );
       expect(r.messages.first.id, 'chat.update');
-      expect(r.messages.last.id, 'chat.confirm');
-      expect(r.messages.last.text, contains('45.000'));
+      // Eski davranış hatası: dolu taslak doğrudan onay özetine düşüyordu
+      // ve "güncelleme" hiç beklenmiyordu. Artık sorular baştan gelir.
+      expect(r.messages.last.id, 'chat.ask.type');
+      expect(r.step, ChatStep.scoreInfo);
+      expect(r.draft.scoreType, isNull);
+      expect(r.draft.rank, isNull);
+      expect(r.effect, ChatEffect.none);
     });
 
     test('Baştan başla taslağı sıfırlar', () {

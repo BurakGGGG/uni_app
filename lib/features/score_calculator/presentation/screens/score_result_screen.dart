@@ -287,7 +287,6 @@ class _WizardTransferCta extends ConsumerWidget {
                 size: 28,
                 animated: false,
                 mood: RobotMood.happy,
-                bodyColor: AppColors.secondary,
               ),
               const SizedBox(width: 10),
               Expanded(

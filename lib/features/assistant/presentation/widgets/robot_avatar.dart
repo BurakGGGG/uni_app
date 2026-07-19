@@ -19,8 +19,9 @@ class RobotAvatar extends StatefulWidget {
   final RobotMood mood;
   final bool animated;
 
-  /// Kafa rengi. null → [AppColors.primary]; gradient başlıklar üstünde
-  /// [Colors.white] verilmesi beklenir.
+  /// Kafa rengi. null → marka gradyanı ([AppColors.primary] →
+  /// [AppColors.secondary], mor→pembe); gradient zeminlerde tek düz renk
+  /// (örn. [Colors.white]) verilebilir.
   final Color? bodyColor;
 
   const RobotAvatar({
@@ -110,7 +111,11 @@ class _RobotAvatarState extends State<RobotAvatar>
 
   @override
   Widget build(BuildContext context) {
-    final body = widget.bodyColor ?? AppColors.primary;
+    final explicit = widget.bodyColor;
+    final top = explicit ?? AppColors.primary;
+    final bottom = explicit == null
+        ? AppColors.secondary
+        : Color.lerp(explicit, Colors.black, 0.10)!;
 
     Widget avatar;
     if (_shouldAnimate) {
@@ -120,7 +125,8 @@ class _RobotAvatarState extends State<RobotAvatar>
           size: Size.square(widget.size),
           painter: _RobotPainter(
             mood: widget.mood,
-            bodyColor: body,
+            bodyTop: top,
+            bodyBottom: bottom,
             bob: _idle!.value,
             blink: 1 - _blink!.value,
           ),
@@ -131,7 +137,8 @@ class _RobotAvatarState extends State<RobotAvatar>
         size: Size.square(widget.size),
         painter: _RobotPainter(
           mood: widget.mood,
-          bodyColor: body,
+          bodyTop: top,
+          bodyBottom: bottom,
           bob: 0,
           blink: 1,
         ),
@@ -158,7 +165,10 @@ class _RobotAvatarState extends State<RobotAvatar>
 /// Tüm ölçüler size oranı — s(0.5) = genişliğin yarısı.
 class _RobotPainter extends CustomPainter {
   final RobotMood mood;
-  final Color bodyColor;
+
+  /// Kafa gradyanının üst/alt rengi (varsayılan marka: mor→pembe).
+  final Color bodyTop;
+  final Color bodyBottom;
 
   /// 0-1 süzülme fazı (sinüs döngüsü).
   final double bob;
@@ -170,7 +180,8 @@ class _RobotPainter extends CustomPainter {
 
   const _RobotPainter({
     required this.mood,
-    required this.bodyColor,
+    required this.bodyTop,
+    required this.bodyBottom,
     required this.bob,
     required this.blink,
   });
@@ -183,12 +194,13 @@ class _RobotPainter extends CustomPainter {
     // Süzülme: tüm gövde hafifçe iner-çıkar.
     canvas.translate(0, math.sin(bob * 2 * math.pi) * s(0.03));
 
-    final darker = Color.lerp(bodyColor, Colors.black, 0.22)!;
+    final darker = Color.lerp(
+        Color.lerp(bodyTop, bodyBottom, 0.5)!, Colors.black, 0.22)!;
     final bodyPaint = Paint()
       ..shader = LinearGradient(
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
-        colors: [bodyColor, Color.lerp(bodyColor, Colors.black, 0.10)!],
+        colors: [bodyTop, bodyBottom],
       ).createShader(Rect.fromLTWH(0, 0, w, w));
     final borderPaint = Paint()
       ..color = darker.withValues(alpha: 0.35)
@@ -428,7 +440,8 @@ class _RobotPainter extends CustomPainter {
   @override
   bool shouldRepaint(_RobotPainter old) =>
       old.mood != mood ||
-      old.bodyColor != bodyColor ||
+      old.bodyTop != bodyTop ||
+      old.bodyBottom != bodyBottom ||
       old.bob != bob ||
       old.blink != blink;
 }

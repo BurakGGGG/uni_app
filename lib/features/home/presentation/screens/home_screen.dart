@@ -479,13 +479,14 @@ class _RobotGreetingCardState extends ConsumerState<_RobotGreetingCard> {
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.18),
+                      // Marka gradyanlı robot, gradyan kartta beyaz
+                      // zeminle okunur.
+                      color: Colors.white.withValues(alpha: 0.92),
                       shape: BoxShape.circle,
                     ),
                     child: RobotAvatar(
                       size: 36,
                       mood: greeting.mood,
-                      bodyColor: Colors.white,
                     ),
                   ),
                   const SizedBox(width: 14),

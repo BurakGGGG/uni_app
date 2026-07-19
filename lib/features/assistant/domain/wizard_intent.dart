@@ -68,6 +68,15 @@ class WizardIntent {
   /// sunucuya gider.
   final String unresolved;
 
+  // ── Çıkarmalar — olumsuz klausellerden ("istanbulu istemiyorum",
+  // "vakıf olmasın"). Taslağa eklenmez, taslaktan SİLİNİR.
+  final Set<String> removeCityIds;
+  final Set<String> removeUniTypes;
+  final Set<String> removeLanguages;
+  final Set<String> removeProgramTypes;
+  final List<DeptIntent> removeDepts;
+  final Set<String> removeInterestKeys;
+
   const WizardIntent({
     this.scoreType,
     this.rank,
@@ -80,9 +89,16 @@ class WizardIntent {
     this.depts = const [],
     this.interestKeys = const {},
     this.unresolved = '',
+    this.removeCityIds = const {},
+    this.removeUniTypes = const {},
+    this.removeLanguages = const {},
+    this.removeProgramTypes = const {},
+    this.removeDepts = const [],
+    this.removeInterestKeys = const {},
   });
 
-  /// En az bir alan yakalandı mı ([unresolved] sayılmaz).
+  /// En az bir alan yakalandı mı ([unresolved] sayılmaz; çıkarmalar
+  /// sayılır — "istanbulu istemiyorum" anlaşılmış bir girdidir).
   bool get hasAny =>
       scoreType != null ||
       rank != null ||
@@ -93,5 +109,14 @@ class WizardIntent {
       programTypes.isNotEmpty ||
       onlyScholarship != null ||
       depts.isNotEmpty ||
-      interestKeys.isNotEmpty;
+      interestKeys.isNotEmpty ||
+      hasRemovals;
+
+  bool get hasRemovals =>
+      removeCityIds.isNotEmpty ||
+      removeUniTypes.isNotEmpty ||
+      removeLanguages.isNotEmpty ||
+      removeProgramTypes.isNotEmpty ||
+      removeDepts.isNotEmpty ||
+      removeInterestKeys.isNotEmpty;
 }

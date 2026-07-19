@@ -146,26 +146,39 @@ class ChatDraft {
     for (final d in i.depts) {
       if (!mergedDepts.any((e) => e.query == d.query)) mergedDepts.add(d);
     }
+    // Olumsuzlamalar ("istanbulu istemiyorum") eklemelerden SONRA silinir —
+    // aynı mesajda hem ekleyip hem çıkaran çelişkide çıkarma kazanır.
+    mergedDepts
+        .removeWhere((d) => i.removeDepts.any((r) => r.query == d.query));
     return _copy(
       scoreType: i.scoreType ?? scoreType,
       rank: i.rank ?? rank,
       score: i.score ?? score,
-      cityIds: {...cityIds, ...i.cityIds},
-      uniTypes: {...uniTypes, ...i.uniTypes},
-      languages: {...languages, ...i.languages},
-      programTypes: {...programTypes, ...i.programTypes},
+      cityIds: {...cityIds, ...i.cityIds}..removeAll(i.removeCityIds),
+      uniTypes: {...uniTypes, ...i.uniTypes}..removeAll(i.removeUniTypes),
+      languages: {...languages, ...i.languages}
+        ..removeAll(i.removeLanguages),
+      programTypes: {...programTypes, ...i.programTypes}
+        ..removeAll(i.removeProgramTypes),
       onlyScholarship: i.onlyScholarship ?? onlyScholarship,
       depts: mergedDepts,
-      interestKeys: {...interestKeys, ...i.interestKeys},
+      interestKeys: {...interestKeys, ...i.interestKeys}
+        ..removeAll(i.removeInterestKeys),
       interestsDone: interestsDone ||
           i.depts.isNotEmpty ||
-          i.interestKeys.isNotEmpty,
+          i.interestKeys.isNotEmpty ||
+          i.removeDepts.isNotEmpty ||
+          i.removeInterestKeys.isNotEmpty,
       constraintsDone: constraintsDone ||
           i.cityIds.isNotEmpty ||
           i.uniTypes.isNotEmpty ||
           i.languages.isNotEmpty ||
           i.programTypes.isNotEmpty ||
-          i.onlyScholarship != null,
+          i.onlyScholarship != null ||
+          i.removeCityIds.isNotEmpty ||
+          i.removeUniTypes.isNotEmpty ||
+          i.removeLanguages.isNotEmpty ||
+          i.removeProgramTypes.isNotEmpty,
       // Yeni bölüm eklendiyse odak sorusu yeniden anlamlı olabilir; yalnız
       // liste tekrar 1'i aşarsa sorulur (needsFocus bakar).
       focusChosen: focusChosen && i.depts.isEmpty,

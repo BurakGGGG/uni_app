@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:uni_app/core/utils/city_helper.dart';
+import 'package:uni_app/features/assistant/domain/chat_models.dart';
 import 'package:uni_app/features/assistant/domain/chat_nlu_client.dart';
 import 'package:uni_app/features/assistant/domain/tercih_lexicon.dart';
 import 'package:uni_app/features/assistant/domain/tercih_nlu.dart';
@@ -315,6 +316,56 @@ void main() {
       final i = nlu.parse('   ');
       expect(i.hasAny, isFalse);
       expect(i.unresolved, isEmpty);
+    });
+  });
+
+  group('olumsuzlama — çıkarma kümeleri', () {
+    test('"istanbulu istemiyorum" şehri ÇIKARIR, eklemez', () {
+      final i = nlu.parse('istanbulu istemiyorum');
+      expect(i.cityIds, isEmpty);
+      expect(i.removeCityIds, {'34'});
+      expect(i.hasAny, isTrue);
+      expect(i.unresolved, isEmpty);
+    });
+
+    test('"İstanbul olmasın" da çıkarır', () {
+      expect(nlu.parse('İstanbul olmasın').removeCityIds, {'34'});
+    });
+
+    test('"İzmir olsun ama İstanbul olmasın" — klausel ayrımı', () {
+      final i = nlu.parse('İzmir olsun ama İstanbul olmasın');
+      expect(i.cityIds, {'35'});
+      expect(i.removeCityIds, {'34'});
+    });
+
+    test('"vakıf istemiyorum" üniversite türünü çıkarır', () {
+      final i = nlu.parse('vakıf istemiyorum');
+      expect(i.uniTypes, isEmpty);
+      expect(i.removeUniTypes, {'Vakıf'});
+    });
+
+    test('"İstanbul olmaz mı?" ÖNERİDİR — çıkarma değil', () {
+      final i = nlu.parse('İstanbul olmaz mı?');
+      expect(i.removeCityIds, isEmpty);
+      expect(i.cityIds, {'34'});
+    });
+
+    test('olumsuz klauseldeki türetilmiş puan türü taşınmaz', () {
+      // "önlisans olmasın" TYT çıkarımını da beraberinde getirmemeli.
+      final i = nlu.parse('önlisans olmasın');
+      expect(i.removeProgramTypes, {'Önlisans'});
+      expect(i.scoreType, isNull);
+    });
+
+    test('taslağa uygulama: önce eklenen şehir sonra çıkarılır', () {
+      // Kullanıcının bildirdiği hata: "çorum ve istanbul" sonrası
+      // "istanbulu istemiyorum" İstanbul'u bir türlü çıkaramıyordu.
+      var draft = const ChatDraft().applyIntent(
+        nlu.parse('çorum ve istanbul'),
+      );
+      expect(draft.cityIds, {'19', '34'});
+      draft = draft.applyIntent(nlu.parse('istanbulu istemiyorum'));
+      expect(draft.cityIds, {'19'});
     });
   });
 

@@ -374,9 +374,8 @@ abstract final class RobotScripts {
   static const chatHelloNew = RobotScript(
     'chat.hello.new',
     'Merhaba, ben $kRobotName! Sana uygun programları bulmak için birkaç '
-        'sorum var — ama istersen derdini tek cümlede anlat, gerisini ben '
-        'çözerim: "İstanbul\'da devlet üniversitesinde psikoloji istiyorum, '
-        'sıralamam 80 bin" gibi.',
+        'kısa sorum var — aşağıdaki balonlardan seçerek bir dakikada '
+        'bitiririz.',
     RobotMood.happy,
   );
 
@@ -396,22 +395,22 @@ abstract final class RobotScripts {
 
   static const chatAskRank = RobotScript(
     'chat.ask.rank',
-    'Peki sıralaman ya da puanın ne? "Sıralamam 80 bin" ya da "412 puan" '
-        'gibi yazabilirsin.',
+    'Peki sıralaman ya da puanın ne? Aşağıdaki kutucuğa yazman yeter — '
+        'bilmiyorsan netlerinden birlikte hesaplayabiliriz.',
     RobotMood.neutral,
   );
 
   static const chatAskInterests = RobotScript(
     'chat.ask.interests',
-    'Ne okumak istersin? Bölüm adı yazabilirsin, aşağıdan alan '
-        'seçebilirsin — kararsızsan "Farketmez" de yeter.',
+    'Ne okumak istersin? Aşağıdan bir alan seç — kararsızsan '
+        '"Farketmez" de yeter.',
     RobotMood.happy,
   );
 
   static const chatAskConstraints = RobotScript(
     'chat.ask.constraints',
-    'Şehir ya da üniversite türü tercihin var mı? "İstanbul\'da devlet" '
-        'gibi yazabilirsin; yoksa "Farketmez" de.',
+    'Şehir ya da üniversite türü tercihin var mı? Aşağıdan '
+        'seçebilirsin; yoksa "Farketmez" de.',
     RobotMood.neutral,
   );
 
@@ -445,10 +444,17 @@ abstract final class RobotScripts {
 
   static const chatConfused = RobotScript(
     'chat.confused',
-    'Bunu tam anlayamadım. "İstanbul\'da devlet psikoloji, sıralamam 80 '
-        'bin" gibi yazabilir ya da aşağıdaki seçeneklerden '
-        'ilerleyebilirsin.',
+    'Bunu tam anlayamadım — aşağıdaki seçeneklerden ilerleyelim mi?',
     RobotMood.thinking,
+  );
+
+  /// Kilitli serbest-yazı alanına dokununca: sohbet özelliği yolda.
+  static const chatComingSoon = RobotScript(
+    'chat.coming.soon',
+    'Hihi — klavye kısmım daha hazır değil! Geliştiricilerim şu an '
+        'üzerimde çalışıyor; yakında burada doya doya sohbet edeceğiz. '
+        'Şimdilik balonlardan ve kutucuktan ilerleyelim, olur mu?',
+    RobotMood.happy,
   );
 
   static const chatScoreInvalid = RobotScript(
@@ -466,8 +472,8 @@ abstract final class RobotScripts {
 
   static const chatUpdate = RobotScript(
     'chat.update',
-    'Olur! Neyi değiştirmek istersen yaz — "sıralamam 90 bin oldu" ya da '
-        '"İzmir olsun" gibi.',
+    'Olur, bilgilerini tazeleyelim! Soruları baştan soruyorum — çoğu '
+        'tek dokunuş zaten.',
     RobotMood.neutral,
   );
 

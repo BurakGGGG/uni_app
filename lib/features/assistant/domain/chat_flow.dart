@@ -238,9 +238,13 @@ class ChatFlow {
           chips: next.chips,
         );
       case ChatCommand.update:
-        final next = _askNext(draft);
+        // Taze yürüyüş: dolu taslakla _askNext doğrudan onaya atlar ve
+        // eski bilgi "güncellenmeden" kullanılmış olurdu. Çipler kümeden
+        // eleman ÇIKARAMADIĞINDAN eski şehir/tür seçimleri de taşınmaz —
+        // kullanıcı her adımı yeniden, birer dokunuşla yanıtlar.
+        final next = _askNext(const ChatDraft());
         return ChatFlowResult(
-          draft: draft,
+          draft: const ChatDraft(),
           step: next.step,
           messages: [RobotScripts.chatUpdate.toMessage(), ...next.messages],
           chips: next.chips,
@@ -403,6 +407,13 @@ class ChatFlow {
       if (i.onlyScholarship == true) 'Burslu',
       ...i.depts.map((d) => d.label),
       ..._interestLabels(i.interestKeys),
+      // Olumsuzlamalar da onaylanır — kullanıcı çıkarıldığını görmeli.
+      ...i.removeCityIds.map((id) => '${cityNames[id] ?? id} hariç'),
+      ...i.removeUniTypes.map((t) => '$t hariç'),
+      ...i.removeLanguages.map((l) => '$l hariç'),
+      ...i.removeProgramTypes.map((p) => '$p hariç'),
+      ...i.removeDepts.map((d) => '${d.label} hariç'),
+      ..._interestLabels(i.removeInterestKeys).map((l) => '$l hariç'),
     ];
   }
 

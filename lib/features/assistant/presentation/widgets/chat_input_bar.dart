@@ -5,10 +5,20 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../domain/robot_scripts.dart';
 
 /// Sohbet giriş çubuğu — metin alanı + gönder. Arama sürerken kilitlenir.
+/// [hint]/[keyboardType] ile sıralama-puan kutucuğu gibi dar amaçlı
+/// varyantlar da bu widget'tan türer.
 class ChatInputBar extends StatefulWidget {
   final bool enabled;
   final ValueChanged<String> onSend;
-  const ChatInputBar({super.key, required this.enabled, required this.onSend});
+  final String? hint;
+  final TextInputType? keyboardType;
+  const ChatInputBar({
+    super.key,
+    required this.enabled,
+    required this.onSend,
+    this.hint,
+    this.keyboardType,
+  });
 
   @override
   State<ChatInputBar> createState() => _ChatInputBarState();
@@ -40,12 +50,13 @@ class _ChatInputBarState extends State<ChatInputBar> {
             controller: _controller,
             enabled: widget.enabled,
             minLines: 1,
-            maxLines: 3,
+            maxLines: widget.keyboardType == null ? 3 : 1,
+            keyboardType: widget.keyboardType,
             textInputAction: TextInputAction.send,
             onSubmitted: (_) => _send(),
             style: AppTextStyles.bodyMedium,
             decoration: InputDecoration(
-              hintText: "$kRobotName'ye yaz…",
+              hintText: widget.hint ?? "$kRobotName'ye yaz…",
               hintStyle: AppTextStyles.bodyMedium.copyWith(
                 color: AppColors.textTertiaryFor(context),
               ),

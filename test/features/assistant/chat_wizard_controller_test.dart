@@ -159,6 +159,24 @@ void main() {
     expect(effect, ChatEffect.goCalculator);
   });
 
+  test('kilitli yazı alanı: dokununca "yakında" balonu, üst üste spam yok',
+      () async {
+    final container = await makeContainer();
+    keepChatAlive(container);
+    final controller = container.read(chatWizardControllerProvider.notifier);
+
+    controller.pokeLockedInput();
+    controller.pokeLockedInput();
+    final state = container.read(chatWizardControllerProvider);
+    final comingSoon = state.turns
+        .whereType<UniChatTurn>()
+        .where((t) => t.message.id == 'chat.coming.soon');
+    expect(comingSoon.length, 1);
+    // Akış bozulmaz: adım ve çipler yerinde durur.
+    expect(state.step, ChatStep.scoreInfo);
+    expect(state.chips, isNotEmpty);
+  });
+
   group('Faz B — uzak ayrıştırma', () {
     // Kurallar çözemez, sunucu İzmir çıkarır.
     const garbled = 'ege tarafinda deniz kenarinda bi yer olsun';

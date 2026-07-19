@@ -1,3 +1,5 @@
+import 'dart:ui' show ImageFilter;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -74,6 +76,10 @@ class _PreferenceWizardScreenState
             ?.message
             .mood ??
         RobotMood.happy;
+    // Serbest yazı sorulamadığından sıralama/puan bu kutudan alınır.
+    final asksRank = chat.step == ChatStep.scoreInfo &&
+        chat.draft.scoreType != null &&
+        !chat.draft.hasScoreInfo;
 
     return Scaffold(
       backgroundColor: AppColors.backgroundFor(context),
@@ -106,6 +112,17 @@ class _PreferenceWizardScreenState
                 },
               ),
             ),
+            if (asksRank && !chat.busy)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
+                child: ChatInputBar(
+                  enabled: true,
+                  onSend: _onSend,
+                  hint: 'Sıralaman ya da puanın (örn. 80000)',
+                  keyboardType:
+                      const TextInputType.numberWithOptions(decimal: true),
+                ),
+              ),
             if (chat.chips.isNotEmpty && !chat.busy)
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
@@ -114,9 +131,25 @@ class _PreferenceWizardScreenState
                   child: ChatChipRow(chips: chat.chips, onTap: _onChip),
                 ),
               ),
+            // Serbest sohbet henüz açık değil: çubuk blurlu durur,
+            // dokununca Üni "yakında" balonuyla tatlı tatlı açıklar.
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-              child: ChatInputBar(enabled: !chat.busy, onSend: _onSend),
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () => ref
+                    .read(chatWizardControllerProvider.notifier)
+                    .pokeLockedInput(),
+                child: AbsorbPointer(
+                  child: Opacity(
+                    opacity: 0.75,
+                    child: ImageFiltered(
+                      imageFilter: ImageFilter.blur(sigmaX: 1.4, sigmaY: 1.4),
+                      child: ChatInputBar(enabled: false, onSend: (_) {}),
+                    ),
+                  ),
+                ),
+              ),
             ),
           ],
         ),
