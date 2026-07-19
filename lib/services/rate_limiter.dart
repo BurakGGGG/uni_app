@@ -107,6 +107,13 @@ class AppRateLimiters {
     window: const Duration(minutes: 1),
   );
 
+  /// Sohbet doğal dil ayrıştırma (Faz B) — dakikada 6 istek.
+  /// Sunucu penceresi daha geniş (10/dk); bu istemci emniyeti.
+  static final chatNlu = RateLimiter(
+    maxRequests: 6,
+    window: const Duration(minutes: 1),
+  );
+
   /// Genel karşılaştırma — dakikada 10 istek.
   static final comparison = RateLimiter(
     maxRequests: 10,
@@ -129,6 +136,7 @@ class AppRateLimiters {
   static void resetAll() {
     aiComparison.reset();
     aiRecommendation.reset();
+    chatNlu.reset();
     comparison.reset();
     reviewSubmit.reset();
     search.reset();

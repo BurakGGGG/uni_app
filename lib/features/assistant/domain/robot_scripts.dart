@@ -367,6 +367,124 @@ abstract final class RobotScripts {
     ),
   ];
 
+  // ── Üni ile Sohbet — doğal dilli sihirbaz ──
+  // `{...}` yer tutucularını ChatFlow doldurur. Onay balonu "tahmin" dili
+  // taşır — dürüstlük tonu testle korunur.
+
+  static const chatHelloNew = RobotScript(
+    'chat.hello.new',
+    'Merhaba, ben $kRobotName! Sana uygun programları bulmak için birkaç '
+        'sorum var — ama istersen derdini tek cümlede anlat, gerisini ben '
+        'çözerim: "İstanbul\'da devlet üniversitesinde psikoloji istiyorum, '
+        'sıralamam 80 bin" gibi.',
+    RobotMood.happy,
+  );
+
+  static const chatHelloBack = RobotScript(
+    'chat.hello.back',
+    'Tekrar hoş geldin! Şöyle not almışım: {profile}. Sonuçlara mı '
+        'geçelim, bilgilerini mi güncelleyelim?',
+    RobotMood.happy,
+  );
+
+  static const chatAskScoreType = RobotScript(
+    'chat.ask.type',
+    'Hangi puan türüyle yerleşeceksin? SAY, EA, SÖZ ya da DİL — önlisans '
+        'düşünüyorsan TYT.',
+    RobotMood.neutral,
+  );
+
+  static const chatAskRank = RobotScript(
+    'chat.ask.rank',
+    'Peki sıralaman ya da puanın ne? "Sıralamam 80 bin" ya da "412 puan" '
+        'gibi yazabilirsin.',
+    RobotMood.neutral,
+  );
+
+  static const chatAskInterests = RobotScript(
+    'chat.ask.interests',
+    'Ne okumak istersin? Bölüm adı yazabilirsin, aşağıdan alan '
+        'seçebilirsin — kararsızsan "Farketmez" de yeter.',
+    RobotMood.happy,
+  );
+
+  static const chatAskConstraints = RobotScript(
+    'chat.ask.constraints',
+    'Şehir ya da üniversite türü tercihin var mı? "İstanbul\'da devlet" '
+        'gibi yazabilirsin; yoksa "Farketmez" de.',
+    RobotMood.neutral,
+  );
+
+  static const chatConfirm = RobotScript(
+    'chat.confirm',
+    'Şöyle not ettim: {summary}. Hazırsan arıyorum! Bulduklarım geçmiş '
+        'yıl verilerine dayalı tahmin olacak — garanti değil ama iyi bir '
+        'pusula.',
+    RobotMood.happy,
+  );
+
+  static const chatFocus = RobotScript(
+    'chat.focus',
+    'Birden fazla bölüm saydın — hangisine odaklanayım? "Hepsi" dersen '
+        'hepsine birden bakarım.',
+    RobotMood.thinking,
+  );
+
+  static const chatAck = RobotScript(
+    'chat.ack',
+    'Not ettim: {pieces}!',
+    RobotMood.happy,
+  );
+
+  static const chatPartial = RobotScript(
+    'chat.partial',
+    'Şu kısmı tam çözemedim: "{rest}". İstersen farklı sözcüklerle bir '
+        'daha söyle.',
+    RobotMood.thinking,
+  );
+
+  static const chatConfused = RobotScript(
+    'chat.confused',
+    'Bunu tam anlayamadım. "İstanbul\'da devlet psikoloji, sıralamam 80 '
+        'bin" gibi yazabilir ya da aşağıdaki seçeneklerden '
+        'ilerleyebilirsin.',
+    RobotMood.thinking,
+  );
+
+  static const chatScoreInvalid = RobotScript(
+    'chat.score.invalid',
+    'Hmm, yerleştirme puanı 150-560 aralığında olur — bir daha dener '
+        'misin?',
+    RobotMood.concerned,
+  );
+
+  static const chatRestart = RobotScript(
+    'chat.restart',
+    'Tamamdır, baştan alıyoruz!',
+    RobotMood.neutral,
+  );
+
+  static const chatUpdate = RobotScript(
+    'chat.update',
+    'Olur! Neyi değiştirmek istersen yaz — "sıralamam 90 bin oldu" ya da '
+        '"İzmir olsun" gibi.',
+    RobotMood.neutral,
+  );
+
+  static const chatSearchError = RobotScript(
+    'chat.search.error',
+    'Ay, bir şeyler ters gitti — bağlantını kontrol edip bir daha '
+        'dener misin?',
+    RobotMood.concerned,
+  );
+
+  static const chatSearchMissing = RobotScript(
+    'chat.search.missing',
+    'Aramaya başlamadan önce puan türünü ve sıralamanı (ya da puanını) '
+        'öğrenmem gerekiyor.',
+    RobotMood.concerned,
+  );
+
   // ── Rozet kutlaması ──
   static const badgeCheer = <RobotScript>[
     RobotScript(

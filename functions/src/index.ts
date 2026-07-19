@@ -119,6 +119,7 @@ export {
 
 // Sprint 5 — AI tercih önerisi zenginleştirme (Groq)
 export { enrichRecommendations } from './recommendations/enrich';
+export { parseWizardUtterance } from './assistant/parse';
 
 // Sprint 6/8 — Comparison AI summary + günlük AI quota reset
 export { generateComparisonSummary } from './comparison/summary';

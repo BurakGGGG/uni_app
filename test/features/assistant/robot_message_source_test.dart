@@ -113,7 +113,8 @@ void main() {
 
       expect(summary.message.text,
           RobotBrain.resultsSummary(balancedCtx).text);
-      expect(summary.message.text, contains('tahmin'));
+      // Varyant güne göre döner (RobotBrain.pick) — büyük/küçük harf değişir.
+      expect(summary.message.text.toLowerCase(), contains('tahmin'));
       expect(summary.notes, isEmpty);
     });
 
