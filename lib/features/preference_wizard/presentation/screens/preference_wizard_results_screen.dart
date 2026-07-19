@@ -6,6 +6,10 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../admin/data/analytics_service.dart';
 import '../../../admin/domain/models/analytics_event.dart';
+import '../../../assistant/domain/robot_mood.dart';
+import '../../../assistant/domain/robot_scripts.dart';
+import '../../../assistant/presentation/providers/assistant_providers.dart';
+import '../../../assistant/presentation/widgets/robot_avatar.dart';
 import '../../../monetization/domain/enums/subscription_tier.dart';
 import '../../../monetization/presentation/providers/subscription_providers.dart';
 import '../../../score_calculator/domain/models/match_result.dart';
@@ -148,8 +152,20 @@ class _PreferenceWizardResultsScreenState
         ],
       ),
       body: resultAsync.when(
-        loading: () => const Center(
-          child: CircularProgressIndicator(color: AppColors.primary),
+        loading: () => Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const RobotAvatar(size: 72, mood: RobotMood.thinking),
+              const SizedBox(height: 14),
+              Text(
+                kResultsLoadingText,
+                style: AppTextStyles.bodyMedium.copyWith(
+                  color: AppColors.textSecondaryFor(context),
+                ),
+              ),
+            ],
+          ),
         ),
         error: (e, _) => const WizardErrorState(),
         data: (result) {
@@ -176,6 +192,8 @@ class _PreferenceWizardResultsScreenState
                   score: profile.placementScore,
                   rank: profile.hasRank ? profile.rank : null,
                   total: result.total,
+                  message:
+                      ref.watch(robotResultsMessageProvider).valueOrNull,
                 ),
               ),
               SliverToBoxAdapter(child: _SearchField(controller: _searchCtrl)),

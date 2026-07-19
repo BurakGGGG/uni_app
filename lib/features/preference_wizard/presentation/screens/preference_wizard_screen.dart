@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -8,6 +10,12 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/utils/turkish_compare.dart';
 import '../../../admin/data/analytics_service.dart';
 import '../../../admin/domain/models/analytics_event.dart';
+import '../../../assistant/domain/robot_brain.dart';
+import '../../../assistant/domain/robot_message.dart';
+import '../../../assistant/domain/robot_mood.dart';
+import '../../../assistant/presentation/providers/assistant_providers.dart';
+import '../../../assistant/presentation/widgets/robot_avatar.dart';
+import '../../../assistant/presentation/widgets/robot_speech_bubble.dart';
 import '../../../university/presentation/providers/university_providers.dart';
 import '../../domain/models/student_score_profile.dart';
 import '../../domain/models/wizard_prefs.dart';
@@ -34,6 +42,11 @@ class _PreferenceWizardScreenState
   String? _error;
   late WizardPrefs _prefs;
 
+  // Üni'nin konuşması: mesaj + yazarken geçici "thinking" yüzü.
+  late RobotMessage _robotMessage;
+  RobotMood? _moodOverride;
+  Timer? _rankDebounce;
+
   @override
   void initState() {
     super.initState();
@@ -49,13 +62,49 @@ class _PreferenceWizardScreenState
       if (existing.hasRank) _rankCtrl.text = existing.rank.toString();
     }
     _prefs = ref.read(wizardPrefsProvider);
+
+    final memory = ref.read(robotMemoryProvider);
+    _robotMessage = RobotBrain.wizardWelcome(
+      hasProfile: existing != null,
+      firstVisit: !memory.wizardIntroSeen,
+    );
+    if (!memory.wizardIntroSeen) memory.markWizardIntroSeen();
   }
 
   @override
   void dispose() {
+    _rankDebounce?.cancel();
     _scoreCtrl.dispose();
     _rankCtrl.dispose();
     super.dispose();
+  }
+
+  /// Sıralama yazılırken robot düşünür; duraklayınca banda göre yorum yapar.
+  void _onRankChanged(String value) {
+    _rankDebounce?.cancel();
+    setState(() {
+      _error = null;
+      _moodOverride = RobotMood.thinking;
+    });
+    _rankDebounce = Timer(const Duration(milliseconds: 800), () {
+      if (!mounted) return;
+      final rank = int.tryParse(value.trim().replaceAll('.', ''));
+      final reaction = rank == null
+          ? null
+          : RobotBrain.wizardRankReaction(rank, _scoreType);
+      setState(() {
+        _moodOverride = null;
+        if (reaction != null) _robotMessage = reaction;
+      });
+    });
+  }
+
+  void _failValidation(String error) {
+    setState(() {
+      _error = error;
+      _moodOverride = null;
+      _robotMessage = RobotBrain.wizardValidationError;
+    });
   }
 
   Future<void> _saveAndSeeResults() async {
@@ -65,15 +114,15 @@ class _PreferenceWizardScreenState
     final hasRank = rank != null && rank > 0;
 
     if (_scoreType.isEmpty) {
-      setState(() => _error = 'Puan türünü seç');
+      _failValidation('Puan türünü seç');
       return;
     }
     if (scoreText.isNotEmpty && (score == null || score <= 0)) {
-      setState(() => _error = 'Geçerli bir yerleştirme puanı gir');
+      _failValidation('Geçerli bir yerleştirme puanı gir');
       return;
     }
     if ((score == null || score <= 0) && !hasRank) {
-      setState(() => _error = 'Puan veya sıralamadan en az birini gir');
+      _failValidation('Puan veya sıralamadan en az birini gir');
       return;
     }
 
@@ -107,7 +156,10 @@ class _PreferenceWizardScreenState
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              _Header(),
+              _Header(
+                message: _robotMessage,
+                mood: _moodOverride ?? _robotMessage.mood,
+              ),
               const SizedBox(height: 20),
 
               // Puan türü
@@ -129,6 +181,10 @@ class _PreferenceWizardScreenState
                       onSelected: (_) => setState(() {
                         _scoreType = t;
                         _error = null;
+                        _moodOverride = null;
+                        final reaction =
+                            RobotBrain.wizardScoreTypeReaction(t);
+                        if (reaction != null) _robotMessage = reaction;
                       }),
                       backgroundColor: AppColors.surfaceVariantFor(context),
                       selectedColor: AppColors.primary.withValues(alpha: 0.15),
@@ -157,7 +213,7 @@ class _PreferenceWizardScreenState
                 label: 'Başarı sıralaman (önerilen)',
                 hint: 'Örn. 45000',
                 allowDecimal: false,
-                onChanged: (_) => setState(() => _error = null),
+                onChanged: _onRankChanged,
               ),
               const SizedBox(height: 14),
               _NumberField(
@@ -434,41 +490,32 @@ class _PrefChip extends StatelessWidget {
   }
 }
 
+/// Üni'nin karşılama hero'su — avatar canlı, balon konuşur; ekran state'i
+/// tepkilerle mesajı/mood'u değiştirdikçe TypewriterText baştan yazar.
 class _Header extends StatelessWidget {
+  final RobotMessage message;
+  final RobotMood mood;
+  const _Header({required this.message, required this.mood});
+
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(18),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         gradient: AppColors.heroGradientFor(context),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          const Icon(Icons.smart_toy_rounded, color: Colors.white, size: 32),
-          const SizedBox(width: 14),
+          RobotAvatar(
+            size: 56,
+            mood: mood,
+            bodyColor: Colors.white,
+          ),
+          const SizedBox(width: 10),
           Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Puanına uygun tercihleri bul',
-                  style: AppTextStyles.titleMedium.copyWith(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  'Puanını gir, sana uygun programları şans durumuna göre '
-                  'gruplu gör ve tek dokunuşla listene ekle.',
-                  style: AppTextStyles.labelSmall.copyWith(
-                    color: Colors.white.withValues(alpha: 0.9),
-                    height: 1.4,
-                  ),
-                ),
-              ],
-            ),
+            child: RobotSpeechBubble(message: message, onDark: true),
           ),
         ],
       ),

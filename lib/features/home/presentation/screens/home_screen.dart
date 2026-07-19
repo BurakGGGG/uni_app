@@ -25,6 +25,10 @@ import '../widgets/home_list_skeleton.dart';
 import '../../../../core/utils/haptic.dart';
 import '../../../../core/utils/responsive.dart';
 import '../../../auth/presentation/providers/auth_providers.dart';
+import '../../../../core/widgets/typewriter_text.dart';
+import '../../../assistant/domain/tercih_calendar.dart';
+import '../../../assistant/presentation/providers/assistant_providers.dart';
+import '../../../assistant/presentation/widgets/robot_avatar.dart';
 
 /// Ana Sayfa ekranı
 class HomeScreen extends ConsumerStatefulWidget {
@@ -190,11 +194,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               ),
             ),
 
-            // ─── Tercih Robotu Banner ───────────────────────────────
+            // ─── Üni Karşılama Kartı (Tercih Robotu) ────────────────
             const SliverToBoxAdapter(
               child: Padding(
                 padding: EdgeInsets.fromLTRB(20, 0, 20, 8),
-                child: _WizardBanner(),
+                child: _RobotGreetingCard(),
               ),
             ),
 
@@ -391,12 +395,40 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
 // ─── Widget Components ──────────────────────────────────────────────
 
-class _WizardBanner extends StatelessWidget {
-  const _WizardBanner();
+class _RobotGreetingCard extends ConsumerStatefulWidget {
+  const _RobotGreetingCard();
+
+  @override
+  ConsumerState<_RobotGreetingCard> createState() =>
+      _RobotGreetingCardState();
+}
+
+/// Üni'nin ana ekran karşılaması — döneme ve saate göre selamlama + günün
+/// ipucu. Typewriter oturum başına bir kez oynar; scroll rebuild'lerinde
+/// metin yeniden yazılmaz.
+class _RobotGreetingCardState extends ConsumerState<_RobotGreetingCard> {
+  static bool _greetedThisSession = false;
+  late final bool _typewriter;
+
+  @override
+  void initState() {
+    super.initState();
+    _typewriter = !_greetedThisSession;
+    _greetedThisSession = true;
+  }
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final greeting = ref.watch(homeGreetingProvider);
+    final tip = ref.watch(tipOfDayProvider);
+    final now = DateTime.now();
+    final chipLabel = phaseChipLabel(tercihPhaseFor(now), now.year);
+    final titleStyle = AppTextStyles.titleSmall.copyWith(
+      color: Colors.white,
+      fontWeight: FontWeight.w800,
+      height: 1.25,
+    );
     return GestureDetector(
       onTap: () => context.push('/preference-wizard'),
       child: Container(
@@ -445,15 +477,15 @@ class _WizardBanner extends StatelessWidget {
               child: Row(
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(11),
+                    padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
                       color: Colors.white.withValues(alpha: 0.18),
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(
-                      Icons.smart_toy_rounded,
-                      color: Colors.white,
-                      size: 26,
+                    child: RobotAvatar(
+                      size: 36,
+                      mood: greeting.mood,
+                      bodyColor: Colors.white,
                     ),
                   ),
                   const SizedBox(width: 14),
@@ -471,7 +503,7 @@ class _WizardBanner extends StatelessWidget {
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
-                            '2026 TERCİH DÖNEMİ',
+                            chipLabel,
                             style: AppTextStyles.labelSmall.copyWith(
                               color: Colors.white,
                               fontSize: 9,
@@ -481,20 +513,18 @@ class _WizardBanner extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 5),
+                        if (_typewriter)
+                          TypewriterText(greeting.text, style: titleStyle)
+                        else
+                          Text(greeting.text, style: titleStyle),
+                        const SizedBox(height: 4),
                         Text(
-                          'Tercih Robotu',
-                          style: AppTextStyles.titleMedium.copyWith(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w800,
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          'Puanına uygun programları bul, listeni kur',
+                          '💡 ${tip.text}',
                           style: AppTextStyles.labelSmall.copyWith(
                             color: Colors.white.withValues(alpha: 0.9),
+                            height: 1.35,
                           ),
-                          maxLines: 1,
+                          maxLines: 3,
                           overflow: TextOverflow.ellipsis,
                         ),
                       ],

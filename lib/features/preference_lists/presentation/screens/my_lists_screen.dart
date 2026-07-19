@@ -8,6 +8,9 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/animated_list_item.dart';
 import '../../../../l10n/generated/app_localizations.dart';
+import '../../../assistant/domain/robot_brain.dart';
+import '../../../assistant/presentation/widgets/robot_avatar.dart';
+import '../../../assistant/presentation/widgets/robot_speech_bubble.dart';
 import '../../../auth/presentation/providers/auth_providers.dart';
 import '../providers/preference_list_providers.dart';
 import '../../domain/models/preference_list_model.dart';
@@ -586,25 +589,14 @@ class _EmptyState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
+    final nudge = RobotBrain.emptyListNudge();
     return Center(
       child: Padding(
         padding: const EdgeInsets.fromLTRB(32, 0, 32, 32),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Container(
-              width: 96,
-              height: 96,
-              decoration: BoxDecoration(
-                color: AppColors.primary.withValues(alpha: 0.08),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                Icons.format_list_numbered_rounded,
-                size: 44,
-                color: AppColors.primary,
-              ),
-            ),
+            RobotAvatar(size: 72, mood: nudge.mood),
             const SizedBox(height: 20),
             Text(
               loc.prefListsEmptyTitle,
@@ -612,19 +604,16 @@ class _EmptyState extends StatelessWidget {
                 fontWeight: FontWeight.w700,
               ),
             ),
-            const SizedBox(height: 8),
-            Text(
-              loc.prefListsEmptyDesc,
-              textAlign: TextAlign.center,
-              style: AppTextStyles.bodyMedium.copyWith(
-                color: AppColors.textSecondaryFor(context),
-                height: 1.5,
-              ),
-            ),
+            const SizedBox(height: 12),
+            RobotSpeechBubble(message: nudge),
             const SizedBox(height: 24),
             OutlinedButton.icon(
               onPressed: () => context.push('/preference-wizard'),
-              icon: const Icon(Icons.smart_toy_rounded, size: 18),
+              icon: const RobotAvatar(
+                size: 18,
+                animated: false,
+                bodyColor: AppColors.secondary,
+              ),
               label: const Text('Tercih Robotu ile doldur'),
               style: OutlinedButton.styleFrom(
                 foregroundColor: AppColors.secondary,

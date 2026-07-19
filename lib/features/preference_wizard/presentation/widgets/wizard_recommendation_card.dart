@@ -4,6 +4,9 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../assistant/domain/robot_scripts.dart';
+import '../../../assistant/presentation/providers/assistant_providers.dart';
+import '../../../assistant/presentation/widgets/robot_avatar.dart';
 import '../../../score_calculator/domain/models/match_result.dart';
 import '../../../university/domain/models/department_model.dart';
 import '../../../university/presentation/widgets/score_badge.dart';
@@ -46,6 +49,9 @@ class WizardRecommendationCard extends ConsumerWidget {
     final profile = ref.watch(studentScoreProfileProvider);
     final reasons =
         profile == null ? const <MatchReason>[] : buildMatchReasons(match, profile);
+    // Faz 2: Pro'da LLM'in ilk önerilere yazdığı kişisel not (yoksa null).
+    final robotNote =
+        ref.watch(robotCardNotesProvider)['${uni.id}_${dept.id}'];
     final categoryColor = _categoryColor(match.category);
     // Referans sıra eski yıldansa mini-stat etiketi yılı söyler.
     final staleYear = match.refRankYear != null &&
@@ -206,6 +212,10 @@ class WizardRecommendationCard extends ConsumerWidget {
             const SizedBox(height: 8),
             _ReasonLine(reasons: reasons, color: categoryColor),
           ],
+          if (robotNote != null) ...[
+            const SizedBox(height: 8),
+            _RobotNote(text: robotNote),
+          ],
           const SizedBox(height: 12),
           Row(
             children: [
@@ -333,6 +343,54 @@ class _FitMeter extends StatelessWidget {
               color: color,
               fontWeight: FontWeight.w700,
               fontSize: 10.5,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Üni'nin LLM'den gelen kişisel notu (yalnız Pro, ilk 3 öneri).
+class _RobotNote extends StatelessWidget {
+  final String text;
+  const _RobotNote({required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+      decoration: BoxDecoration(
+        color: AppColors.primary.withValues(alpha: 0.06),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Padding(
+            padding: EdgeInsets.only(top: 1),
+            child: RobotAvatar(size: 16, animated: false),
+          ),
+          const SizedBox(width: 6),
+          Expanded(
+            child: Text.rich(
+              TextSpan(
+                children: [
+                  TextSpan(
+                    text: "$kRobotName'nin notu: ",
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.primary,
+                    ),
+                  ),
+                  TextSpan(text: text),
+                ],
+              ),
+              style: AppTextStyles.labelSmall.copyWith(
+                color: AppColors.textSecondaryFor(context),
+                fontSize: 11,
+                height: 1.3,
+              ),
             ),
           ),
         ],

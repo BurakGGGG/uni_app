@@ -3,16 +3,24 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../assistant/domain/robot_message.dart';
+import '../../../assistant/domain/robot_mood.dart';
+import '../../../assistant/presentation/widgets/robot_avatar.dart';
+import '../../../assistant/presentation/widgets/robot_speech_bubble.dart';
 import '../../domain/match_reason.dart';
 
-/// Sonuç ekranı özet başlığı: puan/sıralama pilleri, "tahmindir" notu ve
-/// puanla girilmiş (sırasız) profillerde "sıralamanı ekle" dürtmesi —
-/// gerçek sıra tahminden her zaman daha isabetlidir.
+/// Sonuç ekranı özet başlığı: puan/sıralama pilleri, Üni'nin özet balonu,
+/// "tahmindir" notu ve puanla girilmiş (sırasız) profillerde "sıralamanı
+/// ekle" dürtmesi — gerçek sıra tahminden her zaman daha isabetlidir.
 class WizardSummaryHeader extends StatelessWidget {
   final String scoreType;
   final double score;
   final int? rank;
   final int total;
+
+  /// Üni'nin dağılım yorumu; null iken balon gizlenir (mesaj bir microtask
+  /// sonra gelir, başlık onsuz da tam görünür).
+  final RobotMessage? message;
 
   const WizardSummaryHeader({
     super.key,
@@ -20,6 +28,7 @@ class WizardSummaryHeader extends StatelessWidget {
     required this.score,
     required this.rank,
     required this.total,
+    this.message,
   });
 
   @override
@@ -36,25 +45,37 @@ class WizardSummaryHeader extends StatelessWidget {
             gradient: AppColors.heroGradientFor(context),
             borderRadius: BorderRadius.circular(18),
           ),
-          child: Row(
+          child: Column(
             children: [
-              // Puansız (sadece sıralamayla) profillerde puan pili gizlenir.
-              if (score > 0)
-                _Pill(
-                    label: 'Puan',
-                    value: '${score.toStringAsFixed(1)} $scoreType')
-              else if (rank != null)
-                _Pill(
-                    label: 'Sıralama',
-                    value: '${formatRankTr(rank!)} $scoreType'),
-              const SizedBox(width: 10),
-              if (score > 0 && rank != null)
-                _Pill(label: 'Sıralama', value: formatRankTr(rank!))
-              else
-                _Pill(label: 'Eşleşen', value: '$total program'),
-              const Spacer(),
-              const Icon(Icons.smart_toy_rounded,
-                  color: Colors.white, size: 30),
+              Row(
+                children: [
+                  // Puansız (sadece sıralamayla) profillerde puan pili
+                  // gizlenir.
+                  if (score > 0)
+                    _Pill(
+                        label: 'Puan',
+                        value: '${score.toStringAsFixed(1)} $scoreType')
+                  else if (rank != null)
+                    _Pill(
+                        label: 'Sıralama',
+                        value: '${formatRankTr(rank!)} $scoreType'),
+                  const SizedBox(width: 10),
+                  if (score > 0 && rank != null)
+                    _Pill(label: 'Sıralama', value: formatRankTr(rank!))
+                  else
+                    _Pill(label: 'Eşleşen', value: '$total program'),
+                  const Spacer(),
+                  RobotAvatar(
+                    size: 40,
+                    mood: message?.mood ?? RobotMood.happy,
+                    bodyColor: Colors.white,
+                  ),
+                ],
+              ),
+              if (message != null) ...[
+                const SizedBox(height: 10),
+                RobotSpeechBubble(message: message!, onDark: true),
+              ],
             ],
           ),
         ),
@@ -101,8 +122,9 @@ class WizardSummaryHeader extends StatelessWidget {
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        'Eşleştirme puanından tahmini sırayla yapıldı — '
-                        'gerçek sıralamanı girersen isabet artar.',
+                        'Eşleştirmeyi puanından tahmin ettiğim sırayla '
+                        'yaptım — gerçek sıralamanı girersen daha isabetli '
+                        'olurum.',
                         style: AppTextStyles.labelSmall.copyWith(
                           color: AppColors.info,
                           fontWeight: FontWeight.w600,

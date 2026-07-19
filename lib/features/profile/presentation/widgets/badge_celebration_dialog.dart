@@ -5,6 +5,9 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../l10n/generated/app_localizations.dart';
+import '../../../assistant/domain/robot_brain.dart';
+import '../../../assistant/domain/robot_mood.dart';
+import '../../../assistant/presentation/widgets/robot_avatar.dart';
 import '../../domain/badge_catalog.dart';
 import 'badge_medallion.dart';
 
@@ -92,6 +95,23 @@ class BadgeCelebrationDialog extends StatelessWidget {
               ),
               textAlign: TextAlign.center,
             ).animate().fadeIn(delay: 450.ms, duration: 400.ms),
+            const SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const RobotAvatar(size: 30, mood: RobotMood.celebrating),
+                const SizedBox(width: 8),
+                Flexible(
+                  child: Text(
+                    RobotBrain.badgeCheer(definition.id).text,
+                    style: AppTextStyles.bodySmall.copyWith(
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            ).animate().fadeIn(delay: 500.ms, duration: 400.ms),
             const SizedBox(height: 24),
             Row(
               children: [
