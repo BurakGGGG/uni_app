@@ -173,6 +173,13 @@ export const enrichRecommendations = onCall(
       throw new HttpsError('internal', 'AI yanıtı geçersiz format.');
     }
 
+    // 8B model ara sıra Türkçe talimatı deler — İngilizce özet istemciye
+    // ve cache'e asla gitmesin; istemci kural metnine (Türkçe) düşer.
+    if (looksEnglish(String(llmJson.summary))) {
+      logger.warn('Groq returned non-Turkish summary, rejecting', { uid });
+      throw new HttpsError('internal', 'AI yanıtı Türkçe değil.');
+    }
+
     // Sonuçları doğrula: sadece ilk 3 dept ID'sine reasoning kabul et
     const top3 = depts.slice(0, TOP_FOR_REASONING);
     const allowedKeys = new Set(
@@ -181,6 +188,7 @@ export const enrichRecommendations = onCall(
     const cleanItems: EnrichedItem[] = (llmJson.items ?? [])
       .filter((it) => {
         if (!it || typeof it.reasoning !== 'string') return false;
+        if (looksEnglish(it.reasoning)) return false;
         const key = `${it.universityId}_${it.departmentId}`;
         return allowedKeys.has(key);
       })
@@ -218,6 +226,17 @@ export const enrichRecommendations = onCall(
   }
 );
 
+// ─── Dil bekçisi ───────────────────────────────────────────────
+// Yaygın İngilizce işlev kelimeleri; Türkçe bir cümlede tek başına
+// geçmezler. ≥2 isabet = metin İngilizce kaçmış demektir.
+const ENGLISH_HINTS =
+  /\b(the|and|your|you|with|for|are|this|that|will|would|good|great|university|department|score|ranking|match|based|options)\b/gi;
+
+function looksEnglish(text: string): boolean {
+  const hits = text.match(ENGLISH_HINTS);
+  return (hits?.length ?? 0) >= 2;
+}
+
 // ─── Prompt builder ────────────────────────────────────────────
 function buildPrompt(
   tags: Record<string, string>,
@@ -238,7 +257,8 @@ function buildPrompt(
     })
     .join('\n');
 
-  const system = `Sen bir Türk üniversite tercih danışmanısın.
+  const system = `YANIT DİLİ: YALNIZCA TÜRKÇE. Tek bir İngilizce kelime bile yazma; JSON alan adları dışında her şey Türkçe olacak.
+Sen bir Türk üniversite tercih danışmanısın.
 Çıktıların doğal, hatasız Türkçe olmalı. Cümleler kısa olmalı.
 Asla "sevgili öğrenci", "kariyerine uygun", "harika seçim" gibi basmakalıp ifadeler kullanma.
 Asla yeni bölüm/üniversite uydurma — sadece sana verilenler hakkında konuş.
@@ -352,6 +372,11 @@ function parseCachedResponse(
   if (!summary || generatedAt <= 0 || nowMs - generatedAt >= CACHE_TTL_MS) {
     return null;
   }
+  // Dil bekçisinden önce yazılmış İngilizce cache girdileri de elensin —
+  // null dönmek taze (Türkçe-doğrulamalı) üretimi tetikler.
+  if (looksEnglish(summary)) {
+    return null;
+  }
 
   if (!Array.isArray(data.items)) {
     return null;
@@ -377,6 +402,7 @@ function parseCachedItem(item: unknown): EnrichedItem | null {
   const universityId = typeof raw.universityId === 'string' ? raw.universityId : '';
   const reasoning = typeof raw.reasoning === 'string' ? raw.reasoning : '';
   if (!departmentId || !universityId || !reasoning) return null;
+  if (looksEnglish(reasoning)) return null;
 
   return {
     departmentId,

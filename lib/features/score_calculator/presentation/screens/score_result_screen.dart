@@ -10,6 +10,7 @@ import '../widgets/university_match_card.dart';
 import '../../../admin/data/analytics_service.dart';
 import '../../../admin/domain/models/analytics_event.dart';
 import '../../../assistant/domain/robot_mood.dart';
+import '../../../assistant/domain/robot_scripts.dart';
 import '../../../assistant/presentation/widgets/robot_avatar.dart';
 import '../../../preference_wizard/domain/models/student_score_profile.dart';
 import '../../../preference_wizard/presentation/providers/preference_wizard_providers.dart';
@@ -327,7 +328,7 @@ class _WizardTransferCta extends ConsumerWidget {
                 }
               },
               icon: const Icon(Icons.arrow_forward_rounded, size: 18),
-              label: const Text('Tercih robotuna aktar'),
+              label: const Text("$kRobotName'ye aktar"),
               style: FilledButton.styleFrom(
                 backgroundColor: AppColors.secondary,
                 shape: RoundedRectangleBorder(

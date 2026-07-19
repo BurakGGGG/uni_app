@@ -451,9 +451,9 @@ abstract final class RobotScripts {
   /// Kilitli serbest-yazı alanına dokununca: sohbet özelliği yolda.
   static const chatComingSoon = RobotScript(
     'chat.coming.soon',
-    'Hihi — klavye kısmım daha hazır değil! Geliştiricilerim şu an '
-        'üzerimde çalışıyor; yakında burada doya doya sohbet edeceğiz. '
-        'Şimdilik balonlardan ve kutucuktan ilerleyelim, olur mu?',
+    'Klavye kısmım daha hazır değil! Geliştiricilerim şu an üzerimde '
+        'çalışıyor; yakında burada doya doya sohbet edeceğiz. Şimdilik '
+        'balonlardan ve kutucuktan ilerleyelim, olur mu?',
     RobotMood.happy,
   );
 
