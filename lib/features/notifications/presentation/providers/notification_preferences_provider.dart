@@ -55,6 +55,9 @@ class NotificationPreferencesNotifier
       case 'reviewCampaignEnabled':
         updated = current.copyWith(reviewCampaignEnabled: value);
         break;
+      case 'uniRemindersEnabled':
+        updated = current.copyWith(uniRemindersEnabled: value);
+        break;
       default:
         return;
     }

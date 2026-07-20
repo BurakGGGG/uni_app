@@ -39,6 +39,10 @@ class AppNotification {
         return Icons.fiber_new_rounded;
       case NotificationType.reviewCampaign:
         return Icons.rate_review_rounded;
+      // Üni bildirimlerinde ikon yerine robotun kendisi çizilir
+      // (NotificationTile); bu yalnız geri düşüş.
+      case NotificationType.uniReminder:
+        return Icons.auto_awesome_rounded;
     }
   }
 
@@ -52,6 +56,8 @@ class AppNotification {
         return AppColors.info;
       case NotificationType.reviewCampaign:
         return AppColors.primary;
+      case NotificationType.uniReminder:
+        return AppColors.secondary;
     }
   }
 

@@ -19,6 +19,11 @@ class UserModel {
   final Map<String, DateTime> badges;
   final List<String> fcmTokens;
   final NotificationPreferences notificationPrefs;
+
+  /// Kullanıcının uygulama dili ('tr' | 'en') — sunucu bildirimlerini bu
+  /// dilde yazar. Yoksa 'tr' varsayılır (dil alanından önceki kullanıcılar).
+  final String locale;
+
   final DateTime createdAt;
   final DateTime lastLoginAt;
 
@@ -38,6 +43,7 @@ class UserModel {
     this.badges = const {},
     this.fcmTokens = const [],
     this.notificationPrefs = const NotificationPreferences(),
+    this.locale = 'tr',
     required this.createdAt,
     required this.lastLoginAt,
   });
@@ -62,6 +68,7 @@ class UserModel {
       notificationPrefs: NotificationPreferences.fromMap(
         map['notificationPrefs'] as Map<String, dynamic>?,
       ),
+      locale: map['locale'] == 'en' ? 'en' : 'tr',
       createdAt: (map['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
       lastLoginAt:
           (map['lastLoginAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
@@ -84,6 +91,7 @@ class UserModel {
       'reviewCount': reviewCount,
       'fcmTokens': fcmTokens,
       'notificationPrefs': notificationPrefs.toMap(),
+      'locale': locale,
       'createdAt': Timestamp.fromDate(createdAt),
       'lastLoginAt': Timestamp.fromDate(lastLoginAt),
     };
@@ -105,6 +113,7 @@ class UserModel {
     Map<String, DateTime>? badges,
     List<String>? fcmTokens,
     NotificationPreferences? notificationPrefs,
+    String? locale,
     DateTime? lastLoginAt,
   }) {
     return UserModel(
@@ -123,6 +132,7 @@ class UserModel {
       badges: badges ?? this.badges,
       fcmTokens: fcmTokens ?? this.fcmTokens,
       notificationPrefs: notificationPrefs ?? this.notificationPrefs,
+      locale: locale ?? this.locale,
       createdAt: createdAt,
       lastLoginAt: lastLoginAt ?? this.lastLoginAt,
     );
@@ -170,11 +180,16 @@ class NotificationPreferences {
   final bool favoriteNewReviewEnabled;
   final bool reviewCampaignEnabled;
 
+  /// Üni'nin tercih takvimi hatırlatmaları (dönem açılışı, son günler,
+  /// yerleştirme, sınav sabahı) — dördü tek anahtarla yönetilir.
+  final bool uniRemindersEnabled;
+
   const NotificationPreferences({
     this.reviewLikedEnabled = true,
     this.reviewModeratedEnabled = true,
     this.favoriteNewReviewEnabled = true,
     this.reviewCampaignEnabled = true,
+    this.uniRemindersEnabled = true,
   });
 
   factory NotificationPreferences.fromMap(Map<String, dynamic>? map) {
@@ -184,6 +199,7 @@ class NotificationPreferences {
       reviewModeratedEnabled: map['reviewModeratedEnabled'] ?? true,
       favoriteNewReviewEnabled: map['favoriteNewReviewEnabled'] ?? true,
       reviewCampaignEnabled: map['reviewCampaignEnabled'] ?? true,
+      uniRemindersEnabled: map['uniRemindersEnabled'] ?? true,
     );
   }
 
@@ -192,6 +208,7 @@ class NotificationPreferences {
     'reviewModeratedEnabled': reviewModeratedEnabled,
     'favoriteNewReviewEnabled': favoriteNewReviewEnabled,
     'reviewCampaignEnabled': reviewCampaignEnabled,
+    'uniRemindersEnabled': uniRemindersEnabled,
   };
 
   NotificationPreferences copyWith({
@@ -199,6 +216,7 @@ class NotificationPreferences {
     bool? reviewModeratedEnabled,
     bool? favoriteNewReviewEnabled,
     bool? reviewCampaignEnabled,
+    bool? uniRemindersEnabled,
   }) {
     return NotificationPreferences(
       reviewLikedEnabled: reviewLikedEnabled ?? this.reviewLikedEnabled,
@@ -208,6 +226,7 @@ class NotificationPreferences {
           favoriteNewReviewEnabled ?? this.favoriteNewReviewEnabled,
       reviewCampaignEnabled:
           reviewCampaignEnabled ?? this.reviewCampaignEnabled,
+      uniRemindersEnabled: uniRemindersEnabled ?? this.uniRemindersEnabled,
     );
   }
 }

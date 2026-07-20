@@ -35,6 +35,18 @@ class RobotScript {
   RobotMessage toMessage() => RobotMessage(id, text, mood, action: action);
 }
 
+/// Onboarding sayfası metni. [RobotScript]'ten ayrı bir tip çünkü burada
+/// başlık + gövde birlikte gerekiyor; görsel taraf (gradyan, vurgu rengi)
+/// ekranda kalır.
+class OnboardingCopy {
+  final String id;
+  final String title;
+  final String body;
+  final RobotMood mood;
+
+  const OnboardingCopy(this.id, this.title, this.body, this.mood);
+}
+
 /// Üni'nin tüm repliği — iki dilde. Ses tonu: birinci ağız, "sen" dili,
 /// sevimli ama dürüst — yerleşme sözü ASLA verilmez; "tahmin / garanti
 /// veremem" ("estimate / can't guarantee") korunur.
@@ -141,6 +153,15 @@ abstract final class RobotScripts {
   // ── Rozet kutlaması ──
   static List<RobotScript> get badgeCheer =>
       isEn ? _En.badgeCheer : _Tr.badgeCheer;
+
+  // ── Onboarding — Üni kendini tanıtır ──
+  static List<OnboardingCopy> get onboardingPages =>
+      isEn ? _En.onboardingPages : _Tr.onboardingPages;
+
+  /// Son sayfadaki isim sorusu.
+  static String get onboardingNameHint => isEn ? 'Your name' : 'Adın';
+  static String get onboardingNameSkip =>
+      isEn ? 'Rather not say' : 'Söylemesem de olur';
 
   // ── Kısa ifadeler — sohbet akışı ve Üni'ye ait UI etiketleri ──
   static String get phraseRank => isEn ? 'rank' : 'sıra';
@@ -684,6 +705,37 @@ abstract final class _Tr {
       RobotMood.celebrating,
     ),
   ];
+
+  static const onboardingPages = <OnboardingCopy>[
+    OnboardingCopy(
+      'onboarding.hello',
+      "Merhaba, ben $kRobotName!",
+      'Üniversite yolculuğunda sana eşlik edeceğim. Birlikte hayalindeki '
+          'bölümü bulacağız.',
+      RobotMood.happy,
+    ),
+    OnboardingCopy(
+      'onboarding.discover',
+      'Keşfet & Karşılaştır',
+      'Yüzlerce üniversiteyi puana, şehre ve olanaklara göre süzerim; '
+          'ikisini yan yana koyup farkı gösteririm.',
+      RobotMood.thinking,
+    ),
+    OnboardingCopy(
+      'onboarding.reviews',
+      'Gerçek öğrenci yorumları',
+      'edu.tr ile doğrulanmış öğrencilerin deneyimleri. Sahte yorum yok, '
+          'süslemesiz anlatılmış hikâyeler var.',
+      RobotMood.happy,
+    ),
+    OnboardingCopy(
+      'onboarding.ready',
+      'Seni nasıl çağırayım?',
+      'Adını bilirsem sohbetimiz daha samimi olur. İstemezsen boş '
+          'bırakabilirsin — yine de yanındayım.',
+      RobotMood.celebrating,
+    ),
+  ];
 }
 
 /// İngilizce tablo — id'ler Türkçe tabloyla birebir aynı.
@@ -1147,6 +1199,37 @@ abstract final class _En {
     RobotScript(
       'badge.v3',
       'You earned this one! Enjoy your badge.',
+      RobotMood.celebrating,
+    ),
+  ];
+
+  static const onboardingPages = <OnboardingCopy>[
+    OnboardingCopy(
+      'onboarding.hello',
+      "Hi, I'm $kRobotName!",
+      "I'll be with you through the whole university journey. Together "
+          "we'll find the program you're dreaming of.",
+      RobotMood.happy,
+    ),
+    OnboardingCopy(
+      'onboarding.discover',
+      'Explore & Compare',
+      'I filter hundreds of universities by score, city and facilities — '
+          'then put two side by side and show you the difference.',
+      RobotMood.thinking,
+    ),
+    OnboardingCopy(
+      'onboarding.reviews',
+      'Real student reviews',
+      'Experiences from students verified through edu.tr. No fake '
+          'reviews, just stories told plainly.',
+      RobotMood.happy,
+    ),
+    OnboardingCopy(
+      'onboarding.ready',
+      'What should I call you?',
+      "Knowing your name makes our chats warmer. Leave it blank if you'd "
+          "rather not — I'm here either way.",
       RobotMood.celebrating,
     ),
   ];

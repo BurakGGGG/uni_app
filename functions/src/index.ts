@@ -105,6 +105,10 @@ export { cleanupStaleTokens } from './notifications/cleanup_stale_tokens';
 // TODO(kampanya): Uygulama sürümü (reviewCampaignEnabled toggle'ı) Play'de
 // yayınlandıktan sonra bu export'u açıp deploy et — kampanya o zaman başlar.
 // export { sendReviewCampaign } from './notifications/review_campaign';
+// TODO(üni-hatırlatma): uniRemindersEnabled toggle'ını taşıyan sürüm Play'de
+// yayınlandıktan sonra bu export'u açıp deploy et — o zamana kadar mevcut
+// kullanıcıların bildirimi kapatma yolu yok.
+// export { sendUniReminders } from './notifications/uni_reminders';
 export { syncReviewLikeCount } from './reviews/sync_review_like_count';
 export { submitReview, getReviewSubmissionStatus } from './reviews/submit_review';
 

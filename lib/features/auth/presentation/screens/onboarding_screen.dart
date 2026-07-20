@@ -2,13 +2,16 @@ import 'dart:math';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../router/redirect_utils.dart';
+import '../../../assistant/data/robot_memory.dart';
+import '../../../assistant/domain/robot_mood.dart';
+import '../../../assistant/domain/robot_scripts.dart';
+import '../../../assistant/presentation/widgets/robot_avatar.dart';
 
 
 // ═══════════════════════════════════════════════════════════════════════
@@ -57,49 +60,33 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     'assets/logos/selcuk.png',
   ];
 
-  /// Sayfa verileri
-  static final _pages = [
-    _PageData(
-      icon: Icons.school_rounded,
-      artAsset: 'assets/icons/compare_icon.svg',
+  /// Sayfaların GÖRSEL kimliği. Başlık/gövde [RobotScripts.onboardingPages]
+  /// içinde yaşar — böylece Üni'nin ağzından çıkar ve iki dilli olur.
+  static const _pages = [
+    _PageStyle(
       glowColor: AppColors.primary,
-      title: "ÜniSeç'e Hoş Geldin",
-      description:
-          'Hayalindeki üniversiteyi keşfet, gerçek yorumları oku ve geleceğini şekillendir.',
-      gradientColors: const [Color(0xFF0A0A18), Color(0xFF1A1040)],
+      gradientColors: [Color(0xFF0A0A18), Color(0xFF1A1040)],
       accentColor: AppColors.primary,
     ),
-    _PageData(
-      icon: Icons.explore_rounded,
+    _PageStyle(
       glowColor: AppColors.accent,
-      title: 'Keşfet & Karşılaştır',
-      description:
-          '50+ üniversiteyi puan, şehir ve olanaklara göre filtrele. '
-          'Yan yana karşılaştır, en uygununu bul.',
-      gradientColors: const [Color(0xFF0A0A18), Color(0xFF0A1A2E)],
+      gradientColors: [Color(0xFF0A0A18), Color(0xFF0A1A2E)],
       accentColor: AppColors.accent,
     ),
-    _PageData(
-      icon: Icons.verified_rounded,
+    _PageStyle(
       glowColor: AppColors.secondary,
-      title: 'Gerçek Öğrenci Yorumları',
-      description:
-          'edu.tr doğrulamalı öğrencilerin deneyimlerini oku. '
-          'Sahte yorum yok, sadece gerçek hikayeler.',
-      gradientColors: const [Color(0xFF0A0A18), Color(0xFF1A0A1A)],
+      gradientColors: [Color(0xFF0A0A18), Color(0xFF1A0A1A)],
       accentColor: AppColors.secondary,
     ),
-    _PageData(
-      icon: Icons.rocket_launch_rounded,
+    _PageStyle(
       glowColor: AppColors.primary,
-      title: 'Hazır mısın?',
-      description:
-          'Yurt bilgileri, kampüs mekanları ve çok daha fazlası seni bekliyor. '
-          'Hemen keşfetmeye başla!',
-      gradientColors: const [Color(0xFF0A0A18), Color(0xFF101030)],
+      gradientColors: [Color(0xFF0A0A18), Color(0xFF101030)],
       accentColor: AppColors.primary,
     ),
   ];
+
+  /// Son sayfada Üni'nin sorduğu ad.
+  final _nameController = TextEditingController();
 
   @override
   void initState() {
@@ -154,6 +141,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
   @override
   void dispose() {
     _pageController.dispose();
+    _nameController.dispose();
     _floatController.dispose();
     _pulseController.dispose();
     super.dispose();
@@ -164,6 +152,11 @@ class _OnboardingScreenState extends State<OnboardingScreen>
   Future<void> _completeOnboarding() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('onboarding_completed', true);
+    // Ad verildiyse Üni hatırlasın; boş bırakılırsa hiç yazılmaz.
+    final name = _nameController.text.trim();
+    if (name.isNotEmpty) {
+      await RobotMemory(prefs).setDisplayName(name);
+    }
     if (!mounted) return;
     // Deep link ile gelindiyse hedefe dön (ör. paylaşılan tercih listesi)
     final target = localRedirectPathFromParam(widget.from);
@@ -252,8 +245,14 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                       child: Padding(
                         padding: const EdgeInsets.fromLTRB(32, 80, 32, 120),
                         child: _PageContent(
-                          data: page,
+                          style: page,
+                          copy: RobotScripts.onboardingPages[index],
                           pulseController: _pulseController,
+                          // Ekran başına tek animasyonlu avatar kuralı:
+                          // PageView komşu sayfaları canlı tutar.
+                          animateAvatar: index == _currentPage,
+                          nameController:
+                              index == _pages.length - 1 ? _nameController : null,
                         ),
                       ),
                     ),
@@ -269,7 +268,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                 child: Padding(
                   padding: const EdgeInsets.all(16),
                   child: _GlassChip(
-                    label: 'Atla',
+                    label: RobotScripts.isEn ? 'Skip' : 'Atla',
                     onTap: _completeOnboarding,
                   ),
                 ),
@@ -329,25 +328,13 @@ class _OnboardingScreenState extends State<OnboardingScreen>
 //  Data Models
 // ═══════════════════════════════════════════════════════════════════════
 
-class _PageData {
-  final IconData icon;
-
-  /// Opsiyonel marka görseli (SVG). Verilirse Material [icon] yerine beyaz
-  /// renkli olarak gradient dairenin içinde gösterilir — 1. sayfada ÜniSeç
-  /// swap glyph'i için kullanılır.
-  final String? artAsset;
+class _PageStyle {
   final Color glowColor;
-  final String title;
-  final String description;
   final List<Color> gradientColors;
   final Color accentColor;
 
-  const _PageData({
-    required this.icon,
-    this.artAsset,
+  const _PageStyle({
     required this.glowColor,
-    required this.title,
-    required this.description,
     required this.gradientColors,
     required this.accentColor,
   });
@@ -522,22 +509,33 @@ class _FloatingLogos extends StatelessWidget {
 // ═══════════════════════════════════════════════════════════════════════
 
 class _PageContent extends StatelessWidget {
-  final _PageData data;
+  final _PageStyle style;
+  final OnboardingCopy copy;
   final AnimationController pulseController;
+  final bool animateAvatar;
 
-  const _PageContent({required this.data, required this.pulseController});
+  /// Yalnız son sayfada dolu — Üni'nin isim sorusu.
+  final TextEditingController? nameController;
+
+  const _PageContent({
+    required this.style,
+    required this.copy,
+    required this.pulseController,
+    required this.animateAvatar,
+    this.nameController,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        // ── Glowing Icon ──
-        _GlowingIcon(
-          icon: data.icon,
-          artAsset: data.artAsset,
-          color: data.glowColor,
+        // ── Üni ──
+        _GlowingRobot(
+          mood: copy.mood,
+          color: style.glowColor,
           pulseController: pulseController,
+          animated: animateAvatar,
         )
             .animate()
             .fadeIn(duration: 600.ms)
@@ -550,9 +548,9 @@ class _PageContent extends StatelessWidget {
 
         const SizedBox(height: 48),
 
-        // ── Title ──
+        // ── Başlık ──
         Text(
-          data.title,
+          copy.title,
           style: AppTextStyles.displayMedium.copyWith(
             color: Colors.white,
             fontWeight: FontWeight.w700,
@@ -565,9 +563,9 @@ class _PageContent extends StatelessWidget {
 
         const SizedBox(height: 20),
 
-        // ── Description ──
+        // ── Gövde ──
         Text(
-          data.description,
+          copy.body,
           style: AppTextStyles.bodyLarge.copyWith(
             color: Colors.white.withValues(alpha: 0.7),
             height: 1.7,
@@ -577,26 +575,85 @@ class _PageContent extends StatelessWidget {
             .animate()
             .fadeIn(delay: 400.ms, duration: 500.ms)
             .slideY(begin: 0.3, end: 0),
+
+        if (nameController != null) ...[
+          const SizedBox(height: 28),
+          _NameField(controller: nameController!, accent: style.accentColor)
+              .animate()
+              .fadeIn(delay: 600.ms, duration: 500.ms)
+              .slideY(begin: 0.3, end: 0),
+        ],
+      ],
+    );
+  }
+}
+
+/// Üni'nin isim kutusu — boş bırakılabilir, zorlama yok.
+class _NameField extends StatelessWidget {
+  final TextEditingController controller;
+  final Color accent;
+
+  const _NameField({required this.controller, required this.accent});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        TextField(
+          controller: controller,
+          textAlign: TextAlign.center,
+          textCapitalization: TextCapitalization.words,
+          textInputAction: TextInputAction.done,
+          maxLength: 24,
+          style: AppTextStyles.titleMedium.copyWith(color: Colors.white),
+          decoration: InputDecoration(
+            counterText: '',
+            hintText: RobotScripts.onboardingNameHint,
+            hintStyle: AppTextStyles.titleMedium.copyWith(
+              color: Colors.white.withValues(alpha: 0.35),
+            ),
+            filled: true,
+            fillColor: Colors.white.withValues(alpha: 0.08),
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(16),
+              borderSide:
+                  BorderSide(color: Colors.white.withValues(alpha: 0.15)),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(16),
+              borderSide: BorderSide(color: accent, width: 1.6),
+            ),
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          RobotScripts.onboardingNameSkip,
+          style: AppTextStyles.labelSmall.copyWith(
+            color: Colors.white.withValues(alpha: 0.45),
+          ),
+        ),
       ],
     );
   }
 }
 
 // ═══════════════════════════════════════════════════════════════════════
-//  Glowing Icon Widget
+//  Glowing Robot — Üni, nabız gibi atan hâlenin içinde
 // ═══════════════════════════════════════════════════════════════════════
 
-class _GlowingIcon extends StatelessWidget {
-  final IconData icon;
-  final String? artAsset;
+class _GlowingRobot extends StatelessWidget {
+  final RobotMood mood;
   final Color color;
   final AnimationController pulseController;
+  final bool animated;
 
-  const _GlowingIcon({
-    required this.icon,
-    this.artAsset,
+  const _GlowingRobot({
+    required this.mood,
     required this.color,
     required this.pulseController,
+    required this.animated,
   });
 
   @override
@@ -608,6 +665,7 @@ class _GlowingIcon extends StatelessWidget {
         return Container(
           width: 140,
           height: 140,
+          alignment: Alignment.center,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             gradient: RadialGradient(
@@ -630,40 +688,7 @@ class _GlowingIcon extends StatelessWidget {
           child: child,
         );
       },
-      child: Container(
-        width: 100,
-        height: 100,
-        margin: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              color,
-              color.withValues(alpha: 0.7),
-            ],
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: color.withValues(alpha: 0.4),
-              blurRadius: 20,
-              offset: const Offset(0, 8),
-            ),
-          ],
-        ),
-        child: artAsset != null
-            ? SvgPicture.asset(
-                artAsset!,
-                width: 50,
-                height: 50,
-                colorFilter: const ColorFilter.mode(
-                  Colors.white,
-                  BlendMode.srcIn,
-                ),
-              )
-            : Icon(icon, size: 48, color: Colors.white),
-      ),
+      child: RobotAvatar(size: 104, mood: mood, animated: animated),
     );
   }
 }

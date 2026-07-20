@@ -582,6 +582,23 @@ class AuthRepository {
     }
   }
 
+  /// Uygulama dilini kullanıcı dokümanına yazar — sunucu bildirimleri
+  /// (Üni hatırlatmaları) bu alana bakıp doğru dilde yazar.
+  ///
+  /// En iyi çaba: başarısız olursa sessizce yutulur, kullanıcı bir şey
+  /// görmez. Alan yoksa sunucu 'tr' varsayar.
+  Future<void> updateLocale({
+    required String uid,
+    required String locale,
+  }) async {
+    try {
+      await _firestore.collection('users').doc(uid).update({'locale': locale});
+      clearCache();
+    } catch (e) {
+      debugPrint('[Auth] Dil senkronu başarısız: $e');
+    }
+  }
+
   // ─── Profil Fotoğrafı Yükleme ─────────────────────────────────
 
   Future<String> uploadProfilePhoto(String uid, File imageFile) async {

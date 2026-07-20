@@ -7,6 +7,10 @@ void main() {
       expect(tercihPhaseFor(DateTime(2026, 7, 19)), TercihPhase.tercihPeriod);
     });
 
+    // DİKKAT: Bu sınırların sunucu aynası
+    // functions/src/assistant/tercih_calendar.ts içindeki PHASE_BOUNDS'tur
+    // (Üni'nin hatırlatma bildirimleri oradan tetiklenir). Buradaki bir
+    // günü değiştirirken o dosyayı da güncelle.
     test('faz sınırları', () {
       expect(tercihPhaseFor(DateTime(2026, 5, 1)), TercihPhase.examCountdown);
       expect(tercihPhaseFor(DateTime(2026, 6, 13)), TercihPhase.examCountdown);

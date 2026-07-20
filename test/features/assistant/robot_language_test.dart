@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:uni_app/features/assistant/domain/chat_flow.dart';
 import 'package:uni_app/features/assistant/domain/robot_brain.dart';
+import 'package:uni_app/features/assistant/domain/robot_mood.dart';
 import 'package:uni_app/features/assistant/domain/robot_scripts.dart';
 import 'package:uni_app/features/assistant/domain/tercih_calendar.dart';
 import 'package:uni_app/features/assistant/domain/tercih_nlu.dart';
@@ -107,6 +108,26 @@ void main() {
       for (final s in RobotScripts.resultsBalanced) {
         expect(s.text, contains('{total}'));
       }
+    });
+
+    test('onboarding sayfaları: id eşliği, iki dilde dolu metin', () {
+      final tr = RobotScripts.onboardingPages;
+      expect(tr, hasLength(4));
+
+      RobotScripts.languageCode = 'en';
+      final en = RobotScripts.onboardingPages;
+      expect(en.map((p) => p.id), tr.map((p) => p.id));
+      expect(en.map((p) => p.mood), tr.map((p) => p.mood));
+
+      for (var i = 0; i < tr.length; i++) {
+        expect(en[i].title, isNotEmpty);
+        expect(en[i].body, isNotEmpty);
+        // Çeviri gerçekten yapılmış olmalı — kopyala-yapıştır değil.
+        expect(en[i].title, isNot(tr[i].title), reason: tr[i].id);
+        expect(en[i].body, isNot(tr[i].body), reason: tr[i].id);
+      }
+      // Son sayfa isim sorusu; Üni orada kutlama modunda.
+      expect(tr.last.mood, RobotMood.celebrating);
     });
 
     // Türkçe eşi: robot_brain_test.dart 'her özet dürüstlük içerir

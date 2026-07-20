@@ -2,7 +2,9 @@ import 'dart:async';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart' show Locale;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../core/providers/locale_provider.dart';
 import '../../data/auth_repository.dart';
 import '../../domain/user_model.dart';
 import '../../../../services/analytics_service.dart';
@@ -53,6 +55,46 @@ final currentUserProvider = FutureProvider<UserModel?>((ref) async {
     error: (e, st) => null,
   );
 });
+
+/// Uygulama dilini kullanıcı dokümanına yansıtır — sunucudan gönderilen
+/// Üni hatırlatmaları kullanıcının dilinde yazılsın diye.
+///
+/// Hem dil değiştiğinde hem oturum açıldığında tetiklenir; yazılan değer
+/// hatırlandığı için (`_lastSynced`) rebuild başına tekrar yazılmaz.
+/// Yaşamı [UniSecApp] tarafından okunarak başlatılır.
+final localeSyncProvider = Provider<LocaleSync>((ref) => LocaleSync(ref));
+
+class LocaleSync {
+  final Ref _ref;
+  String? _lastSynced;
+
+  LocaleSync(this._ref) {
+    _ref.listen<Locale>(
+      localeProvider,
+      (_, next) => _sync(next.languageCode),
+      fireImmediately: true,
+    );
+    _ref.listen<AsyncValue<UserModel?>>(
+      currentUserProvider,
+      (_, _) => _sync(_ref.read(localeProvider).languageCode),
+      fireImmediately: true,
+    );
+  }
+
+  void _sync(String locale) {
+    final user = _ref.read(currentUserProvider).valueOrNull;
+    if (user == null) return;
+
+    final key = '${user.uid}_$locale';
+    if (_lastSynced == key) return;
+    _lastSynced = key;
+    if (user.locale == locale) return;
+
+    _ref
+        .read(authRepositoryProvider)
+        .updateLocale(uid: user.uid, locale: locale);
+  }
+}
 
 final currentUserAdminProvider = FutureProvider<bool>((ref) async {
   final user = await ref.watch(authStateProvider.future);

@@ -9,6 +9,7 @@ class RobotMemory {
 
   static const _lastShownPrefix = 'assistant_last_';
   static const _wizardIntroSeenKey = 'assistant_wizard_intro_seen_v1';
+  static const _displayNameKey = 'assistant_display_name';
 
   /// Bu slotta en son gösterilen mesaj id'si (RobotBrain.pick'e excludeId).
   String? lastShown(String slot) =>
@@ -21,4 +22,14 @@ class RobotMemory {
 
   Future<void> markWizardIntroSeen() =>
       _prefs.setBool(_wizardIntroSeenKey, true);
+
+  /// Onboarding'de Üni'nin sorduğu ad. Oturum açılmadan önce toplandığı
+  /// için cihaz-yerel; auth'ta ad yoksa selamlama buna düşer. Boşsa null.
+  String? get displayName {
+    final v = _prefs.getString(_displayNameKey)?.trim();
+    return (v == null || v.isEmpty) ? null : v;
+  }
+
+  Future<void> setDisplayName(String name) =>
+      _prefs.setString(_displayNameKey, name.trim());
 }

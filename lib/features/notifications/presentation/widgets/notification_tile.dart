@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../assistant/presentation/widgets/robot_avatar.dart';
+import '../../domain/enums/notification_type.dart';
 import '../../domain/models/app_notification.dart';
 import '../providers/notification_providers.dart';
 
@@ -69,17 +71,22 @@ class NotificationTile extends ConsumerWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Üni'nin hatırlatmalarında ikon yerine robotun kendisi —
+                // bildirim merkezinde de tanıdık yüz görünsün. Liste içi
+                // kullanım olduğundan animasyonsuz.
                 Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
                     color: notification.accentColor.withValues(alpha: 0.12),
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(
-                    notification.icon,
-                    color: notification.accentColor,
-                    size: 18,
-                  ),
+                  child: notification.type == NotificationType.uniReminder
+                      ? const RobotAvatar(size: 18, animated: false)
+                      : Icon(
+                          notification.icon,
+                          color: notification.accentColor,
+                          size: 18,
+                        ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(

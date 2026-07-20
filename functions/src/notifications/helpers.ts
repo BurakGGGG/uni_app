@@ -5,7 +5,12 @@ const messaging = admin.messaging();
 
 interface SendNotificationOptions {
   userId: string;
-  type: 'review_liked' | 'review_moderated' | 'favorite_new_review' | 'review_campaign';
+  type:
+    | 'review_liked'
+    | 'review_moderated'
+    | 'favorite_new_review'
+    | 'review_campaign'
+    | 'uni_reminder';
   title: string;
   body: string;
   data?: Record<string, string>;
@@ -13,7 +18,8 @@ interface SendNotificationOptions {
     | 'reviewLikedEnabled'
     | 'reviewModeratedEnabled'
     | 'favoriteNewReviewEnabled'
-    | 'reviewCampaignEnabled';
+    | 'reviewCampaignEnabled'
+    | 'uniRemindersEnabled';
 }
 
 /**

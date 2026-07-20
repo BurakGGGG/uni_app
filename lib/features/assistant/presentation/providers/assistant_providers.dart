@@ -22,7 +22,11 @@ final robotMemoryProvider = Provider<RobotMemory>((ref) {
 final homeGreetingProvider = Provider.autoDispose<RobotMessage>((ref) {
   final profile = ref.watch(studentScoreProfileProvider);
   final user = ref.watch(currentUserProvider).valueOrNull;
-  final name = user?.displayName.trim();
+  // Auth'ta ad yoksa (anonim ya da adsız hesap) onboarding'de Üni'nin
+  // sorduğu ada düşülür — Üni tanıştığı kişiyi hatırlasın.
+  final name = user?.displayName.trim().isNotEmpty == true
+      ? user!.displayName.trim()
+      : ref.watch(robotMemoryProvider).displayName;
   final firstName =
       (name == null || name.isEmpty) ? null : name.split(' ').first;
   return RobotBrain.homeGreeting(

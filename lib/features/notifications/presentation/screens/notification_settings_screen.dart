@@ -5,6 +5,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/widgets/widgets.dart';
+import '../../../assistant/domain/robot_scripts.dart';
 import '../providers/notification_preferences_provider.dart';
 
 class NotificationSettingsScreen extends ConsumerStatefulWidget {
@@ -105,6 +106,18 @@ class _NotificationSettingsScreenState
                 onChanged: (v) => ref
                     .read(notificationPreferencesProvider.notifier)
                     .toggle('reviewCampaignEnabled', v),
+              ),
+              _SettingTile(
+                icon: Icons.auto_awesome_rounded,
+                iconColor: AppColors.secondary,
+                title: "$kRobotName'nin hatırlatmaları",
+                subtitle:
+                    'Tercih dönemi açılışı, son günler ve sonuç günü gibi '
+                    'önemli anlarda haber ver',
+                value: prefs.uniRemindersEnabled,
+                onChanged: (v) => ref
+                    .read(notificationPreferencesProvider.notifier)
+                    .toggle('uniRemindersEnabled', v),
               ),
               const SizedBox(height: 24),
               _buildSectionTitle('Bilgi'),
