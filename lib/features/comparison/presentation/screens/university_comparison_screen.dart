@@ -331,7 +331,6 @@ class _EmptyState extends StatelessWidget {
     return ComparisonEmptyState(
       title: loc.comparisonEmptyUniversityTitle,
       subtitle: loc.comparisonEmptyUniversityDesc,
-      fallbackIcon: Icons.school_rounded,
     );
   }
 }

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../assistant/domain/robot_scripts.dart';
+import '../../../assistant/presentation/widgets/uni_empty_state.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
@@ -197,10 +199,10 @@ class _FavoritesScreenState extends ConsumerState<FavoritesScreen> {
   }
 
   Widget _buildEmptyState(BuildContext context) {
-    return EmptyState(
+    return UniEmptyState(
       icon: Icons.favorite_border_rounded,
       title: 'Henüz favorin yok',
-      message: 'İlgilendiğin üniversiteleri favorilerine ekleyerek buradan kolayca takip edebilirsin.',
+      script: RobotScripts.emptyFavorites,
       action: SizedBox(
         width: 200,
         child: GradientButton(

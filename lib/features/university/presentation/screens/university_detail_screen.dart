@@ -32,6 +32,7 @@ import '../../../preference_wizard/presentation/widgets/feasibility_chip.dart';
 import '../widgets/uni_hero.dart';
 import '../widgets/uni_info_strip.dart';
 import '../widgets/uni_section.dart';
+import '../../../assistant/presentation/widgets/uni_university_fit.dart';
 import '../../../admin/data/analytics_service.dart';
 import '../../../admin/presentation/widgets/analytics_once_tracker.dart';
 import '../../../../services/engagement_service.dart';
@@ -134,6 +135,14 @@ class _Body extends ConsumerWidget {
                   _ActionButtons(uni: uni),
 
                   const SizedBox(height: 16),
+
+                  // Üni'nin uygunluk özeti — "Bölümler"in hemen üstünde,
+                  // keşiften tercihe köprü. Kendi kapısı var: susması
+                  // gerektiğinde hiç çizilmez.
+                  UniUniversityFit(
+                    universityId: uni.id,
+                    departments: deptsAsync.value ?? const [],
+                  ),
 
                   // Bölümler section
                   UniSection(

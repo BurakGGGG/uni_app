@@ -4,12 +4,9 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
-import '../../../monetization/domain/enums/subscription_tier.dart';
-import '../../../monetization/presentation/providers/subscription_providers.dart';
 import '../../../score_calculator/domain/models/match_result.dart';
 import '../../../university/domain/models/department_model.dart';
-import '../../domain/preference_match_engine.dart';
-import '../providers/preference_wizard_providers.dart';
+import '../feasibility_view.dart';
 
 /// "Senin puanınla" uygunluk rozeti — app genelinde tek-program kategorisi.
 ///
@@ -52,56 +49,36 @@ class FeasibilityChip extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final profile = ref.watch(studentScoreProfileProvider);
-    if (profile == null || profile.scoreType.isEmpty) {
-      return const SizedBox.shrink();
-    }
+    final view = watchFeasibility(
+      ref,
+      scoreType: scoreType,
+      baseScore: baseScore,
+      ranking: ranking,
+      enforceGate: enforceGate,
+    );
 
-    final st = scoreType?.toUpperCase();
-    // Farklı puan türü — kıyaslanamaz.
-    if (st == null || st != profile.scoreType.toUpperCase()) {
-      return const SizedBox.shrink();
+    if (view is! FeasibilityVerdict) {
+      // Profil yok / kıyaslanamaz → sessizlik; Plus yok → kilitli çip.
+      return view is FeasibilityLocked
+          ? _LockedChip(compact: compact)
+          : const SizedBox.shrink();
     }
-    final base = baseScore ?? 0;
-    final refRank = (ranking != null && ranking! > 0) ? ranking : null;
-    // Öğrenci sırası: gerçek sıra > puandan tahmin (eğri hazırsa) > yok.
-    // Tahminci yüklenene dek puan yoluna düşer — rozet yine gösterilir.
-    final estimator = ref.watch(rankEstimatorProvider).valueOrNull;
-    final student = resolveStudentRank(profile, estimator: estimator);
-    final canUseRank = student != null && refRank != null;
-    final canUseScore = profile.hasScore && base > 0;
-    // Ne sıralama ne puan sinyali var — kıyaslanamaz.
-    if (!canUseRank && !canUseScore) return const SizedBox.shrink();
+    final verdict = view;
 
-    if (enforceGate) {
-      final tier = ref.watch(subscriptionTierProvider).valueOrNull;
-      final hasPlus = tier != null && tier.satisfies(SubscriptionTier.plus);
-      if (!hasPlus) return _LockedChip(compact: compact);
-    }
-
-    final MatchCategory category;
-    final MatchBasis basis;
-    if (canUseRank) {
-      category = categorizeByRank(student.rank, refRank);
-      basis = student.basis;
-    } else {
-      category = categorizeByScore(profile.placementScore, base);
-      basis = MatchBasis.score;
-    }
-
-    final style = _styleFor(category);
+    final style = _styleFor(verdict.category);
     final String tooltip;
-    switch (basis) {
+    switch (verdict.basis) {
       case MatchBasis.rank:
-        tooltip = 'Sıralaman ${student!.rank} · taban sıralama ~$refRank';
+        tooltip = 'Sıralaman ${verdict.studentRank} · taban sıralama '
+            '~${verdict.referenceRank}';
         break;
       case MatchBasis.estimatedRank:
-        tooltip = 'Tahmini sıralaman ~${student!.rank} · taban sıralama '
-            '~$refRank';
+        tooltip = 'Tahmini sıralaman ~${verdict.studentRank} · taban '
+            'sıralama ~${verdict.referenceRank}';
         break;
       case MatchBasis.score:
-        tooltip = 'Puanın ${profile.placementScore.toStringAsFixed(1)} · '
-            'taban ${base.toStringAsFixed(1)}';
+        tooltip = 'Puanın ${verdict.placementScore!.toStringAsFixed(1)} · '
+            'taban ${verdict.baseScore!.toStringAsFixed(1)}';
         break;
     }
 

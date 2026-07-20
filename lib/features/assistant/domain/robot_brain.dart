@@ -1,5 +1,6 @@
 import '../../preference_wizard/domain/list_health.dart';
 import '../../preference_wizard/domain/match_reason.dart';
+import '../../score_calculator/domain/models/match_result.dart';
 import 'robot_message.dart';
 import 'robot_mood.dart';
 import 'robot_scripts.dart';
@@ -278,6 +279,48 @@ abstract final class RobotBrain {
       text += RobotScripts.estimatedRankSuffix;
     }
     return RobotMessage(script.id, text, script.mood, action: script.action);
+  }
+
+  // ── Bölüm / üniversite detayı: kişisel uygunluk yorumu ──
+
+  /// Tek bir programın kullanıcıya uygunluğu, kelimelerle.
+  ///
+  /// [FeasibilityChip] aynı kategoriyi renkli bir çip olarak gösteriyor
+  /// ama gerekçesi tooltip'te kalıyor (mobilde görünmez); Üni onu sesli
+  /// söyler. Kapı kararı çağırana aittir — bu fonksiyon yalnız metni üretir.
+  ///
+  /// [estimated] true ise sıra puandan tahmin edilmiştir; Üni bunu saklamaz
+  /// ([RobotScripts.estimatedRankSuffix] eklenir).
+  static RobotMessage departmentVerdict(
+    MatchCategory category, {
+    bool estimated = false,
+  }) {
+    final script = switch (category) {
+      MatchCategory.guaranteed => RobotScripts.deptVerdictHigh,
+      MatchCategory.target => RobotScripts.deptVerdictTarget,
+      MatchCategory.dream => RobotScripts.deptVerdictDream,
+    };
+    final text =
+        estimated ? '${script.text}${RobotScripts.estimatedRankSuffix}' : script.text;
+    return RobotMessage(script.id, text, script.mood, action: script.action);
+  }
+
+  /// Puan profili olmayan kullanıcıya sıralamasını girme daveti.
+  static RobotMessage get departmentNeedsRank =>
+      RobotScripts.deptNeedRank.toMessage();
+
+  /// Bir üniversitenin kullanıcıya uyan bölüm sayısı.
+  /// [matching] 0 ise "uygun bulamadım" dalına düşer.
+  static RobotMessage universityFitSummary({
+    required int matching,
+    required int high,
+  }) {
+    if (matching <= 0) return RobotScripts.uniFitNone.toMessage();
+    final s = RobotScripts.uniFitSummary;
+    final text = s.text
+        .replaceAll('{count}', '$matching')
+        .replaceAll('{high}', '$high');
+    return RobotMessage(s.id, text, s.mood, action: s.action);
   }
 
   // ── Liste sağlığı ──

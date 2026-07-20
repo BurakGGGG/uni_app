@@ -90,6 +90,18 @@ void main() {
               RobotScripts.chatUpdate,
               RobotScripts.chatSearchError,
               RobotScripts.chatSearchMissing,
+              RobotScripts.deptVerdictHigh,
+              RobotScripts.deptVerdictTarget,
+              RobotScripts.deptVerdictDream,
+              RobotScripts.deptNeedRank,
+              RobotScripts.uniFitSummary,
+              RobotScripts.uniFitNone,
+              RobotScripts.emptySearch,
+              RobotScripts.emptyFavorites,
+              RobotScripts.emptyCompare,
+              RobotScripts.emptyMyReviews,
+              RobotScripts.emptyUniReviews,
+              RobotScripts.emptyExplore,
             ])
               s.id,
           ];
@@ -105,6 +117,8 @@ void main() {
       expect(RobotScripts.chatAck.text, contains('{pieces}'));
       expect(RobotScripts.chatPartial.text, contains('{rest}'));
       expect(RobotScripts.chatHelloBack.text, contains('{profile}'));
+      expect(RobotScripts.uniFitSummary.text, contains('{count}'));
+      expect(RobotScripts.uniFitSummary.text, contains('{high}'));
       for (final s in RobotScripts.resultsBalanced) {
         expect(s.text, contains('{total}'));
       }

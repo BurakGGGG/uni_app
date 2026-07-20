@@ -1,6 +1,8 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../assistant/domain/robot_scripts.dart';
+import '../../../assistant/presentation/widgets/uni_empty_state.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -111,11 +113,12 @@ class CityUniversitiesScreen extends ConsumerWidget {
               ),
               data: (universities) {
                 if (universities.isEmpty) {
-                  return const SliverFillRemaining(
-                    child: EmptyState(
+                  // Üni'nin metni dile göre çözüldüğünden const olamaz.
+                  return SliverFillRemaining(
+                    child: UniEmptyState(
                       icon: Icons.school_outlined,
                       title: 'Üniversite bulunamadı',
-                      message: 'Bu şehirde henüz üniversite eklenmemiş.',
+                      script: RobotScripts.emptyExplore,
                     ),
                   );
                 }

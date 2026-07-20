@@ -28,6 +28,8 @@ import '../../../auth/presentation/providers/auth_providers.dart';
 import '../../../../core/widgets/typewriter_text.dart';
 import '../../../assistant/domain/tercih_calendar.dart';
 import '../../../assistant/presentation/providers/assistant_providers.dart';
+import '../../../assistant/presentation/robot_action_route.dart';
+import '../../../../router/app_router.dart';
 import '../../../assistant/presentation/widgets/robot_avatar.dart';
 
 /// Ana Sayfa ekranı
@@ -430,7 +432,12 @@ class _RobotGreetingCardState extends ConsumerState<_RobotGreetingCard> {
       height: 1.25,
     );
     return GestureDetector(
-      onTap: () => context.push('/preference-wizard'),
+      // Selamlama mesajı bir eylem bildiriyorsa oraya git ("netlerini
+      // hesapla" diyen mesaj hesaplayıcıya götürür); bildirmiyorsa
+      // eskiden beri olduğu gibi sihirbaza.
+      onTap: () => context.push(
+        robotActionRoute(greeting.action) ?? AppRoutes.preferenceWizard,
+      ),
       child: Container(
         decoration: BoxDecoration(
           gradient: AppColors.secondaryGradientFor(context),

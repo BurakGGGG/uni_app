@@ -3,6 +3,8 @@ import 'package:flutter/rendering.dart' show ScrollCacheExtent;
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../../../l10n/generated/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../assistant/domain/robot_scripts.dart';
+import '../../../assistant/presentation/widgets/uni_empty_state.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:async';
 import '../../../../core/theme/app_colors.dart';
@@ -152,10 +154,10 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
       child: Column(
         children: [
           const SizedBox(height: 24),
-          EmptyState(
+          UniEmptyState(
             icon: Icons.search_off_rounded,
             title: loc.searchNoResults,
-            message: loc.searchNoResultsSub(query),
+            script: RobotScripts.emptySearch,
             compact: true,
           ),
           if (suggestions.isNotEmpty) ...[

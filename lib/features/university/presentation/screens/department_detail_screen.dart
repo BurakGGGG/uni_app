@@ -18,6 +18,7 @@ import '../widgets/score_trend_chart.dart';
 import '../widgets/score_detail_sheet.dart';
 import '../../../preference_wizard/presentation/providers/preference_wizard_providers.dart';
 import '../../../preference_wizard/presentation/widgets/feasibility_chip.dart';
+import '../../../assistant/presentation/widgets/uni_department_verdict.dart';
 import '../../../admin/data/analytics_service.dart';
 import '../../../admin/domain/models/analytics_event.dart';
 import '../../../admin/presentation/widgets/analytics_once_tracker.dart';
@@ -190,6 +191,12 @@ class DepartmentDetailScreen extends ConsumerWidget {
                     ),
                     const SizedBox(height: 12),
                   ],
+
+                  // ─── Üni'nin yorumu ───────────────────────────────
+                  // Çip kategoriyi renkle söylüyor ama gerekçesi
+                  // tooltip'te kalıyordu; Üni onu sesli söyler. Kendi
+                  // kapısı var: susması gerektiğinde hiç çizilmez.
+                  UniDepartmentVerdict(department: dept),
 
                   // ─── Taban Puan Kartı ─────────────────────────────
                   if (dept.scoreData != null) ...[

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../../../l10n/generated/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../assistant/domain/robot_scripts.dart';
+import '../../../assistant/presentation/widgets/uni_empty_state.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
@@ -194,10 +196,10 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                   final filtered = _applyFilters(universities, filters);
 
                   if (filtered.isEmpty) {
-                    return EmptyState(
+                    return UniEmptyState(
                       icon: Icons.search_off_rounded,
                       title: loc.exploreNoResults,
-                      message: loc.exploreNoResultsSub,
+                      script: RobotScripts.emptyExplore,
                     );
                   }
 

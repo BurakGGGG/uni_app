@@ -3,13 +3,14 @@ import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../assistant/domain/robot_scripts.dart';
+import '../../../assistant/presentation/widgets/robot_avatar.dart';
 
-/// Karşılaştırma öncesi boş durum gösterici.
-/// Lottie dosyası yoksa fallbackIcon ile animasyonlu gösterim yapar.
+/// Karşılaştırma öncesi boş durum gösterici — nabız gibi atan gradyan
+/// dairenin içinde Üni karşılar.
 class ComparisonEmptyState extends StatelessWidget {
   final String title;
   final String subtitle;
-  final IconData fallbackIcon;
   final VoidCallback? onTap;
   final String? ctaLabel;
 
@@ -17,7 +18,6 @@ class ComparisonEmptyState extends StatelessWidget {
     super.key,
     required this.title,
     required this.subtitle,
-    this.fallbackIcon = Icons.compare_arrows_rounded,
     this.onTap,
     this.ctaLabel,
   });
@@ -47,10 +47,14 @@ class ComparisonEmptyState extends StatelessWidget {
                 ),
                 shape: BoxShape.circle,
               ),
-              child: Icon(
-                fallbackIcon,
-                size: 48,
-                color: AppColors.primary.withValues(alpha: 0.45),
+              // Üni gradyan dairenin içinde duruyor; dairenin nabız
+              // animasyonu zaten var, avatar sabit çizilir.
+              child: Center(
+                child: RobotAvatar(
+                  size: 56,
+                  mood: RobotScripts.emptyCompare.mood,
+                  animated: false,
+                ),
               ),
             )
                 .animate(onPlay: (c) => c.repeat(reverse: true))

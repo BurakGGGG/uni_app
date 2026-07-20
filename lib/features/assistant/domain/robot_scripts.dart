@@ -154,6 +154,33 @@ abstract final class RobotScripts {
   static List<RobotScript> get badgeCheer =>
       isEn ? _En.badgeCheer : _Tr.badgeCheer;
 
+  // ── Bölüm / üniversite detayı: kişisel uygunluk yorumu ──
+  static RobotScript get deptVerdictHigh =>
+      isEn ? _En.deptVerdictHigh : _Tr.deptVerdictHigh;
+  static RobotScript get deptVerdictTarget =>
+      isEn ? _En.deptVerdictTarget : _Tr.deptVerdictTarget;
+  static RobotScript get deptVerdictDream =>
+      isEn ? _En.deptVerdictDream : _Tr.deptVerdictDream;
+  static RobotScript get deptNeedRank =>
+      isEn ? _En.deptNeedRank : _Tr.deptNeedRank;
+  static RobotScript get uniFitSummary =>
+      isEn ? _En.uniFitSummary : _Tr.uniFitSummary;
+  static RobotScript get uniFitNone => isEn ? _En.uniFitNone : _Tr.uniFitNone;
+
+  // ── Boş durumlar (UniEmptyState) ──
+  static RobotScript get emptySearch =>
+      isEn ? _En.emptySearch : _Tr.emptySearch;
+  static RobotScript get emptyFavorites =>
+      isEn ? _En.emptyFavorites : _Tr.emptyFavorites;
+  static RobotScript get emptyCompare =>
+      isEn ? _En.emptyCompare : _Tr.emptyCompare;
+  static RobotScript get emptyMyReviews =>
+      isEn ? _En.emptyMyReviews : _Tr.emptyMyReviews;
+  static RobotScript get emptyUniReviews =>
+      isEn ? _En.emptyUniReviews : _Tr.emptyUniReviews;
+  static RobotScript get emptyExplore =>
+      isEn ? _En.emptyExplore : _Tr.emptyExplore;
+
   // ── Onboarding — Üni kendini tanıtır ──
   static List<OnboardingCopy> get onboardingPages =>
       isEn ? _En.onboardingPages : _Tr.onboardingPages;
@@ -736,6 +763,83 @@ abstract final class _Tr {
       RobotMood.celebrating,
     ),
   ];
+
+  // ── Bölüm / üniversite detayı ──
+  // Dürüstlük: kategori bir TAHMİN; garanti dili yok.
+  static const deptVerdictHigh = RobotScript(
+    'dept.verdict.high',
+    'Bu bölüm senin sıralamanla yüksek şanslı görünüyor. Geçen yılın '
+        'verisine göre tahminim bu — garanti veremem ama listende yer '
+        'etmesi mantıklı.',
+    RobotMood.celebrating,
+  );
+  static const deptVerdictTarget = RobotScript(
+    'dept.verdict.target',
+    'Bu bölüm sana ulaşılabilir görünüyor — sınırda değil ama rahat da '
+        'değil. Tahminim geçen yılın verisine dayanıyor.',
+    RobotMood.happy,
+  );
+  static const deptVerdictDream = RobotScript(
+    'dept.verdict.dream',
+    'Bu bölüm senin için zorlayıcı görünüyor. İstersen listene koy, ama '
+        'yanına ulaşılabilir birkaç seçenek de ekleyelim.',
+    RobotMood.thinking,
+  );
+  static const deptNeedRank = RobotScript(
+    'dept.needRank',
+    'Sıralamanı bilsem bu bölümün sana uygun olup olmadığını '
+        'söyleyebilirdim. Birlikte hızlıca girelim mi?',
+    RobotMood.neutral,
+    action: RobotAction.openWizard,
+  );
+  static const uniFitSummary = RobotScript(
+    'uni.fit.summary',
+    'Burada senin sıralamana uyan {count} bölüm buldum — {high} tanesi '
+        'yüksek şanslı. Bunlar tahmin, kesin söz değil.',
+    RobotMood.happy,
+  );
+  static const uniFitNone = RobotScript(
+    'uni.fit.none',
+    'Bu üniversitede senin puan türünde ulaşılabilir bir bölüm '
+        'bulamadım. Başka üniversitelere bakmamı ister misin?',
+    RobotMood.concerned,
+  );
+
+  // ── Boş durumlar ──
+  static const emptySearch = RobotScript(
+    'empty.search',
+    'Bunu bulamadım. Yazımı değiştirmeyi ya da daha kısa bir kelime '
+        'denemeyi öneririm.',
+    RobotMood.concerned,
+  );
+  static const emptyFavorites = RobotScript(
+    'empty.favorites',
+    'Beğendiğin üniversiteleri buraya ekle; sonra hepsini bir arada '
+        'gösteririm.',
+    RobotMood.happy,
+  );
+  static const emptyCompare = RobotScript(
+    'empty.compare',
+    'İki üniversite seç, farklarını yan yana koyayım.',
+    RobotMood.happy,
+  );
+  static const emptyMyReviews = RobotScript(
+    'empty.myReviews',
+    'Henüz yorum yazmamışsın. Deneyimin senden sonrakiler için gerçekten '
+        'kıymetli.',
+    RobotMood.neutral,
+  );
+  static const emptyUniReviews = RobotScript(
+    'empty.uniReviews',
+    'Buranın ilk yorumu senden gelebilir. Kısa bir deneyim bile çok şey '
+        'anlatır.',
+    RobotMood.happy,
+  );
+  static const emptyExplore = RobotScript(
+    'empty.explore',
+    'Bu filtrelerle bir şey çıkmadı. Birkaçını gevşetsek mi?',
+    RobotMood.concerned,
+  );
 }
 
 /// İngilizce tablo — id'ler Türkçe tabloyla birebir aynı.
@@ -1233,4 +1337,78 @@ abstract final class _En {
       RobotMood.celebrating,
     ),
   ];
+
+  // ── Bölüm / üniversite detayı ──
+  static const deptVerdictHigh = RobotScript(
+    'dept.verdict.high',
+    "With your rank this program looks like a high chance. That's my "
+        "estimate from last year's data — I can't guarantee it, but it "
+        'earns a place on your list.',
+    RobotMood.celebrating,
+  );
+  static const deptVerdictTarget = RobotScript(
+    'dept.verdict.target',
+    "This one looks reachable for you — not borderline, but not "
+        "comfortable either. My estimate rests on last year's data.",
+    RobotMood.happy,
+  );
+  static const deptVerdictDream = RobotScript(
+    'dept.verdict.dream',
+    'This program looks ambitious for you. Put it on your list if you '
+        "like, but let's add a few reachable ones next to it.",
+    RobotMood.thinking,
+  );
+  static const deptNeedRank = RobotScript(
+    'dept.needRank',
+    'If I knew your rank I could tell you whether this program fits '
+        'you. Shall we enter it quickly together?',
+    RobotMood.neutral,
+    action: RobotAction.openWizard,
+  );
+  static const uniFitSummary = RobotScript(
+    'uni.fit.summary',
+    'I found {count} programs here that match your rank — {high} of them '
+        'look like a high chance. These are estimates, not promises.',
+    RobotMood.happy,
+  );
+  static const uniFitNone = RobotScript(
+    'uni.fit.none',
+    "I couldn't find a reachable program in your score type at this "
+        'university. Want me to look at other universities?',
+    RobotMood.concerned,
+  );
+
+  // ── Boş durumlar ──
+  static const emptySearch = RobotScript(
+    'empty.search',
+    "I couldn't find that. Try a different spelling, or a shorter word.",
+    RobotMood.concerned,
+  );
+  static const emptyFavorites = RobotScript(
+    'empty.favorites',
+    'Add the universities you like here and I\'ll keep them all in one '
+        'place for you.',
+    RobotMood.happy,
+  );
+  static const emptyCompare = RobotScript(
+    'empty.compare',
+    'Pick two universities and I\'ll lay their differences side by side.',
+    RobotMood.happy,
+  );
+  static const emptyMyReviews = RobotScript(
+    'empty.myReviews',
+    "You haven't written a review yet. Your experience is genuinely "
+        'valuable to those coming after you.',
+    RobotMood.neutral,
+  );
+  static const emptyUniReviews = RobotScript(
+    'empty.uniReviews',
+    'The first review here could be yours. Even a short note says a lot.',
+    RobotMood.happy,
+  );
+  static const emptyExplore = RobotScript(
+    'empty.explore',
+    'Nothing came up with these filters. Shall we loosen a few?',
+    RobotMood.concerned,
+  );
 }

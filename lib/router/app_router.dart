@@ -93,6 +93,8 @@ class AppRoutes {
   static const String forbidden = '/403';
   static const String preferenceWizard = '/preference-wizard';
   static const String preferenceWizardResults = '/preference-wizard/results';
+  static const String scoreCalculator = '/score-calculator';
+  static const String myLists = '/my-lists';
 }
 
 /// GoRouter konfigürasyon provider'ı

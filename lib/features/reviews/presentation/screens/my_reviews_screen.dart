@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../assistant/domain/robot_scripts.dart';
+import '../../../assistant/presentation/widgets/robot_avatar.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
@@ -161,9 +163,15 @@ class MyReviewsScreen extends ConsumerWidget {
   
   Widget _buildEmptyState(BuildContext context) {
     return EmptyStateWidget(
-      icon: Icons.rate_review_outlined,
+      // Bu ekran ortak EmptyState yerine EmptyStateWidget kullanıyor;
+      // onun da illustration yuvası var, Üni doğrudan oraya giriyor.
+      illustration: RobotAvatar(
+        size: 80,
+        mood: RobotScripts.emptyMyReviews.mood,
+        animated: false,
+      ),
       title: 'Henüz yorumun yok',
-      description: 'Üniversiteni değerlendir ve diğer öğrencilere yardımcı ol.',
+      description: RobotScripts.emptyMyReviews.text,
       action: ElevatedButton.icon(
         onPressed: () => context.push('/write-review'),
         icon: const Icon(Icons.edit_rounded, size: 18),
