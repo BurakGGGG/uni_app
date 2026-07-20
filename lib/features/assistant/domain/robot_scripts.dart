@@ -2,17 +2,20 @@ import 'robot_message.dart';
 import 'robot_mood.dart';
 
 /// Robotun adı — tüm birinci-ağız metinler bu sabiti kullanır;
-/// değiştirmek tek satırdır.
+/// değiştirmek tek satırdır. Ad her iki dilde de aynıdır.
 const String kRobotName = 'Üni';
 
 /// Sonuçlar hesaplanırken gösterilen statik metin (yükleme kısa sürer,
 /// typewriter gerekmez).
-const String kResultsLoadingText =
-    'Binlerce programı senin için tarıyorum…';
+String get kResultsLoadingText => RobotScripts.isEn
+    ? 'Scanning thousands of programs for you…'
+    : 'Binlerce programı senin için tarıyorum…';
 
 /// Filtreli aramada hiç eşleşme kalmadığında (WizardEmptyResults).
-const String kEmptyResultsFilterText =
-    'Bu filtrelerle eşleşen program bulamadım — birkaçını gevşetsek mi?';
+String get kEmptyResultsFilterText => RobotScripts.isEn
+    ? "I couldn't find any programs matching these filters — shall we "
+        'loosen a few?'
+    : 'Bu filtrelerle eşleşen program bulamadım — birkaçını gevşetsek mi?';
 
 /// Tek bir mesaj şablonu. Metindeki `{...}` yer tutucularını RobotBrain
 /// doldurur; şablonlar burada kalır ki tüm copy tek dosyada yaşasın.
@@ -32,10 +35,196 @@ class RobotScript {
   RobotMessage toMessage() => RobotMessage(id, text, mood, action: action);
 }
 
-/// Üni'nin tüm repliği. Ses tonu: birinci ağız, "sen" dili, sevimli ama
-/// dürüst — yerleşme sözü ASLA verilmez; "tahmin/garanti veremem" korunur.
+/// Üni'nin tüm repliği — iki dilde. Ses tonu: birinci ağız, "sen" dili,
+/// sevimli ama dürüst — yerleşme sözü ASLA verilmez; "tahmin / garanti
+/// veremem" ("estimate / can't guarantee") korunur.
+///
+/// Dil, uygulama kökünde [languageCode] ile ayarlanır (localeProvider);
+/// tüm çağrı yerleri `RobotScripts.x` olarak değişmeden kalır — getter'lar
+/// aktif dilin tablosuna yönlendirir. Mesaj id'leri dilden bağımsızdır
+/// (analitik ve testler aynı kalır).
 abstract final class RobotScripts {
-  // ── Ana ekran: selamlama gövdeleri (faz + profil durumuna göre) ──
+  /// Aktif dil ('tr' | 'en') — uygulama kökü locale değişince günceller.
+  static String languageCode = 'tr';
+
+  static bool get isEn => languageCode == 'en';
+
+  // ── Ana ekran: selamlama gövdeleri ──
+  static List<RobotScript> get homeTercihWithProfile =>
+      isEn ? _En.homeTercihWithProfile : _Tr.homeTercihWithProfile;
+  static List<RobotScript> get homeTercihNoProfile =>
+      isEn ? _En.homeTercihNoProfile : _Tr.homeTercihNoProfile;
+  static List<RobotScript> get homeExamCountdown =>
+      isEn ? _En.homeExamCountdown : _Tr.homeExamCountdown;
+  static List<RobotScript> get homeExamWeek =>
+      isEn ? _En.homeExamWeek : _Tr.homeExamWeek;
+  static List<RobotScript> get homeResultsWait =>
+      isEn ? _En.homeResultsWait : _Tr.homeResultsWait;
+  static List<RobotScript> get homePlacementWait =>
+      isEn ? _En.homePlacementWait : _Tr.homePlacementWait;
+  static List<RobotScript> get homePlacementDone =>
+      isEn ? _En.homePlacementDone : _Tr.homePlacementDone;
+  static List<RobotScript> get homeOffSeason =>
+      isEn ? _En.homeOffSeason : _Tr.homeOffSeason;
+
+  // ── Günün ipucu ──
+  static List<RobotScript> get tips => isEn ? _En.tips : _Tr.tips;
+
+  // ── Sihirbaz girişi ──
+  static List<RobotScript> get wizardFirstVisit =>
+      isEn ? _En.wizardFirstVisit : _Tr.wizardFirstVisit;
+  static List<RobotScript> get wizardWithProfile =>
+      isEn ? _En.wizardWithProfile : _Tr.wizardWithProfile;
+  static List<RobotScript> get wizardNoProfile =>
+      isEn ? _En.wizardNoProfile : _Tr.wizardNoProfile;
+  static RobotScript get wizardValidation =>
+      isEn ? _En.wizardValidation : _Tr.wizardValidation;
+
+  // ── Sonuç özetleri ──
+  static List<RobotScript> get resultsBalanced =>
+      isEn ? _En.resultsBalanced : _Tr.resultsBalanced;
+  static List<RobotScript> get resultsRisky =>
+      isEn ? _En.resultsRisky : _Tr.resultsRisky;
+  static List<RobotScript> get resultsSafe =>
+      isEn ? _En.resultsSafe : _Tr.resultsSafe;
+  static List<RobotScript> get resultsEmpty =>
+      isEn ? _En.resultsEmpty : _Tr.resultsEmpty;
+  static String get estimatedRankSuffix =>
+      isEn ? _En.estimatedRankSuffix : _Tr.estimatedRankSuffix;
+
+  // ── Liste sağlığı ──
+  static List<RobotScript> get healthNoGuaranteed =>
+      isEn ? _En.healthNoGuaranteed : _Tr.healthNoGuaranteed;
+  static List<RobotScript> get healthTooRisky =>
+      isEn ? _En.healthTooRisky : _Tr.healthTooRisky;
+  static List<RobotScript> get healthTooSafe =>
+      isEn ? _En.healthTooSafe : _Tr.healthTooSafe;
+  static List<RobotScript> get healthBalanced =>
+      isEn ? _En.healthBalanced : _Tr.healthBalanced;
+  static List<RobotScript> get healthUnrated =>
+      isEn ? _En.healthUnrated : _Tr.healthUnrated;
+
+  // ── Boş liste dürtmesi ──
+  static List<RobotScript> get emptyList =>
+      isEn ? _En.emptyList : _Tr.emptyList;
+
+  // ── Üni ile Sohbet ──
+  static RobotScript get chatHelloNew =>
+      isEn ? _En.chatHelloNew : _Tr.chatHelloNew;
+  static RobotScript get chatHelloBack =>
+      isEn ? _En.chatHelloBack : _Tr.chatHelloBack;
+  static RobotScript get chatAskScoreType =>
+      isEn ? _En.chatAskScoreType : _Tr.chatAskScoreType;
+  static RobotScript get chatAskRank =>
+      isEn ? _En.chatAskRank : _Tr.chatAskRank;
+  static RobotScript get chatAskInterests =>
+      isEn ? _En.chatAskInterests : _Tr.chatAskInterests;
+  static RobotScript get chatAskConstraints =>
+      isEn ? _En.chatAskConstraints : _Tr.chatAskConstraints;
+  static RobotScript get chatConfirm => isEn ? _En.chatConfirm : _Tr.chatConfirm;
+  static RobotScript get chatFocus => isEn ? _En.chatFocus : _Tr.chatFocus;
+  static RobotScript get chatAck => isEn ? _En.chatAck : _Tr.chatAck;
+  static RobotScript get chatPartial => isEn ? _En.chatPartial : _Tr.chatPartial;
+  static RobotScript get chatConfused =>
+      isEn ? _En.chatConfused : _Tr.chatConfused;
+  static RobotScript get chatComingSoon =>
+      isEn ? _En.chatComingSoon : _Tr.chatComingSoon;
+  static RobotScript get chatScoreInvalid =>
+      isEn ? _En.chatScoreInvalid : _Tr.chatScoreInvalid;
+  static RobotScript get chatRestart => isEn ? _En.chatRestart : _Tr.chatRestart;
+  static RobotScript get chatUpdate => isEn ? _En.chatUpdate : _Tr.chatUpdate;
+  static RobotScript get chatSearchError =>
+      isEn ? _En.chatSearchError : _Tr.chatSearchError;
+  static RobotScript get chatSearchMissing =>
+      isEn ? _En.chatSearchMissing : _Tr.chatSearchMissing;
+
+  // ── Rozet kutlaması ──
+  static List<RobotScript> get badgeCheer =>
+      isEn ? _En.badgeCheer : _Tr.badgeCheer;
+
+  // ── Kısa ifadeler — sohbet akışı ve Üni'ye ait UI etiketleri ──
+  static String get phraseRank => isEn ? 'rank' : 'sıra';
+  static String get phraseScore => isEn ? 'points' : 'puan';
+  static String get phraseScholarship => isEn ? 'Scholarship' : 'Burslu';
+
+  /// Olumsuzlama onayı: '$ad $phraseExcluded' iki dilde de doğru okunur
+  /// ("İstanbul hariç" / "İstanbul excluded").
+  static String get phraseExcluded => isEn ? 'excluded' : 'hariç';
+
+  static String get chatTitle =>
+      isEn ? 'Chat with $kRobotName' : '$kRobotName ile Sohbet';
+  static String get inputHint =>
+      isEn ? 'Message $kRobotName…' : "$kRobotName'ye yaz…";
+  static String get rankBoxHint => isEn
+      ? 'Your rank or score (e.g. 80000)'
+      : 'Sıralaman ya da puanın (örn. 80000)';
+  static String get previewTitle =>
+      isEn ? 'Your first matches:' : 'İlk önerilerin:';
+  static String get robotNoteLabel =>
+      isEn ? "$kRobotName's note: " : "$kRobotName'nin notu: ";
+  static String get transferLabel =>
+      isEn ? 'Send to $kRobotName' : "$kRobotName'ye aktar";
+
+  // Önizleme kartı etiketleri.
+  static String fitLabel(int fit) => isEn ? '$fit% fit' : '%$fit uygun';
+  static String cutoffLabel(String rankText) =>
+      isEn ? 'cutoff $rankText' : 'taban $rankText';
+  static String get categoryHigh => isEn ? 'High chance' : 'Yüksek şans';
+  static String get categoryTarget => isEn ? 'Reachable' : 'Ulaşılabilir';
+  static String get categoryDream => isEn ? 'Ambitious' : 'Zorlayıcı';
+
+  /// WizardFilter'ın kanonik Türkçe değerleri (motor ve depolama bunları
+  /// bekler) — yalnız GÖSTERİM için çevrilir; eşleşmeyen değer aynen döner.
+  static String filterLabel(String canonical) {
+    if (!isEn) return canonical;
+    return const {
+          'Devlet': 'Public',
+          'Vakıf': 'Foundation',
+          'Türkçe': 'Turkish',
+          'İngilizce': 'English',
+          'Lisans': "Bachelor's",
+          'Önlisans': 'Associate',
+        }[canonical] ??
+        canonical;
+  }
+
+  /// [interestAreas] anahtarlarının İngilizce etiketleri; sözlükte yoksa
+  /// Türkçe etiket olduğu gibi kullanılır.
+  static String interestLabel(String key, String trLabel) {
+    if (!isEn) return trLabel;
+    return const {
+          'bilgisayar': 'Computer / Software',
+          'elektrik': 'Electrical / Electronics',
+          'makine': 'Mechanical / Automotive',
+          'endustri': 'Industrial Eng.',
+          'insaat': 'Civil / Environmental',
+          'saglik': 'Medicine / Dentistry / Pharmacy',
+          'hemsirelik': 'Nursing / Midwifery',
+          'isletme': 'Business / Economics',
+          'siyaset': 'Politics / International Rel.',
+          'psikoloji': 'Psychology / Counseling',
+          'mimarlik': 'Architecture / Design',
+          'iletisim': 'Communication / Media',
+          'matematik': 'Mathematics / Statistics',
+          'kimya': 'Chemistry / Bio / Food',
+          'havacilik': 'Aviation / Aerospace',
+          'saglik-bilimleri': 'Health Sciences',
+          'egitim': 'Teaching / Education',
+          'dil': 'English / Languages',
+          'sosyal': 'Sociology / Philosophy',
+          'tarih': 'History / Literature',
+          'turizm': 'Tourism / Gastronomy',
+          'tasarim': 'Design',
+          'finans': 'Banking / Finance',
+          'hukuk': 'Law',
+          'veteriner': 'Veterinary Medicine',
+        }[key] ??
+        trLabel;
+  }
+}
+
+/// Türkçe tablo — özgün metinler.
+abstract final class _Tr {
   static const homeTercihWithProfile = <RobotScript>[
     RobotScript(
       'home.tercih.profile.v1',
@@ -129,7 +318,6 @@ abstract final class RobotScripts {
     ),
   ];
 
-  // ── Günün ipucu ──
   static const tips = <RobotScript>[
     RobotScript(
       'tip.safety',
@@ -193,7 +381,6 @@ abstract final class RobotScripts {
     ),
   ];
 
-  // ── Sihirbaz girişi ──
   static const wizardFirstVisit = <RobotScript>[
     RobotScript(
       'wizard.first.v1',
@@ -234,7 +421,6 @@ abstract final class RobotScripts {
     ),
   ];
 
-  /// Giriş ekranında doğrulama hatası.
   static const wizardValidation = RobotScript(
     'wizard.validation.v1',
     'Bir saniye — önerilere geçebilmem için sıralamanı ya da puanını '
@@ -242,8 +428,6 @@ abstract final class RobotScripts {
     RobotMood.concerned,
   );
 
-  // ── Sonuç özetleri ({total}/{guaranteed}/{target}/{dream} doldurulur).
-  // Hepsi "tahmin" içerir — dürüstlük tonu testle korunuyor. ──
   static const resultsBalanced = <RobotScript>[
     RobotScript(
       'results.balanced.v1',
@@ -297,12 +481,10 @@ abstract final class RobotScripts {
     ),
   ];
 
-  /// Puanla (sırasız) girişte sonuç özetine eklenen dürüstlük cümlesi.
   static const estimatedRankSuffix =
       ' Bu arada sıralamanı puanından tahmin ettim — gerçek sıranı '
       'girersen daha isabetli olurum.';
 
-  // ── Liste sağlığı yorumları ──
   static const healthNoGuaranteed = <RobotScript>[
     RobotScript(
       'health.noGuaranteed.v1',
@@ -349,7 +531,6 @@ abstract final class RobotScripts {
     ),
   ];
 
-  // ── Boş liste dürtmesi ──
   static const emptyList = <RobotScript>[
     RobotScript(
       'emptyList.v1',
@@ -366,10 +547,6 @@ abstract final class RobotScripts {
       action: RobotAction.openWizard,
     ),
   ];
-
-  // ── Üni ile Sohbet — doğal dilli sihirbaz ──
-  // `{...}` yer tutucularını ChatFlow doldurur. Onay balonu "tahmin" dili
-  // taşır — dürüstlük tonu testle korunur.
 
   static const chatHelloNew = RobotScript(
     'chat.hello.new',
@@ -448,7 +625,6 @@ abstract final class RobotScripts {
     RobotMood.thinking,
   );
 
-  /// Kilitli serbest-yazı alanına dokununca: sohbet özelliği yolda.
   static const chatComingSoon = RobotScript(
     'chat.coming.soon',
     'Klavye kısmım daha hazır değil! Geliştiricilerim şu an üzerimde '
@@ -491,7 +667,6 @@ abstract final class RobotScripts {
     RobotMood.concerned,
   );
 
-  // ── Rozet kutlaması ──
   static const badgeCheer = <RobotScript>[
     RobotScript(
       'badge.v1',
@@ -506,6 +681,472 @@ abstract final class RobotScripts {
     RobotScript(
       'badge.v3',
       'Bunu sen kazandın! Rozetin hayırlı olsun.',
+      RobotMood.celebrating,
+    ),
+  ];
+}
+
+/// İngilizce tablo — id'ler Türkçe tabloyla birebir aynı.
+abstract final class _En {
+  static const homeTercihWithProfile = <RobotScript>[
+    RobotScript(
+      'home.tercih.profile.v1',
+      "Preference season is in full swing — let's review your list "
+          'together if you like.',
+      RobotMood.happy,
+    ),
+    RobotScript(
+      'home.tercih.profile.v2',
+      'These preference days are precious — want to check your matches '
+          'and refresh your list?',
+      RobotMood.happy,
+    ),
+  ];
+
+  static const homeTercihNoProfile = <RobotScript>[
+    RobotScript(
+      'home.tercih.new.v1',
+      "I'm $kRobotName! Tell me your score or rank and I'll find the "
+          'programs that suit you.',
+      RobotMood.happy,
+      action: RobotAction.openWizard,
+    ),
+    RobotScript(
+      'home.tercih.new.v2',
+      "I'm $kRobotName, your preference buddy! Enter your rank and I'll "
+          'prepare suggestions grouped by your chances.',
+      RobotMood.happy,
+      action: RobotAction.openWizard,
+    ),
+  ];
+
+  static const homeExamCountdown = <RobotScript>[
+    RobotScript(
+      'home.examCountdown.v1',
+      'The exam is getting close — you focus on studying, leave the '
+          'program research to me.',
+      RobotMood.neutral,
+    ),
+  ];
+
+  static const homeExamWeek = <RobotScript>[
+    RobotScript(
+      'home.examWeek.v1',
+      "Exam week! Deep breath… Do your best and we'll figure out the "
+          'rest together.',
+      RobotMood.happy,
+    ),
+  ];
+
+  static const homeResultsWait = <RobotScript>[
+    RobotScript(
+      'home.resultsWait.v1',
+      'Waiting for results is hard, I know. We could start exploring '
+          'departments and gathering ideas in the meantime.',
+      RobotMood.neutral,
+    ),
+    RobotScript(
+      'home.resultsWait.v2',
+      "Let's not sit idle until results day — we can estimate your "
+          'score from your net answers and take an early look.',
+      RobotMood.neutral,
+      action: RobotAction.openScoreCalculator,
+    ),
+  ];
+
+  static const homePlacementWait = <RobotScript>[
+    RobotScript(
+      'home.placementWait.v1',
+      'Preferences are in — now we wait for placement results. My '
+          'cables are crossed for you!',
+      RobotMood.happy,
+    ),
+  ];
+
+  static const homePlacementDone = <RobotScript>[
+    RobotScript(
+      'home.placementDone.v1',
+      "Placement results are out! I hope you're where you wanted to be "
+          "— and if you need the extra round, I'm right here.",
+      RobotMood.happy,
+    ),
+  ];
+
+  static const homeOffSeason = <RobotScript>[
+    RobotScript(
+      'home.offSeason.v1',
+      'Any day is a good day to explore universities. Shall we look at '
+          'the departments on your mind together?',
+      RobotMood.neutral,
+    ),
+  ];
+
+  static const tips = <RobotScript>[
+    RobotScript(
+      'tip.safety',
+      'Small tip: putting 3-4 high-chance programs at the end of your '
+          'list protects you if your rank comes in lower than expected.',
+      RobotMood.neutral,
+    ),
+    RobotScript(
+      'tip.order',
+      'Order matters in your list: what you want most should be on top — '
+          'placement reads from top to bottom.',
+      RobotMood.neutral,
+    ),
+    RobotScript(
+      'tip.fill',
+      "You don't have to use all 24 preference slots, but leaving too "
+          'many empty lowers your chances.',
+      RobotMood.neutral,
+    ),
+    RobotScript(
+      'tip.city',
+      "Don't judge a program by its score alone — look at the city and "
+          "campus life too; you'll spend a few years there.",
+      RobotMood.neutral,
+    ),
+    RobotScript(
+      'tip.volatility',
+      'Cutoff ranks can shift every year — be cautious with programs '
+          "that sat right at last year's edge.",
+      RobotMood.neutral,
+    ),
+    RobotScript(
+      'tip.scholarship',
+      'Scholarship programs at private universities can have tougher '
+          'cutoffs than state ones — weigh both together.',
+      RobotMood.neutral,
+    ),
+    RobotScript(
+      'tip.compare',
+      "When you're torn, putting two departments side by side on the "
+          'compare screen makes it easier.',
+      RobotMood.neutral,
+    ),
+    RobotScript(
+      'tip.language',
+      "For English-taught programs, don't forget to factor in the "
+          'preparatory year.',
+      RobotMood.neutral,
+    ),
+    RobotScript(
+      'tip.recheck',
+      'Before the deadline, double-check the order of your list — '
+          "reordering costs nothing and can win you a spot.",
+      RobotMood.neutral,
+    ),
+    RobotScript(
+      'tip.curriculum',
+      'Department names can be misleading — when unsure, checking the '
+          'curriculum is the safest bet.',
+      RobotMood.neutral,
+    ),
+  ];
+
+  static const wizardFirstVisit = <RobotScript>[
+    RobotScript(
+      'wizard.first.v1',
+      "Hi, I'm $kRobotName! Here's how I work: enter your score or "
+          "rank, and I'll scan thousands of programs and group them by "
+          'your chances. Add the ones you like to your list with one tap.',
+      RobotMood.happy,
+    ),
+  ];
+
+  static const wizardWithProfile = <RobotScript>[
+    RobotScript(
+      'wizard.profile.v1',
+      'Welcome back! Your info is saved — update it, or jump straight '
+          'to your matches.',
+      RobotMood.happy,
+    ),
+    RobotScript(
+      'wizard.profile.v2',
+      "Here I am again! If your rank changed, update it — otherwise "
+          "let's go straight to your matches.",
+      RobotMood.happy,
+    ),
+  ];
+
+  static const wizardNoProfile = <RobotScript>[
+    RobotScript(
+      'wizard.new.v1',
+      "Welcome! Enter your score or rank and I'll get right to finding "
+          'programs that fit you.',
+      RobotMood.happy,
+    ),
+    RobotScript(
+      'wizard.new.v2',
+      "Ready when you are! One rank or score is enough — leave the "
+          'rest to me.',
+      RobotMood.happy,
+    ),
+  ];
+
+  static const wizardValidation = RobotScript(
+    'wizard.validation.v1',
+    'One second — I need your rank or score before I can show you '
+        'matches.',
+    RobotMood.concerned,
+  );
+
+  static const resultsBalanced = <RobotScript>[
+    RobotScript(
+      'results.balanced.v1',
+      'Scan complete! I found {total} programs, {guaranteed} of them '
+          'look high-chance. These are estimates based on past years — '
+          "I can't guarantee anything, but it's a great start!",
+      RobotMood.celebrating,
+    ),
+    RobotScript(
+      'results.balanced.v2',
+      'Results are ready! I grouped {total} programs: {guaranteed} '
+          'high-chance, {target} reachable, {dream} ambitious. My '
+          "estimates rely on past-year data — the final call is yours.",
+      RobotMood.celebrating,
+    ),
+  ];
+
+  static const resultsRisky = <RobotScript>[
+    RobotScript(
+      'results.risky.v1',
+      'Hmm… by my estimates most of your matches sit in the ambitious '
+          "zone. I admire the courage, but I'd feel better if we "
+          'sprinkled in a few safe programs.',
+      RobotMood.concerned,
+    ),
+    RobotScript(
+      'results.risky.v2',
+      'With this profile most results came out ambitious — my estimate '
+          'is that adding a few safe picks would help. Check the '
+          'reachable ones too.',
+      RobotMood.concerned,
+    ),
+  ];
+
+  static const resultsSafe = <RobotScript>[
+    RobotScript(
+      'results.safe.v1',
+      'By my estimates most options here are quite safe for you. If '
+          'you like, add a few target programs up top and push your '
+          'luck!',
+      RobotMood.neutral,
+    ),
+  ];
+
+  static const resultsEmpty = <RobotScript>[
+    RobotScript(
+      'results.empty.v1',
+      "I couldn't find a match with these criteria… Don't worry — my "
+          'estimates depend on the filters; loosening a few could open '
+          'new doors.',
+      RobotMood.concerned,
+    ),
+  ];
+
+  static const estimatedRankSuffix =
+      ' By the way, I estimated your rank from your score — enter your '
+      "real rank and I'll be more accurate.";
+
+  static const healthNoGuaranteed = <RobotScript>[
+    RobotScript(
+      'health.noGuaranteed.v1',
+      "I don't see any high-chance picks in your list — I'd add a few "
+          'safe programs at the end, just in case.',
+      RobotMood.concerned,
+      action: RobotAction.openWizard,
+    ),
+  ];
+
+  static const healthTooRisky = <RobotScript>[
+    RobotScript(
+      'health.tooRisky.v1',
+      'More than half of your list looks ambitious — bold list! Still, '
+          "we'd better review the balance together.",
+      RobotMood.concerned,
+    ),
+  ];
+
+  static const healthTooSafe = <RobotScript>[
+    RobotScript(
+      'health.tooSafe.v1',
+      'Your list looks quite safe to me — adding a few target programs '
+          'up top could raise your chances.',
+      RobotMood.neutral,
+    ),
+  ];
+
+  static const healthBalanced = <RobotScript>[
+    RobotScript(
+      'health.balanced.v1',
+      'I checked your list: the balance looks good. Nice work!',
+      RobotMood.happy,
+    ),
+  ];
+
+  static const healthUnrated = <RobotScript>[
+    RobotScript(
+      'health.unrated.v1',
+      "I couldn't compare the programs in your list with your score "
+          'type — shall we check your profile?',
+      RobotMood.thinking,
+      action: RobotAction.openWizard,
+    ),
+  ];
+
+  static const emptyList = <RobotScript>[
+    RobotScript(
+      'emptyList.v1',
+      'Your list looks empty. We could fill it together based on your '
+          'score — it only takes a few minutes.',
+      RobotMood.neutral,
+      action: RobotAction.openWizard,
+    ),
+    RobotScript(
+      'emptyList.v2',
+      "Empty list, full potential! Tell me your rank and we'll start "
+          'with programs that fit you.',
+      RobotMood.happy,
+      action: RobotAction.openWizard,
+    ),
+  ];
+
+  static const chatHelloNew = RobotScript(
+    'chat.hello.new',
+    "Hi, I'm $kRobotName! I have a few quick questions to find the "
+        "programs that fit you — pick from the bubbles below and we'll "
+        'be done in a minute.',
+    RobotMood.happy,
+  );
+
+  static const chatHelloBack = RobotScript(
+    'chat.hello.back',
+    "Welcome back! Here's what I noted: {profile}. Shall we go to your "
+        'results, or update your info?',
+    RobotMood.happy,
+  );
+
+  static const chatAskScoreType = RobotScript(
+    'chat.ask.type',
+    'Which score type will you apply with? SAY, EA, SÖZ or DİL — TYT '
+        "if you're considering associate degrees.",
+    RobotMood.neutral,
+  );
+
+  static const chatAskRank = RobotScript(
+    'chat.ask.rank',
+    "So, what's your rank or score? Just type it in the little box "
+        "below — if you don't know it, we can calculate it from your "
+        'net answers.',
+    RobotMood.neutral,
+  );
+
+  static const chatAskInterests = RobotScript(
+    'chat.ask.interests',
+    'What would you like to study? Pick a field below — if undecided, '
+        '"No preference" works too.',
+    RobotMood.happy,
+  );
+
+  static const chatAskConstraints = RobotScript(
+    'chat.ask.constraints',
+    'Any city or university type preference? Pick below, or just say '
+        '"No preference".',
+    RobotMood.neutral,
+  );
+
+  static const chatConfirm = RobotScript(
+    'chat.confirm',
+    "Here's what I noted: {summary}. Ready when you are! What I find "
+        "will be an estimate based on past-year data — not a guarantee, "
+        'but a good compass.',
+    RobotMood.happy,
+  );
+
+  static const chatFocus = RobotScript(
+    'chat.focus',
+    'You mentioned more than one department — which should I focus on? '
+        'Say "All" and I\'ll look at every one of them.',
+    RobotMood.thinking,
+  );
+
+  static const chatAck = RobotScript(
+    'chat.ack',
+    'Noted: {pieces}!',
+    RobotMood.happy,
+  );
+
+  static const chatPartial = RobotScript(
+    'chat.partial',
+    'I couldn\'t quite work out this part: "{rest}". Try saying it '
+        'with different words if you like.',
+    RobotMood.thinking,
+  );
+
+  static const chatConfused = RobotScript(
+    'chat.confused',
+    "I didn't quite get that — shall we continue with the options "
+        'below?',
+    RobotMood.thinking,
+  );
+
+  static const chatComingSoon = RobotScript(
+    'chat.coming.soon',
+    "My keyboard side isn't ready yet! My developers are working on me "
+        "right now; soon we'll chat here properly. For now, let's use "
+        'the bubbles and the little box, okay?',
+    RobotMood.happy,
+  );
+
+  static const chatScoreInvalid = RobotScript(
+    'chat.score.invalid',
+    'Hmm, placement scores fall between 150 and 560 — want to try '
+        'again?',
+    RobotMood.concerned,
+  );
+
+  static const chatRestart = RobotScript(
+    'chat.restart',
+    "Alright, let's start over!",
+    RobotMood.neutral,
+  );
+
+  static const chatUpdate = RobotScript(
+    'chat.update',
+    "Sure, let's refresh your info! I'll ask the questions again — "
+        'most are a single tap anyway.',
+    RobotMood.neutral,
+  );
+
+  static const chatSearchError = RobotScript(
+    'chat.search.error',
+    'Oops, something went wrong — check your connection and try '
+        'again?',
+    RobotMood.concerned,
+  );
+
+  static const chatSearchMissing = RobotScript(
+    'chat.search.missing',
+    'Before I can search, I need your score type and your rank (or '
+        'score).',
+    RobotMood.concerned,
+  );
+
+  static const badgeCheer = <RobotScript>[
+    RobotScript(
+      'badge.v1',
+      "A new badge! I'm proud of you — keep it up!",
+      RobotMood.celebrating,
+    ),
+    RobotScript(
+      'badge.v2',
+      'One more badge for the collection! Congrats!',
+      RobotMood.celebrating,
+    ),
+    RobotScript(
+      'badge.v3',
+      'You earned this one! Enjoy your badge.',
       RobotMood.celebrating,
     ),
   ];

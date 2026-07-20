@@ -328,7 +328,7 @@ class _WizardTransferCta extends ConsumerWidget {
                 }
               },
               icon: const Icon(Icons.arrow_forward_rounded, size: 18),
-              label: const Text("$kRobotName'ye aktar"),
+              label: Text(RobotScripts.transferLabel),
               style: FilledButton.styleFrom(
                 backgroundColor: AppColors.secondary,
                 shape: RoundedRectangleBorder(

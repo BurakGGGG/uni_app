@@ -20,6 +20,7 @@ import 'l10n/generated/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'core/providers/theme_provider.dart';
 import 'core/providers/locale_provider.dart';
+import 'features/assistant/domain/robot_scripts.dart';
 
 import 'firebase_options.dart';
 
@@ -126,6 +127,9 @@ class _UniSecAppState extends ConsumerState<UniSecApp> {
     final router = ref.watch(routerProvider);
     final themeMode = ref.watch(themeProvider);
     final locale = ref.watch(localeProvider);
+    // Üni'nin metin kütüphanesi Flutter'dan bağımsız (saf Dart, headless test
+    // edilebilir) — dili buradan, uygulama locale'ından beslenir.
+    RobotScripts.languageCode = locale.languageCode;
 
     // AppBar'sız ekranlar için status bar ikon parlaklığını temaya göre ayarla.
     final platformBrightness =

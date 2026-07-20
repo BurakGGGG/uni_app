@@ -56,7 +56,7 @@ class _ChatInputBarState extends State<ChatInputBar> {
             onSubmitted: (_) => _send(),
             style: AppTextStyles.bodyMedium,
             decoration: InputDecoration(
-              hintText: widget.hint ?? "$kRobotName'ye yaz…",
+              hintText: widget.hint ?? RobotScripts.inputHint,
               hintStyle: AppTextStyles.bodyMedium.copyWith(
                 color: AppColors.textTertiaryFor(context),
               ),

@@ -377,7 +377,7 @@ class _RobotNote extends StatelessWidget {
               TextSpan(
                 children: [
                   TextSpan(
-                    text: "$kRobotName'nin notu: ",
+                    text: RobotScripts.robotNoteLabel,
                     style: const TextStyle(
                       fontWeight: FontWeight.w700,
                       color: AppColors.primary,

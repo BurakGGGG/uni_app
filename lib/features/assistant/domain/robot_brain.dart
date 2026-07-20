@@ -117,6 +117,18 @@ abstract final class RobotBrain {
 
   static String _helloFor(DayPeriod period, String? firstName) {
     final n = (firstName == null || firstName.isEmpty) ? '' : ' $firstName';
+    if (RobotScripts.isEn) {
+      switch (period) {
+        case DayPeriod.morning:
+          return 'Good morning$n!';
+        case DayPeriod.afternoon:
+          return 'Hey$n!';
+        case DayPeriod.evening:
+          return 'Good evening$n!';
+        case DayPeriod.night:
+          return 'Up at this hour, are we$n!';
+      }
+    }
     switch (period) {
       case DayPeriod.morning:
         return 'Günaydın$n!';
@@ -160,17 +172,31 @@ abstract final class RobotBrain {
 
   /// Puan türü seçilince kısa tepki; bilinmeyen türde null.
   static RobotMessage? wizardScoreTypeReaction(String scoreType) {
-    final text = switch (scoreType.toUpperCase()) {
-      'SAY' =>
-        'Sayısal! Mühendislikten sağlığa geniş bir yelpazeye bakacağız.',
-      'EA' => 'Eşit ağırlık! Hukuktan psikolojiye güzel seçenekler var.',
-      'SÖZ' =>
-        'Sözel! Edebiyattan iletişime, tarihten rehberliğe bakarız.',
-      'DİL' =>
-        'Dil! Mütercimlikten dil öğretmenliklerine birlikte bakarız.',
-      'TYT' => 'TYT ile iki yıllık (önlisans) programlara bakacağız.',
-      _ => null,
-    };
+    final text = RobotScripts.isEn
+        ? switch (scoreType.toUpperCase()) {
+            'SAY' =>
+              "SAY! We'll browse a wide range, from engineering to health.",
+            'EA' => 'EA! Nice options from law to psychology.',
+            'SÖZ' =>
+              "SÖZ! We'll look at literature, media, history and guidance.",
+            'DİL' =>
+              "DİL! From translation to language teaching — let's look "
+                  'together.',
+            'TYT' =>
+              "TYT it is — we'll browse two-year (associate) programs.",
+            _ => null,
+          }
+        : switch (scoreType.toUpperCase()) {
+            'SAY' =>
+              'Sayısal! Mühendislikten sağlığa geniş bir yelpazeye bakacağız.',
+            'EA' => 'Eşit ağırlık! Hukuktan psikolojiye güzel seçenekler var.',
+            'SÖZ' =>
+              'Sözel! Edebiyattan iletişime, tarihten rehberliğe bakarız.',
+            'DİL' =>
+              'Dil! Mütercimlikten dil öğretmenliklerine birlikte bakarız.',
+            'TYT' => 'TYT ile iki yıllık (önlisans) programlara bakacağız.',
+            _ => null,
+          };
     if (text == null) return null;
     return RobotMessage(
       'wizard.type.${scoreType.toUpperCase()}',
@@ -183,33 +209,46 @@ abstract final class RobotBrain {
   static RobotMessage? wizardRankReaction(int rank, String scoreType) {
     if (rank <= 0) return null;
     final r = formatRankTr(rank);
+    final en = RobotScripts.isEn;
     final (id, text, mood) = switch (rank) {
       < 10000 => (
           'wizard.rank.top',
-          'Vay, $r! Bu sıralamayla kapılar sonuna kadar açık görünüyor.',
+          en
+              ? 'Wow, $r! With this rank the doors look wide open.'
+              : 'Vay, $r! Bu sıralamayla kapılar sonuna kadar açık görünüyor.',
           RobotMood.celebrating,
         ),
       < 50000 => (
           'wizard.rank.strong',
-          '$r — not ettim! Sana epey seçenek bulabilirim gibi görünüyor.',
+          en
+              ? '$r — noted! Looks like I can find you plenty of options.'
+              : '$r — not ettim! Sana epey seçenek bulabilirim gibi görünüyor.',
           RobotMood.happy,
         ),
       < 150000 => (
           'wizard.rank.mid',
-          '$r, tamamdır. Dengeli bir liste kurarsak güzel seçenekler '
-              'çıkar.',
+          en
+              ? '$r, got it. With a balanced list, nice options will '
+                  'come up.'
+              : '$r, tamamdır. Dengeli bir liste kurarsak güzel seçenekler '
+                  'çıkar.',
           RobotMood.happy,
         ),
       < 500000 => (
           'wizard.rank.wide',
-          '$r — not ettim. Gerçekçi hedefler ve birkaç sürprizle güzel '
-              'bir liste kurarız.',
+          en
+              ? "$r — noted. With realistic targets and a few surprises, "
+                  "we'll build a fine list."
+              : '$r — not ettim. Gerçekçi hedefler ve birkaç sürprizle güzel '
+                  'bir liste kurarız.',
           RobotMood.happy,
         ),
       _ => (
           'wizard.rank.far',
-          '$r — birlikte sana uygun güvenli seçenekleri bulalım, '
-              'tamam mı?',
+          en
+              ? "$r — let's find the safe options that fit you, okay?"
+              : '$r — birlikte sana uygun güvenli seçenekleri bulalım, '
+                  'tamam mı?',
           RobotMood.neutral,
         ),
     };

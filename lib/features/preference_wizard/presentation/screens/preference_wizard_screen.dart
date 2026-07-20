@@ -91,7 +91,7 @@ class _PreferenceWizardScreenState
             // Ekranın tek animasyonlu avatarı — listedekiler statik.
             RobotAvatar(size: 34, mood: heroMood),
             const SizedBox(width: 10),
-            Text('$kRobotName ile Sohbet'),
+            Text(RobotScripts.chatTitle),
           ],
         ),
       ),
@@ -118,7 +118,7 @@ class _PreferenceWizardScreenState
                 child: ChatInputBar(
                   enabled: true,
                   onSend: _onSend,
-                  hint: 'Sıralaman ya da puanın (örn. 80000)',
+                  hint: RobotScripts.rankBoxHint,
                   keyboardType:
                       const TextInputType.numberWithOptions(decimal: true),
                 ),
@@ -193,7 +193,7 @@ class _TurnView extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(
-                'İlk önerilerin:',
+                RobotScripts.previewTitle,
                 style: AppTextStyles.labelSmall.copyWith(
                   color: AppColors.textSecondaryFor(context),
                   fontWeight: FontWeight.w700,

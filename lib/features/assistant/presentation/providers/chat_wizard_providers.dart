@@ -181,7 +181,7 @@ class ChatWizardController extends StateNotifier<ChatWizardState> {
       chips: const [],
       turns: [
         ...state.turns,
-        const UniChatTurn(RobotMessage(
+        UniChatTurn(RobotMessage(
             'chat.searching', kResultsLoadingText, RobotMood.thinking)),
       ],
     );

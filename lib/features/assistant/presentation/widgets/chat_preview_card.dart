@@ -4,6 +4,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../preference_wizard/domain/match_reason.dart';
 import '../../../score_calculator/domain/models/match_result.dart';
+import '../../domain/robot_scripts.dart';
 
 /// Sohbet içi kompakt öneri kartı — bölüm, üniversite, şans kategorisi ve
 /// uygunluk. Detay/ekleme akışı "Tümünü gör" ile açılan mevcut sonuç
@@ -15,9 +16,9 @@ class ChatPreviewCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final (label, color) = switch (match.category) {
-      MatchCategory.guaranteed => ('Yüksek şans', AppColors.success),
-      MatchCategory.target => ('Ulaşılabilir', AppColors.warning),
-      MatchCategory.dream => ('Zorlayıcı', AppColors.error),
+      MatchCategory.guaranteed => (RobotScripts.categoryHigh, AppColors.success),
+      MatchCategory.target => (RobotScripts.categoryTarget, AppColors.warning),
+      MatchCategory.dream => (RobotScripts.categoryDream, AppColors.error),
     };
     final ranking = match.departmentRanking;
     final fit = match.fitScore;
@@ -69,7 +70,7 @@ class ChatPreviewCard extends StatelessWidget {
               const SizedBox(width: 8),
               if (fit != null)
                 Text(
-                  '%$fit uygun',
+                  RobotScripts.fitLabel(fit),
                   style: AppTextStyles.labelSmall.copyWith(
                     color: AppColors.textSecondaryFor(context),
                   ),
@@ -77,7 +78,7 @@ class ChatPreviewCard extends StatelessWidget {
               const Spacer(),
               if (ranking != null && ranking > 0)
                 Text(
-                  'taban ${formatRankTr(ranking)}',
+                  RobotScripts.cutoffLabel(formatRankTr(ranking)),
                   style: AppTextStyles.labelSmall.copyWith(
                     color: AppColors.textTertiaryFor(context),
                   ),

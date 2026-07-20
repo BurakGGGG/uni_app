@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 
 import '../../../services/rate_limiter.dart';
 import '../domain/robot_enrichment.dart';
+import '../domain/robot_scripts.dart';
 
 /// `enrichRecommendations` callable istemcisi (us-central1, App Check'li).
 /// Sözleşme: functions/src/recommendations/enrich.ts — sunucu Pro aboneliği,
@@ -38,6 +39,9 @@ class RobotEnrichmentService implements RobotEnrichmentClient {
         ),
       );
       final response = await callable.call<Object?>({
+        // Üni sunucuda da uygulama dilinde konuşsun; sunucu bekçisi ve
+        // cache anahtarı bu alana bakar.
+        'lang': RobotScripts.languageCode,
         'userTags': userTags,
         'recommendations': [
           for (final c in candidates)

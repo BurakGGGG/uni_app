@@ -43,53 +43,72 @@ class ChatFlow {
   const ChatFlow({required this.nlu, required this.cityNames});
 
   // ── Çipler ──
+  //
+  // Etiketler dile göre çevrilir; [ChatChip.sendText] HER ZAMAN Türkçe
+  // kalır — kullanıcı balonunda etiket görünür ([ChatWizardController]
+  // chip.label'ı basar), ayrıştırıcıya giden ise sendText'tir ve
+  // [TercihNlu] yalnız Türkçe anlar.
 
-  static const scoreTypeChips = [
-    ChatChip('SAY', sendText: 'say'),
-    ChatChip('EA', sendText: 'ea'),
-    ChatChip('SÖZ', sendText: 'söz'),
-    ChatChip('DİL', sendText: 'dil'),
-    ChatChip('TYT', sendText: 'tyt'),
-  ];
+  static bool get _en => RobotScripts.isEn;
+
+  static List<ChatChip> get scoreTypeChips => const [
+        ChatChip('SAY', sendText: 'say'),
+        ChatChip('EA', sendText: 'ea'),
+        ChatChip('SÖZ', sendText: 'söz'),
+        ChatChip('DİL', sendText: 'dil'),
+        ChatChip('TYT', sendText: 'tyt'),
+      ];
 
   /// Hepsi meslek sözlüğüne dayanır — asset bölüm listesi yüklenmemiş
   /// olsa da çözülür.
-  static const interestChips = [
-    ChatChip('Bilgisayar / Yazılım', sendText: 'yazılım'),
-    ChatChip('Tıp / Sağlık', sendText: 'doktor'),
-    ChatChip('Hukuk', sendText: 'avukat'),
-    ChatChip('Psikoloji', sendText: 'psikolog'),
-    ChatChip('Öğretmenlik', sendText: 'öğretmen'),
-    ChatChip('Mühendislik', sendText: 'mühendis'),
-    ChatChip('İşletme / İktisat', sendText: 'ekonomist'),
-    ChatChip('İletişim / Medya', sendText: 'medya'),
-    ChatChip('Farketmez', command: ChatCommand.skip),
-  ];
+  static List<ChatChip> get interestChips => [
+        ChatChip(_en ? 'Computer / Software' : 'Bilgisayar / Yazılım',
+            sendText: 'yazılım'),
+        ChatChip(_en ? 'Medicine / Health' : 'Tıp / Sağlık',
+            sendText: 'doktor'),
+        ChatChip(_en ? 'Law' : 'Hukuk', sendText: 'avukat'),
+        ChatChip(_en ? 'Psychology' : 'Psikoloji', sendText: 'psikolog'),
+        ChatChip(_en ? 'Teaching' : 'Öğretmenlik', sendText: 'öğretmen'),
+        ChatChip(_en ? 'Engineering' : 'Mühendislik', sendText: 'mühendis'),
+        ChatChip(_en ? 'Business / Economics' : 'İşletme / İktisat',
+            sendText: 'ekonomist'),
+        ChatChip(_en ? 'Media / Communication' : 'İletişim / Medya',
+            sendText: 'medya'),
+        ChatChip(_en ? "Doesn't matter" : 'Farketmez',
+            command: ChatCommand.skip),
+      ];
 
-  static const constraintChips = [
-    ChatChip('İstanbul', sendText: 'istanbul'),
-    ChatChip('Ankara', sendText: 'ankara'),
-    ChatChip('İzmir', sendText: 'izmir'),
-    ChatChip('Devlet', sendText: 'devlet'),
-    ChatChip('Vakıf', sendText: 'vakıf'),
-    ChatChip('Farketmez', command: ChatCommand.skip),
-  ];
+  static List<ChatChip> get constraintChips => [
+        const ChatChip('İstanbul', sendText: 'istanbul'),
+        const ChatChip('Ankara', sendText: 'ankara'),
+        const ChatChip('İzmir', sendText: 'izmir'),
+        ChatChip(_en ? 'Public' : 'Devlet', sendText: 'devlet'),
+        ChatChip(_en ? 'Foundation' : 'Vakıf', sendText: 'vakıf'),
+        ChatChip(_en ? "Doesn't matter" : 'Farketmez',
+            command: ChatCommand.skip),
+      ];
 
-  static const confirmChips = [
-    ChatChip('Ara 🔍', command: ChatCommand.search),
-    ChatChip('Baştan başla', command: ChatCommand.restart),
-  ];
+  static List<ChatChip> get confirmChips => [
+        ChatChip(_en ? 'Search 🔍' : 'Ara 🔍', command: ChatCommand.search),
+        ChatChip(_en ? 'Start over' : 'Baştan başla',
+            command: ChatCommand.restart),
+      ];
 
-  static const doneChips = [
-    ChatChip('Tümünü gör', command: ChatCommand.goResults),
-    ChatChip('Yeni arama', command: ChatCommand.restart),
-  ];
+  static List<ChatChip> get doneChips => [
+        ChatChip(_en ? 'See all' : 'Tümünü gör',
+            command: ChatCommand.goResults),
+        ChatChip(_en ? 'New search' : 'Yeni arama',
+            command: ChatCommand.restart),
+      ];
 
-  static const returningChips = [
-    ChatChip('Sonuçlara geç', command: ChatCommand.goResults),
-    ChatChip('Bilgilerimi güncelle', command: ChatCommand.update),
-    ChatChip('Baştan başla', command: ChatCommand.restart),
-  ];
+  static List<ChatChip> get returningChips => [
+        ChatChip(_en ? 'Go to results' : 'Sonuçlara geç',
+            command: ChatCommand.goResults),
+        ChatChip(_en ? 'Update my info' : 'Bilgilerimi güncelle',
+            command: ChatCommand.update),
+        ChatChip(_en ? 'Start over' : 'Baştan başla',
+            command: ChatCommand.restart),
+      ];
 
   // ── Giriş noktaları ──
 
@@ -316,8 +335,11 @@ class ChatFlow {
         draft: d,
         step: ChatStep.scoreInfo,
         messages: [RobotScripts.chatAskRank.toMessage()],
-        chips: const [
-          ChatChip('Puanımı bilmiyorum, netlerden hesapla',
+        chips: [
+          ChatChip(
+              _en
+                  ? "I don't know my score, calculate it from my answers"
+                  : 'Puanımı bilmiyorum, netlerden hesapla',
               command: ChatCommand.calcScore),
         ],
       );
@@ -347,7 +369,8 @@ class ChatFlow {
           for (final dept in d.depts)
             ChatChip(dept.label,
                 command: ChatCommand.focusDept, value: dept.query),
-          const ChatChip('Hepsi', command: ChatCommand.allDepts),
+          ChatChip(_en ? 'All of them' : 'Hepsi',
+              command: ChatCommand.allDepts),
         ],
       );
     }
@@ -369,9 +392,9 @@ class ChatFlow {
   String _profileSummary(StudentScoreProfile p) {
     final parts = <String>[p.scoreType];
     if (p.hasRank) {
-      parts.add('${formatRankTr(p.rank!)} sıra');
+      parts.add('${formatRankTr(p.rank!)} ${RobotScripts.phraseRank}');
     } else if (p.hasScore) {
-      parts.add('${_fmtScore(p.placementScore)} puan');
+      parts.add('${_fmtScore(p.placementScore)} ${RobotScripts.phraseScore}');
     }
     return parts.join(' · ');
   }
@@ -380,15 +403,15 @@ class ChatFlow {
     final parts = <String>[];
     if (d.scoreType != null) parts.add(d.scoreType!);
     if (d.rank != null) {
-      parts.add('${formatRankTr(d.rank!)} sıra');
+      parts.add('${formatRankTr(d.rank!)} ${RobotScripts.phraseRank}');
     } else if (d.score != null) {
-      parts.add('${_fmtScore(d.score!)} puan');
+      parts.add('${_fmtScore(d.score!)} ${RobotScripts.phraseScore}');
     }
     parts.addAll(d.cityIds.map((id) => cityNames[id] ?? id));
-    parts.addAll(d.uniTypes);
-    parts.addAll(d.languages);
-    parts.addAll(d.programTypes);
-    if (d.onlyScholarship == true) parts.add('Burslu');
+    parts.addAll(d.uniTypes.map(RobotScripts.filterLabel));
+    parts.addAll(d.languages.map(RobotScripts.filterLabel));
+    parts.addAll(d.programTypes.map(RobotScripts.filterLabel));
+    if (d.onlyScholarship == true) parts.add(RobotScripts.phraseScholarship);
     if (d.depts.isNotEmpty) {
       parts.addAll(d.depts.map((e) => e.label));
     } else {
@@ -399,28 +422,30 @@ class ChatFlow {
 
   /// Sıralama/puan dışındaki yeni yakalananların onay listesi.
   List<String> _ackPieces(WizardIntent i) {
+    String out(String label) => '$label ${RobotScripts.phraseExcluded}';
     return [
       ...i.cityIds.map((id) => cityNames[id] ?? id),
-      ...i.uniTypes,
-      ...i.languages,
-      ...i.programTypes,
-      if (i.onlyScholarship == true) 'Burslu',
+      ...i.uniTypes.map(RobotScripts.filterLabel),
+      ...i.languages.map(RobotScripts.filterLabel),
+      ...i.programTypes.map(RobotScripts.filterLabel),
+      if (i.onlyScholarship == true) RobotScripts.phraseScholarship,
       ...i.depts.map((d) => d.label),
       ..._interestLabels(i.interestKeys),
       // Olumsuzlamalar da onaylanır — kullanıcı çıkarıldığını görmeli.
-      ...i.removeCityIds.map((id) => '${cityNames[id] ?? id} hariç'),
-      ...i.removeUniTypes.map((t) => '$t hariç'),
-      ...i.removeLanguages.map((l) => '$l hariç'),
-      ...i.removeProgramTypes.map((p) => '$p hariç'),
-      ...i.removeDepts.map((d) => '${d.label} hariç'),
-      ..._interestLabels(i.removeInterestKeys).map((l) => '$l hariç'),
+      ...i.removeCityIds.map((id) => out(cityNames[id] ?? id)),
+      ...i.removeUniTypes.map((t) => out(RobotScripts.filterLabel(t))),
+      ...i.removeLanguages.map((l) => out(RobotScripts.filterLabel(l))),
+      ...i.removeProgramTypes.map((p) => out(RobotScripts.filterLabel(p))),
+      ...i.removeDepts.map((d) => out(d.label)),
+      ..._interestLabels(i.removeInterestKeys).map(out),
     ];
   }
 
   List<String> _interestLabels(Set<String> keys) {
     return [
       for (final area in interestAreas)
-        if (keys.contains(area.key)) area.label,
+        if (keys.contains(area.key))
+          RobotScripts.interestLabel(area.key, area.label),
     ];
   }
 

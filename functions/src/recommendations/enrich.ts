@@ -33,6 +33,9 @@ interface InputDept {
 interface EnrichInput {
   userTags: Record<string, string>;
   recommendations: InputDept[];
+
+  /// İstemcinin uygulama dili; verilmezse 'tr' (eski istemciler).
+  lang?: string;
 }
 
 interface EnrichedItem {
@@ -40,6 +43,9 @@ interface EnrichedItem {
   universityId: string;
   reasoning: string;
 }
+
+/// Üni'nin konuşacağı dil — uygulama locale'ıyla birebir.
+type Lang = 'tr' | 'en';
 
 interface EnrichResponse {
   summary: string;
@@ -82,7 +88,10 @@ export const enrichRecommendations = onCall(
     }));
 
     const userTags = sanitizeTags(data.userTags ?? {});
-    const cacheHash = makeHash({ userTags, depts });
+    // Üni'nin dili istemcinin locale'ından gelir; cache anahtarına girer ki
+    // Türkçe ve İngilizce özetler birbirinin yerine servis edilmesin.
+    const lang: Lang = data.lang === 'en' ? 'en' : 'tr';
+    const cacheHash = makeHash({ userTags, depts, lang });
 
     // ── Cache kontrolü ──
     const cacheRef = db
@@ -119,7 +128,7 @@ export const enrichRecommendations = onCall(
         };
 
         if (cacheSnap.exists) {
-          const cached = parseCachedResponse(cacheSnap.data(), nowMs);
+          const cached = parseCachedResponse(cacheSnap.data(), nowMs, lang);
           if (cached) {
             cachedResponse = cached;
             tx.set(usageRef, usagePatch, { merge: true });
@@ -159,7 +168,7 @@ export const enrichRecommendations = onCall(
       throw new HttpsError('failed-precondition', 'GROQ_API_KEY ayarlı değil.');
     }
 
-    const prompt = buildPrompt(userTags, depts);
+    const prompt = buildPrompt(userTags, depts, lang);
 
     let llmJson: { summary?: string; items?: EnrichedItem[] } | null = null;
     try {
@@ -173,11 +182,11 @@ export const enrichRecommendations = onCall(
       throw new HttpsError('internal', 'AI yanıtı geçersiz format.');
     }
 
-    // 8B model ara sıra Türkçe talimatı deler — İngilizce özet istemciye
-    // ve cache'e asla gitmesin; istemci kural metnine (Türkçe) düşer.
-    if (looksEnglish(String(llmJson.summary))) {
-      logger.warn('Groq returned non-Turkish summary, rejecting', { uid });
-      throw new HttpsError('internal', 'AI yanıtı Türkçe değil.');
+    // 8B model ara sıra dil talimatını deler — yanlış dildeki özet istemciye
+    // ve cache'e asla gitmesin; istemci kural metnine (doğru dilde) düşer.
+    if (wrongLanguage(String(llmJson.summary), lang)) {
+      logger.warn('Groq returned wrong-language summary, rejecting', { uid, lang });
+      throw new HttpsError('internal', 'AI yanıtı istenen dilde değil.');
     }
 
     // Sonuçları doğrula: sadece ilk 3 dept ID'sine reasoning kabul et
@@ -188,7 +197,7 @@ export const enrichRecommendations = onCall(
     const cleanItems: EnrichedItem[] = (llmJson.items ?? [])
       .filter((it) => {
         if (!it || typeof it.reasoning !== 'string') return false;
-        if (looksEnglish(it.reasoning)) return false;
+        if (wrongLanguage(it.reasoning, lang)) return false;
         const key = `${it.universityId}_${it.departmentId}`;
         return allowedKeys.has(key);
       })
@@ -227,20 +236,33 @@ export const enrichRecommendations = onCall(
 );
 
 // ─── Dil bekçisi ───────────────────────────────────────────────
-// Yaygın İngilizce işlev kelimeleri; Türkçe bir cümlede tek başına
-// geçmezler. ≥2 isabet = metin İngilizce kaçmış demektir.
+// Model bazen istenen dilden kaçar. Bekçi TEK YÖNLÜ değil: hangi dil
+// istendiyse ONUN karşıtına bakar — İngilizce istendiğinde Türkçe metin,
+// Türkçe istendiğinde İngilizce metin elenir.
+//
+// Yaygın işlev kelimeleri; karşı dilde tek başına geçmezler.
+// ≥2 isabet = metin yanlış dile kaçmış demektir.
 const ENGLISH_HINTS =
   /\b(the|and|your|you|with|for|are|this|that|will|would|good|great|university|department|score|ranking|match|based|options)\b/gi;
+const TURKISH_HINTS =
+  /\b(ve|ile|bu|şu|için|olan|senin|sana|bir|çok|daha|puan|sıralama|bölüm|üniversite|tercih|seçenek|uygun|göre)\b/gi;
 
-function looksEnglish(text: string): boolean {
-  const hits = text.match(ENGLISH_HINTS);
-  return (hits?.length ?? 0) >= 2;
+function hits(text: string, re: RegExp): number {
+  return text.match(re)?.length ?? 0;
+}
+
+/// Metin, [lang] dışındaki dile kaçmışsa true.
+function wrongLanguage(text: string, lang: Lang): boolean {
+  return lang === 'en'
+    ? hits(text, TURKISH_HINTS) >= 2
+    : hits(text, ENGLISH_HINTS) >= 2;
 }
 
 // ─── Prompt builder ────────────────────────────────────────────
 function buildPrompt(
   tags: Record<string, string>,
-  depts: InputDept[]
+  depts: InputDept[],
+  lang: Lang
 ): { system: string; user: string } {
   const tagsLines = Object.entries(tags)
     .map(([k, v]) => `- ${k}: ${v}`)
@@ -256,6 +278,8 @@ function buildPrompt(
    ids: dept=${d.departmentId} uni=${d.universityId} | sinyaller: ${reasons}`;
     })
     .join('\n');
+
+  if (lang === 'en') return buildPromptEn(tags, depts, tagsLines, deptsBlock, reasoningCount);
 
   const system = `YANIT DİLİ: YALNIZCA TÜRKÇE. Tek bir İngilizce kelime bile yazma; JSON alan adları dışında her şey Türkçe olacak.
 Sen bir Türk üniversite tercih danışmanısın.
@@ -288,6 +312,51 @@ Kurallar:
 - departmentId ve universityId AYNEN kopyala.
 - Reasoning'de öğrencinin verdiği cevapla bağlantı kur (motivasyon/risk/şehir/alan vb.).
 - Türkçe karakterleri (ç,ğ,ı,ş,ö,ü) doğru kullan.`;
+
+  return { system, user };
+}
+
+function buildPromptEn(
+  tags: Record<string, string>,
+  depts: InputDept[],
+  tagsLines: string,
+  deptsBlock: string,
+  reasoningCount: number
+): { system: string; user: string } {
+  void tags;
+  void depts;
+
+  const system = `RESPONSE LANGUAGE: ENGLISH ONLY. Do not write a single Turkish word; everything except JSON field names must be in English.
+You are an advisor for the Turkish university placement (YKS) process.
+Your output must be natural, correct English. Keep sentences short.
+Never use cliches like "dear student", "a great fit for your career", "excellent choice".
+Never invent departments or universities — talk only about what you are given.
+Your answer must be ONLY valid JSON; write no other text.
+
+OUTPUT LIMITS (strict):
+- summary: 1-2 sentences, at most 30 words.
+- each reasoning: 1 short sentence, at most 18 words.
+- Address the student as "you", warm but plain.`;
+
+  const user = `STUDENT ANSWERS:
+${tagsLines}
+
+TOP 3 RECOMMENDATIONS FROM THE RULE ENGINE (write reasoning only for these):
+${deptsBlock}
+
+JSON schema:
+{
+  "summary": "1-2 sentences, max 30 words, natural English.",
+  "items": [
+    { "departmentId": "<id>", "universityId": "<id>", "reasoning": "1 short sentence, max 18 words." }
+  ]
+}
+
+Rules:
+- The items ARRAY has exactly ${reasoningCount} entries; keep the order above.
+- Copy departmentId and universityId EXACTLY.
+- Connect each reasoning to the student's own answers (motivation/risk/city/field etc.).
+- Department and university names stay in their original Turkish form.`;
 
   return { system, user };
 }
@@ -364,6 +433,7 @@ function formatDate(d: Date): string {
 function parseCachedResponse(
   data: admin.firestore.DocumentData | undefined,
   nowMs: number,
+  lang: Lang,
 ): EnrichResponse | null {
   if (!data) return null;
 
@@ -372,9 +442,9 @@ function parseCachedResponse(
   if (!summary || generatedAt <= 0 || nowMs - generatedAt >= CACHE_TTL_MS) {
     return null;
   }
-  // Dil bekçisinden önce yazılmış İngilizce cache girdileri de elensin —
-  // null dönmek taze (Türkçe-doğrulamalı) üretimi tetikler.
-  if (looksEnglish(summary)) {
+  // Dil bekçisinden önce yazılmış yanlış dildeki cache girdileri de elensin —
+  // null dönmek taze (dili doğrulanmış) üretimi tetikler.
+  if (wrongLanguage(summary, lang)) {
     return null;
   }
 
@@ -383,7 +453,7 @@ function parseCachedResponse(
   }
 
   const items = data.items
-    .map((item: unknown) => parseCachedItem(item))
+    .map((item: unknown) => parseCachedItem(item, lang))
     .filter((item: EnrichedItem | null): item is EnrichedItem => item !== null)
     .slice(0, TOP_FOR_REASONING);
 
@@ -395,14 +465,14 @@ function parseCachedResponse(
   };
 }
 
-function parseCachedItem(item: unknown): EnrichedItem | null {
+function parseCachedItem(item: unknown, lang: Lang): EnrichedItem | null {
   if (!item || typeof item !== 'object') return null;
   const raw = item as Record<string, unknown>;
   const departmentId = typeof raw.departmentId === 'string' ? raw.departmentId : '';
   const universityId = typeof raw.universityId === 'string' ? raw.universityId : '';
   const reasoning = typeof raw.reasoning === 'string' ? raw.reasoning : '';
   if (!departmentId || !universityId || !reasoning) return null;
-  if (looksEnglish(reasoning)) return null;
+  if (wrongLanguage(reasoning, lang)) return null;
 
   return {
     departmentId,
