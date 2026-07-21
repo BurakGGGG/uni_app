@@ -37,7 +37,12 @@ class UniDepartmentVerdict extends ConsumerWidget {
       FeasibilityNoProfile() => RobotBrain.departmentNeedsRank,
       FeasibilityVerdict(:final category, :final isEstimated) =>
         RobotBrain.departmentVerdict(category, estimated: isEstimated),
-      FeasibilityLocked() || FeasibilityIncomparable() => null,
+      // Kilitli / kıyaslanamaz / (tek program sorulduğu için buraya
+      // düşmeyen) hazır kapı → Üni susar.
+      FeasibilityLocked() ||
+      FeasibilityIncomparable() ||
+      FeasibilityReady() =>
+        null,
     };
     if (message == null) return const SizedBox.shrink();
 

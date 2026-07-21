@@ -6,6 +6,7 @@ import '../../../preference_wizard/presentation/feasibility_view.dart';
 import '../../../score_calculator/domain/models/match_result.dart';
 import '../../../university/domain/models/department_model.dart';
 import '../../domain/robot_brain.dart';
+import '../../domain/robot_message.dart';
 import '../robot_action_route.dart';
 import 'robot_message_card.dart';
 
@@ -29,42 +30,43 @@ class UniUniversityFit extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     if (departments.isEmpty) return const SizedBox.shrink();
 
+    // Profil/abonelik/tahminci bölümden bağımsız — bir kez okunur.
+    // (Bunu döngüye sokmak bölüm sayısı kadar provider araması demekti.)
+    final gate = watchFeasibilityContext(ref);
+    if (gate is FeasibilityNoProfile) {
+      return _card(context, RobotBrain.universityNeedsRank);
+    }
+    // Plus yoksa hiçbir bölüm için karar veremeyiz — Üni susar.
+    if (gate is! FeasibilityReady || gate.locked) {
+      return const SizedBox.shrink();
+    }
+
     var matching = 0;
     var high = 0;
-    var sawNoProfile = false;
-
     for (final dept in departments) {
-      final view = watchFeasibility(
-        ref,
+      final view = gate.categorize(
         scoreType: dept.effectiveScoreType,
         baseScore: dept.effectiveBaseScore,
         ranking: dept.rankingForMatching,
       );
-      switch (view) {
-        case FeasibilityNoProfile():
-          sawNoProfile = true;
-        case FeasibilityLocked():
-          // Plus yoksa hiçbir bölüm için karar veremeyiz — Üni susar.
-          return const SizedBox.shrink();
-        case FeasibilityIncomparable():
-          break;
-        case FeasibilityVerdict(:final category):
-          // "Zorlayıcı" olanlar uyan sayısına girmez; kullanıcıya
-          // gerçekçi bir sayı veriyoruz.
-          if (category == MatchCategory.guaranteed) {
-            matching++;
-            high++;
-          } else if (category == MatchCategory.target) {
-            matching++;
-          }
+      if (view is! FeasibilityVerdict) continue;
+      // "Zorlayıcı" olanlar uyan sayısına girmez; kullanıcıya gerçekçi
+      // bir sayı veriyoruz.
+      if (view.category == MatchCategory.guaranteed) {
+        matching++;
+        high++;
+      } else if (view.category == MatchCategory.target) {
+        matching++;
       }
     }
 
-    // Profil hiç yoksa tek bir davet yeter (bölüm başına tekrarlamaz).
-    final message = sawNoProfile
-        ? RobotBrain.departmentNeedsRank
-        : RobotBrain.universityFitSummary(matching: matching, high: high);
+    return _card(
+      context,
+      RobotBrain.universityFitSummary(matching: matching, high: high),
+    );
+  }
 
+  Widget _card(BuildContext context, RobotMessage message) {
     final route = robotActionRoute(message.action);
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 0, 20, 4),

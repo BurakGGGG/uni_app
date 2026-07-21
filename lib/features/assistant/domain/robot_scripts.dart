@@ -166,6 +166,8 @@ abstract final class RobotScripts {
   static RobotScript get uniFitSummary =>
       isEn ? _En.uniFitSummary : _Tr.uniFitSummary;
   static RobotScript get uniFitNone => isEn ? _En.uniFitNone : _Tr.uniFitNone;
+  static RobotScript get uniNeedRank =>
+      isEn ? _En.uniNeedRank : _Tr.uniNeedRank;
 
   // ── Boş durumlar (UniEmptyState) ──
   static RobotScript get emptySearch =>
@@ -180,6 +182,7 @@ abstract final class RobotScripts {
       isEn ? _En.emptyUniReviews : _Tr.emptyUniReviews;
   static RobotScript get emptyExplore =>
       isEn ? _En.emptyExplore : _Tr.emptyExplore;
+  static RobotScript get emptyCity => isEn ? _En.emptyCity : _Tr.emptyCity;
 
   // ── Onboarding — Üni kendini tanıtır ──
   static List<OnboardingCopy> get onboardingPages =>
@@ -798,6 +801,15 @@ abstract final class _Tr {
         'yüksek şanslı. Bunlar tahmin, kesin söz değil.',
     RobotMood.happy,
   );
+  /// Üniversite ekranında profil yoksa — burada tek bölüm değil, bir
+  /// liste söz konusu; [deptNeedRank] metni buraya uymaz.
+  static const uniNeedRank = RobotScript(
+    'uni.needRank',
+    'Sıralamanı bilsem buradaki bölümlerden hangileri sana uygun, '
+        'söyleyebilirdim. Birlikte hızlıca girelim mi?',
+    RobotMood.neutral,
+    action: RobotAction.openWizard,
+  );
   static const uniFitNone = RobotScript(
     'uni.fit.none',
     'Bu üniversitede senin puan türünde ulaşılabilir bir bölüm '
@@ -839,6 +851,11 @@ abstract final class _Tr {
     'empty.explore',
     'Bu filtrelerle bir şey çıkmadı. Birkaçını gevşetsek mi?',
     RobotMood.concerned,
+  );
+  static const emptyCity = RobotScript(
+    'empty.city',
+    'Bu şehre henüz üniversite eklenmemiş. Başka bir şehre bakalım mı?',
+    RobotMood.neutral,
   );
 }
 
@@ -1371,6 +1388,13 @@ abstract final class _En {
         'look like a high chance. These are estimates, not promises.',
     RobotMood.happy,
   );
+  static const uniNeedRank = RobotScript(
+    'uni.needRank',
+    'If I knew your rank I could tell you which programs here would fit '
+        'you. Shall we enter it quickly together?',
+    RobotMood.neutral,
+    action: RobotAction.openWizard,
+  );
   static const uniFitNone = RobotScript(
     'uni.fit.none',
     "I couldn't find a reachable program in your score type at this "
@@ -1410,5 +1434,11 @@ abstract final class _En {
     'empty.explore',
     'Nothing came up with these filters. Shall we loosen a few?',
     RobotMood.concerned,
+  );
+  static const emptyCity = RobotScript(
+    'empty.city',
+    "No universities have been added to this city yet. Shall we look at "
+        'another city?',
+    RobotMood.neutral,
   );
 }

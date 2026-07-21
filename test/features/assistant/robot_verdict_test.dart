@@ -67,6 +67,21 @@ void main() {
     });
   });
 
+  group('universityNeedsRank', () {
+    // Üniversite ekranında tek bölüm değil bir liste var; bölüm metnini
+    // orada kullanmak "bu bölüm" deyip hangi bölüm olduğunu söylememek olur.
+    test('bölüm davetinden ayrı metin, "bu bölüm" demez', () {
+      final uni = RobotBrain.universityNeedsRank;
+      final dept = RobotBrain.departmentNeedsRank;
+
+      expect(uni.id, 'uni.needRank');
+      expect(uni.text, isNot(dept.text));
+      expect(uni.text.toLowerCase(), isNot(contains('bu bölümün')));
+      expect(uni.text.toLowerCase(), contains('bölümler'));
+      expect(uni.action, RobotAction.openWizard);
+    });
+  });
+
   group('universityFitSummary', () {
     test('sayılar metne yerleşir', () {
       final msg = RobotBrain.universityFitSummary(matching: 12, high: 4);

@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../l10n/generated/app_localizations.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../assistant/domain/robot_scripts.dart';
+import '../../../assistant/presentation/widgets/uni_empty_state.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/utils/snackbar_helper.dart';
 import '../../../../core/widgets/widgets.dart';
@@ -155,33 +157,17 @@ class ReviewList extends ConsumerWidget {
   }
 
   Widget _buildEmptyState(BuildContext context) {
+    // Üni davet ediyor — eski metin "siz" diliyle yazılmıştı, Üni'nin
+    // "sen" diline geçti.
     return Padding(
-      padding: const EdgeInsets.all(40),
-      child: Center(
-        child: Column(
-          children: [
-            Icon(
-              Icons.rate_review_outlined,
-              size: 48,
-              color: AppColors.textTertiaryFor(context).withValues(alpha: 0.5),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'Henüz yorum yapılmamış',
-              style: AppTextStyles.titleSmall,
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 4),
-            Text(
-              'İlk değerlendiren siz olun!',
-              style: AppTextStyles.bodySmall.copyWith(
-                color: AppColors.textSecondaryFor(context),
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
+      padding: const EdgeInsets.all(24),
+      child: UniEmptyState(
+        icon: Icons.rate_review_outlined,
+        title: 'Henüz yorum yapılmamış',
+        script: RobotScripts.emptyUniReviews,
+        compact: true,
       ),
     );
   }
+
 }

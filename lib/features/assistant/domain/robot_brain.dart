@@ -305,9 +305,14 @@ abstract final class RobotBrain {
     return RobotMessage(script.id, text, script.mood, action: script.action);
   }
 
-  /// Puan profili olmayan kullanıcıya sıralamasını girme daveti.
+  /// Puan profili olmayan kullanıcıya sıralamasını girme daveti (tek bölüm).
   static RobotMessage get departmentNeedsRank =>
       RobotScripts.deptNeedRank.toMessage();
+
+  /// Aynı davetin üniversite ekranı sürümü — orada tek bölüm değil, bir
+  /// liste söz konusu.
+  static RobotMessage get universityNeedsRank =>
+      RobotScripts.uniNeedRank.toMessage();
 
   /// Bir üniversitenin kullanıcıya uyan bölüm sayısı.
   /// [matching] 0 ise "uygun bulamadım" dalına düşer.

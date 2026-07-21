@@ -118,7 +118,7 @@ class CityUniversitiesScreen extends ConsumerWidget {
                     child: UniEmptyState(
                       icon: Icons.school_outlined,
                       title: 'Üniversite bulunamadı',
-                      script: RobotScripts.emptyExplore,
+                      script: RobotScripts.emptyCity,
                     ),
                   );
                 }
@@ -133,8 +133,12 @@ class CityUniversitiesScreen extends ConsumerWidget {
                 });
                 
                 if (sorted.isEmpty) {
-                  return const SliverFillRemaining(
-                    child: Center(child: Text('Bu filtreye uygun üniversite bulunamadı.')),
+                  return SliverFillRemaining(
+                    child: UniEmptyState(
+                      icon: Icons.filter_alt_off_rounded,
+                      title: 'Bu filtreye uygun üniversite yok',
+                      script: RobotScripts.emptyExplore,
+                    ),
                   );
                 }
 

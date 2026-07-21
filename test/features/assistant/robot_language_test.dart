@@ -96,12 +96,14 @@ void main() {
               RobotScripts.deptNeedRank,
               RobotScripts.uniFitSummary,
               RobotScripts.uniFitNone,
+              RobotScripts.uniNeedRank,
               RobotScripts.emptySearch,
               RobotScripts.emptyFavorites,
               RobotScripts.emptyCompare,
               RobotScripts.emptyMyReviews,
               RobotScripts.emptyUniReviews,
               RobotScripts.emptyExplore,
+              RobotScripts.emptyCity,
             ])
               s.id,
           ];
