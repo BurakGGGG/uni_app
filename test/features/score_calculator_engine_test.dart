@@ -481,6 +481,43 @@ void main() {
       expect(base.ekPuanContribution, equals(0.0));
     });
 
+    test('katsayı indirimli Y-SAY siteyle uyumlu (394.61955)', () {
+      // yks-puan.hesaplama.net, 2026, obponcekiyil=E ile doğrulandı
+      // (22 Tem 2026): 370.61955 + 400×0.06 = 394.61955.
+      const input = ScoreInput(
+        selectedYear: 2026,
+        obpScore: 80,
+        placedLastYear: true,
+        tytTurkceCorrect: 22,
+        tytSosyalCorrect: 12,
+        tytMatCorrect: 22,
+        tytFenCorrect: 12,
+        aytMatCorrect: 22,
+        aytFizikCorrect: 12,
+        aytKimyaCorrect: 12,
+        aytBiyoCorrect: 12,
+      );
+      final result = ScoreCalculatorEngine.calculateAllTypes(input);
+      expect(result.byType('SAY')!.placementScore, closeTo(394.61955, 0.01));
+    });
+
+    test('ek puanlı Y-TYT siteyle uyumlu (422.38244)', () {
+      // yks-puan.hesaplama.net, 2026, obpekpuan=E ile doğrulandı
+      // (22 Tem 2026): 398.38244 + 400×0.06 = 422.38244.
+      const input = ScoreInput(
+        selectedYear: 2026,
+        obpScore: 80,
+        meslekOwnField: true,
+        tytTurkceCorrect: 22,
+        tytSosyalCorrect: 12,
+        tytMatCorrect: 22,
+        tytFenCorrect: 12,
+      );
+      final result = ScoreCalculatorEngine.calculateAllTypes(input);
+      expect(result.byType('TYT')!.extraPlacementScore,
+          closeTo(422.38244, 0.01));
+    });
+
     test('ek puan açıkken extraPlacementScore = yerleştirme + ek', () {
       final meslek = ScoreInput(
         selectedYear: 2026,
