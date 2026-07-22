@@ -11,6 +11,7 @@ enum AnalyticsEvent {
   storyViewed('totalStoryViews', 'storyViews'),
   comparisonMade('totalComparisons', 'comparisons'),
   scoreCalculated('totalScoreCalculations', 'scoreCalculations'),
+  scoreShared('totalScoreShares', 'scoreShares'),
   favoriteAdded('totalFavorites', 'favorites'),
   reportCreated('totalReports', 'reports'),
 

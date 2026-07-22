@@ -104,6 +104,16 @@ abstract final class RobotScripts {
   static String get estimatedRankSuffix =>
       isEn ? _En.estimatedRankSuffix : _Tr.estimatedRankSuffix;
 
+  // ── Puan hesaplama yorumu ──
+  static List<RobotScript> get calcFirstTime =>
+      isEn ? _En.calcFirstTime : _Tr.calcFirstTime;
+  static List<RobotScript> get calcProgress =>
+      isEn ? _En.calcProgress : _Tr.calcProgress;
+  static List<RobotScript> get calcRegress =>
+      isEn ? _En.calcRegress : _Tr.calcRegress;
+  static List<RobotScript> get calcSteady =>
+      isEn ? _En.calcSteady : _Tr.calcSteady;
+
   // ── Liste sağlığı ──
   static List<RobotScript> get healthNoGuaranteed =>
       isEn ? _En.healthNoGuaranteed : _Tr.healthNoGuaranteed;
@@ -535,6 +545,59 @@ abstract final class _Tr {
   static const estimatedRankSuffix =
       ' Bu arada sıralamanı puanından tahmin ettim — gerçek sıranı '
       'girersen daha isabetli olurum.';
+
+  // ── Puan hesaplama yorumu ──
+  static const calcFirstTime = <RobotScript>[
+    RobotScript(
+      'calc.first.v1',
+      'Hesapladım! Bu denemede en güçlü tarafın {type} — ÖSYM verisine '
+          'göre tahminî sıran {rank} civarı. Düzenli deneme girersen '
+          'gelişimini birlikte izleriz!',
+      RobotMood.happy,
+    ),
+    RobotScript(
+      'calc.first.v2',
+      '{type} tarafın öne çıkıyor; tahminî sıran {rank} civarında. Bu '
+          'ilk kaydın — sonraki denemelerde aradaki farkı sana ben '
+          'söyleyeceğim!',
+      RobotMood.celebrating,
+    ),
+  ];
+
+  static const calcProgress = <RobotScript>[
+    RobotScript(
+      'calc.progress.v1',
+      'Bir önceki denemene göre {delta} net artırmışsın, harikasın! '
+          '{type} sıran {rank} civarına geldi — böyle devam!',
+      RobotMood.celebrating,
+    ),
+    RobotScript(
+      'calc.progress.v2',
+      'Yükseliş var: {delta} net! En güçlü türün {type}, tahminî sıran '
+          '{rank}. Bu tempoyla tablo daha da güzelleşir.',
+      RobotMood.happy,
+    ),
+  ];
+
+  static const calcRegress = <RobotScript>[
+    RobotScript(
+      'calc.regress.v1',
+      'Bu sefer {delta} net — dert etme, herkesin dalgalı günü olur. '
+          '{type} sıran hâlâ {rank} civarı; bir sonraki denemede '
+          'toparlarsın!',
+      RobotMood.concerned,
+    ),
+  ];
+
+  static const calcSteady = <RobotScript>[
+    RobotScript(
+      'calc.steady.v1',
+      'Netlerin öncekiyle hemen hemen aynı — istikrar da değerli! '
+          '{type} sıran {rank} civarında. Ufak dokunuşlarla yukarı '
+          'çekeriz.',
+      RobotMood.neutral,
+    ),
+  ];
 
   static const healthNoGuaranteed = <RobotScript>[
     RobotScript(
@@ -1121,6 +1184,60 @@ abstract final class _En {
   static const estimatedRankSuffix =
       ' By the way, I estimated your rank from your score — enter your '
       "real rank and I'll be more accurate.";
+
+  // ── Score calculator commentary ──
+  static const calcFirstTime = <RobotScript>[
+    RobotScript(
+      'calc.first.v1',
+      'Done! Your strongest track this run is {type} — based on ÖSYM '
+          'data your estimated rank is around {rank}. Log your practice '
+          "runs regularly and we'll track your progress together!",
+      RobotMood.happy,
+    ),
+    RobotScript(
+      'calc.first.v2',
+      '{type} stands out for you; your estimated rank is around {rank}. '
+          "This is your first record — from the next run on, I'll tell "
+          'you how much you improved!',
+      RobotMood.celebrating,
+    ),
+  ];
+
+  static const calcProgress = <RobotScript>[
+    RobotScript(
+      'calc.progress.v1',
+      "You're up {delta} nets since your last run, amazing! Your {type} "
+          'rank moved to around {rank} — keep it going!',
+      RobotMood.celebrating,
+    ),
+    RobotScript(
+      'calc.progress.v2',
+      "On the rise: {delta} nets! Your strongest track is {type} with "
+          'an estimated rank of {rank}. At this pace the picture only '
+          'gets better.',
+      RobotMood.happy,
+    ),
+  ];
+
+  static const calcRegress = <RobotScript>[
+    RobotScript(
+      'calc.regress.v1',
+      "{delta} nets this time — don't sweat it, everyone has an off "
+          'day. Your {type} rank is still around {rank}; you can bounce '
+          'back next run!',
+      RobotMood.concerned,
+    ),
+  ];
+
+  static const calcSteady = <RobotScript>[
+    RobotScript(
+      'calc.steady.v1',
+      'Your nets are about the same as last time — consistency counts '
+          'too! Your {type} rank is around {rank}. Small tweaks will '
+          'push it up.',
+      RobotMood.neutral,
+    ),
+  ];
 
   static const healthNoGuaranteed = <RobotScript>[
     RobotScript(

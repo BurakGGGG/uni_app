@@ -7,7 +7,9 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/brand_loader.dart';
 import '../providers/score_calculator_providers.dart';
 import '../widgets/eligible_programs_preview.dart';
+import '../widgets/score_share_card.dart';
 import '../widgets/score_type_card.dart';
+import '../widgets/uni_calc_comment.dart';
 import '../widgets/university_match_card.dart';
 import '../widgets/year_comparison_table.dart';
 import '../../../admin/data/analytics_service.dart';
@@ -195,7 +197,14 @@ class _ResultBodyState extends ConsumerState<_ResultBody> {
                         ),
                       ),
                     ),
-                    const SizedBox(width: 24),
+                    IconButton(
+                      tooltip: 'Paylaş',
+                      icon: const Icon(Icons.ios_share_rounded,
+                          color: Colors.white),
+                      onPressed: () => ScoreShareCard.share(context, outcome),
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 20),
@@ -263,6 +272,8 @@ class _ResultBodyState extends ConsumerState<_ResultBody> {
                     outcome: o,
                     isBest: outcome.outcomes.length > 1 && o == best,
                   ),
+                const SizedBox(height: 4),
+                UniCalcComment(outcome: outcome),
               ],
             ),
           ).animate().fadeIn(delay: 120.ms, duration: 400.ms),

@@ -26,6 +26,30 @@ class HomeContext {
         dayPeriod = dayPeriod ?? dayPeriodFor(now);
 }
 
+/// Puan hesaplama sonucu için bağlam — [RobotBrain.calcSummary] girdisi.
+/// Sayılar sunum katmanında biçimlenmiş gelir (ör. rankText "85.600");
+/// kural motoru yalnız aile seçer ve yer tutucuları doldurur.
+class CalcResultContext {
+  /// En güçlü puan türü (ör. 'SAY').
+  final String bestType;
+
+  /// Biçimlenmiş tahmini sıra (ör. '85.600'); yoksa null.
+  final String? rankText;
+
+  /// Önceki denemeye göre toplam net farkı; null = ilk kayıt.
+  final double? netDelta;
+
+  /// Biçimlenmiş net farkı (ör. '+12,4'); [netDelta] null ise kullanılmaz.
+  final String? deltaText;
+
+  const CalcResultContext({
+    required this.bestType,
+    this.rankText,
+    this.netDelta,
+    this.deltaText,
+  });
+}
+
 /// Sonuç ekranı özeti için bağlam — motorun kategori sayıları.
 class ResultsContext {
   final int guaranteed;
@@ -278,6 +302,31 @@ abstract final class RobotBrain {
     if (ctx.usedEstimatedRank && ctx.total > 0) {
       text += RobotScripts.estimatedRankSuffix;
     }
+    return RobotMessage(script.id, text, script.mood, action: script.action);
+  }
+
+  // ── Puan hesaplama: sonuç yorumu ──
+
+  /// Hesaplama sonucuna kişisel yorum: ilk kayıt / ilerleme / gerileme /
+  /// istikrar ailesinden seçer. Sıra her zaman puandan tahminlidir; metinler
+  /// bunu zaten söylediği için [RobotScripts.estimatedRankSuffix] eklenmez.
+  static RobotMessage calcSummary(CalcResultContext ctx, {int? seed}) {
+    final List<RobotScript> family;
+    final delta = ctx.netDelta;
+    if (delta == null) {
+      family = RobotScripts.calcFirstTime;
+    } else if (delta > 0.5) {
+      family = RobotScripts.calcProgress;
+    } else if (delta < -0.5) {
+      family = RobotScripts.calcRegress;
+    } else {
+      family = RobotScripts.calcSteady;
+    }
+    final script = pick(family, seed: seed);
+    final text = script.text
+        .replaceAll('{type}', ctx.bestType)
+        .replaceAll('{rank}', ctx.rankText ?? '—')
+        .replaceAll('{delta}', ctx.deltaText ?? '');
     return RobotMessage(script.id, text, script.mood, action: script.action);
   }
 
