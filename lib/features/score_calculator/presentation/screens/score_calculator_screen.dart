@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -8,18 +7,46 @@ import '../../../../core/widgets/widgets.dart';
 
 import '../providers/score_calculator_providers.dart';
 import '../widgets/department_picker_sheet.dart';
+import '../widgets/obp_section.dart';
+import '../widgets/subject_net_input.dart';
 import '../widgets/subject_score_input.dart';
 import '../../domain/models/score_input.dart';
+import '../../domain/models/yks_subject.dart';
+import '../../domain/score_calculator_engine.dart';
 
+/// Puan hesaplama girişi v2: netleri bir kez gir, uygulanabilir tüm puan
+/// türleri (TYT/SAY/EA/SÖZ/DİL) birden hesaplanır. Bölüm seçimi opsiyonel,
+/// yıl seçimi sonuç ekranındaki karşılaştırmaya taşındı.
 class ScoreCalculatorScreen extends ConsumerStatefulWidget {
   const ScoreCalculatorScreen({super.key});
 
   @override
-  ConsumerState<ScoreCalculatorScreen> createState() => _ScoreCalculatorScreenState();
+  ConsumerState<ScoreCalculatorScreen> createState() =>
+      _ScoreCalculatorScreenState();
 }
 
 class _ScoreCalculatorScreenState extends ConsumerState<ScoreCalculatorScreen> {
-  final _obpController = TextEditingController(text: '80');
+  late final TextEditingController _obpController;
+
+  @override
+  void initState() {
+    super.initState();
+    final obp = ref.read(scoreInputProvider).obpScore;
+    _obpController =
+        TextEditingController(text: obp == 0 ? '80' : _trimZero(obp));
+    // Controller ile state'i eşitle (ilk açılışta default 80).
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final input = ref.read(scoreInputProvider);
+      final parsed = double.tryParse(_obpController.text) ?? 80;
+      if (input.obpScore != parsed) {
+        _update(input.copyWith(obpScore: parsed));
+      }
+    });
+  }
+
+  static String _trimZero(double v) =>
+      v == v.roundToDouble() ? v.toInt().toString() : v.toString();
 
   @override
   void dispose() {
@@ -27,31 +54,94 @@ class _ScoreCalculatorScreenState extends ConsumerState<ScoreCalculatorScreen> {
     super.dispose();
   }
 
+  void _update(ScoreInput newInput) {
+    ref.read(scoreInputProvider.notifier).state = newInput;
+  }
+
   void _calculate() {
+    context.push('/score-result');
+  }
+
+  Future<void> _switchMode(NetEntryMode mode) async {
     final input = ref.read(scoreInputProvider);
-    if (input.selectedDepartment.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Lütfen hedef bölümünüzü seçin')),
-      );
-      return;
-    }
-    if (input.scoreType.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Lütfen puan türünü seçin')),
-      );
+    if (mode == input.entryMode) return;
+
+    if (mode == NetEntryMode.directNet) {
+      // Doğru/yanlıştan hesaplanan netler direkt alanlara taşınır.
+      final nets = <YksSubject, double>{
+        for (final s in YksSubject.values)
+          if (input.netOf(s) > 0) s: input.netOf(s),
+      };
+      _update(input.copyWith(entryMode: mode, directNets: nets));
       return;
     }
 
-    final obp = double.tryParse(_obpController.text) ?? 80;
-    ref.read(scoreInputProvider.notifier).state = input.copyWith(obpScore: obp);
-    context.push('/score-result');
+    // Net → doğru/yanlış: net modundaki değerler geri dönüştürülemez.
+    if (input.directNets.isNotEmpty) {
+      final confirmed = await showDialog<bool>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Doğru/yanlış moduna dön'),
+          content: const Text(
+              'Net modunda girdiğin değerler doğru/yanlış sayısına '
+              'çevrilemez; önceki doğru/yanlış girişlerin geri gelir. '
+              'Devam edilsin mi?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Vazgeç'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('Devam Et'),
+            ),
+          ],
+        ),
+      );
+      if (confirmed != true) return;
+    }
+    _update(ref
+        .read(scoreInputProvider)
+        .copyWith(entryMode: mode, directNets: const {}));
   }
+
+  Widget _subjectRow(ScoreInput input, YksSubject subject) {
+    if (input.entryMode == NetEntryMode.directNet) {
+      return SubjectNetInput(
+        key: ValueKey('net_${subject.name}'),
+        title: subject.labelTr,
+        maxQuestions: subject.maxQuestions,
+        value: input.directNets[subject] ?? 0,
+        onChanged: (v) =>
+            _update(ref.read(scoreInputProvider).withDirectNet(subject, v)),
+      );
+    }
+    return SubjectScoreInput(
+      key: ValueKey('dy_${subject.name}'),
+      title: subject.labelTr,
+      maxQuestions: subject.maxQuestions,
+      correct: input.correctOf(subject),
+      wrong: input.wrongOf(subject),
+      onCorrectChanged: (v) =>
+          _update(ref.read(scoreInputProvider).withCorrect(subject, v)),
+      onWrongChanged: (v) =>
+          _update(ref.read(scoreInputProvider).withWrong(subject, v)),
+    );
+  }
+
+  bool _sectionHasNets(ScoreInput input, List<YksSubject> subjects) =>
+      subjects.any((s) => input.netOf(s) != 0);
 
   @override
   Widget build(BuildContext context) {
     final input = ref.watch(scoreInputProvider);
-    final scoreTypesAsync = ref.watch(departmentScoreTypesProvider);
-    final isDark = AppColors.isDark(context);
+    final applicableTypes = ScoreCalculatorEngine.applicableScoreTypes(input);
+
+    final aytSubjects = [
+      ...YksSubject.bySection(YksSection.aytSay),
+      ...YksSubject.bySection(YksSection.aytEaSoz),
+      ...YksSubject.bySection(YksSection.aytSoz2),
+    ];
 
     return Scaffold(
       backgroundColor: AppColors.backgroundFor(context),
@@ -91,7 +181,8 @@ class _ScoreCalculatorScreenState extends ConsumerState<ScoreCalculatorScreen> {
             ),
             leading: IconButton(
               tooltip: 'Geri',
-              icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
+              icon: const Icon(Icons.arrow_back_ios_new_rounded,
+                  color: Colors.white),
               onPressed: () => Navigator.maybePop(context),
             ),
           ),
@@ -100,378 +191,172 @@ class _ScoreCalculatorScreenState extends ConsumerState<ScoreCalculatorScreen> {
             padding: const EdgeInsets.all(20),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
-                // ─── 1. Hedef Bölüm ──────────────────────────────
-                _SectionCard(
-                  icon: Icons.school_rounded,
-                  iconColor: AppColors.primary,
-                  title: 'Hedef Bölüm',
-                  child: InkWell(
-                    onTap: () async {
-                      final dept = await DepartmentPickerSheet.show(context);
-                      if (dept != null) {
-                        ref.read(scoreInputProvider.notifier).state =
-                            input.copyWith(
-                              selectedDepartment: dept,
-                              scoreType: '', // Reset, otomatik belirlenecek
-                            );
-                      }
-                    },
-                    borderRadius: BorderRadius.circular(14),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                      decoration: BoxDecoration(
-                        color: isDark
-                            ? AppColors.darkSurfaceVariant
-                            : AppColors.surfaceVariant,
-                        borderRadius: BorderRadius.circular(14),
-                        border: Border.all(
-                          color: input.selectedDepartment.isNotEmpty
-                              ? AppColors.primary.withValues(alpha: 0.4)
-                              : AppColors.borderLightFor(context),
-                          width: input.selectedDepartment.isNotEmpty ? 1.5 : 1,
-                        ),
+                // ─── Giriş modu ─────────────────────────────────
+                Center(
+                  child: SegmentedButton<NetEntryMode>(
+                    segments: const [
+                      ButtonSegment(
+                        value: NetEntryMode.correctWrong,
+                        label: Text('Doğru / Yanlış'),
+                        icon: Icon(Icons.rule_rounded, size: 18),
                       ),
-                      child: Row(
-                        children: [
-                          Icon(
-                            input.selectedDepartment.isNotEmpty
-                                ? Icons.check_circle_rounded
-                                : Icons.search_rounded,
-                            color: input.selectedDepartment.isNotEmpty
-                                ? AppColors.primary
-                                : AppColors.textTertiaryFor(context),
-                            size: 22,
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Text(
-                              input.selectedDepartment.isEmpty
-                                  ? 'Bölüm ara ve seç…'
-                                  : input.selectedDepartment,
-                              style: input.selectedDepartment.isEmpty
-                                  ? AppTextStyles.bodyMedium.copyWith(
-                                      color: AppColors.textTertiaryFor(context))
-                                  : AppTextStyles.bodyLarge.copyWith(
-                                      fontWeight: FontWeight.w600),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                          Icon(Icons.chevron_right_rounded,
-                              color: AppColors.textTertiaryFor(context)),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-
-                // Puan türü otomatik chip (bölüm seçildiyse)
-                if (input.selectedDepartment.isNotEmpty)
-                  scoreTypesAsync.when(
-                    loading: () => const Padding(
-                      padding: EdgeInsets.only(top: 12),
-                      child: LinearProgressIndicator(),
-                    ),
-                    error: (_, _) => const SizedBox.shrink(),
-                    data: (types) {
-                      if (types.isEmpty) return const SizedBox.shrink();
-                      if (types.length == 1) {
-                        // Tek tip — bilgilendirme
-                        return Padding(
-                          padding: const EdgeInsets.only(top: 12),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 14, vertical: 10),
-                            decoration: BoxDecoration(
-                              color: AppColors.primary.withValues(alpha: 0.08),
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(
-                                  color: AppColors.primary.withValues(alpha: 0.2)),
-                            ),
-                            child: Row(
-                              children: [
-                                const Icon(Icons.auto_awesome_rounded,
-                                    color: AppColors.primary, size: 18),
-                                const SizedBox(width: 8),
-                                Text(
-                                  'Puan türü otomatik belirlendi: ${types.first}',
-                                  style: AppTextStyles.labelMedium.copyWith(
-                                    color: AppColors.primary,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
-                      }
-                      // Birden fazla tip — kullanıcı seçmeli
-                      return Padding(
-                        padding: const EdgeInsets.only(top: 12),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Bu bölüm birden fazla puan türüyle alınabilir:',
-                              style: AppTextStyles.labelSmall.copyWith(
-                                  color: AppColors.textSecondaryFor(context)),
-                            ),
-                            const SizedBox(height: 8),
-                            Wrap(
-                              spacing: 8,
-                              runSpacing: 8,
-                              children: types.map((type) {
-                                final isSelected = input.scoreType == type;
-                                return ChoiceChip(
-                                  label: Text(type,
-                                      style: AppTextStyles.labelLarge.copyWith(
-                                          color: isSelected ? Colors.white : null)),
-                                  selected: isSelected,
-                                  selectedColor: AppColors.primary,
-                                  showCheckmark: false,
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12)),
-                                  onSelected: (selected) {
-                                    if (selected) {
-                                      ref.read(scoreInputProvider.notifier).state =
-                                          input.copyWith(scoreType: type);
-                                    }
-                                  },
-                                );
-                              }).toList(),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                  ),
-
-                const SizedBox(height: 16),
-
-                // ─── 2. Yıl Seçimi ──────────────────────────────
-                _SectionCard(
-                  icon: Icons.calendar_today_rounded,
-                  iconColor: AppColors.accent,
-                  title: 'Yıl Seçimi',
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        children: [2022, 2023, 2024, 2025, 2026].map((year) {
-                          final isSelected = input.selectedYear == year;
-                          return ChoiceChip(
-                            label: Text(year.toString(),
-                                style: AppTextStyles.labelLarge.copyWith(
-                                    color: isSelected ? Colors.white : null)),
-                            selected: isSelected,
-                            selectedColor: AppColors.accent,
-                            showCheckmark: false,
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12)),
-                            onSelected: (selected) {
-                              if (selected) {
-                                ref.read(scoreInputProvider.notifier).state =
-                                    input.copyWith(selectedYear: year);
-                              }
-                            },
-                          );
-                        }).toList(),
+                      ButtonSegment(
+                        value: NetEntryMode.directNet,
+                        label: Text('Net Gir'),
+                        icon: Icon(Icons.speed_rounded, size: 18),
                       ),
                     ],
+                    selected: {input.entryMode},
+                    onSelectionChanged: (selection) =>
+                        _switchMode(selection.first),
                   ),
+                ),
+                const SizedBox(height: 20),
+
+                // ─── TYT (herkes girer, hep açık) ───────────────
+                _buildSectionHeader('TYT Testleri'),
+                Text(
+                  'Puan hesaplanması için Türkçe veya Temel Matematik '
+                  'netin en az 0.5 olmalı.',
+                  style: AppTextStyles.bodySmall
+                      .copyWith(color: AppColors.textSecondaryFor(context)),
+                ),
+                const SizedBox(height: 12),
+                for (final s in YksSubject.bySection(YksSection.tyt))
+                  _subjectRow(input, s),
+
+                // ─── AYT (açılır) ───────────────────────────────
+                _CollapsibleSection(
+                  title: 'AYT Testleri',
+                  subtitle: 'SAY, EA ve SÖZ puanları için',
+                  icon: Icons.science_rounded,
+                  initiallyExpanded: _sectionHasNets(input, aytSubjects),
+                  children: [
+                    _buildGroupHeader(context, 'Sayısal'),
+                    for (final s in YksSubject.bySection(YksSection.aytSay))
+                      _subjectRow(input, s),
+                    _buildGroupHeader(context, 'Sözel-1 / Eşit Ağırlık'),
+                    for (final s in YksSubject.bySection(YksSection.aytEaSoz))
+                      _subjectRow(input, s),
+                    _buildGroupHeader(context, 'Sözel-2'),
+                    for (final s in YksSubject.bySection(YksSection.aytSoz2))
+                      _subjectRow(input, s),
+                  ],
+                ),
+
+                // ─── YDT (açılır) ───────────────────────────────
+                _CollapsibleSection(
+                  title: 'YDT (Yabancı Dil)',
+                  subtitle: 'DİL puanı için',
+                  icon: Icons.language_rounded,
+                  initiallyExpanded: _sectionHasNets(
+                      input, YksSubject.bySection(YksSection.ydt)),
+                  children: [
+                    for (final s in YksSubject.bySection(YksSection.ydt))
+                      _subjectRow(input, s),
+                  ],
                 ),
                 const SizedBox(height: 16),
 
-                // ─── 3. OBP ──────────────────────────────────────
+                // ─── OBP ────────────────────────────────────────
                 _SectionCard(
                   icon: Icons.workspace_premium_rounded,
                   iconColor: AppColors.gold,
                   title: 'Diploma Notu (OBP)',
-                  child: TextFormField(
+                  child: ObpSection(
                     controller: _obpController,
-                    keyboardType:
-                        const TextInputType.numberWithOptions(decimal: true),
-                    inputFormatters: [
-                      TextInputFormatter.withFunction((oldValue, newValue) {
-                        final text = newValue.text.replaceAll(',', '.');
-                        if (text.isNotEmpty &&
-                            !RegExp(r'^\d*\.?\d*$').hasMatch(text)) {
-                          return oldValue;
-                        }
-                        final parsed = double.tryParse(text);
-                        if (parsed != null && parsed > 100) {
-                          return const TextEditingValue(
-                            text: '100',
-                            selection: TextSelection.collapsed(offset: 3),
-                          );
-                        }
-                        return TextEditingValue(
-                          text: text,
-                          selection: newValue.selection,
-                        );
-                      }),
-                    ],
-                    style: AppTextStyles.titleMedium,
-                    decoration: InputDecoration(
-                      hintText: 'Ör: 85.5',
-                      suffixText: '/ 100',
-                      suffixStyle: AppTextStyles.bodyMedium.copyWith(
-                          color: AppColors.textTertiaryFor(context)),
-                      filled: true,
-                      fillColor: isDark
-                          ? AppColors.darkSurfaceVariant
-                          : AppColors.surfaceVariant,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(14),
-                        borderSide: BorderSide.none,
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(14),
-                        borderSide:
-                            BorderSide(color: AppColors.borderLightFor(context)),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(14),
-                        borderSide:
-                            const BorderSide(color: AppColors.primary, width: 2),
-                      ),
-                    ),
+                    input: input,
+                    onObpChanged: (v) => _update(
+                        ref.read(scoreInputProvider).copyWith(obpScore: v)),
+                    onPlacedLastYearChanged: (v) => _update(ref
+                        .read(scoreInputProvider)
+                        .copyWith(placedLastYear: v)),
+                    onMeslekOwnFieldChanged: (v) => _update(ref
+                        .read(scoreInputProvider)
+                        .copyWith(meslekOwnField: v)),
                   ),
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 16),
 
-                // ─── 4. Net Girişi ───────────────────────────────
-                if (input.scoreType.isNotEmpty) ...[
-                  _buildSectionHeader('TYT Testleri'),
-                  SubjectScoreInput(
-                    title: 'Türkçe', maxQuestions: 40,
-                    correct: input.tytTurkceCorrect, wrong: input.tytTurkceWrong,
-                    onCorrectChanged: (v) => _update(input.copyWith(tytTurkceCorrect: v)),
-                    onWrongChanged: (v) => _update(input.copyWith(tytTurkceWrong: v)),
+                // ─── Hedef bölüm (opsiyonel) ────────────────────
+                _SectionCard(
+                  icon: Icons.school_rounded,
+                  iconColor: AppColors.primary,
+                  title: 'Hedef Bölüm (opsiyonel)',
+                  child: _TargetDepartmentTile(
+                    selected: input.selectedDepartment,
+                    onPick: () async {
+                      final dept = await DepartmentPickerSheet.show(context);
+                      if (dept != null) {
+                        _update(ref
+                            .read(scoreInputProvider)
+                            .copyWith(selectedDepartment: dept));
+                      }
+                    },
+                    onClear: () => _update(ref
+                        .read(scoreInputProvider)
+                        .copyWith(selectedDepartment: '')),
                   ),
-                  SubjectScoreInput(
-                    title: 'Sosyal Bilimler', maxQuestions: 20,
-                    correct: input.tytSosyalCorrect, wrong: input.tytSosyalWrong,
-                    onCorrectChanged: (v) => _update(input.copyWith(tytSosyalCorrect: v)),
-                    onWrongChanged: (v) => _update(input.copyWith(tytSosyalWrong: v)),
+                ),
+
+                // Hesaplanacak türlerin önizlemesi
+                if (applicableTypes.isNotEmpty) ...[
+                  const SizedBox(height: 16),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      for (final type in applicableTypes)
+                        Chip(
+                          avatar: const Icon(Icons.check_rounded,
+                              size: 16, color: AppColors.primary),
+                          label: Text(type,
+                              style: AppTextStyles.labelMedium.copyWith(
+                                  color: AppColors.primary,
+                                  fontWeight: FontWeight.w700)),
+                          backgroundColor:
+                              AppColors.primary.withValues(alpha: 0.08),
+                          side: BorderSide(
+                              color:
+                                  AppColors.primary.withValues(alpha: 0.25)),
+                        ),
+                    ],
                   ),
-                  SubjectScoreInput(
-                    title: 'Temel Matematik', maxQuestions: 40,
-                    correct: input.tytMatCorrect, wrong: input.tytMatWrong,
-                    onCorrectChanged: (v) => _update(input.copyWith(tytMatCorrect: v)),
-                    onWrongChanged: (v) => _update(input.copyWith(tytMatWrong: v)),
-                  ),
-                  SubjectScoreInput(
-                    title: 'Fen Bilimleri', maxQuestions: 20,
-                    correct: input.tytFenCorrect, wrong: input.tytFenWrong,
-                    onCorrectChanged: (v) => _update(input.copyWith(tytFenCorrect: v)),
-                    onWrongChanged: (v) => _update(input.copyWith(tytFenWrong: v)),
-                  ),
-
-                  // AYT SAY
-                  if (input.scoreType == 'SAY') ...[
-                    _buildSectionHeader('AYT Sayısal'),
-                    SubjectScoreInput(title: 'Matematik', maxQuestions: 40,
-                      correct: input.aytMatCorrect, wrong: input.aytMatWrong,
-                      onCorrectChanged: (v) => _update(input.copyWith(aytMatCorrect: v)),
-                      onWrongChanged: (v) => _update(input.copyWith(aytMatWrong: v))),
-                    SubjectScoreInput(title: 'Fizik', maxQuestions: 14,
-                      correct: input.aytFizikCorrect, wrong: input.aytFizikWrong,
-                      onCorrectChanged: (v) => _update(input.copyWith(aytFizikCorrect: v)),
-                      onWrongChanged: (v) => _update(input.copyWith(aytFizikWrong: v))),
-                    SubjectScoreInput(title: 'Kimya', maxQuestions: 13,
-                      correct: input.aytKimyaCorrect, wrong: input.aytKimyaWrong,
-                      onCorrectChanged: (v) => _update(input.copyWith(aytKimyaCorrect: v)),
-                      onWrongChanged: (v) => _update(input.copyWith(aytKimyaWrong: v))),
-                    SubjectScoreInput(title: 'Biyoloji', maxQuestions: 13,
-                      correct: input.aytBiyoCorrect, wrong: input.aytBiyoWrong,
-                      onCorrectChanged: (v) => _update(input.copyWith(aytBiyoCorrect: v)),
-                      onWrongChanged: (v) => _update(input.copyWith(aytBiyoWrong: v))),
-                  ],
-
-                  // AYT EA
-                  if (input.scoreType == 'EA') ...[
-                    _buildSectionHeader('AYT Eşit Ağırlık'),
-                    SubjectScoreInput(title: 'Matematik', maxQuestions: 40,
-                      correct: input.aytMatCorrect, wrong: input.aytMatWrong,
-                      onCorrectChanged: (v) => _update(input.copyWith(aytMatCorrect: v)),
-                      onWrongChanged: (v) => _update(input.copyWith(aytMatWrong: v))),
-                    SubjectScoreInput(title: 'Türk Dili ve Edebiyatı', maxQuestions: 24,
-                      correct: input.aytEdebiyatCorrect, wrong: input.aytEdebiyatWrong,
-                      onCorrectChanged: (v) => _update(input.copyWith(aytEdebiyatCorrect: v)),
-                      onWrongChanged: (v) => _update(input.copyWith(aytEdebiyatWrong: v))),
-                    SubjectScoreInput(title: 'Tarih-1', maxQuestions: 10,
-                      correct: input.aytTarih1Correct, wrong: input.aytTarih1Wrong,
-                      onCorrectChanged: (v) => _update(input.copyWith(aytTarih1Correct: v)),
-                      onWrongChanged: (v) => _update(input.copyWith(aytTarih1Wrong: v))),
-                    SubjectScoreInput(title: 'Coğrafya-1', maxQuestions: 6,
-                      correct: input.aytCografya1Correct, wrong: input.aytCografya1Wrong,
-                      onCorrectChanged: (v) => _update(input.copyWith(aytCografya1Correct: v)),
-                      onWrongChanged: (v) => _update(input.copyWith(aytCografya1Wrong: v))),
-                  ],
-
-                  // AYT SÖZ
-                  if (input.scoreType == 'SÖZ') ...[
-                    _buildSectionHeader('AYT Sözel'),
-                    SubjectScoreInput(title: 'Türk Dili ve Edebiyatı', maxQuestions: 24,
-                      correct: input.aytEdebiyatCorrect, wrong: input.aytEdebiyatWrong,
-                      onCorrectChanged: (v) => _update(input.copyWith(aytEdebiyatCorrect: v)),
-                      onWrongChanged: (v) => _update(input.copyWith(aytEdebiyatWrong: v))),
-                    SubjectScoreInput(title: 'Tarih-1', maxQuestions: 10,
-                      correct: input.aytTarih1Correct, wrong: input.aytTarih1Wrong,
-                      onCorrectChanged: (v) => _update(input.copyWith(aytTarih1Correct: v)),
-                      onWrongChanged: (v) => _update(input.copyWith(aytTarih1Wrong: v))),
-                    SubjectScoreInput(title: 'Coğrafya-1', maxQuestions: 6,
-                      correct: input.aytCografya1Correct, wrong: input.aytCografya1Wrong,
-                      onCorrectChanged: (v) => _update(input.copyWith(aytCografya1Correct: v)),
-                      onWrongChanged: (v) => _update(input.copyWith(aytCografya1Wrong: v))),
-                    SubjectScoreInput(title: 'Tarih-2', maxQuestions: 11,
-                      correct: input.aytTarih2Correct, wrong: input.aytTarih2Wrong,
-                      onCorrectChanged: (v) => _update(input.copyWith(aytTarih2Correct: v)),
-                      onWrongChanged: (v) => _update(input.copyWith(aytTarih2Wrong: v))),
-                    SubjectScoreInput(title: 'Coğrafya-2', maxQuestions: 11,
-                      correct: input.aytCografya2Correct, wrong: input.aytCografya2Wrong,
-                      onCorrectChanged: (v) => _update(input.copyWith(aytCografya2Correct: v)),
-                      onWrongChanged: (v) => _update(input.copyWith(aytCografya2Wrong: v))),
-                    SubjectScoreInput(title: 'Felsefe Grubu', maxQuestions: 12,
-                      correct: input.aytFelsefeCorrect, wrong: input.aytFelsefeWrong,
-                      onCorrectChanged: (v) => _update(input.copyWith(aytFelsefeCorrect: v)),
-                      onWrongChanged: (v) => _update(input.copyWith(aytFelsefeWrong: v))),
-                    SubjectScoreInput(title: 'DKAB', maxQuestions: 6,
-                      correct: input.aytDkabCorrect, wrong: input.aytDkabWrong,
-                      onCorrectChanged: (v) => _update(input.copyWith(aytDkabCorrect: v)),
-                      onWrongChanged: (v) => _update(input.copyWith(aytDkabWrong: v))),
-                  ],
-
-                  // DİL
-                  if (input.scoreType == 'DİL') ...[
-                    _buildSectionHeader('Yabancı Dil Testi'),
-                    SubjectScoreInput(title: 'Yabancı Dil', maxQuestions: 80,
-                      correct: input.ydtCorrect, wrong: input.ydtWrong,
-                      onCorrectChanged: (v) => _update(input.copyWith(ydtCorrect: v)),
-                      onWrongChanged: (v) => _update(input.copyWith(ydtWrong: v))),
-                  ],
-
-                  const SizedBox(height: 32),
-                  GradientButton(
-                    text: 'Hesapla',
-                    icon: Icons.calculate_rounded,
-                    onPressed: _calculate,
-                  ),
-                  const SizedBox(height: 64),
                 ],
+                const SizedBox(height: 120),
               ]),
             ),
           ),
         ],
       ),
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 8, 20, 12),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (applicableTypes.isEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Text(
+                    'Hesaplama için TYT Türkçe veya Temel Matematik neti gir',
+                    style: AppTextStyles.bodySmall
+                        .copyWith(color: AppColors.textSecondaryFor(context)),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              GradientButton(
+                text: applicableTypes.isEmpty
+                    ? 'Hesapla'
+                    : 'Hesapla (${applicableTypes.join(" · ")})',
+                icon: Icons.calculate_rounded,
+                onPressed: applicableTypes.isEmpty ? null : _calculate,
+              ),
+            ],
+          ),
+        ),
+      ),
     );
-  }
-
-  void _update(ScoreInput newInput) {
-    ref.read(scoreInputProvider.notifier).state = newInput;
   }
 
   Widget _buildSectionHeader(String title) {
@@ -480,17 +365,169 @@ class _ScoreCalculatorScreenState extends ConsumerState<ScoreCalculatorScreen> {
       child: Row(
         children: [
           Container(
-            width: 4, height: 16,
+            width: 4,
+            height: 16,
             decoration: BoxDecoration(
               color: AppColors.primary,
               borderRadius: BorderRadius.circular(2),
             ),
           ),
           const SizedBox(width: 8),
-          Text(title, style: AppTextStyles.titleMedium.copyWith(
-            color: AppColors.textPrimaryFor(context), fontWeight: FontWeight.w700,
-          )),
+          Text(title,
+              style: AppTextStyles.titleMedium.copyWith(
+                color: AppColors.textPrimaryFor(context),
+                fontWeight: FontWeight.w700,
+              )),
         ],
+      ),
+    );
+  }
+
+  Widget _buildGroupHeader(BuildContext context, String title) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 8, bottom: 8, left: 4),
+      child: Text(
+        title,
+        style: AppTextStyles.labelLarge.copyWith(
+          color: AppColors.textSecondaryFor(context),
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Hedef bölüm tile ───────────────────────────────────────────
+
+class _TargetDepartmentTile extends StatelessWidget {
+  final String selected;
+  final VoidCallback onPick;
+  final VoidCallback onClear;
+
+  const _TargetDepartmentTile({
+    required this.selected,
+    required this.onPick,
+    required this.onClear,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = AppColors.isDark(context);
+    final hasSelection = selected.isNotEmpty;
+
+    return InkWell(
+      onTap: onPick,
+      borderRadius: BorderRadius.circular(14),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        decoration: BoxDecoration(
+          color:
+              isDark ? AppColors.darkSurfaceVariant : AppColors.surfaceVariant,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: hasSelection
+                ? AppColors.primary.withValues(alpha: 0.4)
+                : AppColors.borderLightFor(context),
+            width: hasSelection ? 1.5 : 1,
+          ),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              hasSelection ? Icons.check_circle_rounded : Icons.search_rounded,
+              color: hasSelection
+                  ? AppColors.primary
+                  : AppColors.textTertiaryFor(context),
+              size: 22,
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                hasSelection
+                    ? selected
+                    : 'Hedefindeki bölümü seç, sonuçta öne çıkaralım…',
+                style: hasSelection
+                    ? AppTextStyles.bodyLarge
+                        .copyWith(fontWeight: FontWeight.w600)
+                    : AppTextStyles.bodyMedium
+                        .copyWith(color: AppColors.textTertiaryFor(context)),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            if (hasSelection)
+              IconButton(
+                tooltip: 'Kaldır',
+                icon: Icon(Icons.close_rounded,
+                    size: 20, color: AppColors.textTertiaryFor(context)),
+                onPressed: onClear,
+              )
+            else
+              Icon(Icons.chevron_right_rounded,
+                  color: AppColors.textTertiaryFor(context)),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Açılır bölüm ───────────────────────────────────────────────
+
+class _CollapsibleSection extends StatelessWidget {
+  final String title;
+  final String subtitle;
+  final IconData icon;
+  final bool initiallyExpanded;
+  final List<Widget> children;
+
+  const _CollapsibleSection({
+    required this.title,
+    required this.subtitle,
+    required this.icon,
+    required this.initiallyExpanded,
+    required this.children,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(top: 12),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceFor(context),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppColors.borderLightFor(context)),
+        boxShadow: AppColors.softShadowFor(context),
+      ),
+      // ListTile mürekkep efektleri için dekorun üstünde şeffaf Material.
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(20),
+        clipBehavior: Clip.antiAlias,
+        child: Theme(
+          data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+          child: ExpansionTile(
+          initiallyExpanded: initiallyExpanded,
+          maintainState: true,
+          tilePadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+          childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+          leading: Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: AppColors.primary.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(icon, size: 20, color: AppColors.primary),
+          ),
+            title: Text(title,
+                style: AppTextStyles.titleMedium
+                    .copyWith(fontWeight: FontWeight.w700)),
+            subtitle: Text(subtitle,
+                style: AppTextStyles.bodySmall
+                    .copyWith(color: AppColors.textSecondaryFor(context))),
+            children: children,
+          ),
+        ),
       ),
     );
   }
@@ -536,8 +573,9 @@ class _SectionCard extends StatelessWidget {
                 child: Icon(icon, size: 20, color: iconColor),
               ),
               const SizedBox(width: 12),
-              Text(title, style: AppTextStyles.titleMedium.copyWith(
-                  fontWeight: FontWeight.w700)),
+              Text(title,
+                  style: AppTextStyles.titleMedium
+                      .copyWith(fontWeight: FontWeight.w700)),
             ],
           ),
           const SizedBox(height: 16),

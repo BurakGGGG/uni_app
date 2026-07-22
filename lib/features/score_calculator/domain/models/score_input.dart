@@ -154,6 +154,169 @@ class ScoreInput {
     }
   }
 
+  /// Dersin doğru sayısı (UI satırları jenerik çizebilsin diye).
+  int correctOf(YksSubject subject) {
+    switch (subject) {
+      case YksSubject.tytTurkce:
+        return tytTurkceCorrect;
+      case YksSubject.tytSosyal:
+        return tytSosyalCorrect;
+      case YksSubject.tytMat:
+        return tytMatCorrect;
+      case YksSubject.tytFen:
+        return tytFenCorrect;
+      case YksSubject.aytMat:
+        return aytMatCorrect;
+      case YksSubject.aytFizik:
+        return aytFizikCorrect;
+      case YksSubject.aytKimya:
+        return aytKimyaCorrect;
+      case YksSubject.aytBiyo:
+        return aytBiyoCorrect;
+      case YksSubject.aytEdebiyat:
+        return aytEdebiyatCorrect;
+      case YksSubject.aytTarih1:
+        return aytTarih1Correct;
+      case YksSubject.aytCografya1:
+        return aytCografya1Correct;
+      case YksSubject.aytTarih2:
+        return aytTarih2Correct;
+      case YksSubject.aytCografya2:
+        return aytCografya2Correct;
+      case YksSubject.aytFelsefe:
+        return aytFelsefeCorrect;
+      case YksSubject.aytDkab:
+        return aytDkabCorrect;
+      case YksSubject.ydt:
+        return ydtCorrect;
+    }
+  }
+
+  /// Dersin yanlış sayısı.
+  int wrongOf(YksSubject subject) {
+    switch (subject) {
+      case YksSubject.tytTurkce:
+        return tytTurkceWrong;
+      case YksSubject.tytSosyal:
+        return tytSosyalWrong;
+      case YksSubject.tytMat:
+        return tytMatWrong;
+      case YksSubject.tytFen:
+        return tytFenWrong;
+      case YksSubject.aytMat:
+        return aytMatWrong;
+      case YksSubject.aytFizik:
+        return aytFizikWrong;
+      case YksSubject.aytKimya:
+        return aytKimyaWrong;
+      case YksSubject.aytBiyo:
+        return aytBiyoWrong;
+      case YksSubject.aytEdebiyat:
+        return aytEdebiyatWrong;
+      case YksSubject.aytTarih1:
+        return aytTarih1Wrong;
+      case YksSubject.aytCografya1:
+        return aytCografya1Wrong;
+      case YksSubject.aytTarih2:
+        return aytTarih2Wrong;
+      case YksSubject.aytCografya2:
+        return aytCografya2Wrong;
+      case YksSubject.aytFelsefe:
+        return aytFelsefeWrong;
+      case YksSubject.aytDkab:
+        return aytDkabWrong;
+      case YksSubject.ydt:
+        return ydtWrong;
+    }
+  }
+
+  /// Dersin doğru sayısını günceller.
+  ScoreInput withCorrect(YksSubject subject, int value) {
+    switch (subject) {
+      case YksSubject.tytTurkce:
+        return copyWith(tytTurkceCorrect: value);
+      case YksSubject.tytSosyal:
+        return copyWith(tytSosyalCorrect: value);
+      case YksSubject.tytMat:
+        return copyWith(tytMatCorrect: value);
+      case YksSubject.tytFen:
+        return copyWith(tytFenCorrect: value);
+      case YksSubject.aytMat:
+        return copyWith(aytMatCorrect: value);
+      case YksSubject.aytFizik:
+        return copyWith(aytFizikCorrect: value);
+      case YksSubject.aytKimya:
+        return copyWith(aytKimyaCorrect: value);
+      case YksSubject.aytBiyo:
+        return copyWith(aytBiyoCorrect: value);
+      case YksSubject.aytEdebiyat:
+        return copyWith(aytEdebiyatCorrect: value);
+      case YksSubject.aytTarih1:
+        return copyWith(aytTarih1Correct: value);
+      case YksSubject.aytCografya1:
+        return copyWith(aytCografya1Correct: value);
+      case YksSubject.aytTarih2:
+        return copyWith(aytTarih2Correct: value);
+      case YksSubject.aytCografya2:
+        return copyWith(aytCografya2Correct: value);
+      case YksSubject.aytFelsefe:
+        return copyWith(aytFelsefeCorrect: value);
+      case YksSubject.aytDkab:
+        return copyWith(aytDkabCorrect: value);
+      case YksSubject.ydt:
+        return copyWith(ydtCorrect: value);
+    }
+  }
+
+  /// Dersin yanlış sayısını günceller.
+  ScoreInput withWrong(YksSubject subject, int value) {
+    switch (subject) {
+      case YksSubject.tytTurkce:
+        return copyWith(tytTurkceWrong: value);
+      case YksSubject.tytSosyal:
+        return copyWith(tytSosyalWrong: value);
+      case YksSubject.tytMat:
+        return copyWith(tytMatWrong: value);
+      case YksSubject.tytFen:
+        return copyWith(tytFenWrong: value);
+      case YksSubject.aytMat:
+        return copyWith(aytMatWrong: value);
+      case YksSubject.aytFizik:
+        return copyWith(aytFizikWrong: value);
+      case YksSubject.aytKimya:
+        return copyWith(aytKimyaWrong: value);
+      case YksSubject.aytBiyo:
+        return copyWith(aytBiyoWrong: value);
+      case YksSubject.aytEdebiyat:
+        return copyWith(aytEdebiyatWrong: value);
+      case YksSubject.aytTarih1:
+        return copyWith(aytTarih1Wrong: value);
+      case YksSubject.aytCografya1:
+        return copyWith(aytCografya1Wrong: value);
+      case YksSubject.aytTarih2:
+        return copyWith(aytTarih2Wrong: value);
+      case YksSubject.aytCografya2:
+        return copyWith(aytCografya2Wrong: value);
+      case YksSubject.aytFelsefe:
+        return copyWith(aytFelsefeWrong: value);
+      case YksSubject.aytDkab:
+        return copyWith(aytDkabWrong: value);
+      case YksSubject.ydt:
+        return copyWith(ydtWrong: value);
+    }
+  }
+
+  /// Direkt net modunda dersin netini günceller (0 → kayıt silinir).
+  ScoreInput withDirectNet(YksSubject subject, double value) {
+    final nets = Map<YksSubject, double>.from(directNets);
+    if (value == 0) {
+      nets.remove(subject);
+    } else {
+      nets[subject] = value;
+    }
+    return copyWith(directNets: nets);
+  }
+
   double get tytTurkceNet => netOf(YksSubject.tytTurkce);
   double get tytSosyalNet => netOf(YksSubject.tytSosyal);
   double get tytMatNet => netOf(YksSubject.tytMat);
