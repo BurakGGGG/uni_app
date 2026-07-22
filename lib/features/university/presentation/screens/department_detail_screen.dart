@@ -387,11 +387,9 @@ class DepartmentDetailScreen extends ConsumerWidget {
                         '/best-programs?dept=${Uri.encodeComponent(dept.name)}',
                       ),
                       icon: const Icon(Icons.emoji_events_rounded, size: 18),
-                      label: Text(
-                        '${dept.name} bölümünün en iyi üniversiteleri',
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
+                      // Bölüm adı zaten sayfanın başlığında; butona koyunca
+                      // uzun adlarda taşıyordu.
+                      label: const Text('Bu bölümün en iyi üniversiteleri'),
                     ),
                   ),
 

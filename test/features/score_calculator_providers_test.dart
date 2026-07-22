@@ -194,6 +194,36 @@ void main() {
       );
     });
 
+    test('hedef bölüm listesi seçilen türe göre süzülür', () async {
+      final container = buildContainer();
+
+      // Tür verilmezse tüm bölümler (eski davranış).
+      expect(await container.read(uniqueDepartmentNamesProvider('').future),
+          containsAll(['Bilgisayar Mühendisliği', 'Hukuk']));
+      // TYT seçen kullanıcıya SAY bölümü önerilmemeli.
+      expect(await container.read(uniqueDepartmentNamesProvider('SAY').future),
+          ['Bilgisayar Mühendisliği']);
+      expect(await container.read(uniqueDepartmentNamesProvider('EA').future),
+          ['Hukuk']);
+      expect(await container.read(uniqueDepartmentNamesProvider('TYT').future),
+          isEmpty);
+    });
+
+    test('tür değişince seçili hedef bölüm bayat kalmaz', () {
+      // Ekran türü değiştirirken selectedDepartment'ı temizliyor; model
+      // tarafında bu kombinasyonun geçerli olduğunu sabitle.
+      const withDept = ScoreInput(
+        entryMode: NetEntryMode.rank,
+        scoreType: 'SAY',
+        enteredRank: 85000,
+        selectedDepartment: 'Bilgisayar Mühendisliği',
+      );
+      final switched =
+          withDept.copyWith(scoreType: 'TYT', selectedDepartment: '');
+      expect(switched.selectedDepartment, '');
+      expect(switched.enteredRank, 85000);
+    });
+
     test('yıl karşılaştırması sıra modunda ters tabloyu kullanır', () async {
       final container = buildContainer();
       container.read(scoreInputProvider.notifier).state = rankInput;

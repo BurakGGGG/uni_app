@@ -16,16 +16,21 @@ import '../../../university/presentation/providers/university_providers.dart';
 import '../../../university/domain/models/department_model.dart';
 
 /// Tüm unique bölüm isimleri (puan türünden bağımsız)
-final uniqueDepartmentNamesProvider =
-    FutureProvider.autoDispose<List<String>>((ref) async {
-  final repo = ref.watch(universityRepositoryProvider);
-  final allDepts = await repo.getAllDepartments();
+/// Hedef bölüm seçicisinin listesi. [scoreType] doluysa yalnız o türde
+/// okutulan bölümler döner — sıra modunda TYT seçen kullanıcıya SAY bölümü
+/// önermek yanıltıcı olurdu.
+final uniqueDepartmentNamesProvider = FutureProvider.autoDispose
+    .family<List<String>, String>((ref, scoreType) async {
+  // Repoyu ikinci kez okumak yerine zaten bellekte tutulan listeden türetilir.
+  final allDepts = await ref.watch(allScoredDepartmentsProvider.future);
+  final wanted = scoreType.trim().toUpperCase();
 
   final uniqueNames = <String>{};
   for (final d in allDepts) {
-    if (d.effectiveBaseScore > 0) {
-      uniqueNames.add(d.name);
+    if (wanted.isNotEmpty && d.effectiveScoreType?.toUpperCase() != wanted) {
+      continue;
     }
+    uniqueNames.add(d.name);
   }
 
   final sorted = uniqueNames.toList()..sort();

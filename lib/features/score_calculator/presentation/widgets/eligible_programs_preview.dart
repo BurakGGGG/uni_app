@@ -82,6 +82,17 @@ class EligibleProgramsPreview extends ConsumerWidget {
             const SizedBox(height: 16),
             ...preview.map((m) => UniversityMatchCard(match: m)),
             const SizedBox(height: 8),
+            // Aktarımın ne yaptığını anlatan satır — eskiden ayrı bir CTA
+            // kartındaydı, aynı yere giden ikinci buton kafa karıştırıyordu.
+            Text(
+              'Puanını tercih robotuna aktarayım; tüm programları şans '
+              'durumuna göre gruplayıp listeni kurmana yardım edeyim.',
+              style: AppTextStyles.bodySmall.copyWith(
+                color: AppColors.textSecondaryFor(context),
+                height: 1.4,
+              ),
+            ),
+            const SizedBox(height: 10),
             SizedBox(
               width: double.infinity,
               height: 48,

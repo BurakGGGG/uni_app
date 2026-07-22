@@ -6,14 +6,17 @@ import '../../../../core/widgets/app_search_bar.dart';
 import '../providers/score_calculator_providers.dart';
 
 class DepartmentPickerSheet extends ConsumerStatefulWidget {
-  const DepartmentPickerSheet({super.key});
+  /// Doluysa liste yalnız bu puan türünde okutulan bölümleri gösterir.
+  final String scoreType;
 
-  static Future<String?> show(BuildContext context) {
+  const DepartmentPickerSheet({super.key, this.scoreType = ''});
+
+  static Future<String?> show(BuildContext context, {String scoreType = ''}) {
     return showModalBottomSheet<String>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => const DepartmentPickerSheet(),
+      builder: (context) => DepartmentPickerSheet(scoreType: scoreType),
     );
   }
 
@@ -26,7 +29,8 @@ class _DepartmentPickerSheetState extends ConsumerState<DepartmentPickerSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final asyncNames = ref.watch(uniqueDepartmentNamesProvider);
+    final asyncNames =
+        ref.watch(uniqueDepartmentNamesProvider(widget.scoreType));
     final bottomInset = MediaQuery.viewInsetsOf(context).bottom;
 
     return Container(
@@ -58,7 +62,9 @@ class _DepartmentPickerSheetState extends ConsumerState<DepartmentPickerSheet> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Bölüm Seç',
+                  widget.scoreType.isEmpty
+                      ? 'Bölüm Seç'
+                      : 'Bölüm Seç (${widget.scoreType})',
                   style: AppTextStyles.titleLarge,
                 ),
                 IconButton(

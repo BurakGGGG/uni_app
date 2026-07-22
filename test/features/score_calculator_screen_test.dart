@@ -200,6 +200,26 @@ void main() {
           findsNothing);
     });
 
+    testWidgets('tür çipinde tik yok, altta tür önizlemesi tekrarlanmaz',
+        (tester) async {
+      await pump(tester);
+      await tester.tap(find.text('Sıralama'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(ChoiceChip, 'SAY'));
+      await tester.pump();
+      await tester.enterText(rankField(), '45000');
+      await tester.pump();
+
+      // Tik işareti çipi genişletip satır kaydırıyordu.
+      expect(
+        tester.widget<ChoiceChip>(find.widgetWithText(ChoiceChip, 'SAY'))
+            .showCheckmark,
+        isFalse,
+      );
+      // Net modundaki "hesaplanacak türler" şeridi sıra modunda gereksiz.
+      expect(find.widgetWithText(Chip, 'SAY'), findsNothing);
+    });
+
     testWidgets('canlı önizleme puanı ve dilimi gösterir', (tester) async {
       await pump(tester);
       await tester.tap(find.text('Sıralama'));

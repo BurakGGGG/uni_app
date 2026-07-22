@@ -273,9 +273,11 @@ class _ScoreCalculatorScreenState extends ConsumerState<ScoreCalculatorScreen> {
                     child: RankInputSection(
                       controller: _rankController,
                       input: input,
+                      // Tür değişince seçili hedef bölüm artık o türde
+                      // olmayabilir — sessizce tutmak yanıltıcı olurdu.
                       onScoreTypeChanged: (type) => _update(ref
                           .read(scoreInputProvider)
-                          .copyWith(scoreType: type)),
+                          .copyWith(scoreType: type, selectedDepartment: '')),
                       onRankChanged: (rank) => _update(rank == null
                           ? ref
                               .read(scoreInputProvider)
@@ -364,7 +366,11 @@ class _ScoreCalculatorScreenState extends ConsumerState<ScoreCalculatorScreen> {
                   child: _TargetDepartmentTile(
                     selected: input.selectedDepartment,
                     onPick: () async {
-                      final dept = await DepartmentPickerSheet.show(context);
+                      // Sıra modunda tür belli: yalnız o türün bölümleri.
+                      final dept = await DepartmentPickerSheet.show(
+                        context,
+                        scoreType: input.isRankMode ? input.scoreType : '',
+                      );
                       if (dept != null) {
                         _update(ref
                             .read(scoreInputProvider)
@@ -377,8 +383,9 @@ class _ScoreCalculatorScreenState extends ConsumerState<ScoreCalculatorScreen> {
                   ),
                 ),
 
-                // Hesaplanacak türlerin önizlemesi
-                if (applicableTypes.isNotEmpty) ...[
+                // Hesaplanacak türlerin önizlemesi. Sıra modunda türü zaten
+                // kullanıcı seçiyor — aynı bilgiyi tekrar basmak gereksiz.
+                if (!input.isRankMode && applicableTypes.isNotEmpty) ...[
                   const SizedBox(height: 16),
                   Wrap(
                     spacing: 8,

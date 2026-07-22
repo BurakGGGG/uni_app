@@ -50,6 +50,8 @@ class RankInputSection extends StatelessWidget {
               ChoiceChip(
                 label: Text(type),
                 selected: selected == type,
+                // Tik işareti çipi genişletip satır kaydırıyordu.
+                showCheckmark: false,
                 onSelected: (_) => onScoreTypeChanged(type),
                 labelStyle: AppTextStyles.labelMedium.copyWith(
                   color: selected == type

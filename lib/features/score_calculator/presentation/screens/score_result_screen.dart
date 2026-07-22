@@ -14,13 +14,21 @@ import '../widgets/university_match_card.dart';
 import '../widgets/year_comparison_table.dart';
 import '../../../admin/data/analytics_service.dart';
 import '../../../admin/domain/models/analytics_event.dart';
-import '../../../assistant/domain/robot_mood.dart';
-import '../../../assistant/domain/robot_scripts.dart';
-import '../../../assistant/presentation/widgets/robot_avatar.dart';
 import '../../../preference_wizard/domain/models/student_score_profile.dart';
 import '../../../preference_wizard/presentation/providers/preference_wizard_providers.dart';
 import '../../domain/models/calc_history_entry.dart';
 import '../../domain/models/multi_score_result.dart';
+
+/// Giriş ekranına dönüş. [PopScope] `canPop: false` olduğu için
+/// `Navigator.maybePop` bu rotada ÇALIŞMAZ (çıkış onayını tetikleyip geri
+/// döner) — ayrılma kararı verildiğinde imperatif pop gerekir.
+void _leaveResults(BuildContext context) {
+  if (Navigator.canPop(context)) {
+    Navigator.pop(context);
+  } else {
+    context.go('/score-calculator');
+  }
+}
 
 /// Sonuç ekranı v2: tüm puan türleri + sıra/dilim kartları, hedef bölüm
 /// kararı, yıl karşılaştırması ve girebileceğin bölümler önizlemesi.
@@ -50,7 +58,7 @@ class ScoreResultScreen extends ConsumerWidget {
                 Text('Hesaplama başarısız', style: AppTextStyles.titleMedium),
                 const SizedBox(height: 8),
                 ElevatedButton(
-                  onPressed: () => Navigator.maybePop(context),
+                  onPressed: () => _leaveResults(context),
                   child: const Text('Geri Dön'),
                 ),
               ],
@@ -60,7 +68,7 @@ class ScoreResultScreen extends ConsumerWidget {
             if (outcome == null || outcome.isEmpty) {
               return Center(
                 child: ElevatedButton(
-                  onPressed: () => Navigator.maybePop(context),
+                  onPressed: () => _leaveResults(context),
                   child: const Text('Geri Dön ve Netleri Doldur'),
                 ),
               );
@@ -96,7 +104,7 @@ class ScoreResultScreen extends ConsumerWidget {
           FilledButton(
             onPressed: () {
               Navigator.pop(ctx);
-              Navigator.maybePop(context);
+              _leaveResults(context);
             },
             child: const Text('Netleri Düzenle'),
           ),
@@ -365,25 +373,19 @@ class _ResultBodyState extends ConsumerState<_ResultBody> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _sectionTitle(context, Icons.school_rounded,
-                    'Girebileceğin Bölümler ($selectedType)'),
+                    'Girebileceğin Üniversiteler ($selectedType)'),
                 const SizedBox(height: 12),
+                // Tercih robotuna aktarımın TEK giriş noktası burası; eskiden
+                // altta ikinci bir CTA vardı ve aynı yere gidiyordu.
                 EligibleProgramsPreview(
                   scoreType: selectedType,
                   onSeeAll: () =>
                       _transferToWizard(context, ref, preferType: selectedType),
                 ),
+                const SizedBox(height: 32),
               ],
             ),
           ).animate().fadeIn(delay: 240.ms, duration: 400.ms),
-
-          // ─── Tercih robotu CTA ──────────────────────────────
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20, 28, 20, 32),
-            child: _WizardTransferCta(
-              outcome: outcome,
-              onTransfer: () => _transferToWizard(context, ref),
-            ),
-          ),
         ],
       ),
     );
@@ -540,72 +542,6 @@ class _TypePickerSheet extends StatelessWidget {
               ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class _WizardTransferCta extends StatelessWidget {
-  final MultiScoreOutcome outcome;
-  final VoidCallback onTransfer;
-
-  const _WizardTransferCta({required this.outcome, required this.onTransfer});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.secondary.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.secondary.withValues(alpha: 0.25)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const RobotAvatar(
-                size: 28,
-                animated: false,
-                mood: RobotMood.happy,
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Text(
-                  'Bu puanla tercih listeni kuralım',
-                  style: AppTextStyles.titleSmall
-                      .copyWith(fontWeight: FontWeight.w800),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 6),
-          Text(
-            'Puanını tercih robotuna aktarayım; programları şans durumuna '
-            'göre gruplar, listeni kurmana yardım ederim.',
-            style: AppTextStyles.bodySmall.copyWith(
-              color: AppColors.textSecondaryFor(context),
-              height: 1.4,
-            ),
-          ),
-          const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            height: 46,
-            child: FilledButton.icon(
-              onPressed: onTransfer,
-              icon: const Icon(Icons.arrow_forward_rounded, size: 18),
-              label: Text(RobotScripts.transferLabel),
-              style: FilledButton.styleFrom(
-                backgroundColor: AppColors.secondary,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }

@@ -79,6 +79,17 @@ class UniversityMatchCard extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
+                      // Hangi bölüm olduğu yazmazsa kart "hangi üniversite"
+                      // sorusunu cevaplayıp "hangi bölüm"ü açıkta bırakıyor.
+                      Text(
+                        match.department.name,
+                        style: AppTextStyles.bodySmall.copyWith(
+                          color: AppColors.textSecondaryFor(context),
+                          fontWeight: FontWeight.w600,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                       const SizedBox(height: 4),
                       Row(
                         children: [
