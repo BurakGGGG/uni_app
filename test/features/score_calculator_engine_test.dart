@@ -192,17 +192,145 @@ void main() {
     });
   });
 
-  group('ScoreCalculatorEngine — Yıl fallback', () {
-    test('desteklenmeyen yıl default (2025) katsayılarını kullanır', () {
-      const input2025 = ScoreInput(
+  group('ScoreCalculatorEngine — 2026 Hesaplama', () {
+    test('tüm netler 0 iken 2026 base score döner', () {
+      const input = ScoreInput(
         scoreType: 'TYT',
+        selectedYear: 2026,
+        obpScore: 0,
+        selectedDepartment: 'Test',
+      );
+
+      final rawScore = ScoreCalculatorEngine.calculateRawScore(input);
+      // 2026 TYT base score: 150.6785
+      expect(rawScore, closeTo(150.6785, 0.001));
+    });
+
+    test('2026 SAY puanı katsayılarla tutarlı hesaplanır', () {
+      const input = ScoreInput(
+        scoreType: 'SAY',
+        selectedYear: 2026,
+        obpScore: 0,
+        selectedDepartment: 'Test',
+        tytTurkceCorrect: 40,
+        aytMatCorrect: 40,
+      );
+
+      final rawScore = ScoreCalculatorEngine.calculateRawScore(input);
+      // 121.6515 + 40×1.2300 + 39×3.0215 (40. net iptal) = 288.69
+      expect(rawScore, closeTo(288.69, 0.01));
+    });
+
+    test('varsayılan yıl 2026', () {
+      const input = ScoreInput(
+        scoreType: 'TYT',
+        obpScore: 0,
+        selectedDepartment: 'Test',
+      );
+
+      expect(input.selectedYear, equals(2026));
+    });
+  });
+
+  group('ScoreCalculatorEngine — 2026 site regresyonu (yks-puan.hesaplama.net)', () {
+    // Gerçek doğrulama vakası: TYT 22/12/22/12, AYT SAY 22/12/12/12, OBP 80.
+    // Beklenen değerler sitenin 2026 sonuçları (22 Temmuz 2026).
+    const input = ScoreInput(
+      scoreType: 'SAY',
+      selectedYear: 2026,
+      obpScore: 80,
+      selectedDepartment: 'Test',
+      tytTurkceCorrect: 22,
+      tytSosyalCorrect: 12,
+      tytMatCorrect: 22,
+      tytFenCorrect: 12,
+      aytMatCorrect: 22,
+      aytFizikCorrect: 12,
+      aytKimyaCorrect: 12,
+      aytBiyoCorrect: 12,
+    );
+
+    test('SAY ham puan siteyle uyumlu (370.61955)', () {
+      expect(ScoreCalculatorEngine.calculateRawScore(input),
+          closeTo(370.61955, 0.01));
+    });
+
+    test('Y-SAY yerleştirme puanı siteyle uyumlu (418.61955)', () {
+      expect(ScoreCalculatorEngine.calculatePlacementScore(input),
+          closeTo(418.61955, 0.01));
+    });
+
+    test('TYT ham puan siteyle uyumlu (350.38244)', () {
+      final tyt = input.copyWith(scoreType: 'TYT');
+      expect(ScoreCalculatorEngine.calculateRawScore(tyt),
+          closeTo(350.38244, 0.01));
+    });
+
+    test('EA ham puan siteyle uyumlu (276.32537)', () {
+      final ea = input.copyWith(scoreType: 'EA');
+      expect(ScoreCalculatorEngine.calculateRawScore(ea),
+          closeTo(276.32537, 0.01));
+    });
+  });
+
+  group('ScoreCalculatorEngine — 2026 iptal soru tavanları', () {
+    test('2026 AYT Matematik 40. net puan getirmez', () {
+      const base = ScoreInput(
+        scoreType: 'SAY',
+        selectedYear: 2026,
+        obpScore: 0,
+        selectedDepartment: 'Test',
+        tytTurkceCorrect: 10,
+      );
+      final at39 = ScoreCalculatorEngine.calculateRawScore(
+          base.copyWith(aytMatCorrect: 39));
+      final at40 = ScoreCalculatorEngine.calculateRawScore(
+          base.copyWith(aytMatCorrect: 40));
+      expect(at40, closeTo(at39, 0.0001));
+    });
+
+    test('2026 AYT Edebiyat 24. net puan getirmez (SÖZ)', () {
+      const base = ScoreInput(
+        scoreType: 'SÖZ',
+        selectedYear: 2026,
+        obpScore: 0,
+        selectedDepartment: 'Test',
+        tytTurkceCorrect: 10,
+      );
+      final at23 = ScoreCalculatorEngine.calculateRawScore(
+          base.copyWith(aytEdebiyatCorrect: 23));
+      final at24 = ScoreCalculatorEngine.calculateRawScore(
+          base.copyWith(aytEdebiyatCorrect: 24));
+      expect(at24, closeTo(at23, 0.0001));
+    });
+
+    test('2025\'te tavan yok — 40. matematik neti puan getirir', () {
+      const base = ScoreInput(
+        scoreType: 'SAY',
         selectedYear: 2025,
+        obpScore: 0,
+        selectedDepartment: 'Test',
+        tytTurkceCorrect: 10,
+      );
+      final at39 = ScoreCalculatorEngine.calculateRawScore(
+          base.copyWith(aytMatCorrect: 39));
+      final at40 = ScoreCalculatorEngine.calculateRawScore(
+          base.copyWith(aytMatCorrect: 40));
+      expect(at40 - at39, closeTo(2.89, 0.01));
+    });
+  });
+
+  group('ScoreCalculatorEngine — Yıl fallback', () {
+    test('desteklenmeyen yıl default (2026) katsayılarını kullanır', () {
+      const input2026 = ScoreInput(
+        scoreType: 'TYT',
+        selectedYear: 2026,
         obpScore: 0,
         selectedDepartment: 'Test',
         tytTurkceCorrect: 20,
         tytTurkceWrong: 0,
       );
-      
+
       const inputUnknown = ScoreInput(
         scoreType: 'TYT',
         selectedYear: 9999,
@@ -212,11 +340,11 @@ void main() {
         tytTurkceWrong: 0,
       );
 
-      final score2025 = ScoreCalculatorEngine.calculateRawScore(input2025);
+      final score2026 = ScoreCalculatorEngine.calculateRawScore(input2026);
       final scoreUnknown = ScoreCalculatorEngine.calculateRawScore(inputUnknown);
-      
-      // 2025 katsayılarına fallback etmeli
-      expect(scoreUnknown, closeTo(score2025, 0.01));
+
+      // 2026 katsayılarına fallback etmeli
+      expect(scoreUnknown, closeTo(score2026, 0.01));
     });
   });
 }

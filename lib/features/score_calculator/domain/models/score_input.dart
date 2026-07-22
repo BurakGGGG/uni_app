@@ -1,6 +1,6 @@
 /// Kullanıcının girdiği sınav verileri
 class ScoreInput {
-  final int selectedYear; // 2022, 2023, 2024, 2025
+  final int selectedYear; // 2022, 2023, 2024, 2025, 2026
   final String scoreType; // 'TYT', 'SAY', 'EA', 'SÖZ', 'DİL'
   final double obpScore; // 0-100 arası diploma notu ortalaması
   final String selectedDepartment; // Bölüm adı (ör. "Tıp")
@@ -49,7 +49,7 @@ class ScoreInput {
   final int ydtWrong;
 
   const ScoreInput({
-    this.selectedYear = 2025,
+    this.selectedYear = 2026,
     required this.scoreType,
     required this.obpScore,
     required this.selectedDepartment,

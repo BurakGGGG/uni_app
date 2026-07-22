@@ -5,7 +5,7 @@ import '../../university/domain/models/department_model.dart';
 import '../../university/domain/models/university_model.dart';
 
 /// YKS Puan Hesaplama Motoru
-/// 2022-2025 katsayılarını kullanarak puan hesaplar ve
+/// 2022-2026 katsayılarını kullanarak puan hesaplar ve
 /// bölüm taban puanlarıyla eşleştirme yapar.
 class ScoreCalculatorEngine {
   // ═══════════════════════════════════════════════════════════════
@@ -17,6 +17,7 @@ class ScoreCalculatorEngine {
     2023: _TYTCoefficients(turkce: 2.89, sosyal: 3.02, matematik: 3.02, fen: 3.06, baseScore: 141.90),
     2024: _TYTCoefficients(turkce: 2.91, sosyal: 2.94, matematik: 2.93, fen: 3.15, baseScore: 144.953),
     2025: _TYTCoefficients(turkce: 2.83, sosyal: 2.99, matematik: 3.28, fen: 2.53, baseScore: 145.47),
+    2026: _TYTCoefficients(turkce: 2.7138, sosyal: 3.1328, matematik: 3.2484, fen: 2.5786, baseScore: 150.6785),
   };
 
   static const Map<int, _SAYCoefficients> _sayData = {
@@ -24,6 +25,7 @@ class ScoreCalculatorEngine {
     2023: _SAYCoefficients(tytTurkce: 1.19, tytSosyal: 1.24, tytMat: 1.24, tytFen: 1.26, aytMat: 2.82, aytFizik: 2.48, aytKimya: 2.94, aytBiyo: 3.10, baseScore: 128.23),
     2024: _SAYCoefficients(tytTurkce: 1.11, tytSosyal: 1.12, tytMat: 1.11, tytFen: 1.20, aytMat: 3.19, aytFizik: 2.43, aytKimya: 3.07, aytBiyo: 2.51, baseScore: 133.28),
     2025: _SAYCoefficients(tytTurkce: 1.20, tytSosyal: 1.27, tytMat: 1.39, tytFen: 1.07, aytMat: 2.89, aytFizik: 2.46, aytKimya: 2.53, aytBiyo: 2.61, baseScore: 132.87),
+    2026: _SAYCoefficients(tytTurkce: 1.2300, tytSosyal: 1.4199, tytMat: 1.4723, tytFen: 1.1688, aytMat: 3.0215, aytFizik: 2.5347, aytKimya: 2.5160, aytBiyo: 2.6142, baseScore: 121.6515),
   };
 
   static const Map<int, _EACoefficients> _eaData = {
@@ -31,6 +33,7 @@ class ScoreCalculatorEngine {
     2023: _EACoefficients(tytTurkce: 1.17, tytSosyal: 1.22, tytMat: 1.22, tytFen: 1.23, aytMat: 2.78, aytEdebiyat: 3.14, aytTarih1: 3.27, aytCografya1: 3.06, baseScore: 128.96),
     2024: _EACoefficients(tytTurkce: 1.14, tytSosyal: 1.15, tytMat: 1.15, tytFen: 1.23, aytMat: 3.28, aytEdebiyat: 2.83, aytTarih1: 2.38, aytCografya1: 2.54, baseScore: 132.28),
     2025: _EACoefficients(tytTurkce: 1.19, tytSosyal: 1.26, tytMat: 1.38, tytFen: 1.07, aytMat: 2.88, aytEdebiyat: 2.94, aytTarih1: 2.53, aytCografya1: 2.85, baseScore: 129.34),
+    2026: _EACoefficients(tytTurkce: 1.1987, tytSosyal: 1.3837, tytMat: 1.4348, tytFen: 1.1390, aytMat: 2.9445, aytEdebiyat: 3.2829, aytTarih1: 2.3663, aytCografya1: 2.5453, baseScore: 123.3392),
   };
 
   static const Map<int, _SOZCoefficients> _sozData = {
@@ -38,6 +41,7 @@ class ScoreCalculatorEngine {
     2023: _SOZCoefficients(tytTurkce: 1.13, tytSosyal: 1.18, tytMat: 1.18, tytFen: 1.19, aytEdebiyat: 3.03, aytTarih1: 3.16, aytCografya1: 2.96, aytTarih2: 3.07, aytCografya2: 2.99, aytFelsefe: 3.67, aytDkab: 2.81, baseScore: 128.44),
     2024: _SOZCoefficients(tytTurkce: 1.23, tytSosyal: 1.24, tytMat: 1.24, tytFen: 1.33, aytEdebiyat: 3.06, aytTarih1: 2.57, aytCografya1: 2.74, aytTarih2: 3.16, aytCografya2: 2.82, aytFelsefe: 3.85, aytDkab: 3.13, baseScore: 130.36),
     2025: _SOZCoefficients(tytTurkce: 1.13, tytSosyal: 1.19, tytMat: 1.31, tytFen: 1.01, aytEdebiyat: 2.79, aytTarih1: 2.39, aytCografya1: 2.70, aytTarih2: 3.80, aytCografya2: 2.47, aytFelsefe: 3.76, aytDkab: 2.36, baseScore: 129.61),
+    2026: _SOZCoefficients(tytTurkce: 1.1439, tytSosyal: 1.3205, tytMat: 1.3693, tytFen: 1.0869, aytEdebiyat: 3.1330, aytTarih1: 2.2583, aytCografya1: 2.4290, aytTarih2: 3.2361, aytCografya2: 2.9326, aytFelsefe: 4.2030, aytDkab: 1.9917, baseScore: 122.7197),
   };
 
   static const Map<int, _DILCoefficients> _dilData = {
@@ -45,7 +49,19 @@ class ScoreCalculatorEngine {
     2023: _DILCoefficients(tytTurkce: 1.49, tytSosyal: 1.56, tytMat: 1.55, tytFen: 1.57, ydt: 2.64, baseScore: 109.86),
     2024: _DILCoefficients(tytTurkce: 1.50, tytSosyal: 1.51, tytMat: 1.50, tytFen: 1.62, ydt: 2.61, baseScore: 110.58),
     2025: _DILCoefficients(tytTurkce: 1.53, tytSosyal: 1.62, tytMat: 1.77, tytFen: 1.37, ydt: 2.60, baseScore: 105.92),
+    2026: _DILCoefficients(tytTurkce: 1.4248, tytSosyal: 1.6448, tytMat: 1.7054, tytFen: 1.3538, ydt: 2.5854, baseScore: 109.7669),
   };
+
+  // 2026'da AYT Matematik ve AYT Edebiyat'ta birer soru iptal edildi;
+  // son netin katkısı yok (kaynak modelde net bu tavanda kırpılıyor).
+  static const Map<int, double> _aytMatNetCap = {2026: 39};
+  static const Map<int, double> _aytEdebiyatNetCap = {2026: 23};
+
+  static double _capped(double net, double? cap) =>
+      (cap != null && net > cap) ? cap : net;
+
+  /// Katsayısı olmayan yıllar en güncel yılın modeline düşer.
+  static const int _latestYear = 2026;
 
   // ═══════════════════════════════════════════════════════════════
   //  Puan Hesaplama
@@ -77,7 +93,7 @@ class ScoreCalculatorEngine {
 
   // ─── TYT ─────────────────────────────────────────────────────
   static double _calculateTYT(ScoreInput input) {
-    final c = _tytData[input.selectedYear] ?? _tytData[2025]!;
+    final c = _tytData[input.selectedYear] ?? _tytData[_latestYear]!;
     return c.baseScore +
         input.tytTurkceNet * c.turkce +
         input.tytSosyalNet * c.sosyal +
@@ -87,13 +103,15 @@ class ScoreCalculatorEngine {
 
   // ─── SAY ─────────────────────────────────────────────────────
   static double _calculateSAY(ScoreInput input) {
-    final c = _sayData[input.selectedYear] ?? _sayData[2025]!;
+    final year =
+        _sayData.containsKey(input.selectedYear) ? input.selectedYear : _latestYear;
+    final c = _sayData[year]!;
     return c.baseScore +
         input.tytTurkceNet * c.tytTurkce +
         input.tytSosyalNet * c.tytSosyal +
         input.tytMatNet * c.tytMat +
         input.tytFenNet * c.tytFen +
-        input.aytMatNet * c.aytMat +
+        _capped(input.aytMatNet, _aytMatNetCap[year]) * c.aytMat +
         input.aytFizikNet * c.aytFizik +
         input.aytKimyaNet * c.aytKimya +
         input.aytBiyoNet * c.aytBiyo;
@@ -101,27 +119,31 @@ class ScoreCalculatorEngine {
 
   // ─── EA ──────────────────────────────────────────────────────
   static double _calculateEA(ScoreInput input) {
-    final c = _eaData[input.selectedYear] ?? _eaData[2025]!;
+    final year =
+        _eaData.containsKey(input.selectedYear) ? input.selectedYear : _latestYear;
+    final c = _eaData[year]!;
     return c.baseScore +
         input.tytTurkceNet * c.tytTurkce +
         input.tytSosyalNet * c.tytSosyal +
         input.tytMatNet * c.tytMat +
         input.tytFenNet * c.tytFen +
-        input.aytMatNet * c.aytMat +
-        input.aytEdebiyatNet * c.aytEdebiyat +
+        _capped(input.aytMatNet, _aytMatNetCap[year]) * c.aytMat +
+        _capped(input.aytEdebiyatNet, _aytEdebiyatNetCap[year]) * c.aytEdebiyat +
         input.aytTarih1Net * c.aytTarih1 +
         input.aytCografya1Net * c.aytCografya1;
   }
 
   // ─── SÖZ ─────────────────────────────────────────────────────
   static double _calculateSOZ(ScoreInput input) {
-    final c = _sozData[input.selectedYear] ?? _sozData[2025]!;
+    final year =
+        _sozData.containsKey(input.selectedYear) ? input.selectedYear : _latestYear;
+    final c = _sozData[year]!;
     return c.baseScore +
         input.tytTurkceNet * c.tytTurkce +
         input.tytSosyalNet * c.tytSosyal +
         input.tytMatNet * c.tytMat +
         input.tytFenNet * c.tytFen +
-        input.aytEdebiyatNet * c.aytEdebiyat +
+        _capped(input.aytEdebiyatNet, _aytEdebiyatNetCap[year]) * c.aytEdebiyat +
         input.aytTarih1Net * c.aytTarih1 +
         input.aytCografya1Net * c.aytCografya1 +
         input.aytTarih2Net * c.aytTarih2 +
@@ -132,7 +154,7 @@ class ScoreCalculatorEngine {
 
   // ─── DİL ─────────────────────────────────────────────────────
   static double _calculateDIL(ScoreInput input) {
-    final c = _dilData[input.selectedYear] ?? _dilData[2025]!;
+    final c = _dilData[input.selectedYear] ?? _dilData[_latestYear]!;
     return c.baseScore +
         input.tytTurkceNet * c.tytTurkce +
         input.tytSosyalNet * c.tytSosyal +
