@@ -28,6 +28,14 @@ class OnboardingScreen extends StatefulWidget {
   State<OnboardingScreen> createState() => _OnboardingScreenState();
 }
 
+/// İçerik alanının üst boşluğu (Atla düğmesinin altı).
+const double _contentTopPadding = 80;
+
+/// Alt kontrollerin (nokta + ileri düğmesi) kapladığı boşluk.
+const double _contentBottomPadding = 120;
+
+const double _contentPadding = _contentTopPadding + _contentBottomPadding;
+
 class _OnboardingScreenState extends State<OnboardingScreen>
     with TickerProviderStateMixin {
   final _pageController = PageController();
@@ -240,20 +248,43 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                     RepaintBoundary(
                       child: _buildFloatingLayer(index),
                     ),
-                    // İçerik
+                    // İçerik — kısa ekranda ve klavye açıkken taşmasın diye
+                    // kaydırılabilir: yer varken ortalanır, yetmeyince kayar.
                     SafeArea(
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(32, 80, 32, 120),
-                        child: _PageContent(
-                          style: page,
-                          copy: RobotScripts.onboardingPages[index],
-                          pulseController: _pulseController,
-                          // Ekran başına tek animasyonlu avatar kuralı:
-                          // PageView komşu sayfaları canlı tutar.
-                          animateAvatar: index == _currentPage,
-                          nameController:
-                              index == _pages.length - 1 ? _nameController : null,
-                        ),
+                      child: LayoutBuilder(
+                        builder: (context, constraints) {
+                          final keyboard =
+                              MediaQuery.viewInsetsOf(context).bottom;
+                          final available =
+                              constraints.maxHeight - _contentPadding - keyboard;
+                          return SingleChildScrollView(
+                            padding: EdgeInsets.fromLTRB(
+                              32,
+                              _contentTopPadding,
+                              32,
+                              _contentBottomPadding + keyboard,
+                            ),
+                            child: ConstrainedBox(
+                              constraints: BoxConstraints(
+                                minHeight: available > 0 ? available : 0,
+                              ),
+                              child: Center(
+                                child: _PageContent(
+                                  style: page,
+                                  copy: RobotScripts.onboardingPages[index],
+                                  pulseController: _pulseController,
+                                  // Ekran başına tek animasyonlu avatar
+                                  // kuralı: PageView komşu sayfaları
+                                  // canlı tutar.
+                                  animateAvatar: index == _currentPage,
+                                  nameController: index == _pages.length - 1
+                                      ? _nameController
+                                      : null,
+                                ),
+                              ),
+                            ),
+                          );
+                        },
                       ),
                     ),
                   ],
@@ -528,7 +559,9 @@ class _PageContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
+      // Kaydırma görünümü içinde olduğundan doğal yükseklik; ortalama
+      // işini saran Center yapıyor.
+      mainAxisSize: MainAxisSize.min,
       children: [
         // ── Üni ──
         _GlowingRobot(

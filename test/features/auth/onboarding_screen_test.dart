@@ -88,6 +88,45 @@ void main() {
     expect(memory.displayName, 'Ada');
   });
 
+  // Cihazda RenderFlex taşması olarak patlamıştı: isim kutusu eklenince
+  // içerik kısa ekranda sığmıyordu. İçerik artık kaydırılabilir.
+  testWidgets('kısa ekranda taşma yok', (tester) async {
+    tester.view.physicalSize = const Size(720, 1200); // ~360x600 mantıksal
+    tester.view.devicePixelRatio = 2.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await pump(tester);
+    expect(tester.takeException(), isNull);
+
+    // Son sayfa en yüklü olan — isim kutusu orada.
+    final controller =
+        tester.widget<PageView>(find.byType(PageView)).controller!;
+    controller.jumpToPage(RobotScripts.onboardingPages.length - 1);
+    await tester.pump(const Duration(seconds: 1));
+    expect(tester.takeException(), isNull);
+    expect(find.byType(TextField), findsOneWidget);
+  });
+
+  testWidgets('klavye açıkken de taşmaz ve isim kutusu erişilebilir',
+      (tester) async {
+    tester.view.physicalSize = const Size(720, 1200);
+    tester.view.devicePixelRatio = 2.0;
+    // Klavyenin kapladığı alanı taklit et.
+    tester.view.viewInsets = const FakeViewPadding(bottom: 600);
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    addTearDown(tester.view.resetViewInsets);
+
+    await pump(tester);
+    final controller =
+        tester.widget<PageView>(find.byType(PageView)).controller!;
+    controller.jumpToPage(RobotScripts.onboardingPages.length - 1);
+    await tester.pump(const Duration(seconds: 1));
+
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('isim boş bırakılırsa ad kaydedilmez', (tester) async {
     await pump(tester);
 
