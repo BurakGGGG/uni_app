@@ -1,13 +1,10 @@
 import 'models/score_input.dart';
-import 'models/match_result.dart';
 import 'models/multi_score_result.dart';
-import '../../preference_wizard/domain/preference_match_engine.dart';
-import '../../university/domain/models/department_model.dart';
-import '../../university/domain/models/university_model.dart';
 
 /// YKS Puan Hesaplama Motoru
-/// 2022-2026 katsayılarını kullanarak puan hesaplar ve
-/// bölüm taban puanlarıyla eşleştirme yapar.
+/// 2022-2026 katsayılarını kullanarak uygulanabilir tüm puan türlerini
+/// hesaplar. Sıra/dilim [ScoreOutcomeService]'te, bölüm eşleştirme
+/// sihirbaz motorunda (matchAllPrograms) yapılır.
 class ScoreCalculatorEngine {
   // ═══════════════════════════════════════════════════════════════
   //  YKS Katsayıları — seneyegorenetler.md'den alındı
@@ -243,121 +240,6 @@ class ScoreCalculatorEngine {
         input.ydtNet * c.ydt;
   }
 
-  // ═══════════════════════════════════════════════════════════════
-  //  Üniversite Eşleştirme
-  // ═══════════════════════════════════════════════════════════════
-
-  /// Puan ve bölüm adına göre üniversiteleri eşleştirir.
-  ///
-  /// Sonuç: 2 garanti + 3 hedef + 2 hayal = 7 üniversite
-  @Deprecated('v2: sonuç ekranı eligibleProgramsProvider (matchAllPrograms) '
-      've targetDepartmentVerdictProvider kullanır — M7\'de kaldırılacak')
-  static CalculationResult matchUniversities({
-    required ScoreInput input,
-    required List<DepartmentModel> allDepartments,
-    required List<UniversityModel> allUniversities,
-  }) {
-    final rawScore = calculateRawScore(input);
-    final placementScore = calculatePlacementScore(input);
-    final obp = input.obpContribution;
-
-    // 1) Seçilen bölüm adıyla eşleşen ve taban puanı olan bölümleri bul
-    final matchingDepts = allDepartments.where((d) {
-      final deptName = d.name.toLowerCase().trim();
-      final selectedName = input.selectedDepartment.toLowerCase().trim();
-      if (deptName != selectedName) return false;
-
-      // Puan türü uyumu kontrolü
-      final deptScoreType = d.effectiveScoreType?.toUpperCase();
-      if (deptScoreType == null) return true; // bilinmiyorsa dahil et
-      if (input.scoreType == 'TYT') return deptScoreType == 'TYT';
-      return deptScoreType == input.scoreType;
-    }).where((d) {
-      final bs = d.effectiveBaseScore;
-      return bs > 0;
-    }).toList();
-
-    // 2) Üniversite lookup map
-    final uniMap = {for (final u in allUniversities) u.id: u};
-
-    // 3) Matches oluştur ve puanına göre sırala
-    final allMatches = <UniversityMatch>[];
-    for (final dept in matchingDepts) {
-      final uni = uniMap[dept.universityId];
-      if (uni == null) continue;
-
-      final depBaseScore = dept.effectiveBaseScore;
-      final diff = placementScore - depBaseScore;
-
-      // Eşikler match_constants.dart'ta — robotla aynı kaynak.
-      final category = categorizeByScore(placementScore, depBaseScore);
-
-      // Seçilen yıla göre sıralama verisini çöz
-      final ranking = _resolveRanking(dept, input.selectedYear);
-
-      allMatches.add(UniversityMatch(
-        department: dept,
-        university: uni,
-        category: category,
-        departmentBaseScore: depBaseScore,
-        departmentRanking: ranking,
-        scoreDifference: diff,
-      ));
-    }
-
-    // 4) Her kategoride sırala ve limitle
-    // Garanti: puanı en yakın 2 (en yüksek taban puanlılar)
-    final guaranteedAll = allMatches
-        .where((m) => m.category == MatchCategory.guaranteed)
-        .toList()
-      ..sort((a, b) => b.departmentBaseScore.compareTo(a.departmentBaseScore));
-
-    // Hedef: Puanına en yakın 3
-    final targetAll = allMatches
-        .where((m) => m.category == MatchCategory.target)
-        .toList()
-      ..sort((a, b) =>
-          a.scoreDifference.abs().compareTo(b.scoreDifference.abs()));
-
-    // Hayal: En yakın 2 (en yüksek taban puanlılar — ulaşılabilir hedefler)
-    final dreamAll = allMatches
-        .where((m) => m.category == MatchCategory.dream)
-        .toList()
-      ..sort((a, b) => a.scoreDifference.abs().compareTo(b.scoreDifference.abs()));
-
-    return CalculationResult(
-      calculatedScore: placementScore,
-      rawScore: rawScore,
-      obpContribution: obp,
-      scoreType: input.scoreType,
-      departmentName: input.selectedDepartment,
-      guaranteed: guaranteedAll.take(2).toList(),
-      target: targetAll.take(3).toList(),
-      dream: dreamAll.take(2).toList(),
-    );
-  }
-
-  /// Seçilen yıla göre bölümün sıralama verisini çözer.
-  /// scoreData.previousYears içindeki yıl verisine bakar,
-  /// eğer seçilen yıl scoreData'nın kendi yılıysa onu kullanır,
-  /// yoksa legacy ranking alanına düşer.
-  static int? _resolveRanking(DepartmentModel dept, int selectedYear) {
-    final sd = dept.scoreData;
-    if (sd != null) {
-      // Seçilen yıl scoreData'nın kendi yılıysa
-      if (sd.year == selectedYear) {
-        return sd.ranking > 0 ? sd.ranking : null;
-      }
-      // previousYears'da bu yıl var mı?
-      final yearlyScore = sd.previousYears[selectedYear];
-      if (yearlyScore != null) {
-        return yearlyScore.ranking > 0 ? yearlyScore.ranking : null;
-      }
-    }
-    // Legacy ranking fallback
-    final legacy = dept.ranking;
-    return (legacy != null && legacy > 0) ? legacy : null;
-  }
 }
 
 // ═══════════════════════════════════════════════════════════════
