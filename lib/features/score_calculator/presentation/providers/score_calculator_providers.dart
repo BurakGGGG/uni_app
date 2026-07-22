@@ -1,4 +1,9 @@
+import 'dart:convert';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../core/providers/shared_preferences_provider.dart';
+import '../../data/calc_history_store.dart';
+import '../../domain/models/calc_history_entry.dart';
 import '../../domain/models/score_input.dart';
 import '../../domain/models/match_result.dart';
 import '../../domain/models/multi_score_result.dart';
@@ -66,6 +71,56 @@ final yearComparisonProvider = FutureProvider.autoDispose
   return ScoreOutcomeService(estimator: estimator)
       .yearComparison(input, scoreType);
 });
+
+/// Store — `sharedPreferencesProvider` main.dart'ta override edilir.
+final calcHistoryStoreProvider = Provider<CalcHistoryStore>((ref) {
+  return CalcHistoryStore(ref.watch(sharedPreferencesProvider));
+});
+
+/// Deneme geçmişi (en yeni başta, 50 kayıt tavanı).
+class CalcHistoryNotifier extends StateNotifier<List<CalcHistoryEntry>> {
+  CalcHistoryNotifier(this._store) : super(_store.read());
+
+  final CalcHistoryStore _store;
+
+  /// Sonuç ekranı her açılışta çağırır; aynı girdinin peş peşe kaydı
+  /// çoğalmaz (sonuca dön-gel durumu).
+  Future<void> add(CalcHistoryEntry entry) async {
+    if (state.isNotEmpty &&
+        state.first.year == entry.year &&
+        jsonEncode(state.first.input.toJson()) ==
+            jsonEncode(entry.input.toJson())) {
+      return;
+    }
+    state = [entry, ...state].take(CalcHistoryStore.maxEntries).toList();
+    await _store.save(state);
+  }
+
+  Future<void> rename(String id, String label) async {
+    state = [
+      for (final e in state) e.id == id ? e.copyWith(label: label) : e,
+    ];
+    await _store.save(state);
+  }
+
+  Future<void> remove(String id) async {
+    state = [
+      for (final e in state)
+        if (e.id != id) e,
+    ];
+    await _store.save(state);
+  }
+
+  Future<void> clear() async {
+    state = const [];
+    await _store.clear();
+  }
+}
+
+final calcHistoryProvider =
+    StateNotifierProvider<CalcHistoryNotifier, List<CalcHistoryEntry>>(
+  (ref) => CalcHistoryNotifier(ref.watch(calcHistoryStoreProvider)),
+);
 
 /// Sonuç ekranında aktif tür (yıl karşılaştırması + bölüm önizleme paylaşır).
 /// null → en güçlü tür kullanılır.

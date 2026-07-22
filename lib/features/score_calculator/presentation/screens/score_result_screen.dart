@@ -17,6 +17,7 @@ import '../../../assistant/domain/robot_scripts.dart';
 import '../../../assistant/presentation/widgets/robot_avatar.dart';
 import '../../../preference_wizard/domain/models/student_score_profile.dart';
 import '../../../preference_wizard/presentation/providers/preference_wizard_providers.dart';
+import '../../domain/models/calc_history_entry.dart';
 import '../../domain/models/multi_score_result.dart';
 
 /// Sonuç ekranı v2: tüm puan türleri + sıra/dilim kartları, hedef bölüm
@@ -103,12 +104,41 @@ class ScoreResultScreen extends ConsumerWidget {
   }
 }
 
-class _ResultBody extends ConsumerWidget {
+class _ResultBody extends ConsumerStatefulWidget {
   final MultiScoreOutcome outcome;
   const _ResultBody({required this.outcome});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_ResultBody> createState() => _ResultBodyState();
+}
+
+class _ResultBodyState extends ConsumerState<_ResultBody> {
+  bool _savedToHistory = false;
+
+  MultiScoreOutcome get outcome => widget.outcome;
+
+  @override
+  void initState() {
+    super.initState();
+    // Her hesaplama otomatik "deneme" olarak kaydedilir (notifier aynı
+    // girdiyi peş peşe çoğaltmaz).
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || _savedToHistory) return;
+      _savedToHistory = true;
+      final history = ref.read(calcHistoryProvider);
+      ref.read(calcHistoryProvider.notifier).add(
+            CalcHistoryEntry.fromOutcome(
+              outcome: widget.outcome,
+              input: ref.read(scoreInputProvider),
+              label: 'Deneme ${history.length + 1}',
+            ),
+          );
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final outcome = widget.outcome;
     final best = outcome.best;
     final selectedType = ref.watch(resultSelectedTypeProvider) ??
         best?.score.scoreType ??

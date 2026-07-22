@@ -185,6 +185,13 @@ class _ScoreCalculatorScreenState extends ConsumerState<ScoreCalculatorScreen> {
                   color: Colors.white),
               onPressed: () => Navigator.maybePop(context),
             ),
+            actions: [
+              IconButton(
+                tooltip: 'Deneme geçmişi',
+                icon: const Icon(Icons.history_rounded, color: Colors.white),
+                onPressed: () => context.push('/score-calculator/history'),
+              ),
+            ],
           ),
 
           SliverPadding(

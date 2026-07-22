@@ -43,6 +43,7 @@ import '../features/home/presentation/screens/splash_screen.dart';
 import '../features/preference_lists/presentation/screens/my_lists_screen.dart';
 import '../features/preference_lists/presentation/screens/list_edit_screen.dart';
 import '../features/preference_lists/presentation/screens/shared_list_screen.dart';
+import '../features/score_calculator/presentation/screens/calc_history_screen.dart';
 import '../features/score_calculator/presentation/screens/score_calculator_screen.dart';
 import '../features/score_calculator/presentation/screens/score_result_screen.dart';
 import '../features/preference_wizard/presentation/screens/preference_wizard_screen.dart';
@@ -94,6 +95,7 @@ class AppRoutes {
   static const String preferenceWizard = '/preference-wizard';
   static const String preferenceWizardResults = '/preference-wizard/results';
   static const String scoreCalculator = '/score-calculator';
+  static const String scoreCalculatorHistory = '/score-calculator/history';
   static const String myLists = '/my-lists';
 }
 
@@ -461,6 +463,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/score-calculator',
         builder: (context, state) => const ScoreCalculatorScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.scoreCalculatorHistory,
+        builder: (context, state) => const CalcHistoryScreen(),
       ),
       GoRoute(
         path: '/score-result',
