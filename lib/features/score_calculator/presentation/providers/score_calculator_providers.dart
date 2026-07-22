@@ -4,6 +4,8 @@ import '../../domain/models/match_result.dart';
 import '../../domain/models/multi_score_result.dart';
 import '../../domain/score_calculator_engine.dart';
 import '../../domain/score_outcome_service.dart';
+import '../../../preference_wizard/domain/models/student_score_profile.dart';
+import '../../../preference_wizard/domain/preference_match_engine.dart';
 import '../../../preference_wizard/presentation/providers/preference_wizard_providers.dart';
 import '../../../university/presentation/providers/university_providers.dart';
 import '../../../university/domain/models/department_model.dart';
@@ -23,44 +25,6 @@ final uniqueDepartmentNamesProvider =
 
   final sorted = uniqueNames.toList()..sort();
   return sorted;
-});
-
-/// Seçilen bölüm adına göre puan türlerini belirler
-/// Örn: "Tıp" → ['SAY'],  "Hukuk" → ['EA', 'SÖZ']
-final departmentScoreTypesProvider =
-    FutureProvider.autoDispose<List<String>>((ref) async {
-  final input = ref.watch(scoreInputProvider);
-  if (input.selectedDepartment.isEmpty) return [];
-
-  final repo = ref.read(universityRepositoryProvider);
-  final allDepts = await repo.getAllDepartments();
-
-  final scoreTypes = <String>{};
-  for (final d in allDepts) {
-    if (d.name.toLowerCase().trim() ==
-            input.selectedDepartment.toLowerCase().trim() &&
-        d.effectiveBaseScore > 0) {
-      final st = d.effectiveScoreType?.toUpperCase();
-      if (st != null && st.isNotEmpty) {
-        scoreTypes.add(st);
-      }
-    }
-  }
-
-  // Eğer tek bir puan türü varsa otomatik seç
-  if (scoreTypes.length == 1) {
-    final type = scoreTypes.first;
-    final current = ref.read(scoreInputProvider);
-    if (current.scoreType != type) {
-      // Bir sonraki frame'de state'i güncelle
-      Future.microtask(() {
-        ref.read(scoreInputProvider.notifier).state =
-            current.copyWith(scoreType: type);
-      });
-    }
-  }
-
-  return scoreTypes.toList()..sort();
 });
 
 /// Tüm bölümler (flat list, taban puanı olan) — hesaplama için
@@ -103,22 +67,133 @@ final yearComparisonProvider = FutureProvider.autoDispose
       .yearComparison(input, scoreType);
 });
 
-/// Hesaplama sonucu
-final calculationResultProvider =
-    FutureProvider.autoDispose<CalculationResult?>((ref) async {
-  final input = ref.watch(scoreInputProvider);
+/// Sonuç ekranında aktif tür (yıl karşılaştırması + bölüm önizleme paylaşır).
+/// null → en güçlü tür kullanılır.
+final resultSelectedTypeProvider =
+    StateProvider.autoDispose<String?>((ref) => null);
 
-  // Yeterli veri yoksa null dön
-  if (input.scoreType.isEmpty || input.selectedDepartment.isEmpty) {
-    return null;
-  }
+/// "Girebileceğin bölümler": seçilen türün puanıyla sihirbaz motorunun
+/// birebir aynı yolu (geçici profil + matchAllPrograms + rank estimator).
+final eligibleProgramsProvider = FutureProvider.autoDispose
+    .family<PreferenceMatchResult?, String>((ref, scoreType) async {
+  final outcome = await ref.watch(multiScoreOutcomeProvider.future);
+  final typeOutcome = outcome?.byType(scoreType);
+  if (typeOutcome == null) return null;
 
-  final allDepts = await ref.read(allScoredDepartmentsProvider.future);
-  final allUnis = await ref.read(allUniversitiesProvider.future);
+  final allDepts = await ref.watch(allScoredDepartmentsProvider.future);
+  final allUnis = await ref.watch(allUniversitiesProvider.future);
+  final estimator = await ref.watch(rankEstimatorProvider.future);
 
-  return ScoreCalculatorEngine.matchUniversities(
-    input: input,
+  final profile = StudentScoreProfile(
+    scoreType: scoreType,
+    placementScore: typeOutcome.score.placementScore,
+    year: DateTime.now().year,
+    updatedAt: DateTime.now(),
+  );
+  return PreferenceMatchEngine.matchAllPrograms(
+    profile: profile,
     allDepartments: allDepts,
     allUniversities: allUnis,
+    estimator: estimator,
   );
 });
+
+/// Opsiyonel hedef bölümün özet kararı.
+class TargetDeptVerdict {
+  final String departmentName;
+  final int guaranteed;
+  final int target;
+  final int dream;
+
+  /// En yüksek uygunluklu program (kart olarak gösterilir).
+  final UniversityMatch best;
+
+  const TargetDeptVerdict({
+    required this.departmentName,
+    required this.guaranteed,
+    required this.target,
+    required this.dream,
+    required this.best,
+  });
+
+  int get total => guaranteed + target + dream;
+}
+
+/// Hedef bölüm seçiliyse: o addaki tüm programların sıralama-bazlı
+/// değerlendirmesi (kategori sayıları + en iyi program).
+final targetDepartmentVerdictProvider =
+    FutureProvider.autoDispose<TargetDeptVerdict?>((ref) async {
+  final input = ref.watch(scoreInputProvider);
+  if (input.selectedDepartment.isEmpty) return null;
+
+  final outcome = await ref.watch(multiScoreOutcomeProvider.future);
+  if (outcome == null || outcome.isEmpty) return null;
+
+  final allDepts = await ref.watch(allScoredDepartmentsProvider.future);
+  final allUnis = await ref.watch(allUniversitiesProvider.future);
+  final estimator = await ref.watch(rankEstimatorProvider.future);
+  final uniMap = {for (final u in allUnis) u.id: u};
+
+  final name = input.selectedDepartment.toLowerCase().trim();
+  var guaranteed = 0;
+  var target = 0;
+  var dream = 0;
+  UniversityMatch? best;
+
+  for (final dept in allDepts) {
+    if (dept.name.toLowerCase().trim() != name) continue;
+    final deptType = dept.effectiveScoreType?.toUpperCase();
+    if (deptType == null) continue;
+    final typeOutcome = outcome.byType(deptType);
+    if (typeOutcome == null) continue; // bu türde net girilmemiş
+    final uni = uniMap[dept.universityId];
+    if (uni == null) continue;
+
+    final profile = StudentScoreProfile(
+      scoreType: deptType,
+      placementScore: typeOutcome.score.placementScore,
+      year: DateTime.now().year,
+      updatedAt: DateTime.now(),
+    );
+    final eval = evaluateDepartment(profile, dept, estimator: estimator);
+    if (eval == null) continue;
+
+    switch (eval.category) {
+      case MatchCategory.guaranteed:
+        guaranteed++;
+        break;
+      case MatchCategory.target:
+        target++;
+        break;
+      case MatchCategory.dream:
+        dream++;
+        break;
+    }
+
+    final match = UniversityMatch(
+      department: dept,
+      university: uni,
+      category: eval.category,
+      departmentBaseScore: dept.effectiveBaseScore,
+      departmentRanking: dept.rankingForMatching,
+      scoreDifference:
+          typeOutcome.score.placementScore - dept.effectiveBaseScore,
+      matchBasis: eval.basis,
+      fitScore: eval.fit,
+      refRankYear: eval.refRankYear,
+    );
+    if (best == null || (match.fitScore ?? -1) > (best.fitScore ?? -1)) {
+      best = match;
+    }
+  }
+
+  if (best == null) return null;
+  return TargetDeptVerdict(
+    departmentName: input.selectedDepartment,
+    guaranteed: guaranteed,
+    target: target,
+    dream: dream,
+    best: best,
+  );
+});
+
