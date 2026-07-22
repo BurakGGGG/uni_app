@@ -113,6 +113,8 @@ abstract final class RobotScripts {
       isEn ? _En.calcRegress : _Tr.calcRegress;
   static List<RobotScript> get calcSteady =>
       isEn ? _En.calcSteady : _Tr.calcSteady;
+  static List<RobotScript> get calcRankEntry =>
+      isEn ? _En.calcRankEntry : _Tr.calcRankEntry;
 
   // ── Liste sağlığı ──
   static List<RobotScript> get healthNoGuaranteed =>
@@ -596,6 +598,24 @@ abstract final class _Tr {
           '{type} sıran {rank} civarında. Ufak dokunuşlarla yukarı '
           'çekeriz.',
       RobotMood.neutral,
+    ),
+  ];
+
+  /// Sıra modu: sırayı kullanıcı girdi, tahmin eden biz değiliz — dil
+  /// "tahminî sıran" değil "sıran" olmalı, belirsizlik puanda.
+  static const calcRankEntry = <RobotScript>[
+    RobotScript(
+      'calc.rank.v1',
+      '{rank}. sıra {type} demek — resmî dağılıma göre bu yaklaşık '
+          '{score} puana denk geliyor. Aşağıda bu sırayla girebileceğin '
+          'bölümleri çıkardım!',
+      RobotMood.happy,
+    ),
+    RobotScript(
+      'calc.rank.v2',
+      'Sıranı aldım: {type} {rank}. Puan karşılığı yaklaşık {score}. '
+          'Sıranı kendin girdiğin için eşleştirmeyi daha net yapabiliyorum.',
+      RobotMood.celebrating,
     ),
   ];
 
@@ -1236,6 +1256,22 @@ abstract final class _En {
           'too! Your {type} rank is around {rank}. Small tweaks will '
           'push it up.',
       RobotMood.neutral,
+    ),
+  ];
+
+  static const calcRankEntry = <RobotScript>[
+    RobotScript(
+      'calc.rank.v1',
+      'Rank {rank} in {type} — per the official distribution that maps to '
+          'roughly {score} points. I listed the programs you can reach '
+          'with it below!',
+      RobotMood.happy,
+    ),
+    RobotScript(
+      'calc.rank.v2',
+      'Got your rank: {type} {rank}. That is about {score} points. Since '
+          'you entered the rank yourself, I can match you more precisely.',
+      RobotMood.celebrating,
     ),
   ];
 

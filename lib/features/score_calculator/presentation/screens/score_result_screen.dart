@@ -243,7 +243,7 @@ class _ResultBodyState extends ConsumerState<_ResultBody> {
                   const SizedBox(height: 6),
                   Text(
                     'En güçlü türün: ${best.score.scoreType}'
-                    '${best.estimatedRank != null ? ' · ~${formatRank(best.estimatedRank!)}. sıra' : ''}',
+                    '${best.estimatedRank != null ? ' · ${best.rankIsUserEntered ? '' : '~'}${formatRank(best.estimatedRank!)}. sıra' : ''}',
                     style: AppTextStyles.bodyMedium.copyWith(
                       color: Colors.white.withValues(alpha: 0.9),
                       fontWeight: FontWeight.w600,
@@ -406,8 +406,9 @@ class _ResultBodyState extends ConsumerState<_ResultBody> {
   }
 
   /// Tercih robotuna aktarım: tek tür → doğrudan; birden çok tür → seçim
-  /// sheet'i (en güçlü tür önseçili). Tahmini sıra profile YAZILMAZ —
-  /// robot kendi tahminini yapar (belirsizlik düzeltmesi korunur).
+  /// sheet'i (en güçlü tür önseçili). TAHMİNİ sıra profile YAZILMAZ —
+  /// robot kendi tahminini yapar (belirsizlik düzeltmesi korunur). Kullanıcı
+  /// sırayı kendi girdiyse (sıra modu) o gerçek sıradır ve aktarılır.
   Future<void> _transferToWizard(
     BuildContext context,
     WidgetRef ref, {
@@ -437,6 +438,9 @@ class _ResultBodyState extends ConsumerState<_ResultBody> {
           StudentScoreProfile(
             scoreType: chosen,
             placementScore: typeOutcome.score.placementScore,
+            rank: typeOutcome.rankIsUserEntered
+                ? typeOutcome.estimatedRank
+                : null,
             // Robot giriş ekranıyla aynı: profil yılı = bu yıl.
             year: DateTime.now().year,
             updatedAt: DateTime.now(),

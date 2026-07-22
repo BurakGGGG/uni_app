@@ -36,8 +36,10 @@ class UniCalcComment extends ConsumerWidget {
       }
     }
 
-    final netDelta =
-        previous != null ? input.totalNet - previous.totalNet : null;
+    // Sıra modunda net yoktur; ilerleme dili yerine sıra dili kullanılır.
+    final netDelta = (previous != null && !input.isRankMode)
+        ? input.totalNet - previous.totalNet
+        : null;
     String? deltaText;
     if (netDelta != null) {
       deltaText = '${netDelta >= 0 ? '+' : ''}'
@@ -50,6 +52,9 @@ class UniCalcComment extends ConsumerWidget {
           best.estimatedRank != null ? formatRank(best.estimatedRank!) : null,
       netDelta: netDelta,
       deltaText: deltaText,
+      fromRank: input.isRankMode,
+      scoreText:
+          best.score.placementScore.toStringAsFixed(1).replaceAll('.', ','),
     ));
 
     return RobotMessageCard(

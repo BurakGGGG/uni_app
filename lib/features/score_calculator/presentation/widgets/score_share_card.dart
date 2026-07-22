@@ -215,7 +215,7 @@ class _TypeRow extends StatelessWidget {
               ),
               if (outcome.estimatedRank != null)
                 Text(
-                  '~${formatRank(outcome.estimatedRank!)}. sıra'
+                  '${outcome.rankIsUserEntered ? '' : '~'}${formatRank(outcome.estimatedRank!)}. sıra'
                   '${outcome.percentile != null ? ' · ${formatPercentile(outcome.percentile!)}' : ''}',
                   style: AppTextStyles.labelSmall
                       .copyWith(color: Colors.black54),

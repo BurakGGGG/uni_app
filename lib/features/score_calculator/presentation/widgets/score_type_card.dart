@@ -149,13 +149,17 @@ class ScoreTypeCard extends StatelessWidget {
                     size: 18, color: AppColors.textSecondaryFor(context)),
                 const SizedBox(width: 8),
                 Text(
-                  'Tahmini başarı sırası',
+                  outcome.rankIsUserEntered
+                      ? 'Başarı sıran'
+                      : 'Tahmini başarı sırası',
                   style: AppTextStyles.bodySmall
                       .copyWith(color: AppColors.textSecondaryFor(context)),
                 ),
                 const Spacer(),
                 Text(
-                  '~${formatRank(outcome.estimatedRank!)}',
+                  outcome.rankIsUserEntered
+                      ? formatRank(outcome.estimatedRank!)
+                      : '~${formatRank(outcome.estimatedRank!)}',
                   style: AppTextStyles.titleSmall.copyWith(
                     fontWeight: FontWeight.w800,
                     color: AppColors.textPrimaryFor(context),
@@ -189,8 +193,13 @@ class ScoreTypeCard extends StatelessWidget {
             if (outcome.rankIsProxy) ...[
               const SizedBox(height: 8),
               Text(
-                'ÖSYM ${outcome.rankCurveYear} dağılımına göre tahmini — '
-                '${score.year} verileri henüz açıklanmadı.',
+                outcome.rankIsUserEntered
+                    // Sıra modunda belirsizlik sırada değil PUANDA: sıra
+                    // kullanıcının verisi, puan tablodan türetildi.
+                    ? 'Puan, ÖSYM ${outcome.rankCurveYear} dağılımından '
+                        'türetildi — ${score.year} verileri henüz açıklanmadı.'
+                    : 'ÖSYM ${outcome.rankCurveYear} dağılımına göre tahmini — '
+                        '${score.year} verileri henüz açıklanmadı.',
                 style: AppTextStyles.labelSmall
                     .copyWith(color: AppColors.textTertiaryFor(context)),
               ),

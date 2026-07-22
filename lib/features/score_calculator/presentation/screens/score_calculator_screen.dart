@@ -8,6 +8,7 @@ import '../../../../core/widgets/widgets.dart';
 import '../providers/score_calculator_providers.dart';
 import '../widgets/department_picker_sheet.dart';
 import '../widgets/obp_section.dart';
+import '../widgets/rank_input_section.dart';
 import '../widgets/subject_net_input.dart';
 import '../widgets/subject_score_input.dart';
 import '../../domain/models/score_input.dart';
@@ -27,11 +28,15 @@ class ScoreCalculatorScreen extends ConsumerStatefulWidget {
 
 class _ScoreCalculatorScreenState extends ConsumerState<ScoreCalculatorScreen> {
   late final TextEditingController _obpController;
+  late final TextEditingController _rankController;
 
   @override
   void initState() {
     super.initState();
-    final obp = ref.read(scoreInputProvider).obpScore;
+    final saved = ref.read(scoreInputProvider);
+    final obp = saved.obpScore;
+    _rankController = TextEditingController(
+        text: saved.enteredRank == null ? '' : '${saved.enteredRank}');
     _obpController =
         TextEditingController(text: obp == 0 ? '80' : _trimZero(obp));
     // Controller ile state'i eşitle (ilk açılışta default 80).
@@ -51,6 +56,7 @@ class _ScoreCalculatorScreenState extends ConsumerState<ScoreCalculatorScreen> {
   @override
   void dispose() {
     _obpController.dispose();
+    _rankController.dispose();
     super.dispose();
   }
 
@@ -66,6 +72,30 @@ class _ScoreCalculatorScreenState extends ConsumerState<ScoreCalculatorScreen> {
     final input = ref.read(scoreInputProvider);
     if (mode == input.entryMode) return;
 
+    // Sıra moduna geçiş: netler saklanır (geri dönülebilsin), yalnız mod
+    // değişir. Puan türü çipten seçilir, burada dokunulmaz.
+    if (mode == NetEntryMode.rank) {
+      _update(input.copyWith(entryMode: mode));
+      return;
+    }
+
+    // Sıra modundan çıkış: girilen sıra netlere çevrilemez, temizlenir.
+    if (input.isRankMode) {
+      if (input.enteredRank != null) {
+        final confirmed = await _confirmDiscard(
+          title: 'Net girişine dön',
+          message: 'Girdiğin başarı sırası netlere çevrilemez ve silinecek. '
+              'Önceki net girişlerin geri gelir. Devam edilsin mi?',
+        );
+        if (confirmed != true) return;
+      }
+      _rankController.clear();
+      _update(ref
+          .read(scoreInputProvider)
+          .copyWith(entryMode: mode, scoreType: '', clearRank: true));
+      return;
+    }
+
     if (mode == NetEntryMode.directNet) {
       // Doğru/yanlıştan hesaplanan netler direkt alanlara taşınır.
       final nets = <YksSubject, double>{
@@ -78,31 +108,40 @@ class _ScoreCalculatorScreenState extends ConsumerState<ScoreCalculatorScreen> {
 
     // Net → doğru/yanlış: net modundaki değerler geri dönüştürülemez.
     if (input.directNets.isNotEmpty) {
-      final confirmed = await showDialog<bool>(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Doğru/yanlış moduna dön'),
-          content: const Text(
-              'Net modunda girdiğin değerler doğru/yanlış sayısına '
-              'çevrilemez; önceki doğru/yanlış girişlerin geri gelir. '
-              'Devam edilsin mi?'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context, false),
-              child: const Text('Vazgeç'),
-            ),
-            FilledButton(
-              onPressed: () => Navigator.pop(context, true),
-              child: const Text('Devam Et'),
-            ),
-          ],
-        ),
+      final confirmed = await _confirmDiscard(
+        title: 'Doğru/yanlış moduna dön',
+        message: 'Net modunda girdiğin değerler doğru/yanlış sayısına '
+            'çevrilemez; önceki doğru/yanlış girişlerin geri gelir. '
+            'Devam edilsin mi?',
       );
       if (confirmed != true) return;
     }
     _update(ref
         .read(scoreInputProvider)
         .copyWith(entryMode: mode, directNets: const {}));
+  }
+
+  Future<bool?> _confirmDiscard({
+    required String title,
+    required String message,
+  }) {
+    return showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(title),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Vazgeç'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Devam Et'),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _subjectRow(ScoreInput input, YksSubject subject) {
@@ -212,6 +251,11 @@ class _ScoreCalculatorScreenState extends ConsumerState<ScoreCalculatorScreen> {
                         label: Text('Net Gir'),
                         icon: Icon(Icons.speed_rounded, size: 18),
                       ),
+                      ButtonSegment(
+                        value: NetEntryMode.rank,
+                        label: Text('Sıralama'),
+                        icon: Icon(Icons.leaderboard_rounded, size: 18),
+                      ),
                     ],
                     selected: {input.entryMode},
                     onSelectionChanged: (selection) =>
@@ -220,70 +264,97 @@ class _ScoreCalculatorScreenState extends ConsumerState<ScoreCalculatorScreen> {
                 ),
                 const SizedBox(height: 20),
 
-                // ─── TYT (herkes girer, hep açık) ───────────────
-                _buildSectionHeader('TYT Testleri'),
-                Text(
-                  'Puan hesaplanması için Türkçe veya Temel Matematik '
-                  'netin en az 0.5 olmalı.',
-                  style: AppTextStyles.bodySmall
-                      .copyWith(color: AppColors.textSecondaryFor(context)),
-                ),
-                const SizedBox(height: 12),
-                for (final s in YksSubject.bySection(YksSection.tyt))
-                  _subjectRow(input, s),
-
-                // ─── AYT (açılır) ───────────────────────────────
-                _CollapsibleSection(
-                  title: 'AYT Testleri',
-                  subtitle: 'SAY, EA ve SÖZ puanları için',
-                  icon: Icons.science_rounded,
-                  initiallyExpanded: _sectionHasNets(input, aytSubjects),
-                  children: [
-                    _buildGroupHeader(context, 'Sayısal'),
-                    for (final s in YksSubject.bySection(YksSection.aytSay))
-                      _subjectRow(input, s),
-                    _buildGroupHeader(context, 'Sözel-1 / Eşit Ağırlık'),
-                    for (final s in YksSubject.bySection(YksSection.aytEaSoz))
-                      _subjectRow(input, s),
-                    _buildGroupHeader(context, 'Sözel-2'),
-                    for (final s in YksSubject.bySection(YksSection.aytSoz2))
-                      _subjectRow(input, s),
-                  ],
-                ),
-
-                // ─── YDT (açılır) ───────────────────────────────
-                _CollapsibleSection(
-                  title: 'YDT (Yabancı Dil)',
-                  subtitle: 'DİL puanı için',
-                  icon: Icons.language_rounded,
-                  initiallyExpanded: _sectionHasNets(
-                      input, YksSubject.bySection(YksSection.ydt)),
-                  children: [
-                    for (final s in YksSubject.bySection(YksSection.ydt))
-                      _subjectRow(input, s),
-                  ],
-                ),
-                const SizedBox(height: 16),
-
-                // ─── OBP ────────────────────────────────────────
-                _SectionCard(
-                  icon: Icons.workspace_premium_rounded,
-                  iconColor: AppColors.gold,
-                  title: 'Diploma Notu (OBP)',
-                  child: ObpSection(
-                    controller: _obpController,
-                    input: input,
-                    onObpChanged: (v) => _update(
-                        ref.read(scoreInputProvider).copyWith(obpScore: v)),
-                    onPlacedLastYearChanged: (v) => _update(ref
-                        .read(scoreInputProvider)
-                        .copyWith(placedLastYear: v)),
-                    onMeslekOwnFieldChanged: (v) => _update(ref
-                        .read(scoreInputProvider)
-                        .copyWith(meslekOwnField: v)),
+                // ─── Sıra modu: netlerin ve OBP'nin yerini alır ──
+                if (input.isRankMode) ...[
+                  _SectionCard(
+                    icon: Icons.leaderboard_rounded,
+                    iconColor: AppColors.primary,
+                    title: 'Başarı Sıralaman',
+                    child: RankInputSection(
+                      controller: _rankController,
+                      input: input,
+                      onScoreTypeChanged: (type) => _update(ref
+                          .read(scoreInputProvider)
+                          .copyWith(scoreType: type)),
+                      onRankChanged: (rank) => _update(rank == null
+                          ? ref
+                              .read(scoreInputProvider)
+                              .copyWith(clearRank: true)
+                          : ref
+                              .read(scoreInputProvider)
+                              .copyWith(enteredRank: rank)),
+                    ),
                   ),
-                ),
-                const SizedBox(height: 16),
+                  const SizedBox(height: 16),
+                ],
+
+                // ─── Netler + OBP (sıra modunda gizli) ──────────
+                if (!input.isRankMode) ...[
+                  // ─── TYT (herkes girer, hep açık) ─────────────
+                  _buildSectionHeader('TYT Testleri'),
+                  Text(
+                    'Puan hesaplanması için Türkçe veya Temel Matematik '
+                    'netin en az 0.5 olmalı.',
+                    style: AppTextStyles.bodySmall
+                        .copyWith(color: AppColors.textSecondaryFor(context)),
+                  ),
+                  const SizedBox(height: 12),
+                  for (final s in YksSubject.bySection(YksSection.tyt))
+                    _subjectRow(input, s),
+
+                  // ─── AYT (açılır) ───────────────────────────────
+                  _CollapsibleSection(
+                    title: 'AYT Testleri',
+                    subtitle: 'SAY, EA ve SÖZ puanları için',
+                    icon: Icons.science_rounded,
+                    initiallyExpanded: _sectionHasNets(input, aytSubjects),
+                    children: [
+                      _buildGroupHeader(context, 'Sayısal'),
+                      for (final s in YksSubject.bySection(YksSection.aytSay))
+                        _subjectRow(input, s),
+                      _buildGroupHeader(context, 'Sözel-1 / Eşit Ağırlık'),
+                      for (final s in YksSubject.bySection(YksSection.aytEaSoz))
+                        _subjectRow(input, s),
+                      _buildGroupHeader(context, 'Sözel-2'),
+                      for (final s in YksSubject.bySection(YksSection.aytSoz2))
+                        _subjectRow(input, s),
+                    ],
+                  ),
+
+                  // ─── YDT (açılır) ───────────────────────────────
+                  _CollapsibleSection(
+                    title: 'YDT (Yabancı Dil)',
+                    subtitle: 'DİL puanı için',
+                    icon: Icons.language_rounded,
+                    initiallyExpanded: _sectionHasNets(
+                        input, YksSubject.bySection(YksSection.ydt)),
+                    children: [
+                      for (final s in YksSubject.bySection(YksSection.ydt))
+                        _subjectRow(input, s),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+
+                  // ─── OBP ────────────────────────────────────────
+                  _SectionCard(
+                    icon: Icons.workspace_premium_rounded,
+                    iconColor: AppColors.gold,
+                    title: 'Diploma Notu (OBP)',
+                    child: ObpSection(
+                      controller: _obpController,
+                      input: input,
+                      onObpChanged: (v) => _update(
+                          ref.read(scoreInputProvider).copyWith(obpScore: v)),
+                      onPlacedLastYearChanged: (v) => _update(ref
+                          .read(scoreInputProvider)
+                          .copyWith(placedLastYear: v)),
+                      onMeslekOwnFieldChanged: (v) => _update(ref
+                          .read(scoreInputProvider)
+                          .copyWith(meslekOwnField: v)),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                ],
 
                 // ─── Hedef bölüm (opsiyonel) ────────────────────
                 _SectionCard(
@@ -346,7 +417,10 @@ class _ScoreCalculatorScreenState extends ConsumerState<ScoreCalculatorScreen> {
                 Padding(
                   padding: const EdgeInsets.only(bottom: 8),
                   child: Text(
-                    'Hesaplama için TYT Türkçe veya Temel Matematik neti gir',
+                    input.isRankMode
+                        ? 'Hesaplama için puan türünü seç ve sıranı gir'
+                        : 'Hesaplama için TYT Türkçe veya Temel Matematik '
+                            'neti gir',
                     style: AppTextStyles.bodySmall
                         .copyWith(color: AppColors.textSecondaryFor(context)),
                     textAlign: TextAlign.center,

@@ -8,6 +8,9 @@ import 'score_type_card.dart';
 /// Yıl karşılaştırması: aynı netler, seçili türde 2022–2026 puan + sıra.
 /// Her yılın puanı o yılın katsayılarıyla, sırası o yılın resmî ÖSYM
 /// dağılımıyla hesaplanır.
+///
+/// Sıra modunda soru tersine döner — sabit olan sıradır, her yıl için o
+/// sıranın kaç puana denk geldiği gösterilir.
 class YearComparisonTable extends ConsumerWidget {
   final String scoreType;
 
@@ -16,6 +19,7 @@ class YearComparisonTable extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final rowsAsync = ref.watch(yearComparisonProvider(scoreType));
+    final rankMode = ref.watch(scoreInputProvider).isRankMode;
 
     return rowsAsync.when(
       loading: () => const Padding(
@@ -38,7 +42,7 @@ class YearComparisonTable extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _headerRow(context),
+              _headerRow(context, rankMode),
               const SizedBox(height: 4),
               for (final row in rows) ...[
                 Divider(height: 1, color: AppColors.borderLightFor(context)),
@@ -78,7 +82,8 @@ class YearComparisonTable extends ConsumerWidget {
                       Expanded(
                         child: Text(
                           row.estimatedRank != null
-                              ? '~${formatRank(row.estimatedRank!)}'
+                              ? '${rankMode ? '' : '~'}'
+                                  '${formatRank(row.estimatedRank!)}'
                               : '—',
                           textAlign: TextAlign.right,
                           style: AppTextStyles.bodyMedium
@@ -105,7 +110,7 @@ class YearComparisonTable extends ConsumerWidget {
     );
   }
 
-  Widget _headerRow(BuildContext context) {
+  Widget _headerRow(BuildContext context, bool rankMode) {
     final style = AppTextStyles.labelSmall.copyWith(
       color: AppColors.textSecondaryFor(context),
       fontWeight: FontWeight.w700,
@@ -117,9 +122,10 @@ class YearComparisonTable extends ConsumerWidget {
         children: [
           SizedBox(width: 64, child: Text('YIL', style: style)),
           Expanded(
-              child: Text('PUAN', textAlign: TextAlign.center, style: style)),
+              child: Text(rankMode ? 'O YILKİ PUAN' : 'PUAN',
+                  textAlign: TextAlign.center, style: style)),
           Expanded(
-              child: Text('TAHMİNİ SIRA',
+              child: Text(rankMode ? 'SIRA' : 'TAHMİNİ SIRA',
                   textAlign: TextAlign.right, style: style)),
         ],
       ),

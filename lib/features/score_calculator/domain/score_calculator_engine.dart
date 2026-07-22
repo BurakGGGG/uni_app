@@ -104,7 +104,14 @@ class ScoreCalculatorEngine {
   /// Girilen netlere göre hesaplanabilir puan türleri (hesaplama.net kuralları):
   /// TYT için Türkçe veya Temel Matematik'ten en az 0.5 net; AYT/YDT türleri
   /// TYT şartına ek olarak kendi testinden en az bir pozitif net ister.
+  ///
+  /// Sıra modunda net yoktur: kullanıcının seçtiği tek tür döner. Hem
+  /// "Hesapla" butonu hem `multiScoreOutcomeProvider` bu kapıya bağlı
+  /// olduğundan sıra modunun tüm akışı buradan açılır.
   static List<String> applicableScoreTypes(ScoreInput input) {
+    if (input.isRankMode) {
+      return input.hasValidRank ? [input.scoreType] : const [];
+    }
     final tytOk = input.tytTurkceNet >= 0.5 || input.tytMatNet >= 0.5;
     if (!tytOk) return const [];
 

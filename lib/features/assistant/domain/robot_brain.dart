@@ -42,11 +42,19 @@ class CalcResultContext {
   /// Biçimlenmiş net farkı (ör. '+12,4'); [netDelta] null ise kullanılmaz.
   final String? deltaText;
 
+  /// Kullanıcı netler yerine sırasını girdi — sıra tahmin değil, veri.
+  final bool fromRank;
+
+  /// Sıra modunda sıradan türetilen puan (ör. '451,1').
+  final String? scoreText;
+
   const CalcResultContext({
     required this.bestType,
     this.rankText,
     this.netDelta,
     this.deltaText,
+    this.fromRank = false,
+    this.scoreText,
   });
 }
 
@@ -308,12 +316,16 @@ abstract final class RobotBrain {
   // ── Puan hesaplama: sonuç yorumu ──
 
   /// Hesaplama sonucuna kişisel yorum: ilk kayıt / ilerleme / gerileme /
-  /// istikrar ailesinden seçer. Sıra her zaman puandan tahminlidir; metinler
+  /// istikrar ailesinden seçer. Net modunda sıra puandan tahminlidir; metinler
   /// bunu zaten söylediği için [RobotScripts.estimatedRankSuffix] eklenmez.
+  /// Sıra modunda ([CalcResultContext.fromRank]) net deltası yoktur ve dil
+  /// "tahminî sıran" demez — ayrı aile kullanılır.
   static RobotMessage calcSummary(CalcResultContext ctx, {int? seed}) {
     final List<RobotScript> family;
     final delta = ctx.netDelta;
-    if (delta == null) {
+    if (ctx.fromRank) {
+      family = RobotScripts.calcRankEntry;
+    } else if (delta == null) {
       family = RobotScripts.calcFirstTime;
     } else if (delta > 0.5) {
       family = RobotScripts.calcProgress;
@@ -326,6 +338,7 @@ abstract final class RobotBrain {
     final text = script.text
         .replaceAll('{type}', ctx.bestType)
         .replaceAll('{rank}', ctx.rankText ?? '—')
+        .replaceAll('{score}', ctx.scoreText ?? '—')
         .replaceAll('{delta}', ctx.deltaText ?? '');
     return RobotMessage(script.id, text, script.mood, action: script.action);
   }

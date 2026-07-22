@@ -74,5 +74,55 @@ void main() {
       expect(msg.text, contains('—'));
       expect(msg.text, isNot(contains('{rank}')));
     });
+
+    test('sıra modu → calc.rank ailesi, sıra ve puan yer tutucuları dolu', () {
+      final msg = RobotBrain.calcSummary(
+        const CalcResultContext(
+          bestType: 'SAY',
+          rankText: '45.000',
+          fromRank: true,
+          scoreText: '451,1',
+        ),
+        seed: 0,
+      );
+      expect(msg.id, startsWith('calc.rank.'));
+      expect(msg.text, contains('45.000'));
+      expect(msg.text, contains('451,1'));
+      expect(msg.text, contains('SAY'));
+      expect(msg.text, isNot(contains('{')));
+      // Sırayı kullanıcı girdi — "tahminî sıra" dili kullanılmamalı.
+      expect(msg.text, isNot(contains('tahminî')));
+    });
+
+    test('sıra modu net deltasını yok sayar (ilerleme ailesine düşmez)', () {
+      final msg = RobotBrain.calcSummary(
+        const CalcResultContext(
+          bestType: 'SAY',
+          rankText: '45.000',
+          netDelta: 12.5,
+          deltaText: '+12,5',
+          fromRank: true,
+          scoreText: '451,1',
+        ),
+        seed: 1,
+      );
+      expect(msg.id, startsWith('calc.rank.'));
+    });
+
+    test('sıra modu İngilizcede de kendi ailesini konuşur', () {
+      RobotScripts.languageCode = 'en';
+      final msg = RobotBrain.calcSummary(
+        const CalcResultContext(
+          bestType: 'SAY',
+          rankText: '45,000',
+          fromRank: true,
+          scoreText: '451.1',
+        ),
+        seed: 0,
+      );
+      expect(msg.id, startsWith('calc.rank.'));
+      expect(msg.text, contains('45,000'));
+      expect(msg.text, isNot(contains('{')));
+    });
   });
 }

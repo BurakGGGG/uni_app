@@ -64,12 +64,17 @@ final multiScoreOutcomeProvider =
 });
 
 /// Yıl karşılaştırması: aynı netler, seçilen türde 2022–2026 puan + sıra.
+/// Sıra modunda soru tersine döner — aynı sıra hangi yıl kaç puan ederdi.
 final yearComparisonProvider = FutureProvider.autoDispose
     .family<List<YearOutcome>, String>((ref, scoreType) async {
   final input = ref.watch(scoreInputProvider);
   final estimator = await ref.watch(multiYearRankEstimatorProvider.future);
-  return ScoreOutcomeService(estimator: estimator)
-      .yearComparison(input, scoreType);
+  final service = ScoreOutcomeService(estimator: estimator);
+  if (input.isRankMode) {
+    if (!input.hasValidRank) return const [];
+    return service.rankYearComparison(input.enteredRank!, scoreType);
+  }
+  return service.yearComparison(input, scoreType);
 });
 
 /// Store — `sharedPreferencesProvider` main.dart'ta override edilir.
@@ -127,6 +132,13 @@ final calcHistoryProvider =
 final resultSelectedTypeProvider =
     StateProvider.autoDispose<String?>((ref) => null);
 
+/// Geçici profile yalnız KULLANICININ girdiği sıra yazılır. Puandan tahmin
+/// edilen sıra yazılmaz: motor onu kendi hesaplar ve belirsizlik düzeltmesini
+/// (`kEstimatedRankPullToMid`) uygular. Gerçek sıra girildiğinde ise o
+/// düzeltme atlanmalı, kategoriler keskinleşmeli.
+int? _userRankOf(ScoreTypeOutcome outcome) =>
+    outcome.rankIsUserEntered ? outcome.estimatedRank : null;
+
 /// "Girebileceğin bölümler": seçilen türün puanıyla sihirbaz motorunun
 /// birebir aynı yolu (geçici profil + matchAllPrograms + rank estimator).
 final eligibleProgramsProvider = FutureProvider.autoDispose
@@ -142,6 +154,7 @@ final eligibleProgramsProvider = FutureProvider.autoDispose
   final profile = StudentScoreProfile(
     scoreType: scoreType,
     placementScore: typeOutcome.score.placementScore,
+    rank: _userRankOf(typeOutcome),
     year: DateTime.now().year,
     updatedAt: DateTime.now(),
   );
@@ -207,6 +220,7 @@ final targetDepartmentVerdictProvider =
     final profile = StudentScoreProfile(
       scoreType: deptType,
       placementScore: typeOutcome.score.placementScore,
+      rank: _userRankOf(typeOutcome),
       year: DateTime.now().year,
       updatedAt: DateTime.now(),
     );

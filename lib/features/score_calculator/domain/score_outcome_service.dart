@@ -15,6 +15,7 @@ class ScoreOutcomeService {
   const ScoreOutcomeService({required this.estimator});
 
   MultiScoreOutcome buildAll(ScoreInput input) {
+    if (input.isRankMode) return buildFromRank(input);
     final multi = ScoreCalculatorEngine.calculateAllTypes(input);
     return MultiScoreOutcome(
       year: multi.year,
@@ -23,6 +24,77 @@ class ScoreOutcomeService {
         for (final score in multi.scores) _outcomeFor(score),
       ],
     );
+  }
+
+  /// Sıra modu: netler yerine kullanıcının girdiği başarı sırasından tek
+  /// türlük sonuç üretir. Puan resmî dağılımın tersinden gelir, sıra ise
+  /// tahmin değil kullanıcının kendi verisidir (`rankIsUserEntered`).
+  MultiScoreOutcome buildFromRank(ScoreInput input) {
+    final rank = input.enteredRank;
+    final type = input.scoreType;
+    final derived = (!input.hasValidRank || rank == null)
+        ? null
+        : OsymScoreDistribution.estimateScore(rank, type, input.selectedYear);
+    if (rank == null || derived == null) {
+      return MultiScoreOutcome(
+        year: input.selectedYear,
+        outcomes: const [],
+        obpContribution: 0,
+      );
+    }
+
+    final total =
+        OsymScoreDistribution.totalCandidates(type, input.selectedYear);
+    double? percentile;
+    int? percentileYear;
+    if (total != null && total.count > 0) {
+      percentile = (rank / total.count * 100).clamp(0.01, 100.0);
+      percentileYear = total.year;
+    }
+
+    return MultiScoreOutcome(
+      year: input.selectedYear,
+      obpContribution: 0,
+      outcomes: [
+        ScoreTypeOutcome(
+          score: TypeScore(
+            scoreType: type,
+            year: input.selectedYear,
+            // Sıradan gelen puan zaten OBP'li yerleştirme puanıdır; ham puan
+            // ayrıştırılamaz, ikisi de aynı değeri taşır.
+            rawScore: derived.score,
+            placementScore: derived.score,
+          ),
+          estimatedRank: rank,
+          rankCurveYear: derived.year,
+          percentile: percentile,
+          percentileYear: percentileYear,
+          rankIsUserEntered: true,
+        ),
+      ],
+    );
+  }
+
+  /// Sıra modu yıl karşılaştırması: aynı sıra hangi yıl kaç puana denk gelirdi.
+  /// Tablosu olmayan yıllar (2026) atlanır — proxy satır yanıltıcı olurdu.
+  List<YearOutcome> rankYearComparison(
+    int rank,
+    String scoreType, {
+    List<int> years = const [2022, 2023, 2024, 2025],
+  }) {
+    final results = <YearOutcome>[];
+    for (final year in years) {
+      final derived =
+          OsymScoreDistribution.estimateScore(rank, scoreType, year);
+      if (derived == null || derived.year != year) continue;
+      results.add(YearOutcome(
+        year: year,
+        placementScore: derived.score,
+        estimatedRank: rank,
+        rankCurveYear: year,
+      ));
+    }
+    return results;
   }
 
   /// Aynı netlerin farklı yılların katsayı ve dağılımlarıyla sonucu.

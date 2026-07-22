@@ -26,6 +26,23 @@ class OsymScoreDistribution {
     return (rank: _interpolate(anchors, score), year: resolved);
   }
 
+  /// [estimateRank]'in tersi: verilen başarı sırasına karşılık gelen
+  /// yerleştirme puanı. Kullanıcı netleri yerine sırasını girdiğinde puanı
+  /// buradan türetilir.
+  ///
+  /// `clamped` true ise sıra tablonun dışında kalmıştır ve dönen puan uç
+  /// çapadır (en üstte 550, en altta 115) — UI "550+" gibi bir dil kullanmalı,
+  /// çünkü o aralıkta tek bir puan söylenemez.
+  static ({double score, int year, bool clamped})? estimateScore(
+      int rank, String scoreType, int year) {
+    if (rank <= 0) return null;
+    final resolved = _resolveYear(scoreType, year);
+    if (resolved == null) return null;
+    final anchors = _tables[resolved]![scoreType.toUpperCase()]!;
+    final (score, clamped) = _interpolateScore(anchors, rank);
+    return (score: score, year: resolved, clamped: clamped);
+  }
+
   /// Bu tür için puanı hesaplanan toplam aday sayısı (yüzdelik dilim paydası).
   static ({int count, int year})? totalCandidates(String scoreType, int year) {
     final resolved = _resolveYear(scoreType, year);
@@ -63,6 +80,28 @@ class OsymScoreDistribution {
       }
     }
     return anchors.last.$2;
+  }
+
+  /// [_interpolate]'in cebirsel tersi. Aday sayıları puan azaldıkça arttığı
+  /// için çapalar sıraya göre ARTAN okunur; kiriş içinde ln(aday) doğrusal
+  /// varsayıldığından puan da doğrusal olarak geri çözülür.
+  static (double, bool) _interpolateScore(
+      List<(double, int)> anchors, int rank) {
+    if (rank <= anchors.first.$2) return (anchors.first.$1, true);
+    if (rank >= anchors.last.$2) return (anchors.last.$1, true);
+    for (var i = 0; i < anchors.length - 1; i++) {
+      final (hiScore, hiCount) = anchors[i];
+      final (loScore, loCount) = anchors[i + 1];
+      if (rank <= loCount) {
+        // Kuyruktaki düz plato (loCount == hiCount): sıra bu kirişte tek bir
+        // puana çözülemez, üst eşiği veririz.
+        if (loCount == hiCount) return (hiScore, true);
+        final t = (math.log(rank) - math.log(hiCount)) /
+            (math.log(loCount) - math.log(hiCount));
+        return (hiScore - t * (hiScore - loScore), false);
+      }
+    }
+    return (anchors.last.$1, true);
   }
 
   // ── Resmî tablolar ────────────────────────────────────────────────

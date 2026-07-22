@@ -85,7 +85,12 @@ class _HistoryTile extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final netDelta = previous != null ? entry.totalNet - previous!.totalNet : null;
+    // Sıra modunda "net" yok; ilerleme sıranın kaç basamak iyileştiğidir.
+    final rankDelta =
+        previous != null ? entry.rankProgressOver(previous!) : null;
+    final netDelta = (previous != null && !entry.isRankMode)
+        ? entry.totalNet - previous!.totalNet
+        : null;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -113,7 +118,7 @@ class _HistoryTile extends ConsumerWidget {
                     const SizedBox(height: 2),
                     Text(
                       '${_formatDate(entry.createdAt)} · ${entry.year} YKS · '
-                      'Toplam ${entry.totalNet.toStringAsFixed(2).replaceAll('.', ',')} net',
+                      '${entry.isRankMode ? 'Sıralama girişi' : 'Toplam ${entry.totalNet.toStringAsFixed(2).replaceAll('.', ',')} net'}',
                       style: AppTextStyles.labelSmall.copyWith(
                           color: AppColors.textSecondaryFor(context)),
                     ),
@@ -154,7 +159,7 @@ class _HistoryTile extends ConsumerWidget {
                   ),
                   child: Text(
                     '${r.scoreType} ${r.placementScore.toStringAsFixed(1).replaceAll('.', ',')}'
-                    '${r.estimatedRank != null ? ' · ~${formatRank(r.estimatedRank!)}' : ''}',
+                    '${r.estimatedRank != null ? ' · ${entry.isRankMode ? '' : '~'}${formatRank(r.estimatedRank!)}' : ''}',
                     style: AppTextStyles.labelMedium.copyWith(
                       color: scoreTypeColor(r.scoreType),
                       fontWeight: FontWeight.w700,
@@ -163,9 +168,15 @@ class _HistoryTile extends ConsumerWidget {
                 ),
             ],
           ),
-          if (netDelta != null && netDelta != 0) ...[
+          if ((netDelta != null && netDelta != 0) ||
+              (rankDelta != null && rankDelta != 0)) ...[
             const SizedBox(height: 10),
-            _DeltaRow(entry: entry, previous: previous!, netDelta: netDelta),
+            _DeltaRow(
+              entry: entry,
+              previous: previous!,
+              netDelta: netDelta,
+              rankDelta: rankDelta,
+            ),
           ],
         ],
       ),
@@ -223,23 +234,53 @@ class _HistoryTile extends ConsumerWidget {
   }
 }
 
-/// Önceki denemeye göre değişim satırı: toplam net + en iyi türün puanı.
+/// Önceki denemeye göre değişim satırı: net modunda toplam net + en iyi türün
+/// puanı, sıra modunda sıranın kaç basamak ilerlediği.
 class _DeltaRow extends StatelessWidget {
   final CalcHistoryEntry entry;
   final CalcHistoryEntry previous;
-  final double netDelta;
+  final double? netDelta;
+  final int? rankDelta;
 
   const _DeltaRow({
     required this.entry,
     required this.previous,
     required this.netDelta,
+    required this.rankDelta,
   });
 
   @override
   Widget build(BuildContext context) {
-    final up = netDelta > 0;
+    // Sırada küçülmek iyileşmedir; rankDelta zaten pozitifse ilerleme.
+    final up = rankDelta != null ? rankDelta! > 0 : netDelta! > 0;
     final color = up ? const Color(0xFF10B981) : const Color(0xFFEF4444);
 
+    return Row(
+      children: [
+        Icon(up ? Icons.trending_up_rounded : Icons.trending_down_rounded,
+            size: 18, color: color),
+        const SizedBox(width: 6),
+        Expanded(
+          child: Text(
+            rankDelta != null ? _rankText() : _netText(),
+            style: AppTextStyles.labelMedium.copyWith(
+              color: color,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  String _rankText() {
+    final steps = formatRank(rankDelta!.abs());
+    return rankDelta! > 0
+        ? 'Önceki denemeye göre $steps sıra ilerledin'
+        : 'Önceki denemeye göre $steps sıra gerilendi';
+  }
+
+  String _netText() {
     // En iyi türün puan farkı (önceki denemede de aynı tür varsa).
     String? scorePart;
     final best = entry.best;
@@ -253,25 +294,9 @@ class _DeltaRow extends StatelessWidget {
         }
       }
     }
-
-    return Row(
-      children: [
-        Icon(up ? Icons.trending_up_rounded : Icons.trending_down_rounded,
-            size: 18, color: color),
-        const SizedBox(width: 6),
-        Expanded(
-          child: Text(
-            'Önceki denemeye göre ${netDelta > 0 ? '+' : ''}'
-            '${netDelta.toStringAsFixed(2).replaceAll('.', ',')} net'
-            '${scorePart != null ? ' · $scorePart' : ''}',
-            style: AppTextStyles.labelMedium.copyWith(
-              color: color,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-        ),
-      ],
-    );
+    return 'Önceki denemeye göre ${netDelta! > 0 ? '+' : ''}'
+        '${netDelta!.toStringAsFixed(2).replaceAll('.', ',')} net'
+        '${scorePart != null ? ' · $scorePart' : ''}';
   }
 }
 

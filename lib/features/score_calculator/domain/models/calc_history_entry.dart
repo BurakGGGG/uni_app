@@ -86,6 +86,22 @@ class CalcHistoryEntry {
   /// Toplam net — denemeler arası ilerleme göstergesinin temeli.
   double get totalNet => input.totalNet;
 
+  /// Sıra modunda kaydedilen deneme: net yerine başarı sırası girilmiş.
+  bool get isRankMode => input.isRankMode;
+
+  /// Bu kayıtla [other] arasındaki sıra ilerlemesi (pozitif = sıra iyileşti).
+  /// Yalnız iki kayıt da aynı türde sıra moduysa hesaplanır.
+  int? rankProgressOver(CalcHistoryEntry other) {
+    if (!isRankMode || !other.isRankMode) return null;
+    final mine = results.isEmpty ? null : results.first;
+    if (mine == null) return null;
+    final theirs = other.byType(mine.scoreType);
+    if (mine.estimatedRank == null || theirs?.estimatedRank == null) {
+      return null;
+    }
+    return theirs!.estimatedRank! - mine.estimatedRank!;
+  }
+
   TypeScoreSnapshot? byType(String scoreType) {
     for (final r in results) {
       if (r.scoreType == scoreType) return r;

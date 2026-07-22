@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:uni_app/features/score_calculator/domain/models/score_input.dart';
 import 'package:uni_app/features/score_calculator/presentation/providers/score_calculator_providers.dart';
 import 'package:uni_app/features/score_calculator/presentation/screens/score_calculator_screen.dart';
+import 'package:uni_app/features/score_calculator/presentation/widgets/rank_input_section.dart';
 import 'package:uni_app/features/score_calculator/presentation/widgets/subject_net_input.dart';
 import 'package:uni_app/features/score_calculator/presentation/widgets/subject_score_input.dart';
 
@@ -152,5 +153,93 @@ void main() {
     expect(container.read(scoreInputProvider).selectedYear, 2026);
     expect(container.read(scoreInputProvider).entryMode,
         NetEntryMode.correctWrong);
+  });
+
+  group('sıralama modu', () {
+    Finder rankField() => find.descendant(
+          of: find.byType(RankInputSection),
+          matching: find.byType(TextFormField),
+        );
+
+    testWidgets('net ve OBP bölümleri gizlenir, sıra alanı gelir',
+        (tester) async {
+      await pump(tester);
+      expect(find.text('TYT Testleri'), findsOneWidget);
+      expect(find.text('Diploma Notu (OBP)'), findsOneWidget);
+
+      await tester.tap(find.text('Sıralama'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Başarı Sıralaman'), findsOneWidget);
+      expect(find.text('TYT Testleri'), findsNothing);
+      expect(find.text('AYT Testleri'), findsNothing);
+      expect(find.text('Diploma Notu (OBP)'), findsNothing);
+      // Hedef bölüm sıra modunda da kalır.
+      expect(find.text('Hedef Bölüm (opsiyonel)'), findsOneWidget);
+    });
+
+    testWidgets('tür seçilmeden Hesapla kapalı, seçilince açılır',
+        (tester) async {
+      await pump(tester);
+      await tester.tap(find.text('Sıralama'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Hesaplama için puan türünü seç ve sıranı gir'),
+          findsOneWidget);
+
+      // Yalnız tür yetmez.
+      await tester.tap(find.widgetWithText(ChoiceChip, 'SAY'));
+      await tester.pump();
+      expect(find.text('Hesapla'), findsOneWidget);
+
+      await tester.enterText(rankField(), '45000');
+      await tester.pump();
+
+      expect(find.text('Hesapla (SAY)'), findsOneWidget);
+      expect(find.text('Hesaplama için puan türünü seç ve sıranı gir'),
+          findsNothing);
+    });
+
+    testWidgets('canlı önizleme puanı ve dilimi gösterir', (tester) async {
+      await pump(tester);
+      await tester.tap(find.text('Sıralama'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(ChoiceChip, 'SAY'));
+      await tester.pump();
+      await tester.enterText(rankField(), '45000');
+      await tester.pump();
+
+      // 2025 SAY tablosunda 45.000 → ≈451,1 puan; dilim 45.000/1.291.531.
+      expect(find.textContaining('≈ 451.1 puan'), findsOneWidget);
+      expect(find.textContaining('İlk %3,5'), findsOneWidget);
+      expect(find.textContaining('2025 yerleştirme verisine göre'),
+          findsOneWidget);
+    });
+
+    testWidgets('net moduna dönüş onay ister ve sırayı temizler',
+        (tester) async {
+      await pump(tester);
+      await tester.tap(find.text('Sıralama'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(ChoiceChip, 'SAY'));
+      await tester.pump();
+      await tester.enterText(rankField(), '45000');
+      await tester.pump();
+
+      await tester.tap(find.text('Doğru / Yanlış'));
+      await tester.pumpAndSettle();
+      expect(find.text('Net girişine dön'), findsOneWidget);
+      await tester.tap(find.text('Devam Et'));
+      await tester.pumpAndSettle();
+
+      final container = ProviderScope.containerOf(
+        tester.element(find.byType(ScoreCalculatorScreen)),
+      );
+      final input = container.read(scoreInputProvider);
+      expect(input.entryMode, NetEntryMode.correctWrong);
+      expect(input.enteredRank, isNull);
+      expect(input.scoreType, '');
+      expect(find.text('TYT Testleri'), findsOneWidget);
+    });
   });
 }

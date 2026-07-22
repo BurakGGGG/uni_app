@@ -1,7 +1,8 @@
 import 'yks_subject.dart';
 
-/// Net giriş modu: doğru/yanlış çiftleri veya direkt (küsuratlı) net.
-enum NetEntryMode { correctWrong, directNet }
+/// Giriş modu: doğru/yanlış çiftleri, direkt (küsuratlı) net, ya da netler
+/// yerine doğrudan başarı sırası.
+enum NetEntryMode { correctWrong, directNet, rank }
 
 /// Kullanıcının girdiği sınav verileri
 class ScoreInput {
@@ -21,6 +22,12 @@ class ScoreInput {
 
   /// Meslek lisesi mezunu, kendi alanında tercih → ek OBP katkısı.
   final bool meslekOwnField;
+
+  /// rank modunda kullanıcının girdiği başarı sırası. Bu modda netler ve OBP
+  /// yok sayılır — sıra zaten yerleştirme puanını içerir; puan
+  /// `OsymScoreDistribution.estimateScore` ile buradan türetilir.
+  /// Hangi türün sırası olduğu [scoreType]'ta tutulur (bu modda zorunlu).
+  final int? enteredRank;
 
   // ── TYT netleri (herkes girer) ────────────────────────────
   final int tytTurkceCorrect;
@@ -74,6 +81,7 @@ class ScoreInput {
     this.directNets = const {},
     this.placedLastYear = false,
     this.meslekOwnField = false,
+    this.enteredRank,
     this.tytTurkceCorrect = 0,
     this.tytTurkceWrong = 0,
     this.tytSosyalCorrect = 0,
@@ -114,6 +122,9 @@ class ScoreInput {
 
   /// Tek doğruluk noktası: aktif moda göre dersin neti.
   double netOf(YksSubject subject) {
+    // Sıra modunda net kavramı yok. Kullanıcı net modundan geçmiş olabilir ve
+    // eski değerler geri dönebilmek için saklanır — burada görmezden gelinir.
+    if (entryMode == NetEntryMode.rank) return 0;
     if (entryMode == NetEntryMode.directNet) {
       final raw = directNets[subject] ?? 0;
       return raw.clamp(subject.minNet, subject.maxQuestions.toDouble());
@@ -342,9 +353,18 @@ class ScoreInput {
   double get totalNet =>
       YksSubject.values.fold(0, (sum, s) => sum + netOf(s));
 
+  // ── Sıra modu ─────────────────────────────────────────────
+  bool get isRankMode => entryMode == NetEntryMode.rank;
+
+  /// Hesaplama yapılabilmesi için sıra modunda hem tür hem sıra gerekir.
+  bool get hasValidRank =>
+      isRankMode && scoreType.isNotEmpty && (enteredRank ?? 0) > 0;
+
   // ── OBP / Ek puan ─────────────────────────────────────────
   /// Ortaöğretim Başarı Puanı = diploma notu × 5 (250–500 aralığı).
-  double get obp => obpScore * 5;
+  /// Sıra modunda 0: girilen sıra zaten OBP'li yerleştirme puanına karşılık
+  /// gelir, üstüne ikinci kez eklenmemeli.
+  double get obp => isRankMode ? 0 : obpScore * 5;
 
   /// OBP katkısı = OBP × 0.12; geçen yıl yerleşenlerde katsayı 0.06.
   /// (Varsayılan durumda diploma notu × 0.6 ile birebir aynı.)
@@ -367,6 +387,7 @@ class ScoreInput {
         },
         'placedLastYear': placedLastYear,
         'meslekOwnField': meslekOwnField,
+        'enteredRank': enteredRank,
         'tytTurkceCorrect': tytTurkceCorrect,
         'tytTurkceWrong': tytTurkceWrong,
         'tytSosyalCorrect': tytSosyalCorrect,
@@ -419,6 +440,7 @@ class ScoreInput {
       },
       placedLastYear: json['placedLastYear'] as bool? ?? false,
       meslekOwnField: json['meslekOwnField'] as bool? ?? false,
+      enteredRank: (json['enteredRank'] as num?)?.toInt(),
       tytTurkceCorrect: i('tytTurkceCorrect'),
       tytTurkceWrong: i('tytTurkceWrong'),
       tytSosyalCorrect: i('tytSosyalCorrect'),
@@ -463,6 +485,8 @@ class ScoreInput {
     Map<YksSubject, double>? directNets,
     bool? placedLastYear,
     bool? meslekOwnField,
+    int? enteredRank,
+    bool clearRank = false,
     int? tytTurkceCorrect,
     int? tytTurkceWrong,
     int? tytSosyalCorrect,
@@ -505,6 +529,7 @@ class ScoreInput {
       directNets: directNets ?? this.directNets,
       placedLastYear: placedLastYear ?? this.placedLastYear,
       meslekOwnField: meslekOwnField ?? this.meslekOwnField,
+      enteredRank: clearRank ? null : (enteredRank ?? this.enteredRank),
       tytTurkceCorrect: tytTurkceCorrect ?? this.tytTurkceCorrect,
       tytTurkceWrong: tytTurkceWrong ?? this.tytTurkceWrong,
       tytSosyalCorrect: tytSosyalCorrect ?? this.tytSosyalCorrect,

@@ -46,12 +46,18 @@ class ScoreTypeOutcome {
   final double? percentile; // yüzdelik dilim (0-100, "İlk %X")
   final int? percentileYear; // aday sayısının veri yılı
 
+  /// Sıra kullanıcı tarafından girildi (sıra modu) — tahmin edilmedi.
+  /// UI bu durumda sıradan "~"/"tahmini" ibaresini kaldırır ve belirsizliği
+  /// puana taşır (puan sıradan türetilmiştir).
+  final bool rankIsUserEntered;
+
   const ScoreTypeOutcome({
     required this.score,
     this.estimatedRank,
     this.rankCurveYear,
     this.percentile,
     this.percentileYear,
+    this.rankIsUserEntered = false,
   });
 
   /// Sıra, puanın yılından farklı bir yılın eğrisinden geldi
