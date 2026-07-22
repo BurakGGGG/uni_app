@@ -29,6 +29,10 @@ enum ChatEffect {
 
   /// Puan hesaplayıcıya köprü (`/score-calculator`).
   goCalculator,
+
+  /// "En iyi X bölümleri" listesine köprü — hedef bölüm, üretilen mesajın
+  /// [RobotMessage.actionArg]'ında taşınır.
+  goBestPrograms,
 }
 
 /// Çip komutları — [ChatChip.sendText] taşımayan çipler akışa komut verir.

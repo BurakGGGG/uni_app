@@ -127,8 +127,9 @@ class BestProgramsEngine {
   }
 
   /// Bir alandaki bölüm adları, en iyi programının sırasına göre.
+  /// [category] null ise tüm bölümler döner (alan seçilmemiş hali).
   static List<DepartmentSummary> departmentsIn(
-    ProgramCategory category,
+    ProgramCategory? category,
     List<DepartmentModel> all,
     BestProgramsQuery query,
   ) {
@@ -139,8 +140,10 @@ class BestProgramsEngine {
         continue;
       }
       if (!query.includeDistance && isDistanceLearning(dept)) continue;
-      final normalized = normalizeProgramName(dept.name);
-      if (!category.matches(normalized)) continue;
+      if (category != null &&
+          !category.matches(normalizeProgramName(dept.name))) {
+        continue;
+      }
       (buckets[dept.name] ??= []).add(dept);
     }
 

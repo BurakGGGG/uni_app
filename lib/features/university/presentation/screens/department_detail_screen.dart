@@ -378,6 +378,25 @@ class DepartmentDetailScreen extends ConsumerWidget {
 
                   const SizedBox(height: 24),
 
+                  // ─── Bu bölümün en iyileri ─────────────────────────
+                  // Aynı bölümün Türkiye genelindeki sıralı listesi.
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      onPressed: () => context.push(
+                        '/best-programs?dept=${Uri.encodeComponent(dept.name)}',
+                      ),
+                      icon: const Icon(Icons.emoji_events_rounded, size: 18),
+                      label: Text(
+                        '${dept.name} bölümünün en iyi üniversiteleri',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 24),
+
                   // ─── Kategori Puanları ──────────────────────────────
                   CategoryRatingsChart(
                     ratings: dept.categoryRatings,

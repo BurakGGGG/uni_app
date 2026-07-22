@@ -2,9 +2,11 @@ import '../../preference_wizard/domain/match_reason.dart';
 import '../../preference_wizard/domain/models/student_score_profile.dart';
 import '../../preference_wizard/domain/models/wizard_prefs.dart';
 import '../../preference_wizard/domain/similar_programs.dart';
+import 'best_programs_intent.dart';
 import 'chat_models.dart';
 import 'robot_brain.dart';
 import 'robot_message.dart';
+import 'robot_mood.dart';
 import 'robot_scripts.dart';
 import 'tercih_nlu.dart';
 import 'wizard_intent.dart';
@@ -146,7 +148,39 @@ class ChatFlow {
     required ChatDraft draft,
     required ChatStep step,
   }) {
-    return handleIntent(nlu.parse(text), draft: draft, step: step);
+    final intent = nlu.parse(text);
+
+    // "En iyi tıp bölümleri" tercih taslağı kurmaz — ayrı bir ekrana gider.
+    // Taslak ve adım olduğu gibi korunur.
+    final best = detectBestProgramsIntent(text, intent);
+    if (best != null) {
+      return ChatFlowResult(
+        draft: draft,
+        step: step,
+        messages: [
+          RobotMessage(
+            'chat.bestPrograms.v1',
+            best.departmentLabel == null
+                ? (_en
+                    ? 'Let me open the best programs list — pick a field there.'
+                    : 'En iyi bölümler listesini açıyorum, oradan alanı '
+                        'seçebilirsin.')
+                : (_en
+                    ? '${best.departmentLabel}: here are the top universities '
+                        'by placement rank.'
+                    : '${best.departmentLabel} için en iyi üniversiteleri '
+                        'başarı sırasına göre sıraladım.'),
+            RobotMood.happy,
+            action: RobotAction.openBestPrograms,
+            actionArg: best.departmentLabel,
+          ),
+        ],
+        chips: step == ChatStep.done ? doneChips : _askNext(draft).chips,
+        effect: ChatEffect.goBestPrograms,
+      );
+    }
+
+    return handleIntent(intent, draft: draft, step: step);
   }
 
   /// Hazır intent'le ilerleme — Faz B'de sunucudan gelen (grounding'den

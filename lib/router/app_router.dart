@@ -46,6 +46,7 @@ import '../features/preference_lists/presentation/screens/shared_list_screen.dar
 import '../features/score_calculator/presentation/screens/calc_history_screen.dart';
 import '../features/score_calculator/presentation/screens/score_calculator_screen.dart';
 import '../features/score_calculator/presentation/screens/score_result_screen.dart';
+import '../features/best_programs/presentation/screens/best_programs_screen.dart';
 import '../features/preference_wizard/presentation/screens/preference_wizard_screen.dart';
 import '../features/preference_wizard/presentation/screens/preference_wizard_results_screen.dart';
 import '../features/admin/presentation/screens/admin_panel_screen.dart';
@@ -97,6 +98,7 @@ class AppRoutes {
   static const String scoreCalculator = '/score-calculator';
   static const String scoreCalculatorHistory = '/score-calculator/history';
   static const String myLists = '/my-lists';
+  static const String bestPrograms = '/best-programs';
 }
 
 /// GoRouter konfigürasyon provider'ı
@@ -471,6 +473,16 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/score-result',
         builder: (context, state) => const ScoreResultScreen(),
+      ),
+
+      // ─── En İyi Bölümler ─────────────────────────────────────────
+      // ?dept=Tıp → tek bölümün programları; ?category=muhendislik → alan.
+      GoRoute(
+        path: AppRoutes.bestPrograms,
+        builder: (context, state) => BestProgramsScreen(
+          departmentName: state.uri.queryParameters['dept'],
+          categoryKey: state.uri.queryParameters['category'],
+        ),
       ),
 
       // ─── Tercih Robotu ────────────────────────────────────────────

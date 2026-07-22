@@ -166,8 +166,15 @@ class ChatWizardController extends StateNotifier<ChatWizardState> {
     );
   }
 
+  /// [ChatEffect.goBestPrograms] ile birlikte taşınan hedef bölüm adı —
+  /// enum veri taşıyamadığı için son mesajın actionArg'ından okunur.
+  String? bestProgramsDept;
+
   Future<ChatEffect> _apply(ChatFlowResult r) async {
     _applySync(r);
+    if (r.effect == ChatEffect.goBestPrograms) {
+      bestProgramsDept = r.messages.isEmpty ? null : r.messages.last.actionArg;
+    }
     if (r.effect == ChatEffect.search) {
       await _runSearch();
       return ChatEffect.none;

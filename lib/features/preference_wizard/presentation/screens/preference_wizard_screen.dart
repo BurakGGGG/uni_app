@@ -15,6 +15,8 @@ import '../../../assistant/presentation/providers/chat_wizard_providers.dart';
 import '../../../assistant/presentation/widgets/chat_chip_row.dart';
 import '../../../assistant/presentation/widgets/chat_input_bar.dart';
 import '../../../assistant/presentation/widgets/chat_preview_card.dart';
+import '../../../assistant/domain/robot_message.dart';
+import '../../../assistant/presentation/robot_action_route.dart';
 import '../../../assistant/presentation/widgets/chat_user_bubble.dart';
 import '../../../assistant/presentation/widgets/robot_avatar.dart';
 import '../../../assistant/presentation/widgets/robot_speech_bubble.dart';
@@ -61,6 +63,12 @@ class _PreferenceWizardScreenState
         context.push('/preference-wizard/results');
       case ChatEffect.goCalculator:
         context.push('/score-calculator');
+      case ChatEffect.goBestPrograms:
+        final route = robotActionRoute(
+          RobotAction.openBestPrograms,
+          arg: ref.read(chatWizardControllerProvider.notifier).bestProgramsDept,
+        );
+        if (route != null) context.push(route);
       case ChatEffect.none:
       case ChatEffect.search:
         break;

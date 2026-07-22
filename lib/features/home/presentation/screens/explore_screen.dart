@@ -10,6 +10,7 @@ import '../../../../core/widgets/widgets.dart';
 import '../../../university/presentation/providers/university_providers.dart';
 import '../../../university/domain/models/university_model.dart';
 import '../providers/explore_filter_provider.dart';
+import '../../../best_programs/presentation/widgets/best_programs_tab.dart';
 import '../../../../core/utils/responsive.dart';
 import '../../../monetization/presentation/providers/subscription_providers.dart';
 import '../../../monetization/domain/enums/subscription_tier.dart';
@@ -73,7 +74,9 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
     final filters = ref.watch(exploreFilterProvider);
     final loc = AppLocalizations.of(context);
 
-    return Scaffold(
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
       backgroundColor: AppColors.backgroundFor(context),
       body: SafeArea(
         child: Column(
@@ -91,176 +94,202 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
               ),
             ),
 
-            // ─── Arama ──────────────────────────────────────────
-            Padding(
-              padding: EdgeInsets.fromLTRB(Responsive.horizontalPadding(context), 16, Responsive.horizontalPadding(context), 8),
-              child: AppSearchBar(
-                readOnly: true,
-                onTap: () => context.push('/search'),
-              ),
+            // ─── Sekmeler: Üniversiteler | Bölümler ──────────────
+            // Bölüm arama/sıralama uygulamada ilk kez burada; üniversite
+            // sekmesi eskisiyle birebir aynı kalır.
+            TabBar(
+              labelColor: AppColors.primary,
+              unselectedLabelColor: AppColors.textSecondaryFor(context),
+              indicatorColor: AppColors.primary,
+              tabs: const [
+                Tab(text: 'Üniversiteler'),
+                Tab(text: 'Bölümler'),
+              ],
             ),
 
-            // ─── Filtreler (Hızlı Seçim) ────────────────────────
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Row(
-                children: [
-                  // Filtrele Butonu
-                  Badge(
-                    isLabelVisible: filters.activeFilterCount > 0,
-                    label: Text(filters.activeFilterCount.toString()),
-                    backgroundColor: AppColors.primary,
-                    offset: const Offset(4, -4),
-                    child: IconButton(
-                      tooltip: 'Filtrele',
-                      onPressed: () => _showFilterBottomSheet(context),
-                      icon: const Icon(Icons.tune_rounded),
-                      style: IconButton.styleFrom(
-                        backgroundColor: filters.activeFilterCount > 0 
-                            ? AppColors.primary.withValues(alpha: 0.12)
-                            : AppColors.surfaceVariantFor(context),
-                        foregroundColor: filters.activeFilterCount > 0 
-                            ? AppColors.primary
-                            : AppColors.textSecondaryFor(context),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          side: BorderSide(
-                            color: filters.activeFilterCount > 0 
-                                ? AppColors.primary.withValues(alpha: 0.3)
-                                : AppColors.borderLightFor(context),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  
-                  // Hızlı Tür Filtreleri (Devlet / Vakıf)
-                  Expanded(
-                    child: SizedBox(
-                      height: 44,
-                      child: Builder(
-                        builder: (context) {
-                          final children = [
-                            _QuickFilterChip(
-                              label: loc.exploreTypeState,
-                              isSelected: filters.selectedTypes.contains(loc.exploreTypeState),
-                              onSelected: (_) => ref.read(exploreFilterProvider.notifier).toggleType(loc.exploreTypeState),
-                            ),
-                            _QuickFilterChip(
-                              label: loc.exploreTypeFoundation,
-                              isSelected: filters.selectedTypes.contains(loc.exploreTypeFoundation),
-                              onSelected: (_) => ref.read(exploreFilterProvider.notifier).toggleType(loc.exploreTypeFoundation),
-                            ),
-                          ];
-                          return ListView.builder(
-                            scrollDirection: Axis.horizontal,
-                            itemCount: children.length,
-                            itemBuilder: (context, index) => children[index],
-                          );
-                        },
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            // ─── Sonuç Sayısı ────────────────────────────────────
-            allUnisAsync.when(
-              data: (unis) {
-                final filtered = _applyFilters(unis, filters);
-                return Padding(
-                  padding: EdgeInsets.fromLTRB(Responsive.horizontalPadding(context), 12, Responsive.horizontalPadding(context), 4),
-                  child: Text(
-                    loc.exploreFoundCount(filtered.length),
-                    style: AppTextStyles.labelMedium.copyWith(color: AppColors.textTertiaryFor(context)),
-                  ),
-                );
-              },
-              loading: () => const SizedBox.shrink(),
-              error: (_, st) => const SizedBox.shrink(),
-            ),
-
-            // ─── Üniversite Listesi ─────────────────────────────
-            const SizedBox(height: 4),
             Expanded(
-              child: allUnisAsync.when(
-                loading: () => const ListSkeleton(itemCount: 8),
-                error: (e, st) => ErrorState(
-                  title: 'Üniversiteler yüklenemedi',
-                  message: 'Lütfen internet bağlantını kontrol et.',
-                  onRetry: () => ref.invalidate(allUniversitiesProvider),
+              child: TabBarView(
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                // ─── Arama ──────────────────────────────────────────
+                Padding(
+                  padding: EdgeInsets.fromLTRB(Responsive.horizontalPadding(context), 16, Responsive.horizontalPadding(context), 8),
+                  child: AppSearchBar(
+                    readOnly: true,
+                    onTap: () => context.push('/search'),
+                  ),
                 ),
-                data: (universities) {
-                  final filtered = _applyFilters(universities, filters);
 
-                  if (filtered.isEmpty) {
-                    return UniEmptyState(
-                      icon: Icons.search_off_rounded,
-                      title: loc.exploreNoResults,
-                      script: RobotScripts.emptyExplore,
-                    );
-                  }
-
-                  final showAds = ref.watch(subscriptionTierProvider).valueOrNull == SubscriptionTier.free;
-
-                  return ListView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
-                    itemCount: showAds
-                        ? filtered.length + (filtered.isEmpty ? 0 : (filtered.length - 1) ~/ 5)
-                        : filtered.length,
-                    itemBuilder: (context, index) {
-                      if (showAds && (index + 1) % 6 == 0) {
-                        return const NativeAdWidget();
-                      }
-
-                      final uniIndex = showAds ? index - (index ~/ 6) : index;
-                      final uni = filtered[uniIndex];
-
-                      return AnimatedListItem(
-                        index: index,
-                        child: UniCard(
-                          title: uni.name,
-                          subtitle: '${uni.type} • Kuruluş: ${uni.establishedYear}',
-                          rating: uni.avgRating,
-                          reviewCount: uni.reviewCount,
-                          tags: [
-                            if (uni.hasCampus) 'Kampüslü',
-                            uni.type,
-                          ],
-                          brandPrimaryColor: uni.brandColor,
-                          logoAssetPath: uni.logoAssetPath,
-                          onTap: () => context.push('/university/${uni.id}'),
-                          badge: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                            decoration: BoxDecoration(
-                              color: (uni.type == loc.exploreTypeState
-                                      ? AppColors.stateUni
-                                      : AppColors.foundationUni)
-                                  .withValues(alpha: 0.12),
-                              borderRadius: BorderRadius.circular(6),
-                            ),
-                            child: Text(
-                              uni.type,
-                              style: AppTextStyles.labelSmall.copyWith(
-                                color: uni.type == loc.exploreTypeState
-                                    ? AppColors.stateUni
-                                    : AppColors.foundationUni,
-                                fontWeight: FontWeight.w600,
-                                fontSize: 10,
+                // ─── Filtreler (Hızlı Seçim) ────────────────────────
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Row(
+                    children: [
+                      // Filtrele Butonu
+                      Badge(
+                        isLabelVisible: filters.activeFilterCount > 0,
+                        label: Text(filters.activeFilterCount.toString()),
+                        backgroundColor: AppColors.primary,
+                        offset: const Offset(4, -4),
+                        child: IconButton(
+                          tooltip: 'Filtrele',
+                          onPressed: () => _showFilterBottomSheet(context),
+                          icon: const Icon(Icons.tune_rounded),
+                          style: IconButton.styleFrom(
+                            backgroundColor: filters.activeFilterCount > 0 
+                                ? AppColors.primary.withValues(alpha: 0.12)
+                                : AppColors.surfaceVariantFor(context),
+                            foregroundColor: filters.activeFilterCount > 0 
+                                ? AppColors.primary
+                                : AppColors.textSecondaryFor(context),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              side: BorderSide(
+                                color: filters.activeFilterCount > 0 
+                                    ? AppColors.primary.withValues(alpha: 0.3)
+                                    : AppColors.borderLightFor(context),
                               ),
                             ),
                           ),
                         ),
+                      ),
+                      const SizedBox(width: 8),
+                  
+                      // Hızlı Tür Filtreleri (Devlet / Vakıf)
+                      Expanded(
+                        child: SizedBox(
+                          height: 44,
+                          child: Builder(
+                            builder: (context) {
+                              final children = [
+                                _QuickFilterChip(
+                                  label: loc.exploreTypeState,
+                                  isSelected: filters.selectedTypes.contains(loc.exploreTypeState),
+                                  onSelected: (_) => ref.read(exploreFilterProvider.notifier).toggleType(loc.exploreTypeState),
+                                ),
+                                _QuickFilterChip(
+                                  label: loc.exploreTypeFoundation,
+                                  isSelected: filters.selectedTypes.contains(loc.exploreTypeFoundation),
+                                  onSelected: (_) => ref.read(exploreFilterProvider.notifier).toggleType(loc.exploreTypeFoundation),
+                                ),
+                              ];
+                              return ListView.builder(
+                                scrollDirection: Axis.horizontal,
+                                itemCount: children.length,
+                                itemBuilder: (context, index) => children[index],
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                // ─── Sonuç Sayısı ────────────────────────────────────
+                allUnisAsync.when(
+                  data: (unis) {
+                    final filtered = _applyFilters(unis, filters);
+                    return Padding(
+                      padding: EdgeInsets.fromLTRB(Responsive.horizontalPadding(context), 12, Responsive.horizontalPadding(context), 4),
+                      child: Text(
+                        loc.exploreFoundCount(filtered.length),
+                        style: AppTextStyles.labelMedium.copyWith(color: AppColors.textTertiaryFor(context)),
+                      ),
+                    );
+                  },
+                  loading: () => const SizedBox.shrink(),
+                  error: (_, st) => const SizedBox.shrink(),
+                ),
+
+                // ─── Üniversite Listesi ─────────────────────────────
+                const SizedBox(height: 4),
+                Expanded(
+                  child: allUnisAsync.when(
+                    loading: () => const ListSkeleton(itemCount: 8),
+                    error: (e, st) => ErrorState(
+                      title: 'Üniversiteler yüklenemedi',
+                      message: 'Lütfen internet bağlantını kontrol et.',
+                      onRetry: () => ref.invalidate(allUniversitiesProvider),
+                    ),
+                    data: (universities) {
+                      final filtered = _applyFilters(universities, filters);
+
+                      if (filtered.isEmpty) {
+                        return UniEmptyState(
+                          icon: Icons.search_off_rounded,
+                          title: loc.exploreNoResults,
+                          script: RobotScripts.emptyExplore,
+                        );
+                      }
+
+                      final showAds = ref.watch(subscriptionTierProvider).valueOrNull == SubscriptionTier.free;
+
+                      return ListView.builder(
+                        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+                        itemCount: showAds
+                            ? filtered.length + (filtered.isEmpty ? 0 : (filtered.length - 1) ~/ 5)
+                            : filtered.length,
+                        itemBuilder: (context, index) {
+                          if (showAds && (index + 1) % 6 == 0) {
+                            return const NativeAdWidget();
+                          }
+
+                          final uniIndex = showAds ? index - (index ~/ 6) : index;
+                          final uni = filtered[uniIndex];
+
+                          return AnimatedListItem(
+                            index: index,
+                            child: UniCard(
+                              title: uni.name,
+                              subtitle: '${uni.type} • Kuruluş: ${uni.establishedYear}',
+                              rating: uni.avgRating,
+                              reviewCount: uni.reviewCount,
+                              tags: [
+                                if (uni.hasCampus) 'Kampüslü',
+                                uni.type,
+                              ],
+                              brandPrimaryColor: uni.brandColor,
+                              logoAssetPath: uni.logoAssetPath,
+                              onTap: () => context.push('/university/${uni.id}'),
+                              badge: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                decoration: BoxDecoration(
+                                  color: (uni.type == loc.exploreTypeState
+                                          ? AppColors.stateUni
+                                          : AppColors.foundationUni)
+                                      .withValues(alpha: 0.12),
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: Text(
+                                  uni.type,
+                                  style: AppTextStyles.labelSmall.copyWith(
+                                    color: uni.type == loc.exploreTypeState
+                                        ? AppColors.stateUni
+                                        : AppColors.foundationUni,
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 10,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          );
+                        },
                       );
                     },
-                  );
-                },
+                  ),
+                ),
+                    ],
+                  ),
+                  const BestProgramsTab(),
+                ],
               ),
             ),
           ],
         ),
+      ),
       ),
     );
   }

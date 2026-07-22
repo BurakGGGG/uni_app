@@ -22,6 +22,16 @@ void main() {
       expect(robotActionRoute(RobotAction.openLists), AppRoutes.myLists);
     });
 
+    test('en iyi bölümler — argümansız ve bölüm adlı', () {
+      expect(robotActionRoute(RobotAction.openBestPrograms),
+          AppRoutes.bestPrograms);
+      expect(robotActionRoute(RobotAction.openBestPrograms, arg: 'Tıp'),
+          '${AppRoutes.bestPrograms}?dept=T%C4%B1p');
+      // Boş argüman da genel listeye düşer.
+      expect(robotActionRoute(RobotAction.openBestPrograms, arg: ''),
+          AppRoutes.bestPrograms);
+    });
+
     // Enum büyüdüğünde bu test kırılsın: yeni bir eylem eklenip eşleme
     // unutulursa Üni'nin balonu sessizce hiçbir yere gitmez.
     test('her enum değerinin bir karşılığı var', () {

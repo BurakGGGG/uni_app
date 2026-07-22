@@ -82,10 +82,11 @@ final bestProgramsProvider = FutureProvider.autoDispose
 });
 
 /// Bir alandaki bölüm adları (alan → bölüm ekranı).
+/// Boş anahtar → alan seçilmemiş, tüm bölümler.
 final departmentsInCategoryProvider = FutureProvider.autoDispose
     .family<List<DepartmentSummary>, String>((ref, categoryKey) async {
-  final category = categoryByKey(categoryKey);
-  if (category == null) return const [];
+  final category = categoryKey.isEmpty ? null : categoryByKey(categoryKey);
+  if (categoryKey.isNotEmpty && category == null) return const [];
   final all = await ref.watch(allScoredDepartmentsProvider.future);
   final query = ref.watch(bestProgramsQueryProvider);
   return BestProgramsEngine.departmentsIn(category, all, query);

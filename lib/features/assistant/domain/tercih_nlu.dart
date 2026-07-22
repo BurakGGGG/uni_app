@@ -472,6 +472,10 @@ class TercihNlu {
     );
   }
 
+  /// [_fold]'un dışa açık hali — aynı katlama kuralını kullanması gereken
+  /// diğer saf ayrıştırıcılar için (ör. üstünlük sorusu tespiti).
+  static String fold(String input) => _fold(input);
+
   /// Türkçe küçük harf + aksan katlama + noktalama temizliği.
   /// Dart'ta 'İ'.toLowerCase() birleşik nokta ürettiğinden İ/I elle iner
   /// (normalizeProgramName ile aynı sıra).
