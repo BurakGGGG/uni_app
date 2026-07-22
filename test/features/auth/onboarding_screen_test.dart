@@ -106,6 +106,9 @@ void main() {
     await tester.pump(const Duration(seconds: 1));
     expect(tester.takeException(), isNull);
     expect(find.byType(TextField), findsOneWidget);
+
+    // Sayfa atlarken kurulan flutter_animate gecikme zamanlayıcısını boşalt.
+    await tester.pump(const Duration(seconds: 1));
   });
 
   testWidgets('klavye açıkken de taşmaz ve isim kutusu erişilebilir',
@@ -125,6 +128,9 @@ void main() {
     await tester.pump(const Duration(seconds: 1));
 
     expect(tester.takeException(), isNull);
+
+    // Sayfa atlarken kurulan flutter_animate gecikme zamanlayıcısını boşalt.
+    await tester.pump(const Duration(seconds: 1));
   });
 
   testWidgets('isim boş bırakılırsa ad kaydedilmez', (tester) async {

@@ -49,6 +49,83 @@ class RankEstimator {
       _curves.containsKey(scoreType.toUpperCase());
 }
 
+/// Yıl bazlı puan → tahmini başarı sıralaması dönüştürücü.
+///
+/// [RankEstimator] tek (güncel) eğri kurar; bu sınıf puan hesaplamanın yıl
+/// karşılaştırması için yıl × tür eğrileri kurar: 2025 çiftleri scoreData'nın
+/// kendisinden, 2022–2024 çiftleri previousYears'tan. Eğri kuruluşu ve
+/// sorgusu [_RankCurve] ile ortak.
+class MultiYearRankEstimator {
+  final Map<String, Map<int, _RankCurve>> _curvesByType;
+
+  const MultiYearRankEstimator._(this._curvesByType);
+
+  factory MultiYearRankEstimator.fromDepartments(
+      List<DepartmentModel> departments) {
+    // tür → yıl → (puan kovası → sıralar)
+    final buckets = <String, Map<int, Map<int, List<int>>>>{};
+
+    void add(String? type, int year, double score, int rank) {
+      if (type == null || type.isEmpty || score <= 0 || rank <= 0) return;
+      buckets
+          .putIfAbsent(type.toUpperCase(), () => {})
+          .putIfAbsent(year, () => {})
+          .putIfAbsent(score.floor(), () => [])
+          .add(rank);
+    }
+
+    for (final dept in departments) {
+      final sd = dept.scoreData;
+      if (sd == null) continue;
+      final type = dept.effectiveScoreType;
+      add(type, sd.year, sd.baseScore, sd.ranking);
+      sd.previousYears.forEach(
+          (year, yearly) => add(type, year, yearly.baseScore, yearly.ranking));
+    }
+
+    final curves = <String, Map<int, _RankCurve>>{};
+    buckets.forEach((type, byYear) {
+      byYear.forEach((year, yearBuckets) {
+        final curve = _RankCurve.fromBuckets(yearBuckets);
+        if (curve != null) (curves[type] ??= {})[year] = curve;
+      });
+    });
+    return MultiYearRankEstimator._(curves);
+  }
+
+  /// Verilen puanın istenen yıldaki tahmini sırası ve eğrinin veri yılı.
+  ///
+  /// İstenen yılın eğrisi yoksa en yakın küçük yıla düşer (2026 → 2025);
+  /// altında yıl yoksa en yakın büyük yıl kullanılır. Dönen `curveYear`
+  /// istenen yıldan farklıysa UI "X verisine göre" etiketi basar.
+  ({int rank, int curveYear})? estimateRank(
+      double score, String scoreType, int year) {
+    if (score <= 0) return null;
+    final byYear = _curvesByType[scoreType.toUpperCase()];
+    if (byYear == null) return null;
+    final curveYear = _resolveYear(byYear, year);
+    if (curveYear == null) return null;
+    return (rank: byYear[curveYear]!.estimate(score), curveYear: curveYear);
+  }
+
+  /// Bu tür + yıl için (fallback dahil) tahmin yapılabiliyor mu.
+  bool supports(String scoreType, int year) {
+    final byYear = _curvesByType[scoreType.toUpperCase()];
+    return byYear != null && _resolveYear(byYear, year) != null;
+  }
+
+  static int? _resolveYear(Map<int, _RankCurve> byYear, int year) {
+    if (byYear.containsKey(year)) return year;
+    int? below;
+    int? above;
+    for (final y in byYear.keys) {
+      if (y < year && (below == null || y > below)) below = y;
+      if (y > year && (above == null || y < above)) above = y;
+    }
+    return below ?? above;
+  }
+}
+
 class _RankCurve {
   /// Artan sırada kova puanları ve o puanlardaki ln(medyan sıra).
   /// Tekdüze: puan arttıkça lnRank artmaz.

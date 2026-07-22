@@ -68,6 +68,14 @@ final rankEstimatorProvider = FutureProvider<RankEstimator>((ref) async {
   return RankEstimator.fromDepartments(allDepts);
 });
 
+/// Yıl bazlı puan → sıra eğrileri (2022–2025). Puan hesaplamanın yıl
+/// karşılaştırması ve resmî ÖSYM tablosu olmayan durumlar için yedek.
+final multiYearRankEstimatorProvider =
+    FutureProvider<MultiYearRankEstimator>((ref) async {
+  final allDepts = await ref.watch(allScoredDepartmentsProvider.future);
+  return MultiYearRankEstimator.fromDepartments(allDepts);
+});
+
 /// Profil + filtreye göre kategorize eşleştirme sonucu.
 /// Profil yoksa null döner (UI giriş ekranını gösterir).
 final preferenceMatchResultProvider =

@@ -1,7 +1,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../domain/models/score_input.dart';
 import '../../domain/models/match_result.dart';
+import '../../domain/models/multi_score_result.dart';
 import '../../domain/score_calculator_engine.dart';
+import '../../domain/score_outcome_service.dart';
+import '../../../preference_wizard/presentation/providers/preference_wizard_providers.dart';
 import '../../../university/presentation/providers/university_providers.dart';
 import '../../../university/domain/models/department_model.dart';
 
@@ -78,6 +81,26 @@ final scoreInputProvider = StateProvider<ScoreInput>((ref) {
     obpScore: 80,
     selectedDepartment: '',
   );
+});
+
+/// v2 ana sonuç: uygulanabilir tüm türlerin puanı + tahmini sıra + dilim.
+/// Hesaplanabilir tür yoksa null (UI "Hesapla"yı kapalı tutar).
+final multiScoreOutcomeProvider =
+    FutureProvider.autoDispose<MultiScoreOutcome?>((ref) async {
+  final input = ref.watch(scoreInputProvider);
+  if (ScoreCalculatorEngine.applicableScoreTypes(input).isEmpty) return null;
+
+  final estimator = await ref.watch(multiYearRankEstimatorProvider.future);
+  return ScoreOutcomeService(estimator: estimator).buildAll(input);
+});
+
+/// Yıl karşılaştırması: aynı netler, seçilen türde 2022–2026 puan + sıra.
+final yearComparisonProvider = FutureProvider.autoDispose
+    .family<List<YearOutcome>, String>((ref, scoreType) async {
+  final input = ref.watch(scoreInputProvider);
+  final estimator = await ref.watch(multiYearRankEstimatorProvider.future);
+  return ScoreOutcomeService(estimator: estimator)
+      .yearComparison(input, scoreType);
 });
 
 /// Hesaplama sonucu
