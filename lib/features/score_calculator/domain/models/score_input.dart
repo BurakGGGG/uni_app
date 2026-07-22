@@ -1,9 +1,26 @@
+import 'yks_subject.dart';
+
+/// Net giriş modu: doğru/yanlış çiftleri veya direkt (küsuratlı) net.
+enum NetEntryMode { correctWrong, directNet }
+
 /// Kullanıcının girdiği sınav verileri
 class ScoreInput {
   final int selectedYear; // 2022, 2023, 2024, 2025, 2026
-  final String scoreType; // 'TYT', 'SAY', 'EA', 'SÖZ', 'DİL'
+  final String scoreType; // '' = tüm uygulanabilir türler; 'TYT', 'SAY', ...
   final double obpScore; // 0-100 arası diploma notu ortalaması
-  final String selectedDepartment; // Bölüm adı (ör. "Tıp")
+  final String selectedDepartment; // Opsiyonel hedef bölüm adı (ör. "Tıp")
+
+  /// directNet modunda netler [directNets]'ten okunur; doğru/yanlış
+  /// alanları yok sayılır.
+  final NetEntryMode entryMode;
+  final Map<YksSubject, double> directNets;
+
+  /// Geçen yıl bir yükseköğretim programına yerleşti → OBP katsayısı yarıya
+  /// iner (0.12 → 0.06).
+  final bool placedLastYear;
+
+  /// Meslek lisesi mezunu, kendi alanında tercih → ek OBP katkısı.
+  final bool meslekOwnField;
 
   // ── TYT netleri (herkes girer) ────────────────────────────
   final int tytTurkceCorrect;
@@ -50,9 +67,13 @@ class ScoreInput {
 
   const ScoreInput({
     this.selectedYear = 2026,
-    required this.scoreType,
-    required this.obpScore,
-    required this.selectedDepartment,
+    this.scoreType = '',
+    this.obpScore = 0,
+    this.selectedDepartment = '',
+    this.entryMode = NetEntryMode.correctWrong,
+    this.directNets = const {},
+    this.placedLastYear = false,
+    this.meslekOwnField = false,
     this.tytTurkceCorrect = 0,
     this.tytTurkceWrong = 0,
     this.tytSosyalCorrect = 0,
@@ -89,38 +110,196 @@ class ScoreInput {
 
   // ── Net Hesaplama ─────────────────────────────────────────
   /// Net = Doğru - (Yanlış / 4)
-  static double _net(int correct, int wrong) =>
-      correct - (wrong / 4.0);
+  static double _net(int correct, int wrong) => correct - (wrong / 4.0);
 
-  double get tytTurkceNet => _net(tytTurkceCorrect, tytTurkceWrong);
-  double get tytSosyalNet => _net(tytSosyalCorrect, tytSosyalWrong);
-  double get tytMatNet => _net(tytMatCorrect, tytMatWrong);
-  double get tytFenNet => _net(tytFenCorrect, tytFenWrong);
+  /// Tek doğruluk noktası: aktif moda göre dersin neti.
+  double netOf(YksSubject subject) {
+    if (entryMode == NetEntryMode.directNet) {
+      final raw = directNets[subject] ?? 0;
+      return raw.clamp(subject.minNet, subject.maxQuestions.toDouble());
+    }
+    switch (subject) {
+      case YksSubject.tytTurkce:
+        return _net(tytTurkceCorrect, tytTurkceWrong);
+      case YksSubject.tytSosyal:
+        return _net(tytSosyalCorrect, tytSosyalWrong);
+      case YksSubject.tytMat:
+        return _net(tytMatCorrect, tytMatWrong);
+      case YksSubject.tytFen:
+        return _net(tytFenCorrect, tytFenWrong);
+      case YksSubject.aytMat:
+        return _net(aytMatCorrect, aytMatWrong);
+      case YksSubject.aytFizik:
+        return _net(aytFizikCorrect, aytFizikWrong);
+      case YksSubject.aytKimya:
+        return _net(aytKimyaCorrect, aytKimyaWrong);
+      case YksSubject.aytBiyo:
+        return _net(aytBiyoCorrect, aytBiyoWrong);
+      case YksSubject.aytEdebiyat:
+        return _net(aytEdebiyatCorrect, aytEdebiyatWrong);
+      case YksSubject.aytTarih1:
+        return _net(aytTarih1Correct, aytTarih1Wrong);
+      case YksSubject.aytCografya1:
+        return _net(aytCografya1Correct, aytCografya1Wrong);
+      case YksSubject.aytTarih2:
+        return _net(aytTarih2Correct, aytTarih2Wrong);
+      case YksSubject.aytCografya2:
+        return _net(aytCografya2Correct, aytCografya2Wrong);
+      case YksSubject.aytFelsefe:
+        return _net(aytFelsefeCorrect, aytFelsefeWrong);
+      case YksSubject.aytDkab:
+        return _net(aytDkabCorrect, aytDkabWrong);
+      case YksSubject.ydt:
+        return _net(ydtCorrect, ydtWrong);
+    }
+  }
 
-  double get aytMatNet => _net(aytMatCorrect, aytMatWrong);
-  double get aytFizikNet => _net(aytFizikCorrect, aytFizikWrong);
-  double get aytKimyaNet => _net(aytKimyaCorrect, aytKimyaWrong);
-  double get aytBiyoNet => _net(aytBiyoCorrect, aytBiyoWrong);
+  double get tytTurkceNet => netOf(YksSubject.tytTurkce);
+  double get tytSosyalNet => netOf(YksSubject.tytSosyal);
+  double get tytMatNet => netOf(YksSubject.tytMat);
+  double get tytFenNet => netOf(YksSubject.tytFen);
 
-  double get aytEdebiyatNet => _net(aytEdebiyatCorrect, aytEdebiyatWrong);
-  double get aytTarih1Net => _net(aytTarih1Correct, aytTarih1Wrong);
-  double get aytCografya1Net => _net(aytCografya1Correct, aytCografya1Wrong);
+  double get aytMatNet => netOf(YksSubject.aytMat);
+  double get aytFizikNet => netOf(YksSubject.aytFizik);
+  double get aytKimyaNet => netOf(YksSubject.aytKimya);
+  double get aytBiyoNet => netOf(YksSubject.aytBiyo);
 
-  double get aytTarih2Net => _net(aytTarih2Correct, aytTarih2Wrong);
-  double get aytCografya2Net => _net(aytCografya2Correct, aytCografya2Wrong);
-  double get aytFelsefeNet => _net(aytFelsefeCorrect, aytFelsefeWrong);
-  double get aytDkabNet => _net(aytDkabCorrect, aytDkabWrong);
+  double get aytEdebiyatNet => netOf(YksSubject.aytEdebiyat);
+  double get aytTarih1Net => netOf(YksSubject.aytTarih1);
+  double get aytCografya1Net => netOf(YksSubject.aytCografya1);
 
-  double get ydtNet => _net(ydtCorrect, ydtWrong);
+  double get aytTarih2Net => netOf(YksSubject.aytTarih2);
+  double get aytCografya2Net => netOf(YksSubject.aytCografya2);
+  double get aytFelsefeNet => netOf(YksSubject.aytFelsefe);
+  double get aytDkabNet => netOf(YksSubject.aytDkab);
 
-  /// OBP katkısı = diploma notu × 0.6
-  double get obpContribution => obpScore * 0.6;
+  double get ydtNet => netOf(YksSubject.ydt);
+
+  /// Tüm derslerin net toplamı (deneme geçmişi ilerleme göstergesi için).
+  double get totalNet =>
+      YksSubject.values.fold(0, (sum, s) => sum + netOf(s));
+
+  // ── OBP / Ek puan ─────────────────────────────────────────
+  /// Ortaöğretim Başarı Puanı = diploma notu × 5 (250–500 aralığı).
+  double get obp => obpScore * 5;
+
+  /// OBP katkısı = OBP × 0.12; geçen yıl yerleşenlerde katsayı 0.06.
+  /// (Varsayılan durumda diploma notu × 0.6 ile birebir aynı.)
+  double get obpContribution => obp * (placedLastYear ? 0.06 : 0.12);
+
+  /// Meslek lisesi kendi alanı ek katkısı (0.06; indirimlide 0.03).
+  /// Yalnız kendi alanındaki programların yerleştirme puanına eklenir.
+  double get ekPuanContribution =>
+      meslekOwnField ? obp * (placedLastYear ? 0.03 : 0.06) : 0;
+
+  // ── Serileştirme (deneme geçmişi kayıtları için) ──────────
+  Map<String, dynamic> toJson() => {
+        'selectedYear': selectedYear,
+        'scoreType': scoreType,
+        'obpScore': obpScore,
+        'selectedDepartment': selectedDepartment,
+        'entryMode': entryMode.name,
+        'directNets': {
+          for (final e in directNets.entries) e.key.name: e.value,
+        },
+        'placedLastYear': placedLastYear,
+        'meslekOwnField': meslekOwnField,
+        'tytTurkceCorrect': tytTurkceCorrect,
+        'tytTurkceWrong': tytTurkceWrong,
+        'tytSosyalCorrect': tytSosyalCorrect,
+        'tytSosyalWrong': tytSosyalWrong,
+        'tytMatCorrect': tytMatCorrect,
+        'tytMatWrong': tytMatWrong,
+        'tytFenCorrect': tytFenCorrect,
+        'tytFenWrong': tytFenWrong,
+        'aytMatCorrect': aytMatCorrect,
+        'aytMatWrong': aytMatWrong,
+        'aytFizikCorrect': aytFizikCorrect,
+        'aytFizikWrong': aytFizikWrong,
+        'aytKimyaCorrect': aytKimyaCorrect,
+        'aytKimyaWrong': aytKimyaWrong,
+        'aytBiyoCorrect': aytBiyoCorrect,
+        'aytBiyoWrong': aytBiyoWrong,
+        'aytEdebiyatCorrect': aytEdebiyatCorrect,
+        'aytEdebiyatWrong': aytEdebiyatWrong,
+        'aytTarih1Correct': aytTarih1Correct,
+        'aytTarih1Wrong': aytTarih1Wrong,
+        'aytCografya1Correct': aytCografya1Correct,
+        'aytCografya1Wrong': aytCografya1Wrong,
+        'aytTarih2Correct': aytTarih2Correct,
+        'aytTarih2Wrong': aytTarih2Wrong,
+        'aytCografya2Correct': aytCografya2Correct,
+        'aytCografya2Wrong': aytCografya2Wrong,
+        'aytFelsefeCorrect': aytFelsefeCorrect,
+        'aytFelsefeWrong': aytFelsefeWrong,
+        'aytDkabCorrect': aytDkabCorrect,
+        'aytDkabWrong': aytDkabWrong,
+        'ydtCorrect': ydtCorrect,
+        'ydtWrong': ydtWrong,
+      };
+
+  factory ScoreInput.fromJson(Map<String, dynamic> json) {
+    int i(String key) => (json[key] as num?)?.toInt() ?? 0;
+    final rawNets = json['directNets'] as Map<String, dynamic>? ?? const {};
+    return ScoreInput(
+      selectedYear: (json['selectedYear'] as num?)?.toInt() ?? 2026,
+      scoreType: json['scoreType'] as String? ?? '',
+      obpScore: (json['obpScore'] as num?)?.toDouble() ?? 0,
+      selectedDepartment: json['selectedDepartment'] as String? ?? '',
+      entryMode: NetEntryMode.values.asNameMap()[json['entryMode']] ??
+          NetEntryMode.correctWrong,
+      directNets: {
+        for (final e in rawNets.entries)
+          if (YksSubject.values.asNameMap()[e.key] != null)
+            YksSubject.values.asNameMap()[e.key]!:
+                (e.value as num).toDouble(),
+      },
+      placedLastYear: json['placedLastYear'] as bool? ?? false,
+      meslekOwnField: json['meslekOwnField'] as bool? ?? false,
+      tytTurkceCorrect: i('tytTurkceCorrect'),
+      tytTurkceWrong: i('tytTurkceWrong'),
+      tytSosyalCorrect: i('tytSosyalCorrect'),
+      tytSosyalWrong: i('tytSosyalWrong'),
+      tytMatCorrect: i('tytMatCorrect'),
+      tytMatWrong: i('tytMatWrong'),
+      tytFenCorrect: i('tytFenCorrect'),
+      tytFenWrong: i('tytFenWrong'),
+      aytMatCorrect: i('aytMatCorrect'),
+      aytMatWrong: i('aytMatWrong'),
+      aytFizikCorrect: i('aytFizikCorrect'),
+      aytFizikWrong: i('aytFizikWrong'),
+      aytKimyaCorrect: i('aytKimyaCorrect'),
+      aytKimyaWrong: i('aytKimyaWrong'),
+      aytBiyoCorrect: i('aytBiyoCorrect'),
+      aytBiyoWrong: i('aytBiyoWrong'),
+      aytEdebiyatCorrect: i('aytEdebiyatCorrect'),
+      aytEdebiyatWrong: i('aytEdebiyatWrong'),
+      aytTarih1Correct: i('aytTarih1Correct'),
+      aytTarih1Wrong: i('aytTarih1Wrong'),
+      aytCografya1Correct: i('aytCografya1Correct'),
+      aytCografya1Wrong: i('aytCografya1Wrong'),
+      aytTarih2Correct: i('aytTarih2Correct'),
+      aytTarih2Wrong: i('aytTarih2Wrong'),
+      aytCografya2Correct: i('aytCografya2Correct'),
+      aytCografya2Wrong: i('aytCografya2Wrong'),
+      aytFelsefeCorrect: i('aytFelsefeCorrect'),
+      aytFelsefeWrong: i('aytFelsefeWrong'),
+      aytDkabCorrect: i('aytDkabCorrect'),
+      aytDkabWrong: i('aytDkabWrong'),
+      ydtCorrect: i('ydtCorrect'),
+      ydtWrong: i('ydtWrong'),
+    );
+  }
 
   ScoreInput copyWith({
     int? selectedYear,
     String? scoreType,
     double? obpScore,
     String? selectedDepartment,
+    NetEntryMode? entryMode,
+    Map<YksSubject, double>? directNets,
+    bool? placedLastYear,
+    bool? meslekOwnField,
     int? tytTurkceCorrect,
     int? tytTurkceWrong,
     int? tytSosyalCorrect,
@@ -159,6 +338,10 @@ class ScoreInput {
       scoreType: scoreType ?? this.scoreType,
       obpScore: obpScore ?? this.obpScore,
       selectedDepartment: selectedDepartment ?? this.selectedDepartment,
+      entryMode: entryMode ?? this.entryMode,
+      directNets: directNets ?? this.directNets,
+      placedLastYear: placedLastYear ?? this.placedLastYear,
+      meslekOwnField: meslekOwnField ?? this.meslekOwnField,
       tytTurkceCorrect: tytTurkceCorrect ?? this.tytTurkceCorrect,
       tytTurkceWrong: tytTurkceWrong ?? this.tytTurkceWrong,
       tytSosyalCorrect: tytSosyalCorrect ?? this.tytSosyalCorrect,

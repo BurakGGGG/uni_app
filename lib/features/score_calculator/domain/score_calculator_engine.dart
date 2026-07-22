@@ -1,5 +1,6 @@
 import 'models/score_input.dart';
 import 'models/match_result.dart';
+import 'models/multi_score_result.dart';
 import '../../preference_wizard/domain/preference_match_engine.dart';
 import '../../university/domain/models/department_model.dart';
 import '../../university/domain/models/university_model.dart';
@@ -67,19 +68,31 @@ class ScoreCalculatorEngine {
   //  Puan Hesaplama
   // ═══════════════════════════════════════════════════════════════
 
+  /// Sabit tür sırası — sonuçlar hep bu sırayla listelenir.
+  static const List<String> allScoreTypes = ['TYT', 'SAY', 'EA', 'SÖZ', 'DİL'];
+
   /// Verilen girdiye göre ham puanı hesaplar (OBP hariç)
-  static double calculateRawScore(ScoreInput input) {
-    switch (input.scoreType) {
+  static double calculateRawScore(ScoreInput input) =>
+      calculateRawScoreFor(input, input.scoreType);
+
+  /// Tek tür için ham puan; [yearOverride] verilirse girdinin yılı yerine
+  /// o yılın katsayıları kullanılır (yıl karşılaştırması için).
+  static double calculateRawScoreFor(
+    ScoreInput input,
+    String scoreType, {
+    int? yearOverride,
+  }) {
+    switch (scoreType) {
       case 'TYT':
-        return _calculateTYT(input);
+        return _calculateTYT(input, yearOverride: yearOverride);
       case 'SAY':
-        return _calculateSAY(input);
+        return _calculateSAY(input, yearOverride: yearOverride);
       case 'EA':
-        return _calculateEA(input);
+        return _calculateEA(input, yearOverride: yearOverride);
       case 'SÖZ':
-        return _calculateSOZ(input);
+        return _calculateSOZ(input, yearOverride: yearOverride);
       case 'DİL':
-        return _calculateDIL(input);
+        return _calculateDIL(input, yearOverride: yearOverride);
       default:
         return 0;
     }
@@ -91,9 +104,75 @@ class ScoreCalculatorEngine {
     return raw + input.obpContribution;
   }
 
+  /// Girilen netlere göre hesaplanabilir puan türleri (hesaplama.net kuralları):
+  /// TYT için Türkçe veya Temel Matematik'ten en az 0.5 net; AYT/YDT türleri
+  /// TYT şartına ek olarak kendi testinden en az bir pozitif net ister.
+  static List<String> applicableScoreTypes(ScoreInput input) {
+    final tytOk = input.tytTurkceNet >= 0.5 || input.tytMatNet >= 0.5;
+    if (!tytOk) return const [];
+
+    final types = <String>['TYT'];
+    if (_anyPositive([
+      input.aytMatNet,
+      input.aytFizikNet,
+      input.aytKimyaNet,
+      input.aytBiyoNet,
+    ])) {
+      types.add('SAY');
+    }
+    if (_anyPositive([
+      input.aytMatNet,
+      input.aytEdebiyatNet,
+      input.aytTarih1Net,
+      input.aytCografya1Net,
+    ])) {
+      types.add('EA');
+    }
+    if (_anyPositive([
+      input.aytEdebiyatNet,
+      input.aytTarih1Net,
+      input.aytCografya1Net,
+      input.aytTarih2Net,
+      input.aytCografya2Net,
+      input.aytFelsefeNet,
+      input.aytDkabNet,
+    ])) {
+      types.add('SÖZ');
+    }
+    if (input.ydtNet > 0) types.add('DİL');
+    return types;
+  }
+
+  static bool _anyPositive(List<double> nets) => nets.any((n) => n > 0);
+
+  /// Uygulanabilir tüm türleri tek geçişte hesaplar (puanlar; sıra/dilim
+  /// [ScoreOutcomeService]'te eklenir).
+  static MultiScoreResult calculateAllTypes(
+    ScoreInput input, {
+    int? yearOverride,
+  }) {
+    final year = yearOverride ?? input.selectedYear;
+    final obp = input.obpContribution;
+    final ekPuan = input.ekPuanContribution;
+
+    final scores = <TypeScore>[];
+    for (final type in applicableScoreTypes(input)) {
+      final raw = calculateRawScoreFor(input, type, yearOverride: yearOverride);
+      scores.add(TypeScore(
+        scoreType: type,
+        year: year,
+        rawScore: raw,
+        placementScore: raw + obp,
+        extraPlacementScore: ekPuan > 0 ? raw + obp + ekPuan : null,
+      ));
+    }
+    return MultiScoreResult(year: year, scores: scores, obpContribution: obp);
+  }
+
   // ─── TYT ─────────────────────────────────────────────────────
-  static double _calculateTYT(ScoreInput input) {
-    final c = _tytData[input.selectedYear] ?? _tytData[_latestYear]!;
+  static double _calculateTYT(ScoreInput input, {int? yearOverride}) {
+    final selected = yearOverride ?? input.selectedYear;
+    final c = _tytData[selected] ?? _tytData[_latestYear]!;
     return c.baseScore +
         input.tytTurkceNet * c.turkce +
         input.tytSosyalNet * c.sosyal +
@@ -102,9 +181,9 @@ class ScoreCalculatorEngine {
   }
 
   // ─── SAY ─────────────────────────────────────────────────────
-  static double _calculateSAY(ScoreInput input) {
-    final year =
-        _sayData.containsKey(input.selectedYear) ? input.selectedYear : _latestYear;
+  static double _calculateSAY(ScoreInput input, {int? yearOverride}) {
+    final selected = yearOverride ?? input.selectedYear;
+    final year = _sayData.containsKey(selected) ? selected : _latestYear;
     final c = _sayData[year]!;
     return c.baseScore +
         input.tytTurkceNet * c.tytTurkce +
@@ -118,9 +197,9 @@ class ScoreCalculatorEngine {
   }
 
   // ─── EA ──────────────────────────────────────────────────────
-  static double _calculateEA(ScoreInput input) {
-    final year =
-        _eaData.containsKey(input.selectedYear) ? input.selectedYear : _latestYear;
+  static double _calculateEA(ScoreInput input, {int? yearOverride}) {
+    final selected = yearOverride ?? input.selectedYear;
+    final year = _eaData.containsKey(selected) ? selected : _latestYear;
     final c = _eaData[year]!;
     return c.baseScore +
         input.tytTurkceNet * c.tytTurkce +
@@ -134,9 +213,9 @@ class ScoreCalculatorEngine {
   }
 
   // ─── SÖZ ─────────────────────────────────────────────────────
-  static double _calculateSOZ(ScoreInput input) {
-    final year =
-        _sozData.containsKey(input.selectedYear) ? input.selectedYear : _latestYear;
+  static double _calculateSOZ(ScoreInput input, {int? yearOverride}) {
+    final selected = yearOverride ?? input.selectedYear;
+    final year = _sozData.containsKey(selected) ? selected : _latestYear;
     final c = _sozData[year]!;
     return c.baseScore +
         input.tytTurkceNet * c.tytTurkce +
@@ -153,8 +232,9 @@ class ScoreCalculatorEngine {
   }
 
   // ─── DİL ─────────────────────────────────────────────────────
-  static double _calculateDIL(ScoreInput input) {
-    final c = _dilData[input.selectedYear] ?? _dilData[_latestYear]!;
+  static double _calculateDIL(ScoreInput input, {int? yearOverride}) {
+    final selected = yearOverride ?? input.selectedYear;
+    final c = _dilData[selected] ?? _dilData[_latestYear]!;
     return c.baseScore +
         input.tytTurkceNet * c.tytTurkce +
         input.tytSosyalNet * c.tytSosyal +
@@ -168,8 +248,10 @@ class ScoreCalculatorEngine {
   // ═══════════════════════════════════════════════════════════════
 
   /// Puan ve bölüm adına göre üniversiteleri eşleştirir.
-  /// 
+  ///
   /// Sonuç: 2 garanti + 3 hedef + 2 hayal = 7 üniversite
+  @Deprecated('v2: sonuç ekranı eligibleProgramsProvider (matchAllPrograms) '
+      've targetDepartmentVerdictProvider kullanır — M7\'de kaldırılacak')
   static CalculationResult matchUniversities({
     required ScoreInput input,
     required List<DepartmentModel> allDepartments,
