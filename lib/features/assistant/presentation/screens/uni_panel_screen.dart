@@ -8,6 +8,7 @@ import '../../../../core/widgets/brand_loader.dart';
 import '../../../../router/app_router.dart';
 import '../../../admin/data/analytics_service.dart';
 import '../../../admin/domain/models/analytics_event.dart';
+import '../../domain/insights/uni_insight.dart';
 import '../../domain/robot_mood.dart';
 import '../../domain/robot_scripts.dart';
 import '../../domain/tercih_calendar.dart';
@@ -43,7 +44,16 @@ class _UniPanelScreenState extends ConsumerState<UniPanelScreen> {
   Widget build(BuildContext context) {
     final contextAsync = ref.watch(insightContextProvider);
     final insights = ref.watch(uniInsightsProvider);
+    final setupPath = ref.watch(setupPathProvider);
     final now = DateTime.now();
+
+    // Kurulum yolu, setup ailesinin zengin hâli — çizildiği sürece aynı
+    // cümleyi bir de not olarak göstermek ekranda iki kez aynı şeyi demek.
+    // (Ana sayfa kartı setup notlarını görmeye DEVAM eder; orada kurulum
+    // yolu yok, tek yüzey o not.)
+    final notes = setupPath.complete
+        ? insights
+        : insights.where((i) => i.kind != InsightKind.setup).toList();
 
     return Scaffold(
       backgroundColor: AppColors.backgroundFor(context),
@@ -92,31 +102,40 @@ class _UniPanelScreenState extends ConsumerState<UniPanelScreen> {
                 const SizedBox(height: 12),
                 const UniProgressBlock(),
               ],
-              if (ref.watch(weeklyPlanProvider) != null) ...[
+              // Kurulum bitmeden haftalık plan çizilmez: o hâlde planın
+              // ürettiği görevler zaten kurulum adımlarının aynısı olur
+              // (calcScore/setTarget/addExam) ve kullanıcı aynı listeyi
+              // ikinci kez, üstelik ikinci bir "0/3" sayacıyla görür.
+              if (setupPath.complete &&
+                  ref.watch(weeklyPlanProvider) != null) ...[
                 const SizedBox(height: 12),
                 const UniWeeklyPlanBlock(),
               ],
-              const SizedBox(height: 24),
-
               // ─── Üni'nin Notları ────────────────────────────
-              Row(
-                children: [
-                  const Icon(Icons.auto_awesome_rounded,
-                      size: 18, color: AppColors.primary),
-                  const SizedBox(width: 8),
-                  Text(
-                    RobotScripts.isEn ? "Üni's notes" : "Üni'nin Notları",
-                    style: AppTextStyles.titleSmall
-                        .copyWith(fontWeight: FontWeight.w800),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 10),
-              if (insights.isEmpty)
-                _AllClear()
-              else
-                for (final insight in insights)
-                  UniInsightCard(insight: insight),
+              // Kurulum sürerken not yoksa başlık hiç açılmaz: "dikkat
+              // isteyen bir şey yok" demek 0/3'teki kullanıcıya yanlış
+              // sinyal — asıl iş hemen yukarıda duruyor.
+              if (setupPath.complete || notes.isNotEmpty) ...[
+                const SizedBox(height: 24),
+                Row(
+                  children: [
+                    const Icon(Icons.auto_awesome_rounded,
+                        size: 18, color: AppColors.primary),
+                    const SizedBox(width: 8),
+                    Text(
+                      RobotScripts.isEn ? "Üni's notes" : "Üni'nin Notları",
+                      style: AppTextStyles.titleSmall
+                          .copyWith(fontWeight: FontWeight.w800),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                if (notes.isEmpty)
+                  _AllClear()
+                else
+                  for (final insight in notes)
+                    UniInsightCard(insight: insight),
+              ],
 
               const SizedBox(height: 24),
               _MatchesEntry(),
