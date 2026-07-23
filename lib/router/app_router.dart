@@ -50,6 +50,7 @@ import '../features/score_calculator/presentation/screens/score_calculator_scree
 import '../features/score_calculator/presentation/screens/score_result_screen.dart';
 import '../features/best_programs/presentation/screens/best_programs_screen.dart';
 import '../features/preference_wizard/presentation/screens/preference_wizard_screen.dart';
+import '../features/assistant/presentation/screens/uni_panel_screen.dart';
 import '../features/preference_wizard/presentation/screens/preference_wizard_results_screen.dart';
 import '../features/admin/presentation/screens/admin_panel_screen.dart';
 import '../features/admin/presentation/screens/admin_story_panel_screen.dart';
@@ -103,6 +104,7 @@ class AppRoutes {
   static const String bestPrograms = '/best-programs';
   static const String practiceExams = '/practice-exams';
   static const String practiceExamAdd = '/practice-exams/add';
+  static const String uniPanel = '/uni';
 }
 
 /// GoRouter konfigürasyon provider'ı
@@ -501,6 +503,12 @@ final routerProvider = Provider<GoRouter>((ref) {
           departmentName: state.uri.queryParameters['dept'],
           categoryKey: state.uri.queryParameters['category'],
         ),
+      ),
+
+      // ─── Üni Paneli ───────────────────────────────────────────────
+      GoRoute(
+        path: AppRoutes.uniPanel,
+        builder: (context, state) => const UniPanelScreen(),
       ),
 
       // ─── Tercih Robotu ────────────────────────────────────────────

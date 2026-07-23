@@ -9,6 +9,15 @@ enum RobotAction {
   openScoreCalculator,
   openLists,
   openBestPrograms,
+
+  /// Üni Paneli — robotun kendi evi.
+  openUniPanel,
+
+  /// Deneme defteri; ders analizi ve gelişim grafiği de orada.
+  openPracticeExams,
+
+  /// Hedef program seçimi — hedef kartı deneme defterinde yaşıyor.
+  setTarget,
 }
 
 /// Üni'nin tek bir konuşması. [id] şablon kimliğidir: analitik, tekrar

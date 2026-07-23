@@ -28,6 +28,10 @@ enum AnalyticsEvent {
   preferenceWizardMatched('totalPreferenceWizardMatched', 'preferenceWizardMatched'),
   preferenceAutoListCreated('totalPreferenceAutoLists', 'preferenceAutoLists'),
 
+  // Üni Paneli
+  uniPanelOpened('totalUniPanelOpened', 'uniPanelOpened'),
+  uniInsightTapped('totalUniInsightTapped', 'uniInsightTapped'),
+
   // Monetizasyon
   paywallShown('totalPaywallShown', 'paywallShown'),
   adWatched('totalAdWatched', 'adWatched'),

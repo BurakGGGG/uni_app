@@ -10,6 +10,12 @@ class RobotMemory {
   static const _lastShownPrefix = 'assistant_last_';
   static const _wizardIntroSeenKey = 'assistant_wizard_intro_seen_v1';
   static const _displayNameKey = 'assistant_display_name';
+  static const _dismissedPrefix = 'assistant_dismissed_';
+
+  /// Kapatılan bir not bu süre boyunca susar; sonra geri gelir. Kalıcı
+  /// susturma yok — "listende güvenli tercih yok" uyarısı sorun çözülmeden
+  /// bir daha görünmezse uyarı olmaktan çıkar.
+  static const Duration insightSnooze = Duration(days: 7);
 
   /// Bu slotta en son gösterilen mesaj id'si (RobotBrain.pick'e excludeId).
   String? lastShown(String slot) =>
@@ -32,4 +38,27 @@ class RobotMemory {
 
   Future<void> setDisplayName(String name) =>
       _prefs.setString(_displayNameKey, name.trim());
+
+  // ── Üni Paneli: not susturma ──
+
+  /// Not hâlâ susturulmuş mu? Süresi dolan kayıt okunurken temizlenir.
+  bool isInsightDismissed(String insightId, {DateTime? now}) {
+    final key = '$_dismissedPrefix$insightId';
+    final raw = _prefs.getInt(key);
+    if (raw == null) return false;
+    final until = DateTime.fromMillisecondsSinceEpoch(raw);
+    if (!(now ?? DateTime.now()).isBefore(until)) {
+      _prefs.remove(key);
+      return false;
+    }
+    return true;
+  }
+
+  Future<void> dismissInsight(String insightId, {DateTime? now}) {
+    final until = (now ?? DateTime.now()).add(insightSnooze);
+    return _prefs.setInt(
+      '$_dismissedPrefix$insightId',
+      until.millisecondsSinceEpoch,
+    );
+  }
 }

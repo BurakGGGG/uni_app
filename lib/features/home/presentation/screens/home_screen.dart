@@ -28,7 +28,7 @@ import '../../../auth/presentation/providers/auth_providers.dart';
 import '../../../../core/widgets/typewriter_text.dart';
 import '../../../assistant/domain/tercih_calendar.dart';
 import '../../../assistant/presentation/providers/assistant_providers.dart';
-import '../../../assistant/presentation/robot_action_route.dart';
+import '../../../assistant/presentation/providers/uni_panel_providers.dart';
 import '../../../../router/app_router.dart';
 import '../../../assistant/presentation/widgets/robot_avatar.dart';
 
@@ -405,8 +405,10 @@ class _RobotGreetingCard extends ConsumerStatefulWidget {
       _RobotGreetingCardState();
 }
 
-/// Üni'nin ana ekran karşılaması — döneme ve saate göre selamlama + günün
-/// ipucu. Typewriter oturum başına bir kez oynar; scroll rebuild'lerinde
+/// Üni'nin ana ekran karşılaması — döneme ve saate göre selamlama + altında
+/// Üni'nin en öncelikli notu. Not yoksa (veri henüz yüklenmediyse ya da
+/// dikkat isteyen bir şey kalmadıysa) jenerik günün ipucuna düşer; kart asla
+/// boş kalmaz. Typewriter oturum başına bir kez oynar; scroll rebuild'lerinde
 /// metin yeniden yazılmaz.
 class _RobotGreetingCardState extends ConsumerState<_RobotGreetingCard> {
   static bool _greetedThisSession = false;
@@ -423,7 +425,12 @@ class _RobotGreetingCardState extends ConsumerState<_RobotGreetingCard> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final greeting = ref.watch(homeGreetingProvider);
-    final tip = ref.watch(tipOfDayProvider);
+    // Kişisel not jenerik ipucunu ezer — "Hedefine 11 net kaldı" ile "tercih
+    // listeni erken kur" arasında seçim yapılacaksa kişisel olan kazanır.
+    final insight = ref.watch(topInsightProvider);
+    final subtitle = insight != null
+        ? '${insight.title} — ${insight.body}'
+        : '💡 ${ref.watch(tipOfDayProvider).text}';
     final now = DateTime.now();
     final chipLabel = phaseChipLabel(tercihPhaseFor(now), now.year);
     final titleStyle = AppTextStyles.titleSmall.copyWith(
@@ -432,12 +439,10 @@ class _RobotGreetingCardState extends ConsumerState<_RobotGreetingCard> {
       height: 1.25,
     );
     return GestureDetector(
-      // Selamlama mesajı bir eylem bildiriyorsa oraya git ("netlerini
-      // hesapla" diyen mesaj hesaplayıcıya götürür); bildirmiyorsa
-      // eskiden beri olduğu gibi sihirbaza.
-      onTap: () => context.push(
-        robotActionRoute(greeting.action) ?? AppRoutes.preferenceWizard,
-      ),
+      // Kart her zaman Üni'nin evine götürür. Nota özgü eylem (ör. "listeyi
+      // düzelt") panelin içindeki kartta duruyor — kartın hedefi mesaja göre
+      // değişseydi kullanıcı nereye gideceğini bilemezdi.
+      onTap: () => context.push(AppRoutes.uniPanel),
       child: Container(
         decoration: BoxDecoration(
           gradient: AppColors.secondaryGradientFor(context),
@@ -527,7 +532,7 @@ class _RobotGreetingCardState extends ConsumerState<_RobotGreetingCard> {
                           Text(greeting.text, style: titleStyle),
                         const SizedBox(height: 4),
                         Text(
-                          '💡 ${tip.text}',
+                          subtitle,
                           style: AppTextStyles.labelSmall.copyWith(
                             color: Colors.white.withValues(alpha: 0.9),
                             height: 1.35,

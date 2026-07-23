@@ -47,6 +47,19 @@ class OnboardingCopy {
   const OnboardingCopy(this.id, this.title, this.body, this.mood);
 }
 
+/// Üni Paneli'ndeki bir notun metni. [RobotScript]'ten ayrı çünkü içgörü
+/// kartı başlık + gövde + buton etiketi ister ve ruh hâli/eylem motorda
+/// karara bağlanır (aynı metin farklı tonla çıkabilir).
+///
+/// `{...}` yer tutucularını [InsightEngine] doldurur.
+class InsightCopy {
+  final String title;
+  final String body;
+  final String? actionLabel;
+
+  const InsightCopy(this.title, this.body, {this.actionLabel});
+}
+
 /// Üni'nin tüm repliği — iki dilde. Ses tonu: birinci ağız, "sen" dili,
 /// sevimli ama dürüst — yerleşme sözü ASLA verilmez; "tahmin / garanti
 /// veremem" ("estimate / can't guarantee") korunur.
@@ -131,6 +144,22 @@ abstract final class RobotScripts {
   // ── Boş liste dürtmesi ──
   static List<RobotScript> get emptyList =>
       isEn ? _En.emptyList : _Tr.emptyList;
+
+  // ── Üni Paneli: içgörü notları ──
+
+  /// [id] için not metni (ör. `target.reached`). Bilinmeyen id fırlatır —
+  /// motor ile tablo arasındaki kopukluk sessizce boş kart üretmesin.
+  static InsightCopy insight(String id) {
+    final copy = (isEn ? _En.insights : _Tr.insights)[id];
+    if (copy == null) {
+      throw ArgumentError.value(id, 'id', 'İçgörü metni tanımlı değil');
+    }
+    return copy;
+  }
+
+  /// Tablodaki tüm not id'leri — dil eşliği testi bunu karşılaştırır.
+  static Iterable<String> get insightIds =>
+      (isEn ? _En.insights : _Tr.insights).keys;
 
   // ── Üni ile Sohbet ──
   static RobotScript get chatHelloNew =>
@@ -282,6 +311,31 @@ abstract final class RobotScripts {
           'hukuk': 'Law',
           'veteriner': 'Veterinary Medicine',
         }[key] ??
+        trLabel;
+  }
+
+  /// `YksSubject.labelTr` değerlerinin İngilizce karşılığı; sözlükte yoksa
+  /// Türkçe ad olduğu gibi kullanılır (ders adı uydurmaktan iyidir).
+  static String subjectLabel(String trLabel) {
+    if (!isEn) return trLabel;
+    return const {
+          'Türkçe': 'Turkish',
+          'Sosyal Bilimler': 'Social Sciences',
+          'Temel Matematik': 'Basic Maths',
+          'Fen Bilimleri': 'Sciences',
+          'Matematik': 'Maths',
+          'Fizik': 'Physics',
+          'Kimya': 'Chemistry',
+          'Biyoloji': 'Biology',
+          'Türk Dili ve Edebiyatı': 'Turkish Language & Literature',
+          'Tarih-1': 'History-1',
+          'Coğrafya-1': 'Geography-1',
+          'Tarih-2': 'History-2',
+          'Coğrafya-2': 'Geography-2',
+          'Felsefe Grubu': 'Philosophy Group',
+          'Din Kültürü': 'Religious Culture',
+          'Yabancı Dil': 'Foreign Language',
+        }[trLabel] ??
         trLabel;
   }
 }
@@ -940,6 +994,155 @@ abstract final class _Tr {
     'Bu şehre henüz üniversite eklenmemiş. Başka bir şehre bakalım mı?',
     RobotMood.neutral,
   );
+
+  // ── Üni Paneli notları ──
+  static const insights = <String, InsightCopy>{
+    // Kurulum
+    'setup.noProfile': InsightCopy(
+      'Seni henüz tanımıyorum',
+      'Netlerini gir; puanını ve tahminî sıranı hesaplayayım. Gerisi buradan '
+          'kendiliğinden açılıyor.',
+      actionLabel: 'Puanını hesapla',
+    ),
+    'setup.noTarget': InsightCopy(
+      'Hedefin ne olsun?',
+      'Bir hedef program seç; her denemeden sonra ona ne kadar kaldığını '
+          'hesaplayayım.',
+      actionLabel: 'Hedef belirle',
+    ),
+    'setup.noExam': InsightCopy(
+      'İlk denemeni bekliyorum',
+      'Bir deneme gir; netlerinden hangi derste ne durumda olduğunu '
+          'çıkarayım.',
+      actionLabel: 'Deneme ekle',
+    ),
+
+    // Hedef
+    'target.reached': InsightCopy(
+      'Hedefini geçtin!',
+      '{dept} tabanı {targetRank}. sıraydı, sen {currentRank}. sıradasın. '
+          'Hedefi yukarı çekme vakti.',
+      actionLabel: 'Hedefi güncelle',
+    ),
+    'target.closing': InsightCopy(
+      'Hedefe yaklaşıyorsun',
+      'Son {count} denemede sıran {gain} basamak iyileşti. {dept} için kalan '
+          'mesafe: {remaining} sıra.',
+      actionLabel: 'Denemelerim',
+    ),
+    'target.drifting': InsightCopy(
+      'Sıran geriliyor',
+      'Son {count} denemede {loss} basamak geriledin; {dept} uzaklaşıyor. '
+          'Nerede kaybettiğine birlikte bakalım.',
+      actionLabel: 'Ders analizin',
+    ),
+
+    // Gelişim
+    'progress.stale': InsightCopy(
+      '{days} gündür deneme yok',
+      'Defterin {days} gündür sessiz. Bir deneme girersen nerede olduğunu '
+          'tazeleyeyim.',
+      actionLabel: 'Deneme ekle',
+    ),
+    'progress.drop': InsightCopy(
+      '{subject} düşüşte',
+      'Son denemelerde {subject} ortalaman {delta} net geriledi — şimdi '
+          '{avg} net. Bu haftanın önceliği burası.',
+      actionLabel: 'Ders analizin',
+    ),
+    'progress.jump': InsightCopy(
+      '{subject} yükselişte',
+      '{subject} ortalaman {delta} net arttı — şimdi {avg} net. Aynı tempoyu '
+          'koru.',
+      actionLabel: 'Ders analizin',
+    ),
+    'progress.weakest': InsightCopy(
+      'En zayıf dersin: {subject}',
+      '{subject} başarı oranın %{rate}. Kazanacak en çok yerin olduğu ders '
+          'burası.',
+      actionLabel: 'Ders analizin',
+    ),
+    'progress.streak': InsightCopy(
+      '{weeks} haftadır aralıksız',
+      'Her hafta deneme giriyorsun. Bu istikrar sıralamanın en sessiz '
+          'kazancı.',
+    ),
+    'progress.rankGain': InsightCopy(
+      'Sıran {gain} basamak iyileşti',
+      'İlk denemende {first}, son denemende {last}. Grafik yukarı bakıyor.',
+      actionLabel: 'Gelişimin',
+    ),
+
+    // Liste
+    'list.empty': InsightCopy(
+      'Tercih listen boş',
+      'Beğendiğin programları listene ekle; dengesini ben kontrol edeyim.',
+      actionLabel: 'Listelerim',
+    ),
+    'list.incomplete': InsightCopy(
+      'Listen {count}/24',
+      '{remaining} tercih hakkın daha var. Boş bırakılan her sıra bir şans '
+          'daha demek.',
+      actionLabel: 'Listeyi tamamla',
+    ),
+    'list.noSafe': InsightCopy(
+      'Listende güvenli tercih yok',
+      '{count} programın hiçbiri yüksek şanslı görünmüyor. Sıralaman '
+          'beklenenden düşük gelirse açıkta kalabilirsin.',
+      actionLabel: 'Listeyi düzelt',
+    ),
+    'list.tooRisky': InsightCopy(
+      'Listen fazla iddialı',
+      'Değerlendirilen {rated} tercihin {dream} tanesi zorlayıcı. Sonlara '
+          'birkaç güvenli seçenek ekle.',
+      actionLabel: 'Listeyi düzelt',
+    ),
+    'list.cityConcentration': InsightCopy(
+      'İlk tercihlerin tek şehirde',
+      'İlk 5 tercihinin {count} tanesi {city}. O şehirde tabanlar yükselirse '
+          'hepsi birden riske girer.',
+      actionLabel: 'Listeyi gözden geçir',
+    ),
+
+    // Veri
+    'data.baseTrendDown': InsightCopy(
+      '{dept} tabanı düşüyor',
+      '{uni} · {dept} tabanı geçen yıla göre {delta} puan geriledi. Senin '
+          'şansın artmış olabilir.',
+      actionLabel: 'Programa bak',
+    ),
+    'data.baseTrendUp': InsightCopy(
+      '{dept} tabanı yükseliyor',
+      '{uni} · {dept} tabanı geçen yıla göre {delta} puan arttı. Listende '
+          'bunun altına da alternatif bulundur.',
+      actionLabel: 'Programa bak',
+    ),
+    'data.lowFillRate': InsightCopy(
+      '{dept} kontenjanı dolmamış',
+      '{uni} · {dept} geçen yıl kontenjanının %{rate} kadarını doldurdu. Bu '
+          'tür programlarda taban beklenenden düşük kalabiliyor.',
+      actionLabel: 'Programa bak',
+    ),
+
+    // Takvim
+    'calendar.tercihCountdown': InsightCopy(
+      'Tercihe {days} gün',
+      'Tercih dönemi sürüyor. Listeni gözden geçirmek için iyi bir gün.',
+      actionLabel: 'Listelerim',
+    ),
+    'calendar.examCountdown': InsightCopy(
+      "YKS'ye {days} gün",
+      'Sayaç işliyor. Bu dönemde deneme sıklığın sıralamanı en çok '
+          'değiştiren şey.',
+      actionLabel: 'Deneme ekle',
+    ),
+    'calendar.resultsWait': InsightCopy(
+      'Sonuçlar yolda',
+      'Bu arada netlerini girip tahminî sıranı hesaplayabilir, listeni '
+          'önden kurabilirsin.',
+      actionLabel: 'Puanını hesapla',
+    ),
+  };
 }
 
 /// İngilizce tablo — id'ler Türkçe tabloyla birebir aynı.
@@ -1594,4 +1797,154 @@ abstract final class _En {
         'another city?',
     RobotMood.neutral,
   );
+
+  // ── Üni Panel notes ──
+  static const insights = <String, InsightCopy>{
+    // Setup
+    'setup.noProfile': InsightCopy(
+      "I don't know you yet",
+      'Enter your nets and I\'ll work out your score and estimated rank. '
+          'Everything else opens up from there.',
+      actionLabel: 'Calculate your score',
+    ),
+    'setup.noTarget': InsightCopy(
+      "What's your target?",
+      "Pick a target program and I'll measure how far you are from it after "
+          'every practice exam.',
+      actionLabel: 'Set a target',
+    ),
+    'setup.noExam': InsightCopy(
+      "I'm waiting for your first exam",
+      "Add a practice exam and I'll work out where you stand subject by "
+          'subject.',
+      actionLabel: 'Add an exam',
+    ),
+
+    // Target
+    'target.reached': InsightCopy(
+      'You passed your target!',
+      "{dept}'s cutoff was rank {targetRank} and you're at {currentRank}. "
+          'Time to aim higher.',
+      actionLabel: 'Update target',
+    ),
+    'target.closing': InsightCopy(
+      "You're closing in",
+      'Your rank improved by {gain} places over the last {count} exams. '
+          '{remaining} places left to {dept}.',
+      actionLabel: 'My exams',
+    ),
+    'target.drifting': InsightCopy(
+      'Your rank is slipping',
+      "You've dropped {loss} places over the last {count} exams and {dept} "
+          "is drifting away. Let's find where it went.",
+      actionLabel: 'Subject analysis',
+    ),
+
+    // Progress
+    'progress.stale': InsightCopy(
+      'No exam for {days} days',
+      "Your log has been quiet for {days} days. Add an exam and I'll "
+          'refresh where you stand.',
+      actionLabel: 'Add an exam',
+    ),
+    'progress.drop': InsightCopy(
+      '{subject} is slipping',
+      'Your {subject} average fell by {delta} nets — now {avg}. That makes '
+          "it this week's priority.",
+      actionLabel: 'Subject analysis',
+    ),
+    'progress.jump': InsightCopy(
+      '{subject} is climbing',
+      'Your {subject} average rose by {delta} nets — now {avg}. Keep the '
+          'same rhythm.',
+      actionLabel: 'Subject analysis',
+    ),
+    'progress.weakest': InsightCopy(
+      'Your weakest subject: {subject}',
+      'Your {subject} success rate is {rate}%. This is where you have the '
+          'most to gain.',
+      actionLabel: 'Subject analysis',
+    ),
+    'progress.streak': InsightCopy(
+      '{weeks} weeks without a break',
+      "You've logged an exam every week. That consistency is the quietest "
+          'gain in your ranking.',
+    ),
+    'progress.rankGain': InsightCopy(
+      'Your rank improved by {gain} places',
+      'You were at {first} on your first exam and {last} on your latest. '
+          'The graph points up.',
+      actionLabel: 'Your progress',
+    ),
+
+    // List
+    'list.empty': InsightCopy(
+      'Your preference list is empty',
+      "Add the programs you like and I'll check the balance for you.",
+      actionLabel: 'My lists',
+    ),
+    'list.incomplete': InsightCopy(
+      'Your list is {count}/24',
+      'You have {remaining} choices left. Every empty slot is one more '
+          'chance unused.',
+      actionLabel: 'Complete the list',
+    ),
+    'list.noSafe': InsightCopy(
+      'No safe choice in your list',
+      'None of your {count} programs looks like a high chance. If your rank '
+          'lands lower than expected, you could be left out.',
+      actionLabel: 'Fix the list',
+    ),
+    'list.tooRisky': InsightCopy(
+      'Your list is too ambitious',
+      '{dream} of your {rated} rated choices are ambitious. Add a few safe '
+          'options towards the end.',
+      actionLabel: 'Fix the list',
+    ),
+    'list.cityConcentration': InsightCopy(
+      'Your top choices are in one city',
+      '{count} of your first 5 choices are in {city}. If cutoffs rise there, '
+          'they all become risky at once.',
+      actionLabel: 'Review the list',
+    ),
+
+    // Data
+    'data.baseTrendDown': InsightCopy(
+      "{dept}'s cutoff is falling",
+      "{uni} · {dept} fell {delta} points from last year. Your chances may "
+          'have improved.',
+      actionLabel: 'View the program',
+    ),
+    'data.baseTrendUp': InsightCopy(
+      "{dept}'s cutoff is rising",
+      '{uni} · {dept} rose {delta} points from last year. Keep an '
+          'alternative below it in your list.',
+      actionLabel: 'View the program',
+    ),
+    'data.lowFillRate': InsightCopy(
+      '{dept} did not fill its quota',
+      '{uni} · {dept} filled about {rate}% of its quota last year. Cutoffs '
+          'in programs like this can stay lower than expected.',
+      actionLabel: 'View the program',
+    ),
+
+    // Calendar
+    'calendar.tercihCountdown': InsightCopy(
+      '{days} days left to choose',
+      'The preference period is running. A good day to review your list.',
+      actionLabel: 'My lists',
+    ),
+    'calendar.examCountdown': InsightCopy(
+      '{days} days to YKS',
+      'The clock is running. How often you take practice exams moves your '
+          'ranking more than anything else right now.',
+      actionLabel: 'Add an exam',
+    ),
+    'calendar.resultsWait': InsightCopy(
+      'Results are on the way',
+      'In the meantime you can enter your nets, estimate your rank and '
+          'build your list ahead of time.',
+      actionLabel: 'Calculate your score',
+    ),
+  };
 }

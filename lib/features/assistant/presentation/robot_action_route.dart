@@ -27,5 +27,11 @@ String? robotActionRoute(RobotAction action, {String? arg}) {
       return arg == null || arg.isEmpty
           ? AppRoutes.bestPrograms
           : '${AppRoutes.bestPrograms}?dept=${Uri.encodeComponent(arg)}';
+    case RobotAction.openUniPanel:
+      return AppRoutes.uniPanel;
+    // Hedef kartı deneme defterinin içinde yaşıyor; ayrı rota yok.
+    case RobotAction.openPracticeExams:
+    case RobotAction.setTarget:
+      return AppRoutes.practiceExams;
   }
 }

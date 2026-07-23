@@ -36,6 +36,33 @@ TercihPhase tercihPhaseFor(DateTime now) {
   return TercihPhase.offSeason;
 }
 
+/// Bulunulan fazın son günü (dahil) — geri sayımlar bunu kullanır.
+///
+/// Sezon dışı (Ekim–Nisan) yıl sınırını aştığı için null döner; oraya geri
+/// sayım koymanın da anlamı yok.
+DateTime? phaseEndFor(DateTime now) {
+  final (month, day) = switch (tercihPhaseFor(now)) {
+    TercihPhase.examCountdown => (6, 13),
+    TercihPhase.examWeek => (6, 22),
+    TercihPhase.resultsWait => (7, 14),
+    TercihPhase.tercihPeriod => (8, 5),
+    TercihPhase.placementWait => (8, 27),
+    TercihPhase.placementDone => (9, 30),
+    TercihPhase.offSeason => (0, 0),
+  };
+  if (month == 0) return null;
+  return DateTime(now.year, month, day);
+}
+
+/// Fazın bitişine kalan tam gün sayısı; sezon dışında null.
+/// Son gün 0 döner ("bugün son gün").
+int? daysLeftInPhase(DateTime now) {
+  final end = phaseEndFor(now);
+  if (end == null) return null;
+  final today = DateTime(now.year, now.month, now.day);
+  return end.difference(today).inDays;
+}
+
 /// Günün dilimi — selamlama tonu için.
 enum DayPeriod { morning, afternoon, evening, night }
 
