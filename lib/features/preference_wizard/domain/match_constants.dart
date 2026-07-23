@@ -78,6 +78,10 @@ const double kPrefCityBoost = 5;
 const double kPrefInterestBoost = 5;
 const double kPrefUniTypeBoost = 2;
 
+/// Öğretim dili tercihi — üniversite türüyle aynı ağırlıkta, ikisi de
+/// "olsa iyi olur" cinsinden sinyaller.
+const double kPrefLanguageBoost = 2;
+
 // ── Puan-farkı son çare eşikleri ────────────────────────────────────
 // Yalnızca hiçbir sıra sinyali kurulamadığında (tanınmayan puan türü ya da
 // sırasız program + tahminci yok) kullanılır. Yıllar arası puan enflasyonu

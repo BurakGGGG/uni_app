@@ -176,36 +176,6 @@ abstract final class RobotScripts {
   static Iterable<String> get planTaskIds =>
       (isEn ? _En.plans : _Tr.plans).keys;
 
-  // ── Üni ile Sohbet ──
-  static RobotScript get chatHelloNew =>
-      isEn ? _En.chatHelloNew : _Tr.chatHelloNew;
-  static RobotScript get chatHelloBack =>
-      isEn ? _En.chatHelloBack : _Tr.chatHelloBack;
-  static RobotScript get chatAskScoreType =>
-      isEn ? _En.chatAskScoreType : _Tr.chatAskScoreType;
-  static RobotScript get chatAskRank =>
-      isEn ? _En.chatAskRank : _Tr.chatAskRank;
-  static RobotScript get chatAskInterests =>
-      isEn ? _En.chatAskInterests : _Tr.chatAskInterests;
-  static RobotScript get chatAskConstraints =>
-      isEn ? _En.chatAskConstraints : _Tr.chatAskConstraints;
-  static RobotScript get chatConfirm => isEn ? _En.chatConfirm : _Tr.chatConfirm;
-  static RobotScript get chatFocus => isEn ? _En.chatFocus : _Tr.chatFocus;
-  static RobotScript get chatAck => isEn ? _En.chatAck : _Tr.chatAck;
-  static RobotScript get chatPartial => isEn ? _En.chatPartial : _Tr.chatPartial;
-  static RobotScript get chatConfused =>
-      isEn ? _En.chatConfused : _Tr.chatConfused;
-  static RobotScript get chatComingSoon =>
-      isEn ? _En.chatComingSoon : _Tr.chatComingSoon;
-  static RobotScript get chatScoreInvalid =>
-      isEn ? _En.chatScoreInvalid : _Tr.chatScoreInvalid;
-  static RobotScript get chatRestart => isEn ? _En.chatRestart : _Tr.chatRestart;
-  static RobotScript get chatUpdate => isEn ? _En.chatUpdate : _Tr.chatUpdate;
-  static RobotScript get chatSearchError =>
-      isEn ? _En.chatSearchError : _Tr.chatSearchError;
-  static RobotScript get chatSearchMissing =>
-      isEn ? _En.chatSearchMissing : _Tr.chatSearchMissing;
-
   // ── Rozet kutlaması ──
   static List<RobotScript> get badgeCheer =>
       isEn ? _En.badgeCheer : _Tr.badgeCheer;
@@ -249,36 +219,8 @@ abstract final class RobotScripts {
   static String get onboardingNameSkip =>
       isEn ? 'Rather not say' : 'Söylemesem de olur';
 
-  // ── Kısa ifadeler — sohbet akışı ve Üni'ye ait UI etiketleri ──
-  static String get phraseRank => isEn ? 'rank' : 'sıra';
-  static String get phraseScore => isEn ? 'points' : 'puan';
-  static String get phraseScholarship => isEn ? 'Scholarship' : 'Burslu';
-
-  /// Olumsuzlama onayı: '$ad $phraseExcluded' iki dilde de doğru okunur
-  /// ("İstanbul hariç" / "İstanbul excluded").
-  static String get phraseExcluded => isEn ? 'excluded' : 'hariç';
-
-  static String get chatTitle =>
-      isEn ? 'Chat with $kRobotName' : '$kRobotName ile Sohbet';
-  static String get inputHint =>
-      isEn ? 'Message $kRobotName…' : "$kRobotName'ye yaz…";
-  static String get rankBoxHint => isEn
-      ? 'Your rank or score (e.g. 80000)'
-      : 'Sıralaman ya da puanın (örn. 80000)';
-  static String get previewTitle =>
-      isEn ? 'Your first matches:' : 'İlk önerilerin:';
   static String get robotNoteLabel =>
       isEn ? "$kRobotName's note: " : "$kRobotName'nin notu: ";
-  static String get transferLabel =>
-      isEn ? 'Send to $kRobotName' : "$kRobotName'ye aktar";
-
-  // Önizleme kartı etiketleri.
-  static String fitLabel(int fit) => isEn ? '$fit% fit' : '%$fit uygun';
-  static String cutoffLabel(String rankText) =>
-      isEn ? 'cutoff $rankText' : 'taban $rankText';
-  static String get categoryHigh => isEn ? 'High chance' : 'Yüksek şans';
-  static String get categoryTarget => isEn ? 'Reachable' : 'Ulaşılabilir';
-  static String get categoryDream => isEn ? 'Ambitious' : 'Zorlayıcı';
 
   /// WizardFilter'ın kanonik Türkçe değerleri (motor ve depolama bunları
   /// bekler) — yalnız GÖSTERİM için çevrilir; eşleşmeyen değer aynen döner.
@@ -751,124 +693,22 @@ abstract final class _Tr {
     ),
   ];
 
-  static const chatHelloNew = RobotScript(
-    'chat.hello.new',
-    'Merhaba, ben $kRobotName! Sana uygun programları bulmak için birkaç '
-        'kısa sorum var — aşağıdaki balonlardan seçerek bir dakikada '
-        'bitiririz.',
-    RobotMood.happy,
-  );
 
-  static const chatHelloBack = RobotScript(
-    'chat.hello.back',
-    'Tekrar hoş geldin! Şöyle not almışım: {profile}. Sonuçlara mı '
-        'geçelim, bilgilerini mi güncelleyelim?',
-    RobotMood.happy,
-  );
 
-  static const chatAskScoreType = RobotScript(
-    'chat.ask.type',
-    'Hangi puan türüyle yerleşeceksin? SAY, EA, SÖZ ya da DİL — önlisans '
-        'düşünüyorsan TYT.',
-    RobotMood.neutral,
-  );
 
-  static const chatAskRank = RobotScript(
-    'chat.ask.rank',
-    'Peki sıralaman ya da puanın ne? Aşağıdaki kutucuğa yazman yeter — '
-        'bilmiyorsan netlerinden birlikte hesaplayabiliriz.',
-    RobotMood.neutral,
-  );
 
-  static const chatAskInterests = RobotScript(
-    'chat.ask.interests',
-    'Ne okumak istersin? Aşağıdan bir alan seç — kararsızsan '
-        '"Farketmez" de yeter.',
-    RobotMood.happy,
-  );
 
-  static const chatAskConstraints = RobotScript(
-    'chat.ask.constraints',
-    'Şehir ya da üniversite türü tercihin var mı? Aşağıdan '
-        'seçebilirsin; yoksa "Farketmez" de.',
-    RobotMood.neutral,
-  );
 
-  static const chatConfirm = RobotScript(
-    'chat.confirm',
-    'Şöyle not ettim: {summary}. Hazırsan arıyorum! Bulduklarım geçmiş '
-        'yıl verilerine dayalı tahmin olacak — garanti değil ama iyi bir '
-        'pusula.',
-    RobotMood.happy,
-  );
 
-  static const chatFocus = RobotScript(
-    'chat.focus',
-    'Birden fazla bölüm saydın — hangisine odaklanayım? "Hepsi" dersen '
-        'hepsine birden bakarım.',
-    RobotMood.thinking,
-  );
 
-  static const chatAck = RobotScript(
-    'chat.ack',
-    'Not ettim: {pieces}!',
-    RobotMood.happy,
-  );
 
-  static const chatPartial = RobotScript(
-    'chat.partial',
-    'Şu kısmı tam çözemedim: "{rest}". İstersen farklı sözcüklerle bir '
-        'daha söyle.',
-    RobotMood.thinking,
-  );
 
-  static const chatConfused = RobotScript(
-    'chat.confused',
-    'Bunu tam anlayamadım — aşağıdaki seçeneklerden ilerleyelim mi?',
-    RobotMood.thinking,
-  );
 
-  static const chatComingSoon = RobotScript(
-    'chat.coming.soon',
-    'Klavye kısmım daha hazır değil! Geliştiricilerim şu an üzerimde '
-        'çalışıyor; yakında burada doya doya sohbet edeceğiz. Şimdilik '
-        'balonlardan ve kutucuktan ilerleyelim, olur mu?',
-    RobotMood.happy,
-  );
 
-  static const chatScoreInvalid = RobotScript(
-    'chat.score.invalid',
-    'Hmm, yerleştirme puanı 150-560 aralığında olur — bir daha dener '
-        'misin?',
-    RobotMood.concerned,
-  );
 
-  static const chatRestart = RobotScript(
-    'chat.restart',
-    'Tamamdır, baştan alıyoruz!',
-    RobotMood.neutral,
-  );
 
-  static const chatUpdate = RobotScript(
-    'chat.update',
-    'Olur, bilgilerini tazeleyelim! Soruları baştan soruyorum — çoğu '
-        'tek dokunuş zaten.',
-    RobotMood.neutral,
-  );
 
-  static const chatSearchError = RobotScript(
-    'chat.search.error',
-    'Ay, bir şeyler ters gitti — bağlantını kontrol edip bir daha '
-        'dener misin?',
-    RobotMood.concerned,
-  );
 
-  static const chatSearchMissing = RobotScript(
-    'chat.search.missing',
-    'Aramaya başlamadan önce puan türünü ve sıralamanı (ya da puanını) '
-        'öğrenmem gerekiyor.',
-    RobotMood.concerned,
-  );
 
   static const badgeCheer = <RobotScript>[
     RobotScript(
@@ -1604,126 +1444,22 @@ abstract final class _En {
     ),
   ];
 
-  static const chatHelloNew = RobotScript(
-    'chat.hello.new',
-    "Hi, I'm $kRobotName! I have a few quick questions to find the "
-        "programs that fit you — pick from the bubbles below and we'll "
-        'be done in a minute.',
-    RobotMood.happy,
-  );
 
-  static const chatHelloBack = RobotScript(
-    'chat.hello.back',
-    "Welcome back! Here's what I noted: {profile}. Shall we go to your "
-        'results, or update your info?',
-    RobotMood.happy,
-  );
 
-  static const chatAskScoreType = RobotScript(
-    'chat.ask.type',
-    'Which score type will you apply with? SAY, EA, SÖZ or DİL — TYT '
-        "if you're considering associate degrees.",
-    RobotMood.neutral,
-  );
 
-  static const chatAskRank = RobotScript(
-    'chat.ask.rank',
-    "So, what's your rank or score? Just type it in the little box "
-        "below — if you don't know it, we can calculate it from your "
-        'net answers.',
-    RobotMood.neutral,
-  );
 
-  static const chatAskInterests = RobotScript(
-    'chat.ask.interests',
-    'What would you like to study? Pick a field below — if undecided, '
-        '"No preference" works too.',
-    RobotMood.happy,
-  );
 
-  static const chatAskConstraints = RobotScript(
-    'chat.ask.constraints',
-    'Any city or university type preference? Pick below, or just say '
-        '"No preference".',
-    RobotMood.neutral,
-  );
 
-  static const chatConfirm = RobotScript(
-    'chat.confirm',
-    "Here's what I noted: {summary}. Ready when you are! What I find "
-        "will be an estimate based on past-year data — not a guarantee, "
-        'but a good compass.',
-    RobotMood.happy,
-  );
 
-  static const chatFocus = RobotScript(
-    'chat.focus',
-    'You mentioned more than one department — which should I focus on? '
-        'Say "All" and I\'ll look at every one of them.',
-    RobotMood.thinking,
-  );
 
-  static const chatAck = RobotScript(
-    'chat.ack',
-    'Noted: {pieces}!',
-    RobotMood.happy,
-  );
 
-  static const chatPartial = RobotScript(
-    'chat.partial',
-    'I couldn\'t quite work out this part: "{rest}". Try saying it '
-        'with different words if you like.',
-    RobotMood.thinking,
-  );
 
-  static const chatConfused = RobotScript(
-    'chat.confused',
-    "I didn't quite get that — shall we continue with the options "
-        'below?',
-    RobotMood.thinking,
-  );
 
-  static const chatComingSoon = RobotScript(
-    'chat.coming.soon',
-    "My keyboard side isn't ready yet! My developers are working on me "
-        "right now; soon we'll chat here properly. For now, let's use "
-        'the bubbles and the little box, okay?',
-    RobotMood.happy,
-  );
 
-  static const chatScoreInvalid = RobotScript(
-    'chat.score.invalid',
-    'Hmm, placement scores fall between 150 and 560 — want to try '
-        'again?',
-    RobotMood.concerned,
-  );
 
-  static const chatRestart = RobotScript(
-    'chat.restart',
-    "Alright, let's start over!",
-    RobotMood.neutral,
-  );
 
-  static const chatUpdate = RobotScript(
-    'chat.update',
-    "Sure, let's refresh your info! I'll ask the questions again — "
-        'most are a single tap anyway.',
-    RobotMood.neutral,
-  );
 
-  static const chatSearchError = RobotScript(
-    'chat.search.error',
-    'Oops, something went wrong — check your connection and try '
-        'again?',
-    RobotMood.concerned,
-  );
 
-  static const chatSearchMissing = RobotScript(
-    'chat.search.missing',
-    'Before I can search, I need your score type and your rank (or '
-        'score).',
-    RobotMood.concerned,
-  );
 
   static const badgeCheer = <RobotScript>[
     RobotScript(

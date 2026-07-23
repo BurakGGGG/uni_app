@@ -16,7 +16,11 @@ class AnalyticsService {
 
   static final AnalyticsService instance = AnalyticsService._();
 
-  final FirebaseFunctions _functions = FirebaseFunctions.instanceFor(
+  /// Tembel: alan doğrudan kurulsaydı Firebase başlatılmamışken singleton'a
+  /// DOKUNMAK bile fırlatırdı ve "ana akış analytics yüzünden bozulmaz"
+  /// sözü tutulmazdı (widget testleri buna takılıyordu). Böyle olunca
+  /// istisna çağrı yerlerindeki try/catch'in içine düşer.
+  late final FirebaseFunctions _functions = FirebaseFunctions.instanceFor(
     region: 'europe-west1',
   );
 

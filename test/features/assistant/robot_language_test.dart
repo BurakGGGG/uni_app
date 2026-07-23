@@ -1,10 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:uni_app/features/assistant/domain/chat_flow.dart';
 import 'package:uni_app/features/assistant/domain/robot_brain.dart';
 import 'package:uni_app/features/assistant/domain/robot_mood.dart';
 import 'package:uni_app/features/assistant/domain/robot_scripts.dart';
 import 'package:uni_app/features/assistant/domain/tercih_calendar.dart';
-import 'package:uni_app/features/assistant/domain/tercih_nlu.dart';
 
 /// Üni iki dilli: uygulama dili 'en' ise İngilizce konuşur.
 /// Diller arasında SCRIPT ID'LERİ değişmez — analitik ve testler dilden
@@ -14,17 +12,6 @@ void main() {
   // habersiz) — her test sonrası varsayılana dönmezse diğer testlere sızar.
   tearDown(() => RobotScripts.languageCode = 'tr');
 
-  ChatFlow flowFor(String lang) {
-    RobotScripts.languageCode = lang;
-    return ChatFlow(
-      nlu: TercihNlu(
-        cityMap: const {'34': 'İstanbul'},
-        deptNames: const {'Psikoloji', 'Hukuk'},
-      ),
-      cityNames: const {'34': 'İstanbul'},
-    );
-  }
-
   group('RobotScripts — dil anahtarı', () {
     test('varsayılan Türkçe', () {
       expect(RobotScripts.languageCode, 'tr');
@@ -32,10 +19,10 @@ void main() {
     });
 
     test("'en' tüm aileleri İngilizce tabloya çevirir", () {
-      final trHello = RobotScripts.chatHelloNew.text;
+      final trVerdict = RobotScripts.deptVerdictHigh.text;
       RobotScripts.languageCode = 'en';
       expect(RobotScripts.isEn, isTrue);
-      expect(RobotScripts.chatHelloNew.text, isNot(trHello));
+      expect(RobotScripts.deptVerdictHigh.text, isNot(trVerdict));
     });
 
     test("bilinmeyen dil kodu Türkçe'de bırakır", () {
@@ -73,23 +60,6 @@ void main() {
               for (final s in f) s.id,
             for (final s in [
               RobotScripts.wizardValidation,
-              RobotScripts.chatHelloNew,
-              RobotScripts.chatHelloBack,
-              RobotScripts.chatAskScoreType,
-              RobotScripts.chatAskRank,
-              RobotScripts.chatAskInterests,
-              RobotScripts.chatAskConstraints,
-              RobotScripts.chatConfirm,
-              RobotScripts.chatFocus,
-              RobotScripts.chatAck,
-              RobotScripts.chatPartial,
-              RobotScripts.chatConfused,
-              RobotScripts.chatComingSoon,
-              RobotScripts.chatScoreInvalid,
-              RobotScripts.chatRestart,
-              RobotScripts.chatUpdate,
-              RobotScripts.chatSearchError,
-              RobotScripts.chatSearchMissing,
               RobotScripts.deptVerdictHigh,
               RobotScripts.deptVerdictTarget,
               RobotScripts.deptVerdictDream,
@@ -115,10 +85,6 @@ void main() {
 
     test('şablon yer tutucuları İngilizce tabloda da korunur', () {
       RobotScripts.languageCode = 'en';
-      expect(RobotScripts.chatConfirm.text, contains('{summary}'));
-      expect(RobotScripts.chatAck.text, contains('{pieces}'));
-      expect(RobotScripts.chatPartial.text, contains('{rest}'));
-      expect(RobotScripts.chatHelloBack.text, contains('{profile}'));
       expect(RobotScripts.uniFitSummary.text, contains('{count}'));
       expect(RobotScripts.uniFitSummary.text, contains('{high}'));
       for (final s in RobotScripts.resultsBalanced) {
@@ -197,40 +163,6 @@ void main() {
     });
   });
 
-  group('ChatFlow — çipler', () {
-    test('etiket çevrilir, sendText Türkçe kalır (NLU Türkçe anlar)', () {
-      flowFor('en');
-      final chip = ChatFlow.interestChips
-          .firstWhere((c) => c.sendText == 'yazılım');
-      expect(chip.label, 'Computer / Software');
-
-      final skip = ChatFlow.interestChips.last;
-      expect(skip.label, "Doesn't matter");
-
-      final devlet =
-          ChatFlow.constraintChips.firstWhere((c) => c.sendText == 'devlet');
-      expect(devlet.label, 'Public');
-      expect(devlet.sendText, 'devlet');
-    });
-
-    test('puan türü çipleri iki dilde de kanonik kısaltma', () {
-      flowFor('en');
-      expect(ChatFlow.scoreTypeChips.map((c) => c.label),
-          containsAll(['SAY', 'EA', 'TYT']));
-    });
-
-    test('İngilizce çip etiketiyle akış yine ilerler', () {
-      final flow = flowFor('en');
-      final start = flow.start();
-      expect(start.messages.first.text, isNot(contains('Merhaba')));
-
-      final say =
-          ChatFlow.scoreTypeChips.firstWhere((c) => c.label == 'SAY');
-      final r = flow.handleChip(say, draft: start.draft, step: start.step);
-      expect(r.draft.scoreType, 'SAY');
-    });
-  });
-
   group('Gösterim çevirileri', () {
     test('filterLabel kanonik değeri yalnız gösterimde çevirir', () {
       expect(RobotScripts.filterLabel('Devlet'), 'Devlet');
@@ -247,10 +179,11 @@ void main() {
       expect(RobotScripts.interestLabel('yok', 'Bilinmeyen'), 'Bilinmeyen');
     });
 
-    test('olumsuzlama eki dile göre okunur', () {
-      expect(RobotScripts.phraseExcluded, 'hariç');
+    test('subjectLabel bilinmeyen derste Türkçe adı korur', () {
+      expect(RobotScripts.subjectLabel('Fizik'), 'Fizik');
       RobotScripts.languageCode = 'en';
-      expect(RobotScripts.phraseExcluded, 'excluded');
+      expect(RobotScripts.subjectLabel('Fizik'), 'Physics');
+      expect(RobotScripts.subjectLabel('Uydurma Ders'), 'Uydurma Ders');
     });
   });
 }

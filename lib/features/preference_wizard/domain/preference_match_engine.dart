@@ -328,6 +328,9 @@ class PreferenceMatchEngine {
       if (prefs.uniTypes.contains(m.university.type)) {
         bonus += kPrefUniTypeBoost;
       }
+      if (prefs.languages.contains(m.department.language)) {
+        bonus += kPrefLanguageBoost;
+      }
       if (interestNames.isNotEmpty &&
           interestNames.contains(normalizeProgramName(m.department.name))) {
         bonus += kPrefInterestBoost;

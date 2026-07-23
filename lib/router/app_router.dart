@@ -49,7 +49,7 @@ import '../features/practice_exams/presentation/screens/practice_exams_screen.da
 import '../features/score_calculator/presentation/screens/score_calculator_screen.dart';
 import '../features/score_calculator/presentation/screens/score_result_screen.dart';
 import '../features/best_programs/presentation/screens/best_programs_screen.dart';
-import '../features/preference_wizard/presentation/screens/preference_wizard_screen.dart';
+import '../features/preference_wizard/presentation/screens/uni_profile_form_screen.dart';
 import '../features/assistant/presentation/screens/uni_panel_screen.dart';
 import '../features/preference_wizard/presentation/screens/preference_wizard_results_screen.dart';
 import '../features/admin/presentation/screens/admin_panel_screen.dart';
@@ -514,7 +514,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       // ─── Tercih Robotu ────────────────────────────────────────────
       GoRoute(
         path: AppRoutes.preferenceWizard,
-        builder: (context, state) => const PreferenceWizardScreen(),
+        builder: (context, state) => const UniProfileFormScreen(),
       ),
       GoRoute(
         path: AppRoutes.preferenceWizardResults,
