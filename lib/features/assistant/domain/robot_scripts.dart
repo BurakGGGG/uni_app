@@ -161,6 +161,21 @@ abstract final class RobotScripts {
   static Iterable<String> get insightIds =>
       (isEn ? _En.insights : _Tr.insights).keys;
 
+  // ── Üni Paneli: haftalık plan görevleri ──
+
+  /// [id] için görev metni (ör. `plan.addExam`). `title` görev satırı,
+  /// `body` altındaki gerekçe.
+  static InsightCopy planTask(String id) {
+    final copy = (isEn ? _En.plans : _Tr.plans)[id];
+    if (copy == null) {
+      throw ArgumentError.value(id, 'id', 'Plan görevi tanımlı değil');
+    }
+    return copy;
+  }
+
+  static Iterable<String> get planTaskIds =>
+      (isEn ? _En.plans : _Tr.plans).keys;
+
   // ── Üni ile Sohbet ──
   static RobotScript get chatHelloNew =>
       isEn ? _En.chatHelloNew : _Tr.chatHelloNew;
@@ -1024,6 +1039,18 @@ abstract final class _Tr {
           'Hedefi yukarı çekme vakti.',
       actionLabel: 'Hedefi güncelle',
     ),
+    'target.roadmap': InsightCopy(
+      'Hedefe ≈ {nets} net',
+      '{dept} için {gap} puan gerekiyor. En verimli yol: {plan}. Bunlar '
+          'katsayısı yüksek, başarı oranın düşük dersler.',
+      actionLabel: 'Ders analizin',
+    ),
+    'target.unreachable': InsightCopy(
+      '{dept} bu netlerle zor',
+      'Kalan tüm derslerde tavana çıksan bile {gap} puanlık farkı '
+          'kapatmıyor. Ara bir hedef koyalım mı?',
+      actionLabel: 'Hedefi güncelle',
+    ),
     'target.closing': InsightCopy(
       'Hedefe yaklaşıyorsun',
       'Son {count} denemede sıran {gain} basamak iyileşti. {dept} için kalan '
@@ -1141,6 +1168,42 @@ abstract final class _Tr {
       'Bu arada netlerini girip tahminî sıranı hesaplayabilir, listeni '
           'önden kurabilirsin.',
       actionLabel: 'Puanını hesapla',
+    ),
+  };
+
+  // ── Haftalık plan görevleri ──
+  static const plans = <String, InsightCopy>{
+    'plan.calcScore': InsightCopy(
+      'Puanını hesapla',
+      'Netlerini gir, tahminî sıranı çıkarayım.',
+    ),
+    'plan.setTarget': InsightCopy(
+      'Hedef programını seç',
+      'Hedef olmadan mesafeyi ölçemiyorum.',
+    ),
+    'plan.addExam': InsightCopy(
+      'Bu hafta 1 deneme gir',
+      'Düzenli deneme, sıralamayı en çok oynatan alışkanlık.',
+    ),
+    'plan.raiseNet': InsightCopy(
+      '{subject}: +{nets} net hedefle',
+      'Bu kadarı hedefine yaklaşık {gain} puan yaklaştırır.',
+    ),
+    'plan.focusSubject': InsightCopy(
+      '{subject} dersine ağırlık ver',
+      'Başarı oranın %{rate} — en çok kazanacağın yer burası.',
+    ),
+    'plan.addSafe': InsightCopy(
+      'Sona {count} güvenli program ekle',
+      'Listende yüksek şanslı tercih yok.',
+    ),
+    'plan.completeList': InsightCopy(
+      'Listene {remaining} tercih daha ekle',
+      'Boş bırakılan her sıra bir şans daha demek.',
+    ),
+    'plan.reviewOrder': InsightCopy(
+      'Tercih sıranı gözden geçir',
+      'En çok istediğin program en üstte olmalı — yerleştirme sırayla bakar.',
     ),
   };
 }
@@ -1827,6 +1890,18 @@ abstract final class _En {
           'Time to aim higher.',
       actionLabel: 'Update target',
     ),
+    'target.roadmap': InsightCopy(
+      '≈ {nets} nets to your target',
+      '{dept} needs {gap} more points. Best route: {plan}. These carry high '
+          'coefficients and your success rate in them is low.',
+      actionLabel: 'Subject analysis',
+    ),
+    'target.unreachable': InsightCopy(
+      '{dept} is a stretch at these nets',
+      'Even maxing out every remaining subject leaves a {gap} point gap. '
+          'Shall we set an intermediate target?',
+      actionLabel: 'Update target',
+    ),
     'target.closing': InsightCopy(
       "You're closing in",
       'Your rank improved by {gain} places over the last {count} exams. '
@@ -1945,6 +2020,43 @@ abstract final class _En {
       'In the meantime you can enter your nets, estimate your rank and '
           'build your list ahead of time.',
       actionLabel: 'Calculate your score',
+    ),
+  };
+
+  // ── Weekly plan tasks ──
+  static const plans = <String, InsightCopy>{
+    'plan.calcScore': InsightCopy(
+      'Calculate your score',
+      "Enter your nets and I'll estimate your rank.",
+    ),
+    'plan.setTarget': InsightCopy(
+      'Pick your target program',
+      "Without a target I can't measure the distance.",
+    ),
+    'plan.addExam': InsightCopy(
+      'Log one exam this week',
+      'Regular practice exams move your ranking more than anything else.',
+    ),
+    'plan.raiseNet': InsightCopy(
+      '{subject}: aim for +{nets} nets',
+      'That brings you about {gain} points closer to your target.',
+    ),
+    'plan.focusSubject': InsightCopy(
+      'Put the hours into {subject}',
+      'Your success rate is {rate}% — the most to gain is here.',
+    ),
+    'plan.addSafe': InsightCopy(
+      'Add {count} safe programs at the end',
+      'There is no high-chance choice in your list.',
+    ),
+    'plan.completeList': InsightCopy(
+      'Add {remaining} more choices to your list',
+      'Every empty slot is one more chance unused.',
+    ),
+    'plan.reviewOrder': InsightCopy(
+      'Review the order of your choices',
+      'Your favourite should sit at the top — placement reads the list in '
+          'order.',
     ),
   };
 }

@@ -5,6 +5,7 @@ import '../robot_mood.dart';
 import '../robot_scripts.dart';
 import '../tercih_calendar.dart';
 import 'insight_context.dart';
+import 'target_roadmap.dart';
 import 'uni_insight.dart';
 
 /// Üni'nin analist tarafı — tüm veri kaynaklarını okuyup önceliklendirilmiş
@@ -49,6 +50,41 @@ abstract final class InsightEngine {
       return byPriority != 0 ? byPriority : a.id.compareTo(b.id);
     });
     return all;
+  }
+
+  /// Bağlamdan hedef yol haritası; hesaplanamıyorsa null.
+  ///
+  /// Panel de aynı hesabı kullanır (blok olarak çizmek için) — iki yerde
+  /// ayrı hesaplanırsa kart ile not farklı sayı söyler.
+  static TargetRoadmap? roadmapFor(InsightContext ctx) {
+    final target = ctx.target;
+    if (target == null) return null;
+    final exams = ctx.liveExams;
+    if (exams.isEmpty) return null;
+
+    final year = exams.first.year;
+    final points = trendFor(exams, ctx.scoreType, year: year);
+    final latest = points.lastOrNull;
+    final currentScore = latest?.placementScore;
+    if (currentScore == null || currentScore <= 0) return null;
+
+    return RoadmapPlanner.compute(
+      targetRank: target.targetRank,
+      targetScoreFallback: target.targetScore,
+      scoreType: ctx.scoreType,
+      year: year,
+      currentScore: currentScore,
+      currentRank: latest?.rank,
+      stats: subjectStats(exams, window: _statsWindow),
+    );
+  }
+
+  /// "Matematik +5 · Fizik +3" — yol haritasının tek satırlık özeti.
+  static String describeSteps(TargetRoadmap roadmap) {
+    return roadmap.steps
+        .map((s) =>
+            '${RobotScripts.subjectLabel(s.subject.labelTr)} +${_num(s.netsNeeded)}')
+        .join(' · ');
   }
 
   /// Kurulum yolunun durumu — panelin ilerleme çubuğu bunu çizer.
@@ -125,6 +161,41 @@ abstract final class InsightEngine {
         },
       ));
       return out;
+    }
+
+    // Yol haritası: hedefe kaç net, hangi dersten. Panelin ve ana sayfanın
+    // en değerli cümlesi bu — yön notlarından önce gelir.
+    final roadmap = roadmapFor(ctx);
+    if (roadmap != null && !roadmap.reached) {
+      if (!roadmap.reachable) {
+        out.add(_build(
+          id: 'target.unreachable',
+          kind: InsightKind.target,
+          priority: 80,
+          tone: InsightTone.warning,
+          mood: RobotMood.concerned,
+          action: RobotAction.setTarget,
+          vars: {
+            'dept': target.departmentName,
+            'gap': _num(roadmap.scoreGap),
+          },
+        ));
+      } else if (roadmap.steps.isNotEmpty) {
+        out.add(_build(
+          id: 'target.roadmap',
+          kind: InsightKind.target,
+          priority: 82,
+          tone: InsightTone.neutral,
+          mood: RobotMood.thinking,
+          action: RobotAction.openPracticeExams,
+          vars: {
+            'dept': target.departmentName,
+            'nets': _num(roadmap.totalNetsNeeded),
+            'gap': _num(roadmap.scoreGap),
+            'plan': describeSteps(roadmap),
+          },
+        ));
+      }
     }
 
     // Yön: ilk ve son sıralı nokta arasındaki fark. Tek nokta varsa yön yok.

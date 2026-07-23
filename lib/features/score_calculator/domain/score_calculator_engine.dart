@@ -1,5 +1,6 @@
 import 'models/score_input.dart';
 import 'models/multi_score_result.dart';
+import 'models/yks_subject.dart';
 
 /// YKS Puan Hesaplama Motoru
 /// 2022-2026 katsayılarını kullanarak uygulanabilir tüm puan türlerini
@@ -99,6 +100,99 @@ class ScoreCalculatorEngine {
   static double calculatePlacementScore(ScoreInput input) {
     final raw = calculateRawScore(input);
     return raw + input.obpContribution;
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  //  Ters yön: puan farkı → net
+  // ═══════════════════════════════════════════════════════════════
+
+  /// [scoreType] için 1 netin ham puana katkısı, ders bazında.
+  ///
+  /// Türün kapsamına girmeyen dersler haritada YER ALMAZ — SAY'da Edebiyat
+  /// aramanın anlamı yok. Puan fonksiyonları ders netlerinde doğrusal
+  /// olduğundan katsayı doğrudan "net başına puan"dır; hedef yol haritası
+  /// (`TargetRoadmap`) bunun üstüne kurulur.
+  ///
+  /// Bilinmeyen tür boş harita döner.
+  static Map<YksSubject, double> netWeights(String scoreType, {int? year}) {
+    final selected = year ?? _latestYear;
+    switch (scoreType.toUpperCase()) {
+      case 'TYT':
+        final c = _tytData[selected] ?? _tytData[_latestYear]!;
+        return {
+          YksSubject.tytTurkce: c.turkce,
+          YksSubject.tytSosyal: c.sosyal,
+          YksSubject.tytMat: c.matematik,
+          YksSubject.tytFen: c.fen,
+        };
+      case 'SAY':
+        final c = _sayData[selected] ?? _sayData[_latestYear]!;
+        return {
+          YksSubject.tytTurkce: c.tytTurkce,
+          YksSubject.tytSosyal: c.tytSosyal,
+          YksSubject.tytMat: c.tytMat,
+          YksSubject.tytFen: c.tytFen,
+          YksSubject.aytMat: c.aytMat,
+          YksSubject.aytFizik: c.aytFizik,
+          YksSubject.aytKimya: c.aytKimya,
+          YksSubject.aytBiyo: c.aytBiyo,
+        };
+      case 'EA':
+        final c = _eaData[selected] ?? _eaData[_latestYear]!;
+        return {
+          YksSubject.tytTurkce: c.tytTurkce,
+          YksSubject.tytSosyal: c.tytSosyal,
+          YksSubject.tytMat: c.tytMat,
+          YksSubject.tytFen: c.tytFen,
+          YksSubject.aytMat: c.aytMat,
+          YksSubject.aytEdebiyat: c.aytEdebiyat,
+          YksSubject.aytTarih1: c.aytTarih1,
+          YksSubject.aytCografya1: c.aytCografya1,
+        };
+      case 'SÖZ':
+        final c = _sozData[selected] ?? _sozData[_latestYear]!;
+        return {
+          YksSubject.tytTurkce: c.tytTurkce,
+          YksSubject.tytSosyal: c.tytSosyal,
+          YksSubject.tytMat: c.tytMat,
+          YksSubject.tytFen: c.tytFen,
+          YksSubject.aytEdebiyat: c.aytEdebiyat,
+          YksSubject.aytTarih1: c.aytTarih1,
+          YksSubject.aytCografya1: c.aytCografya1,
+          YksSubject.aytTarih2: c.aytTarih2,
+          YksSubject.aytCografya2: c.aytCografya2,
+          YksSubject.aytFelsefe: c.aytFelsefe,
+          YksSubject.aytDkab: c.aytDkab,
+        };
+      case 'DİL':
+        final c = _dilData[selected] ?? _dilData[_latestYear]!;
+        return {
+          YksSubject.tytTurkce: c.tytTurkce,
+          YksSubject.tytSosyal: c.tytSosyal,
+          YksSubject.tytMat: c.tytMat,
+          YksSubject.tytFen: c.tytFen,
+          YksSubject.ydt: c.ydt,
+        };
+      default:
+        return const {};
+    }
+  }
+
+  /// Dersin o yıl puana YANSIYAN en yüksek neti.
+  ///
+  /// Normalde soru sayısı kadardır; iptal edilen sorular yüzünden tavan
+  /// konmuş derslerde ([_aytMatNetCap], [_aytEdebiyatNetCap]) tavandır.
+  /// Yol haritası "40 net yap" derken 39'un üstünün puana dokunmadığını
+  /// bilmek zorunda.
+  static double maxUsableNet(YksSubject subject, {int? year}) {
+    final selected = year ?? _latestYear;
+    final full = subject.maxQuestions.toDouble();
+    final cap = switch (subject) {
+      YksSubject.aytMat => _aytMatNetCap[selected],
+      YksSubject.aytEdebiyat => _aytEdebiyatNetCap[selected],
+      _ => null,
+    };
+    return cap == null ? full : (cap < full ? cap : full);
   }
 
   /// Girilen netlere göre hesaplanabilir puan türleri (hesaplama.net kuralları):

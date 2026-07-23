@@ -11,6 +11,8 @@ class RobotMemory {
   static const _wizardIntroSeenKey = 'assistant_wizard_intro_seen_v1';
   static const _displayNameKey = 'assistant_display_name';
   static const _dismissedPrefix = 'assistant_dismissed_';
+  static const _planWeekKey = 'assistant_plan_week';
+  static const _planDoneKey = 'assistant_plan_done';
 
   /// Kapatılan bir not bu süre boyunca susar; sonra geri gelir. Kalıcı
   /// susturma yok — "listende güvenli tercih yok" uyarısı sorun çözülmeden
@@ -60,5 +62,21 @@ class RobotMemory {
       '$_dismissedPrefix$insightId',
       until.millisecondsSinceEpoch,
     );
+  }
+
+  // ── Üni Paneli: haftalık plan işaretleri ──
+
+  /// [weekKey] haftasında işaretlenmiş görevler. Kayıtlı hafta farklıysa boş
+  /// döner — plan pazartesi kendiliğinden sıfırlanır, ayrı temizlik gerekmez.
+  Set<String> donePlanTasks(String weekKey) {
+    if (_prefs.getString(_planWeekKey) != weekKey) return const {};
+    return (_prefs.getStringList(_planDoneKey) ?? const []).toSet();
+  }
+
+  Future<void> togglePlanTask(String weekKey, String taskId) async {
+    final done = donePlanTasks(weekKey).toSet();
+    if (!done.remove(taskId)) done.add(taskId);
+    await _prefs.setString(_planWeekKey, weekKey);
+    await _prefs.setStringList(_planDoneKey, done.toList());
   }
 }

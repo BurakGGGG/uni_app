@@ -1,5 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../practice_exams/domain/models/exam_target.dart';
+import '../../../practice_exams/domain/practice_exam_analytics.dart';
 import '../../../practice_exams/presentation/providers/practice_exam_providers.dart';
 import '../../../preference_lists/domain/models/preference_list_model.dart';
 import '../../../preference_lists/presentation/providers/preference_list_providers.dart';
@@ -11,12 +13,38 @@ import '../../../university/domain/models/department_model.dart';
 import '../../../university/presentation/providers/university_providers.dart';
 import '../../domain/insights/insight_context.dart';
 import '../../domain/insights/insight_engine.dart';
+import '../../domain/insights/target_roadmap.dart';
 import '../../domain/insights/uni_insight.dart';
+import '../../domain/insights/weekly_plan.dart';
 import 'assistant_providers.dart';
 
 /// İlk 5 tercihte şehir yığılması bu eşikten sonra anlamlı sayılır — motorun
 /// eşiğiyle aynı pencereye bakar ([InsightEngine] 4'ten itibaren uyarır).
 const int _kCityWindow = 5;
+
+/// Panelin gösterdiği gelişim sayıları — Denemelerim'in analiz katmanının
+/// (`practice_exam_analytics.dart`) özeti; yeni hesap yok.
+class ProgressSummary {
+  final int examCount;
+  final int streak;
+  final int? latestRank;
+
+  /// İlk denemeye göre sıra iyileşmesi (pozitif = iyileşme); referans yoksa
+  /// null.
+  final int? rankGain;
+
+  final SubjectStat? strongest;
+  final SubjectStat? weakest;
+
+  const ProgressSummary({
+    required this.examCount,
+    required this.streak,
+    this.latestRank,
+    this.rankGain,
+    this.strongest,
+    this.weakest,
+  });
+}
 
 /// Motorun tek girdisi. Ağır kaynaklar (tüm bölümler, üniversiteler) zaten
 /// `keepAlive` ve uygulama açılışında prefetch ediliyor; burada yalnız
@@ -97,6 +125,111 @@ final setupPathProvider = Provider<SetupPath>((ref) {
     return const SetupPath(hasProfile: false, hasTarget: false, hasExam: false);
   }
   return InsightEngine.setupPathOf(ctx);
+});
+
+/// Hedef yol haritası — panel bloğu ve `target.roadmap` notu AYNI hesabı
+/// paylaşır ([InsightEngine.roadmapFor]); iki yerde ayrı hesaplanırsa kart
+/// ile not farklı sayı söyler.
+final targetRoadmapProvider = Provider<TargetRoadmap?>((ref) {
+  final ctx = ref.watch(insightContextProvider).valueOrNull;
+  return ctx == null ? null : InsightEngine.roadmapFor(ctx);
+});
+
+/// Hedefe kat edilen yolun oranı. Başlangıç noktası ilk denemenin puanıdır;
+/// tek deneme varsa referans yok, null döner.
+final targetProgressProvider = Provider<double?>((ref) {
+  final roadmap = ref.watch(targetRoadmapProvider);
+  if (roadmap == null) return null;
+  final ctx = ref.watch(insightContextProvider).valueOrNull;
+  if (ctx == null) return null;
+
+  final exams = ctx.liveExams;
+  if (exams.length < 2) return null;
+  final points = trendFor(exams, roadmap.scoreType, year: exams.first.year);
+  final start = points.firstOrNull?.placementScore;
+  return roadmap.progress(startScore: start);
+});
+
+/// Bu haftanın planı ve işaretlenmiş görevleri.
+final weeklyPlanProvider = Provider<WeeklyPlan?>((ref) {
+  final ctx = ref.watch(insightContextProvider).valueOrNull;
+  if (ctx == null) return null;
+  final plan = WeeklyPlanner.build(
+    ctx,
+    roadmap: ref.watch(targetRoadmapProvider),
+  );
+  return plan.isEmpty ? null : plan;
+});
+
+/// İşaretli görev id'leri; hafta dönünce kendiliğinden boşalır.
+final donePlanTasksProvider = Provider<Set<String>>((ref) {
+  final plan = ref.watch(weeklyPlanProvider);
+  if (plan == null) return const {};
+  return ref.watch(robotMemoryProvider).donePlanTasks(plan.weekKey);
+});
+
+/// Hedefi olmayan kullanıcı için öneri: tercih listesinin en üstündeki,
+/// taban verisi olan ve puan türü tutan program.
+///
+/// Soğuk başlangıcın en sıkışık adımı hedef seçmek — kullanıcı zaten bir
+/// liste kurmuşsa "ilk tercihin hedefin olsun mu?" diye sormak, bölüm adı
+/// arayıp üniversite seçtirmekten hızlı.
+final suggestedTargetProvider = Provider<ExamTarget?>((ref) {
+  if (ref.watch(examTargetProvider) != null) return null;
+  final lists = ref.watch(myPreferenceListsProvider).valueOrNull ?? const [];
+  if (lists.isEmpty) return null;
+
+  final profileType =
+      ref.watch(studentScoreProfileProvider)?.scoreType.toUpperCase() ?? '';
+
+  final main = lists.reduce((a, b) => b.items.length > a.items.length ? b : a);
+  final items = [...main.items]..sort((a, b) => a.order.compareTo(b.order));
+
+  for (final item in items) {
+    final rank = item.ranking;
+    final type = item.scoreType?.toUpperCase() ?? '';
+    if (rank == null || rank <= 0 || type.isEmpty) continue;
+    if (profileType.isNotEmpty && type != profileType) continue;
+    return ExamTarget(
+      departmentId: item.deptId,
+      departmentName: item.deptName,
+      universityName: item.uniName,
+      scoreType: type,
+      targetRank: rank,
+      targetScore: item.baseScore,
+      setAt: DateTime.now(),
+    );
+  }
+  return null;
+});
+
+/// Gelişim bloğunun sayıları — analiz katmanının özeti, yeni hesap yok.
+final progressSummaryProvider = Provider<ProgressSummary?>((ref) {
+  final ctx = ref.watch(insightContextProvider).valueOrNull;
+  if (ctx == null) return null;
+  final exams = ctx.liveExams;
+  if (exams.isEmpty) return null;
+
+  final type = ctx.scoreType;
+  final ranked = type.isEmpty
+      ? const <ExamTrendPoint>[]
+      : [
+          for (final p in trendFor(exams, type, year: exams.first.year))
+            if (p.rank != null && p.rank! > 0) p,
+        ];
+
+  final stats = subjectStats(exams);
+  return ProgressSummary(
+    examCount: exams.length,
+    streak: weeklyStreak(exams, now: ctx.now),
+    latestRank: ranked.lastOrNull?.rank,
+    rankGain: ranked.length >= 2
+        ? ranked.first.rank! - ranked.last.rank!
+        : null,
+    // subjectStats başarı oranına göre azalan sıralı gelir.
+    strongest: stats.firstOrNull,
+    weakest: stats.length >= 2 ? stats.last : null,
+  );
 });
 
 // ── Anlık görüntü kurucuları ────────────────────────────────────

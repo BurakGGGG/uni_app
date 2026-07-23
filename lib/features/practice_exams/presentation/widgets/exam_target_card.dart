@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../assistant/presentation/providers/uni_panel_providers.dart';
+import '../../../assistant/presentation/widgets/robot_avatar.dart';
 import '../../../score_calculator/presentation/widgets/department_picker_sheet.dart';
 import '../../../score_calculator/presentation/widgets/score_type_card.dart';
 import '../../domain/models/exam_target.dart';
@@ -56,6 +58,10 @@ class ExamTargetCard extends ConsumerWidget {
               .copyWith(color: AppColors.textSecondaryFor(context)),
         ),
         const SizedBox(height: 12),
+        // Üni'nin kısa yolu: liste zaten kurulmuşsa ilk tercihi hedef
+        // yapmak, bölüm adı arayıp üniversite seçtirmekten hızlı.
+        _Suggestion(onAccept: (t) =>
+            ref.read(examTargetProvider.notifier).setTarget(t)),
         SizedBox(
           width: double.infinity,
           child: OutlinedButton.icon(
@@ -209,5 +215,61 @@ class ExamTargetCard extends ConsumerWidget {
         await ExamTargetPickerSheet.show(context, departmentName: deptName);
     if (target == null) return;
     await ref.read(examTargetProvider.notifier).setTarget(target);
+  }
+}
+
+/// "İlk tercihin hedefin olsun mu?" — öneri yoksa hiç çizilmez.
+class _Suggestion extends ConsumerWidget {
+  final ValueChanged<ExamTarget> onAccept;
+  const _Suggestion({required this.onAccept});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final suggested = ref.watch(suggestedTargetProvider);
+    if (suggested == null) return const SizedBox.shrink();
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: AppColors.primary.withValues(alpha: 0.06),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: AppColors.primary.withValues(alpha: 0.2)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const RobotAvatar(size: 22, animated: false),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Listendeki ilk tercihin: '
+                    '${suggested.universityName} · ${suggested.departmentName}',
+                    style: AppTextStyles.bodySmall.copyWith(
+                      color: AppColors.textSecondaryFor(context),
+                      height: 1.35,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Align(
+              alignment: Alignment.centerRight,
+              child: FilledButton(
+                onPressed: () => onAccept(suggested),
+                style: FilledButton.styleFrom(
+                  visualDensity: VisualDensity.compact,
+                ),
+                child: const Text('Hedefim olsun'),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

@@ -14,7 +14,10 @@ import '../../domain/tercih_calendar.dart';
 import '../providers/uni_panel_providers.dart';
 import '../widgets/robot_avatar.dart';
 import '../widgets/uni_insight_card.dart';
+import '../widgets/uni_progress_block.dart';
 import '../widgets/uni_setup_path.dart';
+import '../widgets/uni_target_block.dart';
+import '../widgets/uni_weekly_plan_block.dart';
 
 /// Üni Paneli — robotun kendi evi.
 ///
@@ -76,7 +79,24 @@ class _UniPanelScreenState extends ConsumerState<UniPanelScreen> {
               ),
               const SizedBox(height: 12),
               const UniSetupPath(),
-              const SizedBox(height: 16),
+
+              // ─── Hedef · gelişim · bu hafta ─────────────────
+              // Görünürlük koşulu blokların içinde de var; burada tekrar
+              // sorulması boşlukların doğru düşmesi için — çizilmeyen bloğun
+              // altına boşluk konmamalı.
+              if (ref.watch(targetRoadmapProvider) != null) ...[
+                const SizedBox(height: 16),
+                const UniTargetBlock(compact: true),
+              ],
+              if (ref.watch(progressSummaryProvider) != null) ...[
+                const SizedBox(height: 12),
+                const UniProgressBlock(),
+              ],
+              if (ref.watch(weeklyPlanProvider) != null) ...[
+                const SizedBox(height: 12),
+                const UniWeeklyPlanBlock(),
+              ],
+              const SizedBox(height: 24),
 
               // ─── Üni'nin Notları ────────────────────────────
               Row(
