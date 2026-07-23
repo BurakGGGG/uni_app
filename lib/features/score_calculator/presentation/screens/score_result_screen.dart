@@ -14,9 +14,10 @@ import '../widgets/university_match_card.dart';
 import '../widgets/year_comparison_table.dart';
 import '../../../admin/data/analytics_service.dart';
 import '../../../admin/domain/models/analytics_event.dart';
+import '../../../practice_exams/presentation/widgets/save_practice_exam_sheet.dart';
 import '../../../preference_wizard/domain/models/student_score_profile.dart';
 import '../../../preference_wizard/presentation/providers/preference_wizard_providers.dart';
-import '../../domain/models/calc_history_entry.dart';
+import '../../../../router/app_router.dart';
 import '../../domain/models/multi_score_result.dart';
 
 /// Giriş ekranına dönüş. [PopScope] `canPop: false` olduğu için
@@ -123,27 +124,29 @@ class _ResultBody extends ConsumerStatefulWidget {
 }
 
 class _ResultBodyState extends ConsumerState<_ResultBody> {
-  bool _savedToHistory = false;
+  /// Kayıt artık otomatik değil: kullanıcı ad/yayın/tür/tarih verip bilinçli
+  /// kaydeder, böylece deneme defteri her hesaplama denemesiyle şişmez.
+  bool _saved = false;
 
   MultiScoreOutcome get outcome => widget.outcome;
 
-  @override
-  void initState() {
-    super.initState();
-    // Her hesaplama otomatik "deneme" olarak kaydedilir (notifier aynı
-    // girdiyi peş peşe çoğaltmaz).
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted || _savedToHistory) return;
-      _savedToHistory = true;
-      final history = ref.read(calcHistoryProvider);
-      ref.read(calcHistoryProvider.notifier).add(
-            CalcHistoryEntry.fromOutcome(
-              outcome: widget.outcome,
-              input: ref.read(scoreInputProvider),
-              label: 'Deneme ${history.length + 1}',
-            ),
-          );
-    });
+  Future<void> _saveToPracticeExams() async {
+    final exam = await SavePracticeExamSheet.show(
+      context,
+      outcome: outcome,
+      input: ref.read(scoreInputProvider),
+    );
+    if (exam == null || !mounted) return;
+    setState(() => _saved = true);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('${exam.name} denemelerine kaydedildi'),
+        action: SnackBarAction(
+          label: 'Denemelerim',
+          onPressed: () => context.push(AppRoutes.practiceExams),
+        ),
+      ),
+    );
   }
 
   @override
@@ -282,6 +285,25 @@ class _ResultBodyState extends ConsumerState<_ResultBody> {
                   ),
                 const SizedBox(height: 4),
                 UniCalcComment(outcome: outcome),
+                const SizedBox(height: 16),
+                SizedBox(
+                  width: double.infinity,
+                  height: 50,
+                  child: _saved
+                      ? OutlinedButton.icon(
+                          onPressed: () =>
+                              context.push(AppRoutes.practiceExams),
+                          icon: const Icon(Icons.check_circle_rounded,
+                              size: 18, color: AppColors.success),
+                          label: const Text('Kaydedildi · Denemelerim'),
+                        )
+                      : FilledButton.icon(
+                          onPressed: _saveToPracticeExams,
+                          icon: const Icon(Icons.bookmark_add_rounded,
+                              size: 18),
+                          label: const Text('Denemelerime Kaydet'),
+                        ),
+                ),
               ],
             ),
           ).animate().fadeIn(delay: 120.ms, duration: 400.ms),

@@ -355,6 +355,31 @@ service cloud.firestore {
         request.resource.data.note.size() <= 500;
       allow delete: if isOwner(userId);
     }
+    // ─── Deneme Defteri ────────────────────────────────────────
+    // Yerel-öncelikli özellik; Firestore yalnız hesap yedeği. Kayıtlar
+    // tamamen özeldir, açık profilde hiçbir biçimde görünmez.
+    // Silme mezar taşı olarak yayılır (deleted:true), bu yüzden update
+    // yolu delete kadar önemlidir. Kayıt adedi tavanı (200) istemcide.
+    match /users/{userId}/practiceExams/{examId} {
+      allow read: if isOwner(userId);
+      allow create, update: if isOwner(userId) &&
+        request.resource.data.id == examId &&
+        request.resource.data.name is string &&
+        request.resource.data.name.size() <= 60 &&
+        request.resource.data.publisher is string &&
+        request.resource.data.publisher.size() <= 40 &&
+        request.resource.data.note is string &&
+        request.resource.data.note.size() <= 300 &&
+        request.resource.data.kind in ['tyt', 'ayt', 'genel', 'ydt'] &&
+        request.resource.data.deleted is bool;
+      allow delete: if isOwner(userId);
+    }
+
+    // Hedef program tek dokümanda: practiceExamMeta/target
+    match /users/{userId}/practiceExamMeta/{docId} {
+      allow read, write: if isOwner(userId);
+    }
+
     match /recommendationEnrichments/{cacheId} {
       allow read: if isAuthenticated() &&
                      cacheId.matches(request.auth.uid + '_.*') &&

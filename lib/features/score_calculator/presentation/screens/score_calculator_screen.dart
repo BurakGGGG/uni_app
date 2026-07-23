@@ -5,10 +5,12 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/widgets.dart';
 
+import '../../../../router/app_router.dart';
 import '../providers/score_calculator_providers.dart';
 import '../widgets/department_picker_sheet.dart';
 import '../widgets/obp_section.dart';
 import '../widgets/rank_input_section.dart';
+import '../widgets/score_entry_section.dart';
 import '../widgets/subject_net_input.dart';
 import '../widgets/subject_score_input.dart';
 import '../../domain/models/score_input.dart';
@@ -29,6 +31,7 @@ class ScoreCalculatorScreen extends ConsumerStatefulWidget {
 class _ScoreCalculatorScreenState extends ConsumerState<ScoreCalculatorScreen> {
   late final TextEditingController _obpController;
   late final TextEditingController _rankController;
+  late final TextEditingController _scoreController;
 
   @override
   void initState() {
@@ -37,6 +40,10 @@ class _ScoreCalculatorScreenState extends ConsumerState<ScoreCalculatorScreen> {
     final obp = saved.obpScore;
     _rankController = TextEditingController(
         text: saved.enteredRank == null ? '' : '${saved.enteredRank}');
+    _scoreController = TextEditingController(
+        text: saved.enteredScore == null
+            ? ''
+            : _trimZero(saved.enteredScore!).replaceAll('.', ','));
     _obpController =
         TextEditingController(text: obp == 0 ? '80' : _trimZero(obp));
     // Controller ile state'i eşitle (ilk açılışta default 80).
@@ -57,6 +64,7 @@ class _ScoreCalculatorScreenState extends ConsumerState<ScoreCalculatorScreen> {
   void dispose() {
     _obpController.dispose();
     _rankController.dispose();
+    _scoreController.dispose();
     super.dispose();
   }
 
@@ -72,27 +80,63 @@ class _ScoreCalculatorScreenState extends ConsumerState<ScoreCalculatorScreen> {
     final input = ref.read(scoreInputProvider);
     if (mode == input.entryMode) return;
 
-    // Sıra moduna geçiş: netler saklanır (geri dönülebilsin), yalnız mod
-    // değişir. Puan türü çipten seçilir, burada dokunulmaz.
-    if (mode == NetEntryMode.rank) {
+    // Doğrudan giriş modlarına (sıra / puan) geçiş: netler saklanır, yalnız
+    // mod değişir. Puan türü çipten seçilir, burada dokunulmaz.
+    if (mode == NetEntryMode.rank || mode == NetEntryMode.score) {
+      // Diğer doğrudan moddan geliniyorsa o modun değeri temizlenir; iki ayrı
+      // "gerçek" bir arada tutulursa hangisinin geçerli olduğu belirsizleşir.
+      if (input.isDirectMode) {
+        final hasValue = input.isRankMode
+            ? input.enteredRank != null
+            : input.enteredScore != null;
+        if (hasValue) {
+          final confirmed = await _confirmDiscard(
+            title: mode == NetEntryMode.rank
+                ? 'Sıralama girişine geç'
+                : 'Puan girişine geç',
+            message: input.isRankMode
+                ? 'Girdiğin başarı sırası silinecek. Devam edilsin mi?'
+                : 'Girdiğin puan silinecek. Devam edilsin mi?',
+          );
+          if (confirmed != true) return;
+        }
+        _rankController.clear();
+        _scoreController.clear();
+        _update(ref.read(scoreInputProvider).copyWith(
+              entryMode: mode,
+              clearRank: true,
+              clearScore: true,
+            ));
+        return;
+      }
       _update(input.copyWith(entryMode: mode));
       return;
     }
 
-    // Sıra modundan çıkış: girilen sıra netlere çevrilemez, temizlenir.
-    if (input.isRankMode) {
-      if (input.enteredRank != null) {
+    // Doğrudan giriş modundan çıkış: girilen sıra/puan netlere çevrilemez.
+    if (input.isDirectMode) {
+      final hasValue = input.isRankMode
+          ? input.enteredRank != null
+          : input.enteredScore != null;
+      if (hasValue) {
         final confirmed = await _confirmDiscard(
           title: 'Net girişine dön',
-          message: 'Girdiğin başarı sırası netlere çevrilemez ve silinecek. '
-              'Önceki net girişlerin geri gelir. Devam edilsin mi?',
+          message: input.isRankMode
+              ? 'Girdiğin başarı sırası netlere çevrilemez ve silinecek. '
+                  'Önceki net girişlerin geri gelir. Devam edilsin mi?'
+              : 'Girdiğin puan netlere çevrilemez ve silinecek. '
+                  'Önceki net girişlerin geri gelir. Devam edilsin mi?',
         );
         if (confirmed != true) return;
       }
       _rankController.clear();
-      _update(ref
-          .read(scoreInputProvider)
-          .copyWith(entryMode: mode, scoreType: '', clearRank: true));
+      _scoreController.clear();
+      _update(ref.read(scoreInputProvider).copyWith(
+            entryMode: mode,
+            scoreType: '',
+            clearRank: true,
+            clearScore: true,
+          ));
       return;
     }
 
@@ -226,9 +270,9 @@ class _ScoreCalculatorScreenState extends ConsumerState<ScoreCalculatorScreen> {
             ),
             actions: [
               IconButton(
-                tooltip: 'Deneme geçmişi',
-                icon: const Icon(Icons.history_rounded, color: Colors.white),
-                onPressed: () => context.push('/score-calculator/history'),
+                tooltip: 'Denemelerim',
+                icon: const Icon(Icons.assignment_rounded, color: Colors.white),
+                onPressed: () => context.push(AppRoutes.practiceExams),
               ),
             ],
           ),
@@ -238,28 +282,44 @@ class _ScoreCalculatorScreenState extends ConsumerState<ScoreCalculatorScreen> {
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 // ─── Giriş modu ─────────────────────────────────
-                Center(
-                  child: SegmentedButton<NetEntryMode>(
-                    segments: const [
-                      ButtonSegment(
-                        value: NetEntryMode.correctWrong,
-                        label: Text('Doğru / Yanlış'),
-                        icon: Icon(Icons.rule_rounded, size: 18),
+                // Dört segment dar ekranlara sığmıyor; sığdığında ortalanır,
+                // sığmadığında yatay kayar.
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      minWidth: MediaQuery.sizeOf(context).width - 40,
+                    ),
+                    child: Center(
+                      child: SegmentedButton<NetEntryMode>(
+                        segments: const [
+                          ButtonSegment(
+                            value: NetEntryMode.correctWrong,
+                            label: Text('Doğru / Yanlış'),
+                            icon: Icon(Icons.rule_rounded, size: 18),
+                          ),
+                          ButtonSegment(
+                            value: NetEntryMode.directNet,
+                            label: Text('Net Gir'),
+                            icon: Icon(Icons.speed_rounded, size: 18),
+                          ),
+                          ButtonSegment(
+                            value: NetEntryMode.rank,
+                            label: Text('Sıralama'),
+                            icon: Icon(Icons.leaderboard_rounded, size: 18),
+                          ),
+                          ButtonSegment(
+                            value: NetEntryMode.score,
+                            label: Text('Puan Gir'),
+                            icon: Icon(Icons.workspace_premium_rounded,
+                                size: 18),
+                          ),
+                        ],
+                        selected: {input.entryMode},
+                        onSelectionChanged: (selection) =>
+                            _switchMode(selection.first),
                       ),
-                      ButtonSegment(
-                        value: NetEntryMode.directNet,
-                        label: Text('Net Gir'),
-                        icon: Icon(Icons.speed_rounded, size: 18),
-                      ),
-                      ButtonSegment(
-                        value: NetEntryMode.rank,
-                        label: Text('Sıralama'),
-                        icon: Icon(Icons.leaderboard_rounded, size: 18),
-                      ),
-                    ],
-                    selected: {input.entryMode},
-                    onSelectionChanged: (selection) =>
-                        _switchMode(selection.first),
+                    ),
                   ),
                 ),
                 const SizedBox(height: 20),
@@ -290,8 +350,32 @@ class _ScoreCalculatorScreenState extends ConsumerState<ScoreCalculatorScreen> {
                   const SizedBox(height: 16),
                 ],
 
-                // ─── Netler + OBP (sıra modunda gizli) ──────────
-                if (!input.isRankMode) ...[
+                // ─── Puan modu: netlerin ve OBP'nin yerini alır ──
+                if (input.isScoreMode) ...[
+                  _SectionCard(
+                    icon: Icons.workspace_premium_rounded,
+                    iconColor: AppColors.primary,
+                    title: 'Yerleştirme Puanın',
+                    child: ScoreEntrySection(
+                      controller: _scoreController,
+                      input: input,
+                      onScoreTypeChanged: (type) => _update(ref
+                          .read(scoreInputProvider)
+                          .copyWith(scoreType: type, selectedDepartment: '')),
+                      onScoreChanged: (score) => _update(score == null
+                          ? ref
+                              .read(scoreInputProvider)
+                              .copyWith(clearScore: true)
+                          : ref
+                              .read(scoreInputProvider)
+                              .copyWith(enteredScore: score)),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                ],
+
+                // ─── Netler + OBP (sıra/puan modunda gizli) ─────
+                if (!input.isDirectMode) ...[
                   // ─── TYT (herkes girer, hep açık) ─────────────
                   _buildSectionHeader('TYT Testleri'),
                   Text(
@@ -366,10 +450,10 @@ class _ScoreCalculatorScreenState extends ConsumerState<ScoreCalculatorScreen> {
                   child: _TargetDepartmentTile(
                     selected: input.selectedDepartment,
                     onPick: () async {
-                      // Sıra modunda tür belli: yalnız o türün bölümleri.
+                      // Sıra/puan modunda tür belli: yalnız o türün bölümleri.
                       final dept = await DepartmentPickerSheet.show(
                         context,
-                        scoreType: input.isRankMode ? input.scoreType : '',
+                        scoreType: input.isDirectMode ? input.scoreType : '',
                       );
                       if (dept != null) {
                         _update(ref
@@ -383,9 +467,9 @@ class _ScoreCalculatorScreenState extends ConsumerState<ScoreCalculatorScreen> {
                   ),
                 ),
 
-                // Hesaplanacak türlerin önizlemesi. Sıra modunda türü zaten
-                // kullanıcı seçiyor — aynı bilgiyi tekrar basmak gereksiz.
-                if (!input.isRankMode && applicableTypes.isNotEmpty) ...[
+                // Hesaplanacak türlerin önizlemesi. Sıra/puan modunda türü
+                // zaten kullanıcı seçiyor — aynı bilgiyi tekrar basmak gereksiz.
+                if (!input.isDirectMode && applicableTypes.isNotEmpty) ...[
                   const SizedBox(height: 16),
                   Wrap(
                     spacing: 8,
@@ -426,8 +510,10 @@ class _ScoreCalculatorScreenState extends ConsumerState<ScoreCalculatorScreen> {
                   child: Text(
                     input.isRankMode
                         ? 'Hesaplama için puan türünü seç ve sıranı gir'
-                        : 'Hesaplama için TYT Türkçe veya Temel Matematik '
-                            'neti gir',
+                        : input.isScoreMode
+                            ? 'Hesaplama için puan türünü seç ve puanını gir'
+                            : 'Hesaplama için TYT Türkçe veya Temel Matematik '
+                                'neti gir',
                     style: AppTextStyles.bodySmall
                         .copyWith(color: AppColors.textSecondaryFor(context)),
                     textAlign: TextAlign.center,

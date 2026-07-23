@@ -12,6 +12,7 @@ import '../../../auth/presentation/providers/auth_providers.dart';
 import '../../../monetization/domain/enums/subscription_tier.dart';
 import '../../../monetization/presentation/providers/subscription_providers.dart';
 import '../../../comparison/presentation/providers/comparison_providers.dart';
+import '../../../practice_exams/presentation/widgets/practice_exam_summary_card.dart';
 import '../widgets/change_password_dialog.dart';
 import '../widgets/guest_profile_card.dart';
 import '../widgets/user_profile_card.dart';
@@ -101,6 +102,12 @@ class ProfileScreen extends ConsumerWidget {
               ),
 
               const SizedBox(height: 24),
+
+              // ─── Denemelerim ───────────────────────────────────
+              // Defter yerel çalışır; misafire de gösterilir.
+              const PracticeExamSummaryCard(),
+
+              const SizedBox(height: 16),
 
               // ─── Admin Paneli (sadece admin) ───────────────────
               ref

@@ -112,6 +112,9 @@ class ScoreCalculatorEngine {
     if (input.isRankMode) {
       return input.hasValidRank ? [input.scoreType] : const [];
     }
+    if (input.isScoreMode) {
+      return input.hasValidScore ? [input.scoreType] : const [];
+    }
     final tytOk = input.tytTurkceNet >= 0.5 || input.tytMatNet >= 0.5;
     if (!tytOk) return const [];
 

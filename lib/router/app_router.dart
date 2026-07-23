@@ -43,7 +43,7 @@ import '../features/home/presentation/screens/splash_screen.dart';
 import '../features/preference_lists/presentation/screens/my_lists_screen.dart';
 import '../features/preference_lists/presentation/screens/list_edit_screen.dart';
 import '../features/preference_lists/presentation/screens/shared_list_screen.dart';
-import '../features/score_calculator/presentation/screens/calc_history_screen.dart';
+import '../features/practice_exams/presentation/screens/practice_exams_screen.dart';
 import '../features/score_calculator/presentation/screens/score_calculator_screen.dart';
 import '../features/score_calculator/presentation/screens/score_result_screen.dart';
 import '../features/best_programs/presentation/screens/best_programs_screen.dart';
@@ -99,6 +99,7 @@ class AppRoutes {
   static const String scoreCalculatorHistory = '/score-calculator/history';
   static const String myLists = '/my-lists';
   static const String bestPrograms = '/best-programs';
+  static const String practiceExams = '/practice-exams';
 }
 
 /// GoRouter konfigürasyon provider'ı
@@ -466,13 +467,21 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/score-calculator',
         builder: (context, state) => const ScoreCalculatorScreen(),
       ),
+      // Eski "Deneme Geçmişi" rotası Denemelerim'e taşındı; dışarıdan gelen
+      // linkler kırılmasın diye yönlendiriliyor.
       GoRoute(
         path: AppRoutes.scoreCalculatorHistory,
-        builder: (context, state) => const CalcHistoryScreen(),
+        redirect: (context, state) => AppRoutes.practiceExams,
       ),
       GoRoute(
         path: '/score-result',
         builder: (context, state) => const ScoreResultScreen(),
+      ),
+
+      // ─── Denemelerim ──────────────────────────────────────────────
+      GoRoute(
+        path: AppRoutes.practiceExams,
+        builder: (context, state) => const PracticeExamsScreen(),
       ),
 
       // ─── En İyi Bölümler ─────────────────────────────────────────

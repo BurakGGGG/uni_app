@@ -173,4 +173,117 @@ void main() {
       expect(rows.last.placementScore, closeTo(451.11, 0.05));
     });
   });
+
+  group('ScoreOutcomeService — puan modu', () {
+    const scoreInput = ScoreInput(
+      selectedYear: 2026,
+      entryMode: NetEntryMode.score,
+      scoreType: 'SAY',
+      enteredScore: 451.11,
+    );
+
+    test('tek türlük sonuç üretir, puan olduğu gibi korunur', () {
+      final outcome = service.buildFromScore(scoreInput);
+
+      expect(outcome.outcomes, hasLength(1));
+      final say = outcome.byType('SAY')!;
+      expect(say.score.placementScore, 451.11);
+      expect(say.score.rawScore, 451.11);
+    });
+
+    test('sıra puandan TAHMİN edilir — kullanıcı verisi değildir', () {
+      final say = service.buildFromScore(scoreInput).byType('SAY')!;
+
+      expect(say.rankIsUserEntered, isFalse);
+      // 2025 SAY tablosunda 451,11 ≈ 45.000. sıra (estimateScore'un tersi).
+      expect(say.estimatedRank, closeTo(45000, 500));
+    });
+
+    test('OBP puan modunda ikinci kez eklenmez', () {
+      expect(scoreInput.obpContribution, 0);
+      expect(service.buildFromScore(scoreInput).obpContribution, 0);
+    });
+
+    test('dilim tahmini sıra / toplam adaydan gelir', () {
+      final say = service.buildFromScore(scoreInput).byType('SAY')!;
+      expect(say.percentile, isNotNull);
+      expect(say.percentile, closeTo(3.5, 0.3));
+      expect(say.percentileYear, 2025);
+    });
+
+    test('2026 → 2025 proxy etiketi korunur', () {
+      final say = service.buildFromScore(scoreInput).byType('SAY')!;
+      expect(say.rankCurveYear, 2025);
+      expect(say.rankIsProxy, isTrue);
+    });
+
+    test('buildAll puan modunda buildFromScore\'a dallanır', () {
+      final viaBuildAll = service.buildAll(scoreInput);
+      expect(viaBuildAll.outcomes, hasLength(1));
+      expect(viaBuildAll.byType('SAY')!.score.placementScore, 451.11);
+    });
+
+    test('eksik tür veya aralık dışı puan → boş sonuç', () {
+      expect(
+        service
+            .buildFromScore(const ScoreInput(
+              entryMode: NetEntryMode.score,
+              enteredScore: 451.11,
+            ))
+            .isEmpty,
+        isTrue,
+      );
+      expect(
+        service
+            .buildFromScore(const ScoreInput(
+              entryMode: NetEntryMode.score,
+              scoreType: 'SAY',
+              enteredScore: 40, // alt sınırın altında
+            ))
+            .isEmpty,
+        isTrue,
+      );
+      expect(
+        service
+            .buildFromScore(const ScoreInput(
+              entryMode: NetEntryMode.score,
+              scoreType: 'SAY',
+            ))
+            .isEmpty,
+        isTrue,
+      );
+    });
+
+    test('sıra ↔ puan modu birbirinin tersi (gidiş-dönüş)', () {
+      // Sıra modunda 45.000 → puan; o puan geri verilince yine ~45.000 sıra.
+      final fromRank = service.buildFromRank(const ScoreInput(
+        selectedYear: 2026,
+        entryMode: NetEntryMode.rank,
+        scoreType: 'SAY',
+        enteredRank: 45000,
+      ));
+      final derivedScore = fromRank.byType('SAY')!.score.placementScore;
+
+      final backToRank = service.buildFromScore(ScoreInput(
+        selectedYear: 2026,
+        entryMode: NetEntryMode.score,
+        scoreType: 'SAY',
+        enteredScore: derivedScore,
+      ));
+      expect(backToRank.byType('SAY')!.estimatedRank, closeTo(45000, 200));
+    });
+
+    test('yıl karşılaştırması: aynı puan yıllara göre kaçıncı sıra ederdi', () {
+      final rows = service.scoreYearComparison(451.11, 'SAY');
+
+      expect(rows.map((r) => r.year), [2022, 2023, 2024, 2025]);
+      for (final row in rows) {
+        // Puan girdi olduğu için satırlar arasında sabit; değişen sıradır.
+        expect(row.placementScore, 451.11);
+        expect(row.estimatedRank, isNotNull);
+        expect(row.rankIsProxy, isFalse);
+      }
+      expect(rows.last.estimatedRank, closeTo(45000, 500));
+    });
+  });
 }

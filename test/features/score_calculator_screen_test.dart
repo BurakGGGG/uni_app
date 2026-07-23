@@ -5,6 +5,7 @@ import 'package:uni_app/features/score_calculator/domain/models/score_input.dart
 import 'package:uni_app/features/score_calculator/presentation/providers/score_calculator_providers.dart';
 import 'package:uni_app/features/score_calculator/presentation/screens/score_calculator_screen.dart';
 import 'package:uni_app/features/score_calculator/presentation/widgets/rank_input_section.dart';
+import 'package:uni_app/features/score_calculator/presentation/widgets/score_entry_section.dart';
 import 'package:uni_app/features/score_calculator/presentation/widgets/subject_net_input.dart';
 import 'package:uni_app/features/score_calculator/presentation/widgets/subject_score_input.dart';
 
@@ -258,6 +259,123 @@ void main() {
       final input = container.read(scoreInputProvider);
       expect(input.entryMode, NetEntryMode.correctWrong);
       expect(input.enteredRank, isNull);
+      expect(input.scoreType, '');
+      expect(find.text('TYT Testleri'), findsOneWidget);
+    });
+  });
+
+  group('puan modu', () {
+    Finder scoreField() => find.descendant(
+          of: find.byType(ScoreEntrySection),
+          matching: find.byType(TextFormField),
+        );
+
+    testWidgets('net ve OBP bölümleri gizlenir, puan alanı gelir',
+        (tester) async {
+      await pump(tester);
+      expect(find.text('TYT Testleri'), findsOneWidget);
+
+      await tester.tap(find.text('Puan Gir'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Yerleştirme Puanın'), findsOneWidget);
+      expect(find.text('TYT Testleri'), findsNothing);
+      expect(find.text('AYT Testleri'), findsNothing);
+      expect(find.text('Diploma Notu (OBP)'), findsNothing);
+      // Hedef bölüm puan modunda da kalır.
+      expect(find.text('Hedef Bölüm (opsiyonel)'), findsOneWidget);
+    });
+
+    testWidgets('tür seçilmeden Hesapla kapalı, seçilince açılır',
+        (tester) async {
+      await pump(tester);
+      await tester.tap(find.text('Puan Gir'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Hesaplama için puan türünü seç ve puanını gir'),
+          findsOneWidget);
+
+      await tester.tap(find.widgetWithText(ChoiceChip, 'SAY'));
+      await tester.pump();
+      expect(find.text('Hesapla'), findsOneWidget);
+
+      await tester.enterText(scoreField(), '451,1');
+      await tester.pump();
+
+      expect(find.text('Hesapla (SAY)'), findsOneWidget);
+    });
+
+    testWidgets('canlı önizleme tahmini sırayı ve dilimi gösterir',
+        (tester) async {
+      await pump(tester);
+      await tester.tap(find.text('Puan Gir'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(ChoiceChip, 'SAY'));
+      await tester.pump();
+      // Türkçe klavyede ondalık ayracı virgüldür.
+      await tester.enterText(scoreField(), '451,1');
+      await tester.pump();
+
+      expect(find.textContaining('. sıra'), findsWidgets);
+      expect(find.textContaining('İlk %3,5'), findsOneWidget);
+      expect(find.textContaining('2025 yerleştirme verisine göre'),
+          findsOneWidget);
+    });
+
+    testWidgets('sıra modundan puan moduna geçiş sırayı temizler',
+        (tester) async {
+      await pump(tester);
+      await tester.tap(find.text('Sıralama'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(ChoiceChip, 'SAY'));
+      await tester.pump();
+      await tester.enterText(
+        find.descendant(
+          of: find.byType(RankInputSection),
+          matching: find.byType(TextFormField),
+        ),
+        '45000',
+      );
+      await tester.pump();
+
+      await tester.tap(find.text('Puan Gir'));
+      await tester.pumpAndSettle();
+      expect(find.text('Puan girişine geç'), findsOneWidget);
+      await tester.tap(find.text('Devam Et'));
+      await tester.pumpAndSettle();
+
+      final container = ProviderScope.containerOf(
+        tester.element(find.byType(ScoreCalculatorScreen)),
+      );
+      final input = container.read(scoreInputProvider);
+      expect(input.entryMode, NetEntryMode.score);
+      expect(input.enteredRank, isNull);
+      // Puan türü korunur — "hangi türün" sorusu iki modda da aynı.
+      expect(input.scoreType, 'SAY');
+    });
+
+    testWidgets('net moduna dönüş onay ister ve puanı temizler',
+        (tester) async {
+      await pump(tester);
+      await tester.tap(find.text('Puan Gir'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(ChoiceChip, 'SAY'));
+      await tester.pump();
+      await tester.enterText(scoreField(), '451,1');
+      await tester.pump();
+
+      await tester.tap(find.text('Doğru / Yanlış'));
+      await tester.pumpAndSettle();
+      expect(find.text('Net girişine dön'), findsOneWidget);
+      await tester.tap(find.text('Devam Et'));
+      await tester.pumpAndSettle();
+
+      final container = ProviderScope.containerOf(
+        tester.element(find.byType(ScoreCalculatorScreen)),
+      );
+      final input = container.read(scoreInputProvider);
+      expect(input.entryMode, NetEntryMode.correctWrong);
+      expect(input.enteredScore, isNull);
       expect(input.scoreType, '');
       expect(find.text('TYT Testleri'), findsOneWidget);
     });

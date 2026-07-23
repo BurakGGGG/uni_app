@@ -5,7 +5,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../assistant/domain/robot_brain.dart';
 import '../../../assistant/presentation/widgets/robot_message_card.dart';
-import '../../domain/models/calc_history_entry.dart';
+import '../../../practice_exams/domain/models/practice_exam.dart';
+import '../../../practice_exams/presentation/providers/practice_exam_providers.dart';
 import '../../domain/models/multi_score_result.dart';
 import '../providers/score_calculator_providers.dart';
 import 'score_type_card.dart';
@@ -23,21 +24,21 @@ class UniCalcComment extends ConsumerWidget {
     if (best == null) return const SizedBox.shrink();
 
     final input = ref.watch(scoreInputProvider);
-    final history = ref.watch(calcHistoryProvider);
+    final exams = ref.watch(practiceExamsProvider);
 
-    // Geçmişteki "bu hesaplamanın kendisi"ni atla; ilk farklı kayıt önceki
-    // denemedir (otomatik kayıt aynı girdiyi çoğaltmaz ama sıralamada öndedir).
+    // Kullanıcı bu hesaplamayı zaten kaydettiyse defterde kendisi de var;
+    // karşılaştırma için ilk FARKLI kayıt aranır.
     final currentJson = jsonEncode(input.toJson());
-    CalcHistoryEntry? previous;
-    for (final entry in history) {
-      if (jsonEncode(entry.input.toJson()) != currentJson) {
-        previous = entry;
+    PracticeExam? previous;
+    for (final exam in exams) {
+      if (jsonEncode(exam.input.toJson()) != currentJson) {
+        previous = exam;
         break;
       }
     }
 
-    // Sıra modunda net yoktur; ilerleme dili yerine sıra dili kullanılır.
-    final netDelta = (previous != null && !input.isRankMode)
+    // Sıra/puan modunda net yoktur; ilerleme dili yerine sıra dili kullanılır.
+    final netDelta = (previous != null && !input.isDirectMode && previous.hasNets)
         ? input.totalNet - previous.totalNet
         : null;
     String? deltaText;
@@ -52,7 +53,7 @@ class UniCalcComment extends ConsumerWidget {
           best.estimatedRank != null ? formatRank(best.estimatedRank!) : null,
       netDelta: netDelta,
       deltaText: deltaText,
-      fromRank: input.isRankMode,
+      fromRank: input.isDirectMode,
       scoreText:
           best.score.placementScore.toStringAsFixed(1).replaceAll('.', ','),
     ));

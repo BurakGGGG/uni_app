@@ -16,6 +16,7 @@ class ScoreOutcomeService {
 
   MultiScoreOutcome buildAll(ScoreInput input) {
     if (input.isRankMode) return buildFromRank(input);
+    if (input.isScoreMode) return buildFromScore(input);
     final multi = ScoreCalculatorEngine.calculateAllTypes(input);
     return MultiScoreOutcome(
       year: multi.year,
@@ -73,6 +74,76 @@ class ScoreOutcomeService {
         ),
       ],
     );
+  }
+
+  /// Puan modu: netler yerine kullanıcının girdiği yerleştirme puanından tek
+  /// türlük sonuç üretir. Sıra modunun aynadaki eşi — burada **puan** gerçek,
+  /// sıra tahmindir (`rankIsUserEntered: false`).
+  MultiScoreOutcome buildFromScore(ScoreInput input) {
+    final score = input.enteredScore;
+    final type = input.scoreType;
+    if (!input.hasValidScore || score == null) {
+      return MultiScoreOutcome(
+        year: input.selectedYear,
+        outcomes: const [],
+        obpContribution: 0,
+      );
+    }
+
+    final rank = _estimateRank(score, type, input.selectedYear);
+
+    double? percentile;
+    int? percentileYear;
+    if (rank != null) {
+      final total =
+          OsymScoreDistribution.totalCandidates(type, input.selectedYear);
+      if (total != null && total.count > 0) {
+        percentile = (rank.rank / total.count * 100).clamp(0.01, 100.0);
+        percentileYear = total.year;
+      }
+    }
+
+    return MultiScoreOutcome(
+      year: input.selectedYear,
+      obpContribution: 0,
+      outcomes: [
+        ScoreTypeOutcome(
+          score: TypeScore(
+            scoreType: type,
+            year: input.selectedYear,
+            // Girilen puan OBP'li yerleştirme puanıdır; ham puan ayrıştırılamaz.
+            rawScore: score,
+            placementScore: score,
+          ),
+          estimatedRank: rank?.rank,
+          rankCurveYear: rank?.curveYear,
+          percentile: percentile,
+          percentileYear: percentileYear,
+        ),
+      ],
+    );
+  }
+
+  /// Puan modu yıl karşılaştırması: aynı puan hangi yıl kaçıncı sıra ederdi.
+  /// Puan yıldan yıla değişmediği için satırlarda puan sabit, sıra değişkendir.
+  List<YearOutcome> scoreYearComparison(
+    double score,
+    String scoreType, {
+    List<int> years = const [2022, 2023, 2024, 2025],
+  }) {
+    final results = <YearOutcome>[];
+    for (final year in years) {
+      final official =
+          OsymScoreDistribution.estimateRank(score, scoreType, year);
+      if (official == null || official.year != year) continue;
+      results.add(YearOutcome(
+        year: year,
+        placementScore: score,
+        estimatedRank: official.rank,
+        rankCurveYear: year,
+      ));
+    }
+    return results;
   }
 
   /// Sıra modu yıl karşılaştırması: aynı sıra hangi yıl kaç puana denk gelirdi.
