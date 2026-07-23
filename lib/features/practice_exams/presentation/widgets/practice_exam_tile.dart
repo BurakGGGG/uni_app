@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../../router/app_router.dart';
 import '../../../score_calculator/presentation/providers/score_calculator_providers.dart';
 import '../../../score_calculator/presentation/widgets/score_type_card.dart';
 import '../../domain/models/practice_exam.dart';
@@ -70,6 +71,7 @@ class PracticeExamTile extends ConsumerWidget {
                     color: AppColors.textSecondaryFor(context)),
                 onSelected: (action) => _handleAction(context, ref, action),
                 itemBuilder: (_) => const [
+                  PopupMenuItem(value: 'edit', child: Text('Düzenle')),
                   PopupMenuItem(
                       value: 'rename', child: Text('Yeniden Adlandır')),
                   PopupMenuItem(value: 'restore', child: Text('Netleri Yükle')),
@@ -152,6 +154,9 @@ class PracticeExamTile extends ConsumerWidget {
 
   void _handleAction(BuildContext context, WidgetRef ref, String action) {
     switch (action) {
+      case 'edit':
+        context.push(AppRoutes.practiceExamAdd, extra: exam);
+        break;
       case 'rename':
         _showRenameDialog(context, ref);
         break;

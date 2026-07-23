@@ -43,6 +43,8 @@ import '../features/home/presentation/screens/splash_screen.dart';
 import '../features/preference_lists/presentation/screens/my_lists_screen.dart';
 import '../features/preference_lists/presentation/screens/list_edit_screen.dart';
 import '../features/preference_lists/presentation/screens/shared_list_screen.dart';
+import '../features/practice_exams/domain/models/practice_exam.dart';
+import '../features/practice_exams/presentation/screens/add_practice_exam_screen.dart';
 import '../features/practice_exams/presentation/screens/practice_exams_screen.dart';
 import '../features/score_calculator/presentation/screens/score_calculator_screen.dart';
 import '../features/score_calculator/presentation/screens/score_result_screen.dart';
@@ -100,6 +102,7 @@ class AppRoutes {
   static const String myLists = '/my-lists';
   static const String bestPrograms = '/best-programs';
   static const String practiceExams = '/practice-exams';
+  static const String practiceExamAdd = '/practice-exams/add';
 }
 
 /// GoRouter konfigürasyon provider'ı
@@ -482,6 +485,12 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.practiceExams,
         builder: (context, state) => const PracticeExamsScreen(),
+      ),
+      // `extra` doluysa düzenleme; boşsa yeni kayıt.
+      GoRoute(
+        path: AppRoutes.practiceExamAdd,
+        builder: (context, state) =>
+            AddPracticeExamScreen(existing: state.extra as PracticeExam?),
       ),
 
       // ─── En İyi Bölümler ─────────────────────────────────────────

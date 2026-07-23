@@ -15,6 +15,7 @@ import '../widgets/subject_net_input.dart';
 import '../widgets/subject_score_input.dart';
 import '../../domain/models/score_input.dart';
 import '../../domain/models/yks_subject.dart';
+import '../../domain/osym_score_distribution.dart';
 import '../../domain/score_calculator_engine.dart';
 
 /// Puan hesaplama girişi v2: netleri bir kez gir, uygulanabilir tüm puan
@@ -131,9 +132,12 @@ class _ScoreCalculatorScreenState extends ConsumerState<ScoreCalculatorScreen> {
       }
       _rankController.clear();
       _scoreController.clear();
+      // Yıl yalnız sıra/puan modunda görünür; net modunda görünmeyen bir
+      // "2022 katsayıları" durumu bırakmamak için varsayılana döner.
       _update(ref.read(scoreInputProvider).copyWith(
             entryMode: mode,
             scoreType: '',
+            selectedYear: OsymScoreDistribution.selectableYears.first,
             clearRank: true,
             clearScore: true,
           ));
@@ -345,6 +349,9 @@ class _ScoreCalculatorScreenState extends ConsumerState<ScoreCalculatorScreen> {
                           : ref
                               .read(scoreInputProvider)
                               .copyWith(enteredRank: rank)),
+                      onYearChanged: (year) => _update(ref
+                          .read(scoreInputProvider)
+                          .copyWith(selectedYear: year)),
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -369,6 +376,9 @@ class _ScoreCalculatorScreenState extends ConsumerState<ScoreCalculatorScreen> {
                           : ref
                               .read(scoreInputProvider)
                               .copyWith(enteredScore: score)),
+                      onYearChanged: (year) => _update(ref
+                          .read(scoreInputProvider)
+                          .copyWith(selectedYear: year)),
                     ),
                   ),
                   const SizedBox(height: 16),

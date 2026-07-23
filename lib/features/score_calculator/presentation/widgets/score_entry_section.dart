@@ -5,16 +5,18 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../domain/models/score_input.dart';
 import '../../domain/osym_score_distribution.dart';
 import '../../domain/score_calculator_engine.dart';
+import 'data_year_selector.dart';
 import 'score_type_card.dart';
 
-/// Puan girişi: puan türü seçimi + yerleştirme puanı alanı + canlı sıra/dilim
-/// önizlemesi. [RankInputSection]'ın aynadaki eşi — orada sıra girilip puan
-/// türetilir, burada puan girilip sıra tahmin edilir.
+/// Puan girişi: yıl + puan türü seçimi + yerleştirme puanı alanı + canlı
+/// sıra/dilim önizlemesi. [RankInputSection]'ın aynadaki eşi — orada sıra
+/// girilip puan türetilir, burada puan girilip sıra tahmin edilir.
 class ScoreEntrySection extends StatelessWidget {
   final TextEditingController controller;
   final ScoreInput input;
   final ValueChanged<String> onScoreTypeChanged;
   final ValueChanged<double?> onScoreChanged;
+  final ValueChanged<int> onYearChanged;
 
   const ScoreEntrySection({
     super.key,
@@ -22,6 +24,7 @@ class ScoreEntrySection extends StatelessWidget {
     required this.input,
     required this.onScoreTypeChanged,
     required this.onScoreChanged,
+    required this.onYearChanged,
   });
 
   @override
@@ -32,6 +35,13 @@ class ScoreEntrySection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        DataYearSelector(
+          label: 'Hangi yılın puanı?',
+          selected: input.selectedYear,
+          onChanged: onYearChanged,
+          scoreType: selected,
+        ),
+        const SizedBox(height: 16),
         Text(
           'Hangi türün puanı?',
           style: AppTextStyles.labelMedium.copyWith(

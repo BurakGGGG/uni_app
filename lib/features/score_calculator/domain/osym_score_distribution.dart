@@ -51,6 +51,18 @@ class OsymScoreDistribution {
     return (count: anchors.last.$2, year: resolved);
   }
 
+  /// Kullanıcının seçebileceği veri yılları (yeniden eskiye).
+  ///
+  /// 2026'nın resmî tablosu henüz yayımlanmadı; o yıl seçildiğinde hesap
+  /// 2025 verisine düşer — [tableYearFor] bunu açıkça söyler, UI da öyle
+  /// etiketler.
+  static const List<int> selectableYears = [2026, 2025, 2024, 2023, 2022];
+
+  /// [year] için gerçekte kullanılacak tablo yılı; tablosu yoksa en yakın yıl.
+  /// UI "hangi yılın verisine göre" etiketini buradan basar.
+  static int? tableYearFor(String scoreType, int year) =>
+      _resolveYear(scoreType, year);
+
   static int? _resolveYear(String scoreType, int year) {
     final type = scoreType.toUpperCase();
     int? below;

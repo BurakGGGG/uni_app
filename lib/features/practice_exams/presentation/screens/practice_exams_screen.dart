@@ -4,7 +4,9 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../../router/app_router.dart';
 import '../../../auth/presentation/providers/auth_providers.dart';
+import '../../../score_calculator/domain/osym_score_distribution.dart';
 import '../../domain/practice_exam_analytics.dart';
 import '../providers/practice_exam_providers.dart';
 import '../widgets/exam_target_card.dart';
@@ -24,6 +26,9 @@ class PracticeExamsScreen extends ConsumerStatefulWidget {
 class _PracticeExamsScreenState extends ConsumerState<PracticeExamsScreen> {
   String? _selectedType;
 
+  /// Grafiğin dayandığı ÖSYM veri yılı; seçilmemişse en son denemenin yılı.
+  int? _trendYear;
+
   @override
   Widget build(BuildContext context) {
     // Giriş yapılmışsa hesap yedeğiyle birleştir (misafirde no-op).
@@ -33,6 +38,10 @@ class _PracticeExamsScreenState extends ConsumerState<PracticeExamsScreen> {
     final types = scoreTypesIn(exams);
     final activeType =
         _selectedType ?? ref.watch(dominantScoreTypeProvider) ?? '';
+    final trendYear = _trendYear ??
+        (exams.isEmpty
+            ? OsymScoreDistribution.selectableYears.first
+            : exams.first.year);
 
     return Scaffold(
       backgroundColor: AppColors.backgroundFor(context),
@@ -50,7 +59,7 @@ class _PracticeExamsScreenState extends ConsumerState<PracticeExamsScreen> {
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => context.push('/score-calculator'),
+        onPressed: () => context.push(AppRoutes.practiceExamAdd),
         icon: const Icon(Icons.add_rounded),
         label: const Text('Deneme Ekle'),
       ),
@@ -66,8 +75,10 @@ class _PracticeExamsScreenState extends ConsumerState<PracticeExamsScreen> {
                   const SizedBox(height: 12),
                 ],
                 PracticeExamTrendChart(
-                  points: trendFor(exams, activeType),
+                  points: trendFor(exams, activeType, year: trendYear),
                   scoreType: activeType,
+                  year: trendYear,
+                  onYearChanged: (year) => setState(() => _trendYear = year),
                   target: ref.watch(examTargetProvider),
                 ),
                 const SizedBox(height: 16),
@@ -270,17 +281,16 @@ class _EmptyState extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              'Netlerini, puanını ya da sıralamanı gir; hesapladıktan sonra '
-              '"Denemelerime Kaydet" ile buraya ekle. Gelişimini grafikte '
-              'takip et.',
+              'Denemenin adını, tarihini ve netlerini gir; puanın ve sıran '
+              'hesaplansın. Gelişimini grafikte takip et.',
               textAlign: TextAlign.center,
               style: AppTextStyles.bodyMedium
                   .copyWith(color: AppColors.textSecondaryFor(context)),
             ),
             const SizedBox(height: 20),
             FilledButton.icon(
-              onPressed: () => context.push('/score-calculator'),
-              icon: const Icon(Icons.calculate_rounded, size: 18),
+              onPressed: () => context.push(AppRoutes.practiceExamAdd),
+              icon: const Icon(Icons.add_rounded, size: 18),
               label: const Text('İlk Denemeni Ekle'),
             ),
           ],

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../score_calculator/domain/osym_score_distribution.dart';
 import '../../../score_calculator/presentation/widgets/score_type_card.dart';
 import '../../domain/models/exam_target.dart';
 import '../../domain/practice_exam_analytics.dart';
@@ -19,10 +20,16 @@ class PracticeExamTrendChart extends StatefulWidget {
   final String scoreType;
   final ExamTarget? target;
 
+  /// Serinin dayandığı ÖSYM veri yılı — puan ve sıra buna göre hesaplanır.
+  final int year;
+  final ValueChanged<int> onYearChanged;
+
   const PracticeExamTrendChart({
     super.key,
     required this.points,
     required this.scoreType,
+    required this.year,
+    required this.onYearChanged,
     this.target,
   });
 
@@ -109,10 +116,12 @@ class _PracticeExamTrendChartState extends State<PracticeExamTrendChart> {
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
+              _buildYearButton(context),
             ],
           ),
           const SizedBox(height: 8),
           _buildToggle(),
+          _buildDataYearNote(context),
           const SizedBox(height: 12),
           SizedBox(
             height: 200,
@@ -343,6 +352,66 @@ class _PracticeExamTrendChartState extends State<PracticeExamTrendChart> {
       case TrendMetric.net:
         return null;
     }
+  }
+
+  /// Serinin hangi yılın verisiyle çizildiği + yılı değiştirme.
+  /// Net serisi yıldan bağımsızdır; orada gizlenir.
+  Widget _buildYearButton(BuildContext context) {
+    if (_metric == TrendMetric.net) return const SizedBox.shrink();
+
+    return PopupMenuButton<int>(
+      tooltip: 'Veri yılı',
+      initialValue: widget.year,
+      onSelected: widget.onYearChanged,
+      itemBuilder: (_) => [
+        for (final year in OsymScoreDistribution.selectableYears)
+          PopupMenuItem(value: year, child: Text('$year verisi')),
+      ],
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+        decoration: BoxDecoration(
+          color: AppColors.surfaceVariantFor(context),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: AppColors.borderLightFor(context)),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              '${widget.year}',
+              style: AppTextStyles.labelSmall.copyWith(
+                fontWeight: FontWeight.w700,
+                color: AppColors.textSecondaryFor(context),
+              ),
+            ),
+            const SizedBox(width: 2),
+            Icon(Icons.expand_more_rounded,
+                size: 16, color: AppColors.textTertiaryFor(context)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDataYearNote(BuildContext context) {
+    if (_metric == TrendMetric.net || widget.scoreType.isEmpty) {
+      return const SizedBox.shrink();
+    }
+    final resolved =
+        OsymScoreDistribution.tableYearFor(widget.scoreType, widget.year);
+    if (resolved == null) return const SizedBox.shrink();
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 8),
+      child: Text(
+        resolved == widget.year
+            ? 'Puan ve sıralar $resolved yerleştirme verisine göre.'
+            : '${widget.year} tablosu henüz yayımlanmadı — puan ve sıralar '
+                '$resolved yerleştirme verisine göre.',
+        style: AppTextStyles.bodySmall
+            .copyWith(color: AppColors.textTertiaryFor(context)),
+      ),
+    );
   }
 
   Widget _buildToggle() {

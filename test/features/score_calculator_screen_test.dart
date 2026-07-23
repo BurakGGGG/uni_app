@@ -237,6 +237,57 @@ void main() {
           findsOneWidget);
     });
 
+    testWidgets('yıl seçilebilir; sıra o yılın verisiyle yorumlanır',
+        (tester) async {
+      await pump(tester);
+      await tester.tap(find.text('Sıralama'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(ChoiceChip, 'SAY'));
+      await tester.pump();
+      await tester.enterText(rankField(), '45000');
+      await tester.pump();
+
+      expect(find.text('Hangi yılın sıralaması?'), findsOneWidget);
+      // Varsayılan 2026'nın tablosu yok; hangi yıla düşüldüğü açıkça yazılır.
+      expect(find.textContaining('2026 tablosu henüz yayımlanmadı'),
+          findsOneWidget);
+
+      await tester.tap(find.widgetWithText(ChoiceChip, '2022'));
+      await tester.pump();
+
+      final container = ProviderScope.containerOf(
+        tester.element(find.byType(ScoreCalculatorScreen)),
+      );
+      expect(container.read(scoreInputProvider).selectedYear, 2022);
+      expect(find.textContaining('2022 yerleştirme verisine göre'),
+          findsOneWidget);
+      // Aynı sıra 2022'de başka bir puana denk gelir.
+      expect(find.textContaining('≈ 451.1 puan'), findsNothing);
+    });
+
+    testWidgets('net moduna dönerken yıl varsayılana döner', (tester) async {
+      await pump(tester);
+      await tester.tap(find.text('Sıralama'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(ChoiceChip, 'SAY'));
+      await tester.pump();
+      await tester.enterText(rankField(), '45000');
+      await tester.pump();
+      await tester.tap(find.widgetWithText(ChoiceChip, '2022'));
+      await tester.pump();
+
+      await tester.tap(find.text('Doğru / Yanlış'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Devam Et'));
+      await tester.pumpAndSettle();
+
+      final container = ProviderScope.containerOf(
+        tester.element(find.byType(ScoreCalculatorScreen)),
+      );
+      // Net modunda yıl görünmez; görünmeyen 2022 katsayısı bırakılmaz.
+      expect(container.read(scoreInputProvider).selectedYear, 2026);
+    });
+
     testWidgets('net moduna dönüş onay ister ve sırayı temizler',
         (tester) async {
       await pump(tester);
@@ -319,6 +370,28 @@ void main() {
       expect(find.textContaining('. sıra'), findsWidgets);
       expect(find.textContaining('İlk %3,5'), findsOneWidget);
       expect(find.textContaining('2025 yerleştirme verisine göre'),
+          findsOneWidget);
+    });
+
+    testWidgets('yıl seçimi puan modunda da var', (tester) async {
+      await pump(tester);
+      await tester.tap(find.text('Puan Gir'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(ChoiceChip, 'SAY'));
+      await tester.pump();
+      await tester.enterText(scoreField(), '451,1');
+      await tester.pump();
+
+      expect(find.text('Hangi yılın puanı?'), findsOneWidget);
+
+      await tester.tap(find.widgetWithText(ChoiceChip, '2022'));
+      await tester.pump();
+
+      final container = ProviderScope.containerOf(
+        tester.element(find.byType(ScoreCalculatorScreen)),
+      );
+      expect(container.read(scoreInputProvider).selectedYear, 2022);
+      expect(find.textContaining('2022 yerleştirme verisine göre'),
           findsOneWidget);
     });
 

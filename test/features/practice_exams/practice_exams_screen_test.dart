@@ -167,6 +167,41 @@ void main() {
         findsOneWidget);
   });
 
+  testWidgets('gelişim grafiği hangi yılın verisiyle çizildiğini yazar',
+      (tester) async {
+    await seed([
+      _exam('2',
+          takenAt: DateTime(2026, 7, 21), name: 'Deneme 2', rank: 60000),
+      _exam('1',
+          takenAt: DateTime(2026, 7, 14), name: 'Deneme 1', rank: 90000),
+    ]);
+    await pumpScreen(tester);
+
+    // Kayıtlar 2026'ya ait; o yılın tablosu henüz yok, 2025'e düşülür.
+    expect(find.textContaining('2026 tablosu henüz yayımlanmadı'),
+        findsOneWidget);
+    expect(find.textContaining('2025 yerleştirme verisine göre'),
+        findsOneWidget);
+  });
+
+  testWidgets('grafiğin veri yılı değiştirilebilir', (tester) async {
+    await seed([
+      _exam('2',
+          takenAt: DateTime(2026, 7, 21), name: 'Deneme 2', rank: 60000),
+      _exam('1',
+          takenAt: DateTime(2026, 7, 14), name: 'Deneme 1', rank: 90000),
+    ]);
+    await pumpScreen(tester);
+
+    await tester.tap(find.byType(PopupMenuButton<int>));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('2023 verisi').last);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Puan ve sıralar 2023 yerleştirme verisine göre.'),
+        findsOneWidget);
+  });
+
   testWidgets('misafire yedekleme bilgisi gösterilir', (tester) async {
     await seed([_exam('1', takenAt: DateTime(2026, 7, 21))]);
     await pumpScreen(tester);

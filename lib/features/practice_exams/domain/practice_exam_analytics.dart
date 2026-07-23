@@ -1,4 +1,6 @@
 import '../../score_calculator/domain/models/yks_subject.dart';
+import '../../score_calculator/domain/osym_score_distribution.dart';
+import '../../score_calculator/domain/score_calculator_engine.dart';
 import 'models/practice_exam.dart';
 
 /// Gelişim grafiğinin tek noktası.
@@ -60,25 +62,73 @@ class SubjectStat {
 ///
 /// Türü bu kayıtta hesaplanmamış denemeler atlanır — grafik yalnız
 /// karşılaştırılabilir noktaları çizer.
-List<ExamTrendPoint> trendFor(List<PracticeExam> exams, String scoreType) {
+///
+/// [year] verilirse tüm seri o yılın katsayı ve yerleştirme verisiyle yeniden
+/// hesaplanır. Kayıtlar farklı yıllarda girilmiş olabileceğinden, tek bir yıl
+/// üzerinden bakmak grafiği karşılaştırılabilir kılan şeydir: 2022 sırasıyla
+/// 2025 sırası aynı eksene çizilirse gelişim yanlış okunur.
+List<ExamTrendPoint> trendFor(
+  List<PracticeExam> exams,
+  String scoreType, {
+  int? year,
+}) {
   final wanted = scoreType.trim().toUpperCase();
   final points = <ExamTrendPoint>[];
   for (final exam in exams) {
     if (exam.deleted) continue;
     final snapshot = wanted.isEmpty ? exam.best : exam.byType(wanted);
     if (snapshot == null) continue;
+
+    final rebased =
+        year == null ? null : _rebase(exam, snapshot.scoreType, year);
     points.add(ExamTrendPoint(
       examId: exam.id,
       name: exam.name,
       takenAt: exam.takenAt,
-      placementScore: snapshot.placementScore > 0 ? snapshot.placementScore : null,
-      rank: snapshot.estimatedRank,
+      placementScore: rebased != null
+          ? rebased.score
+          : (snapshot.placementScore > 0 ? snapshot.placementScore : null),
+      rank: rebased != null ? rebased.rank : snapshot.estimatedRank,
       totalNet: exam.totalNet,
       hasNets: exam.hasNets,
     ));
   }
   points.sort((a, b) => a.takenAt.compareTo(b.takenAt));
   return points;
+}
+
+/// Kaydı [year]'ın verisiyle yeniden hesaplar.
+///
+/// Kaydın nasıl girildiğine göre hangi değerin "gerçek" olduğu değişir:
+/// sıra girilmişse sıra sabittir, puan değişir; puan girilmişse puan sabittir,
+/// sıra değişir; netler girilmişse ikisi de o yılın katsayılarından türer.
+({double? score, int? rank}) _rebase(
+  PracticeExam exam,
+  String scoreType,
+  int year,
+) {
+  final input = exam.input;
+
+  if (input.isRankMode) {
+    final rank = input.enteredRank;
+    if (rank == null) return (score: null, rank: null);
+    final derived =
+        OsymScoreDistribution.estimateScore(rank, scoreType, year);
+    return (score: derived?.score, rank: rank);
+  }
+
+  final score = input.isScoreMode
+      ? input.enteredScore
+      : ScoreCalculatorEngine.calculateRawScoreFor(
+            input,
+            scoreType,
+            yearOverride: year,
+          ) +
+          input.obpContribution;
+  if (score == null || score <= 0) return (score: null, rank: null);
+
+  final estimate = OsymScoreDistribution.estimateRank(score, scoreType, year);
+  return (score: score, rank: estimate?.rank);
 }
 
 /// Ders bazında güçlü/zayıf analizi.

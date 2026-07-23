@@ -5,9 +5,10 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../domain/models/score_input.dart';
 import '../../domain/osym_score_distribution.dart';
 import '../../domain/score_calculator_engine.dart';
+import 'data_year_selector.dart';
 import 'score_type_card.dart';
 
-/// Sıra girişi: puan türü seçimi + başarı sırası alanı + canlı puan/dilim
+/// Sıra girişi: yıl + puan türü seçimi + başarı sırası alanı + canlı puan/dilim
 /// önizlemesi. Puan ÖSYM'nin resmî yığınsal dağılım tablosunun tersinden
 /// gelir, bu yüzden hep "≈" ve veri yılı etiketiyle gösterilir.
 class RankInputSection extends StatelessWidget {
@@ -15,6 +16,7 @@ class RankInputSection extends StatelessWidget {
   final ScoreInput input;
   final ValueChanged<String> onScoreTypeChanged;
   final ValueChanged<int?> onRankChanged;
+  final ValueChanged<int> onYearChanged;
 
   const RankInputSection({
     super.key,
@@ -22,6 +24,7 @@ class RankInputSection extends StatelessWidget {
     required this.input,
     required this.onScoreTypeChanged,
     required this.onRankChanged,
+    required this.onYearChanged,
   });
 
   /// Girilebilecek en büyük sıra — en kalabalık türün aday sayısının üstü.
@@ -35,6 +38,13 @@ class RankInputSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        DataYearSelector(
+          label: 'Hangi yılın sıralaması?',
+          selected: input.selectedYear,
+          onChanged: onYearChanged,
+          scoreType: selected,
+        ),
+        const SizedBox(height: 16),
         Text(
           'Hangi türün sırası?',
           style: AppTextStyles.labelMedium.copyWith(

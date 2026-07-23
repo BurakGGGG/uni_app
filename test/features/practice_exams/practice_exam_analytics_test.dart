@@ -3,6 +3,8 @@ import 'package:uni_app/features/practice_exams/domain/models/practice_exam.dart
 import 'package:uni_app/features/practice_exams/domain/practice_exam_analytics.dart';
 import 'package:uni_app/features/score_calculator/domain/models/score_input.dart';
 import 'package:uni_app/features/score_calculator/domain/models/yks_subject.dart';
+import 'package:uni_app/features/score_calculator/domain/osym_score_distribution.dart';
+import 'package:uni_app/features/score_calculator/domain/score_calculator_engine.dart';
 
 PracticeExam _exam({
   required String id,
@@ -298,6 +300,119 @@ void main() {
             results: [_say(430, 65000)]),
       ];
       expect(dominantScoreType(exams), 'EA');
+    });
+  });
+
+  group('trendFor — yıl bazlı yeniden hesaplama', () {
+    const nets = ScoreInput(
+      obpScore: 80,
+      tytTurkceCorrect: 30,
+      tytMatCorrect: 25,
+      aytMatCorrect: 20,
+      aytFizikCorrect: 10,
+      aytKimyaCorrect: 10,
+      aytBiyoCorrect: 10,
+    );
+
+    test('yıl verilmezse kayıttaki değerler olduğu gibi kullanılır', () {
+      final points = trendFor([
+        _exam(
+          id: 'a',
+          takenAt: DateTime(2026, 5, 1),
+          input: nets,
+          results: [_say(430, 65000)],
+        ),
+      ], 'SAY');
+
+      expect(points.single.placementScore, 430);
+      expect(points.single.rank, 65000);
+    });
+
+    test('netli kayıt seçilen yılın katsayılarıyla yeniden hesaplanır', () {
+      final exams = [
+        _exam(
+          id: 'a',
+          takenAt: DateTime(2026, 5, 1),
+          input: nets,
+          // Kayıttaki değerler kasten uydurma: yeniden hesap onları ezmeli.
+          results: [_say(430, 65000)],
+        ),
+      ];
+
+      final expected = ScoreCalculatorEngine.calculateRawScoreFor(
+            nets,
+            'SAY',
+            yearOverride: 2025,
+          ) +
+          nets.obpContribution;
+
+      final point = trendFor(exams, 'SAY', year: 2025).single;
+      expect(point.placementScore, closeTo(expected, 0.001));
+      expect(point.rank,
+          OsymScoreDistribution.estimateRank(expected, 'SAY', 2025)!.rank);
+    });
+
+    test('aynı netler farklı yıllarda farklı sıra verir', () {
+      final exams = [
+        _exam(
+          id: 'a',
+          takenAt: DateTime(2026, 5, 1),
+          input: nets,
+          results: [_say(430, 65000)],
+        ),
+      ];
+
+      final r2022 = trendFor(exams, 'SAY', year: 2022).single.rank;
+      final r2025 = trendFor(exams, 'SAY', year: 2025).single.rank;
+      expect(r2022, isNotNull);
+      expect(r2025, isNotNull);
+      expect(r2022, isNot(r2025));
+    });
+
+    test('sıra girilen kayıtta sıra sabit kalır, puan yıla göre değişir', () {
+      final exams = [
+        _exam(
+          id: 'a',
+          takenAt: DateTime(2026, 5, 1),
+          input: const ScoreInput(
+            entryMode: NetEntryMode.rank,
+            scoreType: 'SAY',
+            enteredRank: 45000,
+          ),
+          results: [_say(451.11, 45000)],
+        ),
+      ];
+
+      final p2022 = trendFor(exams, 'SAY', year: 2022).single;
+      final p2025 = trendFor(exams, 'SAY', year: 2025).single;
+
+      expect(p2022.rank, 45000);
+      expect(p2025.rank, 45000);
+      expect(p2025.placementScore, closeTo(451.11, 0.05));
+      expect(p2022.placementScore, isNot(closeTo(451.11, 0.05)));
+    });
+
+    test('puan girilen kayıtta puan sabit kalır, sıra yıla göre değişir', () {
+      final exams = [
+        _exam(
+          id: 'a',
+          takenAt: DateTime(2026, 5, 1),
+          input: const ScoreInput(
+            entryMode: NetEntryMode.score,
+            scoreType: 'SAY',
+            enteredScore: 451.11,
+          ),
+          results: [_say(451.11, 45000)],
+        ),
+      ];
+
+      final p2022 = trendFor(exams, 'SAY', year: 2022).single;
+      final p2025 = trendFor(exams, 'SAY', year: 2025).single;
+
+      expect(p2022.placementScore, 451.11);
+      expect(p2025.placementScore, 451.11);
+      expect(p2025.rank, closeTo(45000, 500));
+      expect(p2022.rank, isNot(closeTo(45000, 500)));
     });
   });
 }
