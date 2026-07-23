@@ -854,22 +854,21 @@ abstract final class _Tr {
   static const insights = <String, InsightCopy>{
     // Kurulum
     'setup.noProfile': InsightCopy(
-      'Seni henüz tanımıyorum',
-      'Netlerini gir; puanını ve tahminî sıranı hesaplayayım. Gerisi buradan '
-          'kendiliğinden açılıyor.',
-      actionLabel: 'Puanını hesapla',
+      'Puanını hesaplayalım',
+      'Netlerini gir; tahminî sıranı ve girebileceğin bölümleri çıkarayım.',
+      actionLabel: 'Puanımı hesapla',
+    ),
+    'setup.noExam': InsightCopy(
+      'Şimdi bir deneme ekle',
+      'Hangi derste ne durumdasın ve hedefe ne kadar kaldı — bunu '
+          'denemelerden çıkarıyorum.',
+      actionLabel: 'Deneme ekle',
     ),
     'setup.noTarget': InsightCopy(
       'Hedefin ne olsun?',
-      'Bir hedef program seç; her denemeden sonra ona ne kadar kaldığını '
-          'hesaplayayım.',
+      'Girmek istediğin bölümü seç; her denemeden sonra ona kaç net kaldığını '
+          'söyleyeyim. İstersen sana birkaç öneri de sunayım.',
       actionLabel: 'Hedef belirle',
-    ),
-    'setup.noExam': InsightCopy(
-      'İlk denemeni bekliyorum',
-      'Bir deneme gir; netlerinden hangi derste ne durumda olduğunu '
-          'çıkarayım.',
-      actionLabel: 'Deneme ekle',
     ),
 
     // Hedef
@@ -1601,22 +1600,22 @@ abstract final class _En {
   static const insights = <String, InsightCopy>{
     // Setup
     'setup.noProfile': InsightCopy(
-      "I don't know you yet",
-      'Enter your nets and I\'ll work out your score and estimated rank. '
-          'Everything else opens up from there.',
-      actionLabel: 'Calculate your score',
+      "Let's calculate your score",
+      "Enter your nets and I'll work out your estimated rank and the programs "
+          'you can get into.',
+      actionLabel: 'Calculate my score',
+    ),
+    'setup.noExam': InsightCopy(
+      'Now add a practice exam',
+      'Where you stand subject by subject, and how far the target is — I get '
+          'both from your exams.',
+      actionLabel: 'Add an exam',
     ),
     'setup.noTarget': InsightCopy(
       "What's your target?",
-      "Pick a target program and I'll measure how far you are from it after "
-          'every practice exam.',
+      "Pick the program you're aiming for and I'll tell you how many nets "
+          'away it is after every exam. I can suggest a few if you like.',
       actionLabel: 'Set a target',
-    ),
-    'setup.noExam': InsightCopy(
-      "I'm waiting for your first exam",
-      "Add a practice exam and I'll work out where you stand subject by "
-          'subject.',
-      actionLabel: 'Add an exam',
     ),
 
     // Target

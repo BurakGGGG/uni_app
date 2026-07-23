@@ -119,27 +119,40 @@ void main() {
           reason: 'eksik adım kapatmakla tamamlanmaz');
     });
 
-    test('profil varsa sıra hedefe, hedef de varsa denemeye geçer', () {
+    test('profil varsa sıra denemeye geçer', () {
       final withProfile = InsightContext(
         now: _offSeason,
         profile: _profile(),
       );
-      expect(
-        _find(InsightEngine.analyze(withProfile), 'setup.noTarget'),
-        isNotNull,
-      );
-
-      final withTarget = InsightContext(
-        now: _offSeason,
-        profile: _profile(),
-        target: _target(),
-      );
-      final next = InsightEngine.analyze(withTarget);
+      final next = InsightEngine.analyze(withProfile);
       expect(_find(next, 'setup.noExam'), isNotNull);
-      expect(_find(next, 'setup.noTarget'), isNull);
+      expect(_find(next, 'setup.noProfile'), isNull);
     });
 
-    test('üçü tamamlanınca kurulum ailesi tamamen susar', () {
+    // Hedef, kurulum şartı DEĞİL. Puanı ve tek denemesi olmayan kişiden
+    // "hedef program seç" istemek ona henüz cevaplayamayacağı bir soru
+    // sormaktır; davet ancak ölçebildiğim şey varken anlamlı.
+    test('hedef daveti kurulum bitmeden çıkmaz', () {
+      final beforeExam = InsightContext(
+        now: _offSeason,
+        profile: _profile(),
+      );
+      expect(_find(InsightEngine.analyze(beforeExam), 'setup.noTarget'),
+          isNull);
+
+      final afterExam = InsightContext(
+        now: _offSeason,
+        profile: _profile(),
+        exams: [_exam(id: 'a', takenAt: _offSeason, nets: _nets())],
+      );
+      final invite = _find(InsightEngine.analyze(afterExam), 'setup.noTarget');
+      expect(invite, isNotNull);
+      expect(invite!.action, RobotAction.setTarget);
+      expect(InsightEngine.setupPathOf(afterExam).complete, isTrue,
+          reason: 'hedef kurulum sayacına girmez');
+    });
+
+    test('ikisi tamamlanınca kurulum ailesi tamamen susar', () {
       final ctx = InsightContext(
         now: _offSeason,
         profile: _profile(),
@@ -150,7 +163,7 @@ void main() {
 
       expect(insights.where((i) => i.kind == InsightKind.setup), isEmpty);
       expect(InsightEngine.setupPathOf(ctx).complete, isTrue);
-      expect(InsightEngine.setupPathOf(ctx).done, 3);
+      expect(InsightEngine.setupPathOf(ctx).done, 2);
     });
 
     test('silinmiş deneme kurulumu tamamlamaz', () {

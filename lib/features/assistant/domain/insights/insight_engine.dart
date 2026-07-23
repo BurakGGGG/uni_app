@@ -87,11 +87,10 @@ abstract final class InsightEngine {
         .join(' · ');
   }
 
-  /// Kurulum yolunun durumu — panelin ilerleme çubuğu bunu çizer.
+  /// Kurulumun durumu — panelin "sıradaki adım" kartı bunu okur.
   static SetupPath setupPathOf(InsightContext ctx) {
     return SetupPath(
       hasProfile: ctx.hasProfile,
-      hasTarget: ctx.target != null,
       hasExam: ctx.liveExams.isNotEmpty,
     );
   }
@@ -99,10 +98,13 @@ abstract final class InsightEngine {
   // ── Kurulum ────────────────────────────────────────────────────
 
   /// Yalnız SIRADAKİ eksik adımı yayar: üçü birden kart olsaydı panel açılışta
-  /// üç kez "eksiksin" derdi. Çubuk zaten hepsini gösteriyor.
+  /// üç kez "eksiksin" derdi.
+  ///
+  /// Hedef daveti en sonda ve yalnız kurulum bittikten sonra: puanı ve ilk
+  /// denemesi olmayan kullanıcıya "hedef program seç" demek, ona henüz
+  /// cevaplayamayacağı bir soru sormaktır.
   static List<UniInsight> _setup(InsightContext ctx) {
     final path = setupPathOf(ctx);
-    if (path.complete) return const [];
 
     final (id, priority, action) = switch (path) {
       SetupPath(hasProfile: false) => (
@@ -110,13 +112,19 @@ abstract final class InsightEngine {
           95,
           RobotAction.openScoreCalculator,
         ),
-      SetupPath(hasTarget: false) => (
-          'setup.noTarget',
+      SetupPath(hasExam: false) => (
+          'setup.noExam',
           90,
+          RobotAction.openPracticeExams,
+        ),
+      _ when ctx.target == null => (
+          'setup.noTarget',
+          85,
           RobotAction.setTarget,
         ),
-      _ => ('setup.noExam', 85, RobotAction.openPracticeExams),
+      _ => (null, 0, RobotAction.none),
     };
+    if (id == null) return const [];
 
     return [
       _build(

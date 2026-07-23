@@ -74,30 +74,30 @@ void main() {
     return container;
   }
 
-  testWidgets('boş kullanıcıda kurulum yolu görünür, patlamaz', (tester) async {
+  testWidgets('boş kullanıcıda tek adım görünür, patlamaz', (tester) async {
     await pump(tester);
 
     expect(tester.takeException(), isNull);
-    // Kurulum çubuğu 0/3, ilk adım butonlu.
-    expect(find.text('Seni henüz tanımıyorum'), findsOneWidget);
-    expect(find.text('0/3'), findsOneWidget);
-    expect(find.text('Puanını hesapla'), findsOneWidget);
+    expect(find.text('Puanını hesaplayalım'), findsOneWidget);
+    expect(find.text('Puanımı hesapla'), findsOneWidget);
   });
 
-  testWidgets('kurulum sürerken aynı görevler ikinci kez listelenmez',
-      (tester) async {
+  testWidgets('kurulum sürerken ekranda tek iş olur', (tester) async {
     await pump(tester);
 
-    // Kurulum yolu setup ailesinin zengin hâli. Hem not listesi hem haftalık
-    // plan aynı üç adımı üretebiliyor; ikisi de çizilirse kullanıcı ekranda
-    // aynı şeyi üç kez okur.
-    expect(find.text('Seni henüz tanımıyorum'), findsOneWidget);
-    expect(find.text('Puanını hesapla'), findsOneWidget);
-    // Tek ilerleme sayacı — ikincisi haftalık plandan gelirdi.
-    expect(find.text('0/3'), findsOneWidget);
+    // Kart zaten setup notunun kendisi; not listesi de haftalık plan da aynı
+    // adımları üretebiliyor. Üçü birden çizilirse kullanıcı aynı şeyi üç kez
+    // okur — "ben bile anlamadım" şikâyetinin kaynağı buydu.
+    expect(find.text('Puanını hesaplayalım'), findsOneWidget);
+    // Ödev listesi görüntüsü veren sayaç/çubuk kalktı.
+    expect(find.text('0/2'), findsNothing);
+    expect(find.byType(LinearProgressIndicator), findsNothing);
+    // Sıradaki adım tek: ileriki adımlar henüz görünmez.
+    expect(find.text('Deneme ekle'), findsNothing);
+    expect(find.text('Hedef belirle'), findsNothing);
   });
 
-  testWidgets('profili olan kullanıcıda kurulum ilerler', (tester) async {
+  testWidgets('puan girilince kart sıradaki işe döner', (tester) async {
     await pump(
       tester,
       profile: StudentScoreProfile(
@@ -109,9 +109,11 @@ void main() {
     );
 
     expect(tester.takeException(), isNull);
-    // Profil tamam → 1/3, sıradaki adım hedef.
-    expect(find.text('1/3'), findsOneWidget);
-    expect(find.text('Hedef program seç'), findsOneWidget);
+    expect(find.text('Şimdi bir deneme ekle'), findsOneWidget);
+    expect(find.text('Deneme ekle'), findsOneWidget);
+    // Hedef kurulum şartı DEĞİL: deneme gelmeden sorulmaz.
+    expect(find.text('Hedefin ne olsun?'), findsNothing);
+    expect(find.text('Puanını hesaplayalım'), findsNothing);
   });
 }
 

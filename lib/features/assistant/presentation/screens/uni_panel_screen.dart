@@ -16,7 +16,7 @@ import '../providers/uni_panel_providers.dart';
 import '../widgets/robot_avatar.dart';
 import '../widgets/uni_insight_card.dart';
 import '../widgets/uni_progress_block.dart';
-import '../widgets/uni_setup_path.dart';
+import '../widgets/uni_next_step.dart';
 import '../widgets/uni_target_block.dart';
 import '../widgets/uni_weekly_plan_block.dart';
 
@@ -47,10 +47,10 @@ class _UniPanelScreenState extends ConsumerState<UniPanelScreen> {
     final setupPath = ref.watch(setupPathProvider);
     final now = DateTime.now();
 
-    // Kurulum yolu, setup ailesinin zengin hâli — çizildiği sürece aynı
-    // cümleyi bir de not olarak göstermek ekranda iki kez aynı şeyi demek.
-    // (Ana sayfa kartı setup notlarını görmeye DEVAM eder; orada kurulum
-    // yolu yok, tek yüzey o not.)
+    // Sıradaki adım kartı zaten setup notunun ta kendisini büyük gösteriyor;
+    // aynı notu bir de aşağıda listelemek ekranda iki kez aynı cümle demek.
+    // (Ana sayfa balonu setup notlarını görmeye DEVAM eder — orada bu kart
+    // yok, tek yüzey o not.)
     final notes = setupPath.complete
         ? insights
         : insights.where((i) => i.kind != InsightKind.setup).toList();
@@ -88,7 +88,7 @@ class _UniPanelScreenState extends ConsumerState<UniPanelScreen> {
                 ),
               ),
               const SizedBox(height: 12),
-              const UniSetupPath(),
+              const UniNextStep(),
 
               // ─── Hedef · gelişim · bu hafta ─────────────────
               // Görünürlük koşulu blokların içinde de var; burada tekrar
@@ -104,8 +104,8 @@ class _UniPanelScreenState extends ConsumerState<UniPanelScreen> {
               ],
               // Kurulum bitmeden haftalık plan çizilmez: o hâlde planın
               // ürettiği görevler zaten kurulum adımlarının aynısı olur
-              // (calcScore/setTarget/addExam) ve kullanıcı aynı listeyi
-              // ikinci kez, üstelik ikinci bir "0/3" sayacıyla görür.
+              // (calcScore/setTarget/addExam) ve kullanıcı, tek işe
+              // odaklanması gerekirken üç maddelik bir liste okur.
               if (setupPath.complete &&
                   ref.watch(weeklyPlanProvider) != null) ...[
                 const SizedBox(height: 12),
@@ -113,8 +113,8 @@ class _UniPanelScreenState extends ConsumerState<UniPanelScreen> {
               ],
               // ─── Üni'nin Notları ────────────────────────────
               // Kurulum sürerken not yoksa başlık hiç açılmaz: "dikkat
-              // isteyen bir şey yok" demek 0/3'teki kullanıcıya yanlış
-              // sinyal — asıl iş hemen yukarıda duruyor.
+              // isteyen bir şey yok" demek daha işe başlamamış kullanıcıya
+              // yanlış sinyal — asıl iş hemen yukarıda duruyor.
               if (setupPath.complete || notes.isNotEmpty) ...[
                 const SizedBox(height: 24),
                 Row(

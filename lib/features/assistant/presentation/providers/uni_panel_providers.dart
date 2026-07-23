@@ -118,13 +118,23 @@ final topInsightProvider = Provider<UniInsight?>((ref) {
   return all.isEmpty ? null : all.first;
 });
 
-/// Panelin 3 adımlı kurulum çubuğu.
+/// Kurulumun durumu — panel bunu "sıradaki adım" kartını çizmek için okur.
 final setupPathProvider = Provider<SetupPath>((ref) {
   final ctx = ref.watch(insightContextProvider).valueOrNull;
   if (ctx == null) {
-    return const SetupPath(hasProfile: false, hasTarget: false, hasExam: false);
+    return const SetupPath(hasProfile: false, hasExam: false);
   }
   return InsightEngine.setupPathOf(ctx);
+});
+
+/// Kurulum bitmeden gösterilecek TEK adım; bittiyse null.
+///
+/// Motorun `setup.*` notunu yeniden kullanır, metni kopyalamaz — kart ile
+/// ana sayfadaki balon aynı cümleyi söylesin diye.
+final nextSetupStepProvider = Provider<UniInsight?>((ref) {
+  if (ref.watch(setupPathProvider).complete) return null;
+  final all = ref.watch(uniInsightsProvider);
+  return all.where((i) => i.kind == InsightKind.setup).firstOrNull;
 });
 
 /// Hedef yol haritası — panel bloğu ve `target.roadmap` notu AYNI hesabı

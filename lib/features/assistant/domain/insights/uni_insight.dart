@@ -74,26 +74,24 @@ class UniInsight {
   bool get hasAction => action != RobotAction.none;
 }
 
-/// Kurulum yolunun durumu — panelin 3 adımlı ilerleme çubuğu bunu çizer.
+/// Üni'nin konuşabilmesi için gereken asgari iki şey.
 ///
-/// Sıra anlamlıdır: puan olmadan hedef mesafesi, hedef olmadan yol haritası
-/// hesaplanamaz. Bu yüzden [InsightEngine] yalnız SIRADAKİ eksik adımı
-/// içgörü olarak yayar; çubuk hepsini birden gösterir.
+/// Sıra anlamlıdır: puan olmadan hedefe mesafe, deneme olmadan ders kırılımı
+/// hesaplanamaz. Panel bunların yalnız SIRADAKİNİ, tek cümle + tek butonla
+/// gösterir — üçü birden listelenince kart "ödev listesi" gibi okunuyordu.
+///
+/// Hedef program bilerek BURADA DEĞİL: kullanıcı daha tek deneme girmemişken
+/// ondan hedef seçmesini istemek hem erken hem de Üni'nin kendi işi — ilk
+/// deneme geldikten sonra hazır öneriyle o soruyor (`setup.noTarget`).
 class SetupPath {
   final bool hasProfile;
-  final bool hasTarget;
   final bool hasExam;
 
-  const SetupPath({
-    required this.hasProfile,
-    required this.hasTarget,
-    required this.hasExam,
-  });
+  const SetupPath({required this.hasProfile, required this.hasExam});
 
-  int get done =>
-      (hasProfile ? 1 : 0) + (hasTarget ? 1 : 0) + (hasExam ? 1 : 0);
+  int get done => (hasProfile ? 1 : 0) + (hasExam ? 1 : 0);
 
-  static const int total = 3;
+  static const int total = 2;
 
   bool get complete => done == total;
 }
