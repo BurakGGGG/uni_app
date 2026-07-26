@@ -228,7 +228,9 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                       final showAds = ref.watch(subscriptionTierProvider).valueOrNull == SubscriptionTier.free;
 
                       return ListView.builder(
-                        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+                        // Alttaki 88: yüzen Üni son kartın köşesini
+                        // kapatmasın (56 balon + 16 kenar + nefes payı).
+                        padding: const EdgeInsets.fromLTRB(4, 8, 4, 88),
                         itemCount: showAds
                             ? filtered.length + (filtered.isEmpty ? 0 : (filtered.length - 1) ~/ 5)
                             : filtered.length,

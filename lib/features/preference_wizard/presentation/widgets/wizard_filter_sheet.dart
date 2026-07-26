@@ -7,6 +7,7 @@ import '../../../../core/utils/turkish_compare.dart';
 import '../../../university/presentation/providers/university_providers.dart';
 import '../../domain/models/wizard_filter.dart';
 import '../providers/preference_wizard_providers.dart';
+import 'wizard_select_chip.dart';
 
 /// Tercih robotu filtre bottom sheet'i (Plus özelliği). `wizardFilterProvider`'ı
 /// düzenler.
@@ -81,19 +82,19 @@ class _Body extends ConsumerWidget {
                 spacing: 8,
                 runSpacing: 8,
                 children: [
-                  _Choice(
+                  WizardSelectChip(
                     label: 'Uygunluğa göre',
                     selected: filter.sort == WizardSort.fit,
                     onTap: () =>
                         notifier.state = filter.copyWith(sort: WizardSort.fit),
                   ),
-                  _Choice(
+                  WizardSelectChip(
                     label: 'Taban puanı',
                     selected: filter.sort == WizardSort.baseDesc,
                     onTap: () => notifier.state =
                         filter.copyWith(sort: WizardSort.baseDesc),
                   ),
-                  _Choice(
+                  WizardSelectChip(
                     label: 'Başarı sıralaması',
                     selected: filter.sort == WizardSort.rankAsc,
                     onTap: () => notifier.state =
@@ -108,14 +109,14 @@ class _Body extends ConsumerWidget {
                 spacing: 8,
                 children: [
                   for (final t in const ['Devlet', 'Vakıf'])
-                    _Choice(
+                    WizardSelectChip(
                       label: t,
                       selected: filter.uniTypes.contains(t),
                       onTap: () => notifier.state = filter.copyWith(
                         uniTypes: _toggle(filter.uniTypes, t),
                       ),
                     ),
-                  _Choice(
+                  WizardSelectChip(
                     label: 'Sadece burslu',
                     selected: filter.onlyScholarship,
                     onTap: () => notifier.state = filter.copyWith(
@@ -131,7 +132,7 @@ class _Body extends ConsumerWidget {
                 spacing: 8,
                 children: [
                   for (final t in const ['Lisans', 'Önlisans'])
-                    _Choice(
+                    WizardSelectChip(
                       label: t,
                       selected: filter.programTypes.contains(t),
                       onTap: () => notifier.state = filter.copyWith(
@@ -147,7 +148,7 @@ class _Body extends ConsumerWidget {
                 spacing: 8,
                 children: [
                   for (final l in const ['Türkçe', 'İngilizce'])
-                    _Choice(
+                    WizardSelectChip(
                       label: l,
                       selected: filter.languages.contains(l),
                       onTap: () => notifier.state = filter.copyWith(
@@ -175,7 +176,7 @@ class _Body extends ConsumerWidget {
                     runSpacing: 8,
                     children: [
                       for (final c in sorted)
-                        _Choice(
+                        WizardSelectChip(
                           label: c.name,
                           selected: filter.cityIds.contains(c.id),
                           onTap: () => notifier.state = filter.copyWith(
@@ -243,43 +244,3 @@ class _SectionTitle extends StatelessWidget {
   }
 }
 
-class _Choice extends StatelessWidget {
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-  const _Choice({
-    required this.label,
-    required this.selected,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-        decoration: BoxDecoration(
-          color: selected
-              ? AppColors.primary.withValues(alpha: 0.12)
-              : AppColors.surfaceVariantFor(context),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: selected
-                ? AppColors.primary
-                : AppColors.borderLightFor(context),
-          ),
-        ),
-        child: Text(
-          label,
-          style: AppTextStyles.labelMedium.copyWith(
-            color: selected
-                ? AppColors.primary
-                : AppColors.textPrimaryFor(context),
-            fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-          ),
-        ),
-      ),
-    );
-  }
-}

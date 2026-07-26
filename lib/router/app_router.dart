@@ -49,8 +49,9 @@ import '../features/practice_exams/presentation/screens/practice_exams_screen.da
 import '../features/score_calculator/presentation/screens/score_calculator_screen.dart';
 import '../features/score_calculator/presentation/screens/score_result_screen.dart';
 import '../features/best_programs/presentation/screens/best_programs_screen.dart';
-import '../features/preference_wizard/presentation/screens/uni_profile_form_screen.dart';
-import '../features/assistant/presentation/screens/uni_panel_screen.dart';
+import '../features/assistant/domain/uni_flow.dart';
+import '../features/assistant/presentation/flow/uni_flow_screen.dart';
+import '../features/assistant/presentation/screens/uni_home_gate.dart';
 import '../features/preference_wizard/presentation/screens/preference_wizard_results_screen.dart';
 import '../features/admin/presentation/screens/admin_panel_screen.dart';
 import '../features/admin/presentation/screens/admin_story_panel_screen.dart';
@@ -105,6 +106,48 @@ class AppRoutes {
   static const String practiceExams = '/practice-exams';
   static const String practiceExamAdd = '/practice-exams/add';
   static const String uniPanel = '/uni';
+
+  /// Tercih yolu akışı — onboarding gibi ekran ekran kurulum.
+  static const String uniFlow = '/uni/yol';
+
+  /// Alt sekme (StatefulShellRoute) rotaları — aşağıdaki `branches` listesiyle
+  /// birebir aynı olmalı.
+  static const Set<String> shellBranches = {
+    home,
+    explore,
+    compare,
+    myLists,
+    profile,
+  };
+
+  /// Kendi FAB'ı olan sekmeler. Yüzen Üni (`UniFloatingLayer`) burada
+  /// FAB'ın üstüne çıkar; ikisi de sağ altta olduğu için üst üste binerlerdi.
+  /// Yeni bir sekmeye FAB eklersen rotasını buraya da ekle.
+  ///
+  /// Şu an boş: Listelerim'in yüzen "Yeni liste" butonu kaldırıldı, davet
+  /// listenin sonuna satır olarak indi — sağ alt köşe tamamen Üni'nin.
+  static const Set<String> branchesWithOwnFab = <String>{};
+}
+
+/// Rotaya güvenli geçiş: alt sekme rotalarında [GoRouter.go], diğerlerinde
+/// `push`.
+///
+/// **Alt sekme rotaları `push` EDİLEMEZ.** Shell yığının en üstünde değilken
+/// (ör. `/uni` açıkken) bir sekme rotası push edilirse go_router yığına
+/// ikinci bir `ShellRouteMatch` ekler; klon shell'in page key'i
+/// `ValueKey(route.hashCode)` olduğu için ikisi aynı anahtarı taşır ve
+/// Navigator "duplicated page keys" assert'iyle patlar. Shell en üstteyken
+/// aynı push zararsızdır (go_router birleştirir) — bu yüzden hata yalnız
+/// ara ekranlardan gidildiğinde ortaya çıkar ve gözden kaçar.
+///
+/// Sorgu dizesi taşıyan rotalar (ör. `/best-programs?dept=X`) sekme değildir;
+/// karşılaştırma yol kısmıyla yapılır.
+void navigateToRoute(BuildContext context, String route) {
+  if (AppRoutes.shellBranches.contains(route.split('?').first)) {
+    context.go(route);
+  } else {
+    context.push(route);
+  }
 }
 
 /// GoRouter konfigürasyon provider'ı
@@ -148,7 +191,15 @@ final routerProvider = Provider<GoRouter>((ref) {
           protectedRoutes.contains(path) ||
           isGoingToAdmin ||
           path.startsWith('/write-review') ||
-          path.startsWith('/edit-review');
+          path.startsWith('/edit-review') ||
+          // Denemelerim üyelere özel. Defter teknik olarak yerel çalışıyor
+          // ama misafirin girdiği denemeler hesaba bağlanamadığı için
+          // cihaz değişince sessizce kayboluyordu; giriş kapısı bunu
+          // baştan engelliyor. Yüzeydeki girişler de gizli (profil kartı,
+          // Puan Hesaplayıcı ikonu, "Denemelerime Kaydet") — burası
+          // derin bağlantı ve eski `/score-calculator/history` yönlendirmesi
+          // için son kapı.
+          path.startsWith(AppRoutes.practiceExams);
 
       if (isGoingToProtected && !isLoggedIn) {
         final encodedPath = Uri.encodeComponent(state.uri.toString());
@@ -505,16 +556,27 @@ final routerProvider = Provider<GoRouter>((ref) {
         ),
       ),
 
-      // ─── Üni Paneli ───────────────────────────────────────────────
+      // ─── Üni ──────────────────────────────────────────────────────
+      // Kurulum yapılmamışsa akış, yapılmışsa özet — kararı kapı verir.
       GoRoute(
         path: AppRoutes.uniPanel,
-        builder: (context, state) => const UniPanelScreen(),
+        builder: (context, state) => const UniHomeGate(),
+      ),
+      // Akışa doğrudan giriş. `?step=` verilirse tek adım düzenleme modu:
+      // o adım bitince özete dönülür.
+      GoRoute(
+        path: AppRoutes.uniFlow,
+        builder: (context, state) => UniFlowScreen(
+          only: uniFlowStepFromQuery(state.uri.queryParameters['step']),
+        ),
       ),
 
       // ─── Tercih Robotu ────────────────────────────────────────────
+      // "Üni seni tanısın" formu akışın iki adımına (ilgi + şehir) taşındı;
+      // eski rota oraya yönleniyor — dışarıdaki bağlantılar kırılmasın.
       GoRoute(
         path: AppRoutes.preferenceWizard,
-        builder: (context, state) => const UniProfileFormScreen(),
+        redirect: (context, state) => '${AppRoutes.uniFlow}?step=interests',
       ),
       GoRoute(
         path: AppRoutes.preferenceWizardResults,
@@ -524,7 +586,12 @@ final routerProvider = Provider<GoRouter>((ref) {
       // ─── Shell Route (Bottom Navigation) ─────────────────────────
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) {
-          return AppShell(navigationShell: navigationShell);
+          // Yol doğrudan buradan geçirilir: kabuk içinde `GoRouterState.of`
+          // aramak yerine dalın kendi state'i kullanılır.
+          return AppShell(
+            navigationShell: navigationShell,
+            currentPath: state.uri.path,
+          );
         },
         branches: [
           // Ana Sayfa

@@ -22,6 +22,10 @@ class PracticeExamRepository {
 
   bool get isSignedIn => _auth.currentUser != null;
 
+  /// O anki oturumun uid'i. Senkron turu, uzun `await`'ler sırasında hesabın
+  /// değişmediğini doğrulamak için bunu kullanır.
+  String? get currentUid => _auth.currentUser?.uid;
+
   CollectionReference<Map<String, dynamic>>? _examsRef() {
     final uid = _auth.currentUser?.uid;
     if (uid == null) return null;

@@ -53,4 +53,8 @@ class StudentProfileStore {
   Future<void> saveWizardPrefs(WizardPrefs prefs) async {
     await _prefs.setString(_prefsKey, jsonEncode(prefs.toJson()));
   }
+
+  Future<void> clearWizardPrefs() async {
+    await _prefs.remove(_prefsKey);
+  }
 }

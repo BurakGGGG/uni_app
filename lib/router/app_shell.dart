@@ -11,6 +11,8 @@ import '../l10n/generated/app_localizations.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/providers/shared_preferences_provider.dart';
+import 'app_router.dart';
+import '../features/assistant/presentation/widgets/uni_floating_bubble.dart';
 import '../features/auth/presentation/providers/auth_providers.dart';
 import '../features/university/presentation/providers/university_providers.dart';
 import '../features/profile/presentation/widgets/badge_celebration_listener.dart';
@@ -20,7 +22,15 @@ import '../services/engagement_service.dart';
 class AppShell extends ConsumerStatefulWidget {
   final StatefulNavigationShell navigationShell;
 
-  const AppShell({super.key, required this.navigationShell});
+  /// Açık sekmenin yolu (ör. `/my-lists`). Yüzen Üni'nin kendi FAB'ı olan
+  /// sekmede yukarı kayması için gerekiyor.
+  final String currentPath;
+
+  const AppShell({
+    super.key,
+    required this.navigationShell,
+    required this.currentPath,
+  });
 
   @override
   ConsumerState<AppShell> createState() => _AppShellState();
@@ -176,8 +186,17 @@ class _AppShellState extends ConsumerState<AppShell>
           });
         },
         child: Scaffold(
+          // Yüzen Üni kabukta yaşar — beş sekmede de var. `bottomNavigationBar`
+          // ayrı bir yuva olduğu için balon nav bar'ın üstünde durur, onu
+          // kapatmaz.
           body: BadgeCelebrationListener(
-            child: OfflineBanner(child: widget.navigationShell),
+            child: UniFloatingLayer(
+              currentPath: widget.currentPath,
+              liftAboveFab: AppRoutes.branchesWithOwnFab.any(
+                widget.currentPath.startsWith,
+              ),
+              child: OfflineBanner(child: widget.navigationShell),
+            ),
           ),
           bottomNavigationBar: Container(
             decoration: BoxDecoration(

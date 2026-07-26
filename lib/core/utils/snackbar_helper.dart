@@ -5,6 +5,11 @@ import '../theme/app_text_styles.dart';
 /// Uygulama genelinde tutarlı SnackBar göstermek için yardımcı fonksiyon.
 /// Tüm SnackBar'lar floating davranışlı, yuvarlak köşeli ve
 /// opsiyonel ikon destekli olur.
+///
+/// **`persist: false` bilinçli ve gerekli:** Flutter'ın varsayılanı
+/// `persist = action != null`, yani bir eylem (GERİ AL, Giriş yap…) veren
+/// her SnackBar süresi dolsa da ekranda KALIR. Kullanıcı içeriği onun
+/// altından okumaya çalışıyor; buradaki `duration` her zaman geçerli olmalı.
 void showAppSnackBar(
   BuildContext context, {
   required String message,
@@ -50,6 +55,7 @@ void showAppSnackBar(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         duration: duration,
+        persist: false,
         action: action,
       ),
     );

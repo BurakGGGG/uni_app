@@ -237,6 +237,8 @@ class _FavoritesScreenState extends ConsumerState<FavoritesScreen> {
         duration: const Duration(seconds: 4),
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        // Eylemli SnackBar'ın Flutter varsayılanı kalıcı olmak.
+        persist: false,
         action: SnackBarAction(
           label: 'GERİ AL',
           textColor: AppColors.primary,

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
+import '../../../../router/app_router.dart';
 import '../../../preference_wizard/presentation/feasibility_view.dart';
 import '../../../score_calculator/domain/models/match_result.dart';
 import '../../../university/domain/models/department_model.dart';
@@ -76,7 +76,8 @@ class UniUniversityFit extends ConsumerWidget {
         animatedAvatar: false,
         typewriter: false,
         dense: true,
-        onTap: () => context.push(
+        onTap: () => navigateToRoute(
+          context,
           route ?? '/university/$universityId/departments',
         ),
       ),

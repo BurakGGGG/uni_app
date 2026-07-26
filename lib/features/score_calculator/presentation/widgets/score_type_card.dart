@@ -45,10 +45,20 @@ class ScoreTypeCard extends StatelessWidget {
   final ScoreTypeOutcome outcome;
   final bool isBest;
 
+  /// Dokunulabilir kart — tercih yolu akışında öğrenci hangi türle devam
+  /// edeceğini kartın kendisine dokunarak seçer.
+  final VoidCallback? onTap;
+
+  /// Seçili tür: kenarlık kalınlaşır. [isBest] "en güçlü tür" rozetidir,
+  /// seçim değildir; ikisi farklı kartlarda olabilir.
+  final bool selected;
+
   const ScoreTypeCard({
     super.key,
     required this.outcome,
     this.isBest = false,
+    this.onTap,
+    this.selected = false,
   });
 
   @override
@@ -56,17 +66,19 @@ class ScoreTypeCard extends StatelessWidget {
     final color = scoreTypeColor(outcome.score.scoreType);
     final score = outcome.score;
 
-    return Container(
+    final card = Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: AppColors.surfaceFor(context),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: isBest
-              ? color.withValues(alpha: 0.5)
-              : AppColors.borderLightFor(context),
-          width: isBest ? 1.5 : 1,
+          color: selected
+              ? color
+              : isBest
+                  ? color.withValues(alpha: 0.5)
+                  : AppColors.borderLightFor(context),
+          width: selected ? 2 : (isBest ? 1.5 : 1),
         ),
         boxShadow: AppColors.softShadowFor(context),
       ),
@@ -131,9 +143,13 @@ class ScoreTypeCard extends StatelessWidget {
             spacing: 12,
             runSpacing: 4,
             children: [
-              _detail(context, 'Ham', score.rawScore.toStringAsFixed(2)),
-              _detail(context, 'OBP',
-                  '+${(score.placementScore - score.rawScore).toStringAsFixed(1)}'),
+              // Sıra/puan modunda ham == yerleştirme (OBP zaten girilen değerde);
+              // "+0.0 OBP" göstermek yanıltıcı olur, o yüzden fark yoksa gizle.
+              if ((score.placementScore - score.rawScore).abs() >= 0.05) ...[
+                _detail(context, 'Ham', score.rawScore.toStringAsFixed(2)),
+                _detail(context, 'OBP',
+                    '+${(score.placementScore - score.rawScore).toStringAsFixed(1)}'),
+              ],
               if (score.extraPlacementScore != null)
                 _detail(context, 'Ek puanlı (kendi alanında)',
                     score.extraPlacementScore!.toStringAsFixed(2)),
@@ -148,14 +164,18 @@ class ScoreTypeCard extends StatelessWidget {
                 Icon(Icons.leaderboard_rounded,
                     size: 18, color: AppColors.textSecondaryFor(context)),
                 const SizedBox(width: 8),
-                Text(
-                  outcome.rankIsUserEntered
-                      ? 'Başarı sıran'
-                      : 'Tahmini başarı sırası',
-                  style: AppTextStyles.bodySmall
-                      .copyWith(color: AppColors.textSecondaryFor(context)),
+                // Dar telefonlarda (360dp) etiket + sayı satıra sığmıyordu;
+                // esneyen etiket taşmayı sayıya değil kendine yıkar.
+                Expanded(
+                  child: Text(
+                    outcome.rankIsUserEntered
+                        ? 'Başarı sıran'
+                        : 'Tahmini başarı sırası',
+                    style: AppTextStyles.bodySmall
+                        .copyWith(color: AppColors.textSecondaryFor(context)),
+                  ),
                 ),
-                const Spacer(),
+                const SizedBox(width: 8),
                 Text(
                   outcome.rankIsUserEntered
                       ? formatRank(outcome.estimatedRank!)
@@ -174,12 +194,14 @@ class ScoreTypeCard extends StatelessWidget {
                   Icon(Icons.donut_small_rounded,
                       size: 18, color: AppColors.textSecondaryFor(context)),
                   const SizedBox(width: 8),
-                  Text(
-                    'Yüzdelik dilim',
-                    style: AppTextStyles.bodySmall
-                        .copyWith(color: AppColors.textSecondaryFor(context)),
+                  Expanded(
+                    child: Text(
+                      'Yüzdelik dilim',
+                      style: AppTextStyles.bodySmall
+                          .copyWith(color: AppColors.textSecondaryFor(context)),
+                    ),
                   ),
-                  const Spacer(),
+                  const SizedBox(width: 8),
                   Text(
                     formatPercentile(outcome.percentile!),
                     style: AppTextStyles.titleSmall.copyWith(
@@ -207,6 +229,13 @@ class ScoreTypeCard extends StatelessWidget {
           ],
         ],
       ),
+    );
+
+    if (onTap == null) return card;
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(20),
+      child: card,
     );
   }
 

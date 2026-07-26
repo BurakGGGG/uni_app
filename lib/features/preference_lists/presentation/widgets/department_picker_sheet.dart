@@ -68,16 +68,8 @@ class _BodyState extends ConsumerState<_Body> {
     final loc = AppLocalizations.of(context);
     return Column(
       children: [
-        // Drag handle
-        Container(
-          margin: const EdgeInsets.only(top: 10, bottom: 4),
-          width: 40,
-          height: 4,
-          decoration: BoxDecoration(
-            color: AppColors.borderLightFor(context),
-            borderRadius: BorderRadius.circular(2),
-          ),
-        ),
+        // Tutamak temadan geliyor (`showDragHandle: true`).
+        const SizedBox(height: 4),
 
         // Header
         Padding(

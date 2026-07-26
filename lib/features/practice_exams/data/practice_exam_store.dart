@@ -71,6 +71,17 @@ class PracticeExamStore {
     await _prefs.remove(_key);
   }
 
+  /// Oturum kapanınca yereli tamamen boşaltır: aktif defter, hedef ve eski
+  /// migrasyon anahtarı. Firestore'a **dokunmaz** — amaç veriyi silmek değil,
+  /// cihazı bir sonraki hesap için temiz bırakmak; uzak yedek olduğu gibi kalır.
+  /// [legacyKey] de temizlenir, yoksa defter yeniden kurulunca eski kullanıcının
+  /// kayıtları migrasyonla geri dirilir.
+  Future<void> clearLocalSession() async {
+    await _prefs.remove(_key);
+    await _prefs.remove(_targetKey);
+    await _prefs.remove(legacyKey);
+  }
+
   /// `calc_history_v1` kayıtlarını yeni deftere taşır.
   ///
   /// Yalnız yeni defter boşken çalışır ve eski anahtarı **silmez** — bir sürüm

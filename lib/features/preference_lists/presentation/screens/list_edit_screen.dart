@@ -1,16 +1,35 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../../core/utils/formatters.dart';
+import '../../../../core/utils/snackbar_helper.dart';
 import '../../../../l10n/generated/app_localizations.dart';
-import '../../../university/presentation/widgets/score_badge.dart';
-import '../../../preference_wizard/presentation/widgets/feasibility_chip.dart';
-import '../../../preference_wizard/presentation/widgets/list_health_panel.dart';
-import '../providers/preference_list_providers.dart';
+import '../../../../router/app_router.dart';
+import '../../../assistant/domain/robot_brain.dart';
+import '../../../assistant/presentation/widgets/robot_avatar.dart';
+import '../../../preference_wizard/domain/list_health.dart';
+import '../../../preference_wizard/domain/models/student_score_profile.dart';
+import '../../../preference_wizard/presentation/providers/preference_wizard_providers.dart';
+import '../../../score_calculator/domain/models/match_result.dart';
+import '../../domain/list_overview.dart';
 import '../../domain/models/preference_list_model.dart';
-import '../widgets/share_list_sheet.dart';
+import '../providers/preference_list_providers.dart';
+import '../widgets/dashed_box.dart';
 import '../widgets/department_picker_sheet.dart';
+import '../widgets/list_actions_sheet.dart';
+import '../widgets/list_balance_bar.dart';
 
+/// Tek bir tercih listesi: özet + sıralanabilir tercihler.
+///
+/// **Kaydet butonu YOK** (kullanıcı kararı): her değişiklik anında yazılır,
+/// altta birkaç saniye "GERİ AL" durur. Eski hâlde sürükleyip kaydetmeden
+/// çıkan öğrenci emeğini kaybediyordu — bir sıralama ekranında en kolay
+/// yapılan hata buydu.
 class ListEditScreen extends ConsumerStatefulWidget {
   final String listId;
   const ListEditScreen({super.key, required this.listId});
@@ -20,245 +39,225 @@ class ListEditScreen extends ConsumerStatefulWidget {
 }
 
 class _ListEditScreenState extends ConsumerState<ListEditScreen> {
-  List<PreferenceItem>? _draftItems;
-  List<PreferenceItem>? _lastSavedItems;
-  List<PreferenceItem>? _previousOrderBeforeSort;
-  bool _isSaving = false;
-  bool _isDeleting = false;
+  /// Ekrandaki sıra. Firestore'dan gelenle senkron tutulur ama kullanıcı
+  /// sürüklerken ondan önde gider (iyimser güncelleme).
+  List<PreferenceItem>? _items;
 
-  Future<void> _addItem(PreferenceListModel currentList) async {
-    final newItem = await DepartmentPickerSheet.show(context);
-    if (newItem == null) return;
+  /// En son yazılan hâl — gelen stream'in bizim yazımımız mı yoksa başka bir
+  /// cihazdan gelen değişiklik mi olduğunu ayırt etmek için.
+  List<PreferenceItem>? _saved;
 
-    final currentItems = _effectiveItems(currentList);
-    if (currentItems.any((i) => i.deptId == newItem.deptId)) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              AppLocalizations.of(context).prefListDuplicateDepartment,
-            ),
-          ),
-        );
-      }
-      return;
+  /// Sunucudan en son GÖRÜLEN hâl. Aynı anlık görüntüyle tekrar çizilmek
+  /// (ör. "yazılıyor" göstergesi açılıp kapanırken) uzaktan gelen bir
+  /// değişiklik sayılmamalı — yoksa daha yeni yerel silme geri gelir.
+  List<PreferenceItem>? _remote;
+
+  Timer? _saveTimer;
+  bool _saving = false;
+
+  /// Sürüklerken her kare yazmamak için: birkaç hızlı hareket tek yazıma
+  /// toplanır.
+  static const Duration _kSaveDebounce = Duration(milliseconds: 600);
+
+  /// `dispose` içinde `ref` kullanılamaz; depoyu önden tutuyoruz ki ekrandan
+  /// çıkarken bekleyen yazım yine de gitsin.
+  late final _repo = ref.read(preferenceListRepositoryProvider);
+
+  @override
+  void dispose() {
+    _saveTimer?.cancel();
+    final pending = _items;
+    // Kaydedilmemiş bir sıra kaldıysa ekran kapanırken son bir kez yaz.
+    if (pending != null && !_sameOrder(pending, _saved)) {
+      unawaited(_repo.reorderItems(widget.listId, pending).catchError((_) {}));
     }
-
-    if (currentItems.length >= PreferenceListModel.maxItems) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              AppLocalizations.of(
-                context,
-              ).prefListMaxItems(PreferenceListModel.maxItems),
-            ),
-          ),
-        );
-      }
-      return;
-    }
-
-    setState(() {
-      _draftItems = [
-        ...currentItems,
-        newItem.copyWith(order: currentItems.length + 1),
-      ];
-    });
+    super.dispose();
   }
 
-  List<PreferenceItem> _effectiveItems(PreferenceListModel list) =>
-      _draftItems ?? list.items;
+  // ─── Durum senkronu ──────────────────────────────────────────
 
-  void _syncDraftIfNeeded(PreferenceListModel list) {
-    final incoming = _normalizedItems(list.items);
-    if (_draftItems == null) {
-      _draftItems = incoming;
-      _lastSavedItems = incoming;
+  void _syncFromRemote(PreferenceListModel list) {
+    final incoming = _normalized(list.items);
+    if (_items == null) {
+      _items = incoming;
+      _saved = incoming;
+      _remote = incoming;
       return;
     }
+    // Aynı anlık görüntü yeniden çizildi: uzaktan haber yok, karışma.
+    if (_sameOrder(_remote, incoming)) return;
+    _remote = incoming;
 
-    if (!_isDirty && !_listEquals(_lastSavedItems, incoming)) {
-      _draftItems = incoming;
-      _lastSavedItems = incoming;
-      _previousOrderBeforeSort = null;
+    // Gerçekten yeni bir uzak hâl geldi. Bekleyen yerel değişiklik varsa
+    // (kullanıcı hâlâ sürüklüyor) ona dokunmuyoruz; yoksa ekranı tazele.
+    if (_sameOrder(_items, _saved)) {
+      _items = incoming;
+      _saved = incoming;
     }
   }
 
-  bool get _isDirty => !_listEquals(_draftItems, _lastSavedItems);
+  List<PreferenceItem> get _current => _items ?? const [];
 
-  Future<void> _saveItems() async {
-    final items = _draftItems;
-    if (items == null || !_isDirty || _isSaving) return;
+  /// Yeni sırayı ekrana basar ve yazımı planlar.
+  ///
+  /// [undoTo] verilirse altta "GERİ AL" çıkar — sürükleme, silme ve
+  /// sıralama hepsi bu tek yoldan geçer, geri alma davranışı tek yerde.
+  void _apply(
+    List<PreferenceItem> next, {
+    List<PreferenceItem>? undoTo,
+    String? message,
+    bool immediate = false,
+  }) {
+    final normalized = _normalized(next);
+    setState(() => _items = normalized);
+    _scheduleSave(immediate: immediate);
 
-    setState(() => _isSaving = true);
-    try {
-      await ref
-          .read(preferenceListRepositoryProvider)
-          .reorderItems(widget.listId, items);
-      if (!mounted) return;
-      setState(() {
-        _lastSavedItems = _normalizedItems(items);
-        _draftItems = _normalizedItems(items);
-      });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(AppLocalizations.of(context).prefListSaved)),
-      );
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(AppLocalizations.of(context).prefListSaveError('$e')),
-        ),
-      );
-    } finally {
-      if (mounted) {
-        setState(() => _isSaving = false);
-      }
-    }
-  }
-
-  Future<void> _deleteList(PreferenceListModel list) async {
-    if (_isDeleting) return;
-    final loc = AppLocalizations.of(context);
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Text(loc.prefListDeleteTitle),
-        content: Text(loc.prefListDeleteConfirm(list.title)),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: Text(
-              loc.commonCancel,
-              style: TextStyle(color: AppColors.textSecondaryFor(context)),
-            ),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(ctx, true),
-            style: FilledButton.styleFrom(
-              backgroundColor: AppColors.error,
-              foregroundColor: Colors.white,
-            ),
-            child: Text(loc.commonDelete),
-          ),
-        ],
+    if (undoTo == null || message == null) return;
+    final snapshot = _normalized(undoTo);
+    showAppSnackBar(
+      context,
+      message: message,
+      duration: const Duration(seconds: 5),
+      action: SnackBarAction(
+        label: AppLocalizations.of(context).prefListUndoAction,
+        textColor: Colors.white,
+        onPressed: () {
+          if (!mounted) return;
+          setState(() => _items = snapshot);
+          _scheduleSave(immediate: true);
+        },
       ),
     );
+  }
 
-    if (confirmed != true || !mounted) return;
+  void _scheduleSave({bool immediate = false}) {
+    _saveTimer?.cancel();
+    if (immediate) {
+      unawaited(_save());
+      return;
+    }
+    _saveTimer = Timer(_kSaveDebounce, () => unawaited(_save()));
+  }
 
-    setState(() => _isDeleting = true);
+  Future<void> _save() async {
+    final items = _items;
+    if (items == null || _saving || _sameOrder(items, _saved)) return;
+    setState(() => _saving = true);
     try {
-      await ref.read(preferenceListControllerProvider.notifier).delete(list.id);
+      await _repo.reorderItems(widget.listId, items);
       if (!mounted) return;
-      Navigator.pop(context);
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(loc.prefListDeleted)));
+      setState(() => _saved = _normalized(items));
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(
+      showAppSnackBar(
         context,
-      ).showSnackBar(SnackBar(content: Text(loc.prefListDeleteError('$e'))));
+        message: AppLocalizations.of(context).prefListSaveError('$e'),
+        isError: true,
+      );
     } finally {
-      if (mounted) {
-        setState(() => _isDeleting = false);
-      }
+      if (mounted) setState(() => _saving = false);
     }
   }
 
-  void _sortByScoreDescending(PreferenceListModel list) {
-    final current = _effectiveItems(list);
-    if (current.length < 2) return;
+  // ─── Eylemler ────────────────────────────────────────────────
 
-    // Taban puanı yüksek olan üste. Verilerde ranking çoğunlukla 0 geldiği
-    // için birincil ölçüt baseScore'dur; puanı olmayanlar listenin sonuna
-    // düşer ve kendi aralarında (varsa) başarı sıralamasına göre dizilir.
-    setState(() {
-      _previousOrderBeforeSort = _normalizedItems(current);
-      final sorted = [...current]
-        ..sort((a, b) {
-          final aScore = (a.baseScore ?? 0) > 0 ? a.baseScore! : null;
-          final bScore = (b.baseScore ?? 0) > 0 ? b.baseScore! : null;
+  Future<void> _addItem() async {
+    final loc = AppLocalizations.of(context);
+    final current = _current;
+    if (current.length >= PreferenceListModel.maxItems) {
+      showAppSnackBar(
+        context,
+        message: loc.prefListMaxItems(PreferenceListModel.maxItems),
+      );
+      return;
+    }
 
-          if (aScore != null || bScore != null) {
-            if (aScore == null) return 1; // puanı olmayan sona
-            if (bScore == null) return -1;
-            final scoreCompare = bScore.compareTo(aScore); // yüksek puan önce
-            if (scoreCompare != 0) return scoreCompare;
-          } else {
-            // İkisinin de puanı yok → ranking küçük olan (daha iyi) önce.
-            final aRank = (a.ranking ?? 0) > 0 ? a.ranking! : 1 << 30;
-            final bRank = (b.ranking ?? 0) > 0 ? b.ranking! : 1 << 30;
-            final rankCompare = aRank.compareTo(bRank);
-            if (rankCompare != 0) return rankCompare;
-          }
-          return a.order.compareTo(b.order);
-        });
-      _draftItems = _normalizedItems(sorted);
-    });
+    final newItem = await DepartmentPickerSheet.show(context);
+    if (newItem == null || !mounted) return;
+
+    if (current.any((i) => i.deptId == newItem.deptId)) {
+      showAppSnackBar(context, message: loc.prefListDuplicateDepartment);
+      return;
+    }
+    _apply([...current, newItem], immediate: true);
   }
 
-  void _undoSort() {
-    final previous = _previousOrderBeforeSort;
-    if (previous == null) return;
-    setState(() {
-      _draftItems = _normalizedItems(previous);
-      _previousOrderBeforeSort = null;
-    });
-  }
-
-  void _removeAt(int index, PreferenceListModel list) {
-    final current = _effectiveItems(list);
-    setState(() {
-      final updated = [...current]..removeAt(index);
-      _draftItems = _normalizedItems(updated);
-    });
-  }
-
-  List<PreferenceItem> _normalizedItems(List<PreferenceItem> items) {
-    return List<PreferenceItem>.generate(
-      items.length,
-      (index) => items[index].copyWith(order: index + 1),
-      growable: false,
+  void _removeAt(int index) {
+    final current = _current;
+    if (index < 0 || index >= current.length) return;
+    final removed = current[index];
+    _apply(
+      [...current]..removeAt(index),
+      undoTo: current,
+      message: AppLocalizations.of(context).prefListItemRemoved(removed.uniName),
+      immediate: true,
     );
   }
 
-  bool _listEquals(List<PreferenceItem>? a, List<PreferenceItem>? b) {
+  /// Üni'nin sağlıklı sırası: zorlayıcılar üstte, güvenliler altta.
+  ///
+  /// ÖSYM yerleştirmesi listeyi yukarıdan aşağı tarar — en çok istenen
+  /// (ve en zor) program üstte olmazsa öğrenci daha kolay girdiği bir alt
+  /// tercihe yerleşip üsttekini kaçırır. Grup içinde taban puanı yüksek
+  /// olan önce gelir.
+  void _sortByHealth(StudentScoreProfile profile, int? estimatedRank) {
+    final current = _current;
+    if (current.length < 2) return;
+
+    int rank(PreferenceItem item) => switch (categorizeListItem(
+          item,
+          profile,
+          estimatedStudentRank: estimatedRank,
+        )) {
+          MatchCategory.dream => 0,
+          MatchCategory.target => 1,
+          MatchCategory.guaranteed => 2,
+          // Değerlendirilemeyenler en sona: sıraları hakkında bir şey
+          // söyleyemiyorum, öne almak yanıltıcı olur.
+          null => 3,
+        };
+
+    final sorted = [...current]
+      ..sort((a, b) {
+        final byBand = rank(a).compareTo(rank(b));
+        if (byBand != 0) return byBand;
+        final byScore = (b.baseScore ?? 0).compareTo(a.baseScore ?? 0);
+        if (byScore != 0) return byScore;
+        return a.order.compareTo(b.order);
+      });
+
+    _apply(
+      sorted,
+      undoTo: current,
+      message: AppLocalizations.of(context).prefListSortedByRisk,
+      immediate: true,
+    );
+  }
+
+  // ─── Yardımcılar ─────────────────────────────────────────────
+
+  List<PreferenceItem> _normalized(List<PreferenceItem> items) =>
+      List<PreferenceItem>.generate(
+        items.length,
+        (i) => items[i].copyWith(order: i + 1),
+        growable: false,
+      );
+
+  bool _sameOrder(List<PreferenceItem>? a, List<PreferenceItem>? b) {
     if (identical(a, b)) return true;
-    if (a == null || b == null) return false;
-    if (a.length != b.length) return false;
+    if (a == null || b == null || a.length != b.length) return false;
     for (var i = 0; i < a.length; i++) {
-      if (!_sameItem(a[i], b[i])) return false;
+      if (a[i].deptId != b[i].deptId) return false;
     }
     return true;
   }
 
-  bool _sameItem(PreferenceItem a, PreferenceItem b) {
-    return a.deptId == b.deptId &&
-        a.uniId == b.uniId &&
-        a.order == b.order &&
-        a.note == b.note &&
-        a.deptName == b.deptName &&
-        a.uniName == b.uniName &&
-        a.uniLogoUrl == b.uniLogoUrl &&
-        a.faculty == b.faculty &&
-        a.deptType == b.deptType &&
-        a.language == b.language &&
-        a.scoreType == b.scoreType &&
-        a.baseScore == b.baseScore &&
-        a.ranking == b.ranking &&
-        a.quota == b.quota &&
-        a.placedCount == b.placedCount &&
-        a.uniBrandHex == b.uniBrandHex;
-  }
+  // ─── Çizim ───────────────────────────────────────────────────
 
   @override
   Widget build(BuildContext context) {
-    final listAsync = ref.watch(preferenceListProvider(widget.listId));
     final loc = AppLocalizations.of(context);
+    final listAsync = ref.watch(preferenceListProvider(widget.listId));
 
     return Scaffold(
       backgroundColor: AppColors.backgroundFor(context),
@@ -268,344 +267,297 @@ class _ListEditScreenState extends ConsumerState<ListEditScreen> {
         ),
         error: (e, _) => Center(child: Text(loc.errorGeneral(e.toString()))),
         data: (list) {
-          if (list == null) {
-            return Center(child: Text(loc.prefListNotFound));
-          }
-          _syncDraftIfNeeded(list);
-          return _buildContent(list);
+          if (list == null) return Center(child: Text(loc.prefListNotFound));
+          _syncFromRemote(list);
+          return _content(list);
         },
       ),
     );
   }
 
-  Widget _buildContent(PreferenceListModel list) {
-    final loc = AppLocalizations.of(context);
-    final items = _effectiveItems(list);
-    final isFull = items.length >= PreferenceListModel.maxItems;
+  Widget _content(PreferenceListModel list) {
+    final items = _current;
+    final profile = ref.watch(studentScoreProfileProvider);
+    final estimator = ref.watch(rankEstimatorProvider).valueOrNull;
+    final estimatedRank = profile == null || profile.hasRank || !profile.hasScore
+        ? null
+        : estimator?.estimateRank(profile.placementScore, profile.scoreType);
 
-    return CustomScrollView(
-      physics: const BouncingScrollPhysics(),
-      slivers: [
-        SliverToBoxAdapter(
-          child: SafeArea(
-            bottom: false,
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(8, 8, 16, 0),
-              child: Row(
-                children: [
-                  IconButton(
-                    icon: Icon(
-                      Icons.arrow_back_rounded,
-                      color: AppColors.textPrimaryFor(context),
-                    ),
-                    onPressed: () => Navigator.pop(context),
-                  ),
-                  const Spacer(),
-                  IconButton(
-                    icon: Icon(
-                      Icons.share_rounded,
-                      color: AppColors.textPrimaryFor(context),
-                    ),
-                    onPressed: () => ShareListSheet.show(context, list),
-                  ),
-                ],
+    final health = profile == null
+        ? null
+        : analyzeListHealth(items, profile, estimatedStudentRank: estimatedRank);
+    final overview = ListOverview(
+      list: list.copyWith(items: items),
+      health: health,
+      pinned: ref.watch(pinnedListProvider) == list.id,
+    );
+
+    return SafeArea(
+      child: CustomScrollView(
+        physics: const BouncingScrollPhysics(),
+        slivers: [
+          SliverToBoxAdapter(
+            child: _TopBar(
+              saving: _saving,
+              onBack: () => Navigator.pop(context),
+              onMore: () => ListActionsSheet.show(
+                context,
+                ref,
+                overview,
+                onDeleted: () {
+                  if (mounted) Navigator.pop(context);
+                },
               ),
             ),
           ),
-        ),
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  list.title,
-                  style: AppTextStyles.headlineMedium.copyWith(
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: -0.5,
-                  ),
-                ),
-                if (list.description.isNotEmpty) ...[
-                  const SizedBox(height: 6),
-                  Text(
-                    list.description,
-                    style: AppTextStyles.bodyMedium.copyWith(
-                      color: AppColors.textSecondaryFor(context),
-                      height: 1.4,
-                    ),
-                  ),
-                ],
-                const SizedBox(height: 14),
-                _ListSummaryCard(list: list.copyWith(items: items)),
-                const SizedBox(height: 12),
-                ListHealthPanel(items: items),
-              ],
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(20, 4, 20, 16),
+              child: _SummaryCard(
+                overview: overview,
+                onSort: profile == null
+                    ? null
+                    : () => _sortByHealth(profile, estimatedRank),
+              )
+                  .animate()
+                  .fadeIn(duration: 300.ms)
+                  .slideY(begin: 0.06, end: 0, curve: Curves.easeOutCubic),
             ),
           ),
-        ),
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(20, 4, 20, 12),
-            child: _ActionBar(
-              canUndo: _previousOrderBeforeSort != null,
-              canSort: items.length > 1,
-              onSort: () => _sortByScoreDescending(list),
-              onUndo: _undoSort,
-            ),
-          ),
-        ),
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(20, 4, 20, 12),
-            child: _GradientBorderButton(
-              onPressed: isFull
-                  ? null
-                  : () => _addItem(list.copyWith(items: items)),
-              height: 50,
-              icon: Icons.add_rounded,
-              label: isFull
-                  ? loc.prefListFullLimit(PreferenceListModel.maxItems)
-                  : loc.prefListAddDepartment,
-            ),
-          ),
-        ),
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
-            child: Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: _isDeleting ? null : () => _deleteList(list),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: AppColors.error,
-                      side: BorderSide(
-                        color: AppColors.error.withValues(alpha: 0.28),
-                      ),
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    icon: _isDeleting
-                        ? const SizedBox(
-                            width: 16,
-                            height: 16,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        : const Icon(Icons.delete_outline_rounded, size: 18),
-                    label: Text(
-                      loc.commonDelete,
-                      style: const TextStyle(fontWeight: FontWeight.w700),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _GradientBorderButton(
-                    onPressed: _isDirty && !_isSaving ? _saveItems : null,
-                    icon: _isSaving ? null : Icons.save_rounded,
-                    label: _isDirty ? loc.commonSave : loc.prefListSavedState,
-                    child: _isSaving
-                        ? SizedBox(
-                            width: 16,
-                            height: 16,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: AppColors.primary,
-                            ),
-                          )
-                        : null,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-        if (items.isEmpty)
-          const SliverFillRemaining(hasScrollBody: false, child: _EmptyItems())
-        else
-          SliverPadding(
-            padding: const EdgeInsets.fromLTRB(16, 4, 16, 32),
-            sliver: SliverReorderableList(
-              itemCount: items.length,
-              onReorderItem: (oldIndex, newIndex) {
-                setState(() {
-                  final reordered = [...items];
-                  final item = reordered.removeAt(oldIndex);
-                  reordered.insert(newIndex, item);
-                  _draftItems = _normalizedItems(reordered);
-                });
-              },
-              itemBuilder: (context, index) {
-                final item = items[index];
-                return _ItemCard(
-                  key: ValueKey('${item.deptId}_${item.order}'),
-                  item: item,
+          if (items.isEmpty)
+            SliverToBoxAdapter(child: _EmptyItems(onAdd: _addItem))
+          else
+            SliverPadding(
+              padding: const EdgeInsets.fromLTRB(20, 0, 20, 4),
+              sliver: SliverReorderableList(
+                itemCount: items.length,
+                onReorderItem: (oldIndex, newIndex) {
+                  final before = _current;
+                  final next = [...before];
+                  next.insert(newIndex, next.removeAt(oldIndex));
+                  _apply(
+                    next,
+                    undoTo: before,
+                    message: AppLocalizations.of(context).prefListOrderUpdated,
+                  );
+                },
+                itemBuilder: (context, index) => _ItemRow(
+                  key: ValueKey(items[index].deptId),
+                  item: items[index],
                   index: index,
-                  onDelete: () => _removeAt(index, list),
-                );
-              },
+                  category: profile == null
+                      ? null
+                      : categorizeListItem(
+                          items[index],
+                          profile,
+                          estimatedStudentRank: estimatedRank,
+                        ),
+                  onRemove: () => _removeAt(index),
+                ),
+              ),
+            ),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(20, 8, 20, 40),
+              child: _AddRow(
+                full: items.length >= PreferenceListModel.maxItems,
+                onTap: _addItem,
+              ),
             ),
           ),
-      ],
+        ],
+      ),
     );
   }
 }
 
-class _ActionBar extends StatelessWidget {
-  final bool canSort;
-  final bool canUndo;
-  final VoidCallback onSort;
-  final VoidCallback onUndo;
+// ─── Üst çubuk ─────────────────────────────────────────────────
 
-  const _ActionBar({
-    required this.canSort,
-    required this.canUndo,
-    required this.onSort,
-    required this.onUndo,
+class _TopBar extends StatelessWidget {
+  final bool saving;
+  final VoidCallback onBack;
+  final VoidCallback onMore;
+
+  const _TopBar({
+    required this.saving,
+    required this.onBack,
+    required this.onMore,
   });
 
   @override
   Widget build(BuildContext context) {
-    final loc = AppLocalizations.of(context);
-    return Row(
-      children: [
-        Expanded(
-          child: OutlinedButton.icon(
-            onPressed: canSort ? onSort : null,
-            style: OutlinedButton.styleFrom(
-              foregroundColor: AppColors.textPrimaryFor(context),
-              side: BorderSide(color: AppColors.borderLightFor(context)),
-              padding: const EdgeInsets.symmetric(vertical: 12),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-            icon: const Icon(Icons.sort_rounded, size: 18),
-            label: Text(
-              loc.prefListSortByScore,
-              style: const TextStyle(fontWeight: FontWeight.w700),
-            ),
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(8, 6, 8, 0),
+      child: Row(
+        children: [
+          IconButton(
+            icon: const Icon(Icons.arrow_back_rounded),
+            onPressed: onBack,
           ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: OutlinedButton.icon(
-            onPressed: canUndo ? onUndo : null,
-            style: OutlinedButton.styleFrom(
-              foregroundColor: AppColors.textSecondaryFor(context),
-              side: BorderSide(color: AppColors.borderLightFor(context)),
-              padding: const EdgeInsets.symmetric(vertical: 12),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-            icon: const Icon(Icons.undo_rounded, size: 18),
-            label: Text(
-              loc.prefListUndo,
-              style: const TextStyle(fontWeight: FontWeight.w700),
-            ),
+          const Spacer(),
+          // Kaydet butonu yok; onun yerine "yazılıyor" işareti. Kullanıcı
+          // hiçbir zaman kaydetmeyi hatırlamak zorunda değil.
+          //
+          // Gizliyken tamamen ağaçtan çıkıyor: opacity 0 ile bırakılan
+          // dönen gösterge boşuna kare harcar (ve testlerde hiç durmaz).
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 200),
+            child: !saving
+                ? const SizedBox.shrink()
+                : Row(
+                    key: const ValueKey('saving'),
+                    children: [
+                      SizedBox(
+                        width: 12,
+                        height: 12,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: AppColors.textTertiaryFor(context),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        AppLocalizations.of(context).prefListSaving,
+                        style: AppTextStyles.labelSmall.copyWith(
+                          color: AppColors.textTertiaryFor(context),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                    ],
+                  ),
           ),
-        ),
-      ],
+          IconButton(
+            tooltip: AppLocalizations.of(context).prefListOptions,
+            icon: const Icon(Icons.more_horiz_rounded),
+            onPressed: onMore,
+          ),
+        ],
+      ),
     );
   }
 }
 
-class _ListSummaryCard extends StatelessWidget {
-  final PreferenceListModel list;
-  const _ListSummaryCard({required this.list});
+// ─── Özet kart ─────────────────────────────────────────────────
+
+/// Başlık + doluluk + denge + Üni'nin yorumu TEK kartta.
+///
+/// Eskiden burada beş ayrı blok vardı (özet kart, sağlık paneli, sırala
+/// çubuğu, ekle butonu, sil+kaydet satırı) ve asıl içerik — tercihler —
+/// ekranın çok aşağısında kalıyordu.
+class _SummaryCard extends StatelessWidget {
+  final ListOverview overview;
+  final VoidCallback? onSort;
+
+  const _SummaryCard({required this.overview, required this.onSort});
 
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
-    final filled = list.items.length;
-    const max = PreferenceListModel.maxItems;
-    final progress = (filled / max).clamp(0.0, 1.0);
-
-    final stByCount = <String, int>{};
-    for (final it in list.items) {
-      final st = it.scoreType;
-      if (st == null) continue;
-      stByCount[st] = (stByCount[st] ?? 0) + 1;
-    }
+    final list = overview.list;
+    final health = overview.health;
 
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.fromLTRB(18, 16, 18, 16),
       decoration: BoxDecoration(
         color: AppColors.surfaceFor(context),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(24),
         border: Border.all(color: AppColors.borderLightFor(context)),
         boxShadow: AppColors.softShadowFor(context),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Text(
+            list.title,
+            style: AppTextStyles.headlineSmall.copyWith(
+              fontWeight: FontWeight.w800,
+              letterSpacing: -0.4,
+            ),
+          ),
+          if (list.description.isNotEmpty) ...[
+            const SizedBox(height: 4),
+            Text(
+              list.description,
+              style: AppTextStyles.bodySmall.copyWith(
+                color: AppColors.textSecondaryFor(context),
+                height: 1.35,
+              ),
+            ),
+          ],
+          const SizedBox(height: 14),
           Row(
+            crossAxisAlignment: CrossAxisAlignment.baseline,
+            textBaseline: TextBaseline.alphabetic,
             children: [
               Text(
-                '$filled',
-                style: AppTextStyles.headlineSmall.copyWith(
+                '${overview.filled}',
+                style: AppTextStyles.titleLarge.copyWith(
                   fontWeight: FontWeight.w800,
                   color: AppColors.primary,
                 ),
               ),
-              const SizedBox(width: 4),
               Text(
-                loc.prefListItemLimit(max),
+                ' ${loc.prefListItemLimit(ListOverview.capacity)}',
                 style: AppTextStyles.bodySmall.copyWith(
                   color: AppColors.textSecondaryFor(context),
                 ),
               ),
-              const Spacer(),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 4,
-                ),
-                decoration: BoxDecoration(
-                  color: list.isPublic
-                      ? AppColors.success.withValues(alpha: 0.10)
-                      : AppColors.surfaceVariantFor(context),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      list.isPublic ? Icons.public_rounded : Icons.lock_rounded,
-                      size: 12,
-                      color: list.isPublic
-                          ? AppColors.success
-                          : AppColors.textTertiaryFor(context),
+            ],
+          ),
+          const SizedBox(height: 8),
+          TweenAnimationBuilder<double>(
+            tween: Tween(begin: 0, end: overview.progress),
+            duration: const Duration(milliseconds: 700),
+            curve: Curves.easeOutCubic,
+            builder: (context, value, _) => ClipRRect(
+              borderRadius: BorderRadius.circular(5),
+              child: LinearProgressIndicator(
+                value: value,
+                minHeight: 8,
+                backgroundColor: AppColors.surfaceVariantFor(context),
+                valueColor: const AlwaysStoppedAnimation(AppColors.primary),
+              ),
+            ),
+          ),
+          if (health != null && overview.hasBalance) ...[
+            const SizedBox(height: 14),
+            ListBalanceBar(report: health),
+            const SizedBox(height: 12),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const RobotAvatar(size: 24, animated: false),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    RobotBrain.listHealthComment(health).text,
+                    style: AppTextStyles.bodySmall.copyWith(
+                      color: AppColors.textSecondaryFor(context),
+                      height: 1.35,
                     ),
-                    const SizedBox(width: 5),
-                    Text(
-                      list.isPublic ? loc.commonPublicLong : loc.commonPrivate,
-                      style: AppTextStyles.labelSmall.copyWith(
-                        color: list.isPublic
-                            ? AppColors.success
-                            : AppColors.textTertiaryFor(context),
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ],
+                  ),
+                ),
+              ],
+            ),
+            if (onSort != null && overview.filled > 1) ...[
+              const SizedBox(height: 10),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: TextButton.icon(
+                  onPressed: onSort,
+                  icon: const Icon(Icons.auto_awesome_rounded, size: 16),
+                  label: Text(loc.prefListSortWithUni),
+                  style: TextButton.styleFrom(
+                    visualDensity: VisualDensity.compact,
+                  ),
                 ),
               ),
             ],
-          ),
-          const SizedBox(height: 10),
-          _GradientProgressBar(progress: progress),
-          if (stByCount.isNotEmpty) ...[
-            const SizedBox(height: 12),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: stByCount.entries
-                  .map((e) => _ScoreTypeChip(type: e.key, count: e.value))
-                  .toList(),
+          ] else if (health == null) ...[
+            const SizedBox(height: 14),
+            ListBalanceInvite(
+              onTap: () =>
+                  navigateToRoute(context, AppRoutes.scoreCalculator),
             ),
           ],
         ],
@@ -614,243 +566,118 @@ class _ListSummaryCard extends StatelessWidget {
   }
 }
 
-class _ScoreTypeChip extends StatelessWidget {
-  final String type;
-  final int count;
-  const _ScoreTypeChip({required this.type, required this.count});
+// ─── Tercih satırı ─────────────────────────────────────────────
 
-  @override
-  Widget build(BuildContext context) {
-    final color = _color(type);
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.10),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: color.withValues(alpha: 0.2)),
-      ),
-      child: Text(
-        '$count $type',
-        style: AppTextStyles.labelSmall.copyWith(
-          color: color,
-          fontWeight: FontWeight.w700,
-        ),
-      ),
-    );
-  }
-
-  Color _color(String type) {
-    switch (type) {
-      case 'SAY':
-        return const Color(0xFF3B82F6);
-      case 'EA':
-        return const Color(0xFF8B5CF6);
-      case 'SOZ':
-      case 'SÖZ':
-        return const Color(0xFFEC4899);
-      case 'DIL':
-      case 'DİL':
-        return const Color(0xFF10B981);
-      case 'TYT':
-        return const Color(0xFFF59E0B);
-      default:
-        return AppColors.primary;
-    }
-  }
-}
-
-class _EmptyItems extends StatelessWidget {
-  const _EmptyItems();
-
-  @override
-  Widget build(BuildContext context) {
-    final loc = AppLocalizations.of(context);
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              width: 80,
-              height: 80,
-              decoration: BoxDecoration(
-                color: AppColors.primary.withValues(alpha: 0.08),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                Icons.school_rounded,
-                size: 36,
-                color: AppColors.primary,
-              ),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              loc.prefListEmptyItemsTitle,
-              style: AppTextStyles.titleLarge.copyWith(
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-            const SizedBox(height: 6),
-            Text(
-              loc.prefListEmptyItemsDesc,
-              textAlign: TextAlign.center,
-              style: AppTextStyles.bodyMedium.copyWith(
-                color: AppColors.textSecondaryFor(context),
-                height: 1.5,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _ItemCard extends StatelessWidget {
+/// Tek tercih. Sola/sağa kaydırınca listeden çıkar (geri al'lı), uzun
+/// basınca sürüklenir.
+class _ItemRow extends StatelessWidget {
   final PreferenceItem item;
   final int index;
-  final VoidCallback onDelete;
+  final MatchCategory? category;
+  final VoidCallback onRemove;
 
-  const _ItemCard({
+  const _ItemRow({
     super.key,
     required this.item,
     required this.index,
-    required this.onDelete,
+    required this.category,
+    required this.onRemove,
   });
 
   @override
   Widget build(BuildContext context) {
-    final brand = _hexToColor(item.uniBrandHex) ?? AppColors.primary;
+    final band = category;
+    final color =
+        band == null ? AppColors.borderLightFor(context) : listBandColor(band);
+    final meta = _meta(AppLocalizations.of(context));
 
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 5),
-      child: Material(
-        color: AppColors.surfaceFor(context),
-        borderRadius: BorderRadius.circular(16),
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppColors.borderLightFor(context)),
-            boxShadow: AppColors.softShadowFor(context),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(12),
+      key: ValueKey('row_${item.deptId}'),
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Dismissible(
+        key: ValueKey('dismiss_${item.deptId}'),
+        direction: DismissDirection.horizontal,
+        onDismissed: (_) => onRemove(),
+        background: const _RemoveBackground(alignEnd: false),
+        secondaryBackground: const _RemoveBackground(alignEnd: true),
+        child: ReorderableDelayedDragStartListener(
+          index: index,
+          child: Container(
+            decoration: BoxDecoration(
+              color: AppColors.surfaceFor(context),
+              borderRadius: BorderRadius.circular(18),
+              border: Border.all(color: AppColors.borderLightFor(context)),
+              boxShadow: AppColors.softShadowFor(context),
+            ),
             child: Row(
               children: [
+                // Kategori şeridi kartın sol kenarında: liste kaydırılırken
+                // dengenin dağılımı kendini gösterir.
                 Container(
-                  width: 44,
-                  height: 44,
+                  width: 5,
+                  height: 62,
                   decoration: BoxDecoration(
-                    color: brand.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Center(
-                    child: Text(
-                      '${index + 1}',
-                      style: TextStyle(
-                        color: brand,
-                        fontWeight: FontWeight.w800,
-                        fontSize: index < 9 ? 18 : 16,
-                      ),
+                    color: color,
+                    borderRadius: const BorderRadius.horizontal(
+                      left: Radius.circular(18),
                     ),
                   ),
                 ),
                 const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(
-                            child: Text(
-                              item.deptName,
-                              style: AppTextStyles.titleSmall.copyWith(
-                                fontWeight: FontWeight.w700,
-                                height: 1.2,
-                              ),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                          if (item.scoreType != null) ...[
-                            const SizedBox(width: 6),
-                            ScoreBadge.scoreType(item.scoreType!, small: true),
-                          ],
-                        ],
-                      ),
-                      const SizedBox(height: 3),
-                      Text(
-                        item.uniName,
-                        style: AppTextStyles.labelSmall.copyWith(
-                          color: AppColors.textSecondaryFor(context),
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      if (_hasScoreInfo) ...[
-                        const SizedBox(height: 8),
-                        Wrap(
-                          spacing: 6,
-                          runSpacing: 6,
-                          children: [
-                            FeasibilityChip(
-                              scoreType: item.scoreType,
-                              baseScore: item.baseScore,
-                              ranking: item.ranking,
-                              compact: true,
-                            ),
-                            if (item.baseScore != null && item.baseScore! > 0)
-                              _MiniStat(
-                                icon: Icons.trending_up_rounded,
-                                color: AppColors.primary,
-                                value: item.baseScore!.toStringAsFixed(2),
-                              ),
-                            if (item.ranking != null && item.ranking! > 0)
-                              _MiniStat(
-                                icon: Icons.emoji_events_rounded,
-                                color: AppColors.warning,
-                                value: _formatRank(item.ranking!),
-                              ),
-                            if (item.quota != null && item.quota! > 0)
-                              _MiniStat(
-                                icon: Icons.people_alt_rounded,
-                                color: AppColors.info,
-                                value: item.placedCount != null
-                                    ? '${item.placedCount}/${item.quota}'
-                                    : '${item.quota}',
-                              ),
-                          ],
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-                ReorderableDragStartListener(
-                  index: index,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 6),
-                    child: Icon(
-                      Icons.drag_indicator_rounded,
+                SizedBox(
+                  width: 22,
+                  child: Text(
+                    '${item.order}',
+                    style: AppTextStyles.titleSmall.copyWith(
+                      fontWeight: FontWeight.w800,
                       color: AppColors.textTertiaryFor(context),
-                      size: 22,
                     ),
                   ),
                 ),
-                IconButton(
-                  icon: const Icon(
-                    Icons.close_rounded,
-                    color: AppColors.error,
-                    size: 18,
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          item.uniName,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppTextStyles.bodyMedium.copyWith(
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          item.deptName,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppTextStyles.bodySmall.copyWith(
+                            color: AppColors.textSecondaryFor(context),
+                          ),
+                        ),
+                        if (meta != null) ...[
+                          const SizedBox(height: 4),
+                          Text(
+                            meta,
+                            style: AppTextStyles.labelSmall.copyWith(
+                              color: AppColors.textTertiaryFor(context),
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
                   ),
-                  onPressed: onDelete,
-                  visualDensity: VisualDensity.compact,
-                  style: IconButton.styleFrom(
-                    backgroundColor: AppColors.error.withValues(alpha: 0.08),
-                    minimumSize: const Size(32, 32),
-                    padding: EdgeInsets.zero,
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(right: 10),
+                  child: Icon(
+                    Icons.drag_indicator_rounded,
+                    size: 20,
+                    color: AppColors.textTertiaryFor(context),
                   ),
                 ),
               ],
@@ -861,172 +688,126 @@ class _ItemCard extends StatelessWidget {
     );
   }
 
-  bool get _hasScoreInfo =>
-      (item.baseScore != null && item.baseScore! > 0) ||
-      (item.ranking != null && item.ranking! > 0) ||
-      (item.quota != null && item.quota! > 0);
-
-  static String _formatRank(int rank) {
-    if (rank >= 1000000) return '${(rank / 1000000).toStringAsFixed(1)}M';
-    if (rank >= 1000) return '${(rank / 1000).toStringAsFixed(0)}B';
-    return '$rank';
-  }
-
-  static Color? _hexToColor(String? hex) {
-    if (hex == null) return null;
-    var h = hex.replaceAll('#', '');
-    if (h.length == 6) h = 'FF$h';
-    final v = int.tryParse(h, radix: 16);
-    return v != null ? Color(v) : null;
+  /// "2.400. sıra · SAY 521,4" — geçen yılın verisi satırda kalsın ki
+  /// karşılaştırmak için listeden çıkmak gerekmesin.
+  String? _meta(AppLocalizations loc) {
+    final parts = <String>[];
+    final rank = item.ranking;
+    if (rank != null && rank > 0) {
+      parts.add(loc.rankFormat(AppFormatters.ranking(rank)));
+    }
+    final base = item.baseScore;
+    if (base != null && base > 0) {
+      final type = item.scoreType;
+      final score = AppFormatters.score(base);
+      parts.add(type == null || type.isEmpty ? score : '$type $score');
+    }
+    return parts.isEmpty ? null : parts.join('  ·  ');
   }
 }
 
-class _MiniStat extends StatelessWidget {
-  final IconData icon;
-  final Color color;
-  final String value;
-
-  const _MiniStat({
-    required this.icon,
-    required this.color,
-    required this.value,
-  });
+class _RemoveBackground extends StatelessWidget {
+  final bool alignEnd;
+  const _RemoveBackground({required this.alignEnd});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      alignment: alignEnd ? Alignment.centerRight : Alignment.centerLeft,
+      padding: const EdgeInsets.symmetric(horizontal: 24),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.10),
-        borderRadius: BorderRadius.circular(8),
+        color: AppColors.error.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(18),
       ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
+      child: const Icon(
+        Icons.delete_outline_rounded,
+        color: AppColors.error,
+      ),
+    );
+  }
+}
+
+// ─── Ekleme ve boş durum ───────────────────────────────────────
+
+class _AddRow extends StatelessWidget {
+  final bool full;
+  final VoidCallback onTap;
+
+  const _AddRow({required this.full, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
+    if (full) {
+      return Container(
+        padding: const EdgeInsets.symmetric(vertical: 14),
+        alignment: Alignment.center,
+        child: Text(
+          loc.prefListFullLimit(PreferenceListModel.maxItems),
+          style: AppTextStyles.bodySmall.copyWith(
+            color: AppColors.textTertiaryFor(context),
+          ),
+        ),
+      );
+    }
+
+    return Material(
+      color: Colors.transparent,
+      borderRadius: BorderRadius.circular(18),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(18),
+        child: DottedBorderBox(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.add_rounded, size: 20, color: AppColors.primary),
+              const SizedBox(width: 8),
+              Text(
+                loc.prefListAddDepartment,
+                style: AppTextStyles.bodyMedium.copyWith(
+                  color: AppColors.primary,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _EmptyItems extends StatelessWidget {
+  final VoidCallback onAdd;
+  const _EmptyItems({required this.onAdd});
+
+  @override
+  Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(28, 24, 28, 8),
+      child: Column(
         children: [
-          Icon(icon, size: 12, color: color),
-          const SizedBox(width: 4),
+          const RobotAvatar(size: 64),
+          const SizedBox(height: 16),
           Text(
-            value,
-            style: AppTextStyles.labelSmall.copyWith(
-              color: color,
-              fontWeight: FontWeight.w700,
-              fontSize: 11,
+            loc.prefListEmptyItemsTitle,
+            style: AppTextStyles.titleMedium.copyWith(
+              fontWeight: FontWeight.w800,
             ),
           ),
+          const SizedBox(height: 8),
+          Text(
+            loc.prefListEmptyItemsDesc(PreferenceListModel.maxItems),
+            textAlign: TextAlign.center,
+            style: AppTextStyles.bodySmall.copyWith(
+              color: AppColors.textSecondaryFor(context),
+              height: 1.4,
+            ),
+          ),
+          const SizedBox(height: 18),
         ],
-      ),
-    );
-  }
-}
-
-// ── Gradient Border Button ──────────────────────────────────────
-class _GradientBorderButton extends StatelessWidget {
-  final VoidCallback? onPressed;
-  final IconData? icon;
-  final String? label;
-  final double? height;
-  final Widget? child;
-
-  const _GradientBorderButton({
-    this.onPressed,
-    this.icon,
-    this.label,
-    this.height,
-    this.child,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final enabled = onPressed != null;
-    final gradient = AppColors.heroGradient;
-
-    return GestureDetector(
-      onTap: onPressed,
-      child: Container(
-        height: height ?? 46,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
-          gradient: enabled ? gradient : null,
-          border: enabled
-              ? null
-              : Border.all(color: AppColors.borderLightFor(context)),
-        ),
-        padding: const EdgeInsets.all(1.8),
-        child: Container(
-          decoration: BoxDecoration(
-            color: AppColors.surfaceFor(context),
-            borderRadius: BorderRadius.circular(10.5),
-          ),
-          child: Center(
-            child:
-                child ??
-                // Dar ekranlarda ikon+etiket taşmasın diye ölçeklenerek sığar.
-                FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      if (icon != null) ...[
-                        ShaderMask(
-                          shaderCallback: (bounds) =>
-                              gradient.createShader(bounds),
-                          child: Icon(
-                            icon,
-                            size: 20,
-                            color: enabled
-                                ? Colors.white
-                                : AppColors.textTertiaryFor(context),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                      ],
-                      if (label != null)
-                        ShaderMask(
-                          shaderCallback: (bounds) =>
-                              gradient.createShader(bounds),
-                          child: Text(
-                            label!,
-                            style: TextStyle(
-                              fontWeight: FontWeight.w700,
-                              fontSize: 15,
-                              color: enabled
-                                  ? Colors.white
-                                  : AppColors.textTertiaryFor(context),
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// ── Gradient Progress Bar ───────────────────────────────────────
-class _GradientProgressBar extends StatelessWidget {
-  final double progress;
-  const _GradientProgressBar({required this.progress});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: 6,
-      decoration: BoxDecoration(
-        color: AppColors.surfaceVariantFor(context),
-        borderRadius: BorderRadius.circular(4),
-      ),
-      child: FractionallySizedBox(
-        alignment: Alignment.centerLeft,
-        widthFactor: progress,
-        child: Container(
-          decoration: BoxDecoration(
-            gradient: AppColors.heroGradient,
-            borderRadius: BorderRadius.circular(4),
-          ),
-        ),
       ),
     );
   }

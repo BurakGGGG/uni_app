@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../auth/presentation/providers/auth_providers.dart';
 import '../../../practice_exams/domain/models/exam_target.dart';
 import '../../../practice_exams/domain/practice_exam_analytics.dart';
 import '../../../practice_exams/presentation/providers/practice_exam_providers.dart';
@@ -16,35 +17,13 @@ import '../../domain/insights/insight_engine.dart';
 import '../../domain/insights/target_roadmap.dart';
 import '../../domain/insights/uni_insight.dart';
 import '../../domain/insights/weekly_plan.dart';
+import '../../domain/screen_tips.dart';
+import '../robot_action_route.dart';
 import 'assistant_providers.dart';
 
 /// İlk 5 tercihte şehir yığılması bu eşikten sonra anlamlı sayılır — motorun
 /// eşiğiyle aynı pencereye bakar ([InsightEngine] 4'ten itibaren uyarır).
 const int _kCityWindow = 5;
-
-/// Panelin gösterdiği gelişim sayıları — Denemelerim'in analiz katmanının
-/// (`practice_exam_analytics.dart`) özeti; yeni hesap yok.
-class ProgressSummary {
-  final int examCount;
-  final int streak;
-  final int? latestRank;
-
-  /// İlk denemeye göre sıra iyileşmesi (pozitif = iyileşme); referans yoksa
-  /// null.
-  final int? rankGain;
-
-  final SubjectStat? strongest;
-  final SubjectStat? weakest;
-
-  const ProgressSummary({
-    required this.examCount,
-    required this.streak,
-    this.latestRank,
-    this.rankGain,
-    this.strongest,
-    this.weakest,
-  });
-}
 
 /// Motorun tek girdisi. Ağır kaynaklar (tüm bölümler, üniversiteler) zaten
 /// `keepAlive` ve uygulama açılışında prefetch ediliyor; burada yalnız
@@ -96,18 +75,28 @@ final insightContextProvider = FutureProvider<InsightContext>((ref) async {
         ),
     ],
     tracked: _trackedOf(lists, allDepts),
+    estimatedRank: estimatedRank,
   );
 });
 
 /// Susturulmuş notlar ayıklanmış, önceliğe göre sıralı liste.
+///
+/// Misafirde Denemelerim'e götüren düğmeler düşer ([UniInsight.withoutAction]):
+/// o ekran üyelere özel, düğme yalnız giriş duvarına çarptırırdı. Not metni
+/// misafire de değerli olduğu için kartın kendisi kalır.
 final uniInsightsProvider = Provider<List<UniInsight>>((ref) {
   final ctx = ref.watch(insightContextProvider).valueOrNull;
   if (ctx == null) return const [];
   final memory = ref.watch(robotMemoryProvider);
+  final signedIn = ref.watch(authStateProvider).valueOrNull != null;
+
   return [
     for (final insight in InsightEngine.analyze(ctx))
       if (!insight.dismissible || !memory.isInsightDismissed(insight.id))
-        insight,
+        if (signedIn || !robotActionNeedsAccount(insight.action))
+          insight
+        else
+          insight.withoutAction(),
   ];
 });
 
@@ -118,23 +107,60 @@ final topInsightProvider = Provider<UniInsight?>((ref) {
   return all.isEmpty ? null : all.first;
 });
 
-/// Kurulumun durumu — panel bunu "sıradaki adım" kartını çizmek için okur.
-final setupPathProvider = Provider<SetupPath>((ref) {
-  final ctx = ref.watch(insightContextProvider).valueOrNull;
-  if (ctx == null) {
-    return const SetupPath(hasProfile: false, hasExam: false);
+/// Açık sekmenin ipucu — yüzen Üni'nin "burası ne işe yarar" repliği.
+///
+/// Notlardan ayrı bir yol: not kullanıcının verisi hakkında konuşur, ipucu
+/// ekran hakkında. Karar saf fonksiyonda ([uniScreenTip]); burada yalnız
+/// bağlam toplanıyor.
+final uniScreenTipProvider =
+    Provider.autoDispose.family<ScreenTip?, String>((ref, path) {
+  // Önce "bu ekranın ipucu var mı": ana sayfada boşuna kaynak dinlemeyelim.
+  if (!screenHasTip(path)) return null;
+
+  // Bağlam yalnız o sekmenin ihtiyacı kadar toplanır — Keşfet'e bakarken
+  // tercih listesi akışına (Firestore) abone olmanın anlamı yok.
+  var listCount = 0;
+  var hasAnyList = false;
+
+  if (path.startsWith('/my-lists')) {
+    final lists = ref.watch(myPreferenceListsProvider).valueOrNull ?? const [];
+    hasAnyList = lists.isNotEmpty;
+    listCount = lists.isEmpty
+        ? 0
+        : lists.map((l) => l.items.length).reduce((a, b) => a > b ? a : b);
   }
-  return InsightEngine.setupPathOf(ctx);
+
+  return uniScreenTip(
+    ScreenTipContext(
+      path: path,
+      signedIn: ref.watch(authStateProvider).valueOrNull != null,
+      hasAnyList: hasAnyList,
+      listCount: listCount,
+    ),
+  );
 });
 
-/// Kurulum bitmeden gösterilecek TEK adım; bittiyse null.
+/// Tercih yolunun 4. adımı: listeyle ve ÖSYM verisiyle ilgili uyarılar.
 ///
-/// Motorun `setup.*` notunu yeniden kullanır, metni kopyalamaz — kart ile
-/// ana sayfadaki balon aynı cümleyi söylesin diye.
-final nextSetupStepProvider = Provider<UniInsight?>((ref) {
-  if (ref.watch(setupPathProvider).complete) return null;
-  final all = ref.watch(uniInsightsProvider);
-  return all.where((i) => i.kind == InsightKind.setup).firstOrNull;
+/// Kurulum notu (`setup.noProfile`) ve takvim geri sayımı dışarıda kalır —
+/// ikisinin de yeri var: kurulum 1. adımın kendisi, takvim de başlıktaki
+/// dönem çipi. Aynı cümleyi ekranda iki kez göstermemek için süzülüyorlar.
+final pathInsightsProvider = Provider<List<UniInsight>>((ref) {
+  return [
+    for (final insight in ref.watch(uniInsightsProvider))
+      if (insight.kind == InsightKind.list || insight.kind == InsightKind.data)
+        insight,
+  ];
+});
+
+/// "Asıl" tercih listesi — en dolu olan. Kullanıcı 10 liste tutabiliyor;
+/// panelin 3. adımı hangisini özetleyeceğini motorun `_list()` kuralıyla
+/// AYNI şekilde seçer, yoksa kart ile uyarılar farklı listeden konuşur.
+final mainListProvider = Provider<ListSnapshot?>((ref) {
+  final ctx = ref.watch(insightContextProvider).valueOrNull;
+  final lists = ctx?.lists ?? const <ListSnapshot>[];
+  if (lists.isEmpty) return null;
+  return lists.reduce((a, b) => b.itemCount > a.itemCount ? b : a);
 });
 
 /// Hedef yol haritası — panel bloğu ve `target.roadmap` notu AYNI hesabı
@@ -211,35 +237,6 @@ final suggestedTargetProvider = Provider<ExamTarget?>((ref) {
     );
   }
   return null;
-});
-
-/// Gelişim bloğunun sayıları — analiz katmanının özeti, yeni hesap yok.
-final progressSummaryProvider = Provider<ProgressSummary?>((ref) {
-  final ctx = ref.watch(insightContextProvider).valueOrNull;
-  if (ctx == null) return null;
-  final exams = ctx.liveExams;
-  if (exams.isEmpty) return null;
-
-  final type = ctx.scoreType;
-  final ranked = type.isEmpty
-      ? const <ExamTrendPoint>[]
-      : [
-          for (final p in trendFor(exams, type, year: exams.first.year))
-            if (p.rank != null && p.rank! > 0) p,
-        ];
-
-  final stats = subjectStats(exams);
-  return ProgressSummary(
-    examCount: exams.length,
-    streak: weeklyStreak(exams, now: ctx.now),
-    latestRank: ranked.lastOrNull?.rank,
-    rankGain: ranked.length >= 2
-        ? ranked.first.rank! - ranked.last.rank!
-        : null,
-    // subjectStats başarı oranına göre azalan sıralı gelir.
-    strongest: stats.firstOrNull,
-    weakest: stats.length >= 2 ? stats.last : null,
-  );
 });
 
 // ── Anlık görüntü kurucuları ────────────────────────────────────

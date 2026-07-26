@@ -1,7 +1,6 @@
 import '../../../practice_exams/domain/practice_exam_analytics.dart';
 import '../robot_message.dart';
 import '../robot_scripts.dart';
-import '../tercih_calendar.dart';
 import 'insight_context.dart';
 import 'target_roadmap.dart';
 
@@ -36,11 +35,13 @@ class WeeklyPlan {
   bool get isEmpty => tasks.isEmpty;
 }
 
-/// Haftalık planı üretir — saf, kural tabanlı.
+/// Haftalık ÇALIŞMA planını üretir — saf, kural tabanlı.
 ///
-/// Görevleri kullanıcı yazmaz, Üni türetir: faz + zayıf dersler + hedef
-/// mesafesi + liste durumu. "Ne yapmalıyım" sorusunun cevabı zaten verinin
-/// içinde duruyordu; buraya kadar kimse sormamıştı.
+/// Görevleri kullanıcı yazmaz, Üni türetir: zayıf dersler + hedef mesafesi.
+/// Plan bir dönem tercih görevleri de yayıyordu ("listene 12 tercih daha
+/// ekle"); onlar Üni Paneli'nin 3. ve 4. adımına taşındı — aynı işi iki yerde
+/// istemek kullanıcıya iki ayrı ödev listesi gibi okunuyordu. Burası artık
+/// Denemelerim'in bloğu: yalnız çalışma.
 abstract final class WeeklyPlanner {
   /// En fazla kaç görev. Üçten fazlası haftalık plan değil, yapılacaklar
   /// listesi olur ve hiçbiri yapılmaz.
@@ -76,16 +77,7 @@ abstract final class WeeklyPlanner {
       add('plan.setTarget', action: RobotAction.setTarget);
     }
 
-    final inSeason = ctx.phase == TercihPhase.tercihPeriod ||
-        ctx.phase == TercihPhase.resultsWait;
-
-    if (inSeason) {
-      _listTasks(ctx, add);
-      _studyTasks(ctx, roadmap, add);
-    } else {
-      _studyTasks(ctx, roadmap, add);
-      _listTasks(ctx, add);
-    }
+    _studyTasks(ctx, roadmap, add);
 
     return WeeklyPlan(weekKey: weekKeyFor(ctx.now), tasks: tasks);
   }
@@ -136,39 +128,6 @@ abstract final class WeeklyPlanner {
           action: RobotAction.openPracticeExams,
         );
       }
-    }
-  }
-
-  /// Liste tarafı: güvenli tercih eksiği → tamamlama → sıralama.
-  static void _listTasks(
-    InsightContext ctx,
-    void Function(String,
-            {Map<String, String> vars,
-            RobotAction action,
-            String? actionArg})
-        add,
-  ) {
-    if (ctx.lists.isEmpty) return;
-    final main =
-        ctx.lists.reduce((a, b) => b.itemCount > a.itemCount ? b : a);
-    if (main.itemCount == 0) return;
-
-    if (main.rated > 0 && main.guaranteed == 0) {
-      add(
-        'plan.addSafe',
-        vars: {'count': '3'},
-        action: RobotAction.openLists,
-      );
-    }
-    if (main.itemCount < 24) {
-      add(
-        'plan.completeList',
-        vars: {'remaining': '${24 - main.itemCount}'},
-        action: RobotAction.openLists,
-      );
-    }
-    if (ctx.phase == TercihPhase.tercihPeriod && main.itemCount >= 5) {
-      add('plan.reviewOrder', action: RobotAction.openLists);
     }
   }
 

@@ -108,7 +108,7 @@ void main() {
   tearDown(() => RobotScripts.languageCode = 'tr');
 
   group('kurulum yolu', () {
-    test('boş bağlamda yalnız ilk eksik adım yayılır', () {
+    test('puan yoksa tek bir kurulum notu yayılır', () {
       final insights = InsightEngine.analyze(InsightContext(now: _offSeason));
       final setup = insights.where((i) => i.kind == InsightKind.setup);
 
@@ -119,214 +119,58 @@ void main() {
           reason: 'eksik adım kapatmakla tamamlanmaz');
     });
 
-    test('profil varsa sıra denemeye geçer', () {
-      final withProfile = InsightContext(
-        now: _offSeason,
-        profile: _profile(),
-      );
-      final next = InsightEngine.analyze(withProfile);
-      expect(_find(next, 'setup.noExam'), isNotNull);
-      expect(_find(next, 'setup.noProfile'), isNull);
-    });
-
-    // Hedef, kurulum şartı DEĞİL. Puanı ve tek denemesi olmayan kişiden
-    // "hedef program seç" istemek ona henüz cevaplayamayacağı bir soru
-    // sormaktır; davet ancak ölçebildiğim şey varken anlamlı.
-    test('hedef daveti kurulum bitmeden çıkmaz', () {
-      final beforeExam = InsightContext(
-        now: _offSeason,
-        profile: _profile(),
-      );
-      expect(_find(InsightEngine.analyze(beforeExam), 'setup.noTarget'),
-          isNull);
-
-      final afterExam = InsightContext(
-        now: _offSeason,
-        profile: _profile(),
-        exams: [_exam(id: 'a', takenAt: _offSeason, nets: _nets())],
-      );
-      final invite = _find(InsightEngine.analyze(afterExam), 'setup.noTarget');
-      expect(invite, isNotNull);
-      expect(invite!.action, RobotAction.setTarget);
-      expect(InsightEngine.setupPathOf(afterExam).complete, isTrue,
-          reason: 'hedef kurulum sayacına girmez');
-    });
-
-    test('ikisi tamamlanınca kurulum ailesi tamamen susar', () {
-      final ctx = InsightContext(
-        now: _offSeason,
-        profile: _profile(),
-        target: _target(),
-        exams: [_exam(id: 'a', takenAt: _offSeason, nets: _nets())],
-      );
-      final insights = InsightEngine.analyze(ctx);
-
-      expect(insights.where((i) => i.kind == InsightKind.setup), isEmpty);
-      expect(InsightEngine.setupPathOf(ctx).complete, isTrue);
-      expect(InsightEngine.setupPathOf(ctx).done, 2);
-    });
-
-    test('silinmiş deneme kurulumu tamamlamaz', () {
-      final ctx = InsightContext(
-        now: _offSeason,
-        profile: _profile(),
-        target: _target(),
-        exams: [
-          _exam(
-            id: 'a',
-            takenAt: _offSeason,
-            nets: _nets(),
-            deleted: true,
-          ),
-        ],
-      );
-      expect(InsightEngine.setupPathOf(ctx).hasExam, isFalse);
-      expect(_find(InsightEngine.analyze(ctx), 'setup.noExam'), isNotNull);
-    });
-  });
-
-  group('hedef', () {
-    test('hedefin üstündeki sıra kutlama üretir, yön notu üretmez', () {
-      // Çok yüksek netler → hedef sıranın (400.000) rahatça üstünde.
-      final ctx = InsightContext(
-        now: _offSeason,
-        profile: _profile(),
-        target: _target(rank: 400000),
-        exams: [
-          _exam(
-            id: 'a',
-            takenAt: DateTime(2026, 2, 1),
-            nets: _nets(aytMat: 35, aytFizik: 12, aytKimya: 12, aytBiyo: 12),
-          ),
-        ],
-      );
-      final insights = InsightEngine.analyze(ctx);
-
-      expect(_find(insights, 'target.reached'), isNotNull);
-      expect(_find(insights, 'target.closing'), isNull);
-      expect(_find(insights, 'target.drifting'), isNull);
-    });
-
-    test('netler yükselirken "yaklaşıyorsun", düşerken "geriliyor" der', () {
-      List<PracticeExam> series(bool improving) => [
-            _exam(
-              id: 'eski',
-              takenAt: DateTime(2026, 1, 10),
-              nets: _nets(aytMat: improving ? 8 : 30),
-            ),
-            _exam(
-              id: 'yeni',
-              takenAt: DateTime(2026, 2, 8),
-              nets: _nets(aytMat: improving ? 30 : 8),
-            ),
-          ];
-
-      final up = InsightEngine.analyze(InsightContext(
-        now: _offSeason,
-        profile: _profile(),
-        target: _target(rank: 1000),
-        exams: series(true),
-      ));
-      expect(_find(up, 'target.closing'), isNotNull);
-      expect(_find(up, 'target.drifting'), isNull);
-
-      final down = InsightEngine.analyze(InsightContext(
-        now: _offSeason,
-        profile: _profile(),
-        target: _target(rank: 1000),
-        exams: series(false),
-      ));
-      expect(_find(down, 'target.drifting'), isNotNull);
-      expect(_find(down, 'target.closing'), isNull);
-    });
-
-    test('hedef sırası yoksa hedef ailesi hiç çalışmaz', () {
-      final noRank = ExamTarget(
-        departmentId: 'd1',
-        departmentName: 'X',
-        universityName: 'Y',
-        scoreType: 'SAY',
-        setAt: DateTime(2026, 1, 1),
-      );
+    test('puan girilince kurulum ailesi tamamen susar', () {
       final insights = InsightEngine.analyze(InsightContext(
         now: _offSeason,
         profile: _profile(),
-        target: noRank,
-        exams: [_exam(id: 'a', takenAt: _offSeason, nets: _nets())],
       ));
-      expect(insights.where((i) => i.kind == InsightKind.target), isEmpty);
+      expect(insights.where((i) => i.kind == InsightKind.setup), isEmpty);
     });
   });
 
-  group('gelişim', () {
-    test('21 günden eski defter "sessiz" sayılır', () {
-      final ctx = InsightContext(
+  // Üni bir tercih asistanı; deneme defteri ve hedef mesafesi Denemelerim'in
+  // işi. Motor bir dönem ikisini de not olarak yayıyordu ve panel çalışma
+  // koçuna dönmüştü — bu grup o dönüşün geri gelmediğini bekler.
+  group('çalışma notu yaymaz', () {
+    test('denemesi ve hedefi olmayan kullanıcıdan bunlar istenmez', () {
+      final insights = InsightEngine.analyze(InsightContext(
+        now: _offSeason,
+        profile: _profile(),
+      ));
+      expect(_find(insights, 'setup.noExam'), isNull);
+      expect(_find(insights, 'setup.noTarget'), isNull);
+    });
+
+    test('hedefe mesafe ve ders gelişimi not üretmez', () {
+      // Hedefi olan, sıralaması gerileyen, defteri bir aydır sessiz bir
+      // kullanıcı: eski motorda burada target.* ve progress.* dolusu not
+      // çıkardı.
+      final insights = InsightEngine.analyze(InsightContext(
         now: DateTime(2026, 3, 1),
         profile: _profile(),
+        target: _target(rank: 1000),
         exams: [
-          _exam(id: 'a', takenAt: DateTime(2026, 2, 1), nets: _nets()),
+          _exam(id: 'eski', takenAt: DateTime(2026, 1, 10), nets: _nets(aytMat: 30)),
+          _exam(id: 'yeni', takenAt: DateTime(2026, 2, 1), nets: _nets(aytMat: 8)),
         ],
-      );
-      final stale = _find(InsightEngine.analyze(ctx), 'progress.stale');
-      expect(stale, isNotNull);
-      expect(stale!.body, contains('28'));
-    });
-
-    test('taze defterde sessizlik notu çıkmaz', () {
-      final ctx = InsightContext(
-        now: DateTime(2026, 2, 10),
-        profile: _profile(),
-        exams: [
-          _exam(id: 'a', takenAt: DateTime(2026, 2, 8), nets: _nets()),
-        ],
-      );
-      expect(_find(InsightEngine.analyze(ctx), 'progress.stale'), isNull);
-    });
-
-    test('ders ortalaması sıçrayınca yükseliş, çökünce düşüş notu', () {
-      // subjectStats penceresi 5: son 5 deneme "şimdi", önceki 5 "referans".
-      final exams = <PracticeExam>[
-        for (var i = 0; i < 5; i++)
-          _exam(
-            id: 'eski$i',
-            takenAt: DateTime(2026, 1, i + 1),
-            nets: _nets(aytFizik: 3, aytKimya: 10),
-          ),
-        for (var i = 0; i < 5; i++)
-          _exam(
-            id: 'yeni$i',
-            takenAt: DateTime(2026, 2, i + 1),
-            nets: _nets(aytFizik: 10, aytKimya: 3),
-          ),
-      ];
-      final insights = InsightEngine.analyze(InsightContext(
-        now: DateTime(2026, 2, 6),
-        profile: _profile(),
-        exams: exams,
       ));
 
-      final jump = _find(insights, 'progress.jump');
-      final drop = _find(insights, 'progress.drop');
-      expect(jump, isNotNull);
-      expect(jump!.title, contains('Fizik'));
-      expect(drop, isNotNull);
-      expect(drop!.title, contains('Kimya'));
+      for (final insight in insights) {
+        expect(insight.id, isNot(startsWith('target.')));
+        expect(insight.id, isNot(startsWith('progress.')));
+      }
     });
 
-    test('haftalık seri 2 haftadan itibaren kutlanır', () {
-      final now = DateTime(2026, 2, 12); // Perşembe
-      final exams = [
-        _exam(id: 'buHafta', takenAt: DateTime(2026, 2, 10), nets: _nets()),
-        _exam(id: 'gecenHafta', takenAt: DateTime(2026, 2, 3), nets: _nets()),
-      ];
-      final streak = _find(
-        InsightEngine.analyze(
-          InsightContext(now: now, profile: _profile(), exams: exams),
-        ),
-        'progress.streak',
-      );
-      expect(streak, isNotNull);
-      expect(streak!.body, isNotEmpty);
+    test('yol haritası hesabı duruyor — Denemelerim onu okuyor', () {
+      // Not yayılmıyor ama hesap kalmalı: UniTargetBlock ve WeeklyPlanner
+      // roadmapFor() üzerinden çalışıyor.
+      final roadmap = InsightEngine.roadmapFor(InsightContext(
+        now: _offSeason,
+        profile: _profile(),
+        target: _target(rank: 1000),
+        exams: [_exam(id: 'a', takenAt: DateTime(2026, 2, 1), nets: _nets())],
+      ));
+      expect(roadmap, isNotNull);
     });
   });
 

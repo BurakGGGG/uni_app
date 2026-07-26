@@ -110,7 +110,9 @@ class WizardSummaryHeader extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 8, 20, 0),
             child: InkWell(
-              onTap: () => context.push('/preference-wizard'),
+              // Sıra girişi puan hesaplayıcının içinde (sıra modu); tanışma
+              // formu puan/sıra sormuyor, oraya götürmek çıkmazdı.
+              onTap: () => context.push('/score-calculator'),
               borderRadius: BorderRadius.circular(12),
               child: Container(
                 padding:

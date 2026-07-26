@@ -15,10 +15,12 @@ String? robotActionRoute(RobotAction action, {String? arg}) {
   switch (action) {
     case RobotAction.none:
       return null;
-    // Sıralama girişi de sihirbazın içinde (sohbet akışı) toplanıyor.
     case RobotAction.openWizard:
-    case RobotAction.addRank:
       return AppRoutes.preferenceWizard;
+    // Sıralama girişi eskiden sihirbazın sohbet akışında toplanıyordu; o akış
+    // kalktı, sıra modu puan hesaplayıcının içinde. Tanışma formu puan/sıra
+    // sormadığı için oraya götürmek kullanıcıyı çıkmaza sokuyordu.
+    case RobotAction.addRank:
     case RobotAction.openScoreCalculator:
       return AppRoutes.scoreCalculator;
     case RobotAction.openLists:
@@ -34,4 +36,15 @@ String? robotActionRoute(RobotAction action, {String? arg}) {
     case RobotAction.setTarget:
       return AppRoutes.practiceExams;
   }
+}
+
+/// Eylem giriş isteyen bir ekrana mı gidiyor?
+///
+/// Cevabı rota tablosundan türetir, ayrı bir liste tutmaz — yeni bir eylem
+/// Denemelerim'e bağlandığında burası kendiliğinden doğru cevabı verir.
+/// Misafire böyle bir düğme gösterilmez: dokunduğunda yalnız giriş duvarı
+/// görürdü (kapı `app_router.dart`'taki `protectedRoutes`).
+bool robotActionNeedsAccount(RobotAction action) {
+  final route = robotActionRoute(action);
+  return route != null && route.startsWith(AppRoutes.practiceExams);
 }

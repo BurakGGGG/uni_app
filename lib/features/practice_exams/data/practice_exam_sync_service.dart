@@ -64,25 +64,37 @@ class PracticeExamSyncService {
 
   /// Tam senkron turu. Misafirse hiçbir şey yapmaz.
   /// Birleştirilmiş (silinmemiş) listeyi döner; giriş yapılmamışsa yereli.
+  ///
+  /// `pullAll` uzun bir ağ `await`'i; bu sürede kullanıcı çıkış yapıp başka
+  /// hesaba geçebilir (`resetLocal` yereli boşaltır). Bu olduysa `merged`
+  /// önceki hesabın kayıtlarını taşır; onu yerele geri yazmak veri sızdırır.
+  /// Bu yüzden tur başında uid'i sabitleyip her `await` sonrası doğrularız —
+  /// hesap değiştiyse hiçbir yazma yapmadan güncel yereli döneriz.
   Future<List<PracticeExam>> sync() async {
-    if (!_repository.isSignedIn) return _store.read();
+    final uid = _repository.currentUid;
+    if (uid == null) return _store.read();
 
     final local = _store.readIncludingDeleted();
     final remote = await _repository.pullAll();
+    if (_repository.currentUid != uid) return _store.read();
 
     final merged = merge(local, remote);
     await _store.save(merged);
     await _repository.upsertAll(toPush(local, remote));
+    if (_repository.currentUid != uid) return _store.read();
 
-    await _syncTarget();
+    await _syncTarget(uid);
 
     return _store.read();
   }
 
   /// Hedef tek dokümanda; yerel hedef varsa o yayınlanır, yoksa uzaktaki alınır.
-  Future<void> _syncTarget() async {
+  /// [uid] tur başındaki hesap; `pullTarget` sonrası hesap değiştiyse (başka
+  /// bir hesaba geçildiyse) hiçbir yerel yazma yapmadan çıkarız.
+  Future<void> _syncTarget(String uid) async {
     final local = _store.readTarget();
     final remote = await _repository.pullTarget();
+    if (_repository.currentUid != uid) return;
     if (local == null && remote != null) {
       await _store.saveTarget(remote);
       return;

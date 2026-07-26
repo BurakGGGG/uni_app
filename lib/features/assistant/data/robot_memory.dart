@@ -13,6 +13,15 @@ class RobotMemory {
   static const _dismissedPrefix = 'assistant_dismissed_';
   static const _planWeekKey = 'assistant_plan_week';
   static const _planDoneKey = 'assistant_plan_done';
+  static const _screenTipPrefix = 'assistant_tip_';
+
+  /// Bir ekran ipucu en fazla bu kadar kez söylenir, sonra susar.
+  ///
+  /// Notlardan farklı olarak ipucunun süresi DOLMAZ: "Keşfet nasıl
+  /// kullanılır" bilgisi öğrenildikten sonra her açılışta tekrarlanırsa
+  /// Üni dırdırcıya döner. Ekranın durumu değişince (boş liste → dolu
+  /// liste) kimlik de değişir ve yeni ipucu kendi hakkıyla konuşur.
+  static const int screenTipMaxShows = 3;
 
   /// Kapatılan bir not bu süre boyunca susar; sonra geri gelir. Kalıcı
   /// susturma yok — "listende güvenli tercih yok" uyarısı sorun çözülmeden
@@ -64,6 +73,17 @@ class RobotMemory {
     );
   }
 
+  // ── Sekme ipuçları ──
+
+  /// [tipId] daha söylenebilir mi?
+  bool canShowScreenTip(String tipId) =>
+      (_prefs.getInt('$_screenTipPrefix$tipId') ?? 0) < screenTipMaxShows;
+
+  Future<void> recordScreenTipShown(String tipId) {
+    final key = '$_screenTipPrefix$tipId';
+    return _prefs.setInt(key, (_prefs.getInt(key) ?? 0) + 1);
+  }
+
   // ── Üni Paneli: haftalık plan işaretleri ──
 
   /// [weekKey] haftasında işaretlenmiş görevler. Kayıtlı hafta farklıysa boş
@@ -78,5 +98,26 @@ class RobotMemory {
     if (!done.remove(taskId)) done.add(taskId);
     await _prefs.setString(_planWeekKey, weekKey);
     await _prefs.setStringList(_planDoneKey, done.toList());
+  }
+
+  /// Oturum kapanınca cihazda kalan tüm Üni hafızasını siler: selamlama adı,
+  /// susturulan notlar, plan işaretleri ve ilk-kullanım bayrakları. Bunlar
+  /// cihaz-yereldir (uid'e bağlı değil), temizlenmezse bir sonraki hesaba
+  /// "Merhaba <önceki ad>" olarak sızar.
+  Future<void> clear() async {
+    final stale = _prefs
+        .getKeys()
+        .where((key) =>
+            key.startsWith(_lastShownPrefix) ||
+            key.startsWith(_dismissedPrefix) ||
+            key.startsWith(_screenTipPrefix) ||
+            key == _wizardIntroSeenKey ||
+            key == _displayNameKey ||
+            key == _planWeekKey ||
+            key == _planDoneKey)
+        .toList(growable: false);
+    for (final key in stale) {
+      await _prefs.remove(key);
+    }
   }
 }

@@ -88,7 +88,7 @@ class SubjectScoreInput extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.only(top: 8),
               child: Text(
-                'Toplam soru sayısı $maxQuestions olamaz',
+                'Doğru + yanlış toplamı $maxQuestions soruyu geçemez',
                 style: AppTextStyles.bodySmall.copyWith(color: AppColors.error),
               ),
             ),

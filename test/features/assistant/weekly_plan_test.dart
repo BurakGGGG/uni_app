@@ -157,58 +157,25 @@ void main() {
       ));
       expect(_ids(cok), contains('plan.focusSubject'));
     });
-  });
 
-  group('liste görevleri', () {
-    test('güvenli tercih yoksa ekleme görevi çıkar', () {
+    test('plan tercih görevi üretmez — liste işi Üni Paneli\'nin', () {
+      // Tercih döneminde, güvenli tercihi olmayan yarım bir listeyle:
+      // eskiden burada plan.addSafe / plan.completeList çıkardı. Artık
+      // aynı uyarıları panelin 3. ve 4. adımı veriyor; plan yalnız çalışma.
       final plan = WeeklyPlanner.build(InsightContext(
         now: DateTime(2026, 7, 23), // tercih dönemi
         profile: _profile(),
         target: _target(),
-        exams: [_exam(id: 'a', takenAt: DateTime(2026, 7, 21))],
-        lists: [_list(guaranteed: 0, target: 5, dream: 5, items: 10)],
-      ));
-      expect(_ids(plan), contains('plan.addSafe'));
-    });
-
-    test('tercih döneminde liste görevleri çalışmanın önüne geçer', () {
-      final ctx = InsightContext(
-        now: DateTime(2026, 7, 23),
-        profile: _profile(),
-        target: _target(),
         exams: [_exam(id: 'a', takenAt: DateTime(2026, 7, 1))],
         lists: [_list(guaranteed: 0, target: 5, dream: 5, items: 10)],
-      );
-      final plan = WeeklyPlanner.build(ctx);
-      expect(plan.tasks.first.id, startsWith('plan.'));
-      expect(
-        plan.tasks.first.id,
-        anyOf('plan.addSafe', 'plan.completeList'),
-        reason: 'temmuzda liste önce gelir',
-      );
-    });
-
-    test('sezon dışında çalışma görevleri önce gelir', () {
-      final plan = WeeklyPlanner.build(InsightContext(
-        now: DateTime(2026, 3, 5),
-        profile: _profile(),
-        target: _target(),
-        exams: [_exam(id: 'a', takenAt: DateTime(2026, 2, 20))],
-        lists: [_list(guaranteed: 0, target: 5, dream: 5, items: 10)],
       ));
+      for (final id in _ids(plan)) {
+        expect(
+          id,
+          isNot(anyOf('plan.addSafe', 'plan.completeList', 'plan.reviewOrder')),
+        );
+      }
       expect(plan.tasks.first.id, 'plan.addExam');
-    });
-
-    test('boş listede liste görevi üretilmez', () {
-      final plan = WeeklyPlanner.build(InsightContext(
-        now: DateTime(2026, 7, 23),
-        profile: _profile(),
-        target: _target(),
-        exams: [_exam(id: 'a', takenAt: DateTime(2026, 7, 21))],
-        lists: [_list(items: 0, guaranteed: 0, target: 0, dream: 0)],
-      ));
-      expect(_ids(plan), isNot(contains('plan.completeList')));
-      expect(_ids(plan), isNot(contains('plan.addSafe')));
     });
   });
 

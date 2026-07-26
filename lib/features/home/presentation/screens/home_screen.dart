@@ -25,12 +25,6 @@ import '../widgets/home_list_skeleton.dart';
 import '../../../../core/utils/haptic.dart';
 import '../../../../core/utils/responsive.dart';
 import '../../../auth/presentation/providers/auth_providers.dart';
-import '../../../../core/widgets/typewriter_text.dart';
-import '../../../assistant/domain/tercih_calendar.dart';
-import '../../../assistant/presentation/providers/assistant_providers.dart';
-import '../../../assistant/presentation/providers/uni_panel_providers.dart';
-import '../../../../router/app_router.dart';
-import '../../../assistant/presentation/widgets/robot_avatar.dart';
 
 /// Ana Sayfa ekranı
 class HomeScreen extends ConsumerStatefulWidget {
@@ -196,13 +190,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               ),
             ),
 
-            // ─── Üni Karşılama Kartı (Tercih Robotu) ────────────────
-            const SliverToBoxAdapter(
-              child: Padding(
-                padding: EdgeInsets.fromLTRB(20, 0, 20, 8),
-                child: _RobotGreetingCard(),
-              ),
-            ),
+            // Üni karşılama kartı buradaydı; kaldırıldı. Üni artık kabukta
+            // yüzen balon olarak yaşıyor (`UniFloatingLayer`) — beş sekmede
+            // birden var ve ana sayfada iki Üni olmuyor.
 
             // ─── Popüler Üniversiteler ──────────────────────────────
             SliverToBoxAdapter(
@@ -396,175 +386,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 }
 
 // ─── Widget Components ──────────────────────────────────────────────
-
-class _RobotGreetingCard extends ConsumerStatefulWidget {
-  const _RobotGreetingCard();
-
-  @override
-  ConsumerState<_RobotGreetingCard> createState() =>
-      _RobotGreetingCardState();
-}
-
-/// Üni'nin ana ekran karşılaması — döneme ve saate göre selamlama + altında
-/// Üni'nin en öncelikli notu. Not yoksa (veri henüz yüklenmediyse ya da
-/// dikkat isteyen bir şey kalmadıysa) jenerik günün ipucuna düşer; kart asla
-/// boş kalmaz. Typewriter oturum başına bir kez oynar; scroll rebuild'lerinde
-/// metin yeniden yazılmaz.
-class _RobotGreetingCardState extends ConsumerState<_RobotGreetingCard> {
-  static bool _greetedThisSession = false;
-  late final bool _typewriter;
-
-  @override
-  void initState() {
-    super.initState();
-    _typewriter = !_greetedThisSession;
-    _greetedThisSession = true;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final greeting = ref.watch(homeGreetingProvider);
-    // Kişisel not jenerik ipucunu ezer — "Hedefine 11 net kaldı" ile "tercih
-    // listeni erken kur" arasında seçim yapılacaksa kişisel olan kazanır.
-    final insight = ref.watch(topInsightProvider);
-    final subtitle = insight != null
-        ? '${insight.title} — ${insight.body}'
-        : '💡 ${ref.watch(tipOfDayProvider).text}';
-    final now = DateTime.now();
-    final chipLabel = phaseChipLabel(tercihPhaseFor(now), now.year);
-    final titleStyle = AppTextStyles.titleSmall.copyWith(
-      color: Colors.white,
-      fontWeight: FontWeight.w800,
-      height: 1.25,
-    );
-    return GestureDetector(
-      // Kart her zaman Üni'nin evine götürür. Nota özgü eylem (ör. "listeyi
-      // düzelt") panelin içindeki kartta duruyor — kartın hedefi mesaja göre
-      // değişseydi kullanıcı nereye gideceğini bilemezdi.
-      onTap: () => context.push(AppRoutes.uniPanel),
-      child: Container(
-        decoration: BoxDecoration(
-          gradient: AppColors.secondaryGradientFor(context),
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: AppColors.secondary
-                  .withValues(alpha: isDark ? 0.15 : 0.28),
-              blurRadius: 18,
-              offset: const Offset(0, 6),
-            ),
-          ],
-        ),
-        clipBehavior: Clip.hardEdge,
-        child: Stack(
-          children: [
-            // Hero ile aynı dil: köşe parıltıları
-            Positioned(
-              right: -30,
-              top: -30,
-              child: Container(
-                width: 110,
-                height: 110,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.white.withValues(alpha: 0.12),
-                ),
-              ),
-            ),
-            Positioned(
-              left: -20,
-              bottom: -40,
-              child: Container(
-                width: 90,
-                height: 90,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.white.withValues(alpha: 0.08),
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      // Marka gradyanlı robot, gradyan kartta beyaz
-                      // zeminle okunur.
-                      color: Colors.white.withValues(alpha: 0.92),
-                      shape: BoxShape.circle,
-                    ),
-                    child: RobotAvatar(
-                      size: 36,
-                      mood: greeting.mood,
-                    ),
-                  ),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 2,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.2),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Text(
-                            chipLabel,
-                            style: AppTextStyles.labelSmall.copyWith(
-                              color: Colors.white,
-                              fontSize: 9,
-                              fontWeight: FontWeight.w800,
-                              letterSpacing: 0.6,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 5),
-                        if (_typewriter)
-                          TypewriterText(greeting.text, style: titleStyle)
-                        else
-                          Text(greeting.text, style: titleStyle),
-                        const SizedBox(height: 4),
-                        Text(
-                          subtitle,
-                          style: AppTextStyles.labelSmall.copyWith(
-                            color: Colors.white.withValues(alpha: 0.9),
-                            height: 1.35,
-                          ),
-                          maxLines: 3,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Container(
-                    padding: const EdgeInsets.all(6),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.18),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.arrow_forward_rounded,
-                      color: Colors.white,
-                      size: 18,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
 
 class _HeroBanner extends StatelessWidget {
   const _HeroBanner();

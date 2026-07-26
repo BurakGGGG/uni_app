@@ -58,4 +58,37 @@ void main() {
       expect(memory.wizardIntroSeen, isTrue);
     });
   });
+
+  // Hesap değişiminde tüm cihaz-yerel Üni hafızası silinmeli, yoksa bir
+  // sonraki hesaba "Merhaba <önceki ad>" olarak sızar.
+  group('RobotMemory.clear — oturum değişimi', () {
+    test('ad, notlar, plan ve bayraklar temizlenir', () async {
+      await withPrefs();
+      await memory.setDisplayName('Ada');
+      await memory.markWizardIntroSeen();
+      await memory.recordShown('home', 'home.msg.v1');
+      await memory.dismissInsight('list.noSafe');
+      await memory.togglePlanTask('2026-W30', 'task-1');
+      expect(memory.isInsightDismissed('list.noSafe'), isTrue);
+
+      await memory.clear();
+
+      expect(memory.displayName, isNull);
+      expect(memory.wizardIntroSeen, isFalse);
+      expect(memory.lastShown('home'), isNull);
+      expect(memory.isInsightDismissed('list.noSafe'), isFalse);
+      expect(memory.donePlanTasks('2026-W30'), isEmpty);
+    });
+
+    test('alakasız anahtarlara dokunmaz', () async {
+      await withPrefs({'theme_mode': 'dark', 'onboarding_completed': true});
+      await memory.setDisplayName('Ada');
+
+      await memory.clear();
+
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getString('theme_mode'), 'dark');
+      expect(prefs.getBool('onboarding_completed'), isTrue);
+    });
+  });
 }

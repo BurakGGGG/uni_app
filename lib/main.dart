@@ -22,6 +22,7 @@ import 'core/providers/theme_provider.dart';
 import 'core/providers/locale_provider.dart';
 import 'features/assistant/domain/robot_scripts.dart';
 import 'features/auth/presentation/providers/auth_providers.dart';
+import 'features/auth/presentation/providers/session_reset_provider.dart';
 
 import 'firebase_options.dart';
 
@@ -58,9 +59,19 @@ void main() async {
         : AppleProvider.appAttestWithDeviceCheckFallback,
   );
 
-  // Global Crashlytics handler
+  // Global Crashlytics handler.
+  //
+  // Flutter framework hataları (RenderFlex taşması, "RenderBox was not laid
+  // out", observer dispatch null-check'leri) süreci SONLANDIRMAZ — çerçeve
+  // bunları build/layout/paint sırasında yakalar, uygulama çalışmaya devam
+  // eder. Bunları "ölümcül" saymak gerçek çökme oranını şişirir ve gerçek
+  // çökmeleri gürültüde boğar. Bu yüzden framework hatalarını ölümcül-OLMAYAN
+  // olarak raporlarız; yalnız yakalanmamış async/platform hataları ölümcül.
   FlutterError.onError = (errorDetails) {
-    FirebaseCrashlytics.instance.recordFlutterFatalError(errorDetails);
+    if (kDebugMode) {
+      FlutterError.presentError(errorDetails);
+    }
+    FirebaseCrashlytics.instance.recordFlutterError(errorDetails);
   };
   PlatformDispatcher.instance.onError = (error, stack) {
     FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
@@ -134,6 +145,9 @@ class _UniSecAppState extends ConsumerState<UniSecApp> {
     // Aynı dili kullanıcı dokümanına da yansıt — sunucudan gelen Üni
     // hatırlatmaları kullanıcının dilinde yazılsın.
     ref.watch(localeSyncProvider);
+    // Hesap değişiminde cihazda kalan yerel kullanıcı verisini (puan, deneme,
+    // Üni hafızası) sıfırla — bir sonraki hesaba sızmasın.
+    ref.watch(sessionResetProvider);
 
     // AppBar'sız ekranlar için status bar ikon parlaklığını temaya göre ayarla.
     final platformBrightness =

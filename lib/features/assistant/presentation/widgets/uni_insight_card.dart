@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../../router/app_router.dart';
 import '../../../admin/data/analytics_service.dart';
 import '../../../admin/domain/models/analytics_event.dart';
 import '../../domain/insights/uni_insight.dart';
@@ -130,7 +130,9 @@ class UniInsightCard extends ConsumerWidget {
     final route = robotActionRoute(insight.action, arg: insight.actionArg);
     if (route == null) return;
     AnalyticsService.instance.trackEvent(AnalyticsEvent.uniInsightTapped);
-    context.push(route);
+    // `openLists` bir alt sekme rotası — panelin üstünden push edilirse
+    // Navigator çift page key görür (bkz. [navigateToRoute]).
+    navigateToRoute(context, route);
   }
 
   static Color _accentFor(InsightTone tone) {

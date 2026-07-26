@@ -53,6 +53,13 @@ class WizardPrefsNotifier extends StateNotifier<WizardPrefs> {
     state = prefs;
     await _store.saveWizardPrefs(prefs);
   }
+
+  /// Oturum değişiminde yumuşak tercih sinyallerini (şehir/tip/ilgi) sıfırlar —
+  /// önceki kullanıcının şehri yeni hesabın sıralamasını öne çekmesin.
+  Future<void> reset() async {
+    state = const WizardPrefs();
+    await _store.clearWizardPrefs();
+  }
 }
 
 final wizardPrefsProvider =

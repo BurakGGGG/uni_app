@@ -11,7 +11,8 @@ import '../providers/practice_exam_providers.dart';
 
 /// Profildeki "Denemelerim" özet kartı.
 ///
-/// Auth'tan bağımsız çalışır: defter yerel, misafir de kullanabilir.
+/// Yalnız giriş yapmış kullanıcıya çizilir — kapıyı çağıran tutar
+/// (`profile_screen.dart`), kart auth okumaz.
 class PracticeExamSummaryCard extends ConsumerWidget {
   const PracticeExamSummaryCard({super.key});
 

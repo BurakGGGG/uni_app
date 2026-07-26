@@ -383,6 +383,19 @@ class ScoreInput {
   static const double minEnterableScore = 100;
   static const double maxEnterableScore = 560;
 
+  /// Doğru/yanlış modunda bir derste doğru + yanlış toplamı soru sayısını
+  /// aşarsa net imkânsız olur (ör. 40 soruluk testte 40 doğru + 40 yanlış → 30
+  /// net). Bu durumda hesaplama, otoriter görünümlü ama geçersiz bir puan
+  /// üretmemek için engellenir. directNet modunda [netOf] zaten kırpar; sıra/
+  /// puan modunda net kavramı yoktur — yalnız doğru/yanlış modunu denetleriz.
+  bool get hasImpossibleEntry {
+    if (entryMode != NetEntryMode.correctWrong) return false;
+    for (final s in YksSubject.values) {
+      if (correctOf(s) + wrongOf(s) > s.maxQuestions) return true;
+    }
+    return false;
+  }
+
   // ── OBP / Ek puan ─────────────────────────────────────────
   /// Ortaöğretim Başarı Puanı = diploma notu × 5 (250–500 aralığı).
   /// Sıra/puan modunda 0: girilen değer zaten OBP'li yerleştirme puanına

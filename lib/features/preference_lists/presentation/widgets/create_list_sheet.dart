@@ -1,11 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../l10n/generated/app_localizations.dart';
+import '../../../assistant/presentation/widgets/robot_avatar.dart';
+import '../../../preference_wizard/presentation/providers/preference_wizard_providers.dart';
 import '../providers/preference_list_providers.dart';
+import 'sheet_form_field.dart';
 
+/// Yeni tercih listesi kurma sheet'i.
+///
+/// Ekranın tek işi bir AD almak; gerisi opsiyonel. Bu yüzden ad alanı
+/// büyük ve odaklı, açıklama ile görünürlük altta sessiz duruyor.
 class CreateListSheet {
   static Future<void> show(BuildContext context, WidgetRef ref) {
     return showModalBottomSheet(
@@ -40,20 +48,55 @@ class _BodyState extends ConsumerState<_Body> {
   bool _busy = false;
   String? _err;
 
+  static const int _titleMax = 60;
+
+  @override
+  void initState() {
+    super.initState();
+    // Buton yalnız ad girilince açılır; her tuşta yeniden çizmek gerekiyor.
+    _titleCtrl.addListener(_onTitleChanged);
+  }
+
   @override
   void dispose() {
+    _titleCtrl.removeListener(_onTitleChanged);
     _titleCtrl.dispose();
     _descCtrl.dispose();
     super.dispose();
   }
 
+  void _onTitleChanged() {
+    setState(() {
+      if (_err != null) _err = null;
+    });
+  }
+
+  bool get _canCreate => _titleCtrl.text.trim().isNotEmpty && !_busy;
+
+  void _useIdea(String name) {
+    _titleCtrl
+      ..text = name
+      ..selection = TextSelection.collapsed(offset: name.length);
+  }
+
+  /// Hazır adlar. Puan türü biliniyorsa ilk öneri kişiselleşir ("SAY Planım")
+  /// — boş bir metin kutusuna bakan öğrencinin ilk engeli ad bulmak.
+  List<String> _ideas(AppLocalizations loc) {
+    final type = ref.read(studentScoreProfileProvider)?.scoreType;
+    return [
+      if (type != null && type.isNotEmpty)
+        loc.prefListNameIdeaTyped(type)
+      else
+        loc.prefListNameIdeaMain,
+      loc.prefListNameIdeaBackup,
+      loc.prefListNameIdeaDream,
+    ];
+  }
+
   Future<void> _create() async {
-    final loc = AppLocalizations.of(context);
     final title = _titleCtrl.text.trim();
-    if (title.isEmpty) {
-      setState(() => _err = loc.prefListTitleRequired);
-      return;
-    }
+    if (title.isEmpty) return;
+
     setState(() {
       _busy = true;
       _err = null;
@@ -83,39 +126,240 @@ class _BodyState extends ConsumerState<_Body> {
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
-    return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // Drag handle
-          Center(
-            child: Container(
-              margin: const EdgeInsets.only(top: 4, bottom: 16),
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: AppColors.borderLightFor(context),
-                borderRadius: BorderRadius.circular(2),
+    final length = _titleCtrl.text.characters.length;
+
+    return SafeArea(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Tutamak çizilmiyor: `bottomSheetTheme.showDragHandle` açık,
+            // elle bir tane daha koyulursa üst üste İKİ çubuk görünüyor.
+            const SizedBox(height: 8),
+
+            // Üni açar: tercih listesi yüzeylerinin hepsi onun ağzından
+            // konuşuyor, kuruluş anı da öyle olsun.
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const RobotAvatar(size: 40, animated: false),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        loc.prefListCreateTitle,
+                        style: AppTextStyles.titleMedium.copyWith(
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: -0.3,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        loc.prefListCreateSubtitle,
+                        style: AppTextStyles.bodySmall.copyWith(
+                          color: AppColors.textSecondaryFor(context),
+                          height: 1.3,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 22),
+
+            SheetFormField(
+              controller: _titleCtrl,
+              label: loc.prefListTitleLabel,
+              hintText: loc.prefListTitleHint,
+              autofocus: true,
+              maxLength: _titleMax,
+              emphasized: true,
+              textCapitalization: TextCapitalization.sentences,
+              // Sayaç yalnız sınıra yaklaşınca: sürekli görünürse gürültü.
+              counter: length > _titleMax - 15 ? '$length/$_titleMax' : null,
+            ),
+            const SizedBox(height: 12),
+
+            _IdeaRow(
+              label: loc.prefListNameIdeasLabel,
+              ideas: _ideas(loc),
+              selected: _titleCtrl.text.trim(),
+              onPick: _useIdea,
+            ),
+            const SizedBox(height: 18),
+
+            SheetFormField(
+              controller: _descCtrl,
+              label: loc.prefListDescriptionLabel,
+              hintText: loc.prefListDescriptionHint,
+              maxLength: 140,
+              maxLines: 2,
+              textCapitalization: TextCapitalization.sentences,
+            ),
+            const SizedBox(height: 16),
+
+            _PublicRow(
+              value: _isPublic,
+              onChanged: (v) => setState(() => _isPublic = v),
+            ),
+
+            if (_err != null) ...[
+              const SizedBox(height: 14),
+              _ErrorBox(message: _err!),
+            ],
+
+            const SizedBox(height: 20),
+            SizedBox(
+              height: 52,
+              child: FilledButton(
+                onPressed: _canCreate ? _create : null,
+                style: FilledButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                ),
+                child: _busy
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2.2,
+                          color: Colors.white,
+                        ),
+                      )
+                    : Text(
+                        loc.prefListCreateButton,
+                        style: AppTextStyles.bodyMedium.copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
               ),
             ),
-          ),
+          ],
+        ),
+      ),
+    );
+  }
+}
 
-          // Title row
-          Row(
+/// Tek dokunuşla ad dolduran öneri çipleri.
+class _IdeaRow extends StatelessWidget {
+  final String label;
+  final List<String> ideas;
+  final String selected;
+  final ValueChanged<String> onPick;
+
+  const _IdeaRow({
+    required this.label,
+    required this.ideas,
+    required this.selected,
+    required this.onPick,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Text(
+          label,
+          style: AppTextStyles.labelSmall.copyWith(
+            color: AppColors.textTertiaryFor(context),
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: [
+                for (final idea in ideas) ...[
+                  _IdeaChip(
+                    text: idea,
+                    active: idea == selected,
+                    onTap: () => onPick(idea),
+                  ),
+                  const SizedBox(width: 8),
+                ],
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _IdeaChip extends StatelessWidget {
+  final String text;
+  final bool active;
+  final VoidCallback onTap;
+
+  const _IdeaChip({
+    required this.text,
+    required this.active,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: active
+          ? AppColors.primary
+          : AppColors.primary.withValues(alpha: 0.08),
+      borderRadius: BorderRadius.circular(20),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(20),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 7),
+          child: Text(
+            text,
+            style: AppTextStyles.labelSmall.copyWith(
+              color: active ? Colors.white : AppColors.primary,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Görünürlük satırı — kurulum anında ikincil bilgi, bu yüzden sessiz.
+class _PublicRow extends StatelessWidget {
+  final bool value;
+  final ValueChanged<bool> onChanged;
+
+  const _PublicRow({required this.value, required this.onChanged});
+
+  @override
+  Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
+    return Material(
+      color: AppColors.surfaceVariantFor(context).withValues(alpha: 0.6),
+      borderRadius: BorderRadius.circular(16),
+      child: InkWell(
+        onTap: () => onChanged(!value),
+        borderRadius: BorderRadius.circular(16),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(14, 12, 10, 12),
+          child: Row(
             children: [
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.10),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Icon(
-                  Icons.format_list_numbered_rounded,
-                  color: AppColors.primary,
-                  size: 22,
-                ),
+              Icon(
+                value ? Icons.public_rounded : Icons.lock_outline_rounded,
+                size: 20,
+                color: value
+                    ? AppColors.primary
+                    : AppColors.textTertiaryFor(context),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -123,14 +367,14 @@ class _BodyState extends ConsumerState<_Body> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      loc.prefListCreateTitle,
-                      style: AppTextStyles.titleLarge.copyWith(
+                      loc.prefListPublicTitle,
+                      style: AppTextStyles.bodySmall.copyWith(
                         fontWeight: FontWeight.w700,
-                        letterSpacing: -0.3,
                       ),
                     ),
+                    const SizedBox(height: 1),
                     Text(
-                      loc.prefListCreateSubtitle,
+                      loc.prefListPublicCreateSubtitle,
                       style: AppTextStyles.labelSmall.copyWith(
                         color: AppColors.textSecondaryFor(context),
                       ),
@@ -138,226 +382,46 @@ class _BodyState extends ConsumerState<_Body> {
                   ],
                 ),
               ),
+              Switch(
+                value: value,
+                onChanged: onChanged,
+                activeTrackColor: AppColors.primary,
+              ),
             ],
           ),
-          const SizedBox(height: 24),
+        ),
+      ),
+    );
+  }
+}
 
-          // Title field
-          _Label(text: loc.prefListTitleLabel, required: true),
-          const SizedBox(height: 6),
-          _Field(
-            controller: _titleCtrl,
-            hintText: loc.prefListTitleHint,
-            autofocus: true,
-            maxLength: 60,
-            onChanged: (_) {
-              if (_err != null) setState(() => _err = null);
-            },
+class _ErrorBox extends StatelessWidget {
+  final String message;
+  const _ErrorBox({required this.message});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppColors.errorLight,
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Row(
+        children: [
+          const Icon(
+            Icons.error_outline_rounded,
+            color: AppColors.error,
+            size: 18,
           ),
-          const SizedBox(height: 14),
-
-          // Description field
-          _Label(text: loc.prefListDescriptionLabel),
-          const SizedBox(height: 6),
-          _Field(
-            controller: _descCtrl,
-            hintText: loc.prefListDescriptionHint,
-            maxLength: 140,
-            maxLines: 2,
-          ),
-          const SizedBox(height: 14),
-
-          // Public toggle
-          Material(
-            color: AppColors.surfaceVariantFor(context).withValues(alpha: 0.5),
-            borderRadius: BorderRadius.circular(12),
-            clipBehavior: Clip.antiAlias,
-            child: SwitchListTile(
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 14,
-                vertical: 2,
-              ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              title: Text(
-                loc.prefListPublicTitle,
-                style: AppTextStyles.bodyMedium.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              subtitle: Text(
-                loc.prefListPublicCreateSubtitle,
-                style: AppTextStyles.labelSmall.copyWith(
-                  color: AppColors.textSecondaryFor(context),
-                ),
-              ),
-              value: _isPublic,
-              activeTrackColor: AppColors.primary,
-              onChanged: (v) => setState(() => _isPublic = v),
-            ),
-          ),
-
-          if (_err != null) ...[
-            const SizedBox(height: 12),
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: AppColors.errorLight,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Row(
-                children: [
-                  const Icon(
-                    Icons.error_outline_rounded,
-                    color: AppColors.error,
-                    size: 18,
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      _err!,
-                      style: AppTextStyles.labelSmall.copyWith(
-                        color: AppColors.error,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-
-          const SizedBox(height: 24),
-          SizedBox(
-            height: 52,
-            child: GestureDetector(
-              onTap: _busy ? null : _create,
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(16),
-                  gradient: !_busy ? AppColors.heroGradient : null,
-                  border: _busy
-                      ? Border.all(color: AppColors.borderLightFor(context))
-                      : null,
-                ),
-                padding: const EdgeInsets.all(2),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: AppColors.surfaceFor(context),
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  child: Center(
-                    child: _busy
-                        ? const SizedBox(
-                            width: 22,
-                            height: 22,
-                            child: CircularProgressIndicator(
-                              color: AppColors.primary,
-                              strokeWidth: 2.4,
-                            ),
-                          )
-                        : ShaderMask(
-                            shaderCallback: (bounds) =>
-                                AppColors.heroGradient.createShader(bounds),
-                            child: Text(
-                              loc.prefListCreateButton,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                  ),
-                ),
-              ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              message,
+              style: AppTextStyles.labelSmall.copyWith(color: AppColors.error),
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _Label extends StatelessWidget {
-  final String text;
-  final bool required;
-  const _Label({required this.text, this.required = false});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 4),
-      child: RichText(
-        text: TextSpan(
-          style: AppTextStyles.labelSmall.copyWith(
-            color: AppColors.textSecondaryFor(context),
-            fontWeight: FontWeight.w600,
-          ),
-          children: [
-            TextSpan(text: text),
-            if (required)
-              const TextSpan(
-                text: ' *',
-                style: TextStyle(color: AppColors.error),
-              ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _Field extends StatelessWidget {
-  final TextEditingController controller;
-  final String hintText;
-  final bool autofocus;
-  final int? maxLength;
-  final int maxLines;
-  final ValueChanged<String>? onChanged;
-
-  const _Field({
-    required this.controller,
-    required this.hintText,
-    this.autofocus = false,
-    this.maxLength,
-    this.maxLines = 1,
-    this.onChanged,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return TextField(
-      controller: controller,
-      autofocus: autofocus,
-      maxLength: maxLength,
-      maxLines: maxLines,
-      onChanged: onChanged,
-      style: AppTextStyles.bodyMedium,
-      decoration: InputDecoration(
-        hintText: hintText,
-        hintStyle: AppTextStyles.bodyMedium.copyWith(
-          color: AppColors.textTertiaryFor(context),
-        ),
-        filled: true,
-        fillColor: AppColors.surfaceVariantFor(context).withValues(alpha: 0.7),
-        counterText: '',
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 14,
-          vertical: 14,
-        ),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide.none,
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: AppColors.borderLightFor(context)),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
-        ),
       ),
     );
   }

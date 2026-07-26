@@ -81,6 +81,12 @@ class InsightContext {
   final List<ListSnapshot> lists;
   final List<TrackedProgram> tracked;
 
+  /// Puandan kestirilen sıra — profilde GERÇEK sıra varsa null (o zaman
+  /// tahmine gerek yok, `profile.rank` okunur). Liste sağlığı bunu zaten
+  /// hesaplıyordu; panelin "Puanın" adımı da aynı sayıyı göstersin diye
+  /// bağlamda taşınıyor.
+  final int? estimatedRank;
+
   InsightContext({
     required this.now,
     this.profile,
@@ -88,11 +94,22 @@ class InsightContext {
     this.target,
     this.lists = const [],
     this.tracked = const [],
+    this.estimatedRank,
     TercihPhase? phase,
   }) : phase = phase ?? tercihPhaseFor(now);
 
   bool get hasProfile =>
       profile != null && profile!.scoreType.trim().isNotEmpty;
+
+  /// Gösterilecek sıra: öğrencinin girdiği gerçek sıra, yoksa puandan
+  /// kestirilen. İkisi de yoksa null.
+  int? get displayRank =>
+      (profile?.hasRank ?? false) ? profile!.rank : estimatedRank;
+
+  /// [displayRank] tahminden mi geliyor? Gösterimdeki "≈" işareti buna bağlı —
+  /// tahmini sırayı kesin sıra gibi yazmak öğrenciye yalan söylemek olur.
+  bool get rankIsEstimated =>
+      !(profile?.hasRank ?? false) && estimatedRank != null;
 
   /// Analizlerin dayandığı puan türü: hedefin türü → profil → defterde en sık.
   /// Hiçbiri yoksa boş string (motor tür gerektiren aileleri atlar).

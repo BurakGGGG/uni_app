@@ -281,15 +281,27 @@
   "paywallPerYearSuffix": "/yıl",
   "paywallSaveBadge": "%{percent} TASARRUF",
   "@paywallSaveBadge": {
-    "placeholders": { "percent": { "type": "int" } }
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
   },
   "paywallYearlySavingsSub": "Aylığa göre %{percent} tasarruf",
   "@paywallYearlySavingsSub": {
-    "placeholders": { "percent": { "type": "int" } }
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
   },
   "paywallFreeTrialNote": "İlk {duration} ücretsiz, sonra otomatik yenilenir",
   "@paywallFreeTrialNote": {
-    "placeholders": { "duration": { "type": "String" } }
+    "placeholders": {
+      "duration": {
+        "type": "String"
+      }
+    }
   },
   "paywallUnitDay": "gün",
   "paywallUnitWeek": "hafta",
@@ -641,8 +653,6 @@
   },
   "prefListsTitle": "Tercih Listelerim",
   "prefListsNewList": "Yeni Liste",
-  "prefListsEmptyTitle": "Henüz listen yok",
-  "prefListsEmptyDesc": "Sağ alttaki \"Yeni Liste\" butonuna tıklayarak ilk tercih listeni oluşturmaya başla.",
   "prefListsLoginTitle": "Giriş Yapmalısın",
   "prefListsLoginDesc": "Listelerini görmek ve yeni tercihler eklemek için önce giriş yapmalısın.",
   "prefListDeleteTitle": "Listeyi Sil",
@@ -673,11 +683,23 @@
   "prefListActionsShare": "Listeyi Paylaş",
   "prefListActionsShareDesc": "Paylaşım bağlantısını ve görünürlüğü yönet",
   "prefListActionsDeleteDesc": "Bu işlem geri alınamaz",
-  "prefListCreateTitle": "Yeni Tercih Listesi",
-  "prefListCreateSubtitle": "Liste adını ve açıklamasını gir",
+  "prefListCreateTitle": "Yeni tercih listesi",
+  "prefListCreateSubtitle": "Adını sen koy, doldurmasına ben yardım edeyim.",
   "prefListTitleLabel": "Liste adı",
   "prefListTitleRequired": "Liste adı gerekli",
   "prefListTitleHint": "Örn. 2025 Sayısal Tercihlerim",
+  "prefListNameIdeasLabel": "Hazır adlar",
+  "prefListNameIdeaTyped": "{type} Planım",
+  "@prefListNameIdeaTyped": {
+    "placeholders": {
+      "type": {
+        "type": "String"
+      }
+    }
+  },
+  "prefListNameIdeaMain": "Ana Planım",
+  "prefListNameIdeaBackup": "Yedek Plan",
+  "prefListNameIdeaDream": "Hayallerim",
   "prefListDescriptionLabel": "Açıklama (opsiyonel)",
   "prefListDescriptionHint": "Bu liste hakkında kısa not…",
   "prefListPublicTitle": "Herkese açık",
@@ -721,7 +743,6 @@
       }
     }
   },
-  "prefListSaved": "Tercih listesi kaydedildi",
   "prefListSaveError": "Kaydetme hatası: {error}",
   "@prefListSaveError": {
     "placeholders": {
@@ -749,18 +770,20 @@
     }
   },
   "prefListAddDepartment": "Bölüm Ekle",
-  "prefListSortByScore": "Puana Göre Sırala",
   "prefListUndo": "Geri Al",
   "prefListsSummary": "{lists} liste · {items} tercih",
   "@prefListsSummary": {
     "placeholders": {
-      "lists": {"type": "int"},
-      "items": {"type": "int"}
+      "lists": {
+        "type": "int"
+      },
+      "items": {
+        "type": "int"
+      }
     }
   },
-  "prefListSavedState": "Kaydedildi",
-  "prefListEmptyItemsTitle": "Liste boş",
-  "prefListEmptyItemsDesc": "\"Bölüm Ekle\" butonuna tıklayarak üniversite ve bölüm seç. Tercihlerini sürükleyerek veya sıralamaya göre düzenleyebilirsin.",
+  "prefListEmptyItemsTitle": "Bu liste henüz boş",
+  "prefListEmptyItemsDesc": "ÖSYM’de {max} tercih hakkın var. İlkini ekleyelim mi?",
   "prefDeptSelectUniversity": "Üniversite Seç",
   "prefDeptSelectDepartment": "Bölüm Seç",
   "prefDeptSearchUniversity": "Üniversite ara…",
@@ -1025,15 +1048,15 @@
   "adGateTitleUser": "Ücretsiz hakkın bitti",
   "adGateDescGuest": "Karşılaştırma yapmak için kısa bir reklam izlemen gerekiyor. Giriş yap veya Plus'a geçerek sınırsız karşılaştırma yapabilirsin.",
   "adGateDescUser": "Günlük 1 ücretsiz karşılaştırma hakkını kullandın. Devam etmek için kısa bir reklam izleyebilir veya Plus'a geçerek sınırsız karşılaştırma yapabilirsin.",
-  "adGateWatchBusy": "Reklam hazırlanıyor\u2026",
+  "adGateWatchBusy": "Reklam hazırlanıyor…",
   "adGateWatchCta": "Reklamı İzle ve Devam Et",
-  "adGatePlusCta": "Plus'a Geç \u2014 Sınırsız",
+  "adGatePlusCta": "Plus'a Geç — Sınırsız",
   "adGateDismiss": "Şimdilik Vazgeç",
   "adGateOverlayTitleGuest": "Reklam izleyerek devam et",
   "adGateOverlayTitleUser": "Devam etmek için kilidi aç",
   "adGateOverlayDescGuest": "Karşılaştırma için kısa bir reklam izlemen gerekiyor.",
   "adGateOverlayDescUser": "Günlük karşılaştırma hakkın doldu.",
-  "adGateOverlayBusy": "Yükleniyor\u2026",
+  "adGateOverlayBusy": "Yükleniyor…",
   "adGateOverlayCta": "Reklamı İzle / Plus'a Geç",
   "favoritesAddTitle": "Favorilere ekle",
   "actionBarShare": "Paylaş",
@@ -1042,12 +1065,269 @@
   "emptyStateSelectTwo": "İki üniversite seç",
   "emptyStateSelectTwoDesc": "Yukarıdan iki üniversite seçince karşılaştırma sonuçları burada gözükür.",
   "triplePickerTitle": "3. üniversiteyi seç",
-  "triplePickerSearchHint": "Üniversite ara\u2026",
+  "triplePickerSearchHint": "Üniversite ara…",
   "triplePickerNoResult": "Sonuç bulunamadı",
   "sectionCategoryScores": "Kategori Puanları",
   "sectionOverview": "Genel Görünüm",
   "sectionStats": "Genel İstatistikler",
   "noReviewsTitle": "Yeterli değerlendirme yok",
   "noReviewsDesc": "Bu iki üniversite için henüz kategori puanı oluşturacak yorum bulunmuyor.",
-  "commonReset": "Sıfırla"
+  "commonReset": "Sıfırla",
+  "prefListsOthersHeading": "DİĞER LİSTELERİN",
+  "prefListsMainBadge": "ANA LİSTEN",
+  "prefListsOpen": "Listeyi aç",
+  "prefListsSlotsFree": "{count} hak boş",
+  "@prefListsSlotsFree": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "prefListsEmptyHeroTitle": "Listeni birlikte kuralım",
+  "prefListsEmptyHeroDesc": "Puanına uyan programlardan dengeli bir taslak hazırlayayım; beğenmediğini çıkarırsın.",
+  "prefListsEmptyDraftCta": "Üni taslağı hazırlasın",
+  "prefListsEmptyBlankCta": "Boş liste oluştur",
+  "prefListOptions": "Seçenekler",
+  "prefListSaving": "Kaydediliyor",
+  "prefListUndoAction": "GERİ AL",
+  "prefListOrderUpdated": "Sıralama güncellendi",
+  "prefListItemRemoved": "{name} listeden çıkarıldı",
+  "@prefListItemRemoved": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "prefListSortedByRisk": "Zorlayıcıdan güvenliye sıralandı",
+  "prefListSortWithUni": "Üni sıraya dizsin",
+  "prefListPinAction": "Ana listem yap",
+  "prefListPinDesc": "Hep en üstte, açılışta ilk bu görünür",
+  "prefListUnpinAction": "Sabitlemeyi kaldır",
+  "prefListUnpinDesc": "En üstte tutulması sona erer",
+  "prefListShareLink": "Bağlantı paylaş",
+  "prefListShareImage": "Görsel oluştur",
+  "prefListShareImageDesc": "Paylaşılabilir özet kartı",
+  "prefListRenameAction": "Yeniden adlandır",
+  "prefListRenameDesc": "Ad ve açıklamayı düzenle",
+  "prefListRenameTitle": "Listeyi yeniden adlandır",
+  "prefListUpdated": "Liste güncellendi",
+  "prefListDuplicateAction": "Çoğalt",
+  "prefListDuplicateDesc": "Aynı tercihlerle ikinci bir kopya",
+  "prefListDuplicated": "Liste çoğaltıldı",
+  "prefListCopySuffix": "kopya",
+  "prefListDeleteUndoDesc": "Geri almak için birkaç saniyen olur",
+  "prefListDeletedNamed": "“{title}” silindi",
+  "@prefListDeletedNamed": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "prefListRestoreFailed": "Liste geri getirilemedi",
+  "prefListBandSafe": "güvenli",
+  "prefListBandTarget": "hedef",
+  "prefListBandReach": "zorlayıcı",
+  "prefListUnrated": "+{count} değerlendirilmedi",
+  "@prefListUnrated": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "prefListBalanceInvite": "Puanını hesapla, listeni değerlendireyim",
+  "prefListShareCardHeading": "TERCİH LİSTEM",
+  "prefListShareCardCount": "{filled}/{max} tercih",
+  "@prefListShareCardCount": {
+    "placeholders": {
+      "filled": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "prefListShareCardBandSafe": "{count} güvenli",
+  "@prefListShareCardBandSafe": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "prefListShareCardBandReach": "{count} zorlayıcı",
+  "@prefListShareCardBandReach": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "prefListShareCardMore": "ve {count} tercih daha…",
+  "@prefListShareCardMore": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "prefListShareCardText": "{title} — {filled}/{max} tercih | ÜniSeç",
+  "@prefListShareCardText": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "filled": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "@prefListEmptyItemsDesc": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "cmpGroupNumbers": "Sayılarla",
+  "cmpGroupReviews": "Öğrenci puanları",
+  "cmpGroupPlacement": "Yerleştirme verisi",
+  "cmpRowDepartments": "Bölüm sayısı",
+  "cmpRowUndergrad": "Lisans programı",
+  "cmpRowAssociate": "Önlisans programı",
+  "cmpRowAvgBase": "Ortalama taban puanı",
+  "cmpRowQuota": "Kontenjan",
+  "cmpRowFillRate": "Doluluk",
+  "cmpRowPlaces": "Çevresindeki mekân",
+  "cmpRowType": "Tür",
+  "cmpRowFounded": "Kuruluş yılı",
+  "cmpRowRating": "Öğrenci puanı",
+  "cmpRowReviews": "Yorum sayısı",
+  "cmpRowBaseScore": "Taban puanı",
+  "cmpRowRanking": "Başarı sırası",
+  "cmpRowScoreType": "Puan türü",
+  "cmpRowDuration": "Süre",
+  "cmpRowUniCount": "Üniversite sayısı",
+  "cmpRowStateUni": "Devlet üniversitesi",
+  "cmpRowFoundationUni": "Vakıf üniversitesi",
+  "cmpRowDensity": "Üniversite yoğunluğu",
+  "cmpRowPopulation": "Nüfus",
+  "cmpRowAvgReviews": "Üni başına yorum",
+  "cmpHintLastYear": "2025 verisi",
+  "cmpHintPerMillion": "milyon kişi başına",
+  "cmpReviewsEmpty": "Bu ikisi için henüz öğrenci puanı yok. Yorum geldikçe burası dolacak.",
+  "cmpNoRows": "Karşılaştırılacak ortak veri bulunamadı.",
+  "cmpVerdictAhead": "{name} {count} ölçütte önde",
+  "@cmpVerdictAhead": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "cmpVerdictTiedOnly": "{count} ölçütte başa baş",
+  "@cmpVerdictTiedOnly": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "cmpVerdictTiedSuffix": "{count} başa baş",
+  "@cmpVerdictTiedSuffix": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "cmpChangeSide": "Değiştir",
+  "cmpSwap": "Yer değiştir",
+  "cmpChartsTitle": "Grafikler",
+  "cmpChartsDesc": "Radar, ısı haritası, trend ve saçılım",
+  "cmpChartsOpen": "Grafikleri gör",
+  "cmpPersonalTitle": "Senin için",
+  "cmpPersonalBody": "{a} içinde {countA}, {b} içinde {countB} bölüm senin puanına uyuyor.",
+  "@cmpPersonalBody": {
+    "placeholders": {
+      "a": {
+        "type": "String"
+      },
+      "countA": {
+        "type": "String"
+      },
+      "b": {
+        "type": "String"
+      },
+      "countB": {
+        "type": "String"
+      }
+    }
+  },
+  "cmpPersonalTop": "{name} içinde en yükseği: {dept}",
+  "@cmpPersonalTop": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "dept": {
+        "type": "String"
+      }
+    }
+  },
+  "cmpPersonalNoProfile": "Puanını hesapla, hangisinde kaç bölümün sana uyduğunu söyleyeyim.",
+  "cmpPersonalNone": "Bu iki üniversitede puanına uyan bölüm bulamadım.",
+  "cmpPersonalCta": "Puanını hesapla",
+  "cmpAddToList": "Puanına uyanları listeme ekle",
+  "cmpAddSheetTitle": "Listene eklenecekler",
+  "cmpAddSheetDesc": "Puanına uyan programları seçtim. İstemediğini çıkar, gerisini bir kerede ekleyeyim.",
+  "cmpAddSelectedCta": "{count} tercihi ekle",
+  "@cmpAddSelectedCta": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "cmpAddNoList": "Önce bir tercih listesi oluştur.",
+  "cmpAddedToList": "{count} tercih {title} listesine eklendi",
+  "@cmpAddedToList": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      },
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "cmpHubRecentTitle": "SON KARŞILAŞTIRMALARIN",
+  "cmpHubRecentEmpty": "İlk karşılaştırmanı yaptığında burada duracak.",
+  "cmpHubSeeAll": "Tümü",
+  "cmpYears": "{count} yıl",
+  "@cmpYears": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "cmpCityPlate": "{plate} plaka",
+  "@cmpCityPlate": {
+    "placeholders": {
+      "plate": {
+        "type": "String"
+      }
+    }
+  }
 }

@@ -17,8 +17,11 @@ final robotMemoryProvider = Provider<RobotMemory>((ref) {
   return RobotMemory(ref.watch(sharedPreferencesProvider));
 });
 
-/// Ana ekran selamlaması. Seed varsayılanı gün+ay olduğundan mesaj gün
-/// içinde sabittir (rebuild'te değişmez), ertesi gün kendiliğinden döner.
+/// Oturum selamlaması. Seed varsayılanı gün+ay olduğundan mesaj gün içinde
+/// sabittir (rebuild'te değişmez), ertesi gün kendiliğinden döner.
+///
+/// Okuyan: yüzen Üni (`UniFloatingLayer`) — ana sayfadaki karşılama kartı
+/// kaldırılınca selam oraya taşındı ve açılışta bir kez balonda söyleniyor.
 final homeGreetingProvider = Provider.autoDispose<RobotMessage>((ref) {
   final profile = ref.watch(studentScoreProfileProvider);
   final user = ref.watch(currentUserProvider).valueOrNull;

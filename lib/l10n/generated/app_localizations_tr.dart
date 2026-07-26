@@ -1456,13 +1456,6 @@ class AppLocalizationsTr extends AppLocalizations {
   String get prefListsNewList => 'Yeni Liste';
 
   @override
-  String get prefListsEmptyTitle => 'Henüz listen yok';
-
-  @override
-  String get prefListsEmptyDesc =>
-      'Sağ alttaki \"Yeni Liste\" butonuna tıklayarak ilk tercih listeni oluşturmaya başla.';
-
-  @override
   String get prefListsLoginTitle => 'Giriş Yapmalısın';
 
   @override
@@ -1498,10 +1491,11 @@ class AppLocalizationsTr extends AppLocalizations {
   String get prefListActionsDeleteDesc => 'Bu işlem geri alınamaz';
 
   @override
-  String get prefListCreateTitle => 'Yeni Tercih Listesi';
+  String get prefListCreateTitle => 'Yeni tercih listesi';
 
   @override
-  String get prefListCreateSubtitle => 'Liste adını ve açıklamasını gir';
+  String get prefListCreateSubtitle =>
+      'Adını sen koy, doldurmasına ben yardım edeyim.';
 
   @override
   String get prefListTitleLabel => 'Liste adı';
@@ -1511,6 +1505,23 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get prefListTitleHint => 'Örn. 2025 Sayısal Tercihlerim';
+
+  @override
+  String get prefListNameIdeasLabel => 'Hazır adlar';
+
+  @override
+  String prefListNameIdeaTyped(String type) {
+    return '$type Planım';
+  }
+
+  @override
+  String get prefListNameIdeaMain => 'Ana Planım';
+
+  @override
+  String get prefListNameIdeaBackup => 'Yedek Plan';
+
+  @override
+  String get prefListNameIdeaDream => 'Hayallerim';
 
   @override
   String get prefListDescriptionLabel => 'Açıklama (opsiyonel)';
@@ -1569,9 +1580,6 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
-  String get prefListSaved => 'Tercih listesi kaydedildi';
-
-  @override
   String prefListSaveError(String error) {
     return 'Kaydetme hatası: $error';
   }
@@ -1596,9 +1604,6 @@ class AppLocalizationsTr extends AppLocalizations {
   String get prefListAddDepartment => 'Bölüm Ekle';
 
   @override
-  String get prefListSortByScore => 'Puana Göre Sırala';
-
-  @override
   String get prefListUndo => 'Geri Al';
 
   @override
@@ -1607,14 +1612,12 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
-  String get prefListSavedState => 'Kaydedildi';
+  String get prefListEmptyItemsTitle => 'Bu liste henüz boş';
 
   @override
-  String get prefListEmptyItemsTitle => 'Liste boş';
-
-  @override
-  String get prefListEmptyItemsDesc =>
-      '\"Bölüm Ekle\" butonuna tıklayarak üniversite ve bölüm seç. Tercihlerini sürükleyerek veya sıralamaya göre düzenleyebilirsin.';
+  String prefListEmptyItemsDesc(int max) {
+    return 'ÖSYM’de $max tercih hakkın var. İlkini ekleyelim mi?';
+  }
 
   @override
   String get prefDeptSelectUniversity => 'Üniversite Seç';
@@ -2245,4 +2248,338 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get commonReset => 'Sıfırla';
+
+  @override
+  String get prefListsOthersHeading => 'DİĞER LİSTELERİN';
+
+  @override
+  String get prefListsMainBadge => 'ANA LİSTEN';
+
+  @override
+  String get prefListsOpen => 'Listeyi aç';
+
+  @override
+  String prefListsSlotsFree(int count) {
+    return '$count hak boş';
+  }
+
+  @override
+  String get prefListsEmptyHeroTitle => 'Listeni birlikte kuralım';
+
+  @override
+  String get prefListsEmptyHeroDesc =>
+      'Puanına uyan programlardan dengeli bir taslak hazırlayayım; beğenmediğini çıkarırsın.';
+
+  @override
+  String get prefListsEmptyDraftCta => 'Üni taslağı hazırlasın';
+
+  @override
+  String get prefListsEmptyBlankCta => 'Boş liste oluştur';
+
+  @override
+  String get prefListOptions => 'Seçenekler';
+
+  @override
+  String get prefListSaving => 'Kaydediliyor';
+
+  @override
+  String get prefListUndoAction => 'GERİ AL';
+
+  @override
+  String get prefListOrderUpdated => 'Sıralama güncellendi';
+
+  @override
+  String prefListItemRemoved(String name) {
+    return '$name listeden çıkarıldı';
+  }
+
+  @override
+  String get prefListSortedByRisk => 'Zorlayıcıdan güvenliye sıralandı';
+
+  @override
+  String get prefListSortWithUni => 'Üni sıraya dizsin';
+
+  @override
+  String get prefListPinAction => 'Ana listem yap';
+
+  @override
+  String get prefListPinDesc => 'Hep en üstte, açılışta ilk bu görünür';
+
+  @override
+  String get prefListUnpinAction => 'Sabitlemeyi kaldır';
+
+  @override
+  String get prefListUnpinDesc => 'En üstte tutulması sona erer';
+
+  @override
+  String get prefListShareLink => 'Bağlantı paylaş';
+
+  @override
+  String get prefListShareImage => 'Görsel oluştur';
+
+  @override
+  String get prefListShareImageDesc => 'Paylaşılabilir özet kartı';
+
+  @override
+  String get prefListRenameAction => 'Yeniden adlandır';
+
+  @override
+  String get prefListRenameDesc => 'Ad ve açıklamayı düzenle';
+
+  @override
+  String get prefListRenameTitle => 'Listeyi yeniden adlandır';
+
+  @override
+  String get prefListUpdated => 'Liste güncellendi';
+
+  @override
+  String get prefListDuplicateAction => 'Çoğalt';
+
+  @override
+  String get prefListDuplicateDesc => 'Aynı tercihlerle ikinci bir kopya';
+
+  @override
+  String get prefListDuplicated => 'Liste çoğaltıldı';
+
+  @override
+  String get prefListCopySuffix => 'kopya';
+
+  @override
+  String get prefListDeleteUndoDesc => 'Geri almak için birkaç saniyen olur';
+
+  @override
+  String prefListDeletedNamed(String title) {
+    return '“$title” silindi';
+  }
+
+  @override
+  String get prefListRestoreFailed => 'Liste geri getirilemedi';
+
+  @override
+  String get prefListBandSafe => 'güvenli';
+
+  @override
+  String get prefListBandTarget => 'hedef';
+
+  @override
+  String get prefListBandReach => 'zorlayıcı';
+
+  @override
+  String prefListUnrated(int count) {
+    return '+$count değerlendirilmedi';
+  }
+
+  @override
+  String get prefListBalanceInvite =>
+      'Puanını hesapla, listeni değerlendireyim';
+
+  @override
+  String get prefListShareCardHeading => 'TERCİH LİSTEM';
+
+  @override
+  String prefListShareCardCount(int filled, int max) {
+    return '$filled/$max tercih';
+  }
+
+  @override
+  String prefListShareCardBandSafe(int count) {
+    return '$count güvenli';
+  }
+
+  @override
+  String prefListShareCardBandReach(int count) {
+    return '$count zorlayıcı';
+  }
+
+  @override
+  String prefListShareCardMore(int count) {
+    return 've $count tercih daha…';
+  }
+
+  @override
+  String prefListShareCardText(String title, int filled, int max) {
+    return '$title — $filled/$max tercih | ÜniSeç';
+  }
+
+  @override
+  String get cmpGroupNumbers => 'Sayılarla';
+
+  @override
+  String get cmpGroupReviews => 'Öğrenci puanları';
+
+  @override
+  String get cmpGroupPlacement => 'Yerleştirme verisi';
+
+  @override
+  String get cmpRowDepartments => 'Bölüm sayısı';
+
+  @override
+  String get cmpRowUndergrad => 'Lisans programı';
+
+  @override
+  String get cmpRowAssociate => 'Önlisans programı';
+
+  @override
+  String get cmpRowAvgBase => 'Ortalama taban puanı';
+
+  @override
+  String get cmpRowQuota => 'Kontenjan';
+
+  @override
+  String get cmpRowFillRate => 'Doluluk';
+
+  @override
+  String get cmpRowPlaces => 'Çevresindeki mekân';
+
+  @override
+  String get cmpRowType => 'Tür';
+
+  @override
+  String get cmpRowFounded => 'Kuruluş yılı';
+
+  @override
+  String get cmpRowRating => 'Öğrenci puanı';
+
+  @override
+  String get cmpRowReviews => 'Yorum sayısı';
+
+  @override
+  String get cmpRowBaseScore => 'Taban puanı';
+
+  @override
+  String get cmpRowRanking => 'Başarı sırası';
+
+  @override
+  String get cmpRowScoreType => 'Puan türü';
+
+  @override
+  String get cmpRowDuration => 'Süre';
+
+  @override
+  String get cmpRowUniCount => 'Üniversite sayısı';
+
+  @override
+  String get cmpRowStateUni => 'Devlet üniversitesi';
+
+  @override
+  String get cmpRowFoundationUni => 'Vakıf üniversitesi';
+
+  @override
+  String get cmpRowDensity => 'Üniversite yoğunluğu';
+
+  @override
+  String get cmpRowPopulation => 'Nüfus';
+
+  @override
+  String get cmpRowAvgReviews => 'Üni başına yorum';
+
+  @override
+  String get cmpHintLastYear => '2025 verisi';
+
+  @override
+  String get cmpHintPerMillion => 'milyon kişi başına';
+
+  @override
+  String get cmpReviewsEmpty =>
+      'Bu ikisi için henüz öğrenci puanı yok. Yorum geldikçe burası dolacak.';
+
+  @override
+  String get cmpNoRows => 'Karşılaştırılacak ortak veri bulunamadı.';
+
+  @override
+  String cmpVerdictAhead(String name, String count) {
+    return '$name $count ölçütte önde';
+  }
+
+  @override
+  String cmpVerdictTiedOnly(String count) {
+    return '$count ölçütte başa baş';
+  }
+
+  @override
+  String cmpVerdictTiedSuffix(String count) {
+    return '$count başa baş';
+  }
+
+  @override
+  String get cmpChangeSide => 'Değiştir';
+
+  @override
+  String get cmpSwap => 'Yer değiştir';
+
+  @override
+  String get cmpChartsTitle => 'Grafikler';
+
+  @override
+  String get cmpChartsDesc => 'Radar, ısı haritası, trend ve saçılım';
+
+  @override
+  String get cmpChartsOpen => 'Grafikleri gör';
+
+  @override
+  String get cmpPersonalTitle => 'Senin için';
+
+  @override
+  String cmpPersonalBody(String a, String countA, String b, String countB) {
+    return '$a içinde $countA, $b içinde $countB bölüm senin puanına uyuyor.';
+  }
+
+  @override
+  String cmpPersonalTop(String name, String dept) {
+    return '$name içinde en yükseği: $dept';
+  }
+
+  @override
+  String get cmpPersonalNoProfile =>
+      'Puanını hesapla, hangisinde kaç bölümün sana uyduğunu söyleyeyim.';
+
+  @override
+  String get cmpPersonalNone =>
+      'Bu iki üniversitede puanına uyan bölüm bulamadım.';
+
+  @override
+  String get cmpPersonalCta => 'Puanını hesapla';
+
+  @override
+  String get cmpAddToList => 'Puanına uyanları listeme ekle';
+
+  @override
+  String get cmpAddSheetTitle => 'Listene eklenecekler';
+
+  @override
+  String get cmpAddSheetDesc =>
+      'Puanına uyan programları seçtim. İstemediğini çıkar, gerisini bir kerede ekleyeyim.';
+
+  @override
+  String cmpAddSelectedCta(String count) {
+    return '$count tercihi ekle';
+  }
+
+  @override
+  String get cmpAddNoList => 'Önce bir tercih listesi oluştur.';
+
+  @override
+  String cmpAddedToList(String count, String title) {
+    return '$count tercih $title listesine eklendi';
+  }
+
+  @override
+  String get cmpHubRecentTitle => 'SON KARŞILAŞTIRMALARIN';
+
+  @override
+  String get cmpHubRecentEmpty =>
+      'İlk karşılaştırmanı yaptığında burada duracak.';
+
+  @override
+  String get cmpHubSeeAll => 'Tümü';
+
+  @override
+  String cmpYears(String count) {
+    return '$count yıl';
+  }
+
+  @override
+  String cmpCityPlate(String plate) {
+    return '$plate plaka';
+  }
 }

@@ -51,18 +51,8 @@ class _Content extends ConsumerWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Drag handle
-          Center(
-            child: Container(
-              margin: const EdgeInsets.only(top: 4, bottom: 16),
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: AppColors.borderLightFor(context),
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-          ),
+          // Tutamak temadan geliyor (`showDragHandle: true`).
+          const SizedBox(height: 8),
 
           // Header
           Row(

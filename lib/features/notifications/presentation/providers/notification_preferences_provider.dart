@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../auth/domain/user_model.dart';
 import '../../data/fcm_service.dart';
@@ -75,9 +76,13 @@ class NotificationPreferencesNotifier
         await _resubscribeAllFavorites(uid, subscribe: value);
       }
     } catch (e) {
-      // Revert
+      // Yazma başarısızsa iyimser güncellemeyi geri al; kullanıcı switch'in
+      // eski haline döndüğünü görür. Eskiden burada `rethrow` vardı — çağıran
+      // ekran yakalamazsa (ör. geçici `permission-denied`) bu yakalanmamış bir
+      // async hata olarak çökmeye yol açıyordu. Artık loglayıp sessizce geri
+      // alıyoruz; UI durumu zaten hatayı yansıtıyor.
+      debugPrint('[NotifPrefs] toggle yazımı başarısız, geri alındı: $e');
       state = AsyncValue.data(current);
-      rethrow;
     }
   }
   

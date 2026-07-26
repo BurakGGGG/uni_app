@@ -1453,13 +1453,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get prefListsNewList => 'New List';
 
   @override
-  String get prefListsEmptyTitle => 'No lists yet';
-
-  @override
-  String get prefListsEmptyDesc =>
-      'Tap the \"New List\" button at the bottom right to create your first preference list.';
-
-  @override
   String get prefListsLoginTitle => 'Sign in required';
 
   @override
@@ -1494,10 +1487,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get prefListActionsDeleteDesc => 'This action cannot be undone';
 
   @override
-  String get prefListCreateTitle => 'New Preference List';
+  String get prefListCreateTitle => 'New preference list';
 
   @override
-  String get prefListCreateSubtitle => 'Enter a name and description';
+  String get prefListCreateSubtitle =>
+      'You name it — I\'ll help you fill it in.';
 
   @override
   String get prefListTitleLabel => 'List name';
@@ -1507,6 +1501,23 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get prefListTitleHint => 'E.g. My 2025 STEM Preferences';
+
+  @override
+  String get prefListNameIdeasLabel => 'Quick names';
+
+  @override
+  String prefListNameIdeaTyped(String type) {
+    return 'My $type Plan';
+  }
+
+  @override
+  String get prefListNameIdeaMain => 'My Main Plan';
+
+  @override
+  String get prefListNameIdeaBackup => 'Backup Plan';
+
+  @override
+  String get prefListNameIdeaDream => 'My Dreams';
 
   @override
   String get prefListDescriptionLabel => 'Description (optional)';
@@ -1566,9 +1577,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get prefListSaved => 'Preference list saved';
-
-  @override
   String prefListSaveError(String error) {
     return 'Save error: $error';
   }
@@ -1593,9 +1601,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get prefListAddDepartment => 'Add Department';
 
   @override
-  String get prefListSortByScore => 'Sort by Score';
-
-  @override
   String get prefListUndo => 'Undo';
 
   @override
@@ -1604,14 +1609,12 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get prefListSavedState => 'Saved';
+  String get prefListEmptyItemsTitle => 'This list is still empty';
 
   @override
-  String get prefListEmptyItemsTitle => 'List is empty';
-
-  @override
-  String get prefListEmptyItemsDesc =>
-      'Tap \"Add Department\" to choose a university and department. You can reorder your preferences by dragging or sorting by ranking.';
+  String prefListEmptyItemsDesc(int max) {
+    return 'You get $max choices in the placement. Shall we add the first one?';
+  }
 
   @override
   String get prefDeptSelectUniversity => 'Select University';
@@ -2244,4 +2247,337 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get commonReset => 'Reset';
+
+  @override
+  String get prefListsOthersHeading => 'YOUR OTHER LISTS';
+
+  @override
+  String get prefListsMainBadge => 'MAIN LIST';
+
+  @override
+  String get prefListsOpen => 'Open list';
+
+  @override
+  String prefListsSlotsFree(int count) {
+    return '$count slots free';
+  }
+
+  @override
+  String get prefListsEmptyHeroTitle => 'Let\'s build your list together';
+
+  @override
+  String get prefListsEmptyHeroDesc =>
+      'I\'ll draft a balanced set from the programs within your reach; you drop the ones you don\'t want.';
+
+  @override
+  String get prefListsEmptyDraftCta => 'Let Üni draft it';
+
+  @override
+  String get prefListsEmptyBlankCta => 'Create an empty list';
+
+  @override
+  String get prefListOptions => 'Options';
+
+  @override
+  String get prefListSaving => 'Saving';
+
+  @override
+  String get prefListUndoAction => 'UNDO';
+
+  @override
+  String get prefListOrderUpdated => 'Order updated';
+
+  @override
+  String prefListItemRemoved(String name) {
+    return '$name removed from the list';
+  }
+
+  @override
+  String get prefListSortedByRisk => 'Sorted from reach to safe';
+
+  @override
+  String get prefListSortWithUni => 'Let Üni order it';
+
+  @override
+  String get prefListPinAction => 'Make it my main list';
+
+  @override
+  String get prefListPinDesc => 'Always on top, the first thing you see';
+
+  @override
+  String get prefListUnpinAction => 'Unpin';
+
+  @override
+  String get prefListUnpinDesc => 'It will no longer be kept on top';
+
+  @override
+  String get prefListShareLink => 'Share link';
+
+  @override
+  String get prefListShareImage => 'Create image';
+
+  @override
+  String get prefListShareImageDesc => 'A shareable summary card';
+
+  @override
+  String get prefListRenameAction => 'Rename';
+
+  @override
+  String get prefListRenameDesc => 'Edit the name and description';
+
+  @override
+  String get prefListRenameTitle => 'Rename list';
+
+  @override
+  String get prefListUpdated => 'List updated';
+
+  @override
+  String get prefListDuplicateAction => 'Duplicate';
+
+  @override
+  String get prefListDuplicateDesc => 'A second copy with the same choices';
+
+  @override
+  String get prefListDuplicated => 'List duplicated';
+
+  @override
+  String get prefListCopySuffix => 'copy';
+
+  @override
+  String get prefListDeleteUndoDesc => 'You get a few seconds to undo';
+
+  @override
+  String prefListDeletedNamed(String title) {
+    return '“$title” deleted';
+  }
+
+  @override
+  String get prefListRestoreFailed => 'The list could not be restored';
+
+  @override
+  String get prefListBandSafe => 'safe';
+
+  @override
+  String get prefListBandTarget => 'match';
+
+  @override
+  String get prefListBandReach => 'reach';
+
+  @override
+  String prefListUnrated(int count) {
+    return '+$count not rated';
+  }
+
+  @override
+  String get prefListBalanceInvite =>
+      'Calculate your score and I\'ll rate your list';
+
+  @override
+  String get prefListShareCardHeading => 'MY PREFERENCE LIST';
+
+  @override
+  String prefListShareCardCount(int filled, int max) {
+    return '$filled/$max choices';
+  }
+
+  @override
+  String prefListShareCardBandSafe(int count) {
+    return '$count safe';
+  }
+
+  @override
+  String prefListShareCardBandReach(int count) {
+    return '$count reach';
+  }
+
+  @override
+  String prefListShareCardMore(int count) {
+    return 'and $count more…';
+  }
+
+  @override
+  String prefListShareCardText(String title, int filled, int max) {
+    return '$title — $filled/$max choices | ÜniSeç';
+  }
+
+  @override
+  String get cmpGroupNumbers => 'By the numbers';
+
+  @override
+  String get cmpGroupReviews => 'Student ratings';
+
+  @override
+  String get cmpGroupPlacement => 'Placement data';
+
+  @override
+  String get cmpRowDepartments => 'Departments';
+
+  @override
+  String get cmpRowUndergrad => 'Bachelor\'s programs';
+
+  @override
+  String get cmpRowAssociate => 'Associate programs';
+
+  @override
+  String get cmpRowAvgBase => 'Average base score';
+
+  @override
+  String get cmpRowQuota => 'Places';
+
+  @override
+  String get cmpRowFillRate => 'Fill rate';
+
+  @override
+  String get cmpRowPlaces => 'Venues nearby';
+
+  @override
+  String get cmpRowType => 'Type';
+
+  @override
+  String get cmpRowFounded => 'Founded';
+
+  @override
+  String get cmpRowRating => 'Student rating';
+
+  @override
+  String get cmpRowReviews => 'Reviews';
+
+  @override
+  String get cmpRowBaseScore => 'Base score';
+
+  @override
+  String get cmpRowRanking => 'Success rank';
+
+  @override
+  String get cmpRowScoreType => 'Score type';
+
+  @override
+  String get cmpRowDuration => 'Duration';
+
+  @override
+  String get cmpRowUniCount => 'Universities';
+
+  @override
+  String get cmpRowStateUni => 'State universities';
+
+  @override
+  String get cmpRowFoundationUni => 'Foundation universities';
+
+  @override
+  String get cmpRowDensity => 'University density';
+
+  @override
+  String get cmpRowPopulation => 'Population';
+
+  @override
+  String get cmpRowAvgReviews => 'Reviews per university';
+
+  @override
+  String get cmpHintLastYear => '2025 data';
+
+  @override
+  String get cmpHintPerMillion => 'per million people';
+
+  @override
+  String get cmpReviewsEmpty =>
+      'No student ratings for these two yet. This fills in as reviews arrive.';
+
+  @override
+  String get cmpNoRows => 'No shared data to compare.';
+
+  @override
+  String cmpVerdictAhead(String name, String count) {
+    return '$name leads on $count';
+  }
+
+  @override
+  String cmpVerdictTiedOnly(String count) {
+    return 'Level on $count measures';
+  }
+
+  @override
+  String cmpVerdictTiedSuffix(String count) {
+    return '$count level';
+  }
+
+  @override
+  String get cmpChangeSide => 'Change';
+
+  @override
+  String get cmpSwap => 'Swap sides';
+
+  @override
+  String get cmpChartsTitle => 'Charts';
+
+  @override
+  String get cmpChartsDesc => 'Radar, heat map, trend and scatter';
+
+  @override
+  String get cmpChartsOpen => 'View charts';
+
+  @override
+  String get cmpPersonalTitle => 'For you';
+
+  @override
+  String cmpPersonalBody(String a, String countA, String b, String countB) {
+    return '$countA departments at $a and $countB at $b match your score.';
+  }
+
+  @override
+  String cmpPersonalTop(String name, String dept) {
+    return 'Highest at $name: $dept';
+  }
+
+  @override
+  String get cmpPersonalNoProfile =>
+      'Calculate your score and I\'ll tell you how many departments match at each.';
+
+  @override
+  String get cmpPersonalNone =>
+      'I couldn\'t find a department matching your score at either one.';
+
+  @override
+  String get cmpPersonalCta => 'Calculate your score';
+
+  @override
+  String get cmpAddToList => 'Add the matching ones to my list';
+
+  @override
+  String get cmpAddSheetTitle => 'Going into your list';
+
+  @override
+  String get cmpAddSheetDesc =>
+      'I picked the programs that match your score. Drop the ones you don\'t want and I\'ll add the rest in one go.';
+
+  @override
+  String cmpAddSelectedCta(String count) {
+    return 'Add $count choices';
+  }
+
+  @override
+  String get cmpAddNoList => 'Create a preference list first.';
+
+  @override
+  String cmpAddedToList(String count, String title) {
+    return '$count choices added to $title';
+  }
+
+  @override
+  String get cmpHubRecentTitle => 'YOUR RECENT COMPARISONS';
+
+  @override
+  String get cmpHubRecentEmpty => 'Your first comparison will show up here.';
+
+  @override
+  String get cmpHubSeeAll => 'All';
+
+  @override
+  String cmpYears(String count) {
+    return '$count years';
+  }
+
+  @override
+  String cmpCityPlate(String plate) {
+    return 'Plate $plate';
+  }
 }

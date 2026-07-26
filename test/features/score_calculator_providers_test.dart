@@ -110,10 +110,48 @@ void main() {
 
     expect(verdict, isNotNull);
     expect(verdict!.departmentName, 'Bilgisayar Mühendisliği');
+    expect(verdict.scoreType, 'SAY');
     expect(verdict.total, 3); // Hukuk (EA) dahil değil — adı farklı
-    // En uygun program en yüksek fit'li olan (rahat kaçan garanti program).
+    // Hedef bölüm TEK kartla geçiştirilmez: üç kategorinin de programı
+    // listelenir (kullanıcı geri bildirimi — "istediğim bölümden bir tane
+    // öneriyor, altta başka bölümlerden onlarca").
+    expect(verdict.top.map((m) => m.department.id),
+        ['rahat', 'sinirda', 'hayal']);
+    expect(verdict.hiddenCount, 0);
+    // Listenin başı en uygun görünen program.
     expect(verdict.best.department.id, 'rahat');
     expect(verdict.guaranteed, greaterThanOrEqualTo(1));
+  });
+
+  test('önizleme kategori dengeli ve sınıra yakın program önce', () async {
+    // Aynı bölümde beşten çok program: 2 garanti + 2 hedef + 1 hayal payı
+    // uygulanmalı, garantilerde sınıra EN YAKIN olan başa gelmeli (öğrencinin
+    // güvenle girebileceği en iyi program odur).
+    final container = ProviderContainer(overrides: [
+      allScoredDepartmentsProvider.overrideWith((ref) async => [
+            _dept('g-kolay', 300, 300000),
+            _dept('g-orta', 330, 220000),
+            _dept('g-sinirda', 400, 120000),
+            _dept('h-1', 415, 88000),
+            _dept('h-2', 425, 78000),
+            _dept('hayal-1', 470, 20000),
+            _dept('hayal-2', 480, 12000),
+          ]),
+      allUniversitiesProvider.overrideWith((ref) async => universities),
+    ]);
+    addTearDown(container.dispose);
+    container.read(scoreInputProvider.notifier).state = input;
+
+    final verdict =
+        await container.read(targetDepartmentVerdictProvider.future);
+
+    expect(verdict!.total, 7);
+    expect(verdict.top.length, 5);
+    expect(verdict.hiddenCount, 2);
+    // Garantilerden sınıra en yakın ikisi, sonra en ulaşılabilir iki hedef,
+    // sonra en yakın hayal.
+    expect(verdict.top.map((m) => m.department.id),
+        ['g-sinirda', 'g-orta', 'h-1', 'h-2', 'hayal-1']);
   });
 
   test('hedef bölüm seçilmemişse verdict null', () async {

@@ -13,9 +13,9 @@ import '../widgets/uni_calc_comment.dart';
 import '../widgets/university_match_card.dart';
 import '../widgets/year_comparison_table.dart';
 import '../../../admin/data/analytics_service.dart';
+import '../../../auth/presentation/providers/auth_providers.dart';
 import '../../../admin/domain/models/analytics_event.dart';
 import '../../../practice_exams/presentation/widgets/save_practice_exam_sheet.dart';
-import '../../../preference_wizard/domain/models/student_score_profile.dart';
 import '../../../preference_wizard/presentation/providers/preference_wizard_providers.dart';
 import '../../../../router/app_router.dart';
 import '../../domain/models/multi_score_result.dart';
@@ -141,6 +141,8 @@ class _ResultBodyState extends ConsumerState<_ResultBody> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('${exam.name} denemelerine kaydedildi'),
+        // Eylemli SnackBar'ın Flutter varsayılanı kalıcı olmak.
+        persist: false,
         action: SnackBarAction(
           label: 'Denemelerim',
           onPressed: () => context.push(AppRoutes.practiceExams),
@@ -285,25 +287,28 @@ class _ResultBodyState extends ConsumerState<_ResultBody> {
                   ),
                 const SizedBox(height: 4),
                 UniCalcComment(outcome: outcome),
-                const SizedBox(height: 16),
-                SizedBox(
-                  width: double.infinity,
-                  height: 50,
-                  child: _saved
-                      ? OutlinedButton.icon(
-                          onPressed: () =>
-                              context.push(AppRoutes.practiceExams),
-                          icon: const Icon(Icons.check_circle_rounded,
-                              size: 18, color: AppColors.success),
-                          label: const Text('Kaydedildi · Denemelerim'),
-                        )
-                      : FilledButton.icon(
-                          onPressed: _saveToPracticeExams,
-                          icon: const Icon(Icons.bookmark_add_rounded,
-                              size: 18),
-                          label: const Text('Denemelerime Kaydet'),
-                        ),
-                ),
+                // Denemelerim üyelere özel — misafire kaydetme sözü verilmez.
+                if (ref.watch(authStateProvider).valueOrNull != null) ...[
+                  const SizedBox(height: 16),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 50,
+                    child: _saved
+                        ? OutlinedButton.icon(
+                            onPressed: () =>
+                                context.push(AppRoutes.practiceExams),
+                            icon: const Icon(Icons.check_circle_rounded,
+                                size: 18, color: AppColors.success),
+                            label: const Text('Kaydedildi · Denemelerim'),
+                          )
+                        : FilledButton.icon(
+                            onPressed: _saveToPracticeExams,
+                            icon: const Icon(Icons.bookmark_add_rounded,
+                                size: 18),
+                            label: const Text('Denemelerime Kaydet'),
+                          ),
+                  ),
+                ],
               ],
             ),
           ).animate().fadeIn(delay: 120.ms, duration: 400.ms),
@@ -325,12 +330,27 @@ class _ResultBodyState extends ConsumerState<_ResultBody> {
                     Text(
                       '${verdict.total} programdan 🟢${verdict.guaranteed} · '
                       '🟡${verdict.target} · 🔴${verdict.dream}. '
-                      'Sana en uygun görünen:',
+                      'Sana en uygun görünenler:',
                       style: AppTextStyles.bodyMedium.copyWith(
                           color: AppColors.textSecondaryFor(context)),
                     ),
                     const SizedBox(height: 12),
-                    UniversityMatchCard(match: verdict.best),
+                    for (final match in verdict.top)
+                      UniversityMatchCard(match: match),
+                    if (verdict.hiddenCount > 0)
+                      SizedBox(
+                        width: double.infinity,
+                        height: 48,
+                        child: OutlinedButton.icon(
+                          onPressed: () => _openTargetDeptInWizard(verdict),
+                          icon: const Icon(Icons.list_alt_rounded, size: 18),
+                          label: Text(
+                            'Bu bölümün tüm programları (${verdict.total})',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ),
                   ],
                 ),
               );
@@ -430,9 +450,7 @@ class _ResultBodyState extends ConsumerState<_ResultBody> {
   }
 
   /// Tercih robotuna aktarım: tek tür → doğrudan; birden çok tür → seçim
-  /// sheet'i (en güçlü tür önseçili). TAHMİNİ sıra profile YAZILMAZ —
-  /// robot kendi tahminini yapar (belirsizlik düzeltmesi korunur). Kullanıcı
-  /// sırayı kendi girdiyse (sıra modu) o gerçek sıradır ve aktarılır.
+  /// sheet'i (en güçlü tür önseçili).
   Future<void> _transferToWizard(
     BuildContext context,
     WidgetRef ref, {
@@ -458,21 +476,32 @@ class _ResultBodyState extends ConsumerState<_ResultBody> {
     final typeOutcome = outcome.byType(chosen);
     if (typeOutcome == null) return;
 
-    await ref.read(studentScoreProfileProvider.notifier).save(
-          StudentScoreProfile(
-            scoreType: chosen,
-            placementScore: typeOutcome.score.placementScore,
-            rank: typeOutcome.rankIsUserEntered
-                ? typeOutcome.estimatedRank
-                : null,
-            // Robot giriş ekranıyla aynı: profil yılı = bu yıl.
-            year: DateTime.now().year,
-            updatedAt: DateTime.now(),
-          ),
-        );
+    await _saveProfile(chosen, typeOutcome);
     if (context.mounted) {
       context.push('/preference-wizard/results');
     }
+  }
+
+  /// Hedef bölümün TÜM programları: profil aktarılır ve robotun bölüm araması
+  /// bu bölüme ayarlanır. Arama kutusunda bölüm adı görünür, çarpıya basınca
+  /// genel listeye dönülür — filtre gizli kalmaz.
+  Future<void> _openTargetDeptInWizard(TargetDeptVerdict verdict) async {
+    final typeOutcome = outcome.byType(verdict.scoreType);
+    if (typeOutcome == null) return;
+
+    await _saveProfile(verdict.scoreType, typeOutcome);
+    if (!mounted) return;
+    final notifier = ref.read(wizardFilterProvider.notifier);
+    notifier.state = notifier.state.copyWith(
+      deptQuery: verdict.departmentName,
+    );
+    context.push('/preference-wizard/results');
+  }
+
+  Future<void> _saveProfile(String scoreType, ScoreTypeOutcome typeOutcome) {
+    return ref
+        .read(studentScoreProfileProvider.notifier)
+        .save(profileFromOutcome(scoreType, typeOutcome));
   }
 }
 

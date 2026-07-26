@@ -3,14 +3,8 @@ import '../robot_mood.dart';
 
 /// İçgörünün doğduğu veri kaynağı — panelde gruplama ve analitik için.
 enum InsightKind {
-  /// Kurulum yolu: profil / hedef / ilk deneme eksik.
+  /// Tercih yolunun ön koşulu: puan profili eksik.
   setup,
-
-  /// Hedef programa mesafe.
-  target,
-
-  /// Deneme defterinden çıkan gelişim.
-  progress,
 
   /// Tercih listesinin sağlığı.
   list,
@@ -27,7 +21,7 @@ enum InsightTone { neutral, positive, warning, urgent }
 
 /// Üni'nin tek bir notu.
 ///
-/// [id] şablon kimliğidir (ör. `target.roadmap`): analitik, susturma
+/// [id] şablon kimliğidir (ör. `list.noSafe`): analitik, susturma
 /// ([RobotMemory]) ve testler bunun üzerinden çalışır — dilden bağımsızdır.
 /// Metin üretimi [RobotScripts]'te, seçim [InsightEngine]'de yaşar; bu sınıf
 /// yalnız taşır.
@@ -72,26 +66,20 @@ class UniInsight {
   });
 
   bool get hasAction => action != RobotAction.none;
-}
 
-/// Üni'nin konuşabilmesi için gereken asgari iki şey.
-///
-/// Sıra anlamlıdır: puan olmadan hedefe mesafe, deneme olmadan ders kırılımı
-/// hesaplanamaz. Panel bunların yalnız SIRADAKİNİ, tek cümle + tek butonla
-/// gösterir — üçü birden listelenince kart "ödev listesi" gibi okunuyordu.
-///
-/// Hedef program bilerek BURADA DEĞİL: kullanıcı daha tek deneme girmemişken
-/// ondan hedef seçmesini istemek hem erken hem de Üni'nin kendi işi — ilk
-/// deneme geldikten sonra hazır öneriyle o soruyor (`setup.noTarget`).
-class SetupPath {
-  final bool hasProfile;
-  final bool hasExam;
-
-  const SetupPath({required this.hasProfile, required this.hasExam});
-
-  int get done => (hasProfile ? 1 : 0) + (hasExam ? 1 : 0);
-
-  static const int total = 2;
-
-  bool get complete => done == total;
+  /// Düğmesiz kopya.
+  ///
+  /// Hedefi üyelere özel bir ekran olan notlar misafire böyle gösterilir:
+  /// cümle değerli ("YKS'ye 120 gün"), ama düğme onu giriş duvarına
+  /// çarptırırdı.
+  UniInsight withoutAction() => UniInsight(
+        id: id,
+        kind: kind,
+        priority: priority,
+        title: title,
+        body: body,
+        tone: tone,
+        mood: mood,
+        dismissible: dismissible,
+      );
 }

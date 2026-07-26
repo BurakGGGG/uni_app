@@ -2792,18 +2792,6 @@ abstract class AppLocalizations {
   /// **'Yeni Liste'**
   String get prefListsNewList;
 
-  /// No description provided for @prefListsEmptyTitle.
-  ///
-  /// In tr, this message translates to:
-  /// **'Henüz listen yok'**
-  String get prefListsEmptyTitle;
-
-  /// No description provided for @prefListsEmptyDesc.
-  ///
-  /// In tr, this message translates to:
-  /// **'Sağ alttaki \"Yeni Liste\" butonuna tıklayarak ilk tercih listeni oluşturmaya başla.'**
-  String get prefListsEmptyDesc;
-
   /// No description provided for @prefListsLoginTitle.
   ///
   /// In tr, this message translates to:
@@ -2861,13 +2849,13 @@ abstract class AppLocalizations {
   /// No description provided for @prefListCreateTitle.
   ///
   /// In tr, this message translates to:
-  /// **'Yeni Tercih Listesi'**
+  /// **'Yeni tercih listesi'**
   String get prefListCreateTitle;
 
   /// No description provided for @prefListCreateSubtitle.
   ///
   /// In tr, this message translates to:
-  /// **'Liste adını ve açıklamasını gir'**
+  /// **'Adını sen koy, doldurmasına ben yardım edeyim.'**
   String get prefListCreateSubtitle;
 
   /// No description provided for @prefListTitleLabel.
@@ -2887,6 +2875,36 @@ abstract class AppLocalizations {
   /// In tr, this message translates to:
   /// **'Örn. 2025 Sayısal Tercihlerim'**
   String get prefListTitleHint;
+
+  /// No description provided for @prefListNameIdeasLabel.
+  ///
+  /// In tr, this message translates to:
+  /// **'Hazır adlar'**
+  String get prefListNameIdeasLabel;
+
+  /// No description provided for @prefListNameIdeaTyped.
+  ///
+  /// In tr, this message translates to:
+  /// **'{type} Planım'**
+  String prefListNameIdeaTyped(String type);
+
+  /// No description provided for @prefListNameIdeaMain.
+  ///
+  /// In tr, this message translates to:
+  /// **'Ana Planım'**
+  String get prefListNameIdeaMain;
+
+  /// No description provided for @prefListNameIdeaBackup.
+  ///
+  /// In tr, this message translates to:
+  /// **'Yedek Plan'**
+  String get prefListNameIdeaBackup;
+
+  /// No description provided for @prefListNameIdeaDream.
+  ///
+  /// In tr, this message translates to:
+  /// **'Hayallerim'**
+  String get prefListNameIdeaDream;
 
   /// No description provided for @prefListDescriptionLabel.
   ///
@@ -2978,12 +2996,6 @@ abstract class AppLocalizations {
   /// **'Listede en fazla {max} tercih olabilir'**
   String prefListMaxItems(int max);
 
-  /// No description provided for @prefListSaved.
-  ///
-  /// In tr, this message translates to:
-  /// **'Tercih listesi kaydedildi'**
-  String get prefListSaved;
-
   /// No description provided for @prefListSaveError.
   ///
   /// In tr, this message translates to:
@@ -3020,12 +3032,6 @@ abstract class AppLocalizations {
   /// **'Bölüm Ekle'**
   String get prefListAddDepartment;
 
-  /// No description provided for @prefListSortByScore.
-  ///
-  /// In tr, this message translates to:
-  /// **'Puana Göre Sırala'**
-  String get prefListSortByScore;
-
   /// No description provided for @prefListUndo.
   ///
   /// In tr, this message translates to:
@@ -3038,23 +3044,17 @@ abstract class AppLocalizations {
   /// **'{lists} liste · {items} tercih'**
   String prefListsSummary(int lists, int items);
 
-  /// No description provided for @prefListSavedState.
-  ///
-  /// In tr, this message translates to:
-  /// **'Kaydedildi'**
-  String get prefListSavedState;
-
   /// No description provided for @prefListEmptyItemsTitle.
   ///
   /// In tr, this message translates to:
-  /// **'Liste boş'**
+  /// **'Bu liste henüz boş'**
   String get prefListEmptyItemsTitle;
 
   /// No description provided for @prefListEmptyItemsDesc.
   ///
   /// In tr, this message translates to:
-  /// **'\"Bölüm Ekle\" butonuna tıklayarak üniversite ve bölüm seç. Tercihlerini sürükleyerek veya sıralamaya göre düzenleyebilirsin.'**
-  String get prefListEmptyItemsDesc;
+  /// **'ÖSYM’de {max} tercih hakkın var. İlkini ekleyelim mi?'**
+  String prefListEmptyItemsDesc(int max);
 
   /// No description provided for @prefDeptSelectUniversity.
   ///
@@ -4189,6 +4189,588 @@ abstract class AppLocalizations {
   /// In tr, this message translates to:
   /// **'Sıfırla'**
   String get commonReset;
+
+  /// No description provided for @prefListsOthersHeading.
+  ///
+  /// In tr, this message translates to:
+  /// **'DİĞER LİSTELERİN'**
+  String get prefListsOthersHeading;
+
+  /// No description provided for @prefListsMainBadge.
+  ///
+  /// In tr, this message translates to:
+  /// **'ANA LİSTEN'**
+  String get prefListsMainBadge;
+
+  /// No description provided for @prefListsOpen.
+  ///
+  /// In tr, this message translates to:
+  /// **'Listeyi aç'**
+  String get prefListsOpen;
+
+  /// No description provided for @prefListsSlotsFree.
+  ///
+  /// In tr, this message translates to:
+  /// **'{count} hak boş'**
+  String prefListsSlotsFree(int count);
+
+  /// No description provided for @prefListsEmptyHeroTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Listeni birlikte kuralım'**
+  String get prefListsEmptyHeroTitle;
+
+  /// No description provided for @prefListsEmptyHeroDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'Puanına uyan programlardan dengeli bir taslak hazırlayayım; beğenmediğini çıkarırsın.'**
+  String get prefListsEmptyHeroDesc;
+
+  /// No description provided for @prefListsEmptyDraftCta.
+  ///
+  /// In tr, this message translates to:
+  /// **'Üni taslağı hazırlasın'**
+  String get prefListsEmptyDraftCta;
+
+  /// No description provided for @prefListsEmptyBlankCta.
+  ///
+  /// In tr, this message translates to:
+  /// **'Boş liste oluştur'**
+  String get prefListsEmptyBlankCta;
+
+  /// No description provided for @prefListOptions.
+  ///
+  /// In tr, this message translates to:
+  /// **'Seçenekler'**
+  String get prefListOptions;
+
+  /// No description provided for @prefListSaving.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kaydediliyor'**
+  String get prefListSaving;
+
+  /// No description provided for @prefListUndoAction.
+  ///
+  /// In tr, this message translates to:
+  /// **'GERİ AL'**
+  String get prefListUndoAction;
+
+  /// No description provided for @prefListOrderUpdated.
+  ///
+  /// In tr, this message translates to:
+  /// **'Sıralama güncellendi'**
+  String get prefListOrderUpdated;
+
+  /// No description provided for @prefListItemRemoved.
+  ///
+  /// In tr, this message translates to:
+  /// **'{name} listeden çıkarıldı'**
+  String prefListItemRemoved(String name);
+
+  /// No description provided for @prefListSortedByRisk.
+  ///
+  /// In tr, this message translates to:
+  /// **'Zorlayıcıdan güvenliye sıralandı'**
+  String get prefListSortedByRisk;
+
+  /// No description provided for @prefListSortWithUni.
+  ///
+  /// In tr, this message translates to:
+  /// **'Üni sıraya dizsin'**
+  String get prefListSortWithUni;
+
+  /// No description provided for @prefListPinAction.
+  ///
+  /// In tr, this message translates to:
+  /// **'Ana listem yap'**
+  String get prefListPinAction;
+
+  /// No description provided for @prefListPinDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'Hep en üstte, açılışta ilk bu görünür'**
+  String get prefListPinDesc;
+
+  /// No description provided for @prefListUnpinAction.
+  ///
+  /// In tr, this message translates to:
+  /// **'Sabitlemeyi kaldır'**
+  String get prefListUnpinAction;
+
+  /// No description provided for @prefListUnpinDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'En üstte tutulması sona erer'**
+  String get prefListUnpinDesc;
+
+  /// No description provided for @prefListShareLink.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bağlantı paylaş'**
+  String get prefListShareLink;
+
+  /// No description provided for @prefListShareImage.
+  ///
+  /// In tr, this message translates to:
+  /// **'Görsel oluştur'**
+  String get prefListShareImage;
+
+  /// No description provided for @prefListShareImageDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'Paylaşılabilir özet kartı'**
+  String get prefListShareImageDesc;
+
+  /// No description provided for @prefListRenameAction.
+  ///
+  /// In tr, this message translates to:
+  /// **'Yeniden adlandır'**
+  String get prefListRenameAction;
+
+  /// No description provided for @prefListRenameDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'Ad ve açıklamayı düzenle'**
+  String get prefListRenameDesc;
+
+  /// No description provided for @prefListRenameTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Listeyi yeniden adlandır'**
+  String get prefListRenameTitle;
+
+  /// No description provided for @prefListUpdated.
+  ///
+  /// In tr, this message translates to:
+  /// **'Liste güncellendi'**
+  String get prefListUpdated;
+
+  /// No description provided for @prefListDuplicateAction.
+  ///
+  /// In tr, this message translates to:
+  /// **'Çoğalt'**
+  String get prefListDuplicateAction;
+
+  /// No description provided for @prefListDuplicateDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'Aynı tercihlerle ikinci bir kopya'**
+  String get prefListDuplicateDesc;
+
+  /// No description provided for @prefListDuplicated.
+  ///
+  /// In tr, this message translates to:
+  /// **'Liste çoğaltıldı'**
+  String get prefListDuplicated;
+
+  /// No description provided for @prefListCopySuffix.
+  ///
+  /// In tr, this message translates to:
+  /// **'kopya'**
+  String get prefListCopySuffix;
+
+  /// No description provided for @prefListDeleteUndoDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'Geri almak için birkaç saniyen olur'**
+  String get prefListDeleteUndoDesc;
+
+  /// No description provided for @prefListDeletedNamed.
+  ///
+  /// In tr, this message translates to:
+  /// **'“{title}” silindi'**
+  String prefListDeletedNamed(String title);
+
+  /// No description provided for @prefListRestoreFailed.
+  ///
+  /// In tr, this message translates to:
+  /// **'Liste geri getirilemedi'**
+  String get prefListRestoreFailed;
+
+  /// No description provided for @prefListBandSafe.
+  ///
+  /// In tr, this message translates to:
+  /// **'güvenli'**
+  String get prefListBandSafe;
+
+  /// No description provided for @prefListBandTarget.
+  ///
+  /// In tr, this message translates to:
+  /// **'hedef'**
+  String get prefListBandTarget;
+
+  /// No description provided for @prefListBandReach.
+  ///
+  /// In tr, this message translates to:
+  /// **'zorlayıcı'**
+  String get prefListBandReach;
+
+  /// No description provided for @prefListUnrated.
+  ///
+  /// In tr, this message translates to:
+  /// **'+{count} değerlendirilmedi'**
+  String prefListUnrated(int count);
+
+  /// No description provided for @prefListBalanceInvite.
+  ///
+  /// In tr, this message translates to:
+  /// **'Puanını hesapla, listeni değerlendireyim'**
+  String get prefListBalanceInvite;
+
+  /// No description provided for @prefListShareCardHeading.
+  ///
+  /// In tr, this message translates to:
+  /// **'TERCİH LİSTEM'**
+  String get prefListShareCardHeading;
+
+  /// No description provided for @prefListShareCardCount.
+  ///
+  /// In tr, this message translates to:
+  /// **'{filled}/{max} tercih'**
+  String prefListShareCardCount(int filled, int max);
+
+  /// No description provided for @prefListShareCardBandSafe.
+  ///
+  /// In tr, this message translates to:
+  /// **'{count} güvenli'**
+  String prefListShareCardBandSafe(int count);
+
+  /// No description provided for @prefListShareCardBandReach.
+  ///
+  /// In tr, this message translates to:
+  /// **'{count} zorlayıcı'**
+  String prefListShareCardBandReach(int count);
+
+  /// No description provided for @prefListShareCardMore.
+  ///
+  /// In tr, this message translates to:
+  /// **'ve {count} tercih daha…'**
+  String prefListShareCardMore(int count);
+
+  /// No description provided for @prefListShareCardText.
+  ///
+  /// In tr, this message translates to:
+  /// **'{title} — {filled}/{max} tercih | ÜniSeç'**
+  String prefListShareCardText(String title, int filled, int max);
+
+  /// No description provided for @cmpGroupNumbers.
+  ///
+  /// In tr, this message translates to:
+  /// **'Sayılarla'**
+  String get cmpGroupNumbers;
+
+  /// No description provided for @cmpGroupReviews.
+  ///
+  /// In tr, this message translates to:
+  /// **'Öğrenci puanları'**
+  String get cmpGroupReviews;
+
+  /// No description provided for @cmpGroupPlacement.
+  ///
+  /// In tr, this message translates to:
+  /// **'Yerleştirme verisi'**
+  String get cmpGroupPlacement;
+
+  /// No description provided for @cmpRowDepartments.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bölüm sayısı'**
+  String get cmpRowDepartments;
+
+  /// No description provided for @cmpRowUndergrad.
+  ///
+  /// In tr, this message translates to:
+  /// **'Lisans programı'**
+  String get cmpRowUndergrad;
+
+  /// No description provided for @cmpRowAssociate.
+  ///
+  /// In tr, this message translates to:
+  /// **'Önlisans programı'**
+  String get cmpRowAssociate;
+
+  /// No description provided for @cmpRowAvgBase.
+  ///
+  /// In tr, this message translates to:
+  /// **'Ortalama taban puanı'**
+  String get cmpRowAvgBase;
+
+  /// No description provided for @cmpRowQuota.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kontenjan'**
+  String get cmpRowQuota;
+
+  /// No description provided for @cmpRowFillRate.
+  ///
+  /// In tr, this message translates to:
+  /// **'Doluluk'**
+  String get cmpRowFillRate;
+
+  /// No description provided for @cmpRowPlaces.
+  ///
+  /// In tr, this message translates to:
+  /// **'Çevresindeki mekân'**
+  String get cmpRowPlaces;
+
+  /// No description provided for @cmpRowType.
+  ///
+  /// In tr, this message translates to:
+  /// **'Tür'**
+  String get cmpRowType;
+
+  /// No description provided for @cmpRowFounded.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kuruluş yılı'**
+  String get cmpRowFounded;
+
+  /// No description provided for @cmpRowRating.
+  ///
+  /// In tr, this message translates to:
+  /// **'Öğrenci puanı'**
+  String get cmpRowRating;
+
+  /// No description provided for @cmpRowReviews.
+  ///
+  /// In tr, this message translates to:
+  /// **'Yorum sayısı'**
+  String get cmpRowReviews;
+
+  /// No description provided for @cmpRowBaseScore.
+  ///
+  /// In tr, this message translates to:
+  /// **'Taban puanı'**
+  String get cmpRowBaseScore;
+
+  /// No description provided for @cmpRowRanking.
+  ///
+  /// In tr, this message translates to:
+  /// **'Başarı sırası'**
+  String get cmpRowRanking;
+
+  /// No description provided for @cmpRowScoreType.
+  ///
+  /// In tr, this message translates to:
+  /// **'Puan türü'**
+  String get cmpRowScoreType;
+
+  /// No description provided for @cmpRowDuration.
+  ///
+  /// In tr, this message translates to:
+  /// **'Süre'**
+  String get cmpRowDuration;
+
+  /// No description provided for @cmpRowUniCount.
+  ///
+  /// In tr, this message translates to:
+  /// **'Üniversite sayısı'**
+  String get cmpRowUniCount;
+
+  /// No description provided for @cmpRowStateUni.
+  ///
+  /// In tr, this message translates to:
+  /// **'Devlet üniversitesi'**
+  String get cmpRowStateUni;
+
+  /// No description provided for @cmpRowFoundationUni.
+  ///
+  /// In tr, this message translates to:
+  /// **'Vakıf üniversitesi'**
+  String get cmpRowFoundationUni;
+
+  /// No description provided for @cmpRowDensity.
+  ///
+  /// In tr, this message translates to:
+  /// **'Üniversite yoğunluğu'**
+  String get cmpRowDensity;
+
+  /// No description provided for @cmpRowPopulation.
+  ///
+  /// In tr, this message translates to:
+  /// **'Nüfus'**
+  String get cmpRowPopulation;
+
+  /// No description provided for @cmpRowAvgReviews.
+  ///
+  /// In tr, this message translates to:
+  /// **'Üni başına yorum'**
+  String get cmpRowAvgReviews;
+
+  /// No description provided for @cmpHintLastYear.
+  ///
+  /// In tr, this message translates to:
+  /// **'2025 verisi'**
+  String get cmpHintLastYear;
+
+  /// No description provided for @cmpHintPerMillion.
+  ///
+  /// In tr, this message translates to:
+  /// **'milyon kişi başına'**
+  String get cmpHintPerMillion;
+
+  /// No description provided for @cmpReviewsEmpty.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bu ikisi için henüz öğrenci puanı yok. Yorum geldikçe burası dolacak.'**
+  String get cmpReviewsEmpty;
+
+  /// No description provided for @cmpNoRows.
+  ///
+  /// In tr, this message translates to:
+  /// **'Karşılaştırılacak ortak veri bulunamadı.'**
+  String get cmpNoRows;
+
+  /// No description provided for @cmpVerdictAhead.
+  ///
+  /// In tr, this message translates to:
+  /// **'{name} {count} ölçütte önde'**
+  String cmpVerdictAhead(String name, String count);
+
+  /// No description provided for @cmpVerdictTiedOnly.
+  ///
+  /// In tr, this message translates to:
+  /// **'{count} ölçütte başa baş'**
+  String cmpVerdictTiedOnly(String count);
+
+  /// No description provided for @cmpVerdictTiedSuffix.
+  ///
+  /// In tr, this message translates to:
+  /// **'{count} başa baş'**
+  String cmpVerdictTiedSuffix(String count);
+
+  /// No description provided for @cmpChangeSide.
+  ///
+  /// In tr, this message translates to:
+  /// **'Değiştir'**
+  String get cmpChangeSide;
+
+  /// No description provided for @cmpSwap.
+  ///
+  /// In tr, this message translates to:
+  /// **'Yer değiştir'**
+  String get cmpSwap;
+
+  /// No description provided for @cmpChartsTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Grafikler'**
+  String get cmpChartsTitle;
+
+  /// No description provided for @cmpChartsDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'Radar, ısı haritası, trend ve saçılım'**
+  String get cmpChartsDesc;
+
+  /// No description provided for @cmpChartsOpen.
+  ///
+  /// In tr, this message translates to:
+  /// **'Grafikleri gör'**
+  String get cmpChartsOpen;
+
+  /// No description provided for @cmpPersonalTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Senin için'**
+  String get cmpPersonalTitle;
+
+  /// No description provided for @cmpPersonalBody.
+  ///
+  /// In tr, this message translates to:
+  /// **'{a} içinde {countA}, {b} içinde {countB} bölüm senin puanına uyuyor.'**
+  String cmpPersonalBody(String a, String countA, String b, String countB);
+
+  /// No description provided for @cmpPersonalTop.
+  ///
+  /// In tr, this message translates to:
+  /// **'{name} içinde en yükseği: {dept}'**
+  String cmpPersonalTop(String name, String dept);
+
+  /// No description provided for @cmpPersonalNoProfile.
+  ///
+  /// In tr, this message translates to:
+  /// **'Puanını hesapla, hangisinde kaç bölümün sana uyduğunu söyleyeyim.'**
+  String get cmpPersonalNoProfile;
+
+  /// No description provided for @cmpPersonalNone.
+  ///
+  /// In tr, this message translates to:
+  /// **'Bu iki üniversitede puanına uyan bölüm bulamadım.'**
+  String get cmpPersonalNone;
+
+  /// No description provided for @cmpPersonalCta.
+  ///
+  /// In tr, this message translates to:
+  /// **'Puanını hesapla'**
+  String get cmpPersonalCta;
+
+  /// No description provided for @cmpAddToList.
+  ///
+  /// In tr, this message translates to:
+  /// **'Puanına uyanları listeme ekle'**
+  String get cmpAddToList;
+
+  /// No description provided for @cmpAddSheetTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Listene eklenecekler'**
+  String get cmpAddSheetTitle;
+
+  /// No description provided for @cmpAddSheetDesc.
+  ///
+  /// In tr, this message translates to:
+  /// **'Puanına uyan programları seçtim. İstemediğini çıkar, gerisini bir kerede ekleyeyim.'**
+  String get cmpAddSheetDesc;
+
+  /// No description provided for @cmpAddSelectedCta.
+  ///
+  /// In tr, this message translates to:
+  /// **'{count} tercihi ekle'**
+  String cmpAddSelectedCta(String count);
+
+  /// No description provided for @cmpAddNoList.
+  ///
+  /// In tr, this message translates to:
+  /// **'Önce bir tercih listesi oluştur.'**
+  String get cmpAddNoList;
+
+  /// No description provided for @cmpAddedToList.
+  ///
+  /// In tr, this message translates to:
+  /// **'{count} tercih {title} listesine eklendi'**
+  String cmpAddedToList(String count, String title);
+
+  /// No description provided for @cmpHubRecentTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'SON KARŞILAŞTIRMALARIN'**
+  String get cmpHubRecentTitle;
+
+  /// No description provided for @cmpHubRecentEmpty.
+  ///
+  /// In tr, this message translates to:
+  /// **'İlk karşılaştırmanı yaptığında burada duracak.'**
+  String get cmpHubRecentEmpty;
+
+  /// No description provided for @cmpHubSeeAll.
+  ///
+  /// In tr, this message translates to:
+  /// **'Tümü'**
+  String get cmpHubSeeAll;
+
+  /// No description provided for @cmpYears.
+  ///
+  /// In tr, this message translates to:
+  /// **'{count} yıl'**
+  String cmpYears(String count);
+
+  /// No description provided for @cmpCityPlate.
+  ///
+  /// In tr, this message translates to:
+  /// **'{plate} plaka'**
+  String cmpCityPlate(String plate);
 }
 
 class _AppLocalizationsDelegate

@@ -147,7 +147,7 @@ abstract final class RobotScripts {
 
   // ── Üni Paneli: içgörü notları ──
 
-  /// [id] için not metni (ör. `target.reached`). Bilinmeyen id fırlatır —
+  /// [id] için not metni (ör. `list.noSafe`). Bilinmeyen id fırlatır —
   /// motor ile tablo arasındaki kopukluk sessizce boş kart üretmesin.
   static InsightCopy insight(String id) {
     final copy = (isEn ? _En.insights : _Tr.insights)[id];
@@ -161,7 +161,7 @@ abstract final class RobotScripts {
   static Iterable<String> get insightIds =>
       (isEn ? _En.insights : _Tr.insights).keys;
 
-  // ── Üni Paneli: haftalık plan görevleri ──
+  // ── Denemelerim: haftalık plan görevleri ──
 
   /// [id] için görev metni (ör. `plan.addExam`). `title` görev satırı,
   /// `body` altındaki gerekçe.
@@ -175,6 +175,38 @@ abstract final class RobotScripts {
 
   static Iterable<String> get planTaskIds =>
       (isEn ? _En.plans : _Tr.plans).keys;
+
+  // ── Sekme ipuçları: "burası ne işe yarar, nasıl kullanılır" ──
+
+  /// [id] için yüzen Üni'nin ekran repliği (ör. `screen.explore`).
+  ///
+  /// Tek metin: balon okunacak yer değil, ekranı tanıtan iki cümle. Ayrıntı
+  /// zaten ekranın kendisinde.
+  static String screenTip(String id) {
+    final copy = (isEn ? _En.screenTips : _Tr.screenTips)[id];
+    if (copy == null) {
+      throw ArgumentError.value(id, 'id', 'Ekran ipucu tanımlı değil');
+    }
+    return copy;
+  }
+
+  static Iterable<String> get screenTipIds =>
+      (isEn ? _En.screenTips : _Tr.screenTips).keys;
+
+  /// [id] için karşılaştırma cümlesi (ör. `compare.split`).
+  ///
+  /// Metinler `{a}`, `{rowA}` gibi yer tutucular taşır; doldurmak
+  /// `CompareNote.text`'in işi.
+  static String compareNote(String id) {
+    final copy = (isEn ? _En.compareNotes : _Tr.compareNotes)[id];
+    if (copy == null) {
+      throw ArgumentError.value(id, 'id', 'Karşılaştırma cümlesi tanımlı değil');
+    }
+    return copy;
+  }
+
+  static Iterable<String> get compareNoteIds =>
+      (isEn ? _En.compareNotes : _Tr.compareNotes).keys;
 
   // ── Rozet kutlaması ──
   static List<RobotScript> get badgeCheer =>
@@ -858,86 +890,6 @@ abstract final class _Tr {
       'Netlerini gir; tahminî sıranı ve girebileceğin bölümleri çıkarayım.',
       actionLabel: 'Puanımı hesapla',
     ),
-    'setup.noExam': InsightCopy(
-      'Şimdi bir deneme ekle',
-      'Hangi derste ne durumdasın ve hedefe ne kadar kaldı — bunu '
-          'denemelerden çıkarıyorum.',
-      actionLabel: 'Deneme ekle',
-    ),
-    'setup.noTarget': InsightCopy(
-      'Hedefin ne olsun?',
-      'Girmek istediğin bölümü seç; her denemeden sonra ona kaç net kaldığını '
-          'söyleyeyim. İstersen sana birkaç öneri de sunayım.',
-      actionLabel: 'Hedef belirle',
-    ),
-
-    // Hedef
-    'target.reached': InsightCopy(
-      'Hedefini geçtin!',
-      '{dept} tabanı {targetRank}. sıraydı, sen {currentRank}. sıradasın. '
-          'Hedefi yukarı çekme vakti.',
-      actionLabel: 'Hedefi güncelle',
-    ),
-    'target.roadmap': InsightCopy(
-      'Hedefe ≈ {nets} net',
-      '{dept} için {gap} puan gerekiyor. En verimli yol: {plan}. Bunlar '
-          'katsayısı yüksek, başarı oranın düşük dersler.',
-      actionLabel: 'Ders analizin',
-    ),
-    'target.unreachable': InsightCopy(
-      '{dept} bu netlerle zor',
-      'Kalan tüm derslerde tavana çıksan bile {gap} puanlık farkı '
-          'kapatmıyor. Ara bir hedef koyalım mı?',
-      actionLabel: 'Hedefi güncelle',
-    ),
-    'target.closing': InsightCopy(
-      'Hedefe yaklaşıyorsun',
-      'Son {count} denemede sıran {gain} basamak iyileşti. {dept} için kalan '
-          'mesafe: {remaining} sıra.',
-      actionLabel: 'Denemelerim',
-    ),
-    'target.drifting': InsightCopy(
-      'Sıran geriliyor',
-      'Son {count} denemede {loss} basamak geriledin; {dept} uzaklaşıyor. '
-          'Nerede kaybettiğine birlikte bakalım.',
-      actionLabel: 'Ders analizin',
-    ),
-
-    // Gelişim
-    'progress.stale': InsightCopy(
-      '{days} gündür deneme yok',
-      'Defterin {days} gündür sessiz. Bir deneme girersen nerede olduğunu '
-          'tazeleyeyim.',
-      actionLabel: 'Deneme ekle',
-    ),
-    'progress.drop': InsightCopy(
-      '{subject} düşüşte',
-      'Son denemelerde {subject} ortalaman {delta} net geriledi — şimdi '
-          '{avg} net. Bu haftanın önceliği burası.',
-      actionLabel: 'Ders analizin',
-    ),
-    'progress.jump': InsightCopy(
-      '{subject} yükselişte',
-      '{subject} ortalaman {delta} net arttı — şimdi {avg} net. Aynı tempoyu '
-          'koru.',
-      actionLabel: 'Ders analizin',
-    ),
-    'progress.weakest': InsightCopy(
-      'En zayıf dersin: {subject}',
-      '{subject} başarı oranın %{rate}. Kazanacak en çok yerin olduğu ders '
-          'burası.',
-      actionLabel: 'Ders analizin',
-    ),
-    'progress.streak': InsightCopy(
-      '{weeks} haftadır aralıksız',
-      'Her hafta deneme giriyorsun. Bu istikrar sıralamanın en sessiz '
-          'kazancı.',
-    ),
-    'progress.rankGain': InsightCopy(
-      'Sıran {gain} basamak iyileşti',
-      'İlk denemende {first}, son denemende {last}. Grafik yukarı bakıyor.',
-      actionLabel: 'Gelişimin',
-    ),
 
     // Liste
     'list.empty': InsightCopy(
@@ -1032,18 +984,58 @@ abstract final class _Tr {
       '{subject} dersine ağırlık ver',
       'Başarı oranın %{rate} — en çok kazanacağın yer burası.',
     ),
-    'plan.addSafe': InsightCopy(
-      'Sona {count} güvenli program ekle',
-      'Listende yüksek şanslı tercih yok.',
-    ),
-    'plan.completeList': InsightCopy(
-      'Listene {remaining} tercih daha ekle',
-      'Boş bırakılan her sıra bir şans daha demek.',
-    ),
-    'plan.reviewOrder': InsightCopy(
-      'Tercih sıranı gözden geçir',
-      'En çok istediğin program en üstte olmalı — yerleştirme sırayla bakar.',
-    ),
+  };
+
+  // ── Sekme ipuçları ──
+  //
+  // Kural: iki cümleyi geçme (balon üç satır gösterir), ekranda GERÇEKTEN
+  // olan bir şeyi anlat, olmayan özelliği vaat etme.
+  static const screenTips = <String, String>{
+    'screen.explore':
+        'Burası keşif alanın: bütün üniversiteler burada. Arama ve '
+            'filtreyle şehre ve türe göre daralt, karta dokununca bölümleri '
+            'açılır.',
+    'screen.compare':
+        'Karşılaştırma buradan başlıyor: iki üniversite seç, tabanları, '
+            'sıralamaları ve öğrenci yorumları yan yana çıksın.',
+    'screen.lists.guest':
+        'Tercih listen burada yaşayacak. Giriş yaparsan liste, deneme ve '
+            'rozetlerin hesabına kaydolur.',
+    'screen.lists.empty':
+        'Tercih listen burada duruyor. Sağ alttaki + ile bir liste kur; '
+            "ÖSYM'de 24 tercih hakkın var.",
+    'screen.lists.partial':
+        'Listende {count} program var, {remaining} hakkın daha duruyor. '
+            'Listeyi açıp sürükleyerek sıralayabilirsin — sıra da tercihin '
+            'kadar önemli.',
+    'screen.lists.full':
+        '{count} tercihin de dolu. Şimdi sıraya odaklan: en çok istediğin '
+            'program en üstte olmalı.',
+    'screen.profile':
+        'Rozetlerin, kaydettiklerin ve ayarların burada. Bildirimleri ve '
+            'temayı da buradan değiştirebilirsin.',
+    'screen.profile.guest':
+        'Giriş yaparsan listelerin, denemelerin ve rozetlerin hesabına '
+            'kaydolur — cihaz değiştirince kaybolmaz.',
+  };
+
+  // ── Karşılaştırma cümleleri ──
+  //
+  // Kural: kazanan ilan etme, "şunu seç" deme. Ekran da etmiyor; farkın
+  // NEREDE olduğunu söyle, kararı öğrenciye bırak.
+  static const compareNotes = <String, String>{
+    'compare.none':
+        'Bu ikisini karşılaştıracak yeterli veri yok. Başka bir çift '
+            'denemek istersen yukarıdan değiştirebilirsin.',
+    'compare.close':
+        '{a} ile {b} neredeyse başa baş. Farkı senin önceliklerin '
+            'belirleyecek — şehir, kampüs, bölüm.',
+    'compare.split':
+        '{rowA} önemliyse {a}, {rowB} önemliyse {b}. İkisi de kendi '
+            'alanında önde.',
+    'compare.leads':
+        '{name} ölçütlerin çoğunda önde ({count}/{total}). Yine de sana '
+            'uyan bölüm hangisindeyse asıl soru o.',
   };
 }
 
@@ -1605,88 +1597,6 @@ abstract final class _En {
           'you can get into.',
       actionLabel: 'Calculate my score',
     ),
-    'setup.noExam': InsightCopy(
-      'Now add a practice exam',
-      'Where you stand subject by subject, and how far the target is — I get '
-          'both from your exams.',
-      actionLabel: 'Add an exam',
-    ),
-    'setup.noTarget': InsightCopy(
-      "What's your target?",
-      "Pick the program you're aiming for and I'll tell you how many nets "
-          'away it is after every exam. I can suggest a few if you like.',
-      actionLabel: 'Set a target',
-    ),
-
-    // Target
-    'target.reached': InsightCopy(
-      'You passed your target!',
-      "{dept}'s cutoff was rank {targetRank} and you're at {currentRank}. "
-          'Time to aim higher.',
-      actionLabel: 'Update target',
-    ),
-    'target.roadmap': InsightCopy(
-      '≈ {nets} nets to your target',
-      '{dept} needs {gap} more points. Best route: {plan}. These carry high '
-          'coefficients and your success rate in them is low.',
-      actionLabel: 'Subject analysis',
-    ),
-    'target.unreachable': InsightCopy(
-      '{dept} is a stretch at these nets',
-      'Even maxing out every remaining subject leaves a {gap} point gap. '
-          'Shall we set an intermediate target?',
-      actionLabel: 'Update target',
-    ),
-    'target.closing': InsightCopy(
-      "You're closing in",
-      'Your rank improved by {gain} places over the last {count} exams. '
-          '{remaining} places left to {dept}.',
-      actionLabel: 'My exams',
-    ),
-    'target.drifting': InsightCopy(
-      'Your rank is slipping',
-      "You've dropped {loss} places over the last {count} exams and {dept} "
-          "is drifting away. Let's find where it went.",
-      actionLabel: 'Subject analysis',
-    ),
-
-    // Progress
-    'progress.stale': InsightCopy(
-      'No exam for {days} days',
-      "Your log has been quiet for {days} days. Add an exam and I'll "
-          'refresh where you stand.',
-      actionLabel: 'Add an exam',
-    ),
-    'progress.drop': InsightCopy(
-      '{subject} is slipping',
-      'Your {subject} average fell by {delta} nets — now {avg}. That makes '
-          "it this week's priority.",
-      actionLabel: 'Subject analysis',
-    ),
-    'progress.jump': InsightCopy(
-      '{subject} is climbing',
-      'Your {subject} average rose by {delta} nets — now {avg}. Keep the '
-          'same rhythm.',
-      actionLabel: 'Subject analysis',
-    ),
-    'progress.weakest': InsightCopy(
-      'Your weakest subject: {subject}',
-      'Your {subject} success rate is {rate}%. This is where you have the '
-          'most to gain.',
-      actionLabel: 'Subject analysis',
-    ),
-    'progress.streak': InsightCopy(
-      '{weeks} weeks without a break',
-      "You've logged an exam every week. That consistency is the quietest "
-          'gain in your ranking.',
-    ),
-    'progress.rankGain': InsightCopy(
-      'Your rank improved by {gain} places',
-      'You were at {first} on your first exam and {last} on your latest. '
-          'The graph points up.',
-      actionLabel: 'Your progress',
-    ),
-
     // List
     'list.empty': InsightCopy(
       'Your preference list is empty',
@@ -1780,18 +1690,48 @@ abstract final class _En {
       'Put the hours into {subject}',
       'Your success rate is {rate}% — the most to gain is here.',
     ),
-    'plan.addSafe': InsightCopy(
-      'Add {count} safe programs at the end',
-      'There is no high-chance choice in your list.',
-    ),
-    'plan.completeList': InsightCopy(
-      'Add {remaining} more choices to your list',
-      'Every empty slot is one more chance unused.',
-    ),
-    'plan.reviewOrder': InsightCopy(
-      'Review the order of your choices',
-      'Your favourite should sit at the top — placement reads the list in '
-          'order.',
-    ),
+  };
+
+  static const screenTips = <String, String>{
+    'screen.explore':
+        'This is where you browse — every university lives here. Narrow it '
+            'down by city and type with search and filters; tap a card to '
+            'open its departments.',
+    'screen.compare':
+        'Comparisons start here: pick two universities and their base '
+            'scores, rankings and student reviews line up side by side.',
+    'screen.lists.guest':
+        'Your preference list will live here. Sign in and your lists, mock '
+            'exams and badges get saved to your account.',
+    'screen.lists.empty':
+        'Your preference list lives here. Tap + at the bottom right to '
+            'start one — you get 24 choices in the placement.',
+    'screen.lists.partial':
+        'Your list holds {count} programs, {remaining} slots to go. Open it '
+            'and drag to reorder — the order matters as much as the choices.',
+    'screen.lists.full':
+        'All {count} slots are filled. Now focus on the order: the program '
+            'you want most belongs at the top.',
+    'screen.profile':
+        'Your badges, saved items and settings are here. Notifications and '
+            'theme live here too.',
+    'screen.profile.guest':
+        'Sign in and your lists, mock exams and badges are saved to your '
+            'account — they survive a new phone.',
+  };
+
+  static const compareNotes = <String, String>{
+    'compare.none':
+        "There isn't enough data to compare these two. Swap either side "
+            'above to try another pair.',
+    'compare.close':
+        '{a} and {b} are running neck and neck. Your own priorities will '
+            'decide it — city, campus, department.',
+    'compare.split':
+        'If {rowA} matters most, {a}; if {rowB} does, {b}. Each leads in '
+            'its own area.',
+    'compare.leads':
+        '{name} leads on most measures ({count}/{total}). Still, the real '
+            'question is which one has the department that fits you.',
   };
 }

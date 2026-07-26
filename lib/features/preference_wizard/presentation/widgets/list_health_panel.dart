@@ -32,7 +32,9 @@ class ListHealthPanel extends ConsumerWidget {
         title: 'Listenin sağlığını gör',
         subtitle: 'Puanını ya da sıralamanı gir, listenin dengesini ve '
             'risklerini analiz edelim.',
-        onTap: () => context.push('/preference-wizard'),
+        // Puan/sıra girişi puan hesaplayıcıda; tanışma formu ikisini de
+        // sormuyor.
+        onTap: () => context.push('/score-calculator'),
       );
     }
 

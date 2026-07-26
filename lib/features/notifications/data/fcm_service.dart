@@ -140,10 +140,17 @@ class FCMService {
     final user = _auth.currentUser;
     if (user == null) return;
 
-    final token = await _messaging.getToken();
-    if (token == null) return;
+    try {
+      // getToken() cihazda Play Services yoksa ya da geçici olarak ağ/servis
+      // erişilemezse atar (java.io.IOException: SERVICE_NOT_AVAILABLE). Bu
+      // kritik değil — token bir sonraki açılışta yeniden denenir; çökmemeli.
+      final token = await _messaging.getToken();
+      if (token == null) return;
 
-    await _saveTokenToFirestore(token);
+      await _saveTokenToFirestore(token);
+    } catch (e) {
+      debugPrint('[FCM] registerToken atlandı: $e');
+    }
   }
 
   Future<void> _saveTokenToFirestore(String token) async {

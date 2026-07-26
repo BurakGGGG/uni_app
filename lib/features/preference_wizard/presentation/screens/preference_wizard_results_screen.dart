@@ -24,6 +24,7 @@ import '../widgets/wizard_category_bar.dart';
 import '../widgets/wizard_empty_state.dart';
 import '../widgets/wizard_filter_sheet.dart';
 import '../widgets/wizard_recommendation_card.dart';
+import '../widgets/wizard_select_chip.dart';
 import '../widgets/wizard_summary_header.dart';
 
 /// Ücretsiz kullanıcıya kategori başına gösterilen sonuç sayısı.
@@ -102,16 +103,11 @@ class _PreferenceWizardResultsScreenState
     final filter = ref.watch(wizardFilterProvider);
 
     if (profile == null) {
-      // Profil temizlenmiş — girişe dön.
+      // Profil temizlenmiş — puan girişine yolla.
       return Scaffold(
         backgroundColor: AppColors.backgroundFor(context),
         appBar: AppBar(title: const Text('Tercih Robotu')),
-        body: Center(
-          child: FilledButton(
-            onPressed: () => context.go('/preference-wizard'),
-            child: const Text('Puanını gir'),
-          ),
-        ),
+        body: const Center(child: _NeedScoreCta()),
       );
     }
 
@@ -146,10 +142,34 @@ class _PreferenceWizardResultsScreenState
               WizardFilterSheet.show(context);
             },
           ),
-          IconButton(
-            tooltip: 'Puanı düzenle',
+          // Tek ikon "Puanı düzenle" diyip tercih formuna gidiyordu; puanın
+          // düzenlendiği yer puan hesaplayıcı. İkisi ayrı ayrı sunuluyor.
+          PopupMenuButton<String>(
+            tooltip: 'Düzenle',
             icon: const Icon(Icons.edit_rounded),
-            onPressed: () => context.push('/preference-wizard'),
+            onSelected: (route) => context.push(route),
+            itemBuilder: (_) => const [
+              PopupMenuItem(
+                value: '/score-calculator',
+                child: Row(
+                  children: [
+                    Icon(Icons.calculate_rounded, size: 18),
+                    SizedBox(width: 10),
+                    Text('Puanımı güncelle'),
+                  ],
+                ),
+              ),
+              PopupMenuItem(
+                value: '/preference-wizard',
+                child: Row(
+                  children: [
+                    Icon(Icons.tune_rounded, size: 18),
+                    SizedBox(width: 10),
+                    Text('Tercihlerimi düzenle'),
+                  ],
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -175,12 +195,7 @@ class _PreferenceWizardResultsScreenState
         error: (e, _) => const WizardErrorState(),
         data: (result) {
           if (result == null) {
-            return Center(
-              child: FilledButton(
-                onPressed: () => context.go('/preference-wizard'),
-                child: const Text('Puanını gir'),
-              ),
-            );
+            return const Center(child: _NeedScoreCta());
           }
 
           if (!_trackedMatch) {
@@ -202,6 +217,10 @@ class _PreferenceWizardResultsScreenState
                 ),
               ),
               SliverToBoxAdapter(child: _SearchField(controller: _searchCtrl)),
+              // Lisans/önlisans ayrımı yalnız TYT'de anlamlı — diğer puan
+              // türlerinde bütün programlar lisans, çip satırı boşa çalışır.
+              if (profile.scoreType.toUpperCase() == 'TYT')
+                const SliverToBoxAdapter(child: _ProgramTypeChips()),
               if (result.total == 0)
                 SliverFillRemaining(
                   hasScrollBody: false,
@@ -347,6 +366,44 @@ class _CategoryMeta {
   const _CategoryMeta(this.title, this.color);
 }
 
+/// Puan/sıra profili yokken tek çıkış: puan hesaplayıcı.
+///
+/// Eskiden buradaki "Puanını gir" düğmesi `/preference-wizard`e gidiyordu;
+/// orası "Üni seni tanısın" formu ve puan sormuyor — öğrenci formdan sonuca,
+/// sonuçtan forma dönüp duruyordu (kullanıcı geri bildirimi). İşe yaramayan
+/// sonuç ekranı geri yığınında kalmasın diye `pushReplacement`.
+class _NeedScoreCta extends StatelessWidget {
+  const _NeedScoreCta();
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 32),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const RobotAvatar(size: 64, mood: RobotMood.thinking),
+          const SizedBox(height: 14),
+          Text(
+            'Önerileri çıkarabilmem için önce puanına ya da sıralamana '
+            'ihtiyacım var.',
+            textAlign: TextAlign.center,
+            style: AppTextStyles.bodyMedium.copyWith(
+              color: AppColors.textSecondaryFor(context),
+            ),
+          ),
+          const SizedBox(height: 16),
+          FilledButton.icon(
+            onPressed: () => context.pushReplacement('/score-calculator'),
+            icon: const Icon(Icons.calculate_rounded, size: 18),
+            label: const Text('Puanımı hesapla'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 /// Sonuç içinde bölüm/fakülte araması — binlerce kayıt elle gezilmesin.
 /// `wizardFilterProvider.deptQuery`'yi günceller (motor zaten filtreliyor).
 ///
@@ -446,6 +503,43 @@ class _SearchFieldState extends ConsumerState<_SearchField> {
             borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// Lisans / Önlisans ayrımı — bilerek **paywall'suz**.
+///
+/// Filtre sheet'i Plus'a kapalı ama bu ayrım bir güç kullanıcısı filtresi
+/// değil, sonuç listesinin kapsamı: önlisans hedefleyen bir öğrenci binlerce
+/// lisans programının arasında dolaşmak zorunda bırakılmamalı. Tanışma
+/// formundan kalkınca ücretsiz tek yol burası kaldı.
+class _ProgramTypeChips extends ConsumerWidget {
+  const _ProgramTypeChips();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final filter = ref.watch(wizardFilterProvider);
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+      child: Row(
+        children: [
+          for (final type in const ['Lisans', 'Önlisans'])
+            Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: WizardSelectChip(
+                label: type,
+                selected: filter.programTypes.contains(type),
+                onTap: () {
+                  final next = {...filter.programTypes};
+                  if (!next.remove(type)) next.add(type);
+                  ref.read(wizardFilterProvider.notifier).state =
+                      filter.copyWith(programTypes: next);
+                },
+              ),
+            ),
+        ],
       ),
     );
   }

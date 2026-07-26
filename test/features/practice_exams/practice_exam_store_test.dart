@@ -172,4 +172,44 @@ void main() {
     await store.clearTarget();
     expect(store.readTarget(), isNull);
   });
+
+  // Oturum değişiminde yerel her şey düşmeli: defter, hedef ve eski migrasyon
+  // anahtarı — yoksa bir sonraki hesapta görünür ya da migrasyonla dirilir.
+  group('clearLocalSession — oturum değişimi', () {
+    test('defter + hedef + legacy anahtarı temizlenir', () async {
+      final store = PracticeExamStore(prefs);
+      await store.save([_exam('1')]);
+      await store.saveTarget(ExamTarget(
+        departmentId: 'd1',
+        departmentName: 'Tıp',
+        universityName: 'Hacettepe Üniversitesi',
+        scoreType: 'SAY',
+        targetRank: 1836,
+        setAt: DateTime(2026, 7, 1),
+      ));
+      await prefs.setString(PracticeExamStore.legacyKey, '[{"eski":true}]');
+
+      await store.clearLocalSession();
+
+      expect(store.read(), isEmpty);
+      expect(store.readIncludingDeleted(), isEmpty);
+      expect(store.readTarget(), isNull);
+      expect(prefs.getString(PracticeExamStore.legacyKey), isNull);
+    });
+
+    // Boşaltma yalnız yerele bakar; senkron kancası (upsert) çağrılmaz —
+    // burada store'un tek başına Firestore'a hiç dokunmadığını doğruluyoruz:
+    // legacy temizlendiği için yeniden kurulan defter eski kaydı migrate etmez.
+    test('temizlik sonrası yeni defter eski kaydı migrate etmez', () async {
+      final store = PracticeExamStore(prefs);
+      await store.save([_exam('1')]);
+      await prefs.setString(PracticeExamStore.legacyKey, '[{"eski":true}]');
+
+      await store.clearLocalSession();
+      final migrated = await PracticeExamStore(prefs).migrateFromLegacy();
+
+      expect(migrated, 0);
+      expect(PracticeExamStore(prefs).read(), isEmpty);
+    });
+  });
 }

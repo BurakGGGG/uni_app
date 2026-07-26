@@ -12,8 +12,9 @@ void main() {
     test('sihirbaz eylemleri', () {
       expect(robotActionRoute(RobotAction.openWizard),
           AppRoutes.preferenceWizard);
-      // Sıralama da sihirbazın sohbet akışında toplanıyor.
-      expect(robotActionRoute(RobotAction.addRank), AppRoutes.preferenceWizard);
+      // Sıra girişi puan hesaplayıcının sıra modunda; tanışma formu puan da
+      // sıra da sormuyor, oraya götürmek çıkmaz olurdu.
+      expect(robotActionRoute(RobotAction.addRank), AppRoutes.scoreCalculator);
     });
 
     test('hesaplayıcı ve listeler', () {
@@ -40,6 +41,42 @@ void main() {
         if (action == RobotAction.none) continue;
         expect(route, isNotNull, reason: '$action eşlenmemiş');
         expect(route, startsWith('/'), reason: '$action geçersiz rota');
+      }
+    });
+  });
+
+  /// Denemelerim üyelere özel (`app_router.dart` → `protectedRoutes`).
+  /// Misafire oraya götüren düğme gösterilmez; kural rota tablosundan
+  /// türetilir, ayrı liste tutulmaz.
+  group('giriş isteyen eylemler', () {
+    test('Denemelerim kapıları hesap ister', () {
+      expect(robotActionNeedsAccount(RobotAction.openPracticeExams), isTrue);
+      expect(robotActionNeedsAccount(RobotAction.setTarget), isTrue);
+    });
+
+    test('misafire açık ekranlar hesap istemez', () {
+      for (final action in [
+        RobotAction.none,
+        RobotAction.openScoreCalculator,
+        RobotAction.openLists,
+        RobotAction.openBestPrograms,
+        RobotAction.openWizard,
+        RobotAction.openUniPanel,
+      ]) {
+        expect(robotActionNeedsAccount(action), isFalse, reason: '$action');
+      }
+    });
+
+    // Kural rotadan türüyor: `/practice-exams`'e çıkan HER eylem hesap
+    // ister, listeye elle eklenmesi gerekmez.
+    test('kural rota tablosuyla tutarlı', () {
+      for (final action in RobotAction.values) {
+        final route = robotActionRoute(action);
+        expect(
+          robotActionNeedsAccount(action),
+          route != null && route.startsWith(AppRoutes.practiceExams),
+          reason: '$action → $route',
+        );
       }
     });
   });

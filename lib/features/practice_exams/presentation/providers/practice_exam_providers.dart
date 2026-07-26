@@ -92,6 +92,15 @@ class PracticeExamNotifier extends StateNotifier<List<PracticeExam>> {
     unawaited(_repository.upsertAll(tombstones));
   }
 
+  /// Oturum değişiminde yereli boşaltır. [clear]'dan farkı: kayıtları SİLMEZ,
+  /// yalnız cihazdan düşürür — Firestore'a mezar taşı YAZMAZ, uzak yedek
+  /// olduğu gibi kalır. Böylece bir sonraki hesap, önceki kullanıcının
+  /// denemelerini ne görür ne de (senkronun push'uyla) kendi yedeğine karıştırır.
+  Future<void> resetLocal() async {
+    await _store.clearLocalSession();
+    state = const [];
+  }
+
   /// Giriş sonrası / açılışta çağrılır: yerel ve uzak defteri birleştirir.
   Future<void> sync(PracticeExamSyncService service) async {
     final merged = await service.sync();
@@ -137,6 +146,11 @@ class ExamTargetNotifier extends StateNotifier<ExamTarget?> {
     await _store.clearTarget();
     unawaited(_repository.pushTarget(null));
   }
+
+  /// Oturum değişiminde yerel hedefi düşürür — Firestore'a dokunmaz.
+  /// (Yerel depo `clearLocalSession` ile birlikte zaten temizleniyor; bu
+  /// yalnız bellekteki durumu sıfırlar.)
+  void resetLocal() => state = null;
 
   void adopt(ExamTarget? target) => state = target;
 }

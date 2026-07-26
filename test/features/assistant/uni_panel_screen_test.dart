@@ -18,8 +18,35 @@ import 'package:uni_app/features/university/presentation/providers/university_pr
 /// Panelin uçtan uca render olduğunu doğrulayan smoke testi — cihaz olmadan
 /// yakalanabilecek en değerli şey provider kompozisyonu ve widget kurulumu.
 /// Motorun ne ürettiği kendi testinde (`insight_engine_test`); burada sorun
-/// "ekran patlıyor mu".
+/// "ekran patlıyor mu" ve "tercih yolu doğru adımda mı duruyor".
 void main() {
+  /// Ekrandaki dolu (birincil) butonların etiketleri. Yolun sözleşmesi şu:
+  /// her zaman EN FAZLA BİR tane olur — "şimdi bunu yap" iki kez söylenemez.
+  List<String> filledLabels(WidgetTester tester) => tester
+      .widgetList<FilledButton>(find.byType(FilledButton))
+      .map((b) => ((b.child as Text?)?.data) ?? '')
+      .toList();
+
+  PreferenceListModel listWith(int itemCount) => PreferenceListModel(
+        id: 'l1',
+        userId: 'u1',
+        userName: 'Ada',
+        title: 'Tercihlerim',
+        shareSlug: 'abcde',
+        createdAt: DateTime(2026, 3, 1),
+        updatedAt: DateTime(2026, 3, 1),
+        items: [
+          for (var i = 1; i <= itemCount; i++)
+            PreferenceItem(
+              deptId: 'd$i',
+              uniId: 'u$i',
+              order: i,
+              deptName: 'Bölüm $i',
+              uniName: 'Üniversite $i',
+            ),
+        ],
+      );
+
   Future<ProviderContainer> pump(
     WidgetTester tester, {
     StudentScoreProfile? profile,
@@ -74,30 +101,83 @@ void main() {
     return container;
   }
 
-  testWidgets('boş kullanıcıda tek adım görünür, patlamaz', (tester) async {
+  testWidgets('dört adım her durumda görünür, patlamaz', (tester) async {
     await pump(tester);
 
     expect(tester.takeException(), isNull);
-    expect(find.text('Puanını hesaplayalım'), findsOneWidget);
-    expect(find.text('Puanımı hesapla'), findsOneWidget);
+    expect(find.text('Puanın'), findsOneWidget);
+    expect(find.text('Sana uyan programlar'), findsOneWidget);
+    expect(find.text('Tercih listen'), findsOneWidget);
+    expect(find.text('Listenin sağlığı'), findsOneWidget);
   });
 
-  testWidgets('kurulum sürerken ekranda tek iş olur', (tester) async {
+  testWidgets('panel çalışma koçu değil — deneme/hedef/net sormaz',
+      (tester) async {
     await pump(tester);
 
-    // Kart zaten setup notunun kendisi; not listesi de haftalık plan da aynı
-    // adımları üretebiliyor. Üçü birden çizilirse kullanıcı aynı şeyi üç kez
-    // okur — "ben bile anlamadım" şikâyetinin kaynağı buydu.
-    expect(find.text('Puanını hesaplayalım'), findsOneWidget);
-    // Ödev listesi görüntüsü veren sayaç/çubuk kalktı.
-    expect(find.text('0/2'), findsNothing);
-    expect(find.byType(LinearProgressIndicator), findsNothing);
-    // Sıradaki adım tek: ileriki adımlar henüz görünmez.
-    expect(find.text('Deneme ekle'), findsNothing);
-    expect(find.text('Hedef belirle'), findsNothing);
+    // Bu üçü Denemelerim'in işi. Panelde göründükleri sürece Üni tercih
+    // asistanı değil, ödev listesi olarak okunuyordu.
+    expect(find.textContaining('deneme', findRichText: true), findsNothing);
+    expect(find.textContaining('Hedef'), findsNothing);
+    expect(find.textContaining('net'), findsNothing);
   });
 
-  testWidgets('puan girilince kart sıradaki işe döner', (tester) async {
+  testWidgets('puan yokken sıradaki iş 1. adım', (tester) async {
+    await pump(tester);
+
+    expect(filledLabels(tester), ['Puanımı hesapla']);
+    // 2. ve 4. adım kilitli: sebebi yazılı, butonu yok.
+    expect(
+      find.textContaining('Puanını bilince erişebileceğin'),
+      findsOneWidget,
+    );
+    expect(find.text('Önerileri gör'), findsNothing);
+  });
+
+  testWidgets('puan girilince 1. adım tamamlanır, sıra 2. adıma geçer',
+      (tester) async {
+    await pump(
+      tester,
+      profile: StudentScoreProfile(
+        scoreType: 'SAY',
+        placementScore: 430,
+        rank: 85600,
+        year: 2026,
+        updatedAt: DateTime(2026, 3, 1),
+      ),
+    );
+
+    expect(tester.takeException(), isNull);
+    // Puan satırı: gerçek sıra girilmişse "≈" YOK.
+    expect(find.text('SAY 430,0 · 85.600. sıra'), findsOneWidget);
+    expect(filledLabels(tester), ['Önerileri gör']);
+    // 2. adımın kilidi açıldı, 4. adımınki hâlâ kapalı (liste yok).
+    expect(find.textContaining('Puanını bilince erişebileceğin'), findsNothing);
+    expect(find.textContaining('Listen kurulunca'), findsOneWidget);
+  });
+
+  testWidgets('liste varsa 3. adım doluluğu, 4. adım kilidi açılır',
+      (tester) async {
+    await pump(
+      tester,
+      profile: StudentScoreProfile(
+        scoreType: 'SAY',
+        placementScore: 430,
+        rank: 85600,
+        year: 2026,
+        updatedAt: DateTime(2026, 3, 1),
+      ),
+      lists: [listWith(12)],
+    );
+
+    expect(tester.takeException(), isNull);
+    expect(find.text('12/24'), findsOneWidget);
+    expect(find.byType(LinearProgressIndicator), findsOneWidget);
+    expect(filledLabels(tester), ['Listeyi aç']);
+    expect(find.textContaining('Listen kurulunca'), findsNothing);
+  });
+
+  testWidgets('liste 24/24 olunca dolu buton kalmaz', (tester) async {
     await pump(
       tester,
       profile: StudentScoreProfile(
@@ -106,14 +186,12 @@ void main() {
         year: 2026,
         updatedAt: DateTime(2026, 3, 1),
       ),
+      lists: [listWith(24)],
     );
 
-    expect(tester.takeException(), isNull);
-    expect(find.text('Şimdi bir deneme ekle'), findsOneWidget);
-    expect(find.text('Deneme ekle'), findsOneWidget);
-    // Hedef kurulum şartı DEĞİL: deneme gelmeden sorulmaz.
-    expect(find.text('Hedefin ne olsun?'), findsNothing);
-    expect(find.text('Puanını hesaplayalım'), findsNothing);
+    expect(find.text('24/24'), findsOneWidget);
+    // Yol tamam: ekranda "şimdi bunu yap" diyen bir buton kalmaz.
+    expect(filledLabels(tester), isEmpty);
   });
 }
 

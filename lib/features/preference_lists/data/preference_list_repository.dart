@@ -256,6 +256,39 @@ class PreferenceListRepository {
     });
   }
 
+  /// Tek okuma + tek yazımla toplu ekleme.
+  ///
+  /// Tercih Yolu taslak listeyi bir kerede ekliyor; [addItem] ile 20 program
+  /// 20 okuma + 20 yazma ederdi. Kapasiteyi aşan ve listede ZATEN olan
+  /// öğeler sessizce atlanır — akışın sonunda tek bir kopya yüzünden hata
+  /// fırlatmak öğrencinin tüm seçimini çöpe atardı. Eklenen sayı döner.
+  Future<int> addItems(String listId, List<PreferenceItem> items) async {
+    final user = _auth.currentUser;
+    if (user == null) throw Exception('Giriş yapmalısınız');
+    final list = await _listsRef.doc(listId).get();
+    if (!list.exists) throw Exception('Liste bulunamadı');
+    final model = PreferenceListModel.fromMap(list.data()!, listId);
+    if (model.userId != user.uid) {
+      throw Exception('Bu listeyi düzenleme yetkiniz yok');
+    }
+
+    final seen = model.items.map((i) => i.deptId).toSet();
+    final merged = [...model.items];
+    for (final item in items) {
+      if (merged.length >= PreferenceListModel.maxItems) break;
+      if (!seen.add(item.deptId)) continue;
+      merged.add(item.copyWith(order: merged.length + 1));
+    }
+
+    final added = merged.length - model.items.length;
+    if (added == 0) return 0;
+    await _listsRef.doc(listId).update({
+      'items': merged.map((e) => e.toMap()).toList(),
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
+    return added;
+  }
+
   /// Sırayı yeniden düzenle
   Future<void> reorderItems(
     String listId,

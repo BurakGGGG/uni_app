@@ -21,6 +21,9 @@ class _FakeRepository implements PracticeExamRepository {
   bool get isSignedIn => false;
 
   @override
+  String? get currentUid => null;
+
+  @override
   Future<List<PracticeExam>> pullAll() async => const [];
 
   @override

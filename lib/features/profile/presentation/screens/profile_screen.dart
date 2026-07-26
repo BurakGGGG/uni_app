@@ -35,7 +35,8 @@ class ProfileScreen extends ConsumerWidget {
       backgroundColor: AppColors.backgroundFor(context),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
+          // Alttaki 88: yüzen Üni son satırı kapatmasın.
+          padding: const EdgeInsets.fromLTRB(20, 20, 20, 88),
           child: Column(
             children: [
               const SizedBox(height: 10),
@@ -103,11 +104,21 @@ class ProfileScreen extends ConsumerWidget {
 
               const SizedBox(height: 24),
 
-              // ─── Denemelerim ───────────────────────────────────
-              // Defter yerel çalışır; misafire de gösterilir.
-              const PracticeExamSummaryCard(),
-
-              const SizedBox(height: 16),
+              // ─── Denemelerim (giriş yapmışsa) ─────────────────
+              // Üyelere özel: misafirin defteri hesaba bağlanamadığı için
+              // kart da, altındaki boşluk da hiç çizilmez.
+              authState.when(
+                data: (user) => user == null
+                    ? const SizedBox.shrink()
+                    : const Column(
+                        children: [
+                          PracticeExamSummaryCard(),
+                          SizedBox(height: 16),
+                        ],
+                      ),
+                loading: () => const SizedBox.shrink(),
+                error: (_, _) => const SizedBox.shrink(),
+              ),
 
               // ─── Admin Paneli (sadece admin) ───────────────────
               ref

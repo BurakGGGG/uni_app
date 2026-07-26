@@ -6,6 +6,7 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/widgets.dart';
 
 import '../../../../router/app_router.dart';
+import '../../../auth/presentation/providers/auth_providers.dart';
 import '../providers/score_calculator_providers.dart';
 import '../widgets/department_picker_sheet.dart';
 import '../widgets/obp_section.dart';
@@ -273,11 +274,15 @@ class _ScoreCalculatorScreenState extends ConsumerState<ScoreCalculatorScreen> {
               onPressed: () => Navigator.maybePop(context),
             ),
             actions: [
-              IconButton(
-                tooltip: 'Denemelerim',
-                icon: const Icon(Icons.assignment_rounded, color: Colors.white),
-                onPressed: () => context.push(AppRoutes.practiceExams),
-              ),
+              // Denemelerim üyelere özel; misafire kısayolu göstermek onu
+              // giriş duvarına çarptırmak olurdu.
+              if (ref.watch(authStateProvider).valueOrNull != null)
+                IconButton(
+                  tooltip: 'Denemelerim',
+                  icon:
+                      const Icon(Icons.assignment_rounded, color: Colors.white),
+                  onPressed: () => context.push(AppRoutes.practiceExams),
+                ),
             ],
           ),
 
@@ -528,13 +533,26 @@ class _ScoreCalculatorScreenState extends ConsumerState<ScoreCalculatorScreen> {
                         .copyWith(color: AppColors.textSecondaryFor(context)),
                     textAlign: TextAlign.center,
                   ),
+                )
+              else if (input.hasImpossibleEntry)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Text(
+                    'Bir derste doğru ve yanlış toplamı soru sayısını aşıyor; '
+                    'düzeltmeden hesaplanamaz.',
+                    style: AppTextStyles.bodySmall
+                        .copyWith(color: AppColors.error),
+                    textAlign: TextAlign.center,
+                  ),
                 ),
               GradientButton(
                 text: applicableTypes.isEmpty
                     ? 'Hesapla'
                     : 'Hesapla (${applicableTypes.join(" · ")})',
                 icon: Icons.calculate_rounded,
-                onPressed: applicableTypes.isEmpty ? null : _calculate,
+                onPressed: (applicableTypes.isEmpty || input.hasImpossibleEntry)
+                    ? null
+                    : _calculate,
               ),
             ],
           ),

@@ -42,6 +42,8 @@ class LikeButton extends ConsumerWidget {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: const Text('Beğenmek için giriş yapın'),
+              // Eylemli SnackBar'ın Flutter varsayılanı kalıcı olmak.
+              persist: false,
               action: SnackBarAction(
                 label: 'Giriş Yap',
                 onPressed: () => router.push('/login'),

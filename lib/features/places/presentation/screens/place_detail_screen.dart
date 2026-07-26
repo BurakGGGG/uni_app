@@ -474,6 +474,8 @@ class _PlaceDetailScreenState extends ConsumerState<PlaceDetailScreen> {
           ),
           backgroundColor: AppColors.error,
           behavior: SnackBarBehavior.floating,
+          // Eylemli SnackBar'ın Flutter varsayılanı kalıcı olmak.
+          persist: false,
           action: SnackBarAction(
             label: 'Yükle',
             textColor: Colors.white,

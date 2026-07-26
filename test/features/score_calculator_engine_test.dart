@@ -634,4 +634,33 @@ void main() {
       expect(input.totalNet, closeTo(34.0, 0.001));
     });
   });
+
+  group('ScoreInput — hasImpossibleEntry', () {
+    test('geçerli giriş imkânsız değil', () {
+      const input = ScoreInput(
+        tytTurkceCorrect: 30,
+        tytTurkceWrong: 10, // toplam 40 = soru sayısı, sınırda geçerli
+      );
+      expect(input.hasImpossibleEntry, isFalse);
+    });
+
+    test('doğru + yanlış soru sayısını aşarsa imkânsız', () {
+      // TYT Türkçe 40 soru; 40 doğru + 40 yanlış imkânsız.
+      const input = ScoreInput(
+        tytTurkceCorrect: 40,
+        tytTurkceWrong: 40,
+      );
+      expect(input.hasImpossibleEntry, isTrue);
+    });
+
+    test('directNet modunda doğru/yanlış denetlenmez', () {
+      // Aynı alanlar dolu olsa bile directNet modunda net alanlardan gelir.
+      const input = ScoreInput(
+        entryMode: NetEntryMode.directNet,
+        tytTurkceCorrect: 40,
+        tytTurkceWrong: 40,
+      );
+      expect(input.hasImpossibleEntry, isFalse);
+    });
+  });
 }

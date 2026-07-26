@@ -632,8 +632,6 @@
   },
   "prefListsTitle": "My Preference Lists",
   "prefListsNewList": "New List",
-  "prefListsEmptyTitle": "No lists yet",
-  "prefListsEmptyDesc": "Tap the \"New List\" button at the bottom right to create your first preference list.",
   "prefListsLoginTitle": "Sign in required",
   "prefListsLoginDesc": "Sign in first to view your lists and add new preferences.",
   "prefListDeleteTitle": "Delete List",
@@ -664,11 +662,23 @@
   "prefListActionsShare": "Share List",
   "prefListActionsShareDesc": "Manage the share link and visibility",
   "prefListActionsDeleteDesc": "This action cannot be undone",
-  "prefListCreateTitle": "New Preference List",
-  "prefListCreateSubtitle": "Enter a name and description",
+  "prefListCreateTitle": "New preference list",
+  "prefListCreateSubtitle": "You name it — I'll help you fill it in.",
   "prefListTitleLabel": "List name",
   "prefListTitleRequired": "List name is required",
   "prefListTitleHint": "E.g. My 2025 STEM Preferences",
+  "prefListNameIdeasLabel": "Quick names",
+  "prefListNameIdeaTyped": "My {type} Plan",
+  "@prefListNameIdeaTyped": {
+    "placeholders": {
+      "type": {
+        "type": "String"
+      }
+    }
+  },
+  "prefListNameIdeaMain": "My Main Plan",
+  "prefListNameIdeaBackup": "Backup Plan",
+  "prefListNameIdeaDream": "My Dreams",
   "prefListDescriptionLabel": "Description (optional)",
   "prefListDescriptionHint": "A short note about this list…",
   "prefListPublicTitle": "Public",
@@ -712,7 +722,6 @@
       }
     }
   },
-  "prefListSaved": "Preference list saved",
   "prefListSaveError": "Save error: {error}",
   "@prefListSaveError": {
     "placeholders": {
@@ -740,12 +749,10 @@
     }
   },
   "prefListAddDepartment": "Add Department",
-  "prefListSortByScore": "Sort by Score",
   "prefListUndo": "Undo",
   "prefListsSummary": "{lists} lists · {items} picks",
-  "prefListSavedState": "Saved",
-  "prefListEmptyItemsTitle": "List is empty",
-  "prefListEmptyItemsDesc": "Tap \"Add Department\" to choose a university and department. You can reorder your preferences by dragging or sorting by ranking.",
+  "prefListEmptyItemsTitle": "This list is still empty",
+  "prefListEmptyItemsDesc": "You get {max} choices in the placement. Shall we add the first one?",
   "prefDeptSelectUniversity": "Select University",
   "prefDeptSelectDepartment": "Select Department",
   "prefDeptSearchUniversity": "Search university…",
@@ -924,8 +931,8 @@
   "noteUpdate": "Update",
   "noteMyNotes": "My Notes",
   "noteLoadError": "Failed to load notes.",
-  "noteSavedSnack": "Note saved \u270d\ufe0f",
-  "noteUpdatedSnack": "Note updated \u2705",
+  "noteSavedSnack": "Note saved ✍️",
+  "noteUpdatedSnack": "Note updated ✅",
   "noteDeletedSnack": "Note deleted",
   "noteDeleteTitle": "Delete Note",
   "noteDeleteConfirm": "This note will be permanently deleted. Continue?",
@@ -1010,15 +1017,15 @@
   "adGateTitleUser": "Free quota used up",
   "adGateDescGuest": "You need to watch a short ad to compare. Sign in or upgrade to Plus for unlimited comparisons.",
   "adGateDescUser": "You've used your 1 free daily comparison. Watch a short ad to continue or upgrade to Plus for unlimited comparisons.",
-  "adGateWatchBusy": "Loading ad\u2026",
+  "adGateWatchBusy": "Loading ad…",
   "adGateWatchCta": "Watch Ad & Continue",
-  "adGatePlusCta": "Upgrade to Plus \u2014 Unlimited",
+  "adGatePlusCta": "Upgrade to Plus — Unlimited",
   "adGateDismiss": "Not now",
   "adGateOverlayTitleGuest": "Watch an ad to continue",
   "adGateOverlayTitleUser": "Unlock to continue",
   "adGateOverlayDescGuest": "You need to watch a short ad to compare.",
   "adGateOverlayDescUser": "Your daily comparison quota is used up.",
-  "adGateOverlayBusy": "Loading\u2026",
+  "adGateOverlayBusy": "Loading…",
   "adGateOverlayCta": "Watch Ad / Upgrade to Plus",
   "favoritesAddTitle": "Add to favorites",
   "actionBarShare": "Share",
@@ -1027,12 +1034,269 @@
   "emptyStateSelectTwo": "Select two universities",
   "emptyStateSelectTwoDesc": "Select two universities above to see comparison results here.",
   "triplePickerTitle": "Select 3rd university",
-  "triplePickerSearchHint": "Search university\u2026",
+  "triplePickerSearchHint": "Search university…",
   "triplePickerNoResult": "No results found",
   "sectionCategoryScores": "Category Scores",
   "sectionOverview": "Overview",
   "sectionStats": "General Statistics",
   "noReviewsTitle": "Not enough reviews",
   "noReviewsDesc": "There are not enough reviews yet to generate category scores for these two universities.",
-  "commonReset": "Reset"
+  "commonReset": "Reset",
+  "prefListsOthersHeading": "YOUR OTHER LISTS",
+  "prefListsMainBadge": "MAIN LIST",
+  "prefListsOpen": "Open list",
+  "prefListsSlotsFree": "{count} slots free",
+  "@prefListsSlotsFree": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "prefListsEmptyHeroTitle": "Let's build your list together",
+  "prefListsEmptyHeroDesc": "I'll draft a balanced set from the programs within your reach; you drop the ones you don't want.",
+  "prefListsEmptyDraftCta": "Let Üni draft it",
+  "prefListsEmptyBlankCta": "Create an empty list",
+  "prefListOptions": "Options",
+  "prefListSaving": "Saving",
+  "prefListUndoAction": "UNDO",
+  "prefListOrderUpdated": "Order updated",
+  "prefListItemRemoved": "{name} removed from the list",
+  "@prefListItemRemoved": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "prefListSortedByRisk": "Sorted from reach to safe",
+  "prefListSortWithUni": "Let Üni order it",
+  "prefListPinAction": "Make it my main list",
+  "prefListPinDesc": "Always on top, the first thing you see",
+  "prefListUnpinAction": "Unpin",
+  "prefListUnpinDesc": "It will no longer be kept on top",
+  "prefListShareLink": "Share link",
+  "prefListShareImage": "Create image",
+  "prefListShareImageDesc": "A shareable summary card",
+  "prefListRenameAction": "Rename",
+  "prefListRenameDesc": "Edit the name and description",
+  "prefListRenameTitle": "Rename list",
+  "prefListUpdated": "List updated",
+  "prefListDuplicateAction": "Duplicate",
+  "prefListDuplicateDesc": "A second copy with the same choices",
+  "prefListDuplicated": "List duplicated",
+  "prefListCopySuffix": "copy",
+  "prefListDeleteUndoDesc": "You get a few seconds to undo",
+  "prefListDeletedNamed": "“{title}” deleted",
+  "@prefListDeletedNamed": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "prefListRestoreFailed": "The list could not be restored",
+  "prefListBandSafe": "safe",
+  "prefListBandTarget": "match",
+  "prefListBandReach": "reach",
+  "prefListUnrated": "+{count} not rated",
+  "@prefListUnrated": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "prefListBalanceInvite": "Calculate your score and I'll rate your list",
+  "prefListShareCardHeading": "MY PREFERENCE LIST",
+  "prefListShareCardCount": "{filled}/{max} choices",
+  "@prefListShareCardCount": {
+    "placeholders": {
+      "filled": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "prefListShareCardBandSafe": "{count} safe",
+  "@prefListShareCardBandSafe": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "prefListShareCardBandReach": "{count} reach",
+  "@prefListShareCardBandReach": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "prefListShareCardMore": "and {count} more…",
+  "@prefListShareCardMore": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "prefListShareCardText": "{title} — {filled}/{max} choices | ÜniSeç",
+  "@prefListShareCardText": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "filled": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "@prefListEmptyItemsDesc": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "cmpGroupNumbers": "By the numbers",
+  "cmpGroupReviews": "Student ratings",
+  "cmpGroupPlacement": "Placement data",
+  "cmpRowDepartments": "Departments",
+  "cmpRowUndergrad": "Bachelor's programs",
+  "cmpRowAssociate": "Associate programs",
+  "cmpRowAvgBase": "Average base score",
+  "cmpRowQuota": "Places",
+  "cmpRowFillRate": "Fill rate",
+  "cmpRowPlaces": "Venues nearby",
+  "cmpRowType": "Type",
+  "cmpRowFounded": "Founded",
+  "cmpRowRating": "Student rating",
+  "cmpRowReviews": "Reviews",
+  "cmpRowBaseScore": "Base score",
+  "cmpRowRanking": "Success rank",
+  "cmpRowScoreType": "Score type",
+  "cmpRowDuration": "Duration",
+  "cmpRowUniCount": "Universities",
+  "cmpRowStateUni": "State universities",
+  "cmpRowFoundationUni": "Foundation universities",
+  "cmpRowDensity": "University density",
+  "cmpRowPopulation": "Population",
+  "cmpRowAvgReviews": "Reviews per university",
+  "cmpHintLastYear": "2025 data",
+  "cmpHintPerMillion": "per million people",
+  "cmpReviewsEmpty": "No student ratings for these two yet. This fills in as reviews arrive.",
+  "cmpNoRows": "No shared data to compare.",
+  "cmpVerdictAhead": "{name} leads on {count}",
+  "@cmpVerdictAhead": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "cmpVerdictTiedOnly": "Level on {count} measures",
+  "@cmpVerdictTiedOnly": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "cmpVerdictTiedSuffix": "{count} level",
+  "@cmpVerdictTiedSuffix": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "cmpChangeSide": "Change",
+  "cmpSwap": "Swap sides",
+  "cmpChartsTitle": "Charts",
+  "cmpChartsDesc": "Radar, heat map, trend and scatter",
+  "cmpChartsOpen": "View charts",
+  "cmpPersonalTitle": "For you",
+  "cmpPersonalBody": "{countA} departments at {a} and {countB} at {b} match your score.",
+  "@cmpPersonalBody": {
+    "placeholders": {
+      "a": {
+        "type": "String"
+      },
+      "countA": {
+        "type": "String"
+      },
+      "b": {
+        "type": "String"
+      },
+      "countB": {
+        "type": "String"
+      }
+    }
+  },
+  "cmpPersonalTop": "Highest at {name}: {dept}",
+  "@cmpPersonalTop": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "dept": {
+        "type": "String"
+      }
+    }
+  },
+  "cmpPersonalNoProfile": "Calculate your score and I'll tell you how many departments match at each.",
+  "cmpPersonalNone": "I couldn't find a department matching your score at either one.",
+  "cmpPersonalCta": "Calculate your score",
+  "cmpAddToList": "Add the matching ones to my list",
+  "cmpAddSheetTitle": "Going into your list",
+  "cmpAddSheetDesc": "I picked the programs that match your score. Drop the ones you don't want and I'll add the rest in one go.",
+  "cmpAddSelectedCta": "Add {count} choices",
+  "@cmpAddSelectedCta": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "cmpAddNoList": "Create a preference list first.",
+  "cmpAddedToList": "{count} choices added to {title}",
+  "@cmpAddedToList": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      },
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "cmpHubRecentTitle": "YOUR RECENT COMPARISONS",
+  "cmpHubRecentEmpty": "Your first comparison will show up here.",
+  "cmpHubSeeAll": "All",
+  "cmpYears": "{count} years",
+  "@cmpYears": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "cmpCityPlate": "Plate {plate}",
+  "@cmpCityPlate": {
+    "placeholders": {
+      "plate": {
+        "type": "String"
+      }
+    }
+  }
 }

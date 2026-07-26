@@ -94,6 +94,25 @@ final resultSelectedTypeProvider =
 int? _userRankOf(ScoreTypeOutcome outcome) =>
     outcome.rankIsUserEntered ? outcome.estimatedRank : null;
 
+/// Hesaplama sonucundan kalıcı öğrenci profili.
+///
+/// Sonuç ekranı ve tercih yolu akışı AYNI dönüşümü kullanır — iki yerde ayrı
+/// kurulsaydı biri tahmini sırayı yazıp öteki yazmaz, eşleştirme yüzeyleri
+/// sessizce farklı kategoriler gösterirdi.
+StudentScoreProfile profileFromOutcome(
+  String scoreType,
+  ScoreTypeOutcome outcome,
+) {
+  return StudentScoreProfile(
+    scoreType: scoreType,
+    placementScore: outcome.score.placementScore,
+    rank: _userRankOf(outcome),
+    // Robot giriş ekranıyla aynı: profil yılı = bu yıl.
+    year: DateTime.now().year,
+    updatedAt: DateTime.now(),
+  );
+}
+
 /// "Girebileceğin bölümler": seçilen türün puanıyla sihirbaz motorunun
 /// birebir aynı yolu (geçici profil + matchAllPrograms + rank estimator).
 final eligibleProgramsProvider = FutureProvider.autoDispose
@@ -121,25 +140,100 @@ final eligibleProgramsProvider = FutureProvider.autoDispose
   );
 });
 
+/// Hedef bölüm önizlemesinde gösterilen program sayısı. Tam liste tercih
+/// robotunda (`deptQuery` bölüm adına ayarlanarak açılır).
+const int kTargetDeptPreviewCount = 5;
+
+/// Önizlemenin kategori başına ilk tur payı. Beş kartın da aynı kategoriden
+/// gelip "🟡 8 program" yazısını karşılıksız bırakmaması için.
+const Map<MatchCategory, int> kTargetDeptPreviewQuota = {
+  MatchCategory.guaranteed: 2,
+  MatchCategory.target: 2,
+  MatchCategory.dream: 1,
+};
+
 /// Opsiyonel hedef bölümün özet kararı.
 class TargetDeptVerdict {
   final String departmentName;
+
+  /// Hedefin değerlendirildiği puan türü — "tümünü gör" aktarımı bu türle
+  /// yapılır.
+  final String scoreType;
+
   final int guaranteed;
   final int target;
   final int dream;
 
-  /// En yüksek uygunluklu program (kart olarak gösterilir).
-  final UniversityMatch best;
+  /// Ekranda gösterilen programlar (en çok [kTargetDeptPreviewCount]).
+  ///
+  /// Eskiden burada tek bir "en uygun" program vardı: öğrenci hedef bölümü
+  /// için tek öneri görüp altındaki genel listede başka bölümlerden onlarca
+  /// kart buluyordu (kullanıcı geri bildirimi).
+  final List<UniversityMatch> top;
 
   const TargetDeptVerdict({
     required this.departmentName,
+    required this.scoreType,
     required this.guaranteed,
     required this.target,
     required this.dream,
-    required this.best,
+    required this.top,
   });
 
   int get total => guaranteed + target + dream;
+
+  /// Listenin başındaki program — sana en uygun görüneni.
+  UniversityMatch get best => top.first;
+
+  /// Önizlemenin dışında kalan program sayısı.
+  int get hiddenCount => total - top.length;
+}
+
+/// Hedef bölümün programlarını kategori içinde sıralar.
+///
+/// Tercih robotuyla aynı mantık (`PreferenceMatchEngine._sortCategory`,
+/// `WizardSort.fit`): yüksek şanslılarda sınıra EN YAKIN olan başa gelir —
+/// öğrencinin güvenle girebileceği en iyi program odur; diğer kategorilerde
+/// en ulaşılabilir olan başa gelir.
+void _sortTargetDept(List<UniversityMatch> list, {required bool isGuaranteed}) {
+  list.sort((a, b) {
+    final fa = a.fitScore?.toDouble() ?? (isGuaranteed ? 101 : -1);
+    final fb = b.fitScore?.toDouble() ?? (isGuaranteed ? 101 : -1);
+    final c = isGuaranteed ? fa.compareTo(fb) : fb.compareTo(fa);
+    if (c != 0) return c;
+    // Eğrinin tabanına yığılan programlarda (hepsi aynı fit) ayırt edici
+    // kalan tek şey puana yakınlık — motordaki tie-break'in aynısı.
+    if (!isGuaranteed) {
+      final d = a.scoreDifference.abs().compareTo(b.scoreDifference.abs());
+      if (d != 0) return d;
+    }
+    return b.departmentBaseScore.compareTo(a.departmentBaseScore);
+  });
+}
+
+/// Kategori dengeli önizleme: önce her kategorinin payı, sonra artan
+/// kontenjan aynı öncelik sırasıyla doldurulur.
+List<UniversityMatch> _pickTargetDeptPreview(
+  Map<MatchCategory, List<UniversityMatch>> byCategory,
+) {
+  const order = [
+    MatchCategory.guaranteed,
+    MatchCategory.target,
+    MatchCategory.dream,
+  ];
+  final picked = <UniversityMatch>[];
+  for (final c in order) {
+    picked.addAll(byCategory[c]!.take(kTargetDeptPreviewQuota[c]!));
+  }
+  for (final c in order) {
+    if (picked.length >= kTargetDeptPreviewCount) break;
+    picked.addAll(
+      byCategory[c]!
+          .skip(kTargetDeptPreviewQuota[c]!)
+          .take(kTargetDeptPreviewCount - picked.length),
+    );
+  }
+  return picked;
 }
 
 /// Hedef bölüm seçiliyse: o addaki tüm programların sıralama-bazlı
@@ -158,10 +252,9 @@ final targetDepartmentVerdictProvider =
   final uniMap = {for (final u in allUnis) u.id: u};
 
   final name = input.selectedDepartment.toLowerCase().trim();
-  var guaranteed = 0;
-  var target = 0;
-  var dream = 0;
-  UniversityMatch? best;
+  final byCategory = {
+    for (final c in MatchCategory.values) c: <UniversityMatch>[],
+  };
 
   for (final dept in allDepts) {
     if (dept.name.toLowerCase().trim() != name) continue;
@@ -182,42 +275,38 @@ final targetDepartmentVerdictProvider =
     final eval = evaluateDepartment(profile, dept, estimator: estimator);
     if (eval == null) continue;
 
-    switch (eval.category) {
-      case MatchCategory.guaranteed:
-        guaranteed++;
-        break;
-      case MatchCategory.target:
-        target++;
-        break;
-      case MatchCategory.dream:
-        dream++;
-        break;
-    }
-
-    final match = UniversityMatch(
-      department: dept,
-      university: uni,
-      category: eval.category,
-      departmentBaseScore: dept.effectiveBaseScore,
-      departmentRanking: dept.rankingForMatching,
-      scoreDifference:
-          typeOutcome.score.placementScore - dept.effectiveBaseScore,
-      matchBasis: eval.basis,
-      fitScore: eval.fit,
-      refRankYear: eval.refRankYear,
+    byCategory[eval.category]!.add(
+      UniversityMatch(
+        department: dept,
+        university: uni,
+        category: eval.category,
+        departmentBaseScore: dept.effectiveBaseScore,
+        departmentRanking: dept.rankingForMatching,
+        scoreDifference:
+            typeOutcome.score.placementScore - dept.effectiveBaseScore,
+        matchBasis: eval.basis,
+        fitScore: eval.fit,
+        refRankYear: eval.refRankYear,
+      ),
     );
-    if (best == null || (match.fitScore ?? -1) > (best.fitScore ?? -1)) {
-      best = match;
-    }
   }
 
-  if (best == null) return null;
+  for (final entry in byCategory.entries) {
+    _sortTargetDept(
+      entry.value,
+      isGuaranteed: entry.key == MatchCategory.guaranteed,
+    );
+  }
+  final top = _pickTargetDeptPreview(byCategory);
+  if (top.isEmpty) return null;
+
   return TargetDeptVerdict(
     departmentName: input.selectedDepartment,
-    guaranteed: guaranteed,
-    target: target,
-    dream: dream,
-    best: best,
+    scoreType: top.first.department.effectiveScoreType!.toUpperCase(),
+    guaranteed: byCategory[MatchCategory.guaranteed]!.length,
+    target: byCategory[MatchCategory.target]!.length,
+    dream: byCategory[MatchCategory.dream]!.length,
+    top: top,
   );
 });
 

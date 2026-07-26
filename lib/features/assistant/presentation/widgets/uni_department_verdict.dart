@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
+import '../../../../router/app_router.dart';
 import '../../../preference_wizard/presentation/feasibility_view.dart';
 import '../../../university/domain/models/department_model.dart';
 import '../../domain/robot_brain.dart';
@@ -54,7 +54,7 @@ class UniDepartmentVerdict extends ConsumerWidget {
       animatedAvatar: false,
       typewriter: false,
       dense: true,
-      onTap: route == null ? null : () => context.push(route),
+      onTap: route == null ? null : () => navigateToRoute(context, route),
     );
   }
 }
