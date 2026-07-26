@@ -42,13 +42,17 @@ ComparisonView universityCompareView(
             loc.cmpRowDepartments,
             [stats.totalDepartmentsA, stats.totalDepartmentsB],
           ),
+          // Lisans/önlisans bölüm sayısının kırılımı — tabloda dururlar
+          // ama öne çıkanlarda aynı bilginin üç türevi olmasınlar.
           _intRow(
             loc.cmpRowUndergrad,
             [stats.undergradCountA, stats.undergradCountB],
+            secondary: true,
           ),
           _intRow(
             loc.cmpRowAssociate,
             [stats.associateCountA, stats.associateCountB],
+            secondary: true,
           ),
           _scoreRow(
             loc.cmpRowAvgBase,
@@ -78,7 +82,11 @@ ComparisonView universityCompareView(
             loc.cmpRowRating,
             [a.avgRating, b.avgRating],
           ),
-          _intRow(loc.cmpRowReviews, [a.reviewCount, b.reviewCount]),
+          _intRow(
+            loc.cmpRowReviews,
+            [a.reviewCount, b.reviewCount],
+            secondary: true,
+          ),
           for (final category in result.categoryComparisons.values)
             _ratingRow(
               category.categoryName,
@@ -126,6 +134,7 @@ ComparisonView tripleCompareView(
           _intRow(
             loc.cmpRowReviews,
             unis.map((u) => u.reviewCount).toList(),
+            secondary: true,
           ),
           for (final category in result.categoryComparisons.values)
             _ratingRow(
@@ -260,9 +269,11 @@ ComparisonView cityCompareView(
             loc.cmpRowUniCount,
             [result.universityCountA, result.universityCountB],
           ),
+          // Devlet/vakıf sayıları toplam üniversite sayısının kırılımı.
           _intRow(
             loc.cmpRowStateUni,
             [result.stateUniversityCountA, result.stateUniversityCountB],
+            secondary: true,
           ),
           _intRow(
             loc.cmpRowFoundationUni,
@@ -270,6 +281,7 @@ ComparisonView cityCompareView(
               result.foundationUniversityCountA,
               result.foundationUniversityCountB,
             ],
+            secondary: true,
           ),
           CompareRow(
             label: loc.cmpRowDensity,
@@ -322,12 +334,18 @@ String _population(int? value) =>
 // üniversite yok, o yüzden 0 = veri gelmemiş demek ve satır null taşımalı.
 // Aksi hâlde çubuk sıfırda dolu, karşılaştırma yanlış görünüyordu.
 
-CompareRow _intRow(String label, List<int> values, {String? hint}) {
+CompareRow _intRow(
+  String label,
+  List<int> values, {
+  String? hint,
+  bool secondary = false,
+}) {
   return CompareRow(
     label: label,
     values: values.map((v) => v > 0 ? v.toDouble() : null).toList(),
     display: values.map((v) => v > 0 ? AppFormatters.integer(v) : '—').toList(),
     hint: hint,
+    secondary: secondary,
   );
 }
 

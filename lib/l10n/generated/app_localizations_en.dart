@@ -2510,6 +2510,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get cmpChartsTitle => 'Charts';
 
   @override
+  String get cmpHighlightsTitle => 'Biggest differences';
+
+  @override
+  String get cmpMoreTitle => 'More';
+
+  @override
   String get cmpChartsDesc => 'Radar, heat map, trend and scatter';
 
   @override

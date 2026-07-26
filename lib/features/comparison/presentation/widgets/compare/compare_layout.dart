@@ -6,17 +6,23 @@ import '../../../../../core/theme/app_text_styles.dart';
 import '../../../../../l10n/generated/app_localizations.dart';
 import '../../../domain/compare_view.dart';
 import 'compare_group_card.dart';
+import 'compare_highlights_card.dart';
+import 'compare_more_section.dart';
 import 'compare_side_strip.dart';
 import 'compare_verdict_card.dart';
 
 /// Üç karşılaştırma ekranının ORTAK iskeleti (kullanıcı kararı).
 ///
-/// Sıra sabit: taraf şeridi → fark özeti → senin için → ölçüt grupları →
-/// ek bloklar. Üniversite, bölüm ve şehir aynı sırayı kullanıyor; biri
-/// düzeltilince öbürü geride kalmıyor.
+/// Sıra sabit: yapışık taraf şeridi → fark özeti → senin için → en büyük
+/// farklar → (kapalı) tam ölçüt tabloları → (kapalı) daha fazlası.
+/// Üniversite, bölüm ve şehir aynı sırayı kullanıyor.
 ///
 /// **Sekme yok** (kullanıcı kararı): bir karşılaştırmanın cevabı tek soru
 /// — hangisi, neden. Beş sekme o cevabı beş parçaya bölüyordu.
+///
+/// **Ekran kısa** (kullanıcı geri bildirimi, ikinci tur): sekmeler kalkınca
+/// her şey tek uzun kaydırma olmuştu. Açılışta yalnız farkı büyük ölçütler
+/// duruyor; tam tablolar ve ek bloklar kapalı geliyor.
 class CompareLayout extends StatelessWidget {
   final ComparisonView view;
 
@@ -30,10 +36,11 @@ class CompareLayout extends StatelessWidget {
   /// Fark özetinin hemen altındaki kişisel blok ("Senin için").
   final Widget? personal;
 
-  /// Ölçütlerden sonra gelen bloklar — grafik köprüsü, notlar, uyarılar.
+  /// "Daha fazlası" altında toplanan bloklar — grafik köprüsü, Pro özet,
+  /// notlar.
   final List<Widget> extras;
 
-  /// Şeridin üstünde duran uyarı (ör. puan türü uyuşmazlığı).
+  /// Şeridin altında duran uyarı (ör. puan türü uyuşmazlığı).
   final Widget? banner;
 
   final Future<void> Function()? onRefresh;
@@ -53,35 +60,54 @@ class CompareLayout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
-    final groups = view.groups;
     final hasRows = view.allRows.isNotEmpty;
+    final highlights = view.highlights();
 
-    final content = ListView(
+    final content = CustomScrollView(
       physics: const AlwaysScrollableScrollPhysics(),
-      // Alttaki 40: son kartın ekranın dibine yapışmaması için.
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 40),
-      children: [
-        if (banner != null) ...[banner!, const SizedBox(height: 12)],
-        CompareSideStrip(
-          sides: view.sides,
-          onChange: onChangeSide,
-          onSwap: onSwap,
-          leadingBuilder: leadingBuilder,
+      slivers: [
+        // Şerit yapışık (kullanıcı kararı): kaydırınca kaybolunca
+        // aşağıdaki sayıların hangisinin kime ait olduğu belirsizleşiyordu.
+        SliverPersistentHeader(
+          pinned: true,
+          delegate: _StripHeader(
+            child: CompareSideStrip(
+              sides: view.sides,
+              onChange: onChangeSide,
+              onSwap: onSwap,
+              leadingBuilder: leadingBuilder,
+            ),
+          ),
         ),
-        const SizedBox(height: 12),
-        if (hasRows)
-          CompareVerdictCard(view: view)
-        else
-          _NoRows(message: loc.cmpNoRows),
-        if (personal != null) ...[const SizedBox(height: 12), personal!],
-        for (var i = 0; i < groups.length; i++) ...[
-          const SizedBox(height: 12),
-          CompareGroupCard(group: groups[i])
-              .animate()
-              .fadeIn(delay: Duration(milliseconds: 60 * i), duration: 260.ms)
-              .slideY(begin: 0.05, end: 0, curve: Curves.easeOutCubic),
-        ],
-        for (final extra in extras) ...[const SizedBox(height: 12), extra],
+        SliverPadding(
+          // Alttaki 40: son kartın ekranın dibine yapışmaması için.
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 40),
+          sliver: SliverList.list(
+            children: [
+              if (banner != null) ...[banner!, const SizedBox(height: 12)],
+              if (hasRows)
+                CompareVerdictCard(view: view)
+              else
+                _NoRows(message: loc.cmpNoRows),
+              if (personal != null) ...[const SizedBox(height: 12), personal!],
+              if (highlights.isNotEmpty) ...[
+                const SizedBox(height: 12),
+                CompareHighlightsCard(rows: highlights)
+                    .animate()
+                    .fadeIn(duration: 260.ms)
+                    .slideY(begin: 0.05, end: 0, curve: Curves.easeOutCubic),
+              ],
+              for (final group in view.groups) ...[
+                const SizedBox(height: 12),
+                CompareGroupCard(group: group),
+              ],
+              if (extras.isNotEmpty) ...[
+                const SizedBox(height: 12),
+                CompareMoreSection(children: extras),
+              ],
+            ],
+          ),
+        ),
       ],
     );
 
@@ -92,6 +118,25 @@ class CompareLayout extends StatelessWidget {
       child: content,
     );
   }
+}
+
+/// Sabit yükseklikli yapışık başlık — şeridin kendi boyu `height`'ta.
+class _StripHeader extends SliverPersistentHeaderDelegate {
+  final Widget child;
+  const _StripHeader({required this.child});
+
+  @override
+  double get minExtent => CompareSideStrip.height;
+
+  @override
+  double get maxExtent => CompareSideStrip.height;
+
+  @override
+  Widget build(BuildContext context, double shrinkOffset, bool overlaps) =>
+      child;
+
+  @override
+  bool shouldRebuild(_StripHeader oldDelegate) => oldDelegate.child != child;
 }
 
 class _NoRows extends StatelessWidget {

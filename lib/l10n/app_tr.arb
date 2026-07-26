@@ -1254,6 +1254,8 @@
   "cmpChangeSide": "Değiştir",
   "cmpSwap": "Yer değiştir",
   "cmpChartsTitle": "Grafikler",
+  "cmpHighlightsTitle": "En büyük farklar",
+  "cmpMoreTitle": "Daha fazlası",
   "cmpChartsDesc": "Radar, ısı haritası, trend ve saçılım",
   "cmpChartsOpen": "Grafikleri gör",
   "cmpPersonalTitle": "Senin için",

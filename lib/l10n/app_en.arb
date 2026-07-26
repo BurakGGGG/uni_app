@@ -1223,6 +1223,8 @@
   "cmpChangeSide": "Change",
   "cmpSwap": "Swap sides",
   "cmpChartsTitle": "Charts",
+  "cmpHighlightsTitle": "Biggest differences",
+  "cmpMoreTitle": "More",
   "cmpChartsDesc": "Radar, heat map, trend and scatter",
   "cmpChartsOpen": "View charts",
   "cmpPersonalTitle": "For you",

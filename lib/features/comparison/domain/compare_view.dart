@@ -59,6 +59,14 @@ class CompareRow {
   /// "eski daha iyi" demek bir değer yargısıdır — ekran onu vermemeli.
   final bool comparable;
 
+  /// Tam tabloda görünür ama "En büyük farklar"a ASLA girmez.
+  ///
+  /// Başka bir satırın kırılımı ya da hacim ölçüsü olanlar için: lisans ve
+  /// önlisans sayısı bölüm sayısının parçası, yorum sayısı da puanın
+  /// bağlamı. İşaretlenmezlerse öne çıkanlar aynı bilginin üç türevini
+  /// üst üste gösteriyor.
+  final bool secondary;
+
   const CompareRow({
     required this.label,
     required this.values,
@@ -67,6 +75,7 @@ class CompareRow {
     this.hint,
     this.tieThreshold = 0,
     this.comparable = true,
+    this.secondary = false,
   }) : assert(values.length == display.length);
 
   /// En az iki tarafta değer var mı — tek taraflı satır karşılaştırma değil.
@@ -99,6 +108,20 @@ class CompareRow {
       if ((bestValue - v).abs() > tieThreshold) return best;
     }
     return null;
+  }
+
+  /// Farkın büyüklüğü (0–1): en iyi ile en kötü arasındaki oransal ayrım.
+  ///
+  /// "En büyük farklar" bölümünün sıralaması bunu kullanıyor. **Mutlak
+  /// farkla sıralanamaz** — kontenjan (binler) her zaman puanı (0–5)
+  /// ezerdi. Yarışmayan ve tek taraflı satırlar 0 döner.
+  double get gap {
+    if (!comparable || !hasData) return 0;
+    final present = values.whereType<double>().map((v) => v.abs()).toList()
+      ..sort();
+    final hi = present.last;
+    if (hi == 0) return 0;
+    return (hi - present.first) / hi;
   }
 
   /// Çubuk ölçeği — en büyük mutlak değer. Hepsi sıfırsa 1 (sıfıra bölme).
@@ -203,6 +226,26 @@ class ComparisonView {
       }
     }
     return CompareVerdict(leads: leads, tied: tied);
+  }
+
+  /// Ekranın açılışta gösterdiği ölçütler: her gruptan farkı en büyük
+  /// [perGroup] satır.
+  ///
+  /// Karşılaştırmanın değeri FARKTA; 18 satırın çoğunda iki taraf zaten
+  /// birbirine yakın ve ekranın büyük kısmı "fark yok" demek için
+  /// harcanıyordu (kullanıcı geri bildirimi: "sürekli aşağı akan ekran").
+  /// Gruptan pay ayrılıyor çünkü tek havuzda binlerle ölçülen satırlar
+  /// (kontenjan, bölüm sayısı) 0–5 ölçeğindeki puanları listeden atardı.
+  List<CompareRow> highlights({int perGroup = 3}) {
+    final out = <CompareRow>[];
+    for (final group in groups) {
+      final ranked = group.present
+          .where((r) => !r.secondary && r.gap > 0)
+          .toList()
+        ..sort((a, b) => b.gap.compareTo(a.gap));
+      out.addAll(ranked.take(perGroup));
+    }
+    return out;
   }
 
   /// Bir tarafın en belirgin üstünlüğü — Üni'nin "kampüs önemliyse A"

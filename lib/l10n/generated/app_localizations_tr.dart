@@ -2511,6 +2511,12 @@ class AppLocalizationsTr extends AppLocalizations {
   String get cmpChartsTitle => 'Grafikler';
 
   @override
+  String get cmpHighlightsTitle => 'En büyük farklar';
+
+  @override
+  String get cmpMoreTitle => 'Daha fazlası';
+
+  @override
   String get cmpChartsDesc => 'Radar, ısı haritası, trend ve saçılım';
 
   @override

@@ -111,6 +111,88 @@ void main() {
     });
   });
 
+  group('highlights', () {
+    CompareRow named(
+      String label,
+      List<double?> values, {
+      bool secondary = false,
+    }) =>
+        CompareRow(
+          label: label,
+          values: values,
+          display: values.map((v) => v?.toString() ?? '—').toList(),
+          secondary: secondary,
+        );
+
+    ComparisonView twoGroups() => ComparisonView(
+          sides: const [
+            CompareSide(id: 'a', title: 'A'),
+            CompareSide(id: 'b', title: 'B'),
+          ],
+          groups: [
+            CompareGroup(title: 'Sayılarla', rows: [
+              named('Bölüm sayısı', [124, 98]),
+              named('Lisans', [110, 88], secondary: true),
+              named('Önlisans', [14, 10], secondary: true),
+              named('Kontenjan', [5400, 4800]),
+              named('Ortalama taban', [468, 452]),
+            ]),
+            CompareGroup(title: 'Puanlar', rows: [
+              named('Ulaşım', [4.6, 3.2]),
+              named('Yemekhane', [3.1, 4.4]),
+              named('Kampüs', [3.8, 4.5]),
+              named('Yorum sayısı', [128, 96], secondary: true),
+            ]),
+          ],
+        );
+
+    test('her gruptan pay ayrılır — sayılar puanları listeden atamaz', () {
+      // Tek havuzda sıralansaydı binlerle ölçülen satırlar 0-5 ölçeğindeki
+      // puanları hep ezerdi.
+      final rows = twoGroups().highlights(perGroup: 2);
+      final labels = rows.map((r) => r.label).toList();
+
+      expect(labels.length, 4);
+      expect(labels.take(2).every((l) => l != 'Ulaşım'), isTrue);
+      expect(labels, contains('Ulaşım'));
+    });
+
+    test('kırılım satırları öne çıkanlara ASLA girmez', () {
+      // İşaretlenmezlerse "En büyük farklar" aynı bilginin üç türevini
+      // (bölüm sayısı, lisans, önlisans) üst üste gösteriyordu.
+      final labels = twoGroups().highlights().map((r) => r.label).toList();
+
+      expect(labels, isNot(contains('Lisans')));
+      expect(labels, isNot(contains('Önlisans')));
+      expect(labels, isNot(contains('Yorum sayısı')));
+      expect(labels, contains('Bölüm sayısı'));
+    });
+
+    test('farkı sıfır olan satır öne çıkmaz', () {
+      final view = ComparisonView(
+        sides: const [
+          CompareSide(id: 'a', title: 'A'),
+          CompareSide(id: 'b', title: 'B'),
+        ],
+        groups: [
+          CompareGroup(title: 'g', rows: [
+            named('Aynı', [100, 100]),
+            named('Farklı', [100, 50]),
+          ]),
+        ],
+      );
+
+      expect(view.highlights().map((r) => r.label), ['Farklı']);
+    });
+
+    test('kırılımlar tam tabloda durmaya devam eder', () {
+      // Öne çıkanlardan düşmek, veriden düşmek değil.
+      final all = twoGroups().allRows.map((r) => r.label);
+      expect(all, contains('Lisans'));
+      expect(all, contains('Yorum sayısı'));
+    });
+  });
+
   group('strongestFor', () {
     test('oransal olarak en belirgin üstünlüğü seçer', () {
       final view = ComparisonView(

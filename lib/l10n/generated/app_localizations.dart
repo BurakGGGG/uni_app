@@ -4658,6 +4658,18 @@ abstract class AppLocalizations {
   /// **'Grafikler'**
   String get cmpChartsTitle;
 
+  /// No description provided for @cmpHighlightsTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'En büyük farklar'**
+  String get cmpHighlightsTitle;
+
+  /// No description provided for @cmpMoreTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Daha fazlası'**
+  String get cmpMoreTitle;
+
   /// No description provided for @cmpChartsDesc.
   ///
   /// In tr, this message translates to:
