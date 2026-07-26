@@ -38,26 +38,6 @@ class ComparisonResult {
   int get categoriesTied =>
       categoryComparisons.values.where((c) => c.winnerId == null).length;
   
-  /// Tek satırlık özet (ekran başlığı için)
-  String get summaryText {
-    final aHasReviews = uniA.reviewCount > 0;
-    final bHasReviews = uniB.reviewCount > 0;
-
-    if (!aHasReviews && !bHasReviews) {
-      return 'Henüz yorum bulunmuyor — tarafsız karşılaştırma için yorum bekleniyor';
-    }
-    if (!aHasReviews) {
-      return '${uniA.name} için henüz yorum yok';
-    }
-    if (!bHasReviews) {
-      return '${uniB.name} için henüz yorum yok';
-    }
-    if (overallWinnerId == null) {
-      return 'İki üniversite genel puanlarda çok yakın';
-    }
-    final winner = overallWinnerId == uniA.id ? uniA.name : uniB.name;
-    return '$winner genel olarak öne çıkıyor';
-  }
 }
 
 class CategoryComparison {

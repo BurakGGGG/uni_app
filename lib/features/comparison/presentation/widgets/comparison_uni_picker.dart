@@ -44,8 +44,7 @@ class ComparisonUniPicker extends ConsumerWidget {
                   uniId: selection.uniIdA,
                   emptyLabel: loc.selectUniversityA,
                   accentColor: AppColors.primary,
-                  onTap: () =>
-                      _showPicker(context, ref, selection, isA: true),
+                  onTap: () => showComparisonUniPicker(context, ref, isA: true),
                 ),
               ),
               const SizedBox(width: 10),
@@ -57,7 +56,7 @@ class ComparisonUniPicker extends ConsumerWidget {
                   emptyLabel: loc.selectUniversityB,
                   accentColor: AppColors.secondary,
                   onTap: () =>
-                      _showPicker(context, ref, selection, isA: false),
+                      showComparisonUniPicker(context, ref, isA: false),
                 ),
               ),
             ],
@@ -75,168 +74,166 @@ class ComparisonUniPicker extends ConsumerWidget {
       ),
     );
   }
+}
 
-  void _showPicker(
-    BuildContext context,
-    WidgetRef ref,
-    ComparisonSelection selection, {
-    required bool isA,
-  }) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (modalContext) => DraggableScrollableSheet(
-        initialChildSize: 0.7,
-        minChildSize: 0.4,
-        maxChildSize: 0.92,
-        expand: false,
-        builder: (_, controller) {
-          final isDark = Theme.of(context).brightness == Brightness.dark;
-          final uniListAsync = ref.watch(allUniversitiesProvider);
-          final loc = AppLocalizations.of(context);
-          return Container(
-            decoration: BoxDecoration(
-              color: isDark ? AppColors.darkSurface : AppColors.surface,
-              borderRadius:
-                  const BorderRadius.vertical(top: Radius.circular(24)),
-            ),
-            child: Column(
-              children: [
-                Container(
-                  margin: const EdgeInsets.only(top: 12, bottom: 8),
-                  width: 40,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: isDark
-                        ? Colors.white.withValues(alpha: 0.2)
-                        : AppColors.border,
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 4, 12, 8),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.account_balance_rounded,
-                        size: 20,
-                        color: isA ? AppColors.primary : AppColors.secondary,
-                      ),
-                      const SizedBox(width: 10),
-                      Text(
-                        isA
-                            ? loc.comparisonSelectUniversityForA
-                            : loc.comparisonSelectUniversityForB,
-                        style: AppTextStyles.titleMedium.copyWith(
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
-                      const Spacer(),
-                      IconButton(
-                        icon: const Icon(Icons.close_rounded),
-                        onPressed: () => Navigator.pop(modalContext),
-                      ),
-                    ],
-                  ),
-                ),
-                const Divider(height: 1),
-                Expanded(
-                  child: uniListAsync.when(
-                    loading: () => const ListSkeleton(),
-                    error: (e, _) => ErrorState(
-                      message: AppLocalizations.of(context).commonError,
-                      onRetry: () => ref.invalidate(allUniversitiesProvider),
+/// A ya da B tarafı için üniversite seçim sayfası.
+///
+/// Hem ilk seçim ekranı hem sonuçtaki kompakt şerit bunu açıyor — şerit
+/// "dokununca değişsin" diye tasarlandı (kullanıcı kararı) ve seçici iki
+/// yerde ayrı kurulsaydı biri diğerinin filtresini kaçırırdı.
+void showComparisonUniPicker(
+  BuildContext context,
+  WidgetRef ref, {
+  required bool isA,
+}) {
+  showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    backgroundColor: Colors.transparent,
+    builder: (modalContext) => DraggableScrollableSheet(
+      initialChildSize: 0.7,
+      minChildSize: 0.4,
+      maxChildSize: 0.92,
+      expand: false,
+      builder: (_, controller) {
+        final isDark = Theme.of(context).brightness == Brightness.dark;
+        final uniListAsync = ref.watch(allUniversitiesProvider);
+        final selection = ref.read(comparisonSelectionProvider);
+        final loc = AppLocalizations.of(context);
+        return Container(
+          decoration: BoxDecoration(
+            color: isDark ? AppColors.darkSurface : AppColors.surface,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          child: Column(
+            children: [
+              // Tutamak temadan geliyor (`showDragHandle: true`).
+              const SizedBox(height: 8),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 4, 12, 8),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.account_balance_rounded,
+                      size: 20,
+                      color: isA ? AppColors.primary : AppColors.secondary,
                     ),
-                    data: (unis) {
-                      final otherId =
-                          isA ? selection.uniIdB : selection.uniIdA;
-                      final filtered =
-                          unis.where((u) => u.id != otherId).toList();
-                      return ListView.separated(
-                        controller: controller,
-                        padding:
-                            const EdgeInsets.fromLTRB(16, 12, 16, 24),
-                        itemCount: filtered.length,
-                        separatorBuilder: (_, _) =>
-                            const SizedBox(height: 6),
-                        itemBuilder: (_, i) {
-                          final uni = filtered[i];
-                          return InkWell(
-                            borderRadius: BorderRadius.circular(12),
-                            onTap: () {
-                              Navigator.pop(modalContext);
-                              final notifier = ref.read(
-                                  comparisonSelectionProvider.notifier);
-                              if (isA) {
-                                notifier.selectA(uni.id);
-                              } else {
-                                notifier.selectB(uni.id);
-                              }
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                color: isDark
-                                    ? Colors.white.withValues(alpha: 0.04)
-                                    : AppColors.surfaceVariant,
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Row(
-                                children: [
-                                  UniversityLogoBox(
-                                    universityId: uni.id,
-                                    universityName: uni.name,
-                                    accentColor: isA
-                                        ? AppColors.primary
-                                        : AppColors.secondary,
-                                    size: 40,
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          uni.name,
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                          style: AppTextStyles.labelMedium
-                                              .copyWith(
-                                            fontWeight: FontWeight.w700,
-                                          ),
-                                        ),
-                                        const SizedBox(height: 2),
-                                        Text(
-                                          '${localizedUniversityType(loc, uni.type)} · ${localizedCampusLayout(loc, uni.campusLayout.name)}',
-                                          style: AppTextStyles.labelSmall
-                                              .copyWith(
-                                            color: AppColors.textTertiaryFor(context),
-                                            fontSize: 11,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  Icon(Icons.chevron_right_rounded,
-                                      color: AppColors.textTertiaryFor(context)),
-                                ],
-                              ),
-                            ),
-                          );
-                        },
-                      );
-                    },
-                  ),
+                    const SizedBox(width: 10),
+                    Text(
+                      isA
+                          ? loc.comparisonSelectUniversityForA
+                          : loc.comparisonSelectUniversityForB,
+                      style: AppTextStyles.titleMedium.copyWith(
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    const Spacer(),
+                    IconButton(
+                      icon: const Icon(Icons.close_rounded),
+                      onPressed: () => Navigator.pop(modalContext),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-          );
-        },
-      ),
-    );
-  }
+              ),
+              const Divider(height: 1),
+              Expanded(
+                child: uniListAsync.when(
+                  loading: () => const ListSkeleton(),
+                  error: (e, _) => ErrorState(
+                    message: AppLocalizations.of(context).commonError,
+                    onRetry: () => ref.invalidate(allUniversitiesProvider),
+                  ),
+                  data: (unis) {
+                    final otherId = isA ? selection.uniIdB : selection.uniIdA;
+                    final filtered = unis
+                        .where((u) => u.id != otherId)
+                        .toList();
+                    return ListView.separated(
+                      controller: controller,
+                      padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+                      itemCount: filtered.length,
+                      separatorBuilder: (_, _) => const SizedBox(height: 6),
+                      itemBuilder: (_, i) {
+                        final uni = filtered[i];
+                        return InkWell(
+                          borderRadius: BorderRadius.circular(12),
+                          onTap: () {
+                            Navigator.pop(modalContext);
+                            final notifier = ref.read(
+                              comparisonSelectionProvider.notifier,
+                            );
+                            if (isA) {
+                              notifier.selectA(uni.id);
+                            } else {
+                              notifier.selectB(uni.id);
+                            }
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: isDark
+                                  ? Colors.white.withValues(alpha: 0.04)
+                                  : AppColors.surfaceVariant,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Row(
+                              children: [
+                                UniversityLogoBox(
+                                  universityId: uni.id,
+                                  universityName: uni.name,
+                                  accentColor: isA
+                                      ? AppColors.primary
+                                      : AppColors.secondary,
+                                  size: 40,
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        uni.name,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: AppTextStyles.labelMedium
+                                            .copyWith(
+                                              fontWeight: FontWeight.w700,
+                                            ),
+                                      ),
+                                      const SizedBox(height: 2),
+                                      Text(
+                                        '${localizedUniversityType(loc, uni.type)} · ${localizedCampusLayout(loc, uni.campusLayout.name)}',
+                                        style: AppTextStyles.labelSmall
+                                            .copyWith(
+                                              color: AppColors.textTertiaryFor(
+                                                context,
+                                              ),
+                                              fontSize: 11,
+                                            ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Icon(
+                                  Icons.chevron_right_rounded,
+                                  color: AppColors.textTertiaryFor(context),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    ),
+  );
 }
 
 class _UniSlot extends ConsumerWidget {

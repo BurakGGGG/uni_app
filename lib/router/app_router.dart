@@ -11,6 +11,7 @@ import 'go_router_refresh_stream.dart';
 import '../features/home/presentation/screens/home_screen.dart';
 import '../features/home/presentation/screens/explore_screen.dart';
 import '../features/comparison/presentation/screens/comparison_hub_screen.dart';
+import '../features/comparison/presentation/screens/comparison_charts_screen.dart';
 import '../features/comparison/presentation/screens/university_comparison_screen.dart';
 import '../features/comparison/presentation/screens/department_comparison_screen.dart';
 import '../features/comparison/presentation/screens/city_comparison_screen.dart';
@@ -498,6 +499,12 @@ final routerProvider = Provider<GoRouter>((ref) {
           initialAId: state.uri.queryParameters['a'],
           initialBId: state.uri.queryParameters['b'],
         ),
+      ),
+      // Grafikler ayrı ekranda (sonuç sayfası sade kalsın diye); seçimi
+      // `comparisonSelectionProvider`'dan okur, parametre almaz.
+      GoRoute(
+        path: '/compare/university/charts',
+        builder: (context, state) => const ComparisonChartsScreen(),
       ),
       GoRoute(
         path: '/compare/department',

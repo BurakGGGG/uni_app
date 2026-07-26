@@ -7,6 +7,8 @@ import 'dart:ui';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../l10n/generated/app_localizations.dart';
+import '../../domain/compare_view.dart';
+import '../../domain/compare_view_builders.dart';
 import '../../domain/models/comparison_result.dart';
 import '../../../admin/data/analytics_service.dart';
 import '../../../admin/domain/models/analytics_event.dart';
@@ -150,8 +152,10 @@ class ComparisonShareCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final loc = AppLocalizations.of(context);
-    final winnerA = result.overallWinnerId == result.uniA.id;
-    final winnerB = result.overallWinnerId == result.uniB.id;
+    // Kupa KALKTI (kullanıcı kararı): ekran kazanan ilan etmiyorken
+    // paylaşılan görselin etmesi tutarsız olurdu. Yerine ekrandaki fark
+    // özetinin aynısı — tek doğruluk kaynağı `ComparisonView`.
+    final verdict = universityCompareView(result, loc).verdict;
 
     return Screenshot(
       controller: controller,
@@ -237,7 +241,6 @@ class ComparisonShareCard extends StatelessWidget {
                                     name: result.uniA.name,
                                     score: result.uniA.avgRating,
                                     color: AppColors.primary,
-                                    isWinner: winnerA,
                                   ),
                                 ),
                                 const SizedBox(width: 16),
@@ -265,7 +268,6 @@ class ComparisonShareCard extends StatelessWidget {
                                     name: result.uniB.name,
                                     score: result.uniB.avgRating,
                                     color: AppColors.secondary,
-                                    isWinner: winnerB,
                                   ),
                                 ),
                               ],
@@ -281,13 +283,14 @@ class ComparisonShareCard extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(16),
                               ),
                               child: Text(
-                                result.summaryText,
+                                _verdictLine(loc, result, verdict),
                                 textAlign: TextAlign.center,
                                 style: AppTextStyles.bodyLarge.copyWith(
                                   height: 1.3,
-                                  color: isDark ? Colors.white70 : AppColors.textSecondaryFor(context),
-                                  fontStyle: FontStyle.italic,
-                                  fontWeight: FontWeight.w600,
+                                  color: isDark
+                                      ? Colors.white70
+                                      : AppColors.textSecondaryFor(context),
+                                  fontWeight: FontWeight.w700,
                                 ),
                               ),
                             ),
@@ -375,21 +378,17 @@ class _ShareScoreCard extends StatelessWidget {
   final String name;
   final double score;
   final Color color;
-  final bool isWinner;
 
   const _ShareScoreCard({
     required this.name,
     required this.score,
     required this.color,
-    required this.isWinner,
   });
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        if (isWinner) _WinnerPill(color: color),
-        if (isWinner) const SizedBox(height: 8),
         Text(
           score > 0 ? score.toStringAsFixed(1) : '-',
           style: TextStyle(
@@ -413,36 +412,6 @@ class _ShareScoreCard extends StatelessWidget {
   }
 }
 
-class _WinnerPill extends StatelessWidget {
-  final Color color;
-  const _WinnerPill({required this.color});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: color.withValues(alpha: 0.20)),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(Icons.emoji_events_rounded, color: color, size: 14),
-          const SizedBox(width: 6),
-          Text(
-            AppLocalizations.of(context).winner,
-            style: AppTextStyles.labelSmall.copyWith(
-              color: color,
-              fontWeight: FontWeight.w900,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
 
 class _ShareStatRow extends StatelessWidget {
   final String label;
@@ -495,4 +464,27 @@ class _ShareStatRow extends StatelessWidget {
       ],
     );
   }
+}
+
+/// "İTÜ 5 ölçütte önde · 2 başa baş" — ekrandaki özetin aynı dili.
+String _verdictLine(
+  AppLocalizations loc,
+  ComparisonResult result,
+  CompareVerdict verdict,
+) {
+  if (!verdict.hasData) return loc.cmpNoRows;
+
+  final names = [result.uniA.name, result.uniB.name];
+  final parts = <String>[
+    for (var i = 0; i < verdict.leads.length; i++)
+      if (verdict.leads[i] > 0)
+        loc.cmpVerdictAhead(_shortName(names[i]), '${verdict.leads[i]}'),
+    if (verdict.tied > 0) loc.cmpVerdictTiedSuffix('${verdict.tied}'),
+  ];
+  return parts.join('  ·  ');
+}
+
+String _shortName(String name) {
+  final parts = name.split(' ').where((p) => p.isNotEmpty).toList();
+  return parts.length <= 2 ? name : parts.take(2).join(' ');
 }

@@ -1,26 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+
+import '../../../../core/providers/connectivity_provider.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../../l10n/generated/app_localizations.dart';
 import '../../../monetization/domain/enums/subscription_tier.dart';
 import '../../../monetization/presentation/widgets/subscription_gate_widget.dart';
+import '../../../university/data/university_repository.dart';
 import '../../../university/domain/models/city_model.dart';
 import '../../../university/presentation/widgets/city_logo.dart';
+import '../../domain/compare_view_builders.dart';
 import '../../domain/models/city_comparison.dart';
 import '../providers/comparison_providers.dart';
 import '../widgets/city_compar_pie_chart.dart';
 import '../widgets/city_picker_bottom_sheet.dart';
-import '../widgets/offline_banner.dart';
-import '../widgets/comparison_picker_slot.dart';
+import '../widgets/compare/compare_layout.dart';
 import '../widgets/comparison_notes_section.dart';
-import '../../../../core/providers/connectivity_provider.dart';
-import '../../../../l10n/generated/app_localizations.dart';
-import '../../../university/data/university_repository.dart';
+import '../widgets/comparison_picker_slot.dart';
+import '../widgets/offline_banner.dart';
 
+/// Şehir karşılaştırma.
+///
+/// Üniversite ve bölüm ekranlarıyla AYNI iskeleti kullanıyor
+/// (`CompareLayout`) — üçü kardeş görünsün diye (kullanıcı kararı).
 class CityComparisonScreen extends ConsumerStatefulWidget {
   /// Deep-link / geçmişten gelen önceden seçili şehir ID'leri.
-  /// Verilirse initState'te repository'den lookup edilir ve _a/_b set'lenir.
   final String? initialAId;
   final String? initialBId;
 
@@ -31,7 +37,8 @@ class CityComparisonScreen extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<CityComparisonScreen> createState() => _CityComparisonScreenState();
+  ConsumerState<CityComparisonScreen> createState() =>
+      _CityComparisonScreenState();
 }
 
 class _CityComparisonScreenState extends ConsumerState<CityComparisonScreen> {
@@ -64,17 +71,26 @@ class _CityComparisonScreenState extends ConsumerState<CityComparisonScreen> {
     });
   }
 
+  Future<void> _pick(int index) async {
+    final city = await CityPickerBottomSheet.show(context);
+    if (city == null || !mounted) return;
+    setState(() {
+      if (index == 0) {
+        _a = city;
+      } else {
+        _b = city;
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     final loc = AppLocalizations.of(context);
-
     final a = _a;
     final b = _b;
     final pair = (a != null && b != null)
         ? ComparisonPair(idA: a.id, idB: b.id)
         : null;
-
     final resultAsync = pair == null
         ? const AsyncValue<CityComparisonResult?>.data(null)
         : ref.watch(cityComparisonResultProvider(pair));
@@ -84,140 +100,99 @@ class _CityComparisonScreenState extends ConsumerState<CityComparisonScreen> {
       showBlurPreview: true,
       onLocked: () => context.push('/compare/paywall'),
       child: Scaffold(
-      backgroundColor: AppColors.backgroundFor(context),
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        title: Text(
-          loc.comparisonCity,
-          style: AppTextStyles.titleMedium.copyWith(
-            fontWeight: FontWeight.w800,
-            color: isDark ? Colors.white : AppColors.textPrimaryFor(context),
-          ),
-        ),
-        actions: [
-          if (_a != null || _b != null)
-            TextButton.icon(
-              onPressed: () => setState(() {
-                _a = null;
-                _b = null;
-              }),
-              icon: const Icon(Icons.refresh_rounded, size: 18),
-              label: Text(loc.reset),
-              style: TextButton.styleFrom(foregroundColor: AppColors.error),
+        backgroundColor: AppColors.backgroundFor(context),
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          title: Text(
+            loc.comparisonCity,
+            style: AppTextStyles.titleMedium.copyWith(
+              fontWeight: FontWeight.w800,
             ),
-        ],
-      ),
-      body: SafeArea(
-        child: RefreshIndicator(
-          color: AppColors.primary,
-          onRefresh: () async {
-            final ca = _a;
-            final cb = _b;
-            if (ca != null && cb != null) {
-              final pair = ComparisonPair(idA: ca.id, idB: cb.id);
-              ref.invalidate(cityComparisonResultProvider(pair));
-              await ref.read(cityComparisonResultProvider(pair).future);
-            }
-          },
-          child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 28),
+          ),
+          actions: [
+            if (a != null || b != null)
+              IconButton(
+                tooltip: loc.reset,
+                onPressed: () => setState(() {
+                  _a = null;
+                  _b = null;
+                }),
+                icon: const Icon(Icons.refresh_rounded, size: 20),
+                color: AppColors.error,
+              ),
+          ],
+        ),
+        body: SafeArea(
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // ─── Offline Banner ──────────────────────────────
-              if (!ref.watch(isOnlineProvider))
-                const OfflineBanner(),
-              // Header — başlık + alt başlık
-              ComparisonPickerHeader(
-                icon: Icons.location_city_rounded,
-                title: loc.comparisonCityHeaderTitle,
-                subtitle: loc.comparisonCityHeaderSubtitle,
-                accentColor: AppColors.primary,
-              ),
-              const SizedBox(height: 20),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Expanded(
-                    child: _CityPickCard(
-                      title: loc.selectCityA,
-                      city: _a,
-                      accent: AppColors.primary,
-                      onTap: () async {
-                        final pick = await CityPickerBottomSheet.show(context);
-                        if (pick != null) setState(() => _a = pick);
-                      },
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  const ComparisonVsBadge(),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: _CityPickCard(
-                      title: loc.selectCityB,
-                      city: _b,
-                      accent: AppColors.secondary,
-                      onTap: () async {
-                        final pick = await CityPickerBottomSheet.show(context);
-                        if (pick != null) setState(() => _b = pick);
-                      },
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 18),
-
-              AnimatedSwitcher(
-                duration: const Duration(milliseconds: 260),
-                switchInCurve: Curves.easeOutCubic,
-                switchOutCurve: Curves.easeInCubic,
-                child: _buildResultArea(context, isDark, resultAsync),
-              ),
+              if (!ref.watch(isOnlineProvider)) const OfflineBanner(),
+              Expanded(child: _body(context, resultAsync)),
             ],
           ),
         ),
-        ),
-      ),
       ),
     );
   }
 
-  Widget _buildResultArea(
+  Widget _body(
     BuildContext context,
-    bool isDark,
     AsyncValue<CityComparisonResult?> resultAsync,
   ) {
-    if (_a == null || _b == null) {
-      return _HintCard(isDark: isDark);
+    final loc = AppLocalizations.of(context);
+    final a = _a;
+    final b = _b;
+
+    if (a == null || b == null) {
+      return _PickStage(
+        a: a,
+        b: b,
+        onPick: _pick,
+      );
     }
 
     return resultAsync.when(
-      loading: () => const Padding(
-        padding: EdgeInsets.symmetric(vertical: 32),
-        child: Center(child: CircularProgressIndicator()),
+      loading: () => const Center(
+        child: CircularProgressIndicator(color: AppColors.primary),
       ),
-      error: (e, _) => _ErrorCard(message: '$e', isDark: isDark),
+      error: (e, _) => Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32),
+          child: Text(loc.errorGeneral('$e'), textAlign: TextAlign.center),
+        ),
+      ),
       data: (result) {
-        final ca = _a;
-        final cb = _b;
-        final fallback = (ca != null && cb != null)
-            ? _buildFallbackResult(ca, cb)
-            : null;
-        final effectiveResult = result ?? fallback;
-        if (effectiveResult == null) {
-          return _ErrorCard(
-            message: AppLocalizations.of(context).comparisonResultNotFound,
-            isDark: isDark,
-          );
-        }
-        return _CityResultView(result: effectiveResult);
+        // Sunucu sonucu yoksa şehir modelinin kendi sayılarına düşülüyor —
+        // ekran boş kalmasın, en azından üniversite sayısı karşılaştırılsın.
+        final effective = result ?? _fallback(a, b);
+        final view = cityCompareView(effective, loc);
+
+        return CompareLayout(
+          view: view,
+          onChangeSide: _pick,
+          leadingBuilder: (index, side) => CityLogo(
+            city: index == 0 ? a : b,
+            size: 44,
+          ),
+          onRefresh: () async {
+            final pair = ComparisonPair(idA: a.id, idB: b.id);
+            ref.invalidate(cityComparisonResultProvider(pair));
+            await ref.read(cityComparisonResultProvider(pair).future);
+          },
+          extras: [
+            _DistributionCard(result: effective),
+            ComparisonNotesSection(
+              comparisonType: 'city',
+              entityAId: a.id,
+              entityBId: b.id,
+            ),
+          ],
+        );
       },
     );
   }
 
-  CityComparisonResult _buildFallbackResult(CityModel cityA, CityModel cityB) {
+  CityComparisonResult _fallback(CityModel cityA, CityModel cityB) {
     final countA = cityA.appUniversityCount;
     final countB = cityB.appUniversityCount;
     String? winnerId;
@@ -247,75 +222,85 @@ class _CityComparisonScreenState extends ConsumerState<CityComparisonScreen> {
   }
 }
 
-class _HintCard extends StatelessWidget {
-  final bool isDark;
-  const _HintCard({required this.isDark});
+/// Seçim aşaması — iki şehir seçilene kadar.
+class _PickStage extends StatelessWidget {
+  final CityModel? a;
+  final CityModel? b;
+  final ValueChanged<int> onPick;
+
+  const _PickStage({required this.a, required this.b, required this.onPick});
 
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
-    return Container(
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: isDark ? Colors.white.withValues(alpha: 0.06) : Colors.white,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(
-          color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.08),
-        ),
-      ),
-      child: Row(
+    return SingleChildScrollView(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 28),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          ComparisonPickerHeader(
+            icon: Icons.location_city_rounded,
+            title: loc.comparisonCityHeaderTitle,
+            subtitle: loc.comparisonCityHeaderSubtitle,
+            accentColor: AppColors.primary,
+          ),
+          const SizedBox(height: 20),
+          Row(
+            children: [
+              Expanded(
+                child: _CityPickCard(
+                  title: loc.selectCityA,
+                  city: a,
+                  accent: AppColors.primary,
+                  onTap: () => onPick(0),
+                ),
+              ),
+              const SizedBox(width: 10),
+              const ComparisonVsBadge(),
+              const SizedBox(width: 10),
+              Expanded(
+                child: _CityPickCard(
+                  title: loc.selectCityB,
+                  city: b,
+                  accent: AppColors.secondary,
+                  onTap: () => onPick(1),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 18),
           Container(
-            width: 48,
-            height: 48,
+            padding: const EdgeInsets.all(18),
             decoration: BoxDecoration(
-              color: AppColors.primary.withValues(alpha: 0.12),
-              shape: BoxShape.circle,
+              color: AppColors.surfaceFor(context),
+              borderRadius: BorderRadius.circular(22),
+              border: Border.all(color: AppColors.borderLightFor(context)),
             ),
-            child: const Icon(Icons.location_city_rounded, color: AppColors.primary),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              loc.comparisonCityHint,
-              style: AppTextStyles.bodyMedium.copyWith(
-                color: isDark ? Colors.white70 : AppColors.textSecondaryFor(context),
-                height: 1.3,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _ErrorCard extends StatelessWidget {
-  final String message;
-  final bool isDark;
-  const _ErrorCard({required this.message, required this.isDark});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: isDark ? Colors.white.withValues(alpha: 0.06) : Colors.white,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(
-          color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.08),
-        ),
-      ),
-      child: Row(
-        children: [
-          const Icon(Icons.error_outline_rounded, color: AppColors.error),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              message,
-              style: AppTextStyles.bodyMedium.copyWith(
-                color: isDark ? Colors.white70 : AppColors.textSecondaryFor(context),
-              ),
+            child: Row(
+              children: [
+                Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: AppColors.primary.withValues(alpha: 0.12),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.location_city_rounded,
+                    color: AppColors.primary,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    loc.comparisonCityHint,
+                    style: AppTextStyles.bodySmall.copyWith(
+                      color: AppColors.textSecondaryFor(context),
+                      height: 1.35,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ],
@@ -339,6 +324,7 @@ class _CityPickCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
     final c = city;
     if (c == null) {
       return ComparisonPickerSlot(
@@ -349,414 +335,103 @@ class _CityPickCard extends StatelessWidget {
         onTap: onTap,
       );
     }
-
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    return InkWell(
-      borderRadius: BorderRadius.circular(20),
+    return ComparisonPickerSlot(
+      isEmpty: false,
+      emptyLabel: title,
+      emptyIcon: Icons.location_city_rounded,
+      accentColor: accent,
       onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 220),
-        curve: Curves.easeOutCubic,
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              accent.withValues(alpha: isDark ? 0.14 : 0.08),
-              isDark ? AppColors.darkSurface : AppColors.surface,
-            ],
-          ),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: accent.withValues(alpha: 0.5), width: 2),
-          boxShadow: [
-            BoxShadow(
-              color: accent.withValues(alpha: 0.15),
-              blurRadius: 14,
-              offset: const Offset(0, 6),
-            ),
-          ],
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            CityLogo(city: c, size: 56, withBackground: true),
-            const SizedBox(height: 10),
-            Text(
-              c.name,
-              textAlign: TextAlign.center,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: AppTextStyles.labelMedium.copyWith(
-                fontWeight: FontWeight.w900,
-                fontSize: 13,
-                height: 1.2,
-                color: isDark ? Colors.white : AppColors.textPrimaryFor(context),
-              ),
-            ),
-            const SizedBox(height: 8),
-            Wrap(
-              spacing: 4,
-              runSpacing: 4,
-              alignment: WrapAlignment.center,
-              children: [
-                _MetaPill(
-                  icon: Icons.confirmation_number_rounded,
-                  label: c.plateCode,
-                ),
-                _MetaPill(
-                  icon: Icons.school_rounded,
-                  label: '${c.appUniversityCount}',
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
+      logo: CityLogo(city: c, size: 44),
+      title: c.name,
+      subtitle: loc.cmpCityPlate(c.plateCode),
     );
   }
 }
 
-class _MetaPill extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  const _MetaPill({required this.icon, required this.label});
-
-  @override
-  Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-      decoration: BoxDecoration(
-        color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.06),
-        borderRadius: BorderRadius.circular(999),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon,
-              size: 14, color: isDark ? Colors.white70 : AppColors.textSecondaryFor(context)),
-          const SizedBox(width: 6),
-          Text(
-            label,
-            style: AppTextStyles.labelSmall.copyWith(
-              fontWeight: FontWeight.w800,
-              color: isDark ? Colors.white : AppColors.textPrimaryFor(context),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _CityResultView extends StatelessWidget {
+/// Devlet / vakıf dağılımı — iki şehir yan yana.
+///
+/// Pasta grafiği tek şehirlik; karşılaştırmada ikisi birlikte anlam
+/// taşıdığı için tek kartta eşleniyor.
+class _DistributionCard extends StatelessWidget {
   final CityComparisonResult result;
-  const _CityResultView({required this.result});
+  const _DistributionCard({required this.result});
 
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
-
-    return Column(
-      children: [
-        // ─── Üniversite Sayısı ──────────────────────────
-        _CompareBarCard(
-          title: loc.comparisonUniversityCount,
-          labelA: result.cityA.name,
-          labelB: result.cityB.name,
-          valueA: result.universityCountA.toDouble(),
-          valueB: result.universityCountB.toDouble(),
-          textA: '${result.universityCountA}',
-          textB: '${result.universityCountB}',
-        ),
-        const SizedBox(height: 12),
-
-        // ─── Devlet / Vakıf Dağılımı ─────────────────
-        _Card(
-          title: loc.comparisonStateFoundationDistribution,
-          child: Row(
-            children: [
-              Expanded(
-                child: Column(
-                  children: [
-                    Text(result.cityA.name,
-                        style: AppTextStyles.labelSmall.copyWith(
-                          fontWeight: FontWeight.w900,
-                          color: AppColors.primary,
-                        )),
-                    const SizedBox(height: 8),
-                    CityComparPieChart(
-                      stateCount: result.stateUniversityCountA,
-                      foundationCount: result.foundationUniversityCountA,
-                    ),
-                  ],
-                ),
-              ),
-              Container(
-                width: 1,
-                height: 100,
-                color: AppColors.borderLightFor(context),
-              ),
-              Expanded(
-                child: Column(
-                  children: [
-                    Text(result.cityB.name,
-                        style: AppTextStyles.labelSmall.copyWith(
-                          fontWeight: FontWeight.w900,
-                          color: AppColors.secondary,
-                        )),
-                    const SizedBox(height: 8),
-                    CityComparPieChart(
-                      stateCount: result.stateUniversityCountB,
-                      foundationCount: result.foundationUniversityCountB,
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 12),
-
-        // ─── Nüfus ─────────────────────────────────
-        if ((result.populationA ?? 0) > 0 || (result.populationB ?? 0) > 0)
-          _CompareBarCard(
-            title: loc.comparisonPopulation,
-            labelA: result.cityA.name,
-            labelB: result.cityB.name,
-            valueA: (result.populationA ?? 0).toDouble(),
-            valueB: (result.populationB ?? 0).toDouble(),
-            textA: _formatPopulation(result.populationA ?? 0),
-            textB: _formatPopulation(result.populationB ?? 0),
-          ),
-        if ((result.populationA ?? 0) > 0 || (result.populationB ?? 0) > 0)
-          const SizedBox(height: 12),
-
-        // ─── Şehir Özellikleri ────────────────────────
-        _Card(
-          title: loc.comparisonCityFeatures,
-          child: Column(
-            children: [
-              _InfoRow(
-                label: loc.comparisonPlate,
-                a: result.cityA.plateCode,
-                b: result.cityB.plateCode,
-              ),
-              const SizedBox(height: 8),
-              _InfoRow(
-                label: loc.comparisonTotalUniversities,
-                a: result.cityA.totalUniversityCount.toString(),
-                b: result.cityB.totalUniversityCount.toString(),
-              ),
-              const SizedBox(height: 8),
-              _InfoRow(
-                label: loc.comparisonInUniSec,
-                a: result.cityA.appUniversityCount.toString(),
-                b: result.cityB.appUniversityCount.toString(),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 16),
-
-        // Pro — Karşılaştırma Notları
-        ComparisonNotesSection(
-          comparisonType: 'city',
-          entityAId: result.cityA.id,
-          entityBId: result.cityB.id,
-        ),
-      ],
-    );
-  }
-
-  static String _formatPopulation(int pop) {
-    if (pop >= 1000000) return '${(pop / 1000000).toStringAsFixed(1)}M';
-    if (pop >= 1000) return '${(pop / 1000).toStringAsFixed(0)}B';
-    return '$pop';
-  }
-}
-
-class _CompareBarCard extends StatelessWidget {
-  final String title;
-  final String labelA;
-  final String labelB;
-  final double valueA;
-  final double valueB;
-  final String textA;
-  final String textB;
-
-  const _CompareBarCard({
-    required this.title,
-    required this.labelA,
-    required this.labelB,
-    required this.valueA,
-    required this.valueB,
-    required this.textA,
-    required this.textB,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    // isDark not needed here
-    final maxV = (valueA > valueB ? valueA : valueB).clamp(1.0, double.infinity);
-    final pctA = (valueA / maxV).clamp(0.0, 1.0);
-    final pctB = (valueB / maxV).clamp(0.0, 1.0);
-
-    return _Card(
-      title: title,
-      child: Column(
-        children: [
-          _BarRow(
-            label: labelA,
-            value: textA,
-            pct: pctA,
-            color: AppColors.primary,
-          ),
-          const SizedBox(height: 10),
-          _BarRow(
-            label: labelB,
-            value: textB,
-            pct: pctB,
-            color: AppColors.secondary,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _BarRow extends StatelessWidget {
-  final String label;
-  final String value;
-  final double pct;
-  final Color color;
-  const _BarRow({
-    required this.label,
-    required this.value,
-    required this.pct,
-    required this.color,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              label,
-              style: AppTextStyles.labelSmall.copyWith(
-                fontWeight: FontWeight.w700,
-                color: color,
-              ),
-            ),
-            Text(
-              value,
-              style: AppTextStyles.labelMedium.copyWith(
-                fontWeight: FontWeight.w900,
-                color: color,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 4),
-        ClipRRect(
-          borderRadius: BorderRadius.circular(6),
-          child: LinearProgressIndicator(
-            value: pct,
-            minHeight: 10,
-            backgroundColor: color.withValues(alpha: 0.08),
-            valueColor: AlwaysStoppedAnimation(color),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _Card extends StatelessWidget {
-  final String title;
-  final Widget child;
-  const _Card({required this.title, required this.child});
-
-  @override
-  Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.fromLTRB(18, 14, 18, 16),
       decoration: BoxDecoration(
-        color: isDark ? Colors.white.withValues(alpha: 0.06) : Colors.white,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(
-          color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.08),
-        ),
+        color: AppColors.surfaceFor(context),
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: AppColors.borderLightFor(context)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            title,
-            style: AppTextStyles.titleSmall.copyWith(
-              fontWeight: FontWeight.w900,
-              color: isDark ? Colors.white : AppColors.textPrimaryFor(context),
+            loc.comparisonStateFoundationDistribution.toUpperCase(),
+            style: AppTextStyles.labelSmall.copyWith(
+              color: AppColors.textTertiaryFor(context),
+              fontWeight: FontWeight.w800,
+              letterSpacing: 0.8,
             ),
           ),
           const SizedBox(height: 12),
-          child,
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: _Pie(
+                  name: result.cityA.name,
+                  stateCount: result.stateUniversityCountA,
+                  foundationCount: result.foundationUniversityCountA,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _Pie(
+                  name: result.cityB.name,
+                  stateCount: result.stateUniversityCountB,
+                  foundationCount: result.foundationUniversityCountB,
+                ),
+              ),
+            ],
+          ),
         ],
       ),
     );
   }
 }
 
+class _Pie extends StatelessWidget {
+  final String name;
+  final int stateCount;
+  final int foundationCount;
 
-
-class _InfoRow extends StatelessWidget {
-  final String label;
-  final String a;
-  final String b;
-  const _InfoRow({required this.label, required this.a, required this.b});
+  const _Pie({
+    required this.name,
+    required this.stateCount,
+    required this.foundationCount,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Row(
+    return Column(
       children: [
-        Expanded(
-          flex: 4,
-          child: Text(
-            a,
-            textAlign: TextAlign.right,
-            style: AppTextStyles.bodyMedium.copyWith(
-              fontWeight: FontWeight.w900,
-              color: AppColors.primary,
-            ),
+        Text(
+          name,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: AppTextStyles.labelSmall.copyWith(
+            fontWeight: FontWeight.w700,
+            color: AppColors.textSecondaryFor(context),
           ),
         ),
-        Expanded(
-          flex: 4,
-          child: Text(
-            label,
-            textAlign: TextAlign.center,
-            style: AppTextStyles.labelSmall.copyWith(
-              color: AppColors.textTertiaryFor(context),
-              fontWeight: FontWeight.w800,
-            ),
-          ),
-        ),
-        Expanded(
-          flex: 4,
-          child: Text(
-            b,
-            textAlign: TextAlign.left,
-            style: AppTextStyles.bodyMedium.copyWith(
-              fontWeight: FontWeight.w900,
-              color: AppColors.secondary,
-            ),
-          ),
+        const SizedBox(height: 8),
+        CityComparPieChart(
+          stateCount: stateCount,
+          foundationCount: foundationCount,
         ),
       ],
     );

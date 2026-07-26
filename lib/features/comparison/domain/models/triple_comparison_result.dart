@@ -62,19 +62,6 @@ class TripleComparisonResult {
     return entries;
   }
 
-  /// Tek satırlık özet (ekran başlığı için)
-  String get summaryText {
-    final winner = overallWinnerId;
-    if (winner == null) {
-      return '3 üniversite genel puanlarda çok yakın';
-    }
-    final name = winner == uniA.id
-        ? uniA.name
-        : winner == uniB.id
-            ? uniB.name
-            : uniC.name;
-    return '$name genel olarak öne çıkıyor';
-  }
 }
 
 /// 3 üniversite için tek bir kategorinin (akademik, sosyal vb.) karşılaştırması.

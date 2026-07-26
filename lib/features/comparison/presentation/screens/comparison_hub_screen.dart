@@ -1,368 +1,358 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../../monetization/domain/enums/subscription_tier.dart';
-import '../../../monetization/presentation/providers/subscription_providers.dart';
-import '../../../monetization/presentation/widgets/subscription_gate_widget.dart';
+
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
-import '../../../monetization/presentation/widgets/temporary_pro_badge.dart';
-import '../widgets/comparison_type_card.dart';
-import '../widgets/comparison_history_sheet.dart';
-import '../../../../l10n/generated/app_localizations.dart';
 import '../../../../core/utils/responsive.dart';
+import '../../../../l10n/generated/app_localizations.dart';
+import '../../../monetization/presentation/providers/subscription_providers.dart';
+import '../../../monetization/presentation/widgets/temporary_pro_badge.dart';
+import '../../domain/models/comparison_history_entry.dart';
+import '../providers/comparison_providers.dart';
+import '../widgets/comparison_history_sheet.dart';
+import '../widgets/university_logo_box.dart';
 
-/// Karşılaştırma Hub Ekranı
-/// Kullanıcı hangi tür karşılaştırma yapacağını seçer:
-/// Üniversite (Free), Bölüm (Plus+), Şehir (Plus+)
-class ComparisonHubScreen extends ConsumerStatefulWidget {
+/// Karşılaştırma hub'ı: ne karşılaştıracağını seç.
+///
+/// **Abonelik footer'ı kaldırıldı** (kullanıcı kararı): "Aboneliğin:
+/// Ücretsiz + Plus'a Geç" bloğu, kilitli kartların kendi rozetiyle aynı
+/// şeyi ikinci kez söylüyordu. Yerine geçmiş yüzeye çıktı — sağ üstteki
+/// ikonun içinde gömülüyken kimse açmıyordu.
+class ComparisonHubScreen extends ConsumerWidget {
   const ComparisonHubScreen({super.key});
 
   @override
-  ConsumerState<ComparisonHubScreen> createState() => _ComparisonHubScreenState();
-}
-
-class _ComparisonHubScreenState extends ConsumerState<ComparisonHubScreen>
-    with TickerProviderStateMixin {
-  late AnimationController _fadeController;
-  late AnimationController _slideController;
-
-  // Staggered animation delays for cards
-  late List<Animation<double>> _cardFadeAnims;
-  late List<Animation<Offset>> _cardSlideAnims;
-  int _selectedTypeIndex = 0;
-
-  @override
-  void initState() {
-    super.initState();
-
-    _fadeController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 800),
-    );
-
-    _slideController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 900),
-    );
-
-    // Staggered animations for 3 cards
-    _cardFadeAnims = List.generate(3, (i) {
-      final start = i * 0.15;
-      final end = (start + 0.6).clamp(0.0, 1.0);
-      return Tween<double>(begin: 0.0, end: 1.0).animate(
-        CurvedAnimation(
-          parent: _fadeController,
-          curve: Interval(start, end, curve: Curves.easeOut),
-        ),
-      );
-    });
-
-    _cardSlideAnims = List.generate(3, (i) {
-      final start = i * 0.15;
-      final end = (start + 0.6).clamp(0.0, 1.0);
-      return Tween<Offset>(
-        begin: const Offset(0, 0.15),
-        end: Offset.zero,
-      ).animate(
-        CurvedAnimation(
-          parent: _slideController,
-          curve: Interval(start, end, curve: Curves.easeOutCubic),
-        ),
-      );
-    });
-
-    // Animasyonları başlat
-    _fadeController.forward();
-    _slideController.forward();
-  }
-
-  @override
-  void dispose() {
-    _fadeController.dispose();
-    _slideController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final tierAsync = ref.watch(subscriptionTierProvider);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final loc = AppLocalizations.of(context);
     final canDepartment = ref.watch(canCompareDepartmentsProvider);
     final canCity = ref.watch(canCompareCitiesProvider);
-    final currentTier = tierAsync.valueOrNull ?? SubscriptionTier.free;
-    final loc = AppLocalizations.of(context);
 
     return Scaffold(
       backgroundColor: AppColors.backgroundFor(context),
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: EdgeInsets.symmetric(horizontal: Responsive.horizontalPadding(context), vertical: 16),
+        child: ListView(
+          // Alttaki 88: yüzen Üni son kartı kapatmasın.
+          padding: EdgeInsets.fromLTRB(
+            Responsive.horizontalPadding(context),
+            12,
+            Responsive.horizontalPadding(context),
+            88,
+          ),
+          children: [
+            _Header(),
+            const SizedBox(height: 20),
+            _TypeRow(
+              icon: Icons.account_balance_rounded,
+              color: AppColors.primary,
+              title: loc.comparisonEntityUniversity,
+              description: loc.comparisonUniversityDesc,
+              locked: false,
+              onTap: () => context.push('/compare/university'),
+            ),
+            const SizedBox(height: 10),
+            _TypeRow(
+              icon: Icons.menu_book_rounded,
+              color: AppColors.tierPlus,
+              title: loc.comparisonEntityDepartment,
+              description: loc.comparisonDepartmentDesc,
+              locked: !canDepartment,
+              onTap: () => context.push(
+                canDepartment ? '/compare/department' : '/compare/paywall',
+              ),
+            ),
+            const SizedBox(height: 10),
+            _TypeRow(
+              icon: Icons.location_city_rounded,
+              color: AppColors.tierPlus,
+              title: loc.comparisonEntityCity,
+              description: loc.comparisonCityDesc,
+              locked: !canCity,
+              onTap: () => context.push(
+                canCity ? '/compare/city' : '/compare/paywall',
+              ),
+            ),
+            const SizedBox(height: 28),
+            const _RecentSection(),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _Header extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // ─── Header ──────────────────────────────────────────
-              _buildHeader(context, isDark),
-              const SizedBox(height: 8),
-              _buildSubtitle(context, isDark),
-              const SizedBox(height: 28),
-
-              // ─── Karşılaştırma Kartları ──────────────────────────
-              _buildAnimatedCard(
-                index: 0,
-                child: ComparisonTypeCard(
-                  icon: Icons.account_balance_rounded,
-                  title: loc.comparisonEntityUniversity,
-                  description: loc.comparisonUniversityDesc,
-                  iconColor: AppColors.primary,
-                  isLocked: false,
-                  isSelected: _selectedTypeIndex == 0,
-                  onTap: () {
-                    setState(() => _selectedTypeIndex = 0);
-                    context.push('/compare/university');
-                  },
+              Text(
+                loc.comparisonHubTitle,
+                style: AppTextStyles.displaySmall.copyWith(
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: -0.5,
                 ),
               ),
-              const SizedBox(height: 14),
-
-              _buildAnimatedCard(
-                index: 1,
-                child: SubscriptionGateWidget(
-                  requiredTier: SubscriptionTier.plus,
-                  showBlurPreview: true,
-                  onLocked: () => context.push('/compare/paywall'),
-                  child: ComparisonTypeCard(
-                    icon: Icons.menu_book_rounded,
-                    title: loc.comparisonEntityDepartment,
-                    description: loc.comparisonDepartmentDesc,
-                    iconColor: AppColors.tierPlus,
-                    isLocked: !canDepartment,
-                    requiredTier: SubscriptionTier.plus,
-                    isSelected: _selectedTypeIndex == 1,
-                    onTap: () {
-                      setState(() => _selectedTypeIndex = 1);
-                      context.push('/compare/department');
-                    },
-                  ),
+              const SizedBox(height: 2),
+              Text(
+                loc.comparisonHubSubtitle,
+                style: AppTextStyles.bodySmall.copyWith(
+                  color: AppColors.textSecondaryFor(context),
                 ),
               ),
-              const SizedBox(height: 14),
+            ],
+          ),
+        ),
+        const TemporaryProBadge(),
+      ],
+    );
+  }
+}
 
-              _buildAnimatedCard(
-                index: 2,
-                child: SubscriptionGateWidget(
-                  requiredTier: SubscriptionTier.plus,
-                  showBlurPreview: true,
-                  onLocked: () => context.push('/compare/paywall'),
-                  child: ComparisonTypeCard(
-                    icon: Icons.location_city_rounded,
-                    title: loc.comparisonEntityCity,
-                    description: loc.comparisonCityDesc,
-                    iconColor: AppColors.tierPlus,
-                    isLocked: !canCity,
-                    requiredTier: SubscriptionTier.plus,
-                    isSelected: _selectedTypeIndex == 2,
-                    onTap: () {
-                      setState(() => _selectedTypeIndex = 2);
-                      context.push('/compare/city');
-                    },
-                  ),
+/// Tür satırı — eskiden büyük, gradyanlı, blur kaplamalı karttı.
+///
+/// Kilit artık blur değil küçük bir rozet: blur kaplama içeriği okunmaz
+/// yapıp "gizli bir şey var" hissi veriyordu; oysa kilitli olan özellik,
+/// içerik değil.
+class _TypeRow extends StatelessWidget {
+  final IconData icon;
+  final Color color;
+  final String title;
+  final String description;
+  final bool locked;
+  final VoidCallback onTap;
+
+  const _TypeRow({
+    required this.icon,
+    required this.color,
+    required this.title,
+    required this.description,
+    required this.locked,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: AppColors.surfaceFor(context),
+      borderRadius: BorderRadius.circular(22),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(22),
+        child: Container(
+          padding: const EdgeInsets.fromLTRB(16, 16, 12, 16),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(22),
+            border: Border.all(color: AppColors.borderLightFor(context)),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 46,
+                height: 46,
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: Icon(icon, size: 22, color: color),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Flexible(
+                          child: Text(
+                            title,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: AppTextStyles.titleSmall.copyWith(
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                        ),
+                        if (locked) ...[
+                          const SizedBox(width: 8),
+                          const _PlusBadge(),
+                        ],
+                      ],
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      description,
+                      maxLines: 2,
+                      style: AppTextStyles.bodySmall.copyWith(
+                        color: AppColors.textSecondaryFor(context),
+                        height: 1.3,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-
-              const SizedBox(height: 32),
-
-              // ─── Abonelik durumu footer ─────────────────────────
-              _buildSubscriptionFooter(context, isDark, currentTier),
-
-              const SizedBox(height: 80), // Bottom nav space
+              Icon(
+                Icons.chevron_right_rounded,
+                color: AppColors.textTertiaryFor(context),
+              ),
             ],
           ),
         ),
       ),
     );
   }
+}
 
-  Widget _buildHeader(BuildContext context, bool isDark) {
-    return Row(
+class _PlusBadge extends StatelessWidget {
+  const _PlusBadge();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+      decoration: BoxDecoration(
+        color: AppColors.tierPlus.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: Text(
+        'Plus',
+        style: AppTextStyles.labelSmall.copyWith(
+          color: AppColors.tierPlus,
+          fontWeight: FontWeight.w800,
+          fontSize: 10,
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Son karşılaştırmalar ──────────────────────────────────────────
+
+/// Geçmiş artık hub'ın içinde (kullanıcı kararı).
+///
+/// Kayıt Plus/Pro özelliği: ücretsiz kullanıcıda liste boş döner ve bölüm
+/// hiç çizilmez — kilitli bir bloğu boş boş göstermek satış gürültüsü
+/// olurdu.
+class _RecentSection extends ConsumerWidget {
+  const _RecentSection();
+
+  static const int _visible = 4;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final loc = AppLocalizations.of(context);
+    final entries = ref.watch(comparisonHistoryProvider).valueOrNull;
+    if (entries == null || entries.isEmpty) return const SizedBox.shrink();
+
+    final shown = entries.take(_visible).toList();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Dekoratif çizgi
-        Container(
-          width: 4,
-          height: 28,
-          decoration: BoxDecoration(
-            gradient: AppColors.primaryGradient,
-            borderRadius: BorderRadius.circular(2),
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Text(
-            AppLocalizations.of(context).comparisonHubTitle,
-            style: AppTextStyles.displaySmall.copyWith(
-              fontWeight: FontWeight.w800,
-              letterSpacing: -0.5,
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                loc.cmpHubRecentTitle,
+                style: AppTextStyles.labelSmall.copyWith(
+                  color: AppColors.textTertiaryFor(context),
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 0.8,
+                ),
+              ),
             ),
-          ),
+            if (entries.length > _visible)
+              TextButton(
+                onPressed: () => ComparisonHistorySheet.show(context),
+                style: TextButton.styleFrom(
+                  visualDensity: VisualDensity.compact,
+                  padding: EdgeInsets.zero,
+                ),
+                child: Text(loc.cmpHubSeeAll),
+              ),
+          ],
         ),
-        // Geçici Pro erişimi aktifse kalan süreyi göster.
-        const TemporaryProBadge(),
-        // Geçmiş butonu — tüm tier'larda görünür, içerik tier'a göre değişir.
-        IconButton(
-          icon: Icon(
-            Icons.history_rounded,
-            color: isDark ? Colors.white : AppColors.textPrimaryFor(context),
-          ),
-          tooltip: AppLocalizations.of(context).comparisonHistoryTooltip,
-          onPressed: () => ComparisonHistorySheet.show(context),
-        ),
+        const SizedBox(height: 8),
+        for (var i = 0; i < shown.length; i++) ...[
+          if (i > 0) const SizedBox(height: 8),
+          _RecentRow(entry: shown[i])
+              .animate()
+              .fadeIn(delay: Duration(milliseconds: 40 * i), duration: 240.ms)
+              .slideY(begin: 0.08, end: 0, curve: Curves.easeOutCubic),
+        ],
       ],
     );
   }
+}
 
-  Widget _buildSubtitle(BuildContext context, bool isDark) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 16),
-      child: Text(
-        AppLocalizations.of(context).comparisonHubSubtitle,
-        style: AppTextStyles.bodyMedium.copyWith(
-          color: isDark
-              ? Colors.white.withValues(alpha: 0.6)
-              : AppColors.textSecondaryFor(context),
+class _RecentRow extends StatelessWidget {
+  final ComparisonHistoryEntry entry;
+  const _RecentRow({required this.entry});
+
+  String get _route => switch (entry.type) {
+        ComparisonHistoryType.university => '/compare/university',
+        ComparisonHistoryType.department => '/compare/department',
+        ComparisonHistoryType.city => '/compare/city',
+      };
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: AppColors.surfaceFor(context),
+      borderRadius: BorderRadius.circular(16),
+      child: InkWell(
+        onTap: () => context.push(
+          '$_route?a=${entry.entityAId}&b=${entry.entityBId}',
         ),
-      ),
-    );
-  }
-
-  Widget _buildAnimatedCard({required int index, required Widget child}) {
-    return FadeTransition(
-      opacity: _cardFadeAnims[index],
-      child: SlideTransition(
-        position: _cardSlideAnims[index],
-        child: child,
-      ),
-    );
-  }
-
-  Widget _buildSubscriptionFooter(
-    BuildContext context,
-    bool isDark,
-    SubscriptionTier currentTier,
-  ) {
-    final loc = AppLocalizations.of(context);
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        gradient: isDark
-            ? LinearGradient(
-                colors: [
-                  AppColors.primary.withValues(alpha: 0.08),
-                  AppColors.tierPro.withValues(alpha: 0.05),
-                ],
-              )
-            : LinearGradient(
-                colors: [
-                  AppColors.primary.withValues(alpha: 0.04),
-                  AppColors.tierPro.withValues(alpha: 0.03),
-                ],
-              ),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: isDark
-              ? Colors.white.withValues(alpha: 0.06)
-              : AppColors.primary.withValues(alpha: 0.1),
-        ),
-      ),
-      child: Row(
-        children: [
-          // Sol taraf - abonelik bilgisi
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Icon(
-                      _tierIcon(currentTier),
-                      size: 18,
-                      color: _tierColor(currentTier),
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      loc.comparisonSubscriptionLabel,
-                      style: AppTextStyles.bodySmall.copyWith(
-                        color: AppColors.textSecondaryFor(context),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  _tierLabel(loc, currentTier),
-                  style: AppTextStyles.titleSmall.copyWith(
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: AppColors.borderLightFor(context)),
+          ),
+          child: Row(
+            children: [
+              UniversityLogoBox(
+                universityId: entry.entityAId,
+                universityName: entry.entityAName,
+                accentColor: AppColors.primary,
+                size: 30,
+              ),
+              const SizedBox(width: 6),
+              UniversityLogoBox(
+                universityId: entry.entityBId,
+                universityName: entry.entityBName,
+                accentColor: AppColors.secondary,
+                size: 30,
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  '${entry.entityAName}  ·  ${entry.entityBName}',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyles.bodySmall.copyWith(
                     fontWeight: FontWeight.w700,
-                    color: _tierColor(currentTier),
                   ),
                 ),
-              ],
-            ),
-          ),
-          // Sağ taraf - upgrade butonu
-          if (currentTier == SubscriptionTier.free)
-            FilledButton.icon(
-              onPressed: () => context.push('/compare/paywall'),
-              icon: const Icon(Icons.rocket_launch_rounded, size: 18),
-              label: Text(loc.comparisonUpgradePlus),
-              style: FilledButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 12,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                textStyle: AppTextStyles.labelMedium.copyWith(
-                  fontWeight: FontWeight.w700,
-                ),
               ),
-            ),
-        ],
+              Icon(
+                Icons.chevron_right_rounded,
+                size: 20,
+                color: AppColors.textTertiaryFor(context),
+              ),
+            ],
+          ),
+        ),
       ),
     );
-  }
-
-  IconData _tierIcon(SubscriptionTier tier) {
-    switch (tier) {
-      case SubscriptionTier.plus:
-        return Icons.star_rounded;
-      case SubscriptionTier.pro:
-        return Icons.workspace_premium_rounded;
-      default:
-        return Icons.person_outline_rounded;
-    }
-  }
-
-  Color _tierColor(SubscriptionTier tier) {
-    switch (tier) {
-      case SubscriptionTier.plus:
-        return AppColors.tierPlus;
-      case SubscriptionTier.pro:
-        return AppColors.tierPro;
-      default:
-        return AppColors.tierFree;
-    }
-  }
-
-  String _tierLabel(AppLocalizations loc, SubscriptionTier tier) {
-    switch (tier) {
-      case SubscriptionTier.plus:
-        return 'Plus';
-      case SubscriptionTier.pro:
-        return 'Pro';
-      default:
-        return loc.subscriptionFree;
-    }
   }
 }
