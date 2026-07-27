@@ -2654,4 +2654,32 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get citiesClearFilters => 'Süzgeci temizle';
+
+  @override
+  String get cmpPickTapToSelect => 'Seçmek için dokun';
+
+  @override
+  String get cmpPickStart => 'Başlamak için birini seç';
+
+  @override
+  String cmpPickNext(String label) {
+    return 'Sırada: $label';
+  }
+
+  @override
+  String get cmpPickSuggestUniversity => 'POPÜLER ÜNİVERSİTELER';
+
+  @override
+  String get cmpPickSuggestCity => 'EN ÇOK ÜNİVERSİTELİ ŞEHİRLER';
+
+  @override
+  String get cmpPickSuggestDepartment => 'YAYGIN BÖLÜMLER';
+
+  @override
+  String get cmpPickSuggestHint => 'Dokun, boş tarafa yerleşsin.';
+
+  @override
+  String cmpPickUniCount(String count) {
+    return '$count üni';
+  }
 }

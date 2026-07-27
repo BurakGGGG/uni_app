@@ -1375,5 +1375,27 @@
     }
   },
   "citiesEmptyTitle": "Şehir bulunamadı",
-  "citiesClearFilters": "Süzgeci temizle"
+  "citiesClearFilters": "Süzgeci temizle",
+  "cmpPickTapToSelect": "Seçmek için dokun",
+  "cmpPickStart": "Başlamak için birini seç",
+  "cmpPickNext": "Sırada: {label}",
+  "@cmpPickNext": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "cmpPickSuggestUniversity": "POPÜLER ÜNİVERSİTELER",
+  "cmpPickSuggestCity": "EN ÇOK ÜNİVERSİTELİ ŞEHİRLER",
+  "cmpPickSuggestDepartment": "YAYGIN BÖLÜMLER",
+  "cmpPickSuggestHint": "Dokun, boş tarafa yerleşsin.",
+  "cmpPickUniCount": "{count} üni",
+  "@cmpPickUniCount": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  }
 }

@@ -1344,5 +1344,27 @@
     }
   },
   "citiesEmptyTitle": "No cities found",
-  "citiesClearFilters": "Clear filters"
+  "citiesClearFilters": "Clear filters",
+  "cmpPickTapToSelect": "Tap to select",
+  "cmpPickStart": "Pick one to get started",
+  "cmpPickNext": "Next: {label}",
+  "@cmpPickNext": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "cmpPickSuggestUniversity": "POPULAR UNIVERSITIES",
+  "cmpPickSuggestCity": "CITIES WITH THE MOST UNIVERSITIES",
+  "cmpPickSuggestDepartment": "WIDELY OFFERED PROGRAMS",
+  "cmpPickSuggestHint": "Tap one and it fills the empty side.",
+  "cmpPickUniCount": "{count} uni",
+  "@cmpPickUniCount": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  }
 }

@@ -4903,6 +4903,54 @@ abstract class AppLocalizations {
   /// In tr, this message translates to:
   /// **'Süzgeci temizle'**
   String get citiesClearFilters;
+
+  /// No description provided for @cmpPickTapToSelect.
+  ///
+  /// In tr, this message translates to:
+  /// **'Seçmek için dokun'**
+  String get cmpPickTapToSelect;
+
+  /// No description provided for @cmpPickStart.
+  ///
+  /// In tr, this message translates to:
+  /// **'Başlamak için birini seç'**
+  String get cmpPickStart;
+
+  /// No description provided for @cmpPickNext.
+  ///
+  /// In tr, this message translates to:
+  /// **'Sırada: {label}'**
+  String cmpPickNext(String label);
+
+  /// No description provided for @cmpPickSuggestUniversity.
+  ///
+  /// In tr, this message translates to:
+  /// **'POPÜLER ÜNİVERSİTELER'**
+  String get cmpPickSuggestUniversity;
+
+  /// No description provided for @cmpPickSuggestCity.
+  ///
+  /// In tr, this message translates to:
+  /// **'EN ÇOK ÜNİVERSİTELİ ŞEHİRLER'**
+  String get cmpPickSuggestCity;
+
+  /// No description provided for @cmpPickSuggestDepartment.
+  ///
+  /// In tr, this message translates to:
+  /// **'YAYGIN BÖLÜMLER'**
+  String get cmpPickSuggestDepartment;
+
+  /// No description provided for @cmpPickSuggestHint.
+  ///
+  /// In tr, this message translates to:
+  /// **'Dokun, boş tarafa yerleşsin.'**
+  String get cmpPickSuggestHint;
+
+  /// No description provided for @cmpPickUniCount.
+  ///
+  /// In tr, this message translates to:
+  /// **'{count} üni'**
+  String cmpPickUniCount(String count);
 }
 
 class _AppLocalizationsDelegate

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../../l10n/generated/app_localizations.dart';
 
 /// Karşılaştırma seçim ekranındaki tek slot (boş veya dolu).
 /// 3 ekranda da (uni / bölüm / şehir) aynı görsel pattern.
@@ -40,7 +41,7 @@ class ComparisonPickerSlot extends StatelessWidget {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 220),
         curve: Curves.easeOutCubic,
-        height: 168,
+        height: 152,
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft,
@@ -73,30 +74,51 @@ class ComparisonPickerSlot extends StatelessWidget {
                 ],
         ),
         child: isEmpty
-            ? _buildEmpty(isDark)
+            ? _buildEmpty(context)
             : _buildFilled(isDark),
       ),
     );
   }
 
-  Widget _buildEmpty(bool isDark) {
+  Widget _buildEmpty(BuildContext context) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Container(
-          width: 56,
-          height: 56,
-          decoration: BoxDecoration(
-            color: accentColor.withValues(alpha: 0.12),
-            shape: BoxShape.circle,
-          ),
-          child: Icon(
-            emptyIcon,
-            color: accentColor,
-            size: 28,
-          ),
+        // Boş slot bir düğme; ikonun içindeki artı dokunulabilirliği
+        // "Seçmek için dokun" cümlesinden daha hızlı anlatıyor.
+        Stack(
+          clipBehavior: Clip.none,
+          children: [
+            Container(
+              width: 56,
+              height: 56,
+              decoration: BoxDecoration(
+                color: accentColor.withValues(alpha: 0.12),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(emptyIcon, color: accentColor, size: 26),
+            ),
+            Positioned(
+              right: -2,
+              bottom: -2,
+              child: Container(
+                width: 22,
+                height: 22,
+                decoration: BoxDecoration(
+                  color: accentColor,
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: AppColors.surfaceFor(context),
+                    width: 2,
+                  ),
+                ),
+                child: const Icon(Icons.add_rounded,
+                    color: Colors.white, size: 14),
+              ),
+            ),
+          ],
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 14),
         Text(
           emptyLabel,
           maxLines: 1,
@@ -108,7 +130,7 @@ class ComparisonPickerSlot extends StatelessWidget {
         ),
         const SizedBox(height: 4),
         Text(
-          'Seçmek için dokun',
+          AppLocalizations.of(context).cmpPickTapToSelect,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           style: AppTextStyles.labelSmall.copyWith(
@@ -197,76 +219,6 @@ class ComparisonVsBadge extends StatelessWidget {
           letterSpacing: 1,
         ),
       ),
-    );
-  }
-}
-
-/// Picker section üst başlığı (alt başlık + dekoratif çizgi).
-class ComparisonPickerHeader extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final String subtitle;
-  final Color accentColor;
-
-  const ComparisonPickerHeader({
-    super.key,
-    required this.icon,
-    required this.title,
-    required this.subtitle,
-    required this.accentColor,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    accentColor.withValues(alpha: 0.18),
-                    accentColor.withValues(alpha: 0.06),
-                  ],
-                ),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Icon(icon, color: accentColor, size: 18),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                title,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: AppTextStyles.titleSmall.copyWith(
-                  fontWeight: FontWeight.w800,
-                  color: isDark ? Colors.white : AppColors.textPrimaryFor(context),
-                ),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 6),
-        Padding(
-          padding: const EdgeInsets.only(left: 44),
-          child: Text(
-            subtitle,
-            style: AppTextStyles.bodySmall.copyWith(
-              color: isDark
-                  ? Colors.white.withValues(alpha: 0.6)
-                  : AppColors.textSecondaryFor(context),
-              height: 1.4,
-            ),
-          ),
-        ),
-      ],
     );
   }
 }

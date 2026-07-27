@@ -3,16 +3,21 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../../core/utils/university_abbreviations.dart';
 import '../../../../core/widgets/widgets.dart';
 import '../../../../core/utils/localized_labels.dart';
 import '../../../../l10n/generated/app_localizations.dart';
 import '../../../university/presentation/providers/university_providers.dart';
+import '../providers/compare_pick_providers.dart';
 import '../providers/comparison_providers.dart';
+import 'compare/compare_pick_stage.dart';
 import 'comparison_picker_slot.dart';
 import 'university_logo_box.dart';
 
 /// Üniversite karşılaştırma — başlangıç seçim ekranı.
-/// Header + 2 büyük slot + VS badge + ipucu chip.
+///
+/// Ortak `ComparePickStage` iskeleti; bölüm ve şehir ekranları da aynısını
+/// kullanıyor.
 class ComparisonUniPicker extends ConsumerWidget {
   const ComparisonUniPicker({super.key});
 
@@ -20,59 +25,66 @@ class ComparisonUniPicker extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final selection = ref.watch(comparisonSelectionProvider);
     final loc = AppLocalizations.of(context);
+    final suggestions = ref.watch(comparePickUniversitiesProvider).valueOrNull;
 
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 20, 16, 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // Başlık + alt başlık
-          ComparisonPickerHeader(
-            icon: Icons.account_balance_rounded,
-            title: loc.comparisonUniversityPickerTitle,
-            subtitle: loc.comparisonUniversityPickerSubtitle,
-            accentColor: AppColors.primary,
-          ),
-          const SizedBox(height: 24),
-
-          // 2 slot + VS
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Expanded(
-                child: _UniSlot(
-                  uniId: selection.uniIdA,
-                  emptyLabel: loc.selectUniversityA,
-                  accentColor: AppColors.primary,
-                  onTap: () => showComparisonUniPicker(context, ref, isA: true),
-                ),
-              ),
-              const SizedBox(width: 10),
-              const ComparisonVsBadge(),
-              const SizedBox(width: 10),
-              Expanded(
-                child: _UniSlot(
-                  uniId: selection.uniIdB,
-                  emptyLabel: loc.selectUniversityB,
-                  accentColor: AppColors.secondary,
-                  onTap: () =>
-                      showComparisonUniPicker(context, ref, isA: false),
-                ),
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 16),
-
-          // İpucu (Pro feature reklamı)
-          ComparisonPickerHint(
-            icon: Icons.workspace_premium_rounded,
-            text: loc.comparisonTripleHint,
-            accentColor: AppColors.tierPro,
-          ),
-        ],
+    return ComparePickStage(
+      lead: loc.comparisonUniversityPickerSubtitle,
+      filledA: selection.uniIdA != null,
+      filledB: selection.uniIdB != null,
+      nextLabel: selection.uniIdA == null
+          ? loc.selectUniversityA
+          : loc.selectUniversityB,
+      slotA: _UniSlot(
+        uniId: selection.uniIdA,
+        emptyLabel: loc.selectUniversityA,
+        accentColor: AppColors.primary,
+        onTap: () => showComparisonUniPicker(context, ref, isA: true),
       ),
+      slotB: _UniSlot(
+        uniId: selection.uniIdB,
+        emptyLabel: loc.selectUniversityB,
+        accentColor: AppColors.secondary,
+        onTap: () => showComparisonUniPicker(context, ref, isA: false),
+      ),
+      children: [
+        ComparePickSuggestions(
+          title: loc.cmpPickSuggestUniversity,
+          items: [
+            for (final uni in suggestions ?? const [])
+              if (uni.id != selection.uniIdA && uni.id != selection.uniIdB)
+                ComparePickSuggestion(
+                  label: UniversityAbbreviations.shorten(uni.name),
+                  sublabel: localizedUniversityType(loc, uni.type),
+                  leading: UniversityLogoBox(
+                    universityId: uni.id,
+                    universityName: uni.name,
+                    accentColor: AppColors.primary,
+                    size: 36,
+                  ),
+                  onTap: () => _quickSelect(ref, uni.id),
+                ),
+          ],
+        ),
+        const SizedBox(height: 22),
+        ComparisonPickerHint(
+          icon: Icons.workspace_premium_rounded,
+          text: loc.comparisonTripleHint,
+          accentColor: AppColors.tierPro,
+        ),
+      ],
     );
+  }
+
+  /// Öneri BOŞ olan tarafa yerleşir — iki taraf da doluysa bu ekran zaten
+  /// görünmüyor.
+  void _quickSelect(WidgetRef ref, String uniId) {
+    final selection = ref.read(comparisonSelectionProvider);
+    final notifier = ref.read(comparisonSelectionProvider.notifier);
+    if (selection.uniIdA == null) {
+      notifier.selectA(uniId);
+    } else {
+      notifier.selectB(uniId);
+    }
   }
 }
 

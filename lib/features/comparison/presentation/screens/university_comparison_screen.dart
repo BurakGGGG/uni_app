@@ -125,21 +125,10 @@ class _UniversityComparisonScreenState
   ) {
     if (selection.allThreeSelected) return const _TripleResult();
 
-    if (!selection.bothSelected) {
-      return SingleChildScrollView(
-        child: Column(
-          children: [
-            const ComparisonUniPicker(),
-            const SizedBox(height: 8),
-            ComparisonEmptyState(
-              title: AppLocalizations.of(context).comparisonEmptyUniversityTitle,
-              subtitle:
-                  AppLocalizations.of(context).comparisonEmptyUniversityDesc,
-            ),
-          ],
-        ),
-      );
-    }
+    // Seçim ekranı kendi kaydırmasını yönetiyor. Eskiden altına bir de
+    // robotlu boş durum konuyordu; "iki üniversite seç" cümlesi o noktada
+    // ekranda üçüncü kez yazıyordu.
+    if (!selection.bothSelected) return const ComparisonUniPicker();
 
     return resultAsync.when(
       loading: () => const ComparisonResultSkeleton(),

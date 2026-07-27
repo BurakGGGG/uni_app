@@ -2652,4 +2652,32 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get citiesClearFilters => 'Clear filters';
+
+  @override
+  String get cmpPickTapToSelect => 'Tap to select';
+
+  @override
+  String get cmpPickStart => 'Pick one to get started';
+
+  @override
+  String cmpPickNext(String label) {
+    return 'Next: $label';
+  }
+
+  @override
+  String get cmpPickSuggestUniversity => 'POPULAR UNIVERSITIES';
+
+  @override
+  String get cmpPickSuggestCity => 'CITIES WITH THE MOST UNIVERSITIES';
+
+  @override
+  String get cmpPickSuggestDepartment => 'WIDELY OFFERED PROGRAMS';
+
+  @override
+  String get cmpPickSuggestHint => 'Tap one and it fills the empty side.';
+
+  @override
+  String cmpPickUniCount(String count) {
+    return '$count uni';
+  }
 }

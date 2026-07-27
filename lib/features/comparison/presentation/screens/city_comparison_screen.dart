@@ -13,10 +13,12 @@ import '../../../university/domain/models/city_model.dart';
 import '../../../university/presentation/widgets/city_logo.dart';
 import '../../domain/compare_view_builders.dart';
 import '../../domain/models/city_comparison.dart';
+import '../providers/compare_pick_providers.dart';
 import '../providers/comparison_providers.dart';
 import '../widgets/city_compar_pie_chart.dart';
 import '../widgets/city_picker_bottom_sheet.dart';
 import '../widgets/compare/compare_layout.dart';
+import '../widgets/compare/compare_pick_stage.dart';
 import '../widgets/comparison_notes_section.dart';
 import '../widgets/comparison_picker_slot.dart';
 import '../widgets/offline_banner.dart';
@@ -148,6 +150,13 @@ class _CityComparisonScreenState extends ConsumerState<CityComparisonScreen> {
         a: a,
         b: b,
         onPick: _pick,
+        onSuggested: (city) => setState(() {
+          if (_a == null) {
+            _a = city;
+          } else {
+            _b = city;
+          }
+        }),
       );
     }
 
@@ -223,88 +232,56 @@ class _CityComparisonScreenState extends ConsumerState<CityComparisonScreen> {
 }
 
 /// Seçim aşaması — iki şehir seçilene kadar.
-class _PickStage extends StatelessWidget {
+class _PickStage extends ConsumerWidget {
   final CityModel? a;
   final CityModel? b;
   final ValueChanged<int> onPick;
+  final ValueChanged<CityModel> onSuggested;
 
-  const _PickStage({required this.a, required this.b, required this.onPick});
+  const _PickStage({
+    required this.a,
+    required this.b,
+    required this.onPick,
+    required this.onSuggested,
+  });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final loc = AppLocalizations.of(context);
-    return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 28),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ComparisonPickerHeader(
-            icon: Icons.location_city_rounded,
-            title: loc.comparisonCityHeaderTitle,
-            subtitle: loc.comparisonCityHeaderSubtitle,
-            accentColor: AppColors.primary,
-          ),
-          const SizedBox(height: 20),
-          Row(
-            children: [
-              Expanded(
-                child: _CityPickCard(
-                  title: loc.selectCityA,
-                  city: a,
-                  accent: AppColors.primary,
-                  onTap: () => onPick(0),
-                ),
-              ),
-              const SizedBox(width: 10),
-              const ComparisonVsBadge(),
-              const SizedBox(width: 10),
-              Expanded(
-                child: _CityPickCard(
-                  title: loc.selectCityB,
-                  city: b,
-                  accent: AppColors.secondary,
-                  onTap: () => onPick(1),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 18),
-          Container(
-            padding: const EdgeInsets.all(18),
-            decoration: BoxDecoration(
-              color: AppColors.surfaceFor(context),
-              borderRadius: BorderRadius.circular(22),
-              border: Border.all(color: AppColors.borderLightFor(context)),
-            ),
-            child: Row(
-              children: [
-                Container(
-                  width: 44,
-                  height: 44,
-                  decoration: BoxDecoration(
-                    color: AppColors.primary.withValues(alpha: 0.12),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.location_city_rounded,
-                    color: AppColors.primary,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    loc.comparisonCityHint,
-                    style: AppTextStyles.bodySmall.copyWith(
-                      color: AppColors.textSecondaryFor(context),
-                      height: 1.35,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
+    final suggestions = ref.watch(comparePickCitiesProvider).valueOrNull;
+
+    return ComparePickStage(
+      lead: loc.comparisonCityHeaderSubtitle,
+      filledA: a != null,
+      filledB: b != null,
+      nextLabel: a == null ? loc.selectCityA : loc.selectCityB,
+      slotA: _CityPickCard(
+        title: loc.selectCityA,
+        city: a,
+        accent: AppColors.primary,
+        onTap: () => onPick(0),
       ),
+      slotB: _CityPickCard(
+        title: loc.selectCityB,
+        city: b,
+        accent: AppColors.secondary,
+        onTap: () => onPick(1),
+      ),
+      children: [
+        ComparePickSuggestions(
+          title: loc.cmpPickSuggestCity,
+          items: [
+            for (final city in suggestions ?? const <CityModel>[])
+              if (city.id != a?.id && city.id != b?.id)
+                ComparePickSuggestion(
+                  label: city.name,
+                  sublabel: loc.cmpPickUniCount('${city.appUniversityCount}'),
+                  leading: CityLogo(city: city, size: 36),
+                  onTap: () => onSuggested(city),
+                ),
+          ],
+        ),
+      ],
     );
   }
 }

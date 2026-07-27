@@ -13,8 +13,10 @@ import '../../../university/data/university_repository.dart';
 import '../../../university/domain/models/department_model.dart';
 import '../../domain/compare_view_builders.dart';
 import '../../domain/models/department_comparison.dart';
+import '../providers/compare_pick_providers.dart';
 import '../providers/comparison_providers.dart';
 import '../widgets/compare/compare_layout.dart';
+import '../widgets/compare/compare_pick_stage.dart';
 import '../widgets/comparison_notes_section.dart';
 import '../widgets/comparison_picker_slot.dart';
 import '../widgets/department_picker_bottom_sheet.dart';
@@ -97,6 +99,26 @@ class _DepartmentComparisonScreenState
     });
   }
 
+  /// Öneriden gelen bölüm adı seçiciyi hazır süzgeçle açar: aynı bölümü
+  /// sunan üniversiteler listelenir, kullanıcı yalnız birini seçer.
+  Future<void> _pickNamed(String departmentName) async {
+    final index = _a == null ? 0 : 1;
+    final other = index == 0 ? _b : _a;
+    final pick = await DepartmentPickerBottomSheet.show(
+      context,
+      departmentNameFilter: departmentName,
+      excludeUniversityId: other?.university.id,
+    );
+    if (pick == null || !mounted) return;
+    setState(() {
+      if (index == 0) {
+        _a = pick;
+      } else {
+        _b = pick;
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
@@ -158,7 +180,7 @@ class _DepartmentComparisonScreenState
     final b = _b;
 
     if (a == null || b == null) {
-      return _PickStage(a: a, b: b, onPick: _pick);
+      return _PickStage(a: a, b: b, onPick: _pick, onSuggested: _pickNamed);
     }
 
     return resultAsync.when(
@@ -324,88 +346,71 @@ class _MismatchBanner extends StatelessWidget {
 
 // ─── Seçim aşaması ─────────────────────────────────────────────────
 
-class _PickStage extends StatelessWidget {
+class _PickStage extends ConsumerWidget {
   final DepartmentPickResult? a;
   final DepartmentPickResult? b;
   final ValueChanged<int> onPick;
+  final ValueChanged<String> onSuggested;
 
-  const _PickStage({required this.a, required this.b, required this.onPick});
+  const _PickStage({
+    required this.a,
+    required this.b,
+    required this.onPick,
+    required this.onSuggested,
+  });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final loc = AppLocalizations.of(context);
-    return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 28),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ComparisonPickerHeader(
-            icon: Icons.menu_book_rounded,
-            title: loc.comparisonDepartmentHeaderTitle,
-            subtitle: loc.comparisonDepartmentHeaderSubtitle,
-            accentColor: AppColors.primary,
-          ),
-          const SizedBox(height: 20),
-          Row(
-            children: [
-              Expanded(
-                child: _PickCard(
-                  title: loc.selectDepartmentA,
-                  pick: a,
-                  accent: AppColors.primary,
-                  onTap: () => onPick(0),
-                ),
-              ),
-              const SizedBox(width: 10),
-              const ComparisonVsBadge(),
-              const SizedBox(width: 10),
-              Expanded(
-                child: _PickCard(
-                  title: loc.selectDepartmentB,
-                  pick: b,
-                  accent: AppColors.secondary,
-                  onTap: () => onPick(1),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 18),
-          Container(
-            padding: const EdgeInsets.all(18),
-            decoration: BoxDecoration(
-              color: AppColors.surfaceFor(context),
-              borderRadius: BorderRadius.circular(22),
-              border: Border.all(color: AppColors.borderLightFor(context)),
-            ),
-            child: Row(
-              children: [
-                Container(
-                  width: 44,
-                  height: 44,
-                  decoration: BoxDecoration(
-                    color: AppColors.primary.withValues(alpha: 0.12),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.menu_book_rounded,
-                    color: AppColors.primary,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    loc.comparisonDepartmentHint,
-                    style: AppTextStyles.bodySmall.copyWith(
-                      color: AppColors.textSecondaryFor(context),
-                      height: 1.35,
+    final suggestions =
+        ref.watch(comparePickDepartmentNamesProvider).valueOrNull;
+    // Bir taraf seçiliyken öneriler anlamsız: ikinci taraf zaten aynı
+    // bölümle sınırlı, seçici o süzgeçle açılıyor.
+    final showSuggestions = a == null && b == null;
+
+    return ComparePickStage(
+      lead: loc.comparisonDepartmentHeaderSubtitle,
+      filledA: a != null,
+      filledB: b != null,
+      nextLabel: a == null ? loc.selectDepartmentA : loc.selectDepartmentB,
+      slotA: _PickCard(
+        title: loc.selectDepartmentA,
+        pick: a,
+        accent: AppColors.primary,
+        onTap: () => onPick(0),
+      ),
+      slotB: _PickCard(
+        title: loc.selectDepartmentB,
+        pick: b,
+        accent: AppColors.secondary,
+        onTap: () => onPick(1),
+      ),
+      children: [
+        if (showSuggestions)
+          ComparePickSuggestions(
+            title: loc.cmpPickSuggestDepartment,
+            items: [
+              for (final name in suggestions ?? const <String>[])
+                ComparePickSuggestion(
+                  label: name,
+                  leading: Container(
+                    width: 36,
+                    height: 36,
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(11),
+                    ),
+                    child: const Icon(
+                      Icons.menu_book_rounded,
+                      size: 18,
+                      color: AppColors.primary,
                     ),
                   ),
+                  onTap: () => onSuggested(name),
                 ),
-              ],
-            ),
+            ],
           ),
-        ],
-      ),
+      ],
     );
   }
 }
