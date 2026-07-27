@@ -2588,4 +2588,70 @@ class AppLocalizationsTr extends AppLocalizations {
   String cmpCityPlate(String plate) {
     return '$plate plaka';
   }
+
+  @override
+  String get citiesTitle => 'Şehirleri Keşfet';
+
+  @override
+  String citiesHeroSubtitle(String cities, String universities) {
+    return '$cities şehir · $universities üniversite';
+  }
+
+  @override
+  String get citiesSearchHint => 'Şehir veya plaka ara…';
+
+  @override
+  String get citiesSearchClear => 'Aramayı temizle';
+
+  @override
+  String get citiesFilterAll => 'Tümü';
+
+  @override
+  String get citiesRegionMarmara => 'Marmara';
+
+  @override
+  String get citiesRegionAegean => 'Ege';
+
+  @override
+  String get citiesRegionMediterranean => 'Akdeniz';
+
+  @override
+  String get citiesRegionCentral => 'İç Anadolu';
+
+  @override
+  String get citiesRegionBlackSea => 'Karadeniz';
+
+  @override
+  String get citiesRegionEastern => 'Doğu Anadolu';
+
+  @override
+  String get citiesRegionSoutheastern => 'Güneydoğu Anadolu';
+
+  @override
+  String get citiesSortTitle => 'Sırala';
+
+  @override
+  String get citiesSortUniversities => 'Üniversite sayısı';
+
+  @override
+  String get citiesSortAlphabetical => 'A\'dan Z\'ye';
+
+  @override
+  String get citiesSortPopulation => 'Nüfus';
+
+  @override
+  String citiesUniShort(String count) {
+    return '$count üni';
+  }
+
+  @override
+  String citiesPopulationLabel(String value) {
+    return '$value nüfus';
+  }
+
+  @override
+  String get citiesEmptyTitle => 'Şehir bulunamadı';
+
+  @override
+  String get citiesClearFilters => 'Süzgeci temizle';
 }

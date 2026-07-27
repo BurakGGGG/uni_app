@@ -2586,4 +2586,70 @@ class AppLocalizationsEn extends AppLocalizations {
   String cmpCityPlate(String plate) {
     return 'Plate $plate';
   }
+
+  @override
+  String get citiesTitle => 'Explore Cities';
+
+  @override
+  String citiesHeroSubtitle(String cities, String universities) {
+    return '$cities cities · $universities universities';
+  }
+
+  @override
+  String get citiesSearchHint => 'Search city or plate code…';
+
+  @override
+  String get citiesSearchClear => 'Clear search';
+
+  @override
+  String get citiesFilterAll => 'All';
+
+  @override
+  String get citiesRegionMarmara => 'Marmara';
+
+  @override
+  String get citiesRegionAegean => 'Aegean';
+
+  @override
+  String get citiesRegionMediterranean => 'Mediterranean';
+
+  @override
+  String get citiesRegionCentral => 'Central Anatolia';
+
+  @override
+  String get citiesRegionBlackSea => 'Black Sea';
+
+  @override
+  String get citiesRegionEastern => 'Eastern Anatolia';
+
+  @override
+  String get citiesRegionSoutheastern => 'Southeastern Anatolia';
+
+  @override
+  String get citiesSortTitle => 'Sort';
+
+  @override
+  String get citiesSortUniversities => 'University count';
+
+  @override
+  String get citiesSortAlphabetical => 'A to Z';
+
+  @override
+  String get citiesSortPopulation => 'Population';
+
+  @override
+  String citiesUniShort(String count) {
+    return '$count uni';
+  }
+
+  @override
+  String citiesPopulationLabel(String value) {
+    return '$value people';
+  }
+
+  @override
+  String get citiesEmptyTitle => 'No cities found';
+
+  @override
+  String get citiesClearFilters => 'Clear filters';
 }

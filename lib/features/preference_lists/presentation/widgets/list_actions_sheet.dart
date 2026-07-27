@@ -90,72 +90,85 @@ class _Sheet extends ConsumerWidget {
                 ],
               ),
             ),
-            _Tile(
-              icon: overview.pinned
-                  ? Icons.push_pin_rounded
-                  : Icons.push_pin_outlined,
-              color: AppColors.primary,
-              label: overview.pinned
-                  ? loc.prefListUnpinAction
-                  : loc.prefListPinAction,
-              subtitle: overview.pinned
-                  ? loc.prefListUnpinDesc
-                  : loc.prefListPinDesc,
-              onTap: () async {
-                Navigator.pop(context);
-                await ref.read(pinnedListProvider.notifier).toggle(list.id);
-              },
-            ),
-            _Tile(
-              icon: Icons.link_rounded,
-              color: AppColors.info,
-              label: loc.prefListShareLink,
-              subtitle: loc.prefListActionsShareDesc,
-              onTap: () {
-                Navigator.pop(context);
-                ShareListSheet.show(host, list);
-              },
-            ),
-            _Tile(
-              icon: Icons.image_rounded,
-              color: AppColors.secondary,
-              label: loc.prefListShareImage,
-              subtitle: loc.prefListShareImageDesc,
-              onTap: () {
-                Navigator.pop(context);
-                ListShareCard.share(host, overview);
-              },
-            ),
-            _Tile(
-              icon: Icons.drive_file_rename_outline_rounded,
-              color: AppColors.textSecondaryFor(context),
-              label: loc.prefListRenameAction,
-              subtitle: loc.prefListRenameDesc,
-              onTap: () {
-                Navigator.pop(context);
-                RenameListSheet.show(host, ref, list);
-              },
-            ),
-            _Tile(
-              icon: Icons.copy_all_rounded,
-              color: AppColors.textSecondaryFor(context),
-              label: loc.prefListDuplicateAction,
-              subtitle: loc.prefListDuplicateDesc,
-              onTap: () async {
-                Navigator.pop(context);
-                await _duplicate(host, ref, list);
-              },
-            ),
-            _Tile(
-              icon: Icons.delete_outline_rounded,
-              color: AppColors.error,
-              label: loc.prefListDeleteTitle,
-              subtitle: loc.prefListDeleteUndoDesc,
-              onTap: () async {
-                Navigator.pop(context);
-                await deleteListWithUndo(host, ref, list);
-                onDeleted?.call();
-              },
+            // Eylem sayısı ekrana sığmayabiliyor: kısa ekranlarda (ya da
+            // büyük yazı ölçeğinde) altı satır + başlık sheet'in tavanını
+            // aşıyor ve en alttaki "sil" görünmez oluyordu. Başlık sabit
+            // kalır, eylemler kayar.
+            Flexible(
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                  _Tile(
+                    icon: overview.pinned
+                        ? Icons.push_pin_rounded
+                        : Icons.push_pin_outlined,
+                    color: AppColors.primary,
+                    label: overview.pinned
+                        ? loc.prefListUnpinAction
+                        : loc.prefListPinAction,
+                    subtitle: overview.pinned
+                        ? loc.prefListUnpinDesc
+                        : loc.prefListPinDesc,
+                    onTap: () async {
+                      Navigator.pop(context);
+                      await ref.read(pinnedListProvider.notifier).toggle(list.id);
+                    },
+                  ),
+                  _Tile(
+                    icon: Icons.link_rounded,
+                    color: AppColors.info,
+                    label: loc.prefListShareLink,
+                    subtitle: loc.prefListActionsShareDesc,
+                    onTap: () {
+                      Navigator.pop(context);
+                      ShareListSheet.show(host, list);
+                    },
+                  ),
+                  _Tile(
+                    icon: Icons.image_rounded,
+                    color: AppColors.secondary,
+                    label: loc.prefListShareImage,
+                    subtitle: loc.prefListShareImageDesc,
+                    onTap: () {
+                      Navigator.pop(context);
+                      ListShareCard.share(host, overview);
+                    },
+                  ),
+                  _Tile(
+                    icon: Icons.drive_file_rename_outline_rounded,
+                    color: AppColors.textSecondaryFor(context),
+                    label: loc.prefListRenameAction,
+                    subtitle: loc.prefListRenameDesc,
+                    onTap: () {
+                      Navigator.pop(context);
+                      RenameListSheet.show(host, ref, list);
+                    },
+                  ),
+                  _Tile(
+                    icon: Icons.copy_all_rounded,
+                    color: AppColors.textSecondaryFor(context),
+                    label: loc.prefListDuplicateAction,
+                    subtitle: loc.prefListDuplicateDesc,
+                    onTap: () async {
+                      Navigator.pop(context);
+                      await _duplicate(host, ref, list);
+                    },
+                  ),
+                  _Tile(
+                    icon: Icons.delete_outline_rounded,
+                    color: AppColors.error,
+                    label: loc.prefListDeleteTitle,
+                    subtitle: loc.prefListDeleteUndoDesc,
+                    onTap: () async {
+                      Navigator.pop(context);
+                      await deleteListWithUndo(host, ref, list);
+                      onDeleted?.call();
+                    },
+                  ),
+                  ],
+                ),
+              ),
             ),
             const SizedBox(height: 8),
           ],

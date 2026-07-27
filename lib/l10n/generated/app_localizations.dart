@@ -4783,6 +4783,126 @@ abstract class AppLocalizations {
   /// In tr, this message translates to:
   /// **'{plate} plaka'**
   String cmpCityPlate(String plate);
+
+  /// No description provided for @citiesTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Şehirleri Keşfet'**
+  String get citiesTitle;
+
+  /// No description provided for @citiesHeroSubtitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'{cities} şehir · {universities} üniversite'**
+  String citiesHeroSubtitle(String cities, String universities);
+
+  /// No description provided for @citiesSearchHint.
+  ///
+  /// In tr, this message translates to:
+  /// **'Şehir veya plaka ara…'**
+  String get citiesSearchHint;
+
+  /// No description provided for @citiesSearchClear.
+  ///
+  /// In tr, this message translates to:
+  /// **'Aramayı temizle'**
+  String get citiesSearchClear;
+
+  /// No description provided for @citiesFilterAll.
+  ///
+  /// In tr, this message translates to:
+  /// **'Tümü'**
+  String get citiesFilterAll;
+
+  /// No description provided for @citiesRegionMarmara.
+  ///
+  /// In tr, this message translates to:
+  /// **'Marmara'**
+  String get citiesRegionMarmara;
+
+  /// No description provided for @citiesRegionAegean.
+  ///
+  /// In tr, this message translates to:
+  /// **'Ege'**
+  String get citiesRegionAegean;
+
+  /// No description provided for @citiesRegionMediterranean.
+  ///
+  /// In tr, this message translates to:
+  /// **'Akdeniz'**
+  String get citiesRegionMediterranean;
+
+  /// No description provided for @citiesRegionCentral.
+  ///
+  /// In tr, this message translates to:
+  /// **'İç Anadolu'**
+  String get citiesRegionCentral;
+
+  /// No description provided for @citiesRegionBlackSea.
+  ///
+  /// In tr, this message translates to:
+  /// **'Karadeniz'**
+  String get citiesRegionBlackSea;
+
+  /// No description provided for @citiesRegionEastern.
+  ///
+  /// In tr, this message translates to:
+  /// **'Doğu Anadolu'**
+  String get citiesRegionEastern;
+
+  /// No description provided for @citiesRegionSoutheastern.
+  ///
+  /// In tr, this message translates to:
+  /// **'Güneydoğu Anadolu'**
+  String get citiesRegionSoutheastern;
+
+  /// No description provided for @citiesSortTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Sırala'**
+  String get citiesSortTitle;
+
+  /// No description provided for @citiesSortUniversities.
+  ///
+  /// In tr, this message translates to:
+  /// **'Üniversite sayısı'**
+  String get citiesSortUniversities;
+
+  /// No description provided for @citiesSortAlphabetical.
+  ///
+  /// In tr, this message translates to:
+  /// **'A\'dan Z\'ye'**
+  String get citiesSortAlphabetical;
+
+  /// No description provided for @citiesSortPopulation.
+  ///
+  /// In tr, this message translates to:
+  /// **'Nüfus'**
+  String get citiesSortPopulation;
+
+  /// No description provided for @citiesUniShort.
+  ///
+  /// In tr, this message translates to:
+  /// **'{count} üni'**
+  String citiesUniShort(String count);
+
+  /// No description provided for @citiesPopulationLabel.
+  ///
+  /// In tr, this message translates to:
+  /// **'{value} nüfus'**
+  String citiesPopulationLabel(String value);
+
+  /// No description provided for @citiesEmptyTitle.
+  ///
+  /// In tr, this message translates to:
+  /// **'Şehir bulunamadı'**
+  String get citiesEmptyTitle;
+
+  /// No description provided for @citiesClearFilters.
+  ///
+  /// In tr, this message translates to:
+  /// **'Süzgeci temizle'**
+  String get citiesClearFilters;
 }
 
 class _AppLocalizationsDelegate

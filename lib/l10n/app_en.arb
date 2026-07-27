@@ -1300,5 +1300,49 @@
         "type": "String"
       }
     }
-  }
+  },
+  "citiesTitle": "Explore Cities",
+  "citiesHeroSubtitle": "{cities} cities · {universities} universities",
+  "@citiesHeroSubtitle": {
+    "placeholders": {
+      "cities": {
+        "type": "String"
+      },
+      "universities": {
+        "type": "String"
+      }
+    }
+  },
+  "citiesSearchHint": "Search city or plate code…",
+  "citiesSearchClear": "Clear search",
+  "citiesFilterAll": "All",
+  "citiesRegionMarmara": "Marmara",
+  "citiesRegionAegean": "Aegean",
+  "citiesRegionMediterranean": "Mediterranean",
+  "citiesRegionCentral": "Central Anatolia",
+  "citiesRegionBlackSea": "Black Sea",
+  "citiesRegionEastern": "Eastern Anatolia",
+  "citiesRegionSoutheastern": "Southeastern Anatolia",
+  "citiesSortTitle": "Sort",
+  "citiesSortUniversities": "University count",
+  "citiesSortAlphabetical": "A to Z",
+  "citiesSortPopulation": "Population",
+  "citiesUniShort": "{count} uni",
+  "@citiesUniShort": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "citiesPopulationLabel": "{value} people",
+  "@citiesPopulationLabel": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "citiesEmptyTitle": "No cities found",
+  "citiesClearFilters": "Clear filters"
 }

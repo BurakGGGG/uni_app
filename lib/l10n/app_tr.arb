@@ -1331,5 +1331,49 @@
         "type": "String"
       }
     }
-  }
+  },
+  "citiesTitle": "Şehirleri Keşfet",
+  "citiesHeroSubtitle": "{cities} şehir · {universities} üniversite",
+  "@citiesHeroSubtitle": {
+    "placeholders": {
+      "cities": {
+        "type": "String"
+      },
+      "universities": {
+        "type": "String"
+      }
+    }
+  },
+  "citiesSearchHint": "Şehir veya plaka ara…",
+  "citiesSearchClear": "Aramayı temizle",
+  "citiesFilterAll": "Tümü",
+  "citiesRegionMarmara": "Marmara",
+  "citiesRegionAegean": "Ege",
+  "citiesRegionMediterranean": "Akdeniz",
+  "citiesRegionCentral": "İç Anadolu",
+  "citiesRegionBlackSea": "Karadeniz",
+  "citiesRegionEastern": "Doğu Anadolu",
+  "citiesRegionSoutheastern": "Güneydoğu Anadolu",
+  "citiesSortTitle": "Sırala",
+  "citiesSortUniversities": "Üniversite sayısı",
+  "citiesSortAlphabetical": "A'dan Z'ye",
+  "citiesSortPopulation": "Nüfus",
+  "citiesUniShort": "{count} üni",
+  "@citiesUniShort": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "citiesPopulationLabel": "{value} nüfus",
+  "@citiesPopulationLabel": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "citiesEmptyTitle": "Şehir bulunamadı",
+  "citiesClearFilters": "Süzgeci temizle"
 }
